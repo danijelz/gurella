@@ -10,3 +10,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/gdx-1.7.1.jar,
+ lib/gdx-backend-lwjgl-1.7.1.jar,
+ lib/lwjgl-2.9.2.jar

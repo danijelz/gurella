@@ -14,7 +14,7 @@ public class EventBus {
 	private final ObjectMap<String, Array<Listener1<String>>> simpleListeners = new ObjectMap<String, Array<Listener1<String>>>();
 	private final Array<Object> eventPool = new Array<Object>();
 	
-	private static boolean processing;
+	private boolean processing;
 
 	public <LISTENER> boolean addListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
 		final Array<LISTENER> listenersByType = listenersByType(eventClass);
