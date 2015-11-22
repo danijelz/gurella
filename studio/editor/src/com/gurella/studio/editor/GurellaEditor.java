@@ -36,8 +36,8 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		// TODO Auto-generated method stub
-		
+		setSite(site);
+		setInput(input);
 	}
 
 	@Override
@@ -55,15 +55,12 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		SwtLwjglApplication application = new SwtLwjglApplication(new ApplicationListener() {
-
 			@Override
 			public void resume() {
-
 			}
 
 			@Override
 			public void resize(int width, int height) {
-
 			}
 
 			@Override
@@ -75,17 +72,14 @@ public class GurellaEditor extends EditorPart {
 
 			@Override
 			public void pause() {
-
 			}
 
 			@Override
 			public void dispose() {
-
 			}
 
 			@Override
 			public void create() {
-
 			}
 		}, parent);
 		
