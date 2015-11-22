@@ -3,6 +3,7 @@ package com.gurella.engine.application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 
+//TODO remove
 public class Units {
 	public static final float PIXELS_PER_METER = 32;
 	public static final float WIDTH_IN_METERS = Gdx.graphics.getWidth() / PIXELS_PER_METER;

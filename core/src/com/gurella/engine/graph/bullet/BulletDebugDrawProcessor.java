@@ -9,13 +9,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw.DebugDrawModes;
+import com.gurella.engine.application.Application;
 import com.gurella.engine.application.Units;
 import com.gurella.engine.application.UpdateOrder;
-import com.gurella.engine.application2.Application;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneProcessor;
-import com.gurella.engine.graph.drawable.CameraComponent;
-import com.gurella.engine.graph.drawable.OrtographicCameraNode;
+import com.gurella.engine.graph.camera.CameraComponent;
 
 public class BulletDebugDrawProcessor extends SceneProcessor {
 	private Camera camera;

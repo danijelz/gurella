@@ -1,4 +1,4 @@
-package com.gurella.engine.application2;
+package com.gurella.engine.application;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -14,7 +14,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.event.EventBus;
 import com.gurella.engine.input.InputMapper;
 import com.gurella.engine.resource.SceneElementsResourceContext;

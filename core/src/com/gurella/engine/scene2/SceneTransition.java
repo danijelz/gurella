@@ -7,7 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.gurella.engine.application2.Application;
+import com.gurella.engine.application.Application;
 
 public class SceneTransition {
 	private Scene sourceScene;

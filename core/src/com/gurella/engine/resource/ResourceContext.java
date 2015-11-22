@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.application2.Application;
+import com.gurella.engine.application.Application;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.resource.ResourceMap.ResourceMapEntry;
 

@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
+import com.gurella.engine.application.Application;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.application2.Application;
 
 public class Project implements Serializable {
 	private static final String APPLICATION_FILE_NAME_TAG = "applicationFileName";

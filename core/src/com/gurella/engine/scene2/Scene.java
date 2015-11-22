@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.application2.Application;
+import com.gurella.engine.application.Application;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneSystem;
