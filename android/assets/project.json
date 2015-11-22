@@ -1,0 +1,476 @@
+{
+initialSceneId: "TestScene1"
+backgroundColor: {
+	r: 1
+	g: 1
+	b: 1
+	a: 1
+}
+scenes: [
+	{
+		id: "TestScene1"
+		group: "Default"
+		initialSystems: [ 11 ]
+		initialNodes: [ 29, 0, 36, 37, 12 ]
+		sceneNodes: [
+			{
+				id: 0
+				name: "test1"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+					components: [ 2, 35, 20 ]
+				}
+			}
+			{
+				id: 4
+				name: "ccc"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+					components: [ 5, 6, 16, 26, 31 ]
+				}
+			}
+			{
+				id: 37
+				name: "test3"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+					components: [ 40, 41 ]
+				}
+			}
+			{
+				id: 12
+				name: "testTextureRegion"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+					components: [ 17, 18, 19 ]
+				}
+			}
+			{
+				id: 28
+				name: "test"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+				}
+			}
+			{
+				id: 29
+				name: "camera"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+					components: [ 30, 24 ]
+				}
+			}
+			{
+				id: 36
+				name: "test2"
+				model: {
+					class: "com.gurella.engine.graph.SceneNode"
+					components: [ 38, 39, 21 ]
+				}
+			}
+		]
+		sceneNodeTemplates: []
+		sceneNodeComponents: [
+			{
+				id: 1
+				model: {
+					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					spatial: false
+					priority: 0
+					pan: {
+						pan: 0.01
+					}
+					pitch: {
+						pitch: 1.01
+					}
+					dopplerFactor: 0
+					dopplerVelocity: 0
+					rollOff: 0
+					referenceDistance: 0
+					maxDistance: 0
+					innerConeAngle: {}
+					outerConeAngle: {}
+					up: {}
+					lookAt: {}
+				}
+			}
+			{
+				id: 2
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+				}
+			}
+			{
+				id: 3
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+				}
+			}
+			{
+				id: 5
+				model: {
+					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					spatial: false
+					priority: 0
+					pan: {
+						pan: 0.01
+					}
+					dopplerFactor: 0
+					dopplerVelocity: 0
+					rollOff: 0
+					referenceDistance: 0
+					maxDistance: 0
+					innerConeAngle: {}
+					outerConeAngle: {}
+					up: {}
+					lookAt: {}
+				}
+			}
+			{
+				id: 6
+				model: {
+					class: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					testVector: {}
+					testStringArray: {
+						items: [
+							"a"
+							"b"
+							"c"
+						]
+					}
+					testIntArray: {
+						items: [ 1, 2, 3 ]
+					}
+					testIntegerArray: {
+						items: [ 1, 2, 3 ]
+					}
+					testVectorArray: {
+						items: [
+							{
+								resourceType: "com.badlogic.gdx.math.Vector3"
+								properties: {
+									x: 0.01
+									y: 0.02
+									z: 0.03
+								}
+							}
+							{
+								resourceType: "com.badlogic.gdx.math.Vector3"
+								properties: {
+									x: 0.04
+									y: 0.05
+									z: 0.06
+								}
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 9
+				model: {
+					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+				}
+			}
+			{
+				id: 10
+				model: {
+					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					spatial: false
+					priority: 0
+					dopplerFactor: 0
+					dopplerVelocity: 0
+					rollOff: 0
+					referenceDistance: 0
+					maxDistance: 0
+					innerConeAngle: {}
+					outerConeAngle: {}
+					up: {}
+					lookAt: {}
+				}
+			}
+			{
+				id: 13
+				model: {
+					class: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					testVector: {}
+					testStringArray: {
+						items: []
+					}
+					testIntArray: {
+						items: []
+					}
+					testIntegerArray: {
+						items: []
+					}
+					testVectorArray: {
+						items: []
+					}
+					texture: "@TestScene1/a1.png"
+					texture1: "@TestScene1/a2.png"
+					texture2: "@TestScene1/a3.png"
+					texture3: "@TestScene1/a33.png"
+				}
+			}
+			{
+				id: 14
+				model: {
+					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+				}
+			}
+			{
+				id: 15
+				model: {
+					class: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					testVector: {}
+					testStringArray: {
+						items: []
+					}
+					testIntArray: {
+						items: []
+					}
+					testIntegerArray: {
+						items: []
+					}
+					testVectorArray: {
+						items: []
+					}
+				}
+			}
+			{
+				id: 17
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureRegionComponent"
+					tint: {
+						r: 1
+						g: 1
+						b: 1
+						a: 1
+					}
+					texture: "@TestScene1/a2.png"
+					u: 500
+					v: 500
+					u2: 600
+					v2: 600
+				}
+			}
+			{
+				id: 18
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+					translation: {
+						y: 100
+					}
+				}
+			}
+			{
+				id: 19
+				model: {
+					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					repeatable: true
+					pitch: {
+						pitch: 1.26
+					}
+				}
+			}
+			{
+				id: 20
+				model: {
+					class: "com.gurella.studio.nodes.TestInputComponnent"
+				}
+			}
+			{
+				id: 21
+				model: {
+					class: "com.gurella.studio.nodes.TestInputComponnent"
+				}
+			}
+			{
+				id: 23
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					width: 50
+					height: 50
+					tint: {
+						b: 0.2
+						a: 1
+					}
+					texture: "@TestScene1/a3.png"
+				}
+			}
+			{
+				id: 24
+				model: {
+					class: "com.gurella.engine.graph.camera.OrtographicCameraComponent"
+					renderingLayers: null
+				}
+			}
+			{
+				id: 25
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+					enabled: false
+					translation: {
+						x: 200
+					}
+					scale: {
+						x: 1
+						y: 1.6
+						z: 1
+					}
+				}
+			}
+			{
+				id: 26
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+					translation: {
+						x: -200
+					}
+				}
+			}
+			{
+				id: 27
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					width: 50
+					height: 50
+					tint: {
+						g: 0.2
+						a: 1
+					}
+					texture: "@TestScene1/a33.png"
+				}
+			}
+			{
+				id: 30
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+				}
+			}
+			{
+				id: 31
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					width: 50
+					height: 50
+					tint: {
+						r: 0.2
+						a: 1
+					}
+					texture: "@TestScene1/a2.png"
+				}
+			}
+			{
+				id: 35
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					width: 50
+					height: 50
+					dimensionsFromTexture: false
+					tint: {
+						r: 0.2
+						a: 1
+					}
+					texture: "@TestScene1/a1.png"
+				}
+			}
+			{
+				id: 38
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+					translation: {
+						x: -100
+					}
+				}
+			}
+			{
+				id: 39
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					width: 50
+					height: 50
+					dimensionsFromTexture: false
+					tint: {
+						g: 0.2
+						a: 1
+					}
+					texture: "@TestScene1/a2.png"
+				}
+			}
+			{
+				id: 40
+				model: {
+					class: "com.gurella.engine.graph.movement.TransformComponent"
+					translation: {
+						x: 100
+					}
+					eulerRotation: {
+						z: -60
+					}
+					scale: {
+						x: 1
+						y: 1.5
+						z: 1
+					}
+				}
+			}
+			{
+				id: 41
+				model: {
+					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					width: 50
+					height: 50
+					dimensionsFromTexture: false
+					tint: {
+						b: 0.2
+						a: 1
+					}
+					texture: "@TestScene1/a3.png"
+				}
+			}
+		]
+		sceneNodeComponentTemplates: []
+		sceneSystems: [
+			{
+				id: 11
+				model: {
+					class: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+				}
+			}
+		]
+		sceneSystemTemplates: []
+		assets: []
+		assetDescriptors: []
+	}
+	{
+		id: "TestScene2"
+		group: "Default"
+		initialSystems: [ 14, 15, 16 ]
+		initialNodes: [ 0, 1 ]
+		sceneNodes: []
+		sceneNodeTemplates: []
+		sceneNodeComponents: []
+		sceneNodeComponentTemplates: []
+		sceneSystems: [
+			{
+				id: 16
+				model: {
+					class: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+				}
+			}
+		]
+		sceneSystemTemplates: []
+		assets: []
+		assetDescriptors: []
+	}
+]
+sceneNodes: []
+sceneNodeTemplates: []
+sceneNodeComponents: []
+sceneNodeComponentTemplates: []
+sceneSystems: []
+sceneSystemTemplates: []
+assets: []
+assetDescriptors: []
+}

@@ -1,0 +1,1027 @@
+{
+initialSceneId: "TestScene1"
+backgroundColor: {
+	r: 1
+	g: 1
+	b: 1
+	a: 1
+}
+scenes: [
+	{
+		id: "TestScene1"
+		group: "Default"
+		initialSystems: [ 8, 11 ]
+		initialNodes: [ 29, 0, 36, 37, 12 ]
+		sceneNodes: [
+			{
+				id: 0
+				persistent: false
+				initOnStart: false
+				name: "test1"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 2
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 35
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 4
+				persistent: false
+				initOnStart: false
+				name: "ccc"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 5
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 6
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 16
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 26
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 31
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 37
+				persistent: false
+				initOnStart: false
+				name: "test3"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 40
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 41
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 12
+				persistent: false
+				initOnStart: false
+				name: "testTextureRegion"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 17
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 18
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 19
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 28
+				persistent: false
+				initOnStart: false
+				name: "test"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+				}
+			}
+			{
+				id: 29
+				persistent: false
+				initOnStart: false
+				name: "camera"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 30
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 24
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 36
+				persistent: false
+				initOnStart: false
+				name: "test2"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 38
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 39
+							}
+						]
+					}
+				}
+			}
+		]
+		sceneNodeTemplates: []
+		sceneNodeComponents: [
+			{
+				id: 1
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						spatial: false
+						priority: 0
+						pan: {
+							pan: 0.01
+						}
+						pitch: {
+							pitch: 1.01
+						}
+						dopplerFactor: 0
+						dopplerVelocity: 0
+						rollOff: 0
+						referenceDistance: 0
+						maxDistance: 0
+						innerConeAngle: {}
+						outerConeAngle: {}
+						up: {}
+						lookAt: {}
+					}
+				}
+			}
+			{
+				id: 2
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+				}
+			}
+			{
+				id: 3
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+				}
+			}
+			{
+				id: 5
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						spatial: false
+						priority: 0
+						pan: {
+							pan: 0.01
+						}
+						dopplerFactor: 0
+						dopplerVelocity: 0
+						rollOff: 0
+						referenceDistance: 0
+						maxDistance: 0
+						innerConeAngle: {}
+						outerConeAngle: {}
+						up: {}
+						lookAt: {}
+					}
+				}
+			}
+			{
+				id: 6
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					properties: {
+						testVector: {}
+						testStringArray: {
+							items: [
+								"a"
+								"b"
+								"c"
+							]
+						}
+						testIntArray: {
+							items: [ 1, 2, 3 ]
+						}
+						testIntegerArray: {
+							items: [ 1, 2, 3 ]
+						}
+						testVectorArray: {
+							items: [
+								{
+									resourceType: "com.badlogic.gdx.math.Vector3"
+									properties: {
+										x: 0.01
+										y: 0.02
+										z: 0.03
+									}
+								}
+								{
+									resourceType: "com.badlogic.gdx.math.Vector3"
+									properties: {
+										x: 0.04
+										y: 0.05
+										z: 0.06
+									}
+								}
+							]
+						}
+					}
+				}
+			}
+			{
+				id: 7
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.drawable.CameraComponent"
+				}
+			}
+			{
+				id: 9
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+				}
+			}
+			{
+				id: 10
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						spatial: false
+						priority: 0
+						dopplerFactor: 0
+						dopplerVelocity: 0
+						rollOff: 0
+						referenceDistance: 0
+						maxDistance: 0
+						innerConeAngle: {}
+						outerConeAngle: {}
+						up: {}
+						lookAt: {}
+					}
+				}
+			}
+			{
+				id: 13
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					properties: {
+						testVector: {}
+						testStringArray: {
+							items: []
+						}
+						testIntArray: {
+							items: []
+						}
+						testIntegerArray: {
+							items: []
+						}
+						testVectorArray: {
+							items: []
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a1.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+						texture1: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a2.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+						texture2: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a3.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+						texture3: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a33.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+			{
+				id: 14
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+				}
+			}
+			{
+				id: 15
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					properties: {
+						testVector: {}
+						testStringArray: {
+							items: []
+						}
+						testIntArray: {
+							items: []
+						}
+						testIntegerArray: {
+							items: []
+						}
+						testVectorArray: {
+							items: []
+						}
+					}
+				}
+			}
+			{
+				id: 16
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.drawable.CameraComponent"
+				}
+			}
+			{
+				id: 17
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureRegionComponent"
+					properties: {
+						dimensionsFromTexture: true
+						tint: {
+							r: 1
+							g: 1
+							b: 1
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a2.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+						u: 500
+						v: 500
+						u2: 600
+						v2: 600
+					}
+				}
+			}
+			{
+				id: 18
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					properties: {
+						translation: {
+							y: 100
+						}
+					}
+				}
+			}
+			{
+				id: 19
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						repeatable: true
+						pitch: {
+							pitch: 1.26
+						}
+					}
+				}
+			}
+			{
+				id: 23
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureComponent"
+					properties: {
+						width: 50
+						height: 50
+						tint: {
+							b: 0.2
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a3.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+			{
+				id: 24
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.camera.OrtographicCameraComponent"
+					properties: {
+						renderingLayers: null
+					}
+				}
+			}
+			{
+				id: 25
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					properties: {
+						enabled: false
+						translation: {
+							x: 200
+						}
+						scale: {
+							x: 1
+							y: 1.6
+							z: 1
+						}
+					}
+				}
+			}
+			{
+				id: 26
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					properties: {
+						translation: {
+							x: -200
+						}
+					}
+				}
+			}
+			{
+				id: 27
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureComponent"
+					properties: {
+						width: 50
+						height: 50
+						tint: {
+							g: 0.2
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a33.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+			{
+				id: 30
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+				}
+			}
+			{
+				id: 31
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureComponent"
+					properties: {
+						width: 50
+						height: 50
+						tint: {
+							r: 0.2
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a2.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+			{
+				id: 35
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureComponent"
+					properties: {
+						width: 50
+						height: 50
+						tint: {
+							r: 0.2
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a1.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+			{
+				id: 38
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					properties: {
+						translation: {
+							x: -100
+						}
+					}
+				}
+			}
+			{
+				id: 39
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureComponent"
+					properties: {
+						width: 50
+						height: 50
+						tint: {
+							g: 0.2
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a2.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+			{
+				id: 40
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					properties: {
+						translation: {
+							x: 100
+						}
+						eulerRotation: {
+							z: -60
+						}
+						scale: {
+							x: 1
+							y: 1.5
+							z: 1
+						}
+					}
+				}
+			}
+			{
+				id: 41
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.renderable.TextureComponent"
+					properties: {
+						width: 50
+						height: 50
+						tint: {
+							b: 0.2
+							a: 1
+						}
+						texture: {
+							class: "com.gurella.engine.resource.model.AssetId"
+							fileName: "TestScene1/a3.png"
+							assetTypeName: "com.badlogic.gdx.graphics.Texture"
+						}
+					}
+				}
+			}
+		]
+		sceneNodeComponentTemplates: []
+		sceneSystems: [
+			{
+				id: 8
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.drawable.DrawableRenderProcessor"
+				}
+			}
+			{
+				id: 11
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+				}
+			}
+		]
+		sceneSystemTemplates: []
+		assets: []
+		assetDescriptors: []
+	}
+	{
+		id: "TestScene2"
+		group: "Default"
+		initialSystems: [ 14, 15, 16 ]
+		initialNodes: [ 0, 1 ]
+		sceneNodes: [
+			{
+				id: 0
+				persistent: false
+				initOnStart: false
+				name: "zzz"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						children: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 2
+							}
+						]
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 3
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 4
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 5
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 1
+				persistent: false
+				initOnStart: false
+				name: "xxx"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 6
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 7
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 8
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 17
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 2
+				persistent: false
+				initOnStart: false
+				name: "ccc"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 9
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 10
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 11
+							}
+						]
+					}
+				}
+			}
+		]
+		sceneNodeTemplates: []
+		sceneNodeComponents: [
+			{
+				id: 3
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+				}
+			}
+			{
+				id: 4
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						spatial: false
+						priority: 0
+						dopplerFactor: 0
+						dopplerVelocity: 0
+						rollOff: 0
+						referenceDistance: 0
+						maxDistance: 0
+						innerConeAngle: {}
+						outerConeAngle: {}
+					}
+				}
+			}
+			{
+				id: 5
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					properties: {
+						testVector: {}
+						testStringArray: {
+							items: []
+						}
+						testIntArray: {
+							items: []
+						}
+						testIntegerArray: {
+							items: []
+						}
+						testVectorArray: {
+							items: []
+						}
+					}
+				}
+			}
+			{
+				id: 6
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					properties: {
+						enabled: false
+					}
+				}
+			}
+			{
+				id: 7
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						spatial: false
+						priority: 0
+						dopplerFactor: 0
+						dopplerVelocity: 0
+						rollOff: 0
+						referenceDistance: 0
+						maxDistance: 0
+						innerConeAngle: {}
+						outerConeAngle: {}
+					}
+				}
+			}
+			{
+				id: 8
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					properties: {
+						testVector: {}
+						testStringArray: {
+							items: []
+						}
+						testIntArray: {
+							items: []
+						}
+						testIntegerArray: {
+							items: []
+						}
+						testVectorArray: {
+							items: []
+						}
+					}
+				}
+			}
+			{
+				id: 9
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+				}
+			}
+			{
+				id: 10
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					properties: {
+						spatial: false
+						priority: 0
+						dopplerFactor: 0
+						dopplerVelocity: 0
+						rollOff: 0
+						referenceDistance: 0
+						maxDistance: 0
+						innerConeAngle: {}
+						outerConeAngle: {}
+					}
+				}
+			}
+			{
+				id: 11
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.studio.nodes.SceneNodePropertiesContainer$TestComponnent"
+					properties: {
+						testVector: {}
+						testStringArray: {
+							items: []
+						}
+						testIntArray: {
+							items: []
+						}
+						testIntegerArray: {
+							items: []
+						}
+						testVectorArray: {
+							items: []
+						}
+					}
+				}
+			}
+		]
+		sceneNodeComponentTemplates: []
+		sceneSystems: [
+			{
+				id: 14
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.input.InputProcessor"
+				}
+			}
+			{
+				id: 15
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.drawable.DrawableRenderProcessor"
+				}
+			}
+			{
+				id: 16
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ModelResourceFactory"
+					resourceType: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+				}
+			}
+		]
+		sceneSystemTemplates: []
+		assets: []
+		assetDescriptors: []
+	}
+]
+sceneNodes: []
+sceneNodeTemplates: []
+sceneNodeComponents: []
+sceneNodeComponentTemplates: []
+sceneSystems: []
+sceneSystemTemplates: []
+assets: []
+assetDescriptors: []
+}

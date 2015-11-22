@@ -1,0 +1,300 @@
+{
+initialSceneId: "TestScene1"
+backgroundColor: {
+	r: 1
+	g: 1
+	b: 1
+	a: 1
+}
+scenes: [
+	{
+		id: "TestScene1"
+		group: "Default"
+		initialSystems: []
+		initialNodes: [ 1111, 0, 2 ]
+		sceneNodes: [
+			{
+				id: 0
+				persistent: false
+				initOnStart: true
+				name: "01"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						enabled: true
+						components: [
+							{
+								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+								resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+								properties: {
+									enabled: false
+									audioClip: {
+										resourceType: "com.gurella.engine.audio.AudioClip"
+										properties: {
+											sound: null
+											durationMilliseconds: 1
+										}
+									}
+									spatial: false
+									repeatable: false
+									priority: 0
+									attenuation: "NONE"
+									volume: {
+										resourceType: "com.gurella.engine.audio.Volume"
+										properties: {
+											volume: 0.5
+										}
+									}
+									pan: {
+										resourceType: "com.gurella.engine.audio.Pan"
+										properties: {
+											pan: 0
+										}
+									}
+									pitch: {
+										resourceType: "com.gurella.engine.audio.Pitch"
+										properties: {
+											pitch: 1
+										}
+									}
+									dopplerFactor: 0
+									dopplerVelocity: 0
+									rollOff: 0
+									referenceDistance: 0
+									maxDistance: 0
+									innerConeAngle: {
+										resourceType: "com.gurella.engine.geometry.Angle"
+										properties: {
+											degrees: 0
+										}
+									}
+									outerConeAngle: {
+										resourceType: "com.gurella.engine.geometry.Angle"
+										properties: {
+											degrees: 0
+										}
+									}
+									outerConeVolume: {
+										resourceType: "com.gurella.engine.audio.Volume"
+										properties: {
+											volume: 0
+										}
+									}
+								}
+							}
+							{
+								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+								resourceType: "com.gurella.studio.project.SceneNodePropertiesContainer$TestComponnent"
+								properties: {
+									enabled: false
+									testVector: {
+										resourceType: "com.badlogic.gdx.math.Vector3"
+										properties: {
+											x: 1
+											y: 2
+											z: 3
+										}
+									}
+									testStringArray: {
+										resourceType: "[Ljava.lang.String;"
+										properties: {
+											items: [
+												"1"
+												"2"
+											]
+										}
+									}
+									testIntArray: {
+										resourceType: "[I"
+										properties: {
+											items: [ 1, 2 ]
+										}
+									}
+									testIntegerArray: {
+										resourceType: "[Ljava.lang.Integer;"
+										properties: {
+											items: [ 3, 4 ]
+										}
+									}
+									testVectorArray: {
+										resourceType: "[Lcom.badlogic.gdx.math.Vector3;"
+										properties: {
+											items: [
+												{
+													resourceType: "com.badlogic.gdx.math.Vector3"
+													properties: {
+														x: 1
+														y: 2
+														z: 3
+													}
+												}
+												{
+													resourceType: "com.badlogic.gdx.math.Vector3"
+													properties: {
+														x: 4
+														y: 5
+														z: 6
+													}
+												}
+											]
+										}
+									}
+								}
+							}
+							{
+								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+								resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+								properties: {
+									translation: {
+										resourceType: "com.badlogic.gdx.math.Vector3"
+										properties: {
+											x: 1
+											y: 2
+											z: 3
+										}
+									}
+									rotation: {
+										resourceType: "com.badlogic.gdx.math.Vector3"
+										properties: {
+											x: 4
+											y: 5
+											z: 6
+										}
+									}
+									scale: {
+										resourceType: "com.badlogic.gdx.math.Vector3"
+										properties: {
+											x: 7
+											y: 8
+											z: 9
+										}
+									}
+								}
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 1
+				persistent: false
+				initOnStart: false
+				name: "ddd"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						enabled: true
+					}
+				}
+			}
+			{
+				id: 2
+				persistent: false
+				initOnStart: false
+				name: "aaa1"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						enabled: true
+						components: [
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 3
+							}
+						]
+					}
+				}
+			}
+			{
+				id: 1111
+				persistent: false
+				initOnStart: true
+				name: "00"
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+					resourceType: "com.gurella.engine.graph.SceneNode"
+					properties: {
+						enabled: true
+						children: [
+							{
+								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+								resourceType: "com.gurella.engine.graph.SceneNode"
+								properties: {
+									enabled: true
+								}
+							}
+							{
+								class: "com.gurella.engine.resource.model.ResourceId"
+								id: 1
+							}
+						]
+						components: []
+					}
+				}
+			}
+		]
+		sceneNodeTemplates: []
+		sceneNodeComponents: [
+			{
+				id: 3
+				persistent: false
+				initOnStart: false
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					properties: {
+						translation: {
+							resourceType: "com.badlogic.gdx.math.Vector3"
+							properties: {
+								x: 0.01
+								y: 0.02
+								z: 0.03
+							}
+						}
+						rotation: {
+							resourceType: "com.badlogic.gdx.math.Vector3"
+							properties: {
+								x: 0.04
+								y: 0.05
+								z: 0.06
+							}
+						}
+						scale: {
+							resourceType: "com.badlogic.gdx.math.Vector3"
+							properties: {
+								x: 0.07
+								y: 0.08
+								z: 0.09
+							}
+						}
+					}
+				}
+			}
+			{
+				id: 2222
+				persistent: false
+				initOnStart: true
+				resourceFactory: {
+					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
+					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					properties: {
+						enabled: false
+					}
+				}
+			}
+		]
+		sceneNodeComponentTemplates: []
+		sceneSystems: []
+		sceneSystemTemplates: []
+	}
+]
+sceneNodes: []
+sceneNodeTemplates: []
+sceneNodeComponents: []
+sceneNodeComponentTemplates: []
+sceneSystems: []
+sceneSystemTemplates: []
+}
