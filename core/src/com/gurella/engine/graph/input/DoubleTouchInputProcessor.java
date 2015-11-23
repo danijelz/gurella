@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethod;
+import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.utils.IntLongMap;
 
 public class DoubleTouchInputProcessor implements PointerActivityListener {
@@ -88,7 +88,7 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(ScriptMethod.doubleTouchDown)) {
+		for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(DefaultScriptMethod.doubleTouchDown)) {
 			scriptComponent.doubleTouchDown(touchEvent);
 		}
 
@@ -96,10 +96,10 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(ScriptMethod.onDoubleTouchResolved)) {
+			for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(DefaultScriptMethod.onDoubleTouchResolved)) {
 				scriptComponent.onDoubleTouch(renderableComponent, intersectionTouchEvent);
 			}
-			for (ScriptComponent scriptComponent : inputSystem.getNodeScriptsByMethod(node, ScriptMethod.onDoubleTouch)) {
+			for (ScriptComponent scriptComponent : inputSystem.getNodeScriptsByMethod(node, DefaultScriptMethod.onDoubleTouch)) {
 				scriptComponent.onDoubleTouch(intersectionTouchEvent);
 			}
 

@@ -400,6 +400,10 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	// TODO box2d physics
 
 	// TODO animation
+	
+	public boolean onMessage(Object sender, Object messageType, Object messageData) {
+		return false;
+	}
 
 	// //////////TODO METHODS
 	public void sendMessage(Object message) {

@@ -1,6 +1,13 @@
 package com.gurella.studio.editor;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.opengl.GLCanvas;
@@ -86,6 +93,20 @@ public class GurellaEditor extends EditorPart {
 		
 		center = application.getGraphics().getGlCanvas();
 		center.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		IResource resource = getEditorInput().getAdapter(IResource.class);
+		IProject project = resource.getProject();
+		
+		IJavaProject javaProject = JavaCore.create(project);
+		IType lwType = null;
+		IField[] fields = null;
+		try {
+			lwType = javaProject.findType("asdasdasd.TestDdd");
+			fields = lwType.getFields();
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

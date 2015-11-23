@@ -23,7 +23,6 @@ public class EventBus {
 				return false;
 			} else {
 				listenersByType.add(listener);
-				//TODO Ordered.getOrder() should be replaced with something more meaningful
 				if (listener instanceof Ordered) {
 					listenersByType.sort(ListenersComparator.instance);
 				}
@@ -66,8 +65,10 @@ public class EventBus {
 	private <LISTENER> void notifyListeners(final Event<LISTENER> event) {
 		@SuppressWarnings("unchecked")
 		Class<Event<LISTENER>> eventClass = (Class<Event<LISTENER>>) event.getClass();
+		final Array<LISTENER> listenersByType = listenersByType(eventClass);
 
-		for (LISTENER listener : listenersByType(eventClass)) {
+		for (int i = 0; i < listenersByType.size; i++) {
+			LISTENER listener = listenersByType.get(i);
 			event.notify(listener);
 		}
 
@@ -92,7 +93,6 @@ public class EventBus {
 				return false;
 			} else {
 				listenersByType.add(listener);
-				//TODO Ordered.getOrder() should be replaced with something more meaningful
 				if (listener instanceof Ordered) {
 					listenersByType.sort(ListenersComparator.instance);
 				}
@@ -135,7 +135,7 @@ public class EventBus {
 		final Array<Listener1<String>> listenersByType = simpleListenersByType(evenType);
 
 		for (int i = 0; i < listenersByType.size; i++) {
-			Listener1<String> listener = listenersByType.get(0);
+			Listener1<String> listener = listenersByType.get(i);
 			listener.handle(evenType);
 		}
 

@@ -7,7 +7,9 @@ Bundle-Activator: com.gurella.studio.editor.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.eclipse.jdt.core;bundle-version="3.11.1",
+ org.eclipse.core.resources;bundle-version="3.10.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

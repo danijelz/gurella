@@ -1,17 +1,17 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.ScriptMethod.onDragEnd;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragEndResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragMove;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragMoveResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragOverEnd;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragOverEndResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragOverMove;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragOverMoveResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragOverStartResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragStart;
-import static com.gurella.engine.graph.script.ScriptMethod.onDragStartResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.touchDragged;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragEnd;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragEndResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragMove;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragMoveResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverEnd;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverEndResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverMove;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverMoveResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverStartResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragStart;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragStartResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.touchDragged;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graph.SceneNode;

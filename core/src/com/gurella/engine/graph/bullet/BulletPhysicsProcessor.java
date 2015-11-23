@@ -20,7 +20,7 @@ import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
 import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethod;
+import com.gurella.engine.graph.script.DefaultScriptMethod;
 
 public class BulletPhysicsProcessor extends SceneProcessorManager {
 	private btCollisionConfiguration collisionConfig;
@@ -88,7 +88,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	private void dispatchSimulationStartEvent() {
 		SceneGraph graph = getGraph();
 		for (ScriptComponent scriptComponent : graph.scriptManager
-				.getScriptComponents(ScriptMethod.onPhysicsSimulationStart)) {
+				.getScriptComponents(DefaultScriptMethod.onPhysicsSimulationStart)) {
 			scriptComponent.onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
@@ -96,7 +96,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	private void dispatchSimulationEndEvent() {
 		SceneGraph graph = getGraph();
 		for (ScriptComponent scriptComponent : graph.scriptManager
-				.getScriptComponents(ScriptMethod.onPhysicsSimulationEnd)) {
+				.getScriptComponents(DefaultScriptMethod.onPhysicsSimulationEnd)) {
 			scriptComponent.onPhysicsSimulationEnd(dynamicsWorld);
 		}
 	}

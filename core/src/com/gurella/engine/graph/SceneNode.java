@@ -4,6 +4,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
+import com.badlogic.gdx.utils.OrderedSet;
+import com.gurella.engine.graph.script.ScriptComponent;
+import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
@@ -11,7 +14,6 @@ import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal1.Signal1Impl;
 
-//TODO add local event bus
 //TODO make SceneNodeSignal usable
 public class SceneNode extends SceneGraphElement {
 	@TransientProperty
@@ -41,8 +43,6 @@ public class SceneNode extends SceneGraphElement {
 	public final Signal1Impl<SceneNodeComponent> componentDeactivatedSignal = new Signal1Impl<SceneNodeComponent>();
 	@TransientProperty
 	public final NodeChangedSignal nodeChangedSignal = new NodeChangedSignal();
-
-	// TODO public final EventBus eventBus = new EventBus();
 
 	public SceneNode getParent() {
 		return parent;
@@ -209,6 +209,24 @@ public class SceneNode extends SceneGraphElement {
 		} else {
 			throw new IllegalStateException("Child is not owned by node.");
 		}
+	}
+	
+	public void sendMessage(Object sender, Object messageType, Object messageData) {
+		if (graph != null) {
+			Array<ScriptComponent> listeners = graph.scriptManager.getNodeScriptsByMethod(this, DefaultScriptMethod.onMessage).orderedItems();
+			for(int i = 0; i < listeners.size; i++) {
+				ScriptComponent listener = listeners.get(i);
+				listener.onMessage(sender, messageType, messageData);
+			}
+		}
+	}
+
+	public void sendMessageToChildren(Object message) {
+		//TODO
+	}
+
+	public void sendMessageToParents(Object message) {
+		//TODO
 	}
 
 	@Override

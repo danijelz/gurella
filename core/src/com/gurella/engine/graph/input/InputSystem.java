@@ -3,18 +3,18 @@ package com.gurella.engine.graph.input;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.begin;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.end;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.move;
-import static com.gurella.engine.graph.script.ScriptMethod.keyDown;
-import static com.gurella.engine.graph.script.ScriptMethod.keyTyped;
-import static com.gurella.engine.graph.script.ScriptMethod.keyUp;
-import static com.gurella.engine.graph.script.ScriptMethod.onScrolledResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onTouchDown;
-import static com.gurella.engine.graph.script.ScriptMethod.onTouchDownResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onTouchUp;
-import static com.gurella.engine.graph.script.ScriptMethod.onTouchUpResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.scrolled;
-import static com.gurella.engine.graph.script.ScriptMethod.touchDown;
-import static com.gurella.engine.graph.script.ScriptMethod.touchDragged;
-import static com.gurella.engine.graph.script.ScriptMethod.touchUp;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.keyDown;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.keyTyped;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.keyUp;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onScrolledResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchDown;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchDownResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchUp;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchUpResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.scrolled;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.touchDown;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.touchDragged;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.touchUp;
 
 import java.util.Arrays;
 
@@ -44,7 +44,7 @@ import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.graph.script.ScriptManager;
-import com.gurella.engine.graph.script.ScriptMethod;
+import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.pools.SynchronizedPools;
@@ -350,11 +350,11 @@ public class InputSystem extends SceneProcessor implements SceneGraphListener {
 		return trackers.get(key);
 	}
 
-	OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethod method) {
+	OrderedSet<ScriptComponent> getScriptsByMethod(DefaultScriptMethod method) {
 		return scriptManager.getScriptsByMethod(method);
 	}
 
-	OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethod method) {
+	OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, DefaultScriptMethod method) {
 		return scriptManager.getNodeScriptsByMethod(node, method);
 	}
 

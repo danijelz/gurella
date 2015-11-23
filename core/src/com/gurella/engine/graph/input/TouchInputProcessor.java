@@ -1,11 +1,11 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.ScriptMethod.longPress;
-import static com.gurella.engine.graph.script.ScriptMethod.onLongPress;
-import static com.gurella.engine.graph.script.ScriptMethod.onLongPressResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onTap;
-import static com.gurella.engine.graph.script.ScriptMethod.onTapResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.tap;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.longPress;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onLongPress;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onLongPressResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onTap;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onTapResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.tap;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;

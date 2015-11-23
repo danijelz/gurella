@@ -1,7 +1,7 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.ScriptMethod.getDragSource;
-import static com.gurella.engine.graph.script.ScriptMethod.getDropTarget;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.getDragSource;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.getDropTarget;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;

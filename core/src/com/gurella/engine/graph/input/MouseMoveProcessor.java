@@ -1,11 +1,11 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.ScriptMethod.mouseMoved;
-import static com.gurella.engine.graph.script.ScriptMethod.onMouseOverEnd;
-import static com.gurella.engine.graph.script.ScriptMethod.onMouseOverEndResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onMouseOverMove;
-import static com.gurella.engine.graph.script.ScriptMethod.onMouseOverMoveResolved;
-import static com.gurella.engine.graph.script.ScriptMethod.onMouseOverStartResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.mouseMoved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverEnd;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverEndResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverMove;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverMoveResolved;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverStartResolved;
 
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graph.SceneNode;

@@ -19,6 +19,7 @@ import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;
 
+//TODO return null values
 public class ScriptManager extends GraphListenerSystem {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
 
@@ -101,7 +102,7 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static void addNodeListenerMethod(int methodId, ScriptComponent scriptComponent) {
-		ScriptMethod method = ScriptMethod.values()[methodId];
+		DefaultScriptMethod method = DefaultScriptMethod.values()[methodId];
 		switch (method) {
 		case nodeComponentAdded:
 			NodeComponentAddedListener.obtain(scriptComponent);
@@ -145,7 +146,7 @@ public class ScriptManager extends GraphListenerSystem {
 		}
 	}
 
-	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethod method) {
+	public OrderedSet<ScriptComponent> getScriptsByMethod(DefaultScriptMethod method) {
 		return getScriptsByMethod(method.ordinal());
 	}
 
@@ -158,7 +159,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethod method) {
+	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, DefaultScriptMethod method) {
 		return node == null
 				? null
 				: getNodeScriptsByMethod(node.id, method.ordinal());
@@ -179,7 +180,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getScriptComponents(ScriptMethod scriptMethod) {
+	public OrderedSet<ScriptComponent> getScriptComponents(DefaultScriptMethod scriptMethod) {
 		return getScriptsByMethod(scriptMethod.ordinal());
 	}
 
@@ -190,7 +191,7 @@ public class ScriptManager extends GraphListenerSystem {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != ScriptComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					ScriptMethod scriptMethod = ScriptMethod.valueOf(method);
+					DefaultScriptMethod scriptMethod = DefaultScriptMethod.valueOf(method);
 					if (scriptMethod != null) {
 						methods.add(scriptMethod.ordinal());
 					}
@@ -209,7 +210,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onInput)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onInput)) {
 				scriptComponent.onInput();
 			}
 		}
@@ -223,7 +224,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onThink)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onThink)) {
 				scriptComponent.onThink();
 			}
 		}
@@ -237,7 +238,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onPreRender)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onPreRender)) {
 				scriptComponent.onPreRender();
 			}
 		}
@@ -251,7 +252,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onRender)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onRender)) {
 				scriptComponent.onRender();
 			}
 		}
@@ -265,7 +266,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onDebugRender)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onDebugRender)) {
 				scriptComponent.onDebugRender();
 			}
 		}
@@ -279,7 +280,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onAfterRender)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onAfterRender)) {
 				scriptComponent.onAfterRender();
 			}
 		}
@@ -293,7 +294,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onCleanup)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onCleanup)) {
 				scriptComponent.onCleanup();
 			}
 		}
@@ -302,28 +303,28 @@ public class ScriptManager extends GraphListenerSystem {
 	private class ScriptSceneGraphListener implements SceneGraphListener {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.componentActivated)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentActivated)) {
 				scriptComponent.componentActivated(component);
 			}
 		}
 
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.componentDeactivated)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentDeactivated)) {
 				scriptComponent.componentDeactivated(component);
 			}
 		}
 
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.componentAdded)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentAdded)) {
 				scriptComponent.componentAdded(component);
 			}
 		}
 
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.componentRemoved)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentRemoved)) {
 				scriptComponent.componentRemoved(component);
 			}
 		}
@@ -332,7 +333,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onSceneStart)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onSceneStart)) {
 				scriptComponent.onSceneStart();
 			}
 		}
@@ -341,7 +342,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onSceneStop)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onSceneStop)) {
 				scriptComponent.onSceneStop();
 			}
 		}
@@ -350,7 +351,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onPause)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onPause)) {
 				scriptComponent.onPause();
 			}
 		}
@@ -359,7 +360,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(ScriptMethod.onResume)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onResume)) {
 				scriptComponent.onPause();
 			}
 		}

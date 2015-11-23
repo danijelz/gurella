@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethod;
+import com.gurella.engine.graph.script.DefaultScriptMethod;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
@@ -64,30 +64,30 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 
 		if (previousTickCollisionPairs.contains(cachedCollisionPair)) {
 			rigidBodyComponent0.collisionSignal.onCollisionStay(collision0);
-			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent0, ScriptMethod.onCollisionStay)) {
+			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent0, DefaultScriptMethod.onCollisionStay)) {
 				scriptComponent.onCollisionStay(collision0);
 			}
 
 			rigidBodyComponent1.collisionSignal.onCollisionStay(collision1);
-			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent1, ScriptMethod.onCollisionStay)) {
+			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent1, DefaultScriptMethod.onCollisionStay)) {
 				scriptComponent.onCollisionStay(collision1);
 			}
 
-			for (ScriptComponent scriptComponent : getScripts(ScriptMethod.onCollisionStayGlobal)) {
+			for (ScriptComponent scriptComponent : getScripts(DefaultScriptMethod.onCollisionStayGlobal)) {
 				scriptComponent.onCollisionStay(collisionPair);
 			}
 		} else {
 			rigidBodyComponent0.collisionSignal.onCollisionEnter(collision0);
-			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent0, ScriptMethod.onCollisionEnter)) {
+			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent0, DefaultScriptMethod.onCollisionEnter)) {
 				scriptComponent.onCollisionEnter(collision0);
 			}
 
 			rigidBodyComponent1.collisionSignal.onCollisionEnter(collision1);
-			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent1, ScriptMethod.onCollisionEnter)) {
+			for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent1, DefaultScriptMethod.onCollisionEnter)) {
 				scriptComponent.onCollisionEnter(collision1);
 			}
 
-			for (ScriptComponent scriptComponent : getScripts(ScriptMethod.onCollisionEnterGlobal)) {
+			for (ScriptComponent scriptComponent : getScripts(DefaultScriptMethod.onCollisionEnterGlobal)) {
 				scriptComponent.onCollisionEnter(collisionPair);
 			}
 		}
@@ -112,22 +112,22 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
 
 		rigidBodyComponent0.collisionSignal.onCollisionExit(rigidBodyComponent1);
-		for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent0, ScriptMethod.onCollisionExit)) {
+		for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent0, DefaultScriptMethod.onCollisionExit)) {
 			scriptComponent.onCollisionExit(rigidBodyComponent1);
 		}
 
 		rigidBodyComponent1.collisionSignal.onCollisionExit(rigidBodyComponent0);
-		for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent1, ScriptMethod.onCollisionExit)) {
+		for (ScriptComponent scriptComponent : getNodeScripts(rigidBodyComponent1, DefaultScriptMethod.onCollisionExit)) {
 			scriptComponent.onCollisionExit(rigidBodyComponent0);
 		}
 
-		for (ScriptComponent scriptComponent : getScripts(ScriptMethod.onCollisionExitGlobal)) {
+		for (ScriptComponent scriptComponent : getScripts(DefaultScriptMethod.onCollisionExitGlobal)) {
 			scriptComponent.onCollisionExit(rigidBodyComponent0, rigidBodyComponent1);
 		}
 	}
 
 	private OrderedSet<ScriptComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
-			ScriptMethod scriptMethod) {
+			DefaultScriptMethod scriptMethod) {
 		return graph.scriptManager.getNodeScriptsByMethod(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
@@ -138,12 +138,12 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private void fireSimulationStepEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
-		for (ScriptComponent scriptComponent : getScripts(ScriptMethod.onPhysicsSimulationStep)) {
+		for (ScriptComponent scriptComponent : getScripts(DefaultScriptMethod.onPhysicsSimulationStep)) {
 			scriptComponent.onPhysicsSimulationStep(dynamicsWorld, timeStep);
 		}
 	}
 
-	private OrderedSet<ScriptComponent> getScripts(ScriptMethod method) {
+	private OrderedSet<ScriptComponent> getScripts(DefaultScriptMethod method) {
 		return graph.scriptManager.getScriptComponents(method);
 	}
 
