@@ -4,9 +4,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.badlogic.gdx.utils.OrderedSet;
-import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.graph.script.DefaultScriptMethod;
+import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
@@ -75,11 +74,12 @@ public class SceneNode extends SceneGraphElement {
 
 	@Override
 	public final void dispose() {
-		for (SceneNode child : new Array<SceneNode>(children)) {
+		for (int i = 0; i < children.size; i++) {
+			SceneNode child = children.get(i);
 			child.dispose();
 		}
 
-		for (SceneNodeComponent component : components.values().toArray()) {
+		for (SceneNodeComponent component : components.values()) {
 			component.dispose();
 		}
 
@@ -211,7 +211,7 @@ public class SceneNode extends SceneGraphElement {
 		}
 	}
 	
-	public void sendMessage(Object sender, Object messageType, Object messageData) {
+	public void broadcastMessage(Object sender, Object messageType, Object messageData) {
 		if (graph != null) {
 			Array<ScriptComponent> listeners = graph.scriptManager.getNodeScriptsByMethod(this, DefaultScriptMethod.onMessage).orderedItems();
 			for(int i = 0; i < listeners.size; i++) {
@@ -221,12 +221,19 @@ public class SceneNode extends SceneGraphElement {
 		}
 	}
 
-	public void sendMessageToChildren(Object message) {
-		//TODO
+	public void broadcastMessageToChildren(Object sender, Object messageType, Object messageData) {
+		broadcastMessage(sender, messageType, messageData);
+		for (int i = 0; i < children.size; i++) {
+			SceneNode child = children.get(i);
+			child.broadcastMessageToChildren(sender, messageType, messageData);
+		}
 	}
 
-	public void sendMessageToParents(Object message) {
-		//TODO
+	public void broadcastMessageToParents(Object sender, Object messageType, Object messageData) {
+		broadcastMessage(sender, messageType, messageData);
+		if(parent != null) {
+			parent.broadcastMessageToParents(sender, messageType, messageData);
+		}
 	}
 
 	@Override

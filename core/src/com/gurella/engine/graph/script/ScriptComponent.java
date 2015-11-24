@@ -459,18 +459,18 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 		return null;
 	}
 
-	public void broadcastMessage(String methodName, Object... parameters) {
-
+	public void broadcastMessage(Object messageType, Object messageData) {
+		getNode().broadcastMessage(this, messageType, messageData);
 	}
 
 	// Calls the method named methodName on every Component in this node or any
 	// of its children.
-	public void broadcastMessageToChildren(String methodName, Object... parameters) {
-
+	public void broadcastMessageToChildren(Object messageType, Object messageData) {
+		getNode().broadcastMessageToChildren(this, messageType, messageData);
 	}
 
-	public void broadcastMessageToParents(String methodName, Object... parameters) {
-
+	public void broadcastMessageToParents(Object messageType, Object messageData) {
+		getNode().broadcastMessageToParents(this, messageType, messageData);
 	}
 
 	public <T> void runAssync(final AsyncRequest<T> request) {
