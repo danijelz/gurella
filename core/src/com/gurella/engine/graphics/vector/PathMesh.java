@@ -244,6 +244,15 @@ class PathMesh implements PathConstants, Poolable {
 	}
 
 	private void setupStrokeUniforms(GlCall strokeCall) {
+		//TODO https://github.com/memononen/nanovg/blob/master/src/nanovg.c#L2119
+//		if (strokeWidth < ctx->fringeWidth) {
+//			// If the stroke width is less than pixel size, use alpha to emulate coverage.
+//			// Since coverage is area, scale by alpha*alpha.
+//			float alpha = nvg__clampf(strokeWidth / ctx->fringeWidth, 0.0f, 1.0f);
+//			strokePaint.innerColor.a *= alpha*alpha;
+//			strokePaint.outerColor.a *= alpha*alpha;
+//			strokeWidth = ctx->fringeWidth;
+//		}
 		CanvasState state = canvas.currentState;
 		strokeCall.newUniform(state.xform, state.globalAlpha, state.scissor, state.strokePaint, state.strokeWidth, canvas.fringeWidth, -1.0f);
 		if (canvas.isStencilStrokes()) {

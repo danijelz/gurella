@@ -106,10 +106,6 @@ public class SwtLwjglGraphics implements Graphics {
 		return Math.max(1, canvas.getSize().x);
 	}
 
-	public boolean isGL20Available() {
-		return gl20 != null;
-	}
-
 	@Override
 	public long getFrameId() {
 		return frameId;
@@ -153,10 +149,10 @@ public class SwtLwjglGraphics implements Graphics {
 			glCanvas.setCurrent();
 			GLContext.useContext(glCanvas);
 		}
-		initiateGLInstances();
+		initiateGlInstances();
 	}
 
-	public void initiateGLInstances() {
+	public void initiateGlInstances() {
 		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
 		major = Integer.parseInt("" + version.charAt(0));
 		minor = Integer.parseInt("" + version.charAt(2));

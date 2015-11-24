@@ -1,5 +1,6 @@
 package com.gurella.engine.graphics.vector;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -106,7 +107,18 @@ class PathComponent implements PathConstants, Poolable {
 	}
 
 	float getStrokeWidth() {
-		float strokeWidth = canvas.getStrokeWidth() * 0.5f;
+		//TODO https://github.com/memononen/nanovg/blob/master/src/nanovg.c#L2119
+//		if (strokeWidth < ctx->fringeWidth) {
+//			// If the stroke width is less than pixel size, use alpha to emulate coverage.
+//			// Since coverage is area, scale by alpha*alpha.
+//			float alpha = nvg__clampf(strokeWidth / ctx->fringeWidth, 0.0f, 1.0f);
+//			strokePaint.innerColor.a *= alpha*alpha;
+//			strokePaint.outerColor.a *= alpha*alpha;
+//			strokeWidth = ctx->fringeWidth;
+//		}
+		CanvasState canvasState = canvas.currentState;
+		float scale = canvasState.xform.getAverageScale();
+		float strokeWidth = MathUtils.clamp(canvasState.strokeWidth * scale, 0.0f, 200.0f) * 0.5f;
 		return canvas.isAntiAlias() ? strokeWidth + canvas.fringeWidth * 0.5f : strokeWidth;
 	}
 	
