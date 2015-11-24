@@ -23,6 +23,8 @@ class CanvasState implements Poolable {
 	final FloatArray dashArray = new FloatArray();
 	final Array<Clip> clips = new Array<Clip>();
 	Font font;// TODO default
+	
+	float calibratedStrokeWidth = Float.NaN;
 
 	static CanvasState obtain() {
 		return Pools.obtain(CanvasState.class);
@@ -103,5 +105,6 @@ class CanvasState implements Poolable {
 		dashArray.clear();
 		clips.clear();
 		font = null;
+		calibratedStrokeWidth = Float.NaN;
 	}
 }
