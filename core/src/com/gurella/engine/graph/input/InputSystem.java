@@ -122,6 +122,7 @@ public class InputSystem extends SceneProcessor implements SceneGraphListener {
 	}
 
 	private void resetData() {
+		//TODO update listeners and finish actions
 		inputProcessorQueue.setProcessor(dummyDelegate);
 		inputProcessorQueue.drain();
 		inputProcessorQueue.setProcessor(delegate);

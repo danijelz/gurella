@@ -197,7 +197,7 @@ public class SceneGraph implements UpdateListener {
 		component.node = node;
 
 		node.components.put(component.getComponentType(), component);
-		node.componentBits.set(component.componentType);
+		node.componentBits.set(component.baseComponentType);
 		attachElement(component);
 		sceneGraphListenerSignal.componentAdded(component);
 		node.nodeChangedSignal.componentAdded(component);
@@ -216,7 +216,7 @@ public class SceneGraph implements UpdateListener {
 		if (!component.active && component.isHierarchyEnabled() && component.node.active) {
 			component.active = true;
 			activeComponents.add(component);
-			component.node.componentBits.set(component.componentType);
+			component.node.componentBits.set(component.baseComponentType);
 			component.lifecycleSignal.activated();
 			sceneGraphListenerSignal.componentActivated(component);
 			component.node.componentActivatedSignal.dispatch(component);
@@ -235,7 +235,7 @@ public class SceneGraph implements UpdateListener {
 		if (component.active) {
 			component.active = false;
 			component.lifecycleSignal.deactivated();
-			component.node.componentBits.clear(component.componentType);
+			component.node.componentBits.clear(component.baseComponentType);
 			activeComponents.removeValue(component, true);
 			sceneGraphListenerSignal.componentDeactivated(component);
 			component.node.componentDeactivatedSignal.dispatch(component);
@@ -260,7 +260,7 @@ public class SceneGraph implements UpdateListener {
 		component.graph = null;
 
 		node.components.remove(component.getComponentType());
-		node.componentBits.clear(component.componentType);
+		node.componentBits.clear(component.baseComponentType);
 		allComponents.removeValue(component, true);
 	}
 

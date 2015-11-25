@@ -14,7 +14,7 @@ import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal1.Signal1Impl;
 
 //TODO make SceneNodeSignal usable
-public class SceneNode extends SceneGraphElement {
+public final class SceneNode extends SceneGraphElement {
 	@TransientProperty
 	SceneNode parent;
 
@@ -120,7 +120,7 @@ public class SceneNode extends SceneGraphElement {
 			}
 
 			components.put(componentType, component);
-			componentBits.set(component.componentType);
+			componentBits.set(component.baseComponentType);
 			nodeChangedSignal.componentAdded(component);
 		} else {
 			graph.addComponent(this, component);
@@ -128,7 +128,7 @@ public class SceneNode extends SceneGraphElement {
 	}
 
 	public void removeComponent(Class<? extends SceneNodeComponent> componentType) {
-		removeComponent(SceneNodeComponent.getImplementationComponentType(componentType));
+		removeComponent(SceneNodeComponent.getComponentType(componentType));
 	}
 
 	public void removeComponent(int componentType) {
@@ -136,7 +136,7 @@ public class SceneNode extends SceneGraphElement {
 			SceneNodeComponent removed = components.remove(componentType);
 			if (removed != null) {
 				nodeChangedSignal.componentRemoved(removed);
-				componentBits.clear(removed.componentType);
+				componentBits.clear(removed.baseComponentType);
 			}
 		} else {
 			SceneNodeComponent component = components.get(componentType);
@@ -147,7 +147,7 @@ public class SceneNode extends SceneGraphElement {
 	}
 
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componentClass) {
-		return getComponent(SceneNodeComponent.getImplementationComponentType(componentClass));
+		return getComponent(SceneNodeComponent.getComponentType(componentClass));
 	}
 
 	public <T extends SceneNodeComponent> T getActiveComponent(Class<T> componentClass) {

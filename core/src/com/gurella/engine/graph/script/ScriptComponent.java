@@ -564,6 +564,8 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 		void onSuccess(T value);
 
 		void onError(Throwable error);
+		
+		void cancle();
 	}
 
 	public abstract class Action {

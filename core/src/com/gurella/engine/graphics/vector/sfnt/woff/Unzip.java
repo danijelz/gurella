@@ -29,7 +29,7 @@ public class Unzip {
 	private static final int[] border = new int[] { 16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 };
 
 	private byte[] barray;
-	private int SIZE, fmax;
+	private int fmax;
 	private int[] flens;
 	private byte[] outputArr;
 	private int outputPos;
@@ -37,9 +37,7 @@ public class Unzip {
 	private int bIdx = 0;
 	private int barraylen;
 	private int bytepos = 0;
-	private int bitpos = 0;
 	private int bb = 1;
-	private int bits = 0;
 	private HufNode[] literalTree = new HufNode[288];
 	private HufNode[] distanceTree = new HufNode[32];
 	private int treepos = 0;
@@ -58,8 +56,6 @@ public class Unzip {
 	}
 
 	private int readByte() {
-		bits += 8;
-
 		if (bytepos < barraylen) {
 			return barray[bytepos++];
 		}
@@ -74,7 +70,6 @@ public class Unzip {
 	private int readBit() {
 		int carry;
 
-		bits++;
 		carry = (bb & 1);
 		bb >>= 1;
 
@@ -106,7 +101,6 @@ public class Unzip {
 	}
 
 	private void addBuffer(int a) {
-		SIZE++;
 		buf32k[bIdx++] = a;
 		outputArr[outputPos++] = (byte) a;
 
