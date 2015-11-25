@@ -70,21 +70,21 @@ public class ComponentsPredicate implements Predicate<SceneNode>, Poolable {
 			this.activeComponents = activeComponents;
 		}
 
-		public Builder all(Class<? extends SceneNodeComponent>... types) {
+		public Builder all(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
 			for (Class<? extends SceneNodeComponent> t : types) {
 				all.add(t);
 			}
 			return this;
 		}
 
-		public Builder one(Class<? extends SceneNodeComponent>... types) {
+		public Builder one(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
 			for (Class<? extends SceneNodeComponent> t : types) {
 				one.add(t);
 			}
 			return this;
 		}
 
-		public Builder exclude(Class<? extends SceneNodeComponent>... types) {
+		public Builder exclude(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
 			for (Class<? extends SceneNodeComponent> t : types) {
 				exclude.add(t);
 			}
