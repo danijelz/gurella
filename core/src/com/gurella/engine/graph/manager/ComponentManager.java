@@ -4,45 +4,48 @@ import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.GraphListenerSystem;
-import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class ComponentManager extends GraphListenerSystem {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	@Override
+	public void componentAdded(SceneNodeComponent component) {
+		handleComponent(component);
+	}
+
+	@Override
 	public void componentActivated(SceneNodeComponent component) {
+		handleComponent(component);
+	}
+
+	private void handleComponent(SceneNodeComponent component) {
 		for (FamilyComponents<?> familyComponents : families.values()) {
-			familyComponents.add(component);
+			familyComponents.handle(component);
 		}
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
+		handleComponent(component);
+	}
+
+	@Override
+	public void componentRemoved(SceneNodeComponent component) {
 		for (FamilyComponents<?> familyComponents : families.values()) {
 			familyComponents.remove(component);
 		}
 	}
 
-	public Array<SceneNodeComponent> getComponents(int componentType, Comparator<SceneNodeComponent> comparator) {
-		if (comparator == null) {
-			return null;
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType == null) {
-			return null;
-		}
-
-		ComponentGroupKey tempKey = componentGroupKeyPool.obtain(componentType, comparator);
-		ComponentGroup componentGroup = groupsByType.get(tempKey);
-		Array<SceneNodeComponent> groupComponents = componentGroup == null ? null : componentGroup.components;
-		componentGroupKeyPool.free(tempKey);
-		return groupComponents;
+	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily<T> family) {
+		@SuppressWarnings("unchecked")
+		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.get(family.id);
+		return familyComponents == null ? ImmutableArray.<T> empty() : familyComponents.immutableComponents;
 	}
 
 	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily<T> family) {
@@ -50,107 +53,51 @@ public class ComponentManager extends GraphListenerSystem {
 			return;
 		}
 
-		FamilyComponents<T> familyComponents = new FamilyComponents<T>();
+		@SuppressWarnings("unchecked")
+		FamilyComponents<T> familyComponents = Pools.obtain(FamilyComponents.class);
 		families.put(family.id, familyComponents);
 
-		Array<SceneNodeComponent> components = getGraph().allComponents;
-		for (int i = 0; i < components.size; i++) {
-			familyComponents.add(components.get(i));
+		ImmutableArray<SceneNodeComponent> components = getGraph().allComponents;
+		for (int i = 0; i < components.size(); i++) {
+			familyComponents.handle(components.get(i));
 		}
 	}
 
-	public void unregisterComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		unregisterComponentType(SceneNodeComponent.getComponentType(componentClass));
-	}
-
-	public void unregisterComponentType(int componentType) {
-		components.remove(componentType);
-	}
-
-	public void registerComponentGroup(Class<? extends SceneNodeComponent> componentClass,
-			Comparator<SceneNodeComponent> comparator) {
-		registerComponentGroup(SceneNodeComponent.getComponentType(componentClass), comparator);
-	}
-
-	public void registerComponentGroup(int componentType, Comparator<SceneNodeComponent> comparator) {
-		if (comparator == null) {
-			return;
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType == null) {
-			groupsByType = new ObjectMap<ComponentGroupKey, ComponentGroup>();
-			componentGroups.put(componentType, new ObjectMap<ComponentGroupKey, ComponentGroup>());
-		}
-
-		ComponentGroupKey key = componentGroupKeyPool.obtain(componentType, comparator);
-		ComponentGroup componentGroup = groupsByType.get(key);
-		if (componentGroup == null) {
-			componentGroup = componentGroupPool.obtain(key);
-			groupsByType.put(key, componentGroup);
-			SceneGraph graph = getGraph();
-			for (SceneNodeComponent component : graph.activeComponents) {
-				if (componentType == component.getComponentType()) {
-					componentGroup.components.add(component);
-				}
-			}
-			componentGroup.components.sort(comparator);
-		} else {
-			componentGroupKeyPool.free(key);
+	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily<T> family) {
+		@SuppressWarnings("unchecked")
+		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.remove(family.id);
+		if (familyComponents != null) {
+			Pools.free(familyComponents);
 		}
 	}
 
-	public void unregisterComponentGroup(Class<? extends SceneNodeComponent> componentClass,
-			Comparator<SceneNodeComponent> comparator) {
-		unregisterComponentGroup(SceneNodeComponent.getComponentType(componentClass), comparator);
-	}
-
-	public void unregisterComponentGroup(int componentType, Comparator<SceneNodeComponent> comparator) {
-		if (comparator == null) {
-			return;
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType == null) {
-			return;
-		}
-
-		ComponentGroupKey tempKey = componentGroupKeyPool.obtain(componentType, comparator);
-		ComponentGroup group = groupsByType.remove(tempKey);
-		if (group != null) {
-			componentGroupKeyPool.free(group.key);
-			group.key = null;
-			componentGroupPool.free(group);
-		}
-
-		componentGroupKeyPool.free(tempKey);
-	}
-
-	public static abstract class ComponentFamily<T extends SceneNodeComponent> {
+	public static final class ComponentFamily<T extends SceneNodeComponent> {
 		private static int INDEXER = 0;
 
 		public final int id;
 		public final Comparator<? super T> comparator;
+		public final Predicate<? super SceneNodeComponent> predicate;
 
-		public ComponentFamily() {
-			this.id = INDEXER++;
+		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate) {
+			id = INDEXER++;
 			comparator = null;
+			this.predicate = predicate;
 		}
 
-		public ComponentFamily(Comparator<? super T> comparator) {
+		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate, Comparator<? super T> comparator) {
 			id = INDEXER++;
 			this.comparator = comparator;
+			this.predicate = predicate;
 		}
-
-		protected abstract boolean belongsToFamily(SceneNodeComponent component);
 	}
 
 	private static class FamilyComponents<T extends SceneNodeComponent> implements Poolable {
 		ComponentFamily<T> family;
 		Array<T> components = new Array<T>();
+		ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
 
-		private void add(SceneNodeComponent component) {
-			if (family.belongsToFamily(component)) {
+		private void handle(SceneNodeComponent component) {
+			if (family.predicate.evaluate(component)) {
 				@SuppressWarnings("unchecked")
 				T casted = (T) component;
 				components.add(casted);

@@ -11,13 +11,13 @@ public class SceneNodeComponent extends SceneGraphElement {
 	private static final ObjectIntMap<Class<? extends SceneNodeComponent>> baseComponentTypes = new ObjectIntMap<Class<? extends SceneNodeComponent>>(); 
 	private static final IndexedType<SceneNodeComponent> COMPONENT_TYPE_INDEXER = new IndexedType<SceneNodeComponent>();
 
-	public final int baseComponentType;
 	public final int componentType;
+	public final int baseComponentType;
 	SceneNode node;
 
 	public SceneNodeComponent() {
-		baseComponentType = getBaseComponentType(getClass());
 		componentType = COMPONENT_TYPE_INDEXER.getType(getClass());
+		baseComponentType = getBaseComponentType(getClass());
 	}
 
 	public static int getBaseComponentType(SceneNodeComponent component) {
@@ -80,6 +80,7 @@ public class SceneNodeComponent extends SceneGraphElement {
 		}
 	}
 
+	@SafeVarargs
 	public static Bits getBitsFor(Class<? extends SceneNodeComponent>... componentClasses) {
 		Bits bits = new Bits();
 
