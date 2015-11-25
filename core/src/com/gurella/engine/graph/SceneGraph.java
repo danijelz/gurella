@@ -10,7 +10,7 @@ import com.gurella.engine.event.EventBus;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
 import com.gurella.engine.graph.manager.ComponentManager;
-import com.gurella.engine.graph.manager.NodeManager;
+import com.gurella.engine.graph.manager.SceneNodeManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
 import com.gurella.engine.graph.script.ScriptManager;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
@@ -40,7 +40,7 @@ public class SceneGraph implements UpdateListener {
 	private SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
 	public final ComponentManager componentManager;
-	public final NodeManager nodeManager;
+	public final SceneNodeManager nodeManager;
 	public final TagManager tagManager;
 	public final LayerManager layerManager;
 	public final ScriptManager scriptManager;
@@ -56,7 +56,7 @@ public class SceneGraph implements UpdateListener {
 		componentManager = new ComponentManager();
 		addSystemSafely(componentManager);
 
-		nodeManager = new NodeManager();
+		nodeManager = new SceneNodeManager();
 		addSystemSafely(nodeManager);
 
 		tagManager = new TagManager();

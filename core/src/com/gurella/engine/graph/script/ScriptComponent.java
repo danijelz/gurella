@@ -25,7 +25,7 @@ import com.gurella.engine.graph.input.IntersectionTouchEvent;
 import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.manager.ComponentManager.ComponentGroup;
-import com.gurella.engine.graph.manager.NodeManager.NodeGroup;
+import com.gurella.engine.graph.manager.SceneNodeManager.NodeGroup;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.resource.AsyncResourceCallback;

@@ -6,12 +6,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.utils.ImmutableArray;
 
-public class NodeManager extends GraphListenerSystem {
+public class SceneNodeManager extends GraphListenerSystem {
 	private ObjectMap<NodeGroup, Array<SceneNode>> nodeGroups = new ObjectMap<NodeGroup, Array<SceneNode>>();
 
 	@Override
@@ -71,6 +73,46 @@ public class NodeManager extends GraphListenerSystem {
 
 	public Array<SceneNode> getNodes(NodeGroup nodeGroup) {
 		return nodeGroups.get(nodeGroup);
+	}
+
+	public static final class SceneNodeFamily {
+		private static int INDEXER = 0;
+
+		public final int id;
+		public final Comparator<SceneNode> comparator;
+		public final Predicate<SceneNode> predicate;
+
+		Array<SceneNode> nodes = new Array<SceneNode>();
+		ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
+
+		public SceneNodeFamily(Predicate<SceneNode> predicate) {
+			id = INDEXER++;
+			this.predicate = predicate;
+			comparator = null;
+		}
+
+		public SceneNodeFamily(Predicate<SceneNode> predicate, Comparator<SceneNode> comparator) {
+			id = INDEXER++;
+			this.predicate = predicate;
+			this.comparator = comparator;
+		}
+
+		void handle(SceneNode node) {
+			boolean belongsToFamily = predicate.evaluate(node);
+			boolean containsNode = nodes.contains(node, true);
+			if (belongsToFamily && !containsNode) {
+				nodes.add(node);
+				if (comparator != null) {
+					nodes.sort(comparator);
+				}
+			} else if (!belongsToFamily && containsNode) {
+				nodes.removeValue(node, true);
+			}
+		}
+
+		void remove(SceneNode node) {
+			nodes.removeValue(node, true);
+		}
 	}
 
 	public interface NodeGroup {

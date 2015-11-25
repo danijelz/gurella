@@ -248,6 +248,7 @@ class PathMesh implements PathConstants, Poolable {
 		CanvasState state = canvas.currentState;
 		float scale = state.xform.getAverageScale();
 		float strokeWidth = MathUtils.clamp(state.strokeWidth * scale, 0.0f, 200.0f) * 0.5f;
+		strokeWidth = canvas.isAntiAlias() ? strokeWidth + canvas.fringeWidth * 0.5f : strokeWidth;
 		float globalAlpha = state.globalAlpha;
 
 		float fringeWidth = canvas.fringeWidth;

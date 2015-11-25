@@ -5,13 +5,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.application.UpdateOrder;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneProcessor;
-import com.gurella.engine.graph.manager.NodeManager;
-import com.gurella.engine.graph.manager.NodeManager.ComponentBitsNodeGroup;
-import com.gurella.engine.graph.manager.NodeManager.NodeGroup;
+import com.gurella.engine.graph.manager.SceneNodeManager;
+import com.gurella.engine.graph.manager.SceneNodeManager.ComponentBitsNodeGroup;
+import com.gurella.engine.graph.manager.SceneNodeManager.NodeGroup;
 import com.gurella.engine.signal.Listener0;
 
 public class LinearVelocityProcessor extends SceneProcessor {
-	private NodeManager nodeManager;
+	private SceneNodeManager nodeManager;
 	@SuppressWarnings("unchecked")
 	private NodeGroup nodeGroup = new ComponentBitsNodeGroup(TransformComponent.class, LinearVelocityComponent.class);
 	private Vector3 tempTranslate = new Vector3();

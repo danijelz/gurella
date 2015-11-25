@@ -8,6 +8,6 @@ public class CircleCanvasTestCase implements CanvasTestCase {
 	public void render(Canvas canvas) {
 		canvas.setDrawingStyle(DrawingStyle.fill);
 		canvas.setFillColor(1f, 0, 1f, 1f);
-		canvas.drawCircle(300, 300, 100);
+		canvas.drawCircle(305, 305, 100);
 	}
 }
