@@ -371,7 +371,7 @@ public class SceneGraph implements UpdateListener {
 		removeNodeFromGraph(node);
 
 		if (node.parent != null) {
-			node.parent.children.removeValue(node, true);
+			node.parent.childrenInternal.removeValue(node, true);
 			node.parent = null;
 		}
 	}

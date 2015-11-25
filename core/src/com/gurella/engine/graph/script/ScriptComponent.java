@@ -25,11 +25,12 @@ import com.gurella.engine.graph.input.IntersectionTouchEvent;
 import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.manager.ComponentManager.ComponentGroup;
-import com.gurella.engine.graph.manager.SceneNodeManager.NodeGroup;
+import com.gurella.engine.graph.manager.SceneNodeManager.SceneNodeFamily;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.utils.ImmutableArray;
 
 public abstract class ScriptComponent extends SceneNodeComponent implements SceneGraphListener {
 	// UPDATE EVENTS
@@ -432,8 +433,8 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	}
 
 	public <T extends SceneNodeComponent> T getComponentInChildren(Class<T> componetType) {
-		Array<SceneNode> children = getNode().children;
-		for (int i = 0; i < children.size; i++) {
+		ImmutableArray<SceneNode> children = getNode().children;
+		for (int i = 0; i < children.size(); i++) {
 			T component = children.get(i).getComponent(componetType);
 			if (component != null) {
 				return component;
@@ -517,19 +518,19 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	public void dispose(Disposable disposable) {
 	}
 
-	public NodeGroup[] registerNodeGroupsOnInit() {
+	public SceneNodeFamily[] registerNodeGroupsOnInit() {
 		return null;
 	}
 
-	public void registerNodeGroup(NodeGroup nodeGroup) {
+	public void registerNodeGroup(SceneNodeFamily nodeGroup) {
 
 	}
 
-	public void unregisterNodeGroup(NodeGroup nodeGroup) {
+	public void unregisterNodeGroup(SceneNodeFamily nodeGroup) {
 
 	}
 
-	public Array<SceneNode> getNodes(NodeGroup nodeGroup) {
+	public Array<SceneNode> getNodes(SceneNodeFamily nodeGroup) {
 		return null;
 	}
 
