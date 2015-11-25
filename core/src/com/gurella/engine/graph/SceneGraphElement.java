@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal0.Signal0Impl;
 import com.gurella.engine.utils.IndexedValue;

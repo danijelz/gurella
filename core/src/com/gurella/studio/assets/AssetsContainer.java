@@ -19,7 +19,7 @@ import com.gurella.engine.event.EventBus;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.AssetResourceReference;
 import com.gurella.engine.resource.AssetResourceType;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener1;
 import com.gurella.studio.Project;
 import com.gurella.studio.EditorScreen.PresentProjectEvent;

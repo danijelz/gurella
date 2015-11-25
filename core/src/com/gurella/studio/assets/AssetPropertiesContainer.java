@@ -2,7 +2,7 @@ package com.gurella.studio.assets;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.gurella.engine.resource.AssetResourceDescriptor;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.studio.inspector.InspectorPropertiesContainer;
 import com.kotcrab.vis.ui.widget.VisTable;
 

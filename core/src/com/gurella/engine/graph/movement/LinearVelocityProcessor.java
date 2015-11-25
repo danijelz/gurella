@@ -9,6 +9,7 @@ import com.gurella.engine.graph.manager.ComponentsPredicate;
 import com.gurella.engine.graph.manager.SceneNodeManager;
 import com.gurella.engine.graph.manager.SceneNodeManager.SceneNodeFamily;
 import com.gurella.engine.signal.Listener0;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class LinearVelocityProcessor extends SceneProcessor {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
@@ -38,21 +39,19 @@ public class LinearVelocityProcessor extends SceneProcessor {
 	@Override
 	public void update() {
 		float deltaTime = Gdx.graphics.getDeltaTime();
-
-		for (SceneNode node : nodeManager.getNodes(family)) {
+		ImmutableArray<SceneNode> nodes = nodeManager.getNodes(family);
+		for (int i = 0; i < nodes.size(); i++) {
+			SceneNode node = nodes.get(i);
 			LinearVelocityComponent linearVelocityComponent = node.getComponent(LinearVelocityComponent.class);
-			TransformComponent transformComponent = node.getComponent(TransformComponent.class);
-			transformComponent.getTranslation(tempTranslate);
+			node.getComponent(TransformComponent.class).getTranslation(tempTranslate);
 
 			if (linearVelocityComponent.lastPosition.x == Float.NaN) {
 				tempVelocity.setZero();
 			} else {
-
 				tempVelocity.set(tempTranslate).sub(linearVelocityComponent.lastPosition);
 			}
 
-			linearVelocityComponent.velocity.set(tempVelocity.x / deltaTime, tempVelocity.y / deltaTime,
-					tempVelocity.z / deltaTime);
+			linearVelocityComponent.velocity.set(tempVelocity).scl(1.0f / deltaTime);
 			linearVelocityComponent.lastPosition.set(tempTranslate);
 		}
 	}

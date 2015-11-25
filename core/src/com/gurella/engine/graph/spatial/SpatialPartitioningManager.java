@@ -16,7 +16,7 @@ import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.LayerComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;
 

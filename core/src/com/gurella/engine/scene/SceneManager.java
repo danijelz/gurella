@@ -1,4 +1,4 @@
-package com.gurella.engine.scene2;
+package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;

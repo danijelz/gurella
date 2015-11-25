@@ -44,7 +44,7 @@ import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.graph.script.ScriptManager;
-import com.gurella.engine.graph.script.DefaultScriptMethod;
+import com.gurella.engine.graph.script.ScriptMethod;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.pools.SynchronizedPools;
@@ -351,11 +351,11 @@ public class InputSystem extends SceneProcessor implements SceneGraphListener {
 		return trackers.get(key);
 	}
 
-	OrderedSet<ScriptComponent> getScriptsByMethod(DefaultScriptMethod method) {
+	OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethod method) {
 		return scriptManager.getScriptsByMethod(method);
 	}
 
-	OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, DefaultScriptMethod method) {
+	OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethod method) {
 		return scriptManager.getNodeScriptsByMethod(node, method);
 	}
 

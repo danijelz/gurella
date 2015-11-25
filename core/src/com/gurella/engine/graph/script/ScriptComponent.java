@@ -24,7 +24,7 @@ import com.gurella.engine.graph.input.DropTarget;
 import com.gurella.engine.graph.input.IntersectionTouchEvent;
 import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.layer.Layer;
-import com.gurella.engine.graph.manager.ComponentManager.ComponentGroup;
+import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.graph.manager.SceneNodeManager.SceneNodeFamily;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
@@ -178,11 +178,13 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	}
 
 	@SuppressWarnings("unused")
-	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY, Vector3 intersection) {
+	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY,
+			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY, Vector3 intersection) {
+	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY,
+			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
@@ -401,7 +403,7 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	// TODO box2d physics
 
 	// TODO animation
-	
+
 	public boolean onMessage(Object sender, Object messageType, Object messageData) {
 		return false;
 	}
@@ -482,9 +484,7 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 
 	public SceneNode getNodeParent() {
 		SceneNode node = getNode();
-		return node == null
-				? null
-				: node.getParent();
+		return node == null ? null : node.getParent();
 	}
 
 	public <T> T obtainResource(int resourceId) {
@@ -534,19 +534,19 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 		return null;
 	}
 
-	public ComponentGroup[] registerComponentGroupsOnInit() {
+	public ComponentFamily<?>[] registerComponentGroupsOnInit() {
 		return null;
 	}
 
-	public void registerComponentGroup(ComponentGroup componentGroup) {
+	public void registerComponentGroup(ComponentFamily<?> componentGroup) {
 
 	}
 
-	public void unregisterComponentGroup(ComponentGroup componentGroup) {
+	public void unregisterComponentGroup(ComponentFamily<?> componentGroup) {
 
 	}
 
-	public Array<SceneNodeComponent> getComponents(ComponentGroup componentGroup) {
+	public Array<SceneNodeComponent> getComponents(ComponentFamily<?> componentGroup) {
 		return null;
 	}
 
@@ -565,7 +565,7 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 		void onSuccess(T value);
 
 		void onError(Throwable error);
-		
+
 		void cancle();
 	}
 

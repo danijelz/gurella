@@ -50,7 +50,7 @@ import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener1;
 import com.gurella.studio.project.ProjectHeaderContainer.SceneSelectionChangedEvent;
 

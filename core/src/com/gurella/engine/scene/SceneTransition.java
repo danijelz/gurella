@@ -1,4 +1,4 @@
-package com.gurella.engine.scene2;
+package com.gurella.engine.scene;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

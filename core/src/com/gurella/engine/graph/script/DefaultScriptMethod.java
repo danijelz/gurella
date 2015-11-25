@@ -1,12 +1,8 @@
 package com.gurella.engine.graph.script;
 
-import java.util.Arrays;
-
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.bullet.BulletPhysicsRigidBodyComponent;
@@ -16,188 +12,193 @@ import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.IntersectionTouchEvent;
 import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.pools.SynchronizedPools;
 
-public enum DefaultScriptMethod implements ScriptMethod {
+public final class DefaultScriptMethod {
+	private DefaultScriptMethod() {
+	}
+	
 	//@formatter:off
 	
 	//UPDATE
-	onInput(), 
-	onThink(), 
-	onPreRender(),
-	onRender(), 
-	onDebugRender(), 
-	onAfterRender(), 
-	onCleanup(), 
+	public static final ScriptMethod onInput = get("onInput"); 
+	public static final ScriptMethod onThink = get("onThink"); 
+	public static final ScriptMethod onPreRender = get("onPreRender");
+	public static final ScriptMethod onRender = get("onRender"); 
+	public static final ScriptMethod onDebugRender = get("onDebugRender"); 
+	public static final ScriptMethod onAfterRender = get("onAfterRender"); 
+	public static final ScriptMethod onCleanup = get("onCleanup"); 
 	
 	//NODE INPUT
-	onTouchDown(IntersectionTouchEvent.class),
-	onTouchUp(IntersectionTouchEvent.class),
-	onTap(IntersectionTouchEvent.class, Integer.TYPE),
-	onDragOverStart(IntersectionTouchEvent.class),
-	onDragOverMove(IntersectionTouchEvent.class),
-	onDragOverEnd(TouchEvent.class),
-	onDragStart(IntersectionTouchEvent.class),
-	onDragMove(TouchEvent.class),
-	onDragEnd(TouchEvent.class),
-	onLongPress(IntersectionTouchEvent.class),
-	onDoubleTouch(IntersectionTouchEvent.class),
-	onScrolled(Integer.TYPE, Integer.TYPE, Integer.TYPE, Vector3.class),
-	onMouseOverStart(Integer.TYPE, Integer.TYPE, Vector3.class),
-	onMouseOverMove(Integer.TYPE, Integer.TYPE, Vector3.class),
-	onMouseOverEnd(Integer.TYPE, Integer.TYPE),
+	public static final ScriptMethod onTouchDown = get("onTouchDown", IntersectionTouchEvent.class);
+	public static final ScriptMethod onTouchUp = get("onTouchUp", IntersectionTouchEvent.class);
+	public static final ScriptMethod onTap = get("onTap", IntersectionTouchEvent.class, Integer.TYPE);
+	public static final ScriptMethod onDragOverStart = get("onDragOverStart", IntersectionTouchEvent.class);
+	public static final ScriptMethod onDragOverMove = get("onDragOverMove", IntersectionTouchEvent.class);
+	public static final ScriptMethod onDragOverEnd = get("onDragOverEnd", TouchEvent.class);
+	public static final ScriptMethod onDragStart = get("onDragStart", IntersectionTouchEvent.class);
+	public static final ScriptMethod onDragMove = get("onDragMove", TouchEvent.class);
+	public static final ScriptMethod onDragEnd = get("onDragEnd", TouchEvent.class);
+	public static final ScriptMethod onLongPress = get("onLongPress", IntersectionTouchEvent.class);
+	public static final ScriptMethod onDoubleTouch = get("onDoubleTouch", IntersectionTouchEvent.class);
+	public static final ScriptMethod onScrolled = get("onScrolled", Integer.TYPE, Integer.TYPE, Integer.TYPE, Vector3.class);
+	public static final ScriptMethod onMouseOverStart = get("onMouseOverStart", Integer.TYPE, Integer.TYPE, Vector3.class);
+	public static final ScriptMethod onMouseOverMove = get("onMouseOverMove", Integer.TYPE, Integer.TYPE, Vector3.class);
+	public static final ScriptMethod onMouseOverEnd = get("onMouseOverEnd", Integer.TYPE, Integer.TYPE);
 	
 	//NODE DRAG AND DROP
-	getDragSource(DragStartCondition.class),
-	getDropTarget(Array.class),
+	public static final ScriptMethod getDragSource = get("getDragSource", DragStartCondition.class);
+	public static final ScriptMethod getDropTarget = get("getDropTarget", Array.class);
 	
 	//RESOLVED GLOBAL INPUT
-	onTouchDownResolved("onTouchDown", RenderableComponent.class, IntersectionTouchEvent.class),
-	onTouchUpResolved("onTouchUp", RenderableComponent.class, IntersectionTouchEvent.class),
-	onTapResolved("onTap", RenderableComponent.class, IntersectionTouchEvent.class, Integer.TYPE),
-	onDragOverStartResolved("onDragOverStart", RenderableComponent.class, IntersectionTouchEvent.class),
-	onDragOverMoveResolved("onDragOverMove", RenderableComponent.class, IntersectionTouchEvent.class),
-	onDragOverEndResolved("onDragOverEnd", RenderableComponent.class, TouchEvent.class),
-	onDragStartResolved("onDragStart", RenderableComponent.class, IntersectionTouchEvent.class),
-	onDragMoveResolved("onDragMove", RenderableComponent.class, TouchEvent.class),
-	onDragEndResolved("onDragEnd", RenderableComponent.class, TouchEvent.class),
-	onLongPressResolved("onLongPress", RenderableComponent.class, IntersectionTouchEvent.class),
-	onDoubleTouchResolved("onDoubleTouch", RenderableComponent.class, IntersectionTouchEvent.class),
-	onScrolledResolved("onScrolled", RenderableComponent.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Vector3.class),
-	onMouseOverStartResolved("onMouseOverStart", RenderableComponent.class, Integer.TYPE, Integer.TYPE, Vector3.class),
-	onMouseOverMoveResolved("onMouseOverMove", RenderableComponent.class, Integer.TYPE, Integer.TYPE, Vector3.class),
-	onMouseOverEndResolved("onMouseOverEnd", RenderableComponent.class, Integer.TYPE, Integer.TYPE),
+	public static final ScriptMethod onTouchDownResolved = get("onTouchDown", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onTouchUpResolved = get("onTouchUp", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onTapResolved = get("onTap", RenderableComponent.class, IntersectionTouchEvent.class, Integer.TYPE);
+	public static final ScriptMethod onDragOverStartResolved = get("onDragOverStart", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onDragOverMoveResolved = get("onDragOverMove", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onDragOverEndResolved = get("onDragOverEnd", RenderableComponent.class, TouchEvent.class);
+	public static final ScriptMethod onDragStartResolved = get("onDragStart", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onDragMoveResolved = get("onDragMove", RenderableComponent.class, TouchEvent.class);
+	public static final ScriptMethod onDragEndResolved = get("onDragEnd", RenderableComponent.class, TouchEvent.class);
+	public static final ScriptMethod onLongPressResolved = get("onLongPress", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onDoubleTouchResolved = get("onDoubleTouch", RenderableComponent.class, IntersectionTouchEvent.class);
+	public static final ScriptMethod onScrolledResolved = get("onScrolled", RenderableComponent.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Vector3.class);
+	public static final ScriptMethod onMouseOverStartResolved = get("onMouseOverStart", RenderableComponent.class, Integer.TYPE, Integer.TYPE, Vector3.class);
+	public static final ScriptMethod onMouseOverMoveResolved = get("onMouseOverMove", RenderableComponent.class, Integer.TYPE, Integer.TYPE, Vector3.class);
+	public static final ScriptMethod onMouseOverEndResolved = get("onMouseOverEnd", RenderableComponent.class, Integer.TYPE, Integer.TYPE);
 	
 	//GLOBAL INPUT
-	keyDown(Integer.TYPE),
-    keyUp(Integer.TYPE),
-    keyTyped(Character.TYPE),
-	touchDown(TouchEvent.class),
-	doubleTouchDown(TouchEvent.class),
-	touchUp(TouchEvent.class),
-	touchDragged(TouchEvent.class),
-	mouseMoved(Integer.TYPE, Integer.TYPE),
-	scrolled(Integer.TYPE, Integer.TYPE, Integer.TYPE),
-	tap(TouchEvent.class, Integer.TYPE),
-	longPress(TouchEvent.class),
+	public static final ScriptMethod keyDown = get("keyDown", Integer.TYPE);
+	public static final ScriptMethod keyUp = get("keyUp", Integer.TYPE);
+	public static final ScriptMethod keyTyped = get("keyTyped", Character.TYPE);
+	public static final ScriptMethod touchDown = get("touchDown", TouchEvent.class);
+	public static final ScriptMethod doubleTouchDown = get("doubleTouchDown", TouchEvent.class);
+	public static final ScriptMethod touchUp = get("touchUp", TouchEvent.class);
+	public static final ScriptMethod touchDragged = get("touchDragged", TouchEvent.class);
+	public static final ScriptMethod mouseMoved = get("mouseMoved", Integer.TYPE, Integer.TYPE);
+	public static final ScriptMethod scrolled = get("scrolled", Integer.TYPE, Integer.TYPE, Integer.TYPE);
+	public static final ScriptMethod tap = get("tap", TouchEvent.class, Integer.TYPE);
+	public static final ScriptMethod longPress = get("longPress", TouchEvent.class);
 	
 	//BULLET PHYSICS
-	onCollisionEnter(Collision.class), 
-	onCollisionStay(Collision.class), 
-	onCollisionExit(BulletPhysicsRigidBodyComponent.class),
-	onPhysicsSimulationStart(btDynamicsWorld.class),
-	onPhysicsSimulationStep(btDynamicsWorld.class, Float.TYPE),
-	onPhysicsSimulationEnd(btDynamicsWorld.class),
+	public static final ScriptMethod onCollisionEnter = get("onCollisionEnter", Collision.class); 
+	public static final ScriptMethod onCollisionStay = get("onCollisionStay", Collision.class); 
+	public static final ScriptMethod onCollisionExit = get("onCollisionExit", BulletPhysicsRigidBodyComponent.class);
+	public static final ScriptMethod onPhysicsSimulationStart = get("onPhysicsSimulationStart", btDynamicsWorld.class);
+	public static final ScriptMethod onPhysicsSimulationStep = get("onPhysicsSimulationStep", btDynamicsWorld.class, Float.TYPE);
+	public static final ScriptMethod onPhysicsSimulationEnd = get("onPhysicsSimulationEnd", btDynamicsWorld.class);
 	
 	//GLOBAL BULLET COLLISIONS
-	onCollisionEnterGlobal(CollisionPair.class),
-	onCollisionStayGlobal(CollisionPair.class),
-	onCollisionExitGlobal(BulletPhysicsRigidBodyComponent.class, BulletPhysicsRigidBodyComponent.class),
+	public static final ScriptMethod onCollisionEnterGlobal = get("onCollisionEnterGlobal", CollisionPair.class);
+	public static final ScriptMethod onCollisionStayGlobal = get("onCollisionStayGlobal", CollisionPair.class);
+	public static final ScriptMethod onCollisionExitGlobal = get("onCollisionExitGlobal", BulletPhysicsRigidBodyComponent.class, BulletPhysicsRigidBodyComponent.class);
 	
 	//GRAPH
-	componentAdded(SceneNodeComponent.class),
-	componentRemoved(SceneNodeComponent.class),
-	componentActivated(SceneNodeComponent.class),
-	componentDeactivated(SceneNodeComponent.class),
+	public static final ScriptMethod componentAdded = get("componentAdded", SceneNodeComponent.class);
+	public static final ScriptMethod componentRemoved = get("componentRemoved", SceneNodeComponent.class);
+	public static final ScriptMethod componentActivated = get("componentActivated", SceneNodeComponent.class);
+	public static final ScriptMethod componentDeactivated = get("componentDeactivated", SceneNodeComponent.class);
 	
-	nodeComponentAdded(SceneNodeComponent.class),
-	nodeComponentRemoved(SceneNodeComponent.class),
-	nodeComponentActivated(SceneNodeComponent.class),
-	nodeComponentDeactivated(SceneNodeComponent.class),
-	nodeParentChanged(SceneNode.class),
-	nodeChildAdded(SceneNode.class),
-	nodeChildRemoved(SceneNode.class),
+	public static final ScriptMethod nodeComponentAdded = get("nodeComponentAdded", SceneNodeComponent.class);
+	public static final ScriptMethod nodeComponentRemoved = get("nodeComponentRemoved", SceneNodeComponent.class);
+	public static final ScriptMethod nodeComponentActivated = get("nodeComponentActivated", SceneNodeComponent.class);
+	public static final ScriptMethod nodeComponentDeactivated = get("nodeComponentDeactivated", SceneNodeComponent.class);
+	public static final ScriptMethod nodeParentChanged = get("nodeParentChanged", SceneNode.class);
+	public static final ScriptMethod nodeChildAdded = get("nodeChildAdded", SceneNode.class);
+	public static final ScriptMethod nodeChildRemoved = get("nodeChildRemoved", SceneNode.class);
 	
 	//SCENE
-	onSceneStart(),
-	onSceneStop(),
+	public static final ScriptMethod onSceneStart = get("onSceneStart");
+	public static final ScriptMethod onSceneStop = get("onSceneStop");
 	
 	//APPLICATION
-	onPause(),
-	onResume(),
+	public static final ScriptMethod onPause = get("onPause");
+	public static final ScriptMethod onResume = get("onResume");
 	
 	//APPLICATION
-	onMessage(Object.class, Object.class),
-	;
+	public static final ScriptMethod onMessage = get("onMessage", Object.class, Object.class, Object.class);
 	
 	//@formatter:on
-
-	private static final ObjectMap<ScriptMethodKey, DefaultScriptMethod> methods = new ObjectMap<DefaultScriptMethod.ScriptMethodKey, DefaultScriptMethod>();
-	static {
-		DefaultScriptMethod[] scriptMethods = DefaultScriptMethod.values();
-		for (int i = 0; i < scriptMethods.length; i++) {
-			DefaultScriptMethod scriptMethod = scriptMethods[i];
-			methods.put(new ScriptMethodKey(scriptMethod), scriptMethod);
-		}
+	
+	private static ScriptMethod get(String name, Class<?>... parameterTypes ) {
+		return new ScriptMethod(ScriptComponent.class, name, parameterTypes);
 	}
 
-	final String methodName;
-	final Class<?>[] methodParameterTypes;
-
-	DefaultScriptMethod(String methodName, Class<?>... parameterTypes) {
-		this.methodName = methodName;
-		this.methodParameterTypes = parameterTypes;
-	}
-
-	DefaultScriptMethod(Class<?>... parameterTypes) {
-		this.methodName = name();
-		this.methodParameterTypes = parameterTypes;
-	}
-
-	static DefaultScriptMethod valueOf(Method method) {
-		ScriptMethodKey key = SynchronizedPools.obtain(ScriptMethodKey.class);
-		key.name = method.getName();
-		key.parameterTypes = method.getParameterTypes();
-		DefaultScriptMethod scriptMethod = methods.get(key);
-		SynchronizedPools.free(key);
-		return scriptMethod;
-	}
-
-	@Override
-	public Class<?> getMethodDeclaringClass() {
-		return ScriptComponent.class;
-	}
-
-	@Override
-	public String getMethodName() {
-		return methodName;
-	}
-
-	@Override
-	public Class<?>[] getMethodParameterTypes() {
-		return methodParameterTypes;
-	}
-
-	public static class ScriptMethodKey {
-		String name;
-		Class<?>[] parameterTypes;
-
-		public ScriptMethodKey() {
-		}
-
-		public ScriptMethodKey(DefaultScriptMethod scriptMethod) {
-			this.name = scriptMethod.methodName;
-			this.parameterTypes = scriptMethod.methodParameterTypes;
-		}
-
-		@Override
-		public int hashCode() {
-			return 31 + name.hashCode() + Arrays.hashCode(parameterTypes);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (ScriptMethodKey.class != obj.getClass()) {
-				return false;
-			}
-			ScriptMethodKey other = (ScriptMethodKey) obj;
-			return name.equals(other.name) && Arrays.equals(parameterTypes, other.parameterTypes);
-		}
-	}
+//	private static final ObjectMap<ScriptMethodKey, DefaultScriptMethod> methods = new ObjectMap<DefaultScriptMethod.ScriptMethodKey, DefaultScriptMethod>();
+//	static {
+//		DefaultScriptMethod[] scriptMethods = DefaultScriptMethod.values();
+//		for (int i = 0; i < scriptMethods.length; i++) {
+//			DefaultScriptMethod scriptMethod = scriptMethods[i];
+//			methods.put(new ScriptMethodKey(scriptMethod), scriptMethod);
+//		}
+//	}
+//
+//	final String methodName;
+//	final Class<?>[] methodParameterTypes;
+//
+//	DefaultScriptMethod(String methodName, Class<?>... parameterTypes) {
+//		this.methodName = methodName;
+//		this.methodParameterTypes = parameterTypes;
+//	}
+//
+//	DefaultScriptMethod(Class<?>... parameterTypes) {
+//		this.methodName = name();
+//		this.methodParameterTypes = parameterTypes;
+//	}
+//
+//	static DefaultScriptMethod valueOf(Method method) {
+//		ScriptMethodKey key = SynchronizedPools.obtain(ScriptMethodKey.class);
+//		key.name = method.getName();
+//		key.parameterTypes = method.getParameterTypes();
+//		DefaultScriptMethod scriptMethod = methods.get(key);
+//		SynchronizedPools.free(key);
+//		return scriptMethod;
+//	}
+//
+//	@Override
+//	public Class<?> getMethodDeclaringClass() {
+//		return ScriptComponent.class;
+//	}
+//
+//	@Override
+//	public String getMethodName() {
+//		return methodName;
+//	}
+//
+//	@Override
+//	public Class<?>[] getMethodParameterTypes() {
+//		return methodParameterTypes;
+//	}
+//
+//	public static class ScriptMethodKey {
+//		String name;
+//		Class<?>[] parameterTypes;
+//
+//		public ScriptMethodKey() {
+//		}
+//
+//		public ScriptMethodKey(DefaultScriptMethod scriptMethod) {
+//			this.name = scriptMethod.methodName;
+//			this.parameterTypes = scriptMethod.methodParameterTypes;
+//		}
+//
+//		@Override
+//		public int hashCode() {
+//			return 31 + name.hashCode() + Arrays.hashCode(parameterTypes);
+//		}
+//
+//		@Override
+//		public boolean equals(Object obj) {
+//			if (this == obj) {
+//				return true;
+//			}
+//			if (obj == null) {
+//				return false;
+//			}
+//			if (ScriptMethodKey.class != obj.getClass()) {
+//				return false;
+//			}
+//			ScriptMethodKey other = (ScriptMethodKey) obj;
+//			return name.equals(other.name) && Arrays.equals(parameterTypes, other.parameterTypes);
+//		}
+//	}
 }
