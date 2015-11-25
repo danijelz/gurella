@@ -12,6 +12,7 @@ import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
 import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal1.Signal1Impl;
+import com.gurella.engine.utils.ImmutableArray;
 
 //TODO make SceneNodeSignal usable
 public class SceneNode extends SceneGraphElement {
@@ -20,11 +21,16 @@ public class SceneNode extends SceneGraphElement {
 
 	// TODO make private
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
-	public final Array<SceneNode> children = new Array<SceneNode>();
+	final Array<SceneNode> childrenInternal = new Array<SceneNode>();
+	@TransientProperty
+	public final ImmutableArray<SceneNode> children = new ImmutableArray<>(childrenInternal);
 
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
 	final IntMap<SceneNodeComponent> components = new IntMap<SceneNodeComponent>();
-	final Bits componentBits = new Bits();
+	@TransientProperty
+	public final Bits componentBits = new Bits();
+	@TransientProperty
+	public final Bits activeComponentBits = new Bits();
 
 	@TransientProperty
 	public final Signal1Impl<SceneNode> parentChangedSignal = new Signal1Impl<SceneNode>();
@@ -45,10 +51,6 @@ public class SceneNode extends SceneGraphElement {
 
 	public SceneNode getParent() {
 		return parent;
-	}
-
-	public Bits getComponentBits() {
-		return componentBits;
 	}
 
 	@Override
@@ -74,8 +76,8 @@ public class SceneNode extends SceneGraphElement {
 
 	@Override
 	public final void dispose() {
-		for (int i = 0; i < children.size; i++) {
-			SceneNode child = children.get(i);
+		for (int i = 0; i < childrenInternal.size; i++) {
+			SceneNode child = childrenInternal.get(i);
 			child.dispose();
 		}
 
@@ -184,12 +186,12 @@ public class SceneNode extends SceneGraphElement {
 			}
 
 			child.parent = this;
-			children.add(child);
+			childrenInternal.add(child);
 			nodeChangedSignal.childAdded(child);
 			child.nodeChangedSignal.parentChanged(child);
 		} else {
 			child.parent = this;
-			children.add(child);
+			childrenInternal.add(child);
 
 			if (child.graph == null) {
 				graph.addNode(child);
@@ -204,7 +206,7 @@ public class SceneNode extends SceneGraphElement {
 			}
 
 			// TODO graph must handle child
-			children.removeValue(child, true);
+			childrenInternal.removeValue(child, true);
 			child.nodeChangedSignal.parentChanged(null);
 		} else {
 			throw new IllegalStateException("Child is not owned by node.");
@@ -223,8 +225,8 @@ public class SceneNode extends SceneGraphElement {
 
 	public void broadcastMessageToChildren(Object sender, Object messageType, Object messageData) {
 		broadcastMessage(sender, messageType, messageData);
-		for (int i = 0; i < children.size; i++) {
-			SceneNode child = children.get(i);
+		for (int i = 0; i < childrenInternal.size; i++) {
+			SceneNode child = childrenInternal.get(i);
 			child.broadcastMessageToChildren(sender, messageType, messageData);
 		}
 	}
@@ -242,13 +244,15 @@ public class SceneNode extends SceneGraphElement {
 			component.reset();
 		}
 
-		for (SceneNode child : children) {
+		for (SceneNode child : childrenInternal) {
 			child.reset();
 		}
 
 		resettedSignal.dispatch();
 		clearSignals();
 		initialized = false;
+		componentBits.clear();
+		activeComponentBits.clear();
 	}
 
 	public interface NodeChangedListener {

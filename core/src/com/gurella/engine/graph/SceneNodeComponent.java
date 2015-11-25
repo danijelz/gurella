@@ -80,6 +80,7 @@ public class SceneNodeComponent extends SceneGraphElement {
 		}
 	}
 
+	@SafeVarargs
 	public static Bits getBitsFor(Class<? extends SceneNodeComponent>... componentClasses) {
 		Bits bits = new Bits();
 

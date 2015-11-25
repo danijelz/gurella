@@ -3,76 +3,77 @@ package com.gurella.engine.graph.manager;
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Bits;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.GraphListenerSystem;
-import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class SceneNodeManager extends GraphListenerSystem {
-	private ObjectMap<NodeGroup, Array<SceneNode>> nodeGroups = new ObjectMap<NodeGroup, Array<SceneNode>>();
+	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
+
+	@Override
+	public void componentAdded(SceneNodeComponent component) {
+		handleComponent(component);
+	}
+
+	private void handleComponent(SceneNodeComponent component) {
+		SceneNode node = component.getNode();
+		for (FamilyNodes familyNodes : families.values()) {
+			familyNodes.handle(node);
+		}
+	}
+
+	@Override
+	public void componentRemoved(SceneNodeComponent component) {
+		handleComponent(component);
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
-		SceneNode node = component.getNode();
-		for (Entry<NodeGroup, Array<SceneNode>> entry : nodeGroups.entries()) {
-			NodeGroup nodeGroup = entry.key;
-			if (nodeGroup.isValidNode(node)) {
-				Array<SceneNode> groupedNodes = entry.value;
-				if (!groupedNodes.contains(node, true)) {
-					groupedNodes.add(node);
-					Comparator<SceneNode> comparator = nodeGroup.getComparator();
-					if (comparator != null) {
-						groupedNodes.sort(comparator);
-					}
-				}
-			}
-		}
+		handleComponent(component);
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
-		SceneNode node = component.getNode();
-		for (Entry<NodeGroup, Array<SceneNode>> entry : nodeGroups.entries()) {
-			NodeGroup nodeGroup = entry.key;
-			if (nodeGroup.isValidNode(node)) {
-				Array<SceneNode> groupedNodes = entry.value;
-				groupedNodes.removeValue(node, true);
-			}
+		handleComponent(component);
+	}
+
+	public void registerFamily(SceneNodeFamily family) {
+		int familyId = family.id;
+		if (families.containsKey(familyId)) {
+			return;
+		}
+		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
+		families.put(familyId, familyNodes);
+
+		ImmutableArray<SceneNode> nodes = getGraph().allNodes;
+		for (int i = 0; i < nodes.size(); i++) {
+			familyNodes.handle(nodes.get(i));
 		}
 	}
 
-	public void registerNodeGroup(NodeGroup nodeGroup) {
-		Array<SceneNode> groupedNodes = nodeGroups.get(nodeGroup);
-
-		if (groupedNodes == null) {
-			groupedNodes = new Array<SceneNode>();
-			nodeGroups.put(nodeGroup, groupedNodes);
-
-			SceneGraph graph = getGraph();
-			for (SceneNode node : graph.activeNodes) {
-				if (nodeGroup.isValidNode(node)) {
-					groupedNodes.add(node);
-				}
-			}
-
-			Comparator<SceneNode> comparator = nodeGroup.getComparator();
-			if (comparator != null) {
-				groupedNodes.sort(comparator);
-			}
+	public void unregisterFamily(SceneNodeFamily family) {
+		FamilyNodes familyNodes = families.remove(family.id);
+		if (familyNodes != null) {
+			Pools.free(familyNodes);
 		}
 	}
 
-	public void unregisterNodeGroup(NodeGroup nodeGroup) {
-		nodeGroups.remove(nodeGroup);
+	public ImmutableArray<SceneNode> getNodes(SceneNodeFamily family) {
+		FamilyNodes familyNodes = families.get(family.id);
+		return familyNodes == null ? ImmutableArray.<SceneNode> empty() : familyNodes.immutableNodes;
 	}
-
-	public Array<SceneNode> getNodes(NodeGroup nodeGroup) {
-		return nodeGroups.get(nodeGroup);
+	
+	@Override
+	protected void resetted() {
+		for (FamilyNodes familyNodes : families.values()) {
+			Pools.free(familyNodes);
+		}
+		families.clear();
 	}
 
 	public static final class SceneNodeFamily {
@@ -81,9 +82,6 @@ public class SceneNodeManager extends GraphListenerSystem {
 		public final int id;
 		public final Comparator<SceneNode> comparator;
 		public final Predicate<SceneNode> predicate;
-
-		Array<SceneNode> nodes = new Array<SceneNode>();
-		ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
 
 		public SceneNodeFamily(Predicate<SceneNode> predicate) {
 			id = INDEXER++;
@@ -96,53 +94,35 @@ public class SceneNodeManager extends GraphListenerSystem {
 			this.predicate = predicate;
 			this.comparator = comparator;
 		}
+	}
 
-		void handle(SceneNode node) {
-			boolean belongsToFamily = predicate.evaluate(node);
+	private static class FamilyNodes implements Poolable {
+		private SceneNodeFamily family;
+
+		private final Array<SceneNode> nodes = new Array<SceneNode>();
+		private final ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
+
+		private void handle(SceneNode node) {
+			boolean belongsToFamily = family.predicate.evaluate(node);
 			boolean containsNode = nodes.contains(node, true);
 			if (belongsToFamily && !containsNode) {
 				nodes.add(node);
-				if (comparator != null) {
-					nodes.sort(comparator);
+				if (family.comparator != null) {
+					nodes.sort(family.comparator);
 				}
 			} else if (!belongsToFamily && containsNode) {
 				nodes.removeValue(node, true);
 			}
 		}
 
-		void remove(SceneNode node) {
+		private void remove(SceneNode node) {
 			nodes.removeValue(node, true);
 		}
-	}
-
-	public interface NodeGroup {
-		boolean isValidNode(SceneNode node);
-
-		Comparator<SceneNode> getComparator();
-	}
-
-	public static class ComponentBitsNodeGroup implements NodeGroup {
-		private Bits componentBits;
-		private Comparator<SceneNode> comparator;
-
-		public ComponentBitsNodeGroup(Class<? extends SceneNodeComponent>... componentClasses) {
-			this(null, componentClasses);
-		}
-
-		public ComponentBitsNodeGroup(Comparator<SceneNode> comparator,
-				Class<? extends SceneNodeComponent>... componentClasses) {
-			componentBits = SceneNodeComponent.getBitsFor(componentClasses);
-			this.comparator = comparator;
-		}
 
 		@Override
-		public boolean isValidNode(SceneNode node) {
-			return node.getComponentBits().containsAll(componentBits);
-		}
-
-		@Override
-		public Comparator<SceneNode> getComparator() {
-			return comparator;
+		public void reset() {
+			family = null;
+			nodes.clear();
 		}
 	}
 }
