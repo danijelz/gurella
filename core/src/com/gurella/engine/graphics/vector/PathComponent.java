@@ -116,9 +116,9 @@ class PathComponent implements PathConstants, Poolable {
 //			strokePaint.outerColor.a *= alpha*alpha;
 //			strokeWidth = ctx->fringeWidth;
 //		}
-		CanvasState canvasState = canvas.currentState;
-		float scale = canvasState.xform.getAverageScale();
-		float strokeWidth = MathUtils.clamp(canvasState.strokeWidth * scale, 0.0f, 200.0f) * 0.5f;
+		CanvasState state = canvas.currentState;
+		float scale = state.xform.getAverageScale();
+		float strokeWidth = MathUtils.clamp(state.strokeWidth * scale, 0.0f, 200.0f) * 0.5f;
 		return canvas.isAntiAlias() ? strokeWidth + canvas.fringeWidth * 0.5f : strokeWidth;
 	}
 	
