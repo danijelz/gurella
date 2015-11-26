@@ -7,17 +7,19 @@ import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.movement.LinearVelocityComponent;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.resource.model.DefaultValue;
+import com.gurella.engine.resource.model.PropertyValue;
+import com.gurella.engine.resource.model.ResourceProperty;
 
 class AudioListenerData implements Poolable {
 	AudioListenerComponent audioListenerComponent;
 	TransformComponent transformComponent;
-	LinearVelocityComponent linearVelocityComponent;
 
 	final Vector3 position = new Vector3();
 	final Vector3 velocity = new Vector3();
 	final Vector3 up = new Vector3();
 	final Vector3 lookAt = new Vector3();
-
+	
 	private final Quaternion tempRotation = new Quaternion();
 
 	static AudioListenerData getInstance() {
@@ -32,13 +34,11 @@ class AudioListenerData implements Poolable {
 	public void reset() {
 		audioListenerComponent = null;
 		transformComponent = null;
-		linearVelocityComponent = null;
 	}
 
 	void init(AudioListenerComponent initAudioListenerComponent) {
 		SceneNode node = initAudioListenerComponent.getNode();
 		this.transformComponent = node.getComponent(TransformComponent.class);
-		this.linearVelocityComponent = node.getComponent(LinearVelocityComponent.class);
 	}
 
 	Vector3 getPosition() {

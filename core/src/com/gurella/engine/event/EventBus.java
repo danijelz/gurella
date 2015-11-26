@@ -8,8 +8,6 @@ import com.gurella.engine.signal.Listener1;
 import com.gurella.engine.utils.Ordered;
 
 public class EventBus {
-	public static final EventBus GLOBAL = new EventBus();
-	
 	private final ObjectMap<Class<? extends Event<?>>, Array<?>> listeners = new ObjectMap<Class<? extends Event<?>>, Array<?>>();
 	private final ObjectMap<String, Array<Listener1<String>>> simpleListeners = new ObjectMap<String, Array<Listener1<String>>>();
 	private final Array<Object> eventPool = new Array<Object>();

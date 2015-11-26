@@ -13,5 +13,4 @@ public class LinearVelocityComponent extends SceneNodeComponent {
 	public final Vector3 lastPosition = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 	@ResourceProperty
 	public final Vector3 velocity = new Vector3();
-
 }
