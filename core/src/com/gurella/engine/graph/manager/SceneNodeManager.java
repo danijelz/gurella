@@ -12,6 +12,7 @@ import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
+//TODO add nodeAdded and nodeRemoved...
 public class SceneNodeManager extends GraphListenerSystem {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 

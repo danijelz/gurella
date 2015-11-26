@@ -1,23 +1,34 @@
 package com.gurella.engine.graph;
 
 import com.badlogic.gdx.utils.Bits;
-import com.badlogic.gdx.utils.ObjectIntMap;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.graph.script.ScriptComponent;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.utils.BitsExt;
+import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.IndexedType;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class SceneNodeComponent extends SceneGraphElement {
-	private static final ObjectIntMap<Class<? extends SceneNodeComponent>> baseComponentTypes = new ObjectIntMap<Class<? extends SceneNodeComponent>>(); 
+	private static final IntIntMap baseComponentTypes = new IntIntMap();
+	private static final IntMap<BitsExt> componentSubtypes = new IntMap<BitsExt>();
 	private static final IndexedType<SceneNodeComponent> COMPONENT_TYPE_INDEXER = new IndexedType<SceneNodeComponent>();
+	private static final int rootComponentType = COMPONENT_TYPE_INDEXER.getType(SceneNodeComponent.class);
+
+	static {
+		baseComponentTypes.put(rootComponentType, rootComponentType);
+	}
 
 	public final int componentType;
 	public final int baseComponentType;
 	SceneNode node;
 
 	public SceneNodeComponent() {
-		componentType = COMPONENT_TYPE_INDEXER.getType(getClass());
-		baseComponentType = getBaseComponentType(getClass());
+		Class<? extends SceneNodeComponent> componentClass = getClass();
+		componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
+		baseComponentType = getBaseComponentType(componentType, componentClass);
 	}
 
 	public static int getBaseComponentType(SceneNodeComponent component) {
@@ -25,58 +36,123 @@ public class SceneNodeComponent extends SceneGraphElement {
 	}
 
 	public static int getBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		int type = baseComponentTypes.get(componentClass, -1);
-		if (type != -1) {
-			return type;
-		}
-		
-		type = COMPONENT_TYPE_INDEXER.findType(componentClass, -1);
-		if (type != -1) {
-			return type;
-		}
-		
-		Class<? extends SceneNodeComponent> baseComponentType = findBaseComponentType(componentClass);
-		if(baseComponentType == null) {
-			return COMPONENT_TYPE_INDEXER.getType(componentClass);
-		} else {
-			type = COMPONENT_TYPE_INDEXER.getType(baseComponentType);
-			baseComponentTypes.put(componentClass, type);
-			return type;
-		}
+		initComponentData(componentClass);
+		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.getType(componentClass), 0);
 	}
 
-	private static Class<? extends SceneNodeComponent> findBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		Class<?> temp = componentClass;
-		while (temp != null && !SceneNodeComponent.class.equals(componentClass) && !ScriptComponent.class.equals(componentClass) && !Object.class.equals(componentClass)) {
-			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(temp, BaseSceneElementType.class);
-			if(annotation != null) {
-				@SuppressWarnings("unchecked")
-				Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) temp;
-				return casted;
-			}
-			
-			temp = temp.getSuperclass();
-		}
-		return null;
-	}
-	
 	public static int getComponentType(SceneNodeComponent component) {
 		return getComponentType(component.getClass());
 	}
-	
+
 	public static int getComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		int type = COMPONENT_TYPE_INDEXER.findType(componentClass, -1);
-		if (type != -1) {
-			return type;
+		initComponentData(componentClass);
+		return COMPONENT_TYPE_INDEXER.findType(componentClass, 0);
+	}
+
+	public static ImmutableBits getComponentSubtypes(SceneNodeComponent component) {
+		return getComponentSubtypes(component.getClass());
+	}
+
+	public static ImmutableBits getComponentSubtypes(Class<? extends SceneNodeComponent> componentClass) {
+		initComponentData(componentClass);
+		BitsExt subtypes = componentSubtypes.get(COMPONENT_TYPE_INDEXER.findType(componentClass, 0));
+		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
+	}
+
+	public static boolean isSubtype(Class<? extends SceneNodeComponent> baseComponentClass,
+			Class<? extends SceneNodeComponent> componentClass) {
+		initComponentData(componentClass);
+		initComponentData(baseComponentClass);
+		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findType(componentClass, 0));
+	}
+
+	private static int getBaseComponentType(int componentType, Class<? extends SceneNodeComponent> componentClass) {
+		int baseComponentType = baseComponentTypes.get(componentType, -1);
+		if (baseComponentType > -1) {
+			return baseComponentType;
 		}
-		
-		Class<? extends SceneNodeComponent> baseComponentType = findBaseComponentType(componentClass);
-		if(baseComponentType == null) {
-			return COMPONENT_TYPE_INDEXER.getType(componentClass);
+
+		Class<?> currentComponentClass = componentClass;
+		Class<? extends SceneNodeComponent> lastAnnotated = null;
+		BitsExt lastBits = new BitsExt();
+		BitsExt currentBits;
+		componentSubtypes.put(componentType, lastBits);
+		int foundBaseComponentType = -1;
+
+		while (currentComponentClass != null && currentComponentClass != SceneNodeComponent.class) {
+			@SuppressWarnings("unchecked")
+			Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) currentComponentClass;
+			int currentComponentType = COMPONENT_TYPE_INDEXER.getType(casted);
+			currentBits = componentSubtypes.get(currentComponentType);
+			if (currentBits == null) {
+				currentBits = new BitsExt();
+				componentSubtypes.put(currentComponentType, currentBits);
+			}
+			currentBits.or(lastBits);
+
+			if (foundBaseComponentType == -1) {
+				foundBaseComponentType = baseComponentTypes.get(currentComponentType, -1);
+				if (foundBaseComponentType == -1) {
+					BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(currentComponentClass,
+							BaseSceneElementType.class);
+					if (annotation != null) {
+						lastAnnotated = casted;
+					}
+				}
+			}
+
+			currentComponentClass = currentComponentClass.getSuperclass();
+			lastBits = currentBits;
+		}
+
+		if (lastAnnotated == null) {
+			baseComponentTypes.put(componentType, componentType);
+			return componentType;
 		} else {
-			int baseType = COMPONENT_TYPE_INDEXER.getType(baseComponentType);
-			baseComponentTypes.put(componentClass, baseType);
-			return type;
+			baseComponentType = COMPONENT_TYPE_INDEXER.getType(lastAnnotated);
+			baseComponentTypes.put(componentType, baseComponentType);
+			return baseComponentType;
+		}
+	}
+
+	private static void initComponentData(Class<? extends SceneNodeComponent> componentClass) {
+		if (COMPONENT_TYPE_INDEXER.contais(componentClass)) {
+			return;
+		}
+
+		if (!ClassReflection.isAssignableFrom(SceneNodeComponent.class, componentClass)) {
+			throw new GdxRuntimeException("Invalid class: " + componentClass);
+		}
+
+		int componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
+		componentSubtypes.put(componentType, new BitsExt());
+		@SuppressWarnings("unchecked")
+		Class<? extends SceneNodeComponent> superclass = (Class<? extends SceneNodeComponent>) componentClass
+				.getSuperclass();
+		initComponentData(componentClass, componentType, superclass);
+	}
+
+	private static int initComponentData(Class<? extends SceneNodeComponent> componentClass, int componentType,
+			Class<? extends SceneNodeComponent> parentClass) {
+		if (parentClass == SceneNodeComponent.class) {
+			return rootComponentType;
+		}
+
+		int parentType = COMPONENT_TYPE_INDEXER.getType(parentClass);
+		@SuppressWarnings("unchecked")
+		Class<? extends SceneNodeComponent> superclass = (Class<? extends SceneNodeComponent>) parentClass
+				.getSuperclass();
+		int parentBaseType = initComponentData(parentClass, parentType, superclass);
+
+		BitsExt subtypes = componentSubtypes.get(componentType);
+		BitsExt parentSubtypes = componentSubtypes.get(parentType);
+		parentSubtypes.or(subtypes);
+		parentSubtypes.set(componentType);
+
+		if (parentBaseType == rootComponentType) {
+			baseComponentTypes.put(componentType, componentType);
+		} else {
+			baseComponentTypes.put(componentType, parentBaseType);
 		}
 	}
 
@@ -139,40 +215,32 @@ public class SceneNodeComponent extends SceneGraphElement {
 		disposedSignal.dispatch();
 		INDEXER.removeIndexed(this);
 	}
-	
+
 	public final boolean isHierarchyEnabled() {
 		return this.enabled && node != null && node.isHierarchyEnabled();
 	}
-	
+
 	@Override
 	public final void setEnabled(boolean enabled) {
-		if(this.enabled == enabled) {
+		if (this.enabled == enabled) {
 			return;
 		} else {
 			this.enabled = enabled;
 			boolean hierarchyEnabled = isHierarchyEnabled();
-			if(!hierarchyEnabled && active) {
+			if (!hierarchyEnabled && active) {
 				deactivate();
-			} else if(hierarchyEnabled && !active) {
+			} else if (hierarchyEnabled && !active) {
 				activate();
 			}
 		}
 	}
-	
+
 	public <T extends SceneNodeComponent> T getNodeComponent(Class<T> componentClass) {
 		return node.getComponent(componentClass);
 	}
 
 	public <T extends SceneNodeComponent> T getActiveNodeComponent(Class<T> componentClass) {
 		return node.getActiveComponent(componentClass);
-	}
-
-	public <T extends SceneNodeComponent> T getNodeComponent(int nodeComponentType) {
-		return node.getComponent(nodeComponentType);
-	}
-
-	public <T extends SceneNodeComponent> T getActiveNodeComponent(int nodeComponentType) {
-		return node.getActiveComponent(nodeComponentType);
 	}
 
 	public Values<SceneNodeComponent> getNodeComponents() {

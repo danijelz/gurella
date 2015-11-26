@@ -201,7 +201,7 @@ public class SceneGraph implements UpdateListener {
 		component.graph = this;
 		component.node = node;
 
-		node.components.put(component.componentType, component);
+		node.componentsInternal.put(component.baseComponentType, component);
 		node.componentBits.set(component.componentType);
 		attachElement(component);
 		sceneGraphListenerSignal.componentAdded(component);
@@ -218,13 +218,14 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	void activateComponentSafely(SceneNodeComponent component) {
-		if (!component.active && component.isHierarchyEnabled() && component.node.active) {
+		SceneNode node = component.node;
+		if (!component.active && component.isHierarchyEnabled() && node.active) {
 			component.active = true;
 			activeComponentsInternal.add(component);
-			component.node.componentBits.set(component.componentType);
+			node.activeComponentBits.set(component.componentType);
 			component.lifecycleSignal.activated();
 			sceneGraphListenerSignal.componentActivated(component);
-			component.node.componentActivatedSignal.dispatch(component);
+			node.componentActivatedSignal.dispatch(component);
 		}
 	}
 
@@ -238,12 +239,13 @@ public class SceneGraph implements UpdateListener {
 
 	void deactivateComponentSafely(SceneNodeComponent component) {
 		if (component.active) {
+			SceneNode node = component.node;
 			component.active = false;
 			component.lifecycleSignal.deactivated();
-			component.node.componentBits.clear(component.componentType);
+			node.activeComponentBits.clear(component.componentType);
 			activeComponentsInternal.removeValue(component, true);
 			sceneGraphListenerSignal.componentDeactivated(component);
-			component.node.componentDeactivatedSignal.dispatch(component);
+			node.componentDeactivatedSignal.dispatch(component);
 		}
 	}
 
@@ -264,7 +266,7 @@ public class SceneGraph implements UpdateListener {
 		component.scene = null;
 		component.graph = null;
 
-		node.components.remove(component.componentType);
+		node.componentsInternal.remove(component.baseComponentType);
 		node.componentBits.clear(component.componentType);
 		allComponentsInternal.removeValue(component, true);
 	}
@@ -295,12 +297,13 @@ public class SceneGraph implements UpdateListener {
 			activateNodeSafely(node);
 		}
 
-		for (SceneNodeComponent component : node.components.values()) {
+		for (SceneNodeComponent component : node.componentsInternal.values()) {
 			addComponentSafely(node, component);
 		}
 
-		for (SceneNode child : node.children) {
-			addNodeSafely(child);
+		Array<SceneNode> children = node.childrenInternal;
+		for (int i = 0; i < children.size; i++) {
+			addNodeSafely(children.get(i));
 		}
 	}
 
@@ -323,12 +326,13 @@ public class SceneGraph implements UpdateListener {
 	void activateNodeHierarchySafely(SceneNode node) {
 		activateNodeSafely(node);
 
-		for (SceneNodeComponent component : node.components.values()) {
+		for (SceneNodeComponent component : node.componentsInternal.values()) {
 			activateComponentSafely(component);
 		}
 
-		for (SceneNode child : node.children) {
-			activateNodeHierarchySafely(child);
+		Array<SceneNode> children = node.childrenInternal;
+		for (int i = 0; i < children.size; i++) {
+			activateNodeHierarchySafely(children.get(i));
 		}
 	}
 
@@ -341,11 +345,12 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	void deactivateNodeSafely(SceneNode node) {
-		for (SceneNode child : node.children) {
-			deactivateNodeSafely(child);
+		Array<SceneNode> children = node.childrenInternal;
+		for (int i = 0; i < children.size; i++) {
+			deactivateNodeSafely(children.get(i));
 		}
 
-		for (SceneNodeComponent component : node.components.values()) {
+		for (SceneNodeComponent component : node.componentsInternal.values()) {
 			deactivateComponentSafely(component);
 		}
 
@@ -377,11 +382,12 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	private void removeNodeFromGraph(SceneNode node) {
-		for (SceneNode child : node.children) {
-			removeNodeFromGraph(child);
+		Array<SceneNode> children = node.childrenInternal;
+		for (int i = 0; i < children.size; i++) {
+			removeNodeFromGraph(children.get(i));
 		}
 
-		for (SceneNodeComponent component : node.components.values()) {
+		for (SceneNodeComponent component : node.componentsInternal.values()) {
 			removeComponentFromGraph(component);
 		}
 

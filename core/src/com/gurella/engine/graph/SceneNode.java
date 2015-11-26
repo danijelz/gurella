@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
@@ -13,6 +14,7 @@ import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ImmutableIntMapValues;
 
 //TODO make SceneNodeSignal usable
 public final class SceneNode extends SceneGraphElement {
@@ -25,7 +27,10 @@ public final class SceneNode extends SceneGraphElement {
 	public final ImmutableArray<SceneNode> children = new ImmutableArray<SceneNode>(childrenInternal);
 
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
-	final IntMap<SceneNodeComponent> components = new IntMap<SceneNodeComponent>();
+	final IntMap<SceneNodeComponent> componentsInternal = new IntMap<SceneNodeComponent>();
+	@TransientProperty
+	public final ImmutableIntMapValues<SceneNodeComponent> components = new ImmutableIntMapValues<SceneNodeComponent>(
+			componentsInternal);
 	@TransientProperty
 	public final Bits componentBits = new Bits();
 	@TransientProperty
@@ -80,7 +85,7 @@ public final class SceneNode extends SceneGraphElement {
 			child.dispose();
 		}
 
-		for (SceneNodeComponent component : components.values()) {
+		for (SceneNodeComponent component : componentsInternal.values()) {
 			component.dispose();
 		}
 
@@ -114,13 +119,13 @@ public final class SceneNode extends SceneGraphElement {
 				throw new IllegalStateException("Component already belongs to node.");
 			}
 
-			int componentType = component.componentType;
-			if (components.containsKey(componentType)) {
-				throw new IllegalStateException("Node already contains component of type: "
-						+ component.getClass().getSimpleName());
+			int baseComponentType = component.baseComponentType;
+			if (componentsInternal.containsKey(baseComponentType)) {
+				throw new IllegalStateException(
+						"Node already contains component of type: " + component.getClass().getSimpleName());
 			}
 
-			components.put(componentType, component);
+			componentsInternal.put(baseComponentType, component);
 			componentBits.set(component.componentType);
 			nodeChangedSignal.componentAdded(component);
 		} else {
@@ -129,18 +134,15 @@ public final class SceneNode extends SceneGraphElement {
 	}
 
 	public void removeComponent(Class<? extends SceneNodeComponent> componentType) {
-		removeComponent(SceneNodeComponent.getComponentType(componentType));
-	}
-
-	public void removeComponent(int componentType) {
+		int baseComponentType = SceneNodeComponent.getBaseComponentType(componentType);
 		if (graph == null) {
-			SceneNodeComponent removed = components.remove(componentType);
+			SceneNodeComponent removed = componentsInternal.remove(baseComponentType);
 			if (removed != null) {
 				nodeChangedSignal.componentRemoved(removed);
 				componentBits.clear(removed.componentType);
 			}
 		} else {
-			SceneNodeComponent component = components.get(componentType);
+			SceneNodeComponent component = componentsInternal.get(baseComponentType);
 			if (component != null) {
 				graph.removeComponent(component);
 			}
@@ -148,30 +150,18 @@ public final class SceneNode extends SceneGraphElement {
 	}
 
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componentClass) {
-		return getComponent(SceneNodeComponent.getComponentType(componentClass));
+		@SuppressWarnings("unchecked")
+		T value = (T) componentsInternal.get(SceneNodeComponent.getBaseComponentType(componentClass));
+		return ClassReflection.isAssignableFrom(componentClass, value.getClass()) ? value : null;
 	}
 
 	public <T extends SceneNodeComponent> T getActiveComponent(Class<T> componentClass) {
 		T component = getComponent(componentClass);
-		return component == null || !component.isActive()
-				? null
-				: component;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends SceneNodeComponent> T getComponent(int componentType) {
-		return (T) components.get(componentType);
-	}
-
-	public <T extends SceneNodeComponent> T getActiveComponent(int componentType) {
-		T component = getComponent(componentType);
-		return component == null || !component.isActive()
-				? null
-				: component;
+		return component == null || !component.isActive() ? null : component;
 	}
 
 	public Values<SceneNodeComponent> getComponents() {
-		return components.values();
+		return components;
 	}
 
 	public void addChild(SceneNode child) {
@@ -211,11 +201,12 @@ public final class SceneNode extends SceneGraphElement {
 			throw new IllegalStateException("Child is not owned by node.");
 		}
 	}
-	
+
 	public void broadcastMessage(Object sender, Object messageType, Object messageData) {
 		if (graph != null) {
-			Array<ScriptComponent> listeners = graph.scriptManager.getNodeScriptsByMethod(this, DefaultScriptMethod.onMessage).orderedItems();
-			for(int i = 0; i < listeners.size; i++) {
+			Array<ScriptComponent> listeners = graph.scriptManager
+					.getNodeScriptsByMethod(this, DefaultScriptMethod.onMessage).orderedItems();
+			for (int i = 0; i < listeners.size; i++) {
 				ScriptComponent listener = listeners.get(i);
 				listener.onMessage(sender, messageType, messageData);
 			}
@@ -232,14 +223,14 @@ public final class SceneNode extends SceneGraphElement {
 
 	public void broadcastMessageToParents(Object sender, Object messageType, Object messageData) {
 		broadcastMessage(sender, messageType, messageData);
-		if(parent != null) {
+		if (parent != null) {
 			parent.broadcastMessageToParents(sender, messageType, messageData);
 		}
 	}
 
 	@Override
 	public final void reset() {
-		for (SceneNodeComponent component : components.values()) {
+		for (SceneNodeComponent component : componentsInternal.values()) {
 			component.reset();
 		}
 

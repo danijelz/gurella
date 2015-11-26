@@ -1,26 +1,11 @@
 package com.gurella.engine.graphics.vector.graph;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.graphics.vector.AffineTransform;
-import com.gurella.engine.graphics.vector.BlendMode;
-import com.gurella.engine.graphics.vector.Canvas;
-import com.gurella.engine.graphics.vector.DrawingStyle;
-import com.gurella.engine.graphics.vector.Effect;
-import com.gurella.engine.graphics.vector.Font;
-import com.gurella.engine.graphics.vector.LineCap;
-import com.gurella.engine.graphics.vector.LineJoin;
-import com.gurella.engine.graphics.vector.Paint;
-import com.gurella.engine.graphics.vector.Path;
-import com.gurella.engine.graphics.vector.PointStyle;
-import com.gurella.engine.graphics.vector.Scissor;
-import com.gurella.engine.graphics.vector.Vertex;
-import com.gurella.engine.graphics.vector.VertexMode;
-import com.gurella.engine.graphics.vector.Winding;
 import com.gurella.engine.graphics.vector.CallRecord.DrawPathCallRecord;
 import com.gurella.engine.graphics.vector.CallRecord.DrawTrianglesCallRecord;
+import com.gurella.engine.graphics.vector.Canvas;
+import com.gurella.engine.graphics.vector.Vertex;
 
 //TODO unused
 public abstract class CanvasNode implements Poolable {

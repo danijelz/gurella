@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.application.UpdateOrder;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneProcessor;
-import com.gurella.engine.graph.manager.ComponentsPredicate;
+import com.gurella.engine.graph.manager.NodeComponentsPredicate;
 import com.gurella.engine.graph.manager.SceneNodeManager;
 import com.gurella.engine.graph.manager.SceneNodeManager.SceneNodeFamily;
 import com.gurella.engine.signal.Listener0;
@@ -13,7 +13,7 @@ import com.gurella.engine.utils.ImmutableArray;
 
 public class LinearVelocityProcessor extends SceneProcessor {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
-			ComponentsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
+			NodeComponentsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 
 	private SceneNodeManager nodeManager;
 	private Vector3 tempTranslate = new Vector3();

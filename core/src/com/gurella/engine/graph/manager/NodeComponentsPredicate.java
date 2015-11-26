@@ -7,15 +7,15 @@ import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 
-public class ComponentsPredicate implements Predicate<SceneNode>, Poolable {
+public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 	private boolean activeComponents;
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
 	private final Bits one = new Bits();
 
-	private final Array<ComponentsPredicate> children = new Array<ComponentsPredicate>();
+	private final Array<NodeComponentsPredicate> children = new Array<NodeComponentsPredicate>();
 
-	private ComponentsPredicate() {
+	private NodeComponentsPredicate() {
 	}
 
 	@Override
@@ -91,8 +91,8 @@ public class ComponentsPredicate implements Predicate<SceneNode>, Poolable {
 			return this;
 		}
 
-		public ComponentsPredicate build() {
-			ComponentsPredicate aspect = new ComponentsPredicate();
+		public NodeComponentsPredicate build() {
+			NodeComponentsPredicate aspect = new NodeComponentsPredicate();
 			aspect.activeComponents = activeComponents;
 			associate(all, aspect.all);
 			associate(exclude, aspect.exclude);

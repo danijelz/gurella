@@ -6,9 +6,11 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class LayerManager extends GraphListenerSystem {
-	private IntMap<Array<SceneNode>> nodesByLayer = new IntMap<Array<SceneNode>>();
+	private IntMap<ArrayExt<SceneNode>> nodesByLayer = new IntMap<ArrayExt<SceneNode>>();
 	private IntIntMap nodeLayers = new IntIntMap();
 
 	public Layer getNodeLayer(SceneNode node) {
@@ -30,14 +32,14 @@ public class LayerManager extends GraphListenerSystem {
 		}
 	}
 
-	public <T extends SceneNode> Array<T> getNodesByLayer(Layer layer) {
-		return getNodesByLayer(layer.id);
+	public ImmutableArray<SceneNode> getNodesByLayer(Layer layer) {
+		ArrayExt<SceneNode> layerNodes = nodesByLayer.get(layer.id);
+		return layerNodes == null ? ImmutableArray.<SceneNode> empty() : layerNodes.immutable();
 	}
 
-	public <T extends SceneNode> Array<T> getNodesByLayer(int layerType) {
-		@SuppressWarnings("unchecked")
-		Array<T> casted = (Array<T>) nodesByLayer.get(layerType);
-		return casted;
+	public ImmutableArray<SceneNode> getNodesByLayer(int layerId) {
+		ArrayExt<SceneNode> layerNodes = nodesByLayer.get(layerId);
+		return layerNodes == null ? ImmutableArray.<SceneNode> empty() : layerNodes.immutable();
 	}
 
 	@Override
@@ -53,10 +55,10 @@ public class LayerManager extends GraphListenerSystem {
 	}
 
 	private Array<SceneNode> getNodes(int layerType) {
-		Array<SceneNode> nodes = nodesByLayer.get(layerType);
+		ArrayExt<SceneNode> nodes = nodesByLayer.get(layerType);
 
 		if (nodes == null) {
-			nodes = new Array<SceneNode>();
+			nodes = new ArrayExt<SceneNode>();
 			nodesByLayer.put(layerType, nodes);
 		}
 
