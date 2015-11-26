@@ -131,7 +131,15 @@ public class SceneNodeComponent extends SceneGraphElement {
 				.getSuperclass();
 		initComponentData(parentComponentClass);
 		int parentComponentType = COMPONENT_TYPE_INDEXER.getType(parentComponentClass);
-		int parentBaseType = baseComponentTypes.get(parentComponentType, -1);
+		int parentBaseComponentType = baseComponentTypes.get(parentComponentType, -1);
+		int baseComponentType;
+		if(parentComponentType == parentBaseComponentType) {
+			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(parentComponentClass, BaseSceneElementType.class);
+			baseComponentType = annotation == null ? componentType : parentComponentType;
+		} else {
+			baseComponentType = parentComponentType;
+		}
+		baseComponentTypes.put(componentType, baseComponentType);
 		
 		
 		

@@ -13,8 +13,6 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 	private final Bits exclude = new Bits();
 	private final Bits one = new Bits();
 
-	private final Array<NodeComponentsPredicate> children = new Array<NodeComponentsPredicate>();
-
 	private NodeComponentsPredicate() {
 	}
 
