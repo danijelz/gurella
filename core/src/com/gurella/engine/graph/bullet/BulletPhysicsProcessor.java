@@ -20,6 +20,7 @@ import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
 import com.gurella.engine.graph.script.ScriptComponent;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.graph.script.DefaultScriptMethod;
 
 public class BulletPhysicsProcessor extends SceneProcessorManager {
@@ -54,10 +55,11 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 
 	@Override
 	protected void attached() {
-		tickCallback.graph = getGraph();
 		SceneGraph graph = getGraph();
-		for (SceneNodeComponent component : graph.activeComponents) {
-			componentActivated(component);
+		tickCallback.graph = graph;
+		ImmutableArray<SceneNodeComponent> components = graph.activeComponents;
+		for (int i = 0; i < components.size(); i++) {
+			componentActivated(components.get(i));
 		}
 	}
 

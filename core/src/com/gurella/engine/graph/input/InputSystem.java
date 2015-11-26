@@ -49,6 +49,7 @@ import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.AbstractSignal;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class InputSystem extends SceneProcessor implements SceneGraphListener {
 	private Array<Layer> orderedLayers = new Array<Layer>();
@@ -97,8 +98,9 @@ public class InputSystem extends SceneProcessor implements SceneGraphListener {
 		graph.addListener(this);
 
 		// TODO use componentManager
-		for (SceneNodeComponent component : graph.activeComponents) {
-			componentActivated(component);
+		ImmutableArray<SceneNodeComponent> components = graph.activeComponents;
+		for (int i = 0; i < components.size(); i++) {
+			componentActivated(components.get(i));
 		}
 
 		Application.addInputProcessor(inputProcessorQueue);
