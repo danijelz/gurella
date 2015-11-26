@@ -27,8 +27,9 @@ public class SceneNodeComponent extends SceneGraphElement {
 
 	public SceneNodeComponent() {
 		Class<? extends SceneNodeComponent> componentClass = getClass();
+		initComponentData(componentClass);
 		componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
-		baseComponentType = getBaseComponentType(componentType, componentClass);
+		baseComponentType = baseComponentTypes.get(componentType, componentType);
 	}
 
 	public static int getBaseComponentType(SceneNodeComponent component) {
@@ -62,7 +63,6 @@ public class SceneNodeComponent extends SceneGraphElement {
 	public static boolean isSubtype(Class<? extends SceneNodeComponent> baseComponentClass,
 			Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		initComponentData(baseComponentClass);
 		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findType(componentClass, 0));
 	}
 
@@ -127,10 +127,36 @@ public class SceneNodeComponent extends SceneGraphElement {
 		int componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
 		componentSubtypes.put(componentType, new BitsExt());
 		@SuppressWarnings("unchecked")
-		Class<? extends SceneNodeComponent> superclass = (Class<? extends SceneNodeComponent>) componentClass
+		Class<? extends SceneNodeComponent> parentComponentClass = (Class<? extends SceneNodeComponent>) componentClass
 				.getSuperclass();
-		initComponentData(componentClass, componentType, superclass);
+		initComponentData(parentComponentClass);
+		int parentComponentType = COMPONENT_TYPE_INDEXER.getType(parentComponentClass);
+		int parentBaseType = baseComponentTypes.get(parentComponentType, -1);
+		
+		
+		
+		int baseComponentType = initComponentData(componentClass, componentType, superclass);
+		if (baseComponentType == rootComponentType) {
+			baseComponentTypes.put(componentType, componentType);
+		} else {
+			baseComponentTypes.put(componentType, baseComponentType);
+		}
 	}
+	
+//	private static Class<? extends SceneNodeComponent> findBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
+//		Class<?> temp = componentClass;
+//		while (temp != null && !SceneNodeComponent.class.equals(componentClass) && !ScriptComponent.class.equals(componentClass) && !Object.class.equals(componentClass)) {
+//			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(temp, BaseSceneElementType.class);
+//			if(annotation != null) {
+//				@SuppressWarnings("unchecked")
+//				Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) temp;
+//				return casted;
+//			}
+//			
+//			temp = temp.getSuperclass();
+//		}
+//		return null;
+//	}
 
 	private static int initComponentData(Class<? extends SceneNodeComponent> componentClass, int componentType,
 			Class<? extends SceneNodeComponent> parentClass) {
