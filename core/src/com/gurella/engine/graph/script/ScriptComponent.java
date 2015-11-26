@@ -32,6 +32,7 @@ import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.utils.ImmutableArray;
 
+//TODO move methods to parent classes
 public abstract class ScriptComponent extends SceneNodeComponent implements SceneGraphListener {
 	// UPDATE EVENTS
 	public void onInput() {

@@ -42,7 +42,7 @@ public class Inflate {
 	private int zip_wp;			// current position in slide
 	private zip_HuftList zip_fixed_tl = null;	// inflate static
 	private zip_HuftList zip_fixed_td;		// inflate static
-	private int zip_fixed_bl, fixed_bd;	// inflate static
+	private int zip_fixed_bl;	// inflate static
 	private int zip_bit_buf;		// bit buffer
 	private int zip_bit_len;		// bits in bit buffer
 	private int zip_method;
@@ -648,8 +648,7 @@ public class Inflate {
                         if(tail == null)
                             tail = this.root = new zip_HuftList();
                         else
-                            tail = tail.next = new zip_HuftList();
-                        tail.next = null;
+                            tail = new zip_HuftList();
                         tail.list = q;
                         u[h] = q;	// table starts after link
 
@@ -712,7 +711,6 @@ public class Inflate {
     }
     
     private static class zip_HuftList {
-    	zip_HuftList next;
     	zip_HuftNode[] list;
     }
     

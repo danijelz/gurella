@@ -102,29 +102,29 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static void addNodeListenerMethod(int methodId, ScriptComponent scriptComponent) {
-		switch (methodId) {
-		case DefaultScriptMethod.nodeComponentAdded.id:
+		if (methodId == DefaultScriptMethod.nodeComponentAdded.id) {
 			NodeComponentAddedListener.obtain(scriptComponent);
 			return;
-		case DefaultScriptMethod.nodeComponentRemoved.id:
+		} else if (methodId == DefaultScriptMethod.nodeComponentAdded.id) {
+			NodeComponentAddedListener.obtain(scriptComponent);
+			return;
+		} else if (methodId == DefaultScriptMethod.nodeComponentRemoved.id) {
 			NodeComponentRemovedListener.obtain(scriptComponent);
 			return;
-		case DefaultScriptMethod.nodeComponentActivated.id:
+		} else if (methodId == DefaultScriptMethod.nodeComponentActivated.id) {
 			NodeComponentActivatedListener.obtain(scriptComponent);
 			return;
-		case DefaultScriptMethod.nodeComponentDeactivated.id:
+		} else if (methodId == DefaultScriptMethod.nodeComponentDeactivated.id) {
 			NodeComponentDeactivatedListener.obtain(scriptComponent);
 			return;
-		case DefaultScriptMethod.nodeParentChanged.id:
+		} else if (methodId == DefaultScriptMethod.nodeParentChanged.id) {
 			NodeParentChangedListener.obtain(scriptComponent);
 			return;
-		case DefaultScriptMethod.nodeChildAdded.id:
+		} else if (methodId == DefaultScriptMethod.nodeChildAdded.id) {
 			NodeChildAddedListener.obtain(scriptComponent);
 			return;
-		case DefaultScriptMethod.nodeChildRemoved.id:
+		} else if (methodId == DefaultScriptMethod.nodeChildRemoved.id) {
 			NodeChildRemovedListener.obtain(scriptComponent);
-			return;
-		default:
 			return;
 		}
 	}

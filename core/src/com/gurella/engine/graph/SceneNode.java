@@ -152,7 +152,7 @@ public final class SceneNode extends SceneGraphElement {
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componentClass) {
 		@SuppressWarnings("unchecked")
 		T value = (T) componentsInternal.get(SceneNodeComponent.getBaseComponentType(componentClass));
-		if(value == null) {
+		if(value == null || value.baseComponentType == value.componentType) {
 			return value;
 		} else {
 			return SceneNodeComponent.isSubtype(componentClass, value.getClass()) ? value : null;

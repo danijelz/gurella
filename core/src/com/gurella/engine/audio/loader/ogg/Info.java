@@ -8,10 +8,6 @@ public class Info implements Poolable {
 	private int channels;
 	int rate;
 
-	private int bitrate_upper;
-	private int bitrate_nominal;
-	private int bitrate_lower;
-
 	// Vorbis supports only short and long blocks, but allows the
 	// encoder to choose the sizes
 
@@ -35,9 +31,9 @@ public class Info implements Poolable {
 		channels = opb.read(8);
 		rate = opb.read(32);
 
-		bitrate_upper = opb.read(32);
-		bitrate_nominal = opb.read(32);
-		bitrate_lower = opb.read(32);
+		/*bitrate_upper =*/ opb.read(32);
+		/*bitrate_nominal =*/ opb.read(32);
+		/*bitrate_lower =*/ opb.read(32);
 
 		blocksizes[0] = 1 << opb.read(4);
 		blocksizes[1] = 1 << opb.read(4);
@@ -108,8 +104,5 @@ public class Info implements Poolable {
 		version = 0;
 		channels = 0;
 		rate = 0;
-		bitrate_upper = 0;
-		bitrate_nominal = 0;
-		bitrate_lower = 0;
 	}
 }

@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.IntMap.Values;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableBits;
@@ -66,56 +65,37 @@ public class SceneNodeComponent extends SceneGraphElement {
 		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findType(componentClass, 0));
 	}
 
-	private static int getBaseComponentType(int componentType, Class<? extends SceneNodeComponent> componentClass) {
-		int baseComponentType = baseComponentTypes.get(componentType, -1);
-		if (baseComponentType > -1) {
-			return baseComponentType;
+	private static void initComponentData(Class<? extends SceneNodeComponent> componentClass) {
+		if (COMPONENT_TYPE_INDEXER.contais(componentClass)) {
+			return;
 		}
 
-		Class<?> currentComponentClass = componentClass;
-		Class<? extends SceneNodeComponent> lastAnnotated = null;
-		BitsExt lastBits = new BitsExt();
+		initComponentDataHierarchy(componentClass);
+
+		int componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
+		Class<?> temp = componentClass.getSuperclass();
+		BitsExt lastBits = null;
 		BitsExt currentBits;
-		componentSubtypes.put(componentType, lastBits);
-		int foundBaseComponentType = -1;
 
-		while (currentComponentClass != null && currentComponentClass != SceneNodeComponent.class) {
+		while (temp != SceneNodeComponent.class) {
 			@SuppressWarnings("unchecked")
-			Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) currentComponentClass;
-			int currentComponentType = COMPONENT_TYPE_INDEXER.getType(casted);
-			currentBits = componentSubtypes.get(currentComponentType);
-			if (currentBits == null) {
-				currentBits = new BitsExt();
-				componentSubtypes.put(currentComponentType, currentBits);
-			}
-			currentBits.or(lastBits);
+			Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) temp;
+			int parentComponentType = COMPONENT_TYPE_INDEXER.getType(casted);
 
-			if (foundBaseComponentType == -1) {
-				foundBaseComponentType = baseComponentTypes.get(currentComponentType, -1);
-				if (foundBaseComponentType == -1) {
-					BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(currentComponentClass,
-							BaseSceneElementType.class);
-					if (annotation != null) {
-						lastAnnotated = casted;
-					}
-				}
+			if (lastBits == null) {
+				lastBits = componentSubtypes.get(parentComponentType);
+				lastBits.set(componentType);
+			} else {
+				currentBits = componentSubtypes.get(parentComponentType);
+				currentBits.or(lastBits);
+				lastBits = currentBits;
 			}
 
-			currentComponentClass = currentComponentClass.getSuperclass();
-			lastBits = currentBits;
-		}
-
-		if (lastAnnotated == null) {
-			baseComponentTypes.put(componentType, componentType);
-			return componentType;
-		} else {
-			baseComponentType = COMPONENT_TYPE_INDEXER.getType(lastAnnotated);
-			baseComponentTypes.put(componentType, baseComponentType);
-			return baseComponentType;
+			temp = temp.getSuperclass();
 		}
 	}
 
-	private static void initComponentData(Class<? extends SceneNodeComponent> componentClass) {
+	private static void initComponentDataHierarchy(Class<? extends SceneNodeComponent> componentClass) {
 		if (COMPONENT_TYPE_INDEXER.contais(componentClass)) {
 			return;
 		}
@@ -129,65 +109,18 @@ public class SceneNodeComponent extends SceneGraphElement {
 		@SuppressWarnings("unchecked")
 		Class<? extends SceneNodeComponent> parentComponentClass = (Class<? extends SceneNodeComponent>) componentClass
 				.getSuperclass();
-		initComponentData(parentComponentClass);
+		initComponentDataHierarchy(parentComponentClass);
 		int parentComponentType = COMPONENT_TYPE_INDEXER.getType(parentComponentClass);
 		int parentBaseComponentType = baseComponentTypes.get(parentComponentType, -1);
 		int baseComponentType;
-		if(parentComponentType == parentBaseComponentType) {
-			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(parentComponentClass, BaseSceneElementType.class);
+		if (parentComponentType == parentBaseComponentType) {
+			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(parentComponentClass,
+					BaseSceneElementType.class);
 			baseComponentType = annotation == null ? componentType : parentComponentType;
 		} else {
 			baseComponentType = parentComponentType;
 		}
 		baseComponentTypes.put(componentType, baseComponentType);
-		
-		
-		
-		int baseComponentType = initComponentData(componentClass, componentType, superclass);
-		if (baseComponentType == rootComponentType) {
-			baseComponentTypes.put(componentType, componentType);
-		} else {
-			baseComponentTypes.put(componentType, baseComponentType);
-		}
-	}
-	
-//	private static Class<? extends SceneNodeComponent> findBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
-//		Class<?> temp = componentClass;
-//		while (temp != null && !SceneNodeComponent.class.equals(componentClass) && !ScriptComponent.class.equals(componentClass) && !Object.class.equals(componentClass)) {
-//			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(temp, BaseSceneElementType.class);
-//			if(annotation != null) {
-//				@SuppressWarnings("unchecked")
-//				Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) temp;
-//				return casted;
-//			}
-//			
-//			temp = temp.getSuperclass();
-//		}
-//		return null;
-//	}
-
-	private static int initComponentData(Class<? extends SceneNodeComponent> componentClass, int componentType,
-			Class<? extends SceneNodeComponent> parentClass) {
-		if (parentClass == SceneNodeComponent.class) {
-			return rootComponentType;
-		}
-
-		int parentType = COMPONENT_TYPE_INDEXER.getType(parentClass);
-		@SuppressWarnings("unchecked")
-		Class<? extends SceneNodeComponent> superclass = (Class<? extends SceneNodeComponent>) parentClass
-				.getSuperclass();
-		int parentBaseType = initComponentData(parentClass, parentType, superclass);
-
-		BitsExt subtypes = componentSubtypes.get(componentType);
-		BitsExt parentSubtypes = componentSubtypes.get(parentType);
-		parentSubtypes.or(subtypes);
-		parentSubtypes.set(componentType);
-
-		if (parentBaseType == rootComponentType) {
-			baseComponentTypes.put(componentType, componentType);
-		} else {
-			baseComponentTypes.put(componentType, parentBaseType);
-		}
 	}
 
 	@SafeVarargs
@@ -267,17 +200,5 @@ public class SceneNodeComponent extends SceneGraphElement {
 				activate();
 			}
 		}
-	}
-
-	public <T extends SceneNodeComponent> T getNodeComponent(Class<T> componentClass) {
-		return node.getComponent(componentClass);
-	}
-
-	public <T extends SceneNodeComponent> T getActiveNodeComponent(Class<T> componentClass) {
-		return node.getActiveComponent(componentClass);
-	}
-
-	public Values<SceneNodeComponent> getNodeComponents() {
-		return node.getComponents();
 	}
 }
