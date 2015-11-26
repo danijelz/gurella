@@ -12,19 +12,19 @@ public class SceneNodeComponent extends SceneGraphElement {
 	private static final IndexedType<SceneNodeComponent> COMPONENT_TYPE_INDEXER = new IndexedType<SceneNodeComponent>();
 
 	public final int componentType;
-	public final int implementationComponentType;
+	public final int baseComponentType;
 	SceneNode node;
 
 	public SceneNodeComponent() {
-		componentType = getComponentType(getClass());
-		implementationComponentType = COMPONENT_TYPE_INDEXER.getType(getClass());
+		componentType = COMPONENT_TYPE_INDEXER.getType(getClass());
+		baseComponentType = getBaseComponentType(getClass());
 	}
 
-	public static int getComponentType(SceneNodeComponent component) {
-		return getComponentType(component.getClass());
+	public static int getBaseComponentType(SceneNodeComponent component) {
+		return getBaseComponentType(component.getClass());
 	}
 
-	public static int getComponentType(Class<? extends SceneNodeComponent> componentClass) {
+	public static int getBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		int type = baseComponentTypes.get(componentClass, -1);
 		if (type != -1) {
 			return type;
@@ -60,11 +60,11 @@ public class SceneNodeComponent extends SceneGraphElement {
 		return null;
 	}
 	
-	public static int getImplementationComponentType(SceneNodeComponent component) {
-		return getImplementationComponentType(component.getClass());
+	public static int getComponentType(SceneNodeComponent component) {
+		return getComponentType(component.getClass());
 	}
 	
-	public static int getImplementationComponentType(Class<? extends SceneNodeComponent> componentClass) {
+	public static int getComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		int type = COMPONENT_TYPE_INDEXER.findType(componentClass, -1);
 		if (type != -1) {
 			return type;
@@ -85,7 +85,7 @@ public class SceneNodeComponent extends SceneGraphElement {
 		Bits bits = new Bits();
 
 		for (int i = 0; i < componentClasses.length; i++) {
-			bits.set(getComponentType(componentClasses[i]));
+			bits.set(getBaseComponentType(componentClasses[i]));
 		}
 
 		return bits;
@@ -95,7 +95,7 @@ public class SceneNodeComponent extends SceneGraphElement {
 		Bits bits = new Bits();
 
 		for (int i = 0; i < components.length; i++) {
-			bits.set(getComponentType(components[i]));
+			bits.set(getBaseComponentType(components[i]));
 		}
 
 		return bits;
@@ -103,14 +103,6 @@ public class SceneNodeComponent extends SceneGraphElement {
 
 	public SceneNode getNode() {
 		return node;
-	}
-
-	public int getComponentType() {
-		return componentType;
-	}
-	
-	public int getImplementationComponentType() {
-		return implementationComponentType;
 	}
 
 	@Override

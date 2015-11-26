@@ -30,7 +30,7 @@ import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.ValueUtils;
 import com.gurella.studio.inspector.InspectorPropertiesContainer;
 import com.gurella.studio.nodes.SceneNodeTreeNode.NodeNameChangedEvent;
@@ -82,7 +82,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 		if (components != null) {
 			for (Object componentValue : components) {
 				ModelResourceFactory<SceneNodeComponent> componentFactory = getComponentFactory(componentValue);
-				usedComponentTypes.add(SceneNodeComponent.getComponentType(componentFactory.getResourceType()));
+				usedComponentTypes.add(SceneNodeComponent.getBaseComponentType(componentFactory.getResourceType()));
 
 				ColapsableResourcePropertiesContainer componentContainer = new ColapsableResourcePropertiesContainer(
 						componentFactory);
@@ -200,7 +200,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 
 		private void enableItems() {
 			for (AddComponentMenuItem item : itemsByComponentType.values()) {
-				item.setDisabled(usedComponentTypes.contains(SceneNodeComponent.getComponentType(item.componentType)));
+				item.setDisabled(usedComponentTypes.contains(SceneNodeComponent.getBaseComponentType(item.componentType)));
 			}
 		}
 	}

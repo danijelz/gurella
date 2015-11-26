@@ -15,15 +15,14 @@ import com.gurella.engine.signal.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO make SceneNodeSignal usable
-public class SceneNode extends SceneGraphElement {
+public final class SceneNode extends SceneGraphElement {
 	@TransientProperty
 	SceneNode parent;
 
-	// TODO make private
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
 	final Array<SceneNode> childrenInternal = new Array<SceneNode>();
 	@TransientProperty
-	public final ImmutableArray<SceneNode> children = new ImmutableArray<>(childrenInternal);
+	public final ImmutableArray<SceneNode> children = new ImmutableArray<SceneNode>(childrenInternal);
 
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
 	final IntMap<SceneNodeComponent> components = new IntMap<SceneNodeComponent>();
@@ -115,7 +114,7 @@ public class SceneNode extends SceneGraphElement {
 				throw new IllegalStateException("Component already belongs to node.");
 			}
 
-			int componentType = component.getImplementationComponentType();
+			int componentType = component.componentType;
 			if (components.containsKey(componentType)) {
 				throw new IllegalStateException("Node already contains component of type: "
 						+ component.getClass().getSimpleName());
@@ -130,7 +129,7 @@ public class SceneNode extends SceneGraphElement {
 	}
 
 	public void removeComponent(Class<? extends SceneNodeComponent> componentType) {
-		removeComponent(SceneNodeComponent.getImplementationComponentType(componentType));
+		removeComponent(SceneNodeComponent.getComponentType(componentType));
 	}
 
 	public void removeComponent(int componentType) {
@@ -149,7 +148,7 @@ public class SceneNode extends SceneGraphElement {
 	}
 
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componentClass) {
-		return getComponent(SceneNodeComponent.getImplementationComponentType(componentClass));
+		return getComponent(SceneNodeComponent.getComponentType(componentClass));
 	}
 
 	public <T extends SceneNodeComponent> T getActiveComponent(Class<T> componentClass) {

@@ -75,7 +75,7 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static OverridenScriptMethods getOverridenScriptMethods(ScriptComponent scriptComponent) {
-		int componentType = scriptComponent.getImplementationComponentType();
+		int componentType = scriptComponent.componentType;
 		OverridenScriptMethods overridenScriptMethods = scriptMethods.get(componentType);
 		if (overridenScriptMethods == null) {
 			overridenScriptMethods = new OverridenScriptMethods(scriptComponent.getClass());
@@ -102,27 +102,26 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static void addNodeListenerMethod(int methodId, ScriptComponent scriptComponent) {
-		DefaultScriptMethod method = DefaultScriptMethod.values()[methodId];
-		switch (method) {
-		case nodeComponentAdded:
+		switch (methodId) {
+		case DefaultScriptMethod.nodeComponentAdded.id:
 			NodeComponentAddedListener.obtain(scriptComponent);
 			return;
-		case nodeComponentRemoved:
+		case DefaultScriptMethod.nodeComponentRemoved.id:
 			NodeComponentRemovedListener.obtain(scriptComponent);
 			return;
-		case nodeComponentActivated:
+		case DefaultScriptMethod.nodeComponentActivated.id:
 			NodeComponentActivatedListener.obtain(scriptComponent);
 			return;
-		case nodeComponentDeactivated:
+		case DefaultScriptMethod.nodeComponentDeactivated.id:
 			NodeComponentDeactivatedListener.obtain(scriptComponent);
 			return;
-		case nodeParentChanged:
+		case DefaultScriptMethod.nodeParentChanged.id:
 			NodeParentChangedListener.obtain(scriptComponent);
 			return;
-		case nodeChildAdded:
+		case DefaultScriptMethod.nodeChildAdded.id:
 			NodeChildAddedListener.obtain(scriptComponent);
 			return;
-		case nodeChildRemoved:
+		case DefaultScriptMethod.nodeChildRemoved.id:
 			NodeChildRemovedListener.obtain(scriptComponent);
 			return;
 		default:
@@ -146,8 +145,8 @@ public class ScriptManager extends GraphListenerSystem {
 		}
 	}
 
-	public OrderedSet<ScriptComponent> getScriptsByMethod(DefaultScriptMethod method) {
-		return getScriptsByMethod(method.ordinal());
+	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethod method) {
+		return getScriptsByMethod(method.id);
 	}
 
 	public OrderedSet<ScriptComponent> getScriptsByMethod(int methodId) {
@@ -159,10 +158,8 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, DefaultScriptMethod method) {
-		return node == null
-				? null
-				: getNodeScriptsByMethod(node.id, method.ordinal());
+	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethod method) {
+		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
 	}
 
 	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(int nodeId, int methodId) {
@@ -180,8 +177,8 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getScriptComponents(DefaultScriptMethod scriptMethod) {
-		return getScriptsByMethod(scriptMethod.ordinal());
+	public OrderedSet<ScriptComponent> getScriptComponents(ScriptMethod scriptMethod) {
+		return getScriptsByMethod(scriptMethod.id);
 	}
 
 	private static class OverridenScriptMethods {
@@ -191,9 +188,9 @@ public class ScriptManager extends GraphListenerSystem {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != ScriptComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					DefaultScriptMethod scriptMethod = DefaultScriptMethod.valueOf(method);
+					ScriptMethod scriptMethod = DefaultScriptMethod.valueOf(method);
 					if (scriptMethod != null) {
-						methods.add(scriptMethod.ordinal());
+						methods.add(scriptMethod.id);
 					}
 				}
 
@@ -465,7 +462,8 @@ public class ScriptManager extends GraphListenerSystem {
 		}
 	}
 
-	private static class NodeComponentDeactivatedListener implements Listener1<SceneNodeComponent>, Listener0, Poolable {
+	private static class NodeComponentDeactivatedListener
+			implements Listener1<SceneNodeComponent>, Listener0, Poolable {
 		ScriptComponent scriptComponent;
 
 		static NodeComponentDeactivatedListener obtain(ScriptComponent scriptComponent) {

@@ -17,8 +17,8 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.gurella.engine.event.EventBus;
 import com.gurella.engine.input.InputMapper;
 import com.gurella.engine.resource.SceneElementsResourceContext;
-import com.gurella.engine.scene2.Scene;
-import com.gurella.engine.scene2.SceneManager;
+import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneManager;
 import com.gurella.engine.utils.DisposableManager;
 
 public class Application extends SceneElementsResourceContext implements ApplicationListener {

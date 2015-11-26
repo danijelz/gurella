@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventBus;
 import com.gurella.engine.event.Listener1Event;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener1;
 import com.gurella.studio.GdxStudioEvents;
 import com.gurella.studio.Project;

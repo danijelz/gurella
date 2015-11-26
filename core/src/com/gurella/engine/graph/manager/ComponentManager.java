@@ -4,248 +4,120 @@ import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.GraphListenerSystem;
-import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class ComponentManager extends GraphListenerSystem {
-	private IntMap<Array<SceneNodeComponent>> components = new IntMap<Array<SceneNodeComponent>>();
-	private IntMap<ObjectMap<ComponentGroupKey, ComponentGroup>> componentGroups = new IntMap<ObjectMap<ComponentGroupKey, ComponentGroup>>();
+	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
-	private ComponentGroupKeyPool componentGroupKeyPool = new ComponentGroupKeyPool();
-	private ComponentGroupPool componentGroupPool = new ComponentGroupPool();
+	@Override
+	public void componentAdded(SceneNodeComponent component) {
+		handleComponent(component);
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
-		int componentType = component.getComponentType();
+		handleComponent(component);
+	}
 
-		Array<SceneNodeComponent> componentsByType = components.get(componentType);
-		if (componentsByType != null) {
-			componentsByType.add(component);
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType != null) {
-			for (ComponentGroup componentGroup : groupsByType.values()) {
-				componentGroup.components.add(component);
-				componentGroup.sort();
-			}
+	private void handleComponent(SceneNodeComponent component) {
+		for (FamilyComponents<?> familyComponents : families.values()) {
+			familyComponents.handle(component);
 		}
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
-		int componentType = component.getComponentType();
-
-		Array<SceneNodeComponent> array = components.get(componentType);
-		if (array != null) {
-			array.removeValue(component, true);
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType != null) {
-			for (ComponentGroup componentGroup : groupsByType.values()) {
-				componentGroup.components.removeValue(component, true);
-			}
-		}
-	}
-
-	@Override
-	public void componentAdded(SceneNodeComponent component) {
+		handleComponent(component);
 	}
 
 	@Override
 	public void componentRemoved(SceneNodeComponent component) {
+		for (FamilyComponents<?> familyComponents : families.values()) {
+			familyComponents.remove(component);
+		}
 	}
 
-	public <T extends SceneNodeComponent> Array<T> getComponents(Class<T> componentClass) {
-		return this.<T> getComponents(SceneNodeComponent.getImplementationComponentType(componentClass));
+	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily<T> family) {
+		@SuppressWarnings("unchecked")
+		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.get(family.id);
+		return familyComponents == null ? ImmutableArray.<T> empty() : familyComponents.immutableComponents;
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends SceneNodeComponent> Array<T> getComponents(int componentType) {
-		return (Array<T>) components.get(componentType);
-	}
-
-	public Array<SceneNodeComponent> getComponents(Class<? extends SceneNodeComponent> componentClass,
-			Comparator<SceneNodeComponent> comparator) {
-		return getComponents(SceneNodeComponent.getImplementationComponentType(componentClass), comparator);
-	}
-
-	public Array<SceneNodeComponent> getComponents(int componentType, Comparator<SceneNodeComponent> comparator) {
-		if (comparator == null) {
-			return null;
+	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily<T> family) {
+		if (families.containsKey(family.id)) {
+			return;
 		}
 
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType == null) {
-			return null;
+		@SuppressWarnings("unchecked")
+		FamilyComponents<T> familyComponents = Pools.obtain(FamilyComponents.class);
+		families.put(family.id, familyComponents);
+
+		ImmutableArray<SceneNodeComponent> components = getGraph().allComponents;
+		for (int i = 0; i < components.size(); i++) {
+			familyComponents.handle(components.get(i));
+		}
+	}
+
+	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily<T> family) {
+		@SuppressWarnings("unchecked")
+		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.remove(family.id);
+		if (familyComponents != null) {
+			Pools.free(familyComponents);
+		}
+	}
+
+	public static final class ComponentFamily<T extends SceneNodeComponent> {
+		private static int INDEXER = 0;
+
+		public final int id;
+		public final Comparator<? super T> comparator;
+		public final Predicate<? super SceneNodeComponent> predicate;
+
+		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate) {
+			id = INDEXER++;
+			comparator = null;
+			this.predicate = predicate;
 		}
 
-		ComponentGroupKey tempKey = componentGroupKeyPool.obtain(componentType, comparator);
-		ComponentGroup componentGroup = groupsByType.get(tempKey);
-		Array<SceneNodeComponent> groupComponents = componentGroup == null
-				? null
-				: componentGroup.components;
-		componentGroupKeyPool.free(tempKey);
-		return groupComponents;
+		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate, Comparator<? super T> comparator) {
+			id = INDEXER++;
+			this.comparator = comparator;
+			this.predicate = predicate;
+		}
 	}
 
-	public void registerComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		registerComponentType(SceneNodeComponent.getImplementationComponentType(componentClass));
-	}
+	private static class FamilyComponents<T extends SceneNodeComponent> implements Poolable {
+		ComponentFamily<T> family;
+		Array<T> components = new Array<T>();
+		ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
 
-	public void registerComponentType(int componentType) {
-		Array<SceneNodeComponent> componentsByType = components.get(componentType);
-
-		if (componentsByType == null) {
-			componentsByType = new Array<SceneNodeComponent>();
-			components.put(componentType, componentsByType);
-			SceneGraph graph = getGraph();
-			for (SceneNodeComponent component : graph.activeComponents) {
-				if (componentType == component.getComponentType()) {
-					componentsByType.add(component);
-				}
+		private void handle(SceneNodeComponent component) {
+			if (family.predicate.evaluate(component)) {
+				@SuppressWarnings("unchecked")
+				T casted = (T) component;
+				components.add(casted);
+			}
+			Comparator<? super T> comparator = family.comparator;
+			if (comparator != null) {
+				components.sort(comparator);
 			}
 		}
-	}
 
-	public void unregisterComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		unregisterComponentType(SceneNodeComponent.getImplementationComponentType(componentClass));
-	}
-
-	public void unregisterComponentType(int componentType) {
-		components.remove(componentType);
-	}
-
-	public void registerComponentGroup(Class<? extends SceneNodeComponent> componentClass,
-			Comparator<SceneNodeComponent> comparator) {
-		registerComponentGroup(SceneNodeComponent.getImplementationComponentType(componentClass), comparator);
-	}
-
-	public void registerComponentGroup(int componentType, Comparator<SceneNodeComponent> comparator) {
-		if (comparator == null) {
-			return;
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType == null) {
-			groupsByType = new ObjectMap<ComponentGroupKey, ComponentGroup>();
-			componentGroups.put(componentType, new ObjectMap<ComponentGroupKey, ComponentGroup>());
-		}
-
-		ComponentGroupKey key = componentGroupKeyPool.obtain(componentType, comparator);
-		ComponentGroup componentGroup = groupsByType.get(key);
-		if (componentGroup == null) {
-			componentGroup = componentGroupPool.obtain(key);
-			groupsByType.put(key, componentGroup);
-			SceneGraph graph = getGraph();
-			for (SceneNodeComponent component : graph.activeComponents) {
-				if (componentType == component.getComponentType()) {
-					componentGroup.components.add(component);
-				}
-			}
-			componentGroup.components.sort(comparator);
-		} else {
-			componentGroupKeyPool.free(key);
-		}
-	}
-
-	public void unregisterComponentGroup(Class<? extends SceneNodeComponent> componentClass,
-			Comparator<SceneNodeComponent> comparator) {
-		unregisterComponentGroup(SceneNodeComponent.getImplementationComponentType(componentClass), comparator);
-	}
-
-	public void unregisterComponentGroup(int componentType, Comparator<SceneNodeComponent> comparator) {
-		if (comparator == null) {
-			return;
-		}
-
-		ObjectMap<ComponentGroupKey, ComponentGroup> groupsByType = componentGroups.get(componentType);
-		if (groupsByType == null) {
-			return;
-		}
-
-		ComponentGroupKey tempKey = componentGroupKeyPool.obtain(componentType, comparator);
-		ComponentGroup group = groupsByType.remove(tempKey);
-		if (group != null) {
-			componentGroupKeyPool.free(group.key);
-			group.key = null;
-			componentGroupPool.free(group);
-		}
-
-		componentGroupKeyPool.free(tempKey);
-	}
-
-	private static class ComponentGroupKey implements Poolable {
-		int componentType;
-		Comparator<SceneNodeComponent> comparator;
-
-		@Override
-		public void reset() {
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = prime * comparator.hashCode();
-			return prime * result + componentType;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ComponentGroupKey other = (ComponentGroupKey) obj;
-
-			return componentType == other.componentType && comparator.equals(other.comparator);
-		}
-	}
-
-	private static class ComponentGroupKeyPool extends Pool<ComponentGroupKey> {
-		@Override
-		protected ComponentGroupKey newObject() {
-			return new ComponentGroupKey();
-		}
-
-		public ComponentGroupKey obtain(int componentType, Comparator<SceneNodeComponent> comparator) {
-			ComponentGroupKey key = obtain();
-			key.componentType = componentType;
-			key.comparator = comparator;
-			return key;
-		}
-	}
-
-	public static class ComponentGroup implements Poolable {
-		ComponentGroupKey key;
-		Array<SceneNodeComponent> components = new Array<SceneNodeComponent>();
-
-		void sort() {
-			components.sort(key.comparator);
+		private void remove(SceneNodeComponent component) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) component;
+			components.removeValue(casted, true);
 		}
 
 		@Override
 		public void reset() {
-		}
-	}
-
-	private static class ComponentGroupPool extends Pool<ComponentGroup> {
-		@Override
-		protected ComponentGroup newObject() {
-			return new ComponentGroup();
-		}
-
-		public ComponentGroup obtain(ComponentGroupKey key) {
-			ComponentGroup componentGroup = obtain();
-			componentGroup.key = key;
-			return componentGroup;
+			family = null;
+			components.clear();
 		}
 	}
 }

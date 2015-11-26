@@ -16,7 +16,7 @@ import com.gurella.engine.graph.script.ScriptManager;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningManager;
 import com.gurella.engine.graph.tag.TagManager;
-import com.gurella.engine.scene2.Scene;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.utils.ImmutableArray;
@@ -201,7 +201,7 @@ public class SceneGraph implements UpdateListener {
 		component.graph = this;
 		component.node = node;
 
-		node.components.put(component.getComponentType(), component);
+		node.components.put(component.componentType, component);
 		node.componentBits.set(component.componentType);
 		attachElement(component);
 		sceneGraphListenerSignal.componentAdded(component);
@@ -264,7 +264,7 @@ public class SceneGraph implements UpdateListener {
 		component.scene = null;
 		component.graph = null;
 
-		node.components.remove(component.getComponentType());
+		node.components.remove(component.componentType);
 		node.componentBits.clear(component.componentType);
 		allComponentsInternal.removeValue(component, true);
 	}
