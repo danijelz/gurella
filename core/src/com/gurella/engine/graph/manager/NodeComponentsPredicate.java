@@ -1,35 +1,59 @@
 package com.gurella.engine.graph.manager;
 
-import com.badlogic.gdx.utils.Array;
+import static com.gurella.engine.graph.SceneNodeComponent.getComponentSubtypes;
+import static com.gurella.engine.graph.SceneNodeComponent.getComponentType;
+
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.utils.ImmutableBits;
 
 public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 	private boolean activeComponents;
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
-	private final Bits one = new Bits();
+	private final Bits any = new Bits();
 
 	private NodeComponentsPredicate() {
 	}
 
 	@Override
 	public boolean evaluate(SceneNode node) {
-		Bits nodeComponentBits = activeComponents ? node.activeComponentBits : node.componentBits;
+		ImmutableBits nodeComponentBits = activeComponents ? node.activeComponentBits : node.componentBits;
 
-		if (!nodeComponentBits.containsAll(all)) {
-			return false;
+		int setBit = all.nextSetBit(0);
+		while (setBit != -1) {
+			if (!nodeComponentBits.get(setBit) && !nodeComponentBits.intersects(getComponentSubtypes(setBit))) {
+				return false;
+			}
+			setBit = all.nextSetBit(setBit);
 		}
 
-		if (!one.isEmpty() && !one.intersects(nodeComponentBits)) {
-			return false;
+		if (!any.isEmpty()) {
+			boolean exists = false;
+			setBit = any.nextSetBit(0);
+			while (setBit != -1) {
+				if (nodeComponentBits.get(setBit) || nodeComponentBits.intersects(getComponentSubtypes(setBit))) {
+					exists = true;
+					break;
+				}
+				setBit = any.nextSetBit(setBit);
+			}
+			if (!exists) {
+				return false;
+			}
 		}
 
-		if (!exclude.isEmpty() && exclude.intersects(nodeComponentBits)) {
-			return false;
+		if (!exclude.isEmpty()) {
+			setBit = exclude.nextSetBit(0);
+			while (setBit != -1) {
+				if (nodeComponentBits.get(setBit) || nodeComponentBits.intersects(getComponentSubtypes(setBit))) {
+					return false;
+				}
+				setBit = exclude.nextSetBit(setBit);
+			}
 		}
 
 		return true;
@@ -40,7 +64,7 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 		activeComponents = false;
 		all.clear();
 		exclude.clear();
-		one.clear();
+		any.clear();
 	}
 
 	@SafeVarargs
@@ -54,37 +78,37 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 	}
 
 	@SafeVarargs
-	public static Builder one(boolean activeComponents, Class<? extends SceneNodeComponent>... types) {
-		return new Builder(activeComponents).one(types);
+	public static Builder any(boolean activeComponents, Class<? extends SceneNodeComponent>... types) {
+		return new Builder(activeComponents).any(types);
 	}
 
 	public static class Builder implements Poolable {
 		private boolean activeComponents;
-		private final Array<Class<? extends SceneNodeComponent>> all = new Array<Class<? extends SceneNodeComponent>>();
-		private final Array<Class<? extends SceneNodeComponent>> exclude = new Array<Class<? extends SceneNodeComponent>>();
-		private final Array<Class<? extends SceneNodeComponent>> one = new Array<Class<? extends SceneNodeComponent>>();
+		private final Bits all = new Bits();
+		private final Bits exclude = new Bits();
+		private final Bits any = new Bits();
 
 		private Builder(boolean activeComponents) {
 			this.activeComponents = activeComponents;
 		}
 
 		public Builder all(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
-			for (Class<? extends SceneNodeComponent> t : types) {
-				all.add(t);
+			for (Class<? extends SceneNodeComponent> type : types) {
+				all.set(getComponentType(type));
 			}
 			return this;
 		}
 
-		public Builder one(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
-			for (Class<? extends SceneNodeComponent> t : types) {
-				one.add(t);
+		public Builder any(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
+			for (Class<? extends SceneNodeComponent> type : types) {
+				any.set(getComponentType(type));
 			}
 			return this;
 		}
 
 		public Builder exclude(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
-			for (Class<? extends SceneNodeComponent> t : types) {
-				exclude.add(t);
+			for (Class<? extends SceneNodeComponent> type : types) {
+				exclude.set(getComponentType(type));
 			}
 			return this;
 		}
@@ -92,16 +116,10 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 		public NodeComponentsPredicate build() {
 			NodeComponentsPredicate aspect = new NodeComponentsPredicate();
 			aspect.activeComponents = activeComponents;
-			associate(all, aspect.all);
-			associate(exclude, aspect.exclude);
-			associate(one, aspect.one);
+			aspect.all.or(all);
+			aspect.exclude.or(exclude);
+			aspect.any.or(any);
 			return aspect;
-		}
-
-		private static void associate(Array<Class<? extends SceneNodeComponent>> types, Bits componentBits) {
-			for (int i = 0; i < types.size; i++) {
-				componentBits.set(SceneNodeComponent.getComponentType(types.get(i)));
-			}
 		}
 
 		@Override
@@ -117,7 +135,7 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 				return false;
 			if (!exclude.equals(builder.exclude))
 				return false;
-			if (!one.equals(builder.one))
+			if (!any.equals(builder.any))
 				return false;
 
 			return true;
@@ -127,7 +145,7 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 		public int hashCode() {
 			int result = all.hashCode();
 			result = 31 * result + exclude.hashCode();
-			result = 31 * result + one.hashCode();
+			result = 31 * result + any.hashCode();
 			return result;
 		}
 
@@ -136,7 +154,7 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 			activeComponents = false;
 			all.clear();
 			exclude.clear();
-			one.clear();
+			any.clear();
 		}
 	}
 }

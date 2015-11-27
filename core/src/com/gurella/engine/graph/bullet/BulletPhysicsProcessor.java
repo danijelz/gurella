@@ -15,7 +15,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.UpdateOrder;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
@@ -77,7 +77,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.PHYSICS;
+		return CommonUpdateOrder.PHYSICS;
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.SceneSystem;
 import com.gurella.engine.graph.bullet.BulletPhysicsProcessor;
 import com.gurella.engine.graph.input.InputSystem;
@@ -45,7 +45,7 @@ public class SystemsContainer extends VisTable {
 		header.add(headerLabel).top().left().fillX().expandX();
 		header.add(menuButton).top().left();
 		add(header).top().left().fillX().expandX();
-		EventBus.GLOBAL.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
+		EventService.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
 	}
 
 	private void clearScene() {

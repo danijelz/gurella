@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.UpdateEvent;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.ResourceContext;
 import com.gurella.engine.resource.ResourceFactory;
@@ -19,7 +19,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 			.add(new GlobalAssetManager());
 
 	static {
-		EventBus.GLOBAL.addListener(UpdateEvent.class, globalAssetManager);
+		EventService.addListener(UpdateEvent.class, globalAssetManager);
 	}
 
 	private AssetDescriptor<T> assetDescriptor;
@@ -75,8 +75,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 
 	private AssetDescriptor<T> getAssetDescriptor() {
 		if (assetDescriptor == null) {
-			assetDescriptor = assetResourceDescriptor == null
-					? assetDescriptor
+			assetDescriptor = assetResourceDescriptor == null ? assetDescriptor
 					: assetResourceDescriptor.getAssetDescriptor();
 		}
 		return assetDescriptor;

@@ -8,8 +8,8 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.UpdateOrder;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.BaseSceneElementType;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -31,14 +31,14 @@ public abstract class SpatialPartitioningManager<T extends Spatial> extends Grap
 	private SceneStopListener sceneStopListener = new SceneStopListener();
 
 	private UpdateListenerImpl updateListener = new UpdateListenerImpl();
-	
+
 	protected IntMap<T> spatialsByRenderableComponent = new IntMap<T>();
 	private SpatialDirtyListener spatialDirtyListener = new SpatialDirtyListener();
-	
+
 	private synchronized void initSpatials() {
 		doInitSpatials();
 	}
-	
+
 	protected abstract void doInitSpatials();
 
 	public synchronized void add(T spatial) {
@@ -104,7 +104,7 @@ public abstract class SpatialPartitioningManager<T extends Spatial> extends Grap
 		doClear();
 		allSpatials.clear();
 	}
-	
+
 	protected abstract void doClear();
 
 	public synchronized void markDirty(T spatial) {
@@ -162,14 +162,14 @@ public abstract class SpatialPartitioningManager<T extends Spatial> extends Grap
 		@Override
 		public void handle() {
 			initSpatials();
-			EventBus.GLOBAL.addListener(UpdateEvent.class, updateListener);
+			EventService.addListener(UpdateEvent.class, updateListener);
 		}
 	}
 
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, updateListener);
+			EventService.removeListener(UpdateEvent.class, updateListener);
 			clear();
 		}
 	}
@@ -177,7 +177,7 @@ public abstract class SpatialPartitioningManager<T extends Spatial> extends Grap
 	private class UpdateListenerImpl implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.CLEANUP;
+			return CommonUpdateOrder.CLEANUP;
 		}
 
 		@Override
@@ -185,7 +185,7 @@ public abstract class SpatialPartitioningManager<T extends Spatial> extends Grap
 			updateSpatials();
 		}
 	}
-	
+
 	private class SpatialDirtyListener implements Listener1<RenderableComponent> {
 		@Override
 		public void handle(RenderableComponent renderableComponent) {

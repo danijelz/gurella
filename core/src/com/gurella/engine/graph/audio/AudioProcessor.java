@@ -5,12 +5,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
-import com.gurella.engine.application.UpdateOrder;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
-import com.gurella.engine.graph.movement.LinearVelocityComponent;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener1;
@@ -51,16 +50,6 @@ public class AudioProcessor extends SceneProcessorManager {
 			if (audioSourceData != null) {
 				audioSourceData.transformComponent = (TransformComponent) component;
 			}
-		} else if (component instanceof LinearVelocityComponent) {
-			AudioListenerData audioListenerData = activeListeners.get(component.getNode().id);
-			if (audioListenerData != null) {
-				audioListenerData.linearVelocityComponent = (LinearVelocityComponent) component;
-			}
-
-			AudioSourceData audioSourceData = activeSources.get(component.getNode().id);
-			if (audioSourceData != null) {
-				audioSourceData.linearVelocityComponent = (LinearVelocityComponent) component;
-			}
 		}
 	}
 
@@ -92,16 +81,6 @@ public class AudioProcessor extends SceneProcessorManager {
 			AudioSourceData audioSourceData = activeSources.get(component.getNode().getId());
 			if (audioSourceData != null) {
 				audioSourceData.transformComponent = null;
-			}
-		} else if (component instanceof LinearVelocityComponent) {
-			AudioListenerData audioListenerData = activeListeners.get(component.getNode().getId());
-			if (audioListenerData != null) {
-				audioListenerData.linearVelocityComponent = null;
-			}
-
-			AudioSourceData audioSourceData = activeSources.get(component.getNode().getId());
-			if (audioSourceData != null) {
-				audioSourceData.linearVelocityComponent = null;
 			}
 		}
 	}
@@ -156,9 +135,7 @@ public class AudioProcessor extends SceneProcessorManager {
 	}
 
 	private static AudioChannel getNonNullAudioChannel(AudioChannel audioChannel) {
-		return audioChannel == null
-				? GraphAudioChannel.GAME.getAudioChannel()
-				: audioChannel;
+		return audioChannel == null ? GraphAudioChannel.GAME.getAudioChannel() : audioChannel;
 	}
 
 	void free(AudioSourceComponent source, AudioTrack track) {
@@ -170,7 +147,7 @@ public class AudioProcessor extends SceneProcessorManager {
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.PRE_RENDER;
+		return CommonUpdateOrder.PRE_RENDER;
 	}
 
 	@Override
@@ -185,9 +162,7 @@ public class AudioProcessor extends SceneProcessorManager {
 
 	private AudioListenerData getActiveListener() {
 		int size = activeListenersStack.size;
-		return size > 0
-				? activeListenersStack.get(size - 1)
-				: null;
+		return size > 0 ? activeListenersStack.get(size - 1) : null;
 	}
 
 	private void mute() {
@@ -232,8 +207,7 @@ public class AudioProcessor extends SceneProcessorManager {
 	}
 
 	/**
-	 * Calculates the gain for this source based on its attenuation model and
-	 * distance from the listener.
+	 * Calculates the gain for this source based on its attenuation model and distance from the listener.
 	 */
 	private void updateVolume(AudioListenerData listener, AudioSourceData source) {
 		float distanceFromListener = listener.getPosition().dst(source.getPosition());
@@ -268,16 +242,14 @@ public class AudioProcessor extends SceneProcessorManager {
 			}
 			break;
 		case LINEAR_ROLLOFF:
-			volume = 1.0f - rolloffFactor * (distanceFromListener - referenceDistance)
-					/ (maxDistance - referenceDistance);
+			volume = 1.0f
+					- rolloffFactor * (distanceFromListener - referenceDistance) / (maxDistance - referenceDistance);
 			break;
 		case EXPONENTIAL:
 			volume = (float) Math.pow(distanceFromListener / referenceDistance, -rolloffFactor);
 			break;
 		case INVERSE:
-			float clampedDistance = distanceFromListener < referenceDistance
-					? referenceDistance
-					: distanceFromListener;
+			float clampedDistance = distanceFromListener < referenceDistance ? referenceDistance : distanceFromListener;
 			volume = referenceDistance / (referenceDistance + rolloffFactor * (clampedDistance - referenceDistance));
 			break;
 		default:
@@ -322,8 +294,7 @@ public class AudioProcessor extends SceneProcessorManager {
 	}
 
 	/**
-	 * Calculates the panning for this source based on its position in relation
-	 * to the listener.
+	 * Calculates the panning for this source based on its position in relation to the listener.
 	 */
 	private void updatePan(AudioListenerData listener, AudioSourceData source) {
 		if (source.getAttenuation() == Attenuation.NONE) {
@@ -351,8 +322,7 @@ public class AudioProcessor extends SceneProcessorManager {
 	}
 
 	/**
-	 * Calculates the pitch for this source based on its position in relation to
-	 * the listener.
+	 * Calculates the pitch for this source based on its position in relation to the listener.
 	 */
 	private static void updatePitch(AudioListenerData listener, AudioSourceData source) {
 		if (source.getDopplerFactor() == 0) {
@@ -366,17 +336,13 @@ public class AudioProcessor extends SceneProcessorManager {
 			float dopplerFactor = source.getDopplerFactor();
 			Vector3 SL = SynchronizedPools.obtain(Vector3.class).set(listener.getPosition()).sub(source.getPosition());
 
-			float vls = SL.isZero()
-					? 1.0f
-					: SL.dot(listenerVelocity) / SL.len();
-			float vss = SL.isZero()
-					? 1.0f
-					: SL.dot(sourceVelocity) / SL.len();
+			float vls = SL.isZero() ? 1.0f : SL.dot(listenerVelocity) / SL.len();
+			float vss = SL.isZero() ? 1.0f : SL.dot(sourceVelocity) / SL.len();
 
 			vls = Math.min(vls, SS / dopplerFactor);
 			vss = Math.min(vss, SS / dopplerFactor);
-			float newPitch = source.audioSourceComponent.pitch.getPitch()
-					* (SS * dopplerVelocity - dopplerFactor * vls) / (SS * dopplerVelocity - dopplerFactor * vss);
+			float newPitch = source.audioSourceComponent.pitch.getPitch() * (SS * dopplerVelocity - dopplerFactor * vls)
+					/ (SS * dopplerVelocity - dopplerFactor * vss);
 
 			source.pitch.setPitch(newPitch);
 

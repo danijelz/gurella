@@ -5,7 +5,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1Event;
 import com.gurella.engine.signal.Listener1;
 import com.gurella.studio.inspector.InspectorContainer;
@@ -55,17 +55,17 @@ public class EditorScreen extends ScreenAdapter {
 		left.setMinSplitAmount(0.2f);
 		right = new VisSplitPane(left, new VisScrollPane(inspectorContainer), false);
 		right.setMinSplitAmount(0.2f);
-		
+
 		rootComponent.add(right).expand().fill();
 
 		rootComponent.row();
 
 		rootComponent.add(footer).prefHeight(130).expandX().fillX();
 
-		EventBus.GLOBAL.addListener(PresentProjectEvent.class, new PresentProjectListener());
-		EventBus.GLOBAL.addListener(GdxStudioEvents.SAVE_PROJECT_EVENT, new SaveProjectListener());
-		
-		EventBus.GLOBAL.notify(GdxStudioEvents.SELECT_PROJECT_EVENT);
+		EventService.addListener(PresentProjectEvent.class, new PresentProjectListener());
+		EventService.addListener(GdxStudioEvents.SAVE_PROJECT_EVENT, new SaveProjectListener());
+
+		EventService.notify(GdxStudioEvents.SELECT_PROJECT_EVENT);
 	}
 
 	private void present(Project selectedProject) {

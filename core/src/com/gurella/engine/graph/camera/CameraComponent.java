@@ -30,6 +30,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public float far = 100;
 
 	private int ordinal;
+	//TODO notify render system for layer changes
 	@ResourceProperty
 	public final Array<Layer> renderingLayers = new Array<Layer>();
 

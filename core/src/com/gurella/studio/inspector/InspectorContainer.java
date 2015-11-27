@@ -1,7 +1,7 @@
 package com.gurella.studio.inspector;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1Event;
 import com.gurella.engine.signal.Listener1;
 import com.gurella.engine.utils.ValueUtils;
@@ -13,7 +13,7 @@ public class InspectorContainer extends VisTable {
 
 	public InspectorContainer() {
 		setWidth(100);
-		EventBus.GLOBAL.addListener(PresentInspectableValueEvent.class, new PresentInspectableValueListener());
+		EventService.addListener(PresentInspectableValueEvent.class, new PresentInspectableValueListener());
 	}
 
 	public void present(InspectorPropertiesContainer container) {
@@ -72,9 +72,7 @@ public class InspectorContainer extends VisTable {
 
 		@Override
 		public int hashCode() {
-			return container == null
-					? 0
-					: container.hashCode();
+			return container == null ? 0 : container.hashCode();
 		}
 
 		@Override

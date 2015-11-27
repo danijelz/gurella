@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Selection;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.SharedResourceReference;
@@ -52,7 +52,7 @@ public class SceneNodesContainer extends VisTable {
 		add(nodesTree).top().left().fill().expand();
 		row();
 		add(spacer).top().left().fill().expand();
-		EventBus.GLOBAL.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
+		EventService.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
 	}
 
 	private void clearScene() {
@@ -111,10 +111,10 @@ public class SceneNodesContainer extends VisTable {
 			if (selected.first() instanceof SceneNodeTreeNode) {
 				SceneNodeTreeNode sceneNodeTreeNode = (SceneNodeTreeNode) selected.first();
 				ResourceReference<? extends SceneNode> reference = sceneNodeTreeNode.getReference();
-				EventBus.GLOBAL.notify(new PresentInspectableValueEvent(new InspectableValue(
-						new SceneNodePropertiesContainer(reference))));
+				EventService.notify(new PresentInspectableValueEvent(
+						new InspectableValue(new SceneNodePropertiesContainer(reference))));
 			} else {
-				EventBus.GLOBAL.notify(new PresentInspectableValueEvent(null));
+				EventService.notify(new PresentInspectableValueEvent(null));
 			}
 		}
 	}

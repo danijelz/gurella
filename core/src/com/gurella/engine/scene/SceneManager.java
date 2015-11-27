@@ -6,8 +6,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.UpdateOrder;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.state.StateMachine;
@@ -48,9 +48,7 @@ public class SceneManager {
 
 	private static String getSceneGroup(Scene scene) {
 		String group = scene.getGroup();
-		group = ValueUtils.isEmpty(group)
-				? DEFAULT_TRANSITION_GROUP
-				: group;
+		group = ValueUtils.isEmpty(group) ? DEFAULT_TRANSITION_GROUP : group;
 		return group;
 	}
 
@@ -120,7 +118,7 @@ public class SceneManager {
 			dependentResourceIds.addAll(destinationScene.getInitialNodes());
 			destinationScene.obtainResourcesAsync(dependentResourceIds, this);
 			transition.beforeTransitionOut();
-			EventBus.GLOBAL.addListener(UpdateEvent.class, this);
+			EventService.addListener(UpdateEvent.class, this);
 		}
 
 		@Override
@@ -140,7 +138,7 @@ public class SceneManager {
 
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.INPUT;
+			return CommonUpdateOrder.INPUT;
 		}
 
 		@Override
@@ -213,7 +211,7 @@ public class SceneManager {
 		}
 
 		private void onException() {
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(UpdateEvent.class, this);
 			try {
 				transition.onTransitionException(initializationException);
 				releaseUnneededResources();
@@ -236,7 +234,7 @@ public class SceneManager {
 		}
 
 		private void resetTransitionData() {
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(UpdateEvent.class, this);
 
 			destinationScene = null;
 			transition = null;

@@ -2,7 +2,7 @@ package com.gurella.engine.graph;
 
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.signal.Listener0;
 
 public class SceneGraphUtils {
@@ -43,10 +43,10 @@ public class SceneGraphUtils {
 	public static <T extends SceneGraphElement & UpdateListener> void asUpdateListener(T sceneGraphElement) {
 		SceneStartListener<T> showSceneListener = new SceneStartListener<T>(sceneGraphElement);
 		SceneStopListener<T> sceneStopListener = new SceneStopListener<T>(sceneGraphElement);
-		sceneGraphElement.activatedSignal.addListener(new ActivatedListener<T>(sceneGraphElement, showSceneListener,
-				sceneStopListener));
-		sceneGraphElement.deactivatedSignal.addListener(new DeactivatedListener<T>(sceneGraphElement,
-				showSceneListener, sceneStopListener));
+		sceneGraphElement.activatedSignal
+				.addListener(new ActivatedListener<T>(sceneGraphElement, showSceneListener, sceneStopListener));
+		sceneGraphElement.deactivatedSignal
+				.addListener(new DeactivatedListener<T>(sceneGraphElement, showSceneListener, sceneStopListener));
 	}
 
 	private static class ActivatedListener<T extends SceneGraphElement & UpdateListener> implements Listener0 {
@@ -65,7 +65,7 @@ public class SceneGraphUtils {
 		public void handle() {
 			sceneGraphElement.scene.startSignal.addListener(sceneStartListener);
 			sceneGraphElement.scene.stopSignal.addListener(sceneStopListener);
-			EventBus.GLOBAL.addListener(UpdateEvent.class, sceneGraphElement);
+			EventService.addListener(UpdateEvent.class, sceneGraphElement);
 		}
 	}
 
@@ -83,7 +83,7 @@ public class SceneGraphUtils {
 
 		@Override
 		public void handle() {
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, sceneGraphElement);
+			EventService.removeListener(UpdateEvent.class, sceneGraphElement);
 			sceneGraphElement.scene.startSignal.removeListener(showSceneListener);
 			sceneGraphElement.scene.stopSignal.removeListener(sceneStopListener);
 		}
@@ -98,7 +98,7 @@ public class SceneGraphUtils {
 
 		@Override
 		public void handle() {
-			EventBus.GLOBAL.addListener(UpdateEvent.class, sceneGraphElement);
+			EventService.addListener(UpdateEvent.class, sceneGraphElement);
 		}
 	}
 
@@ -111,7 +111,7 @@ public class SceneGraphUtils {
 
 		@Override
 		public void handle() {
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, sceneGraphElement);
+			EventService.removeListener(UpdateEvent.class, sceneGraphElement);
 		}
 	}
 }

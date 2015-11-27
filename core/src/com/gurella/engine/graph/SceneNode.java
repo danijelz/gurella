@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
@@ -14,6 +13,7 @@ import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 
 //TODO make SceneNodeSignal usable
@@ -32,9 +32,13 @@ public final class SceneNode extends SceneGraphElement {
 	public final ImmutableIntMapValues<SceneNodeComponent> components = new ImmutableIntMapValues<SceneNodeComponent>(
 			componentsInternal);
 	@TransientProperty
-	public final Bits componentBits = new Bits();
+	final Bits componentBitsInternal = new Bits();
 	@TransientProperty
-	public final Bits activeComponentBits = new Bits();
+	public final ImmutableBits componentBits = new ImmutableBits(componentBitsInternal);
+	@TransientProperty
+	final Bits activeComponentBitsInternal = new Bits();
+	@TransientProperty
+	public final ImmutableBits activeComponentBits = new ImmutableBits(activeComponentBitsInternal);
 
 	@TransientProperty
 	public final Signal1Impl<SceneNode> parentChangedSignal = new Signal1Impl<SceneNode>();
@@ -126,7 +130,7 @@ public final class SceneNode extends SceneGraphElement {
 			}
 
 			componentsInternal.put(baseComponentType, component);
-			componentBits.set(component.componentType);
+			componentBitsInternal.set(component.componentType);
 			nodeChangedSignal.componentAdded(component);
 		} else {
 			graph.addComponent(this, component);
@@ -139,7 +143,7 @@ public final class SceneNode extends SceneGraphElement {
 			SceneNodeComponent removed = componentsInternal.remove(baseComponentType);
 			if (removed != null) {
 				nodeChangedSignal.componentRemoved(removed);
-				componentBits.clear(removed.componentType);
+				componentBitsInternal.clear(removed.componentType);
 			}
 		} else {
 			SceneNodeComponent component = componentsInternal.get(baseComponentType);
@@ -148,8 +152,19 @@ public final class SceneNode extends SceneGraphElement {
 			}
 		}
 	}
-
+	
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componentClass) {
+		@SuppressWarnings("unchecked")
+		T value = (T) componentsInternal.get(SceneNodeComponent.getBaseComponentType(componentClass));
+		return value;
+	}
+
+	public <T extends SceneNodeComponent> T getActiveComponent(Class<T> componentClass) {
+		T component = getComponent(componentClass);
+		return component == null || !component.isActive() ? null : component;
+	}
+
+	public <T extends SceneNodeComponent> T getComponentSafely(Class<T> componentClass) {
 		@SuppressWarnings("unchecked")
 		T value = (T) componentsInternal.get(SceneNodeComponent.getBaseComponentType(componentClass));
 		if(value == null || value.baseComponentType == value.componentType) {
@@ -159,8 +174,8 @@ public final class SceneNode extends SceneGraphElement {
 		}
 	}
 
-	public <T extends SceneNodeComponent> T getActiveComponent(Class<T> componentClass) {
-		T component = getComponent(componentClass);
+	public <T extends SceneNodeComponent> T getActiveComponentSafely(Class<T> componentClass) {
+		T component = getComponentSafely(componentClass);
 		return component == null || !component.isActive() ? null : component;
 	}
 
@@ -245,8 +260,8 @@ public final class SceneNode extends SceneGraphElement {
 		resettedSignal.dispatch();
 		clearSignals();
 		initialized = false;
-		componentBits.clear();
-		activeComponentBits.clear();
+		componentBitsInternal.clear();
+		activeComponentBitsInternal.clear();
 	}
 
 	public interface NodeChangedListener {

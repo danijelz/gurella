@@ -15,17 +15,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Selection;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.AssetResourceReference;
 import com.gurella.engine.resource.AssetResourceType;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener1;
-import com.gurella.studio.Project;
 import com.gurella.studio.EditorScreen.PresentProjectEvent;
-import com.gurella.studio.inspector.InspectorPropertiesContainer;
+import com.gurella.studio.Project;
 import com.gurella.studio.inspector.InspectorContainer.InspectableValue;
 import com.gurella.studio.inspector.InspectorContainer.PresentInspectableValueEvent;
+import com.gurella.studio.inspector.InspectorPropertiesContainer;
 import com.gurella.studio.project.ProjectHeaderContainer.SceneSelectionChangedEvent;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.util.dialog.DialogUtils;
@@ -52,8 +52,8 @@ public class AssetsContainer extends VisTable {
 	public AssetsContainer() {
 		setBackground("border");
 		add(new VisScrollPane(filesTree)).top().left().fill().expand();
-		EventBus.GLOBAL.addListener(PresentProjectEvent.class, new PresentProjectListener());
-		EventBus.GLOBAL.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
+		EventService.addListener(PresentProjectEvent.class, new PresentProjectListener());
+		EventService.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
 		filesTree.addListener(new SelectionChangeListener());
 	}
 
@@ -141,8 +141,8 @@ public class AssetsContainer extends VisTable {
 							FileHandle sourceHandle = new FileHandle(file.file().getAbsolutePath());
 							File source = sourceHandle.file();
 
-							FileHandle destHandle = new FileHandle(directoryNode.directory.path() + "/"
-									+ source.getName());
+							FileHandle destHandle = new FileHandle(
+									directoryNode.directory.path() + "/" + source.getName());
 							File dest = destHandle.file();
 
 							try {
@@ -292,15 +292,14 @@ public class AssetsContainer extends VisTable {
 					assetDescriptor = createDefaultAssetDescriptor(fileNode.file);
 				}
 				if (assetDescriptor == null) {
-					EventBus.GLOBAL.notify(new PresentInspectableValueEvent(null));
+					EventService.notify(new PresentInspectableValueEvent(null));
 				} else {
-					EventBus.GLOBAL
-							.notify(new PresentInspectableValueEvent(new InspectableValue(
-									new TexturePropertiesContainer(scene,
-											(AssetResourceDescriptor<Texture>) assetDescriptor))));
+					EventService.notify(
+							new PresentInspectableValueEvent(new InspectableValue(new TexturePropertiesContainer(scene,
+									(AssetResourceDescriptor<Texture>) assetDescriptor))));
 				}
 			} else {
-				EventBus.GLOBAL.notify(new PresentInspectableValueEvent(null));
+				EventService.notify(new PresentInspectableValueEvent(null));
 			}
 		}
 

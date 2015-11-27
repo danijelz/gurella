@@ -5,7 +5,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.UpdateOrder;
+import com.gurella.engine.application.CommonUpdateOrder;
 
 public class GlobalAssetManager implements UpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
@@ -50,7 +50,7 @@ public class GlobalAssetManager implements UpdateListener, Disposable {
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.INPUT;
+		return CommonUpdateOrder.INPUT;
 	}
 
 	@Override

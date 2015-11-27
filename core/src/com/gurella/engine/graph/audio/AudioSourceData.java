@@ -2,6 +2,7 @@ package com.gurella.engine.graph.audio;
 
 import java.util.Iterator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.LongMap;
@@ -11,7 +12,6 @@ import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.movement.LinearVelocityComponent;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.pools.SynchronizedPools;
 
@@ -20,8 +20,8 @@ class AudioSourceData implements Poolable {
 
 	AudioSourceComponent audioSourceComponent;
 	TransformComponent transformComponent;
-	LinearVelocityComponent linearVelocityComponent;
 
+	private final Vector3 lastPosition = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 	final Vector3 position = new Vector3();
 	final Vector3 velocity = new Vector3();
 	final Vector3 lookAt = new Vector3();
@@ -42,24 +42,10 @@ class AudioSourceData implements Poolable {
 		SynchronizedPools.free(this);
 	}
 
-	@Override
-	public void reset() {
-		audioSourceComponent = null;
-		transformComponent = null;
-		linearVelocityComponent = null;
-
-		volume.setVolume(1);
-		pan.setPan(0);
-		pitch.setPitch(1);
-
-		activeAudioTracks.clear();
-	}
-
 	void init(AudioSourceComponent initAudioSourceComponent) {
 		SceneNode node = initAudioSourceComponent.getNode();
 		this.audioSourceComponent = initAudioSourceComponent;
-		this.transformComponent = node.getComponent(TransformComponent.class);
-		this.linearVelocityComponent = node.getComponent(LinearVelocityComponent.class);
+		this.transformComponent = node.getActiveComponent(TransformComponent.class);
 	}
 
 	Vector3 getPosition() {
@@ -68,9 +54,7 @@ class AudioSourceData implements Poolable {
 
 	Attenuation getAttenuation() {
 		Attenuation attenuation = audioSourceComponent.attenuation;
-		return attenuation == null
-				? defaultAttenuation
-				: attenuation;
+		return attenuation == null ? defaultAttenuation : attenuation;
 	}
 
 	float getMaxDistance() {
@@ -145,11 +129,21 @@ class AudioSourceData implements Poolable {
 	}
 
 	private Vector3 updateVelocity() {
-		if (linearVelocityComponent == null) {
-			return velocity.setZero();
-		} else {
-			return velocity.set(linearVelocityComponent.velocity);
+		float deltaTime = Gdx.graphics.getDeltaTime();
+		if (deltaTime == 0) {
+			return velocity;
 		}
+
+		if (lastPosition.x == Float.NaN) {
+			velocity.setZero();
+		} else {
+			velocity.set(position).sub(lastPosition);
+			velocity.scl(1.0f / deltaTime);
+		}
+
+		lastPosition.set(position);
+
+		return velocity;
 	}
 
 	private void updateLookAt() {
@@ -158,5 +152,18 @@ class AudioSourceData implements Poolable {
 			transformComponent.getWorldRotation(tempRotation);
 			tempRotation.transform(lookAt);
 		}
+	}
+
+	@Override
+	public void reset() {
+		lastPosition.set(Float.NaN, Float.NaN, Float.NaN);
+		audioSourceComponent = null;
+		transformComponent = null;
+
+		volume.setVolume(1);
+		pan.setPan(0);
+		pitch.setPitch(1);
+
+		activeAudioTracks.clear();
 	}
 }

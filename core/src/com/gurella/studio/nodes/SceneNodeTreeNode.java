@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1Event;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.resource.ResourceReference;
@@ -30,20 +30,18 @@ public class SceneNodeTreeNode extends Node {
 	private ModelResourceFactory<? extends SceneNode> nodeFactory;
 
 	public SceneNodeTreeNode(ResourceReference<? extends SceneNode> reference) {
-		super(new VisLabel(ValueUtils.isEmpty(reference.getName())
-				? "Node"
-				: reference.getName()));
+		super(new VisLabel(ValueUtils.isEmpty(reference.getName()) ? "Node" : reference.getName()));
 		this.reference = reference;
 		this.nodeFactory = (ModelResourceFactory<? extends SceneNode>) reference.getResourceFactory();
 		// TODO must also be removed
-		EventBus.GLOBAL.addListener(NodeNameChangedEvent.class, new NodeNameChangedListener(nodeFactory));
+		EventService.addListener(NodeNameChangedEvent.class, new NodeNameChangedListener(nodeFactory));
 
 		Array<ResourceReference<SceneNode>> children = nodeFactory.getPropertyValue("children");
 		if (children != null) {
 			for (Object child : children) {
 				if (child instanceof ResourceId) {
-					add(new SceneNodeTreeNode(reference.getOwningContext().<SceneNode> getReference(
-							((ResourceId) child).getId())));
+					add(new SceneNodeTreeNode(
+							reference.getOwningContext().<SceneNode> getReference(((ResourceId) child).getId())));
 				}
 			}
 		}

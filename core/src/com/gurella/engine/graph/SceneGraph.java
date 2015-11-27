@@ -5,8 +5,8 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.UpdateOrder;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
 import com.gurella.engine.graph.manager.ComponentManager;
@@ -27,14 +27,16 @@ public class SceneGraph implements UpdateListener {
 	private SceneStopListener sceneStopListener = new SceneStopListener();
 
 	private Array<SceneNode> allNodesInternal = new Array<SceneNode>();
-	public ImmutableArray<SceneNode> allNodes = new ImmutableArray<SceneNode>(allNodesInternal); 
+	public ImmutableArray<SceneNode> allNodes = new ImmutableArray<SceneNode>(allNodesInternal);
 	private Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
-	public ImmutableArray<SceneNode> activeNodes = new ImmutableArray<SceneNode>(activeNodesInternal); 
+	public ImmutableArray<SceneNode> activeNodes = new ImmutableArray<SceneNode>(activeNodesInternal);
 
 	private Array<SceneNodeComponent> allComponentsInternal = new Array<SceneNodeComponent>();
-	public ImmutableArray<SceneNodeComponent> allComponents = new ImmutableArray<SceneNodeComponent>(allComponentsInternal); 
+	public ImmutableArray<SceneNodeComponent> allComponents = new ImmutableArray<SceneNodeComponent>(
+			allComponentsInternal);
 	private Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
-	public ImmutableArray<SceneNodeComponent> activeComponents = new ImmutableArray<SceneNodeComponent>(activeComponentsInternal); 
+	public ImmutableArray<SceneNodeComponent> activeComponents = new ImmutableArray<SceneNodeComponent>(
+			activeComponentsInternal);
 
 	private IntMap<SceneSystem> allSystems = new IntMap<SceneSystem>();
 	private Array<SceneSystem> activeSystems = new Array<SceneSystem>();
@@ -75,10 +77,10 @@ public class SceneGraph implements UpdateListener {
 
 		spatialPartitioningManager = new BvhSpatialPartitioningManager();
 		addSystemSafely(spatialPartitioningManager);
-		
+
 		inputSystem = new InputSystem();
 		addSystemSafely(inputSystem);
-		
+
 		renderSystem = new RenderSystem();
 		addSystemSafely(renderSystem);
 	}
@@ -202,7 +204,7 @@ public class SceneGraph implements UpdateListener {
 		component.node = node;
 
 		node.componentsInternal.put(component.baseComponentType, component);
-		node.componentBits.set(component.componentType);
+		node.componentBitsInternal.set(component.componentType);
 		attachElement(component);
 		sceneGraphListenerSignal.componentAdded(component);
 		node.nodeChangedSignal.componentAdded(component);
@@ -222,7 +224,7 @@ public class SceneGraph implements UpdateListener {
 		if (!component.active && component.isHierarchyEnabled() && node.active) {
 			component.active = true;
 			activeComponentsInternal.add(component);
-			node.activeComponentBits.set(component.componentType);
+			node.activeComponentBitsInternal.set(component.componentType);
 			component.lifecycleSignal.activated();
 			sceneGraphListenerSignal.componentActivated(component);
 			node.componentActivatedSignal.dispatch(component);
@@ -242,7 +244,7 @@ public class SceneGraph implements UpdateListener {
 			SceneNode node = component.node;
 			component.active = false;
 			component.lifecycleSignal.deactivated();
-			node.activeComponentBits.clear(component.componentType);
+			node.activeComponentBitsInternal.clear(component.componentType);
 			activeComponentsInternal.removeValue(component, true);
 			sceneGraphListenerSignal.componentDeactivated(component);
 			node.componentDeactivatedSignal.dispatch(component);
@@ -267,7 +269,7 @@ public class SceneGraph implements UpdateListener {
 		component.graph = null;
 
 		node.componentsInternal.remove(component.baseComponentType);
-		node.componentBits.clear(component.componentType);
+		node.componentBitsInternal.clear(component.componentType);
 		allComponentsInternal.removeValue(component, true);
 	}
 
@@ -423,21 +425,21 @@ public class SceneGraph implements UpdateListener {
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.CLEANUP;
+		return CommonUpdateOrder.CLEANUP;
 	}
 
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
 			cleanup();
-			EventBus.GLOBAL.addListener(UpdateEvent.class, SceneGraph.this);
+			EventService.addListener(UpdateEvent.class, SceneGraph.this);
 		}
 	}
 
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, SceneGraph.this);
+			EventService.removeListener(UpdateEvent.class, SceneGraph.this);
 			cleanup();
 		}
 	}

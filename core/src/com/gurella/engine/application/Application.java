@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputMapper;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
@@ -91,7 +91,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public void render() {
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		EventBus.GLOBAL.notify(UpdateEvent.instance);
+		EventService.notify(UpdateEvent.instance);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public void resume() {
 		sceneManager.resume();
 	}
-	
+
 	public static void addInputProcessor(InputProcessor processor) {
 		INPUT_PROCESSORS.addProcessor(processor);
 	}

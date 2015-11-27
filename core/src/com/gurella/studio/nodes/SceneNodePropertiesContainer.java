@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.audio.AudioListenerComponent;
@@ -62,9 +62,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 		this.factory = (ModelResourceFactory<? extends SceneNode>) reference.getResourceFactory();
 
 		buildUi();
-		nameField.setText(ValueUtils.isEmpty(reference.getName())
-				? "Node"
-				: reference.getName());
+		nameField.setText(ValueUtils.isEmpty(reference.getName()) ? "Node" : reference.getName());
 		enabled.setChecked(factory.<Boolean> getPropertyValue("enabled", Boolean.TRUE).booleanValue());
 		setBackground("border");
 		menuButton.addListener(new MenuClickListener());
@@ -98,7 +96,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 			@Override
 			public void keyTyped(VisTextField textField, char c) {
 				factory.setPropertyValue("name", nameField.getText());
-				EventBus.GLOBAL.notify(new NodeNameChangedEvent(factory));
+				EventService.notify(new NodeNameChangedEvent(factory));
 			}
 		});
 	}
@@ -200,7 +198,8 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 
 		private void enableItems() {
 			for (AddComponentMenuItem item : itemsByComponentType.values()) {
-				item.setDisabled(usedComponentTypes.contains(SceneNodeComponent.getBaseComponentType(item.componentType)));
+				item.setDisabled(
+						usedComponentTypes.contains(SceneNodeComponent.getBaseComponentType(item.componentType)));
 			}
 		}
 	}

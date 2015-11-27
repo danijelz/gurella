@@ -27,7 +27,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
@@ -36,12 +35,11 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.UpdateEvent;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.camera.CameraComponent;
-import com.gurella.engine.graph.camera.OrtographicCameraComponent;
 import com.gurella.engine.graph.camera.PerspectiveCameraComponent;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.graph.renderable.ModelComponent;
@@ -84,13 +82,13 @@ public class SceneView extends Container<Image> {
 
 		t = assetManager.get("data/grid.png");
 		t.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-		
+
 		frameBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true, true);
 		region = new TextureRegion(frameBuffer.getColorBufferTexture());
 		region.flip(false, true);
 
 		image = new Image(new TextureRegionDrawable(region), Scaling.none);
-		image.addListener(new InputListener(){
+		image.addListener(new InputListener() {
 			@Override
 			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
 				inputProcessor = Gdx.input.getInputProcessor();
@@ -99,7 +97,7 @@ public class SceneView extends Container<Image> {
 					Gdx.input.setInputProcessor(inputMultiplexer);
 				}
 			}
-			
+
 			@Override
 			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
 				Gdx.input.setInputProcessor(inputProcessor);
@@ -116,7 +114,7 @@ public class SceneView extends Container<Image> {
 		addCamera();
 		graph.update();
 
-		EventBus.GLOBAL.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
+		EventService.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
 	}
 
 	private void clearScene() {
@@ -140,9 +138,9 @@ public class SceneView extends Container<Image> {
 		ModelComponent modelComponent = new ModelComponent();
 		ModelBuilder builder = new ModelBuilder();
 
-		Model model = builder.createRect(-20, 0, 20, 20, 0, 20, 20, 0, -20, -20, 0, -20, 0, 1, 0, new Material(
-				TextureAttribute.createDiffuse(t), new BlendingAttribute(1f)), Usage.Position
-				| Usage.TextureCoordinates);
+		Model model = builder.createRect(-20, 0, 20, 20, 0, 20, 20, 0, -20, -20, 0, -20, 0, 1, 0,
+				new Material(TextureAttribute.createDiffuse(t), new BlendingAttribute(1f)),
+				Usage.Position | Usage.TextureCoordinates);
 
 		Mesh mesh = model.meshes.get(0);
 		FloatBuffer verticesBuffer = mesh.getVerticesBuffer();
@@ -192,12 +190,13 @@ public class SceneView extends Container<Image> {
 
 		cameraComponent = new PerspectiveCameraComponent();
 		node.addComponent(cameraComponent);
-		
+
 		cameraInputController = new CameraInputController(cameraComponent.camera);
 		inputMultiplexer.addProcessor(cameraInputController);
 
-		 /*cameraComponent = new  OrtographicCameraComponent(); 
-		 node.addComponent(cameraComponent);*/
+		/*
+		 * cameraComponent = new OrtographicCameraComponent(); node.addComponent(cameraComponent);
+		 */
 
 		graph.addNode(node);
 	}
@@ -212,7 +211,7 @@ public class SceneView extends Container<Image> {
 		gl.glClearStencil(0);
 		gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		EventBus.GLOBAL.notify(UpdateEvent.instance);
+		EventService.notify(UpdateEvent.instance);
 
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setProjectionMatrix(cameraComponent.camera.combined);
@@ -272,16 +271,17 @@ public class SceneView extends Container<Image> {
 		}
 	}
 
-	private void updateNode(ResourceReference<? extends SceneNode> nodeReference,
-			TransformComponent transformComponent, SceneRenderableComponent sceneRenderableComponent) {
+	private void updateNode(ResourceReference<? extends SceneNode> nodeReference, TransformComponent transformComponent,
+			SceneRenderableComponent sceneRenderableComponent) {
 		ModelResourceFactory<? extends SceneNode> nodeFactory = (ModelResourceFactory<? extends SceneNode>) nodeReference
 				.getResourceFactory();
 		Array<ResourceId> componentIds = nodeFactory.getPropertyValue("components");
-		
+
 		if (componentIds != null) {
 			for (int j = 0; j < componentIds.size; j++) {
 				int componentId = componentIds.get(j).getId();
-				ResourceReference<? extends SceneNodeComponent> componentReference = sceneNodeComponents.get(componentId);
+				ResourceReference<? extends SceneNodeComponent> componentReference = sceneNodeComponents
+						.get(componentId);
 
 				if (TransformComponent.class.equals(componentReference.getResourceType())) {
 					@SuppressWarnings("unchecked")

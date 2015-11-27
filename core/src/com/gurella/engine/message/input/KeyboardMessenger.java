@@ -4,8 +4,8 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.UpdateOrder;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.message.Message;
 import com.gurella.engine.message.MessageCenter;
 import com.gurella.engine.message.MessageId;
@@ -30,7 +30,7 @@ public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 
 		if (action != KeyboardAction.PRESSED) {
 			if (temporaryMessages.size == 0) {
-				EventBus.GLOBAL.addListener(UpdateEvent.class, this);
+				EventService.addListener(UpdateEvent.class, this);
 			}
 
 			temporaryMessages.put(messageId.hash, message);
@@ -68,12 +68,12 @@ public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 				suppressMesage(message);
 			}
 			temporaryMessages.clear();
-			EventBus.GLOBAL.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(UpdateEvent.class, this);
 		}
 	}
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.INPUT;
+		return CommonUpdateOrder.INPUT;
 	}
 }

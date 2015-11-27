@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Bits;
 
 public class ImmutableBits {
 	public static final ImmutableBits empty = new ImmutableBits(new Bits());
-	
+
 	private Bits bits;
 
 	public ImmutableBits(Bits bits) {
@@ -49,6 +49,22 @@ public class ImmutableBits {
 
 	public boolean containsAll(ImmutableBits other) {
 		return bits.containsAll(other.bits);
+	}
+
+	public void andBits(Bits other) {
+		other.and(bits);
+	}
+
+	public void andNotBits(Bits other) {
+		other.andNot(bits);
+	}
+
+	public void orBits(Bits other) {
+		other.or(bits);
+	}
+
+	public void xorBits(Bits other) {
+		other.xor(bits);
 	}
 
 	@Override

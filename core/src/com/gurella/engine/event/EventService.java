@@ -1,8 +1,6 @@
 package com.gurella.engine.event;
 
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.signal.Listener1;
-import com.gurella.engine.utils.Ordered;
 
 public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
@@ -19,24 +17,15 @@ public class EventService {
 		globalEventBus.notify(event);
 	}
 
-	public boolean addListener(String evenType, Listener1<String> listener) {
+	public static boolean addListener(String evenType, Listener1<String> listener) {
 		return globalEventBus.addListener(evenType, listener);
 	}
 
-	public boolean removeListener(String evenType, Listener1<String> listener) {
-		final Array<Listener1<String>> listenersByType = simpleListenersByType(evenType);
-		synchronized (listenersByType) {
-			return listenersByType.removeValue(listener, true);
-		}
+	public static boolean removeListener(String evenType, Listener1<String> listener) {
+		return globalEventBus.removeListener(evenType, listener);
 	}
 
 	public static void notify(String evenType) {
-		if (processing) {
-			eventPool.add(evenType);
-		} else {
-			processing = true;
-			notifyListeners(evenType);
-			processing = false;
-		}
+		globalEventBus.notify();
 	}
 }

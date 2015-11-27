@@ -1,25 +1,23 @@
 package com.gurella.engine.graph.audio;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.movement.LinearVelocityComponent;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.resource.model.DefaultValue;
-import com.gurella.engine.resource.model.PropertyValue;
-import com.gurella.engine.resource.model.ResourceProperty;
 
 class AudioListenerData implements Poolable {
 	AudioListenerComponent audioListenerComponent;
 	TransformComponent transformComponent;
 
+	private final Vector3 lastPosition = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 	final Vector3 position = new Vector3();
 	final Vector3 velocity = new Vector3();
 	final Vector3 up = new Vector3();
 	final Vector3 lookAt = new Vector3();
-	
+
 	private final Quaternion tempRotation = new Quaternion();
 
 	static AudioListenerData getInstance() {
@@ -30,15 +28,9 @@ class AudioListenerData implements Poolable {
 		SynchronizedPools.free(this);
 	}
 
-	@Override
-	public void reset() {
-		audioListenerComponent = null;
-		transformComponent = null;
-	}
-
 	void init(AudioListenerComponent initAudioListenerComponent) {
 		SceneNode node = initAudioListenerComponent.getNode();
-		this.transformComponent = node.getComponent(TransformComponent.class);
+		this.transformComponent = node.getActiveComponent(TransformComponent.class);
 	}
 
 	Vector3 getPosition() {
@@ -72,11 +64,21 @@ class AudioListenerData implements Poolable {
 	}
 
 	private Vector3 updateVelocity() {
-		if (linearVelocityComponent == null) {
-			return velocity.setZero();
-		} else {
-			return velocity.set(linearVelocityComponent.velocity);
+		float deltaTime = Gdx.graphics.getDeltaTime();
+		if (deltaTime == 0) {
+			return velocity;
 		}
+
+		if (lastPosition.x == Float.NaN) {
+			velocity.setZero();
+		} else {
+			velocity.set(position).sub(lastPosition);
+			velocity.scl(1.0f / deltaTime);
+		}
+
+		lastPosition.set(position);
+
+		return velocity;
 	}
 
 	private void updateUpAndLookAt() {
@@ -87,5 +89,12 @@ class AudioListenerData implements Poolable {
 			tempRotation.transform(up);
 			tempRotation.transform(lookAt);
 		}
+	}
+
+	@Override
+	public void reset() {
+		lastPosition.set(Float.NaN, Float.NaN, Float.NaN);
+		audioListenerComponent = null;
+		transformComponent = null;
 	}
 }

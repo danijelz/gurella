@@ -31,22 +31,14 @@ public class SceneNodeComponent extends SceneGraphElement {
 		baseComponentType = baseComponentTypes.get(componentType, componentType);
 	}
 
-	public static int getBaseComponentType(SceneNodeComponent component) {
-		return getBaseComponentType(component.getClass());
-	}
-
 	public static int getBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.getType(componentClass), 0);
-	}
-
-	public static int getComponentType(SceneNodeComponent component) {
-		return getComponentType(component.getClass());
+		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findType(componentClass, -1), -1);
 	}
 
 	public static int getComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		return COMPONENT_TYPE_INDEXER.findType(componentClass, 0);
+		return COMPONENT_TYPE_INDEXER.findType(componentClass, -1);
 	}
 
 	public static ImmutableBits getComponentSubtypes(SceneNodeComponent component) {
@@ -55,14 +47,19 @@ public class SceneNodeComponent extends SceneGraphElement {
 
 	public static ImmutableBits getComponentSubtypes(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		BitsExt subtypes = componentSubtypes.get(COMPONENT_TYPE_INDEXER.findType(componentClass, 0));
+		BitsExt subtypes = componentSubtypes.get(COMPONENT_TYPE_INDEXER.findType(componentClass, -1));
+		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
+	}
+
+	public static ImmutableBits getComponentSubtypes(int componentType) {
+		BitsExt subtypes = componentSubtypes.get(componentType);
 		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
 	}
 
 	public static boolean isSubtype(Class<? extends SceneNodeComponent> baseComponentClass,
 			Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findType(componentClass, 0));
+		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findType(componentClass, -1));
 	}
 
 	private static void initComponentData(Class<? extends SceneNodeComponent> componentClass) {
@@ -138,7 +135,7 @@ public class SceneNodeComponent extends SceneGraphElement {
 		Bits bits = new Bits();
 
 		for (int i = 0; i < components.length; i++) {
-			bits.set(getBaseComponentType(components[i]));
+			bits.set(components[i].baseComponentType);
 		}
 
 		return bits;

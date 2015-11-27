@@ -2,7 +2,7 @@ package com.gurella.engine.graph.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.application.UpdateOrder;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneProcessor;
 import com.gurella.engine.graph.manager.NodeComponentsPredicate;
@@ -58,7 +58,7 @@ public class LinearVelocityProcessor extends SceneProcessor {
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.THINK;
+		return CommonUpdateOrder.THINK;
 	}
 
 	private class ActivateListener implements Listener0 {

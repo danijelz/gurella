@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.UpdateOrder;
-import com.gurella.engine.event.EventBus;
+import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
@@ -41,13 +41,13 @@ public class ScriptManager extends GraphListenerSystem {
 
 	@Override
 	protected void attached() {
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onInputUpdateListener);
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onThinkUpdateListener);
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onPreRenderUpdateListener);
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onRenderUpdateListener);
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onDebugRenderUpdateListener);
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onAfterRenderUpdateListener);
-		EventBus.GLOBAL.addListener(UpdateEvent.class, onCleanupUpdateListener);
+		EventService.addListener(UpdateEvent.class, onInputUpdateListener);
+		EventService.addListener(UpdateEvent.class, onThinkUpdateListener);
+		EventService.addListener(UpdateEvent.class, onPreRenderUpdateListener);
+		EventService.addListener(UpdateEvent.class, onRenderUpdateListener);
+		EventService.addListener(UpdateEvent.class, onDebugRenderUpdateListener);
+		EventService.addListener(UpdateEvent.class, onAfterRenderUpdateListener);
+		EventService.addListener(UpdateEvent.class, onCleanupUpdateListener);
 		getGraph().addListener(scriptSceneGraphListener);
 		getScene().startSignal.addListener(sceneStartListener);
 		getScene().stopSignal.addListener(sceneStopListener);
@@ -57,13 +57,13 @@ public class ScriptManager extends GraphListenerSystem {
 
 	@Override
 	protected void detached() {
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onInputUpdateListener);
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onThinkUpdateListener);
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onPreRenderUpdateListener);
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onRenderUpdateListener);
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onDebugRenderUpdateListener);
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onAfterRenderUpdateListener);
-		EventBus.GLOBAL.removeListener(UpdateEvent.class, onCleanupUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onInputUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onThinkUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onPreRenderUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onRenderUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onDebugRenderUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onAfterRenderUpdateListener);
+		EventService.removeListener(UpdateEvent.class, onCleanupUpdateListener);
 		getGraph().removeListener(scriptSceneGraphListener);
 		getScene().startSignal.removeListener(sceneStartListener);
 		getScene().stopSignal.removeListener(sceneStopListener);
@@ -202,7 +202,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnInputUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.INPUT;
+			return CommonUpdateOrder.INPUT;
 		}
 
 		@Override
@@ -216,7 +216,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnThinkUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.THINK;
+			return CommonUpdateOrder.THINK;
 		}
 
 		@Override
@@ -230,7 +230,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnPreRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.PRE_RENDER;
+			return CommonUpdateOrder.PRE_RENDER;
 		}
 
 		@Override
@@ -244,7 +244,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.RENDER;
+			return CommonUpdateOrder.RENDER;
 		}
 
 		@Override
@@ -258,7 +258,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnDebugRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.DEBUG_RENDER;
+			return CommonUpdateOrder.DEBUG_RENDER;
 		}
 
 		@Override
@@ -272,7 +272,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnAfterRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.AFTER_RENDER;
+			return CommonUpdateOrder.AFTER_RENDER;
 		}
 
 		@Override
@@ -286,7 +286,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class OnCleanupUpdateListener implements UpdateListener {
 		@Override
 		public int getOrdinal() {
-			return UpdateOrder.CLEANUP;
+			return CommonUpdateOrder.CLEANUP;
 		}
 
 		@Override

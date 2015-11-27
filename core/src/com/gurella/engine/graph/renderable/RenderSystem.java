@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.UpdateOrder;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
 import com.gurella.engine.graph.camera.CameraComponent;
@@ -52,7 +52,7 @@ public class RenderSystem extends SceneProcessorManager {
 
 	@Override
 	public int getOrdinal() {
-		return UpdateOrder.RENDER;
+		return CommonUpdateOrder.RENDER;
 	}
 
 	@Override

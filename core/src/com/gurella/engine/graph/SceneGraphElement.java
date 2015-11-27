@@ -9,6 +9,7 @@ import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Signal0.Signal0Impl;
 import com.gurella.engine.utils.IndexedValue;
 
+//TODO remove Disposable
 public abstract class SceneGraphElement implements Poolable, Disposable {
 	static IndexedValue<SceneGraphElement> INDEXER = new IndexedValue<SceneGraphElement>();
 

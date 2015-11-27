@@ -28,6 +28,7 @@ import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.graph.manager.SceneNodeManager.SceneNodeFamily;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
+import com.gurella.engine.graph.tag.Tag;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.utils.ImmutableArray;
@@ -401,9 +402,20 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	public void onResize(int width, int height) {
 	}
 
-	// TODO box2d physics
+	// TODO box2d physics events
 
-	// TODO animation
+	// TODO animation events
+
+	// TODO tag events
+	public void onNodeTagged(SceneNode node, Tag tag) {
+	}
+
+	public void onNodeUntagged(SceneNode node, Tag tag) {
+	}
+	
+	// TODO layer events
+	public void onNodeLayerChanged(SceneNode node, Layer oldLayer, Layer newLayer) {
+	}
 
 	public boolean onMessage(Object sender, Object messageType, Object messageData) {
 		return false;
@@ -422,7 +434,7 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 
 	}
 
-	// TODO getActiveComponent
+	// TODO getActiveComponent getComponentSafely
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);
 	}
@@ -549,6 +561,15 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 
 	public Array<SceneNodeComponent> getComponents(ComponentFamily<?> componentGroup) {
 		return null;
+	}
+
+	public void addTag(Tag tag) {
+	}
+
+	public void removeTag(Tag tag) {
+	}
+	
+	public void setLayer(Layer layer) {
 	}
 
 	public void getSpatials(BoundingBox bounds, Array<Spatial> out, Layer... layers) {
