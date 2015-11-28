@@ -9,21 +9,21 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
-import com.badlogic.gdx.utils.Predicate;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.manager.ComponentManager;
-import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
+import com.gurella.engine.graph.manager.ComponentsManager;
+import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
+import com.gurella.engine.graph.manager.ComponentTypePredicate;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class ScriptSystem extends GraphListenerSystem {
 	private static final ComponentFamily<? extends ScriptComponent> family = new ComponentFamily<ScriptComponent>(
-			ScriptComponentsFamilyPredicate.instance);
+			new ComponentTypePredicate(ScriptComponent.class));
 
 	private ObjectMap<ScriptMethodKey, ScriptMethod> registeredMethods = new ObjectMap<ScriptMethodKey, ScriptMethod>();
 	private IntMap<OverridenScriptMethods> scriptMethodsByComponentClass = new IntMap<OverridenScriptMethods>();
@@ -35,9 +35,9 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	@Override
 	protected void activated() {
-		ComponentManager componentManager = getGraph().componentManager;
-		componentManager.registerComponentFamily(family);
 		scriptSystemSignal.activate();
+		ComponentsManager componentManager = getGraph().componentsManager;
+		componentManager.registerComponentFamily(family);
 
 		ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(family);
 		for (int i = 0; i < components.size(); i++) {
@@ -47,8 +47,8 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	@Override
 	protected void deactivated() {
-		getGraph().componentManager.unregisterComponentFamily(family);
 		scriptSystemSignal.deactivate();
+		getGraph().componentsManager.unregisterComponentFamily(family);
 
 		for (ScriptMethod scriptMethod : registeredMethods.values()) {
 			removeScriptMethod(scriptMethod);
@@ -149,7 +149,7 @@ public class ScriptSystem extends GraphListenerSystem {
 			return;
 		}
 
-		ComponentManager componentManager = getGraph().componentManager;
+		ComponentsManager componentManager = getGraph().componentsManager;
 		for (OverridenScriptMethods overridenScriptMethods : scriptMethodsByComponentClass.values()) {
 			if (overridenScriptMethods.methodAdded(scriptMethod)) {
 				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(family);
@@ -168,7 +168,7 @@ public class ScriptSystem extends GraphListenerSystem {
 			return;
 		}
 
-		ComponentManager componentManager = getGraph().componentManager;
+		ComponentsManager componentManager = getGraph().componentsManager;
 		for (OverridenScriptMethods overridenScriptMethods : scriptMethodsByComponentClass.values()) {
 			if (overridenScriptMethods.methodRemoved(scriptMethod)) {
 				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(family);
@@ -341,15 +341,6 @@ public class ScriptSystem extends GraphListenerSystem {
 			for (ScriptSystemListener listener : listeners) {
 				listener.disassociateComponentWithMethod(scriptMethod, component);
 			}
-		}
-	}
-
-	private static class ScriptComponentsFamilyPredicate implements Predicate<SceneNodeComponent> {
-		private static final ScriptComponentsFamilyPredicate instance = new ScriptComponentsFamilyPredicate();
-
-		@Override
-		public boolean evaluate(SceneNodeComponent component) {
-			return component.isActive() && component instanceof ScriptComponent;
 		}
 	}
 }

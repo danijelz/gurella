@@ -1,33 +1,35 @@
 package com.gurella.engine.graph.tag;
 
-import com.badlogic.gdx.utils.OrderedSet;
+import com.badlogic.gdx.utils.Bits;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ImmutableBits;
 
 public class TagComponent extends SceneNodeComponent {
 	@ResourceProperty(descriptiveName = "tags")
-	final OrderedSet<Tag> tagsInternal = new OrderedSet<Tag>();
+	final Bits tagsInternal = new Bits();
 	@TransientProperty
-	public final ImmutableArray<Tag> tags = new ImmutableArray<Tag>(tagsInternal.orderedItems());
+	public final ImmutableBits tags = new ImmutableBits(tagsInternal);
 
 	public void addTag(Tag tag) {
-		if (tagsInternal.add(tag)) {
-			tagAdded(tag);
+		int tagId = tag.id;
+		if (!tagsInternal.getAndSet(tagId)) {
+			tagAdded(tagId);
 		}
 	}
 
 	public void addTags(Tag... tags) {
 		for (Tag tag : tags) {
-			if (tagsInternal.add(tag)) {
-				tagAdded(tag);
+			int tagId = tag.id;
+			if (!tagsInternal.getAndSet(tagId)) {
+				tagAdded(tagId);
 			}
 		}
 	}
 
-	private void tagAdded(Tag tag) {
+	private void tagAdded(int tagId) {
 		if (!isActive()) {
 			return;
 		}
@@ -37,24 +39,26 @@ public class TagComponent extends SceneNodeComponent {
 			return;
 		}
 
-		graph.tagManager.tagAdded(this, tag);
+		graph.tagManager.tagAdded(this, tagId);
 	}
 
 	public void removeTag(Tag tag) {
-		if (tagsInternal.remove(tag)) {
-			tagRemoved(tag);
+		int tagId = tag.id;
+		if (tagsInternal.getAndClear(tagId)) {
+			tagRemoved(tagId);
 		}
 	}
 
 	public void removeTags(Tag... tags) {
 		for (Tag tag : tags) {
-			if (tagsInternal.remove(tag)) {
-				tagRemoved(tag);
+			int tagId = tag.id;
+			if (tagsInternal.getAndClear(tagId)) {
+				tagRemoved(tagId);
 			}
 		}
 	}
 
-	private void tagRemoved(Tag tag) {
+	private void tagRemoved(int tagId) {
 		if (!isActive()) {
 			return;
 		}
@@ -64,7 +68,7 @@ public class TagComponent extends SceneNodeComponent {
 			return;
 		}
 
-		graph.tagManager.tagRemoved(this, tag);
+		graph.tagManager.tagRemoved(this, tagId);
 	}
 
 	@Override

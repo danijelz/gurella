@@ -11,7 +11,7 @@ import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class ComponentManager extends GraphListenerSystem {
+public class ComponentsManager extends GraphListenerSystem {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	@Override

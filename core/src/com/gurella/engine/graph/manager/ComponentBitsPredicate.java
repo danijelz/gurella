@@ -10,49 +10,51 @@ import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableBits;
 
-public class ComponentsBitsPredicate implements Predicate<SceneNode>, Poolable {
+
+public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 	private boolean activeComponents;
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
 	private final Bits any = new Bits();
 
-	private ComponentsBitsPredicate() {
+	private ComponentBitsPredicate() {
 	}
 
 	@Override
 	public boolean evaluate(SceneNode node) {
 		ImmutableBits nodeComponentBits = activeComponents ? node.activeComponentBits : node.componentBits;
 
-		int setBit = all.nextSetBit(0);
-		while (setBit != -1) {
-			if (!nodeComponentBits.get(setBit) && !nodeComponentBits.intersects(getComponentSubtypes(setBit))) {
+		int componentId = all.nextSetBit(0);
+		while (componentId != -1) {
+			if (!nodeComponentBits.get(componentId)
+					&& !nodeComponentBits.intersects(getComponentSubtypes(componentId))) {
 				return false;
 			}
-			setBit = all.nextSetBit(setBit);
+			componentId = all.nextSetBit(componentId);
 		}
 
 		if (!any.isEmpty()) {
-			boolean exists = false;
-			setBit = any.nextSetBit(0);
-			while (setBit != -1) {
-				if (nodeComponentBits.get(setBit) || nodeComponentBits.intersects(getComponentSubtypes(setBit))) {
-					exists = true;
+			componentId = any.nextSetBit(0);
+			while (componentId != -1) {
+				if (nodeComponentBits.get(componentId)
+						|| nodeComponentBits.intersects(getComponentSubtypes(componentId))) {
 					break;
 				}
-				setBit = any.nextSetBit(setBit);
+				componentId = any.nextSetBit(componentId);
 			}
-			if (!exists) {
+			if (componentId == -1) {
 				return false;
 			}
 		}
 
 		if (!exclude.isEmpty()) {
-			setBit = exclude.nextSetBit(0);
-			while (setBit != -1) {
-				if (nodeComponentBits.get(setBit) || nodeComponentBits.intersects(getComponentSubtypes(setBit))) {
+			componentId = exclude.nextSetBit(0);
+			while (componentId != -1) {
+				if (nodeComponentBits.get(componentId)
+						|| nodeComponentBits.intersects(getComponentSubtypes(componentId))) {
 					return false;
 				}
-				setBit = exclude.nextSetBit(setBit);
+				componentId = exclude.nextSetBit(componentId);
 			}
 		}
 
@@ -113,13 +115,13 @@ public class ComponentsBitsPredicate implements Predicate<SceneNode>, Poolable {
 			return this;
 		}
 
-		public ComponentsBitsPredicate build() {
-			ComponentsBitsPredicate aspect = new ComponentsBitsPredicate();
-			aspect.activeComponents = activeComponents;
-			aspect.all.or(all);
-			aspect.exclude.or(exclude);
-			aspect.any.or(any);
-			return aspect;
+		public ComponentBitsPredicate build() {
+			ComponentBitsPredicate predicate = new ComponentBitsPredicate();
+			predicate.activeComponents = activeComponents;
+			predicate.all.or(all);
+			predicate.exclude.or(exclude);
+			predicate.any.or(any);
+			return predicate;
 		}
 
 		@Override
@@ -131,6 +133,8 @@ public class ComponentsBitsPredicate implements Predicate<SceneNode>, Poolable {
 
 			Builder builder = (Builder) o;
 
+			if (activeComponents != builder.activeComponents)
+				return false;
 			if (!all.equals(builder.all))
 				return false;
 			if (!exclude.equals(builder.exclude))
@@ -143,9 +147,12 @@ public class ComponentsBitsPredicate implements Predicate<SceneNode>, Poolable {
 
 		@Override
 		public int hashCode() {
-			int result = all.hashCode();
-			result = 31 * result + exclude.hashCode();
-			result = 31 * result + any.hashCode();
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (activeComponents ? 1231 : 1237);
+			result = prime * result + ((all == null) ? 0 : all.hashCode());
+			result = prime * result + ((any == null) ? 0 : any.hashCode());
+			result = prime * result + ((exclude == null) ? 0 : exclude.hashCode());
 			return result;
 		}
 

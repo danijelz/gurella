@@ -8,12 +8,13 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.graph.GraphListenerSystem;
+import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO add nodeAdded and nodeRemoved...
-public class SceneNodeManager extends GraphListenerSystem {
+public class NodesManager extends GraphListenerSystem {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override
@@ -51,7 +52,12 @@ public class SceneNodeManager extends GraphListenerSystem {
 		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
 		families.put(familyId, familyNodes);
 
-		ImmutableArray<SceneNode> nodes = getGraph().allNodes;
+		SceneGraph graph = getGraph();
+		if (graph == null) {
+			return;
+		}
+
+		ImmutableArray<SceneNode> nodes = graph.allNodes;
 		for (int i = 0; i < nodes.size(); i++) {
 			familyNodes.handle(nodes.get(i));
 		}
@@ -64,11 +70,15 @@ public class SceneNodeManager extends GraphListenerSystem {
 		}
 	}
 
+	public boolean belongsToFamily(SceneNode node, SceneNodeFamily family) {
+		return getNodes(family).contains(node, true);
+	}
+
 	public ImmutableArray<SceneNode> getNodes(SceneNodeFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
 		return familyNodes == null ? ImmutableArray.<SceneNode> empty() : familyNodes.immutableNodes;
 	}
-	
+
 	@Override
 	protected void resetted() {
 		for (FamilyNodes familyNodes : families.values()) {
@@ -99,7 +109,6 @@ public class SceneNodeManager extends GraphListenerSystem {
 
 	private static class FamilyNodes implements Poolable {
 		private SceneNodeFamily family;
-
 		private final Array<SceneNode> nodes = new Array<SceneNode>();
 		private final ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
 

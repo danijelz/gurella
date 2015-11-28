@@ -2,6 +2,7 @@ package com.gurella.engine.graph.tag;
 
 import com.badlogic.gdx.utils.Bits;
 
+//TODO unused add tag family so singletone tags by family can replace layer
 public class TagExt {
 	public int id;
 	public String name;
@@ -23,6 +24,16 @@ public class TagExt {
 	
 	public static class Tags {
 		public Bits tagBits = new Bits();
+		
+		public void setTag(TagExt tag) {
+			tagBits.set(tag.id);
+			tagBits.or(tag.getSubtypes());
+		}
+		
+		public void unsetTag(TagExt tag) {
+			tagBits.clear(tag.id);
+			tagBits.xor(tag.getSubtypes());
+		}
 	}
 	
 	

@@ -13,7 +13,7 @@ public class ArrayExt<T> extends Array<T> {
 		super(array);
 	}
 
-	public ArrayExt(boolean ordered, int capacity, Class arrayType) {
+	public ArrayExt(boolean ordered, int capacity, Class<T> arrayType) {
 		super(ordered, capacity, arrayType);
 	}
 
@@ -25,7 +25,7 @@ public class ArrayExt<T> extends Array<T> {
 		super(ordered, array, start, count);
 	}
 
-	public ArrayExt(Class arrayType) {
+	public ArrayExt(Class<T> arrayType) {
 		super(arrayType);
 	}
 

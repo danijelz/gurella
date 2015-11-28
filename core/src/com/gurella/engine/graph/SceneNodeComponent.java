@@ -30,7 +30,7 @@ public class SceneNodeComponent extends SceneGraphElement {
 		componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
 		baseComponentType = baseComponentTypes.get(componentType, componentType);
 	}
-	
+
 	static int findBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findType(componentClass, -1), -1);
 	}
@@ -58,6 +58,10 @@ public class SceneNodeComponent extends SceneGraphElement {
 	public static ImmutableBits getComponentSubtypes(int componentType) {
 		BitsExt subtypes = componentSubtypes.get(componentType);
 		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
+	}
+
+	public static boolean isSubtype(int baseComponentType, int componentType) {
+		return getComponentSubtypes(baseComponentType).get(componentType);
 	}
 
 	public static boolean isSubtype(Class<? extends SceneNodeComponent> baseComponentClass,

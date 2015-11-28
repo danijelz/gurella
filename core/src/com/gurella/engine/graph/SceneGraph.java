@@ -9,8 +9,8 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
-import com.gurella.engine.graph.manager.ComponentManager;
-import com.gurella.engine.graph.manager.SceneNodeManager;
+import com.gurella.engine.graph.manager.ComponentsManager;
+import com.gurella.engine.graph.manager.NodesManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
 import com.gurella.engine.graph.script.ScriptManager;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
@@ -46,8 +46,8 @@ public class SceneGraph implements UpdateListener {
 	// TODO add seperate state listeners
 	private SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
-	public final ComponentManager componentManager;
-	public final SceneNodeManager nodeManager;
+	public final ComponentsManager componentsManager;
+	public final NodesManager nodesManager;
 	public final TagManager tagManager;
 	public final LayerManager layerManager;
 	public final ScriptManager scriptManager;
@@ -60,11 +60,11 @@ public class SceneGraph implements UpdateListener {
 		this.scene.startSignal.addListener(sceneStartListener);
 		this.scene.stopSignal.addListener(sceneStopListener);
 
-		componentManager = new ComponentManager();
-		addSystemSafely(componentManager);
+		componentsManager = new ComponentsManager();
+		addSystemSafely(componentsManager);
 
-		nodeManager = new SceneNodeManager();
-		addSystemSafely(nodeManager);
+		nodesManager = new NodesManager();
+		addSystemSafely(nodesManager);
 
 		tagManager = new TagManager();
 		addSystemSafely(tagManager);

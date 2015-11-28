@@ -1,23 +1,68 @@
 package com.gurella.engine.graph.tag;
 
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Pools;
 import com.gurella.engine.graph.GraphListenerSystem;
+import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.manager.ComponentsManager;
+import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
+import com.gurella.engine.graph.manager.ComponentTypePredicate;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO add tag family so singletone tags by family can replace layer
 public class TagManager extends GraphListenerSystem {
+	private static final ComponentFamily<TagComponent> family = new ComponentFamily<TagComponent>(
+			new ComponentTypePredicate(TagComponent.class));
+
 	private IntMap<ArrayExt<SceneNode>> nodesByTag = new IntMap<ArrayExt<SceneNode>>();
+	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
+
+	@Override
+	protected void activated() {
+		ComponentsManager componentManager = getGraph().componentsManager;
+		componentManager.registerComponentFamily(family);
+		ImmutableArray<? extends TagComponent> components = componentManager.getComponents(family);
+		for (int i = 0; i < components.size(); i++) {
+			componentActivated(components.get(i));
+		}
+	}
+
+	@Override
+	protected void deactivated() {
+		getGraph().componentsManager.unregisterComponentFamily(family);
+
+		for (ArrayExt<SceneNode> nodes : nodesByTag.values()) {
+			nodes.clear();
+		}
+
+		for (FamilyNodes familyNodes : families.values()) {
+			Pools.free(familyNodes);
+		}
+		families.clear();
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
 		if (component instanceof TagComponent) {
 			TagComponent tagComponent = (TagComponent) component;
-			for (Tag tag : tagComponent.tags) {
-				getNodes(tag).add(component.getNode());
+			updateFamilies(tagComponent);
+			Bits tags = tagComponent.tagsInternal;
+			int tagId = tags.nextSetBit(0);
+			while (tagId != -1) {
+				getNodesArray(tagId).add(component.getNode());
+				tagId = tags.nextSetBit(tagId);
 			}
+		}
+	}
+
+	private void updateFamilies(TagComponent component) {
+		for (FamilyNodes familyNodes : families.values()) {
+			familyNodes.handle(component);
 		}
 	}
 
@@ -25,14 +70,50 @@ public class TagManager extends GraphListenerSystem {
 	public void componentDeactivated(SceneNodeComponent component) {
 		if (component instanceof TagComponent) {
 			TagComponent tagComponent = (TagComponent) component;
-			for (Tag tag : tagComponent.tags) {
-				nodesByTag.get(tag.id).removeValue(component.getNode(), true);
+			removeFromFamilies(tagComponent);
+			Bits tags = tagComponent.tagsInternal;
+			int tagId = tags.nextSetBit(0);
+			while (tagId != -1) {
+				getNodesArray(tagId).removeValue(component.getNode(), true);
+				tagId = tags.nextSetBit(tagId);
 			}
 		}
 	}
 
-	private ArrayExt<SceneNode> getNodes(Tag tag) {
-		int tagId = tag.id;
+	private void removeFromFamilies(TagComponent component) {
+		SceneNode node = component.getNode();
+		for (FamilyNodes familyNodes : families.values()) {
+			familyNodes.remove(node);
+		}
+	}
+
+	public void registerFamily(TagFamily tagFamily) {
+		int familyId = tagFamily.id;
+		if (families.containsKey(familyId)) {
+			return;
+		}
+		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
+		families.put(familyId, familyNodes);
+
+		SceneGraph graph = getGraph();
+		if (graph == null) {
+			return;
+		}
+
+		ImmutableArray<TagComponent> components = graph.componentsManager.getComponents(family);
+		for (int i = 0; i < components.size(); i++) {
+			familyNodes.handle(components.get(i));
+		}
+	}
+
+	public void unregisterFamily(TagFamily family) {
+		FamilyNodes familyNodes = families.remove(family.id);
+		if (familyNodes != null) {
+			Pools.free(familyNodes);
+		}
+	}
+
+	private ArrayExt<SceneNode> getNodesArray(int tagId) {
 		ArrayExt<SceneNode> nodes = nodesByTag.get(tagId);
 
 		if (nodes == null) {
@@ -43,29 +124,32 @@ public class TagManager extends GraphListenerSystem {
 		return nodes;
 	}
 
-	void tagAdded(TagComponent component, Tag tag) {
-		getNodes(tag).add(component.getNode());
+	void tagAdded(TagComponent component, int tagId) {
+		getNodesArray(tagId).add(component.getNode());
 	}
 
-	void tagRemoved(TagComponent component, Tag tag) {
-		nodesByTag.get(tag.id).removeValue(component.getNode(), true);
+	void tagRemoved(TagComponent component, int tagId) {
+		nodesByTag.get(tagId).removeValue(component.getNode(), true);
 	}
 
-	public ImmutableArray<SceneNode> getNodesByTag(Tag tag) {
-		return getNodesByTag(tag.id);
-	}
-
-	public ImmutableArray<SceneNode> getNodesByTag(int tagType) {
-		ArrayExt<SceneNode> nodes = nodesByTag.get(tagType);
+	public ImmutableArray<SceneNode> getNodes(Tag tag) {
+		int tagId = tag.id;
+		ArrayExt<SceneNode> nodes = nodesByTag.get(tagId);
 		return nodes == null ? ImmutableArray.<SceneNode> empty() : nodes.immutable();
 	}
 
-	public SceneNode getSingleNodeByTag(Tag tag) {
-		return getSingleNodeByTag(tag.id);
+	public boolean belongsToFamily(SceneNode node, TagFamily family) {
+		return getNodes(family).contains(node, true);
 	}
 
-	public SceneNode getSingleNodeByTag(int tagType) {
-		ArrayExt<SceneNode> nodes = nodesByTag.get(tagType);
+	public ImmutableArray<SceneNode> getNodes(TagFamily family) {
+		FamilyNodes familyNodes = families.get(family.id);
+		return familyNodes == null ? ImmutableArray.<SceneNode> empty() : familyNodes.immutableNodes;
+	}
+
+	public SceneNode getSingleNodeByTag(Tag tag) {
+		int tagId = tag.id;
+		ArrayExt<SceneNode> nodes = nodesByTag.get(tagId);
 
 		if (nodes == null || nodes.size == 0) {
 			return null;
@@ -77,6 +161,136 @@ public class TagManager extends GraphListenerSystem {
 	@Override
 	protected void resetted() {
 		for (ArrayExt<SceneNode> nodes : nodesByTag.values()) {
+			nodes.clear();
+		}
+	}
+
+	public static final class TagFamily {
+		private static int INDEXER = 0;
+
+		public final int id;
+		private final Bits all = new Bits();
+		private final Bits exclude = new Bits();
+		private final Bits any = new Bits();
+
+		public TagFamily() {
+			id = INDEXER++;
+		}
+
+		public boolean matches(TagComponent component) {
+			Bits componentBits = component.tagsInternal;
+
+			if (!componentBits.containsAll(all)) {
+				return false;
+			}
+
+			if (!any.isEmpty() && !any.intersects(componentBits)) {
+				return false;
+			}
+
+			if (!exclude.isEmpty() && exclude.intersects(componentBits)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		public static class Builder implements Poolable {
+			private final Bits all = new Bits();
+			private final Bits exclude = new Bits();
+			private final Bits any = new Bits();
+
+			private Builder() {
+			}
+
+			public Builder all(@SuppressWarnings("unchecked") Tag... tags) {
+				for (Tag tag : tags) {
+					all.set(tag.id);
+				}
+				return this;
+			}
+
+			public Builder any(@SuppressWarnings("unchecked") Tag... tags) {
+				for (Tag tag : tags) {
+					any.set(tag.id);
+				}
+				return this;
+			}
+
+			public Builder exclude(@SuppressWarnings("unchecked") Tag... tags) {
+				for (Tag tag : tags) {
+					exclude.set(tag.id);
+				}
+				return this;
+			}
+
+			public TagFamily build() {
+				TagFamily family = new TagFamily();
+				family.all.or(all);
+				family.exclude.or(exclude);
+				family.any.or(any);
+				return family;
+			}
+
+			@Override
+			public boolean equals(Object o) {
+				if (this == o)
+					return true;
+				if (o == null || getClass() != o.getClass())
+					return false;
+
+				Builder builder = (Builder) o;
+
+				if (!all.equals(builder.all))
+					return false;
+				if (!exclude.equals(builder.exclude))
+					return false;
+				if (!any.equals(builder.any))
+					return false;
+
+				return true;
+			}
+
+			@Override
+			public int hashCode() {
+				int result = all.hashCode();
+				result = 31 * result + exclude.hashCode();
+				result = 31 * result + any.hashCode();
+				return result;
+			}
+
+			@Override
+			public void reset() {
+				all.clear();
+				exclude.clear();
+				any.clear();
+			}
+		}
+	}
+
+	private static class FamilyNodes implements Poolable {
+		private TagFamily family;
+		private Array<SceneNode> nodes = new Array<SceneNode>();
+		private ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
+
+		private void handle(TagComponent component) {
+			SceneNode node = component.getNode();
+			boolean belongsToFamily = family.matches(component);
+			boolean containsNode = nodes.contains(node, true);
+			if (belongsToFamily && !containsNode) {
+				nodes.add(node);
+			} else if (!belongsToFamily && containsNode) {
+				nodes.removeValue(node, true);
+			}
+		}
+
+		private void remove(SceneNode node) {
+			nodes.removeValue(node, true);
+		}
+
+		@Override
+		public void reset() {
+			family = null;
 			nodes.clear();
 		}
 	}
