@@ -16,6 +16,7 @@ import com.gurella.engine.signal.Signal1.Signal1Impl;
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElementType
 public abstract class RenderableComponent extends SceneNodeComponent {
+	//TODO LayerComponent
 	public Layer layer = Layer.DEFAULT;
 
 	TransformComponent transformComponent;
@@ -94,7 +95,7 @@ public abstract class RenderableComponent extends SceneNodeComponent {
 	protected abstract void render(GenericBatch batch);
 
 	public abstract void getBounds(BoundingBox bounds);
-	
+
 	public abstract boolean getIntersection(Ray ray, Vector3 intersection);
 
 	private class TransformComponentActivatedListener implements Listener1<SceneNodeComponent> {

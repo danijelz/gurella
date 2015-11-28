@@ -10,13 +10,13 @@ import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableBits;
 
-public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
+public class ComponentsBitsPredicate implements Predicate<SceneNode>, Poolable {
 	private boolean activeComponents;
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
 	private final Bits any = new Bits();
 
-	private NodeComponentsPredicate() {
+	private ComponentsBitsPredicate() {
 	}
 
 	@Override
@@ -113,8 +113,8 @@ public class NodeComponentsPredicate implements Predicate<SceneNode>, Poolable {
 			return this;
 		}
 
-		public NodeComponentsPredicate build() {
-			NodeComponentsPredicate aspect = new NodeComponentsPredicate();
+		public ComponentsBitsPredicate build() {
+			ComponentsBitsPredicate aspect = new ComponentsBitsPredicate();
 			aspect.activeComponents = activeComponents;
 			aspect.all.or(all);
 			aspect.exclude.or(exclude);

@@ -24,13 +24,12 @@ public final class SceneNode extends SceneGraphElement {
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
 	final Array<SceneNode> childrenInternal = new Array<SceneNode>();
 	@TransientProperty
-	public final ImmutableArray<SceneNode> children = new ImmutableArray<SceneNode>(childrenInternal);
+	public final ImmutableArray<SceneNode> children = ImmutableArray.with(childrenInternal);
 
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
 	final IntMap<SceneNodeComponent> componentsInternal = new IntMap<SceneNodeComponent>();
 	@TransientProperty
-	public final ImmutableIntMapValues<SceneNodeComponent> components = new ImmutableIntMapValues<SceneNodeComponent>(
-			componentsInternal);
+	public final ImmutableIntMapValues<SceneNodeComponent> components = ImmutableIntMapValues.with(componentsInternal);
 	@TransientProperty
 	final Bits componentBitsInternal = new Bits();
 	@TransientProperty
@@ -153,9 +152,15 @@ public final class SceneNode extends SceneGraphElement {
 		}
 	}
 	
+	public <T extends SceneNodeComponent> T getComponent(int componentType) {
+		@SuppressWarnings("unchecked")
+		T value = (T) componentsInternal.get(componentType);
+		return value;
+	}
+
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componentClass) {
 		@SuppressWarnings("unchecked")
-		T value = (T) componentsInternal.get(SceneNodeComponent.getBaseComponentType(componentClass));
+		T value = (T) componentsInternal.get(SceneNodeComponent.findBaseComponentType(componentClass));
 		return value;
 	}
 
@@ -166,8 +171,8 @@ public final class SceneNode extends SceneGraphElement {
 
 	public <T extends SceneNodeComponent> T getComponentSafely(Class<T> componentClass) {
 		@SuppressWarnings("unchecked")
-		T value = (T) componentsInternal.get(SceneNodeComponent.getBaseComponentType(componentClass));
-		if(value == null || value.baseComponentType == value.componentType) {
+		T value = (T) componentsInternal.get(SceneNodeComponent.findBaseComponentType(componentClass));
+		if (value == null || value.baseComponentType == value.componentType) {
 			return value;
 		} else {
 			return SceneNodeComponent.isSubtype(componentClass, value.getClass()) ? value : null;

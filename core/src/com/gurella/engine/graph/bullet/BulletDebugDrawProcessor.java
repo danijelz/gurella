@@ -13,6 +13,7 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.application.Units;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneGraph;
+import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneProcessor;
 import com.gurella.engine.graph.camera.CameraComponent;
 
@@ -31,7 +32,7 @@ public class BulletDebugDrawProcessor extends SceneProcessor {
 		super.activated();
 
 		SceneGraph graph = getGraph();
-		OrtographicCameraNode mainCamera = graph.tagManager.getSingleNodeByTag(PsyclistTag.MAIN_CAMERA);
+		SceneNode mainCamera = graph.tagManager.getSingleNodeByTag(PsyclistTag.MAIN_CAMERA);
 		camera = mainCamera.getComponent(CameraComponent.class).camera;
 
 		debugDrawer = Application.DISPOSABLE_MANAGER.add(new DebugDrawer());

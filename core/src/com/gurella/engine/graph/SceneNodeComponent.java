@@ -30,6 +30,10 @@ public class SceneNodeComponent extends SceneGraphElement {
 		componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
 		baseComponentType = baseComponentTypes.get(componentType, componentType);
 	}
+	
+	static int findBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
+		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findType(componentClass, -1), -1);
+	}
 
 	public static int getBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);

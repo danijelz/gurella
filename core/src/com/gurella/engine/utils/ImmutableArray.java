@@ -6,8 +6,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Array.ArrayIterable;
 
 /**
- * Wrapper class to treat {@link Array} objects as if they were immutable. However, note that the values could be
- * modified if they are mutable.
+ * Wrapper class to treat {@link Array} objects as if they were immutable.
+ * However, note that the values could be modified if they are mutable.
  * 
  * @author David Saltares
  */
@@ -16,6 +16,10 @@ public class ImmutableArray<T> implements Iterable<T> {
 
 	private final Array<T> array;
 	private ArrayIterable<T> iterable;
+
+	public static <T> ImmutableArray<T> with(Array<T> array) {
+		return new ImmutableArray<T>(array);
+	}
 
 	public ImmutableArray(Array<T> array) {
 		this.array = array;
