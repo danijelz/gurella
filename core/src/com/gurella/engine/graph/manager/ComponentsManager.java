@@ -55,6 +55,7 @@ public class ComponentsManager extends GraphListenerSystem {
 
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = Pools.obtain(FamilyComponents.class);
+		familyComponents.family = family;
 		families.put(family.id, familyComponents);
 
 		ImmutableArray<SceneNodeComponent> components = getGraph().allComponents;
@@ -92,9 +93,9 @@ public class ComponentsManager extends GraphListenerSystem {
 	}
 
 	private static class FamilyComponents<T extends SceneNodeComponent> implements Poolable {
-		ComponentFamily<T> family;
-		Array<T> components = new Array<T>();
-		ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
+		private ComponentFamily<T> family;
+		private final Array<T> components = new Array<T>();
+		private final ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
 
 		private void handle(SceneNodeComponent component) {
 			if (family.predicate.evaluate(component)) {

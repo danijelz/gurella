@@ -9,9 +9,9 @@ import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.manager.ComponentTypePredicate;
 import com.gurella.engine.graph.manager.ComponentsManager;
 import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
-import com.gurella.engine.graph.manager.ComponentTypePredicate;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -93,6 +93,7 @@ public class TagManager extends GraphListenerSystem {
 			return;
 		}
 		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
+		familyNodes.family = tagFamily;
 		families.put(familyId, familyNodes);
 
 		SceneGraph graph = getGraph();
@@ -195,6 +196,18 @@ public class TagManager extends GraphListenerSystem {
 			return true;
 		}
 
+		public static Builder all(Tag... tags) {
+			return new Builder().all(tags);
+		}
+
+		public static Builder exclude(Tag... tags) {
+			return new Builder().exclude(tags);
+		}
+
+		public static Builder any(Tag... tags) {
+			return new Builder().any(tags);
+		}
+
 		public static class Builder implements Poolable {
 			private final Bits all = new Bits();
 			private final Bits exclude = new Bits();
@@ -270,8 +283,8 @@ public class TagManager extends GraphListenerSystem {
 
 	private static class FamilyNodes implements Poolable {
 		private TagFamily family;
-		private Array<SceneNode> nodes = new Array<SceneNode>();
-		private ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
+		private final Array<SceneNode> nodes = new Array<SceneNode>();
+		private final ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
 
 		private void handle(TagComponent component) {
 			SceneNode node = component.getNode();

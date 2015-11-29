@@ -50,6 +50,7 @@ public class NodesManager extends GraphListenerSystem {
 			return;
 		}
 		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
+		familyNodes.family = family;
 		families.put(familyId, familyNodes);
 
 		SceneGraph graph = getGraph();
