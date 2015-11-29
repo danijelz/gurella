@@ -179,17 +179,17 @@ public class TagManager extends GraphListenerSystem {
 		}
 
 		public boolean matches(TagComponent component) {
-			Bits componentBits = component.tagsInternal;
+			Bits tags = component.tagsInternal;
 
-			if (!componentBits.containsAll(all)) {
+			if (!tags.containsAll(all)) {
 				return false;
 			}
 
-			if (!any.isEmpty() && !any.intersects(componentBits)) {
+			if (!any.isEmpty() && !any.intersects(tags)) {
 				return false;
 			}
 
-			if (!exclude.isEmpty() && exclude.intersects(componentBits)) {
+			if (!exclude.isEmpty() && exclude.intersects(tags)) {
 				return false;
 			}
 

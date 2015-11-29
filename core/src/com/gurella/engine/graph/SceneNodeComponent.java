@@ -77,25 +77,23 @@ public class SceneNodeComponent extends SceneGraphElement {
 
 		initComponentDataHierarchy(componentClass);
 
-		int componentType = COMPONENT_TYPE_INDEXER.getType(componentClass);
-		Class<?> temp = componentClass.getSuperclass();
+		Class<?> temp = componentClass;
 		BitsExt lastBits = null;
 		BitsExt currentBits;
 
 		while (temp != SceneNodeComponent.class) {
 			@SuppressWarnings("unchecked")
 			Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) temp;
-			int parentComponentType = COMPONENT_TYPE_INDEXER.getType(casted);
+			int componentType = COMPONENT_TYPE_INDEXER.getType(casted);
+			currentBits = componentSubtypes.get(componentType);
 
 			if (lastBits == null) {
-				lastBits = componentSubtypes.get(parentComponentType);
-				lastBits.set(componentType);
+				currentBits.set(componentType);
 			} else {
-				currentBits = componentSubtypes.get(parentComponentType);
 				currentBits.or(lastBits);
-				lastBits = currentBits;
 			}
 
+			lastBits = currentBits;
 			temp = temp.getSuperclass();
 		}
 	}

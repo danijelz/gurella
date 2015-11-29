@@ -10,7 +10,6 @@ import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ImmutableBits;
 
-
 public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 	private boolean activeComponents;
 	private final Bits all = new Bits();
@@ -22,40 +21,22 @@ public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 
 	@Override
 	public boolean evaluate(SceneNode node) {
-		ImmutableBits nodeComponentBits = activeComponents ? node.activeComponentBits : node.componentBits;
+		ImmutableBits componentBits = activeComponents ? node.activeComponentBits : node.componentBits;
 
 		int componentId = all.nextSetBit(0);
 		while (componentId != -1) {
-			if (!nodeComponentBits.get(componentId)
-					&& !nodeComponentBits.intersects(getComponentSubtypes(componentId))) {
+			if (!componentBits.intersects(getComponentSubtypes(componentId))) {
 				return false;
 			}
 			componentId = all.nextSetBit(componentId);
 		}
 
-		if (!any.isEmpty()) {
-			componentId = any.nextSetBit(0);
-			while (componentId != -1) {
-				if (nodeComponentBits.get(componentId)
-						|| nodeComponentBits.intersects(getComponentSubtypes(componentId))) {
-					break;
-				}
-				componentId = any.nextSetBit(componentId);
-			}
-			if (componentId == -1) {
-				return false;
-			}
+		if (!any.isEmpty() && !componentBits.intersects(any)) {
+			return false;
 		}
 
-		if (!exclude.isEmpty()) {
-			componentId = exclude.nextSetBit(0);
-			while (componentId != -1) {
-				if (nodeComponentBits.get(componentId)
-						|| nodeComponentBits.intersects(getComponentSubtypes(componentId))) {
-					return false;
-				}
-				componentId = exclude.nextSetBit(componentId);
-			}
+		if (!exclude.isEmpty() && componentBits.intersects(exclude)) {
+			return false;
 		}
 
 		return true;
@@ -103,14 +84,16 @@ public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 
 		public Builder any(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
 			for (Class<? extends SceneNodeComponent> type : types) {
-				any.set(getComponentType(type));
+				int componentType = getComponentType(type);
+				getComponentSubtypes(componentType).orBits(any);
 			}
 			return this;
 		}
 
 		public Builder exclude(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
 			for (Class<? extends SceneNodeComponent> type : types) {
-				exclude.set(getComponentType(type));
+				int componentType = getComponentType(type);
+				getComponentSubtypes(componentType).orBits(exclude);
 			}
 			return this;
 		}
