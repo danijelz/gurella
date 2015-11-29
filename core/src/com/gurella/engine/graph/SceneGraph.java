@@ -1,6 +1,7 @@
 package com.gurella.engine.graph;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.UpdateEvent;
@@ -16,6 +17,7 @@ import com.gurella.engine.graph.script.ScriptManager;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningManager;
 import com.gurella.engine.graph.tag.TagManager;
+import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Listener0;
@@ -81,6 +83,30 @@ public class SceneGraph implements UpdateListener {
 
 		renderSystem = new RenderSystem();
 		addSystemSafely(renderSystem);
+	}
+	
+	//TODO unused
+	public void init(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
+		addSystemSafely(componentsManager);
+		addSystemSafely(nodesManager);
+		addSystemSafely(tagManager);
+		addSystemSafely(layerManager);
+		addSystemSafely(scriptManager);
+		addSystemSafely(spatialPartitioningManager);
+		addSystemSafely(inputSystem);
+		addSystemSafely(renderSystem);
+		
+		for (int i = 0; i < initialSystems.size; i++) {
+			int initialSystemId = initialSystems.get(i);
+			SceneSystem system = initialResources.getResource(initialSystemId);
+			addSystemSafely(system);
+		}
+
+		for (int i = 0; i < initialNodes.size; i++) {
+			int initialNodeId = initialNodes.get(i);
+			SceneNode node = initialResources.getResource(initialNodeId);
+			addNodeSafely(node);
+		}
 	}
 
 	public void addListener(SceneGraphListener listener) {
