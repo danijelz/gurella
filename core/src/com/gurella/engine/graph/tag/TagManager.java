@@ -216,21 +216,21 @@ public class TagManager extends GraphListenerSystem {
 			private Builder() {
 			}
 
-			public Builder all(@SuppressWarnings("unchecked") Tag... tags) {
+			public Builder all(Tag... tags) {
 				for (Tag tag : tags) {
 					all.set(tag.id);
 				}
 				return this;
 			}
 
-			public Builder any(@SuppressWarnings("unchecked") Tag... tags) {
+			public Builder any(Tag... tags) {
 				for (Tag tag : tags) {
 					any.set(tag.id);
 				}
 				return this;
 			}
 
-			public Builder exclude(@SuppressWarnings("unchecked") Tag... tags) {
+			public Builder exclude(Tag... tags) {
 				for (Tag tag : tags) {
 					exclude.set(tag.id);
 				}
