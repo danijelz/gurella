@@ -27,16 +27,14 @@ public class SceneGraph implements UpdateListener {
 	private SceneStopListener sceneStopListener = new SceneStopListener();
 
 	private Array<SceneNode> allNodesInternal = new Array<SceneNode>();
-	public ImmutableArray<SceneNode> allNodes = new ImmutableArray<SceneNode>(allNodesInternal);
+	public ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
 	private Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
-	public ImmutableArray<SceneNode> activeNodes = new ImmutableArray<SceneNode>(activeNodesInternal);
+	public ImmutableArray<SceneNode> activeNodes = ImmutableArray.with(activeNodesInternal);
 
 	private Array<SceneNodeComponent> allComponentsInternal = new Array<SceneNodeComponent>();
-	public ImmutableArray<SceneNodeComponent> allComponents = new ImmutableArray<SceneNodeComponent>(
-			allComponentsInternal);
+	public ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray.with(allComponentsInternal);
 	private Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
-	public ImmutableArray<SceneNodeComponent> activeComponents = new ImmutableArray<SceneNodeComponent>(
-			activeComponentsInternal);
+	public ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray.with(activeComponentsInternal);
 
 	private IntMap<SceneSystem> allSystems = new IntMap<SceneSystem>();
 	private Array<SceneSystem> activeSystems = new Array<SceneSystem>();
