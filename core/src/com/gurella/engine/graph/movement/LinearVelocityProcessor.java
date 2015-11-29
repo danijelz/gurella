@@ -4,14 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.SceneProcessor;
+import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.manager.ComponentBitsPredicate;
 import com.gurella.engine.graph.manager.NodesManager;
 import com.gurella.engine.graph.manager.NodesManager.SceneNodeFamily;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class LinearVelocityProcessor extends SceneProcessor {
+public class LinearVelocityProcessor extends UpdateListenerSystem {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 

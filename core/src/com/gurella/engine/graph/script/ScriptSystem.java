@@ -22,7 +22,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class ScriptSystem extends GraphListenerSystem {
-	private static final ComponentFamily<? extends ScriptComponent> family = new ComponentFamily<ScriptComponent>(
+	private static final ComponentFamily<? extends ScriptComponent> scriptsFamily = new ComponentFamily<ScriptComponent>(
 			new ComponentTypePredicate(ScriptComponent.class));
 
 	private ObjectMap<ScriptMethodKey, ScriptMethod> registeredMethods = new ObjectMap<ScriptMethodKey, ScriptMethod>();
@@ -37,9 +37,9 @@ public class ScriptSystem extends GraphListenerSystem {
 	protected void activated() {
 		scriptSystemSignal.activate();
 		ComponentsManager componentManager = getGraph().componentsManager;
-		componentManager.registerComponentFamily(family);
+		componentManager.registerComponentFamily(scriptsFamily);
 
-		ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(family);
+		ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(scriptsFamily);
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
@@ -48,7 +48,7 @@ public class ScriptSystem extends GraphListenerSystem {
 	@Override
 	protected void deactivated() {
 		scriptSystemSignal.deactivate();
-		getGraph().componentsManager.unregisterComponentFamily(family);
+		getGraph().componentsManager.unregisterComponentFamily(scriptsFamily);
 
 		for (ScriptMethod scriptMethod : registeredMethods.values()) {
 			removeScriptMethod(scriptMethod);
@@ -152,7 +152,7 @@ public class ScriptSystem extends GraphListenerSystem {
 		ComponentsManager componentManager = getGraph().componentsManager;
 		for (OverridenScriptMethods overridenScriptMethods : scriptMethodsByComponentClass.values()) {
 			if (overridenScriptMethods.methodAdded(scriptMethod)) {
-				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(family);
+				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(scriptsFamily);
 				for (int i = 0; i < components.size(); i++) {
 					ScriptComponent component = components.get(i);
 					associateComponentWithMethod(scriptMethod, component.getNode().id, component);
@@ -171,7 +171,7 @@ public class ScriptSystem extends GraphListenerSystem {
 		ComponentsManager componentManager = getGraph().componentsManager;
 		for (OverridenScriptMethods overridenScriptMethods : scriptMethodsByComponentClass.values()) {
 			if (overridenScriptMethods.methodRemoved(scriptMethod)) {
-				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(family);
+				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(scriptsFamily);
 				for (int i = 0; i < components.size(); i++) {
 					ScriptComponent component = components.get(i);
 					disassociateComponentWithMethod(component.getNode().id, scriptMethod, component);

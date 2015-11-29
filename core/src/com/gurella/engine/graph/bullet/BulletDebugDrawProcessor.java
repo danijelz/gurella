@@ -14,10 +14,10 @@ import com.gurella.engine.application.Units;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.SceneProcessor;
+import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.camera.CameraComponent;
 
-public class BulletDebugDrawProcessor extends SceneProcessor {
+public class BulletDebugDrawProcessor extends UpdateListenerSystem {
 	private Camera camera;
 	private DebugDrawer debugDrawer;
 	private btDynamicsWorld dynamicsWorld;

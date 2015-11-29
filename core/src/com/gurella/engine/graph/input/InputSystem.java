@@ -36,7 +36,7 @@ import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.SceneProcessor;
+import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.camera.CameraComponent;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.Layer.CommonLayer;
@@ -51,7 +51,7 @@ import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class InputSystem extends SceneProcessor implements SceneGraphListener {
+public class InputSystem extends UpdateListenerSystem implements SceneGraphListener {
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
