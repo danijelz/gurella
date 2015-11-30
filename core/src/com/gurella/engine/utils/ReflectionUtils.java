@@ -130,9 +130,7 @@ public class ReflectionUtils {
 	public static <T extends Annotation> T getDeclaredAnnotation(Class<?> owner, Class<T> annotationType) {
 		com.badlogic.gdx.utils.reflect.Annotation annotation = ClassReflection.getDeclaredAnnotation(owner,
 				annotationType);
-		return annotation == null
-				? null
-				: annotation.getAnnotation(annotationType);
+		return annotation == null ? null : annotation.getAnnotation(annotationType);
 	}
 
 	public static <T extends Annotation> T getAnnotation(Class<?> owner, Class<T> annotationType) {
@@ -150,9 +148,12 @@ public class ReflectionUtils {
 
 	public static <T extends Annotation> T getDeclaredAnnotation(Field owner, Class<T> annotationType) {
 		com.badlogic.gdx.utils.reflect.Annotation annotation = owner.getDeclaredAnnotation(annotationType);
-		return annotation == null
-				? null
-				: annotation.getAnnotation(annotationType);
+		return annotation == null ? null : annotation.getAnnotation(annotationType);
+	}
+
+	public static <T extends Annotation> T getDeclaredAnnotation(Method owner, Class<T> annotationType) {
+		com.badlogic.gdx.utils.reflect.Annotation annotation = owner.getDeclaredAnnotation(annotationType);
+		return annotation == null ? null : annotation.getAnnotation(annotationType);
 	}
 
 	public static void setFieldValue(String fieldName, Object object, Object value) {

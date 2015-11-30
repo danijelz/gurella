@@ -145,7 +145,7 @@ public class ScriptManager extends GraphListenerSystem {
 		}
 	}
 
-	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethod method) {
+	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
 		return getScriptsByMethod(method.id);
 	}
 
@@ -158,7 +158,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethod method) {
+	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
 		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
 	}
 
@@ -177,7 +177,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getScriptComponents(ScriptMethod scriptMethod) {
+	public OrderedSet<ScriptComponent> getScriptComponents(ScriptMethodDescriptor scriptMethod) {
 		return getScriptsByMethod(scriptMethod.id);
 	}
 
@@ -188,7 +188,7 @@ public class ScriptManager extends GraphListenerSystem {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != ScriptComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					ScriptMethod scriptMethod = DefaultScriptMethod.valueOf(method);
+					ScriptMethodDescriptor scriptMethod = DefaultScriptMethod.valueOf(method);
 					if (scriptMethod != null) {
 						methods.add(scriptMethod.id);
 					}

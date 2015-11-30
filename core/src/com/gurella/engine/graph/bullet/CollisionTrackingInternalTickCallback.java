@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethod;
+import com.gurella.engine.graph.script.ScriptMethodDescriptor;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
@@ -134,7 +134,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private OrderedSet<ScriptComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
-			ScriptMethod scriptMethod) {
+			ScriptMethodDescriptor scriptMethod) {
 		return graph.scriptManager.getNodeScriptsByMethod(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
@@ -150,7 +150,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		}
 	}
 
-	private OrderedSet<ScriptComponent> getScripts(ScriptMethod method) {
+	private OrderedSet<ScriptComponent> getScripts(ScriptMethodDescriptor method) {
 		return graph.scriptManager.getScriptComponents(method);
 	}
 

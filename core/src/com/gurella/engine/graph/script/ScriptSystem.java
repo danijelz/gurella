@@ -1,41 +1,24 @@
 package com.gurella.engine.graph.script;
 
-import java.util.Arrays;
-
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.OrderedSet;
-import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.Pools;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.manager.ComponentTypePredicate;
 import com.gurella.engine.graph.manager.ComponentsManager;
 import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
-import com.gurella.engine.graph.manager.ComponentTypePredicate;
-import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
 
 public class ScriptSystem extends GraphListenerSystem {
 	private static final ComponentFamily<? extends ScriptComponent> scriptsFamily = new ComponentFamily<ScriptComponent>(
 			new ComponentTypePredicate(ScriptComponent.class));
 
-	private ObjectMap<ScriptMethodKey, ScriptMethod> registeredMethods = new ObjectMap<ScriptMethodKey, ScriptMethod>();
-	private IntMap<OverridenScriptMethods> scriptMethodsByComponentClass = new IntMap<OverridenScriptMethods>();
-
-	private IntMap<OrderedSet<ScriptComponent>> componentsByMethod = new IntMap<OrderedSet<ScriptComponent>>();
-	private IntMap<IntMap<OrderedSet<ScriptComponent>>> nodeComponentsByMethod = new IntMap<IntMap<OrderedSet<ScriptComponent>>>();
-
-	private ScriptSystemSignal scriptSystemSignal = new ScriptSystemSignal();
+	private final IntMap<OrderedSet<ScriptComponent>> componentsByMethod = new IntMap<OrderedSet<ScriptComponent>>();
+	private final IntMap<IntMap<OrderedSet<ScriptComponent>>> nodeComponentsByMethod = new IntMap<IntMap<OrderedSet<ScriptComponent>>>();
 
 	@Override
 	protected void activated() {
-		scriptSystemSignal.activate();
 		ComponentsManager componentManager = getGraph().componentsManager;
 		componentManager.registerComponentFamily(scriptsFamily);
 
@@ -47,18 +30,9 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	@Override
 	protected void deactivated() {
-		scriptSystemSignal.deactivate();
 		getGraph().componentsManager.unregisterComponentFamily(scriptsFamily);
-
-		for (ScriptMethod scriptMethod : registeredMethods.values()) {
-			removeScriptMethod(scriptMethod);
-		}
-
-		registeredMethods.clear();
-		scriptMethodsByComponentClass.clear();
 		componentsByMethod.clear();
 		nodeComponentsByMethod.clear();
-		scriptSystemSignal.clear();
 	}
 
 	@Override
@@ -66,27 +40,13 @@ public class ScriptSystem extends GraphListenerSystem {
 		if (component instanceof ScriptComponent) {
 			ScriptComponent scriptComponent = (ScriptComponent) component;
 			int nodeId = scriptComponent.getNode().id;
-			OverridenScriptMethods overridenScriptMethods = getOverridenScriptMethods(scriptComponent);
-			for (ScriptMethod scriptMethod : overridenScriptMethods.methods) {
-				associateComponentWithMethod(scriptMethod, nodeId, scriptComponent);
+			for (ScriptMethodDescriptor scriptMethod : ScriptMethodRegistry
+					.getScriptMethods(scriptComponent.getClass())) {
+				getScriptsByMethod(scriptMethod).add(scriptComponent);
+				getNodeScriptsByMethod(nodeId, scriptMethod.id).add(scriptComponent);
+				scriptMethod.componentActivated(scriptComponent);
 			}
 		}
-	}
-
-	protected void associateComponentWithMethod(ScriptMethod method, int nodeId, ScriptComponent component) {
-		getScriptsByMethod(method).add(component);
-		getNodeScriptsByMethod(nodeId, method.id).add(component);
-		scriptSystemSignal.associateComponentWithMethod(method, component);
-	}
-
-	private OverridenScriptMethods getOverridenScriptMethods(ScriptComponent scriptComponent) {
-		int componentType = scriptComponent.componentType;
-		OverridenScriptMethods overridenScriptMethods = scriptMethodsByComponentClass.get(componentType);
-		if (overridenScriptMethods == null) {
-			overridenScriptMethods = new OverridenScriptMethods(scriptComponent.getClass());
-			scriptMethodsByComponentClass.put(componentType, overridenScriptMethods);
-		}
-		return overridenScriptMethods;
 	}
 
 	@Override
@@ -94,21 +54,17 @@ public class ScriptSystem extends GraphListenerSystem {
 		if (component instanceof ScriptComponent) {
 			ScriptComponent scriptComponent = (ScriptComponent) component;
 			int nodeId = scriptComponent.getNode().id;
-			OverridenScriptMethods overridenScriptMethods = getOverridenScriptMethods(scriptComponent);
-			for (ScriptMethod scriptMethod : overridenScriptMethods.methods) {
-				disassociateComponentWithMethod(nodeId, scriptMethod, scriptComponent);
+			for (ScriptMethodDescriptor scriptMethod : ScriptMethodRegistry
+					.getScriptMethods(scriptComponent.getClass())) {
+				int methodId = scriptMethod.id;
+				componentsByMethod.get(methodId).remove(scriptComponent);
+				getNodeScriptsByMethod(nodeId, methodId).remove(scriptComponent);
+				scriptMethod.componentDeactivated(scriptComponent);
 			}
 		}
 	}
 
-	private void disassociateComponentWithMethod(int nodeId, ScriptMethod scriptMethod,
-			ScriptComponent scriptComponent) {
-		getScriptsByMethod(scriptMethod).remove(scriptComponent);
-		getNodeScriptsByMethod(nodeId, scriptMethod.id).remove(scriptComponent);
-		scriptSystemSignal.disassociateComponentWithMethod(scriptMethod, scriptComponent);
-	}
-
-	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethod method) {
+	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
 		int methodId = method.id;
 		OrderedSet<ScriptComponent> scripts = componentsByMethod.get(methodId);
 		if (scripts == null) {
@@ -118,7 +74,7 @@ public class ScriptSystem extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethod method) {
+	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
 		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
 	}
 
@@ -136,211 +92,5 @@ public class ScriptSystem extends GraphListenerSystem {
 		}
 
 		return scripts;
-	}
-
-	public void addScriptMethod(ScriptMethod scriptMethod) {
-		ScriptMethodKey key = Pools.obtain(ScriptMethodKey.class).set(scriptMethod);
-		if (registeredMethods.containsKey(key)) {
-			throw new IllegalArgumentException("Duplicate method signature");
-		}
-		registeredMethods.put(key, scriptMethod);
-
-		if (!isActive()) {
-			return;
-		}
-
-		ComponentsManager componentManager = getGraph().componentsManager;
-		for (OverridenScriptMethods overridenScriptMethods : scriptMethodsByComponentClass.values()) {
-			if (overridenScriptMethods.methodAdded(scriptMethod)) {
-				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(scriptsFamily);
-				for (int i = 0; i < components.size(); i++) {
-					ScriptComponent component = components.get(i);
-					associateComponentWithMethod(scriptMethod, component.getNode().id, component);
-				}
-			}
-		}
-	}
-
-	public void removeScriptMethod(ScriptMethod scriptMethod) {
-		ScriptMethodKey key = Pools.obtain(ScriptMethodKey.class).set(scriptMethod);
-		if (registeredMethods.remove(key) == null || !isActive()) {
-			Pools.free(key);
-			return;
-		}
-
-		ComponentsManager componentManager = getGraph().componentsManager;
-		for (OverridenScriptMethods overridenScriptMethods : scriptMethodsByComponentClass.values()) {
-			if (overridenScriptMethods.methodRemoved(scriptMethod)) {
-				ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(scriptsFamily);
-				for (int i = 0; i < components.size(); i++) {
-					ScriptComponent component = components.get(i);
-					disassociateComponentWithMethod(component.getNode().id, scriptMethod, component);
-				}
-			}
-		}
-
-		Pools.free(key);
-	}
-
-	public void addListener(ScriptSystemListener listener) {
-		scriptSystemSignal.addListener(listener);
-		if (isActive()) {
-			listener.activate();
-		}
-	}
-
-	public void removeListener(ScriptSystemListener listener) {
-		scriptSystemSignal.removeListener(listener);
-		if (isActive()) {
-			listener.deactivate();
-		}
-	}
-
-	public void addExtension(ScriptSystemExtension extension) {
-		ScriptSystemListener listener = extension.getScriptSystemListener();
-		if (listener != null) {
-			scriptSystemSignal.addListener(listener);
-		}
-
-		Array<ScriptMethod> scriptMethods = extension.getScriptMethods();
-		if (scriptMethods != null) {
-			for (int i = 0; i < scriptMethods.size; i++) {
-				addScriptMethod(scriptMethods.get(i));
-			}
-		}
-	}
-
-	public void removeExtension(ScriptSystemExtension extension) {
-		Array<ScriptMethod> scriptMethods = extension.getScriptMethods();
-		if (scriptMethods != null) {
-			for (int i = 0; i < scriptMethods.size; i++) {
-				removeScriptMethod(scriptMethods.get(i));
-			}
-		}
-
-		ScriptSystemListener listener = extension.getScriptSystemListener();
-		if (listener != null) {
-			scriptSystemSignal.removeListener(listener);
-		}
-	}
-
-	private class OverridenScriptMethods {
-		Class<? extends ScriptComponent> scriptComponentClass;
-		ObjectSet<ScriptMethod> methods = new ObjectSet<ScriptMethod>();
-
-		OverridenScriptMethods(Class<? extends ScriptComponent> scriptComponentClass) {
-			this.scriptComponentClass = scriptComponentClass;
-			ScriptMethodKey key = Pools.obtain(ScriptMethodKey.class);
-			Class<?> tempClass = scriptComponentClass;
-			while (tempClass != ScriptComponent.class) {
-				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					ScriptMethod scriptMethod = registeredMethods.get(key.set(method));
-					if (scriptMethod != null) {
-						methods.add(scriptMethod);
-					}
-				}
-
-				tempClass = tempClass.getSuperclass();
-			}
-
-			Pools.free(key);
-		}
-
-		public boolean methodAdded(ScriptMethod scriptMethod) {
-			if (!ClassReflection.isAssignableFrom(scriptMethod.declaringClass, scriptComponentClass)) {
-				return false;
-			}
-
-			Class<?> tempClass = scriptComponentClass;
-			while (tempClass != ScriptComponent.class) {
-				Method method = ReflectionUtils.getDeclaredMethodSilently(scriptMethod.declaringClass,
-						scriptMethod.name, scriptMethod.parameterTypes);
-				if (method != null) {
-					methods.add(scriptMethod);
-					return true;
-				}
-
-				tempClass = tempClass.getSuperclass();
-			}
-			return false;
-		}
-
-		public boolean methodRemoved(ScriptMethod scriptMethod) {
-			return methods.remove(scriptMethod);
-		}
-	}
-
-	private static class ScriptMethodKey implements Poolable {
-		Class<?> declaringClass;
-		String methodName;
-		Class<?>[] methodParameterTypes;
-
-		public ScriptMethodKey set(ScriptMethod scriptMethod) {
-			this.declaringClass = scriptMethod.declaringClass;
-			this.methodName = scriptMethod.name;
-			this.methodParameterTypes = scriptMethod.parameterTypes;
-			return this;
-		}
-
-		public ScriptMethodKey set(Method method) {
-			this.declaringClass = method.getDeclaringClass();
-			this.methodName = method.getName();
-			this.methodParameterTypes = method.getParameterTypes();
-			return this;
-		}
-
-		@Override
-		public int hashCode() {
-			return 31 + declaringClass.hashCode() + methodName.hashCode() + Arrays.hashCode(methodParameterTypes);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (ScriptMethodKey.class != obj.getClass()) {
-				return false;
-			}
-			ScriptMethodKey other = (ScriptMethodKey) obj;
-			return declaringClass.equals(other.declaringClass) && methodName.equals(other.methodName)
-					&& Arrays.equals(methodParameterTypes, other.methodParameterTypes);
-		}
-
-		@Override
-		public void reset() {
-			declaringClass = null;
-			methodName = null;
-			methodParameterTypes = null;
-		}
-	}
-
-	public static class ScriptSystemSignal extends AbstractSignal<ScriptSystemListener> {
-		public void activate() {
-			for (ScriptSystemListener listener : listeners) {
-				listener.activate();
-			}
-		}
-
-		public void deactivate() {
-			for (ScriptSystemListener listener : listeners) {
-				listener.deactivate();
-			}
-		}
-
-		public void associateComponentWithMethod(ScriptMethod scriptMethod, ScriptComponent component) {
-			for (ScriptSystemListener listener : listeners) {
-				listener.associateComponentWithMethod(scriptMethod, component);
-			}
-		}
-
-		public void disassociateComponentWithMethod(ScriptMethod scriptMethod, ScriptComponent component) {
-			for (ScriptSystemListener listener : listeners) {
-				listener.disassociateComponentWithMethod(scriptMethod, component);
-			}
-		}
 	}
 }

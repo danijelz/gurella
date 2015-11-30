@@ -26,6 +26,6 @@ public class EventService {
 	}
 
 	public static void notify(String evenType) {
-		globalEventBus.notify();
+		globalEventBus.notify(evenType);
 	}
 }

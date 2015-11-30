@@ -53,11 +53,11 @@ public class AudioTrack implements Poolable, Listener1<Float> {
 
 	@Override
 	public void handle(Float newChannelVolume) {
-		setChannelVolume(newChannelVolume);
+		setChannelVolume(newChannelVolume == null ? 0 : newChannelVolume.floatValue());
 	}
 
-	private void setChannelVolume(Float newChannelVolume) {
-		this.channelVolume = newChannelVolume.floatValue();
+	private void setChannelVolume(float newChannelVolume) {
+		this.channelVolume = newChannelVolume;
 		updateVolume();
 	}
 
