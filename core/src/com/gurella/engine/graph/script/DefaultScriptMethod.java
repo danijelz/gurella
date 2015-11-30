@@ -120,7 +120,7 @@ public final class DefaultScriptMethod {
 	//@formatter:on
 	
 	private static ScriptMethodDescriptor get(String name, Class<?>... parameterTypes ) {
-		return null;//TODO new ScriptMethod(ScriptComponent.class, name, parameterTypes);
+		return ScriptSystem.findScriptMethod(ScriptComponent.class, name, parameterTypes);
 	}
 
 //	private static final ObjectMap<ScriptMethodKey, DefaultScriptMethod> methods = new ObjectMap<DefaultScriptMethod.ScriptMethodKey, DefaultScriptMethod>();

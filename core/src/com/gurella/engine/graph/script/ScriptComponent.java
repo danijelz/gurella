@@ -360,37 +360,30 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 
 	// COMPONENT LIFECYCLE EVENTS
 	@Override
-	@ScriptMethod(marker = true)
 	protected void init() {
 	}
 
 	@Override
-	@ScriptMethod(marker = true)
 	protected void attached() {
 	}
 
 	@Override
-	@ScriptMethod(marker = true)
 	protected void activated() {
 	}
 
 	@Override
-	@ScriptMethod(marker = true)
 	protected void deactivated() {
 	}
 
 	@Override
-	@ScriptMethod(marker = true)
 	protected void resetted() {
 	}
 
 	@Override
-	@ScriptMethod(marker = true)
 	protected void detached() {
 	}
 
 	@Override
-	@ScriptMethod(marker = true)
 	protected void disposed() {
 	}
 

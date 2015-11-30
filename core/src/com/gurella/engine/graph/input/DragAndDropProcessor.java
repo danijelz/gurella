@@ -5,9 +5,9 @@ import static com.gurella.engine.graph.script.DefaultScriptMethod.getDropTarget;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.script.ScriptComponent;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class DragAndDropProcessor implements PointerActivityListener {
 	private SceneNode sourceNode;
@@ -63,8 +63,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 
 	private void initDragSources(SceneNode node, DragStartCondition condition) {
 		dragSources.clear();
-		OrderedSet<ScriptComponent> scripts = inputSystem.getNodeScriptsByMethod(node, getDragSource);
-		if (scripts == null || scripts.size < 1) {
+		ImmutableArray<ScriptComponent> scripts = inputSystem.getNodeScriptsByMethod(node, getDragSource);
+		if (scripts == null || scripts.size() < 1) {
 			return;
 		}
 
@@ -117,8 +117,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	}
 
 	private void initDropTargets(SceneNode node) {
-		OrderedSet<ScriptComponent> scripts = inputSystem.getNodeScriptsByMethod(node, getDropTarget);
-		if (scripts == null || scripts.size < 1) {
+		ImmutableArray<ScriptComponent> scripts = inputSystem.getNodeScriptsByMethod(node, getDropTarget);
+		if (scripts == null || scripts.size() < 1) {
 			return;
 		}
 

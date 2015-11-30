@@ -15,7 +15,7 @@ public final class ScriptMethodDescriptor {
 	public final Class<?>[] parameterTypes;
 	final ScriptMethodDecorator decorator;
 
-	public ScriptMethodDescriptor(Method method) {
+	ScriptMethodDescriptor(Method method) {
 		id = INDEX++;
 		this.declaringClass = method.getDeclaringClass();
 		this.name = method.getName();
@@ -37,9 +37,14 @@ public final class ScriptMethodDescriptor {
 		}
 	}
 
-	public boolean isEqual(Method method) {
+	boolean isEqual(Method method) {
 		return name.equals(method.getName()) && Arrays.equals(parameterTypes, method.getParameterTypes())
 				&& ClassReflection.isAssignableFrom(declaringClass, method.getDeclaringClass());
+	}
+
+	boolean isEqual(Class<?> declaringClass, String name, Class<?>[] parameterTypes) {
+		return this.name.equals(name) && Arrays.equals(this.parameterTypes, parameterTypes)
+				&& ClassReflection.isAssignableFrom(this.declaringClass, declaringClass);
 	}
 
 	@Override

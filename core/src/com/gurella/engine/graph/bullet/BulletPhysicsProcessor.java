@@ -1,5 +1,8 @@
 package com.gurella.engine.graph.bullet;
 
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onPhysicsSimulationEnd;
+import static com.gurella.engine.graph.script.DefaultScriptMethod.onPhysicsSimulationStart;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -21,7 +24,6 @@ import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
 import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.graph.script.DefaultScriptMethod;
 
 public class BulletPhysicsProcessor extends SceneProcessorManager {
 	private btCollisionConfiguration collisionConfig;
@@ -88,17 +90,13 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	}
 
 	private void dispatchSimulationStartEvent() {
-		SceneGraph graph = getGraph();
-		for (ScriptComponent scriptComponent : graph.scriptManager
-				.getScriptComponents(DefaultScriptMethod.onPhysicsSimulationStart)) {
+		for (ScriptComponent scriptComponent : getGraph().scriptSystem.getScriptsByMethod(onPhysicsSimulationStart)) {
 			scriptComponent.onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
 
 	private void dispatchSimulationEndEvent() {
-		SceneGraph graph = getGraph();
-		for (ScriptComponent scriptComponent : graph.scriptManager
-				.getScriptComponents(DefaultScriptMethod.onPhysicsSimulationEnd)) {
+		for (ScriptComponent scriptComponent : getGraph().scriptSystem.getScriptsByMethod(onPhysicsSimulationEnd)) {
 			scriptComponent.onPhysicsSimulationEnd(dynamicsWorld);
 		}
 	}

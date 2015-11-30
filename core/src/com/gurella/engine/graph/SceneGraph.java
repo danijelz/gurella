@@ -4,16 +4,16 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
 import com.gurella.engine.graph.manager.ComponentsManager;
 import com.gurella.engine.graph.manager.NodesManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
-import com.gurella.engine.graph.script.ScriptManager;
+import com.gurella.engine.graph.script.ScriptSystem;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningManager;
 import com.gurella.engine.graph.tag.TagManager;
@@ -50,7 +50,7 @@ public class SceneGraph implements UpdateListener {
 	public final NodesManager nodesManager;
 	public final TagManager tagManager;
 	public final LayerManager layerManager;
-	public final ScriptManager scriptManager;
+	public final ScriptSystem scriptSystem;
 	public final SpatialPartitioningManager<?> spatialPartitioningManager;
 	public final InputSystem inputSystem;
 	public final RenderSystem renderSystem;
@@ -72,8 +72,8 @@ public class SceneGraph implements UpdateListener {
 		layerManager = new LayerManager();
 		addSystemSafely(layerManager);
 
-		scriptManager = new ScriptManager();
-		addSystemSafely(scriptManager);
+		scriptSystem = new ScriptSystem();
+		addSystemSafely(scriptSystem);
 
 		spatialPartitioningManager = new BvhSpatialPartitioningManager();
 		addSystemSafely(spatialPartitioningManager);
@@ -84,18 +84,18 @@ public class SceneGraph implements UpdateListener {
 		renderSystem = new RenderSystem();
 		addSystemSafely(renderSystem);
 	}
-	
-	//TODO unused
+
+	// TODO unused
 	public void init(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
 		addSystemSafely(componentsManager);
 		addSystemSafely(nodesManager);
 		addSystemSafely(tagManager);
 		addSystemSafely(layerManager);
-		addSystemSafely(scriptManager);
+		addSystemSafely(scriptSystem);
 		addSystemSafely(spatialPartitioningManager);
 		addSystemSafely(inputSystem);
 		addSystemSafely(renderSystem);
-		
+
 		for (int i = 0; i < initialSystems.size; i++) {
 			int initialSystemId = initialSystems.get(i);
 			SceneSystem system = initialResources.getResource(initialSystemId);

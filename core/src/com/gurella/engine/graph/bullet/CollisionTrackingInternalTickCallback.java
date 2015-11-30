@@ -6,11 +6,11 @@ import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.InternalTickCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.graph.script.ScriptMethodDescriptor;
+import com.gurella.engine.utils.ImmutableArray;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
@@ -133,9 +133,9 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		}
 	}
 
-	private OrderedSet<ScriptComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
+	private ImmutableArray<ScriptComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
 			ScriptMethodDescriptor scriptMethod) {
-		return graph.scriptManager.getNodeScriptsByMethod(rigidBodyComponent.getNode(), scriptMethod);
+		return graph.scriptSystem.getNodeScriptsByMethod(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
 	private void swapCollisionPairs() {
@@ -150,8 +150,8 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		}
 	}
 
-	private OrderedSet<ScriptComponent> getScripts(ScriptMethodDescriptor method) {
-		return graph.scriptManager.getScriptComponents(method);
+	private ImmutableArray<ScriptComponent> getScripts(ScriptMethodDescriptor method) {
+		return graph.scriptSystem.getScriptsByMethod(method);
 	}
 
 	void clear() {

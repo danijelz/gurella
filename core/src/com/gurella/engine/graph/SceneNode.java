@@ -151,7 +151,7 @@ public final class SceneNode extends SceneGraphElement {
 			}
 		}
 	}
-	
+
 	public <T extends SceneNodeComponent> T getComponent(int componentType) {
 		@SuppressWarnings("unchecked")
 		T value = (T) componentsInternal.get(componentType);
@@ -228,9 +228,9 @@ public final class SceneNode extends SceneGraphElement {
 
 	public void broadcastMessage(Object sender, Object messageType, Object messageData) {
 		if (graph != null) {
-			Array<ScriptComponent> listeners = graph.scriptManager
-					.getNodeScriptsByMethod(this, DefaultScriptMethod.onMessage).orderedItems();
-			for (int i = 0; i < listeners.size; i++) {
+			ImmutableArray<ScriptComponent> listeners = graph.scriptSystem.getNodeScriptsByMethod(this,
+					DefaultScriptMethod.onMessage);
+			for (int i = 0; i < listeners.size(); i++) {
 				ScriptComponent listener = listeners.get(i);
 				listener.onMessage(sender, messageType, messageData);
 			}

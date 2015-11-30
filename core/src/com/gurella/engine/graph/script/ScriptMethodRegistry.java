@@ -8,14 +8,14 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class ScriptMethodRegistry {
+class ScriptMethodRegistry {
 	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>> markerScriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>>();
 	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>> scriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>>();
 
 	private ScriptMethodRegistry() {
 	}
 
-	public static synchronized ObjectSet<ScriptMethodDescriptor> getScriptMethods(
+	static synchronized ObjectSet<ScriptMethodDescriptor> getScriptMethods(
 			Class<? extends ScriptComponent> componentClass) {
 		ObjectSet<ScriptMethodDescriptor> methods = scriptMethods.get(componentClass);
 		if (methods != null) {

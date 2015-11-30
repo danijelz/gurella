@@ -29,7 +29,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.OrderedSet;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneGraph;
@@ -43,8 +42,8 @@ import com.gurella.engine.graph.layer.Layer.CommonLayer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptManager;
 import com.gurella.engine.graph.script.ScriptMethodDescriptor;
+import com.gurella.engine.graph.script.ScriptSystem;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.pools.SynchronizedPools;
@@ -55,7 +54,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
-	private ScriptManager scriptManager;
+	private ScriptSystem scriptSystem;
 	private SpatialPartitioningManager<?> spatialPartitioningManager;
 
 	private InputProcessorDelegate delegate = new InputProcessorDelegate();
@@ -82,13 +81,13 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	@Override
 	protected void attached() {
 		SceneGraph graph = getGraph();
-		scriptManager = graph.scriptManager;
+		scriptSystem = graph.scriptSystem;
 		spatialPartitioningManager = graph.spatialPartitioningManager;
 	}
 
 	@Override
 	protected void detached() {
-		scriptManager = null;
+		scriptSystem = null;
 		spatialPartitioningManager = null;
 	}
 
@@ -124,7 +123,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 
 	private void resetData() {
-		//TODO update listeners and finish actions
+		// TODO update listeners and finish actions
 		inputProcessorQueue.setProcessor(dummyDelegate);
 		inputProcessorQueue.drain();
 		inputProcessorQueue.setProcessor(delegate);
@@ -353,12 +352,12 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		return trackers.get(key);
 	}
 
-	OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
-		return scriptManager.getScriptsByMethod(method);
+	ImmutableArray<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
+		return scriptSystem.getScriptsByMethod(method);
 	}
 
-	OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
-		return scriptManager.getNodeScriptsByMethod(node, method);
+	ImmutableArray<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
+		return scriptSystem.getNodeScriptsByMethod(node, method);
 	}
 
 	@Override
