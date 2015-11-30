@@ -39,10 +39,12 @@ public class ScriptMethodRegistry {
 		initScriptMethods(superclass);
 
 		ObjectSet<ScriptMethodDescriptor> superMethods = scriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor> methods = new ObjectSet<ScriptMethodDescriptor>(superMethods);
+		ObjectSet<ScriptMethodDescriptor> methods = superMethods == null ? new ObjectSet<ScriptMethodDescriptor>()
+				: new ObjectSet<ScriptMethodDescriptor>(superMethods);
 
 		ObjectSet<ScriptMethodDescriptor> superMarkerMethods = markerScriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor> markerMethods = new ObjectSet<ScriptMethodDescriptor>(superMarkerMethods);
+		ObjectSet<ScriptMethodDescriptor> markerMethods = superMarkerMethods == null
+				? new ObjectSet<ScriptMethodDescriptor>() : new ObjectSet<ScriptMethodDescriptor>(superMarkerMethods);
 
 		for (Method method : ClassReflection.getDeclaredMethods(componentClass)) {
 			ScriptMethodDescriptor descriptor = find(superMarkerMethods, method);
@@ -70,15 +72,24 @@ public class ScriptMethodRegistry {
 	}
 
 	private static ScriptMethodDescriptor find(ObjectSet<ScriptMethodDescriptor> methods, Method method) {
-		for (ScriptMethodDescriptor descriptor : methods) {
-			if (descriptor.isEqual(method)) {
-				return descriptor;
+		if (methods != null) {
+			for (ScriptMethodDescriptor descriptor : methods) {
+				if (descriptor.isEqual(method)) {
+					return descriptor;
+				}
 			}
 		}
 		return null;
 	}
 
 	public static void main(String[] args) {
+		initScriptMethods(B.class);
+		markerScriptMethods.get(ScriptComponent.class).iterator().toArray();
+		markerScriptMethods.get(A.class).iterator().toArray();
+		markerScriptMethods.get(B.class).iterator().toArray();
+		scriptMethods.get(A.class).iterator().toArray();
+		scriptMethods.get(B.class).iterator().toArray();
+
 		for (Method method : ClassReflection.getMethods(A.class)) {
 			System.out.println(method.getName() + ": " + method.getDeclaringClass());
 		}
@@ -88,23 +99,12 @@ public class ScriptMethodRegistry {
 		}
 	}
 
-	public interface I {
-		boolean ggg();
-	}
-
-	public static abstract class A implements I {
-		public void ddd() {
+	public static abstract class A extends ScriptComponent {
+		@Override
+		public void onInput() {
 		}
 	}
 
 	public static class B extends A {
-		@Override
-		public void ddd() {
-		}
-
-		@Override
-		public boolean ggg() {
-			return false;
-		}
 	}
 }

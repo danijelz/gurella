@@ -36,77 +36,97 @@ import com.gurella.engine.utils.ImmutableArray;
 //TODO move methods to parent classes
 public abstract class ScriptComponent extends SceneNodeComponent implements SceneGraphListener {
 	// UPDATE EVENTS
+	@ScriptMethod(marker = true)
 	public void onInput() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onThink() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onPreRender() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onRender() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onDebugRender() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onAfterRender() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onCleanup() {
 	}
 
 	// INPUT EVENTS
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onTouchDown(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onTouchUp(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onTap(IntersectionTouchEvent touchEvent, int count) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragOverStart(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragOverMove(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragOverEnd(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragStart(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragMove(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragEnd(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onLongPress(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDoubleTouch(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onScrolled(int screenX, int screenY, int amount, Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onMouseOverStart(int screenX, int screenY, Vector3 intersection) {
 	}
 
@@ -115,165 +135,203 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onMouseOverEnd(int screenX, int screenY) {
 	}
 
 	// NODE DRAG AND DROP
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public DragSource getDragSource(DragStartCondition dragStartCondition) {
 		return null;
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public DropTarget getDropTarget(Array<DragSource> dragSources) {
 		return null;
 	}
 
 	// RESOLVED GLOBAL INPUT
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onTouchDown(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onTouchUp(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onTap(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent, int count) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragOverStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragOverMove(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragOverEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragMove(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDragEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onLongPress(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onDoubleTouch(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onScrolled(RenderableComponent renderableComponent, int screenX, int screenY, int amount,
 			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onMouseOverEnd(RenderableComponent renderableComponent, int screenX, int screenY) {
 	}
 
 	// //GLOBAL INPUT
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void keyDown(int keycode) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void keyUp(int keycode) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void keyTyped(char character) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void touchDown(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void doubleTouchDown(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void touchUp(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void touchDragged(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void mouseMoved(int screenX, int screenY) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void scrolled(int screenX, int screenY, int amount) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void tap(TouchEvent touchEvent, int count) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void longPress(TouchEvent touchEvent) {
 	}
 
 	// BULLET PHYSICS EVENTS
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onCollisionEnter(Collision collision) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onCollisionStay(Collision collision) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent) {
 	}
 
 	// GLOBAL BULLET PHYSICS EVENTS
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onCollisionEnter(CollisionPair collision) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onCollisionStay(CollisionPair collision) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent,
 			BulletPhysicsRigidBodyComponent rigidBodyComponent1) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onPhysicsSimulationStart(btDynamicsWorld dynamicsWorld) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onPhysicsSimulationStep(btDynamicsWorld dynamicsWorld, float timeStep) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onPhysicsSimulationEnd(btDynamicsWorld dynamicsWorld) {
 	}
 
@@ -281,124 +339,154 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 
 	// GRAPH EVENTS
 	@Override
+	@ScriptMethod(marker = true)
 	public void componentAdded(SceneNodeComponent component) {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	public void componentRemoved(SceneNodeComponent component) {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	public void componentActivated(SceneNodeComponent component) {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	public void componentDeactivated(SceneNodeComponent component) {
 	}
 
 	// COMPONENT LIFECYCLE EVENTS
 	@Override
+	@ScriptMethod(marker = true)
 	protected void init() {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	protected void attached() {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	protected void activated() {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	protected void deactivated() {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	protected void resetted() {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	protected void detached() {
 	}
 
 	@Override
+	@ScriptMethod(marker = true)
 	protected void disposed() {
 	}
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeComponentAdded(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeComponentRemoved(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeComponentActivated(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeComponentDeactivated(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeParentChanged(SceneNode newParent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeChildAdded(SceneNode child) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeChildRemoved(SceneNode child) {
 	}
 
 	// TODO global node events
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void componentAdded(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void componentActivated(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void componentDeactivated(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeParentChanged(SceneNode node, SceneNode newParent) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeChildAdded(SceneNode node, SceneNode child) {
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void nodeChildRemoved(SceneNode node, SceneNode child) {
 	}
 
 	// SCENE EVENTS
+	@ScriptMethod(marker = true)
 	public void onSceneStart() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onSceneStop() {
 	}
 
 	// APPLICATION EVENTS
+	@ScriptMethod(marker = true)
 	public void onPause() {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onResume() {
 	}
 
 	// TODO
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onResize(int width, int height) {
 	}
 
@@ -407,16 +495,20 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	// TODO animation events
 
 	// TODO tag events
+	@ScriptMethod(marker = true)
 	public void onNodeTagged(SceneNode node, Tag tag) {
 	}
 
+	@ScriptMethod(marker = true)
 	public void onNodeUntagged(SceneNode node, Tag tag) {
 	}
 	
 	// TODO layer events
+	@ScriptMethod(marker = true)
 	public void onNodeLayerChanged(SceneNode node, Layer oldLayer, Layer newLayer) {
 	}
 
+	@ScriptMethod(marker = true)
 	public boolean onMessage(Object sender, Object messageType, Object messageData) {
 		return false;
 	}

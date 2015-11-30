@@ -41,4 +41,10 @@ public final class ScriptMethodDescriptor {
 		return name.equals(method.getName()) && Arrays.equals(parameterTypes, method.getParameterTypes())
 				&& ClassReflection.isAssignableFrom(declaringClass, method.getDeclaringClass());
 	}
+
+	@Override
+	public String toString() {
+		return "ScriptMethodDescriptor [declaringClass=" + declaringClass + ", name=" + name + ", parameterTypes="
+				+ Arrays.toString(parameterTypes) + "]";
+	}
 }
