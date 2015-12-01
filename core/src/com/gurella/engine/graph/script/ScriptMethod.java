@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Target(value = { ElementType.METHOD })
 public @interface ScriptMethod {
 	boolean marker() default false;
+
+	Class<? extends ScriptMethodDecorator> decorator() default ScriptMethodDecorator.class;
 }

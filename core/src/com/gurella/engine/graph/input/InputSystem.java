@@ -38,7 +38,6 @@ import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.camera.CameraComponent;
 import com.gurella.engine.graph.layer.Layer;
-import com.gurella.engine.graph.layer.Layer.CommonLayer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.script.ScriptComponent;
@@ -395,7 +394,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean mouseMoved(int screenX, int screenY) {
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, CommonLayer.Dnd.layer).node;
+			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			mouseMoveProcessor.mouseMoved(screenX, screenY, node, closestIntersection);
 			return false;
 		}
@@ -409,7 +408,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 				scriptComponent.scrolled(screenX, screenY, amount);
 			}
 
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, CommonLayer.Dnd.layer).node;
+			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
 				for (ScriptComponent scriptComponent : getScriptsByMethod(onScrolledResolved)) {
@@ -426,7 +425,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, CommonLayer.Dnd.layer).node;
+			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			PointerTrack tracker = createTracker(pointer, button);
 			long eventTime = inputProcessorQueue.getCurrentEventTime();
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
@@ -460,7 +459,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 				scriptComponent.touchUp(touchEvent);
 			}
 
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, CommonLayer.Dnd.layer).node;
+			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
@@ -485,7 +484,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, CommonLayer.Dnd.layer).node;
+			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			touchEvent.set(pointer, -1, screenX, screenY);
 
 			for (int button = 0; button < 3; button++) {

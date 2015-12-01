@@ -12,7 +12,7 @@ public final class Layer implements Comparable<Layer> {
 
 	public static final Layer DEFAULT = new Layer(0, "Default");
 	public static final Layer GUI = new Layer(100, "GUI");
-	public static final Layer Dnd = new Layer(200, "Dnd");
+	public static final Layer DnD = new Layer(200, "DnD");
 
 	public final int id;
 	public final int ordinal;
@@ -64,17 +64,6 @@ public final class Layer implements Comparable<Layer> {
 		@Override
 		public int compare(Layer layer1, Layer layer2) {
 			return Integer.compare(layer2.ordinal, layer1.ordinal);
-		}
-	}
-
-	// TODO unused
-	public enum CommonLayer {
-		Default(0), GUI(100), Dnd(200);
-
-		public final Layer layer;
-
-		CommonLayer(int ordinal) {
-			layer = new Layer(ordinal, name());
 		}
 	}
 }

@@ -124,7 +124,7 @@ public abstract class SpatialPartitioningManager<T extends Spatial> extends Grap
 		} else if (component instanceof LayerComponent) {
 			T spatial = allSpatials.get(component.getNode().id);
 			if (spatial != null) {
-				spatial.layer = ((LayerComponent) component).layer;
+				spatial.layer = ((LayerComponent) component).getLayer();
 			}
 		}
 	}

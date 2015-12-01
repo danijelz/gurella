@@ -2,12 +2,14 @@ package com.gurella.engine.graph.script;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public final class ScriptMethodDescriptor {
 	private static int INDEX = 0;
+	static ObjectMap<MethodSignature, ScriptMethodDescriptor> instances = new ObjectMap<MethodSignature, ScriptMethodDescriptor>();
 
 	public final int id;
 	public final Class<?> declaringClass;
@@ -15,14 +17,21 @@ public final class ScriptMethodDescriptor {
 	public final Class<?>[] parameterTypes;
 	final ScriptMethodDecorator decorator;
 
-	ScriptMethodDescriptor(Method method) {
+	static ScriptMethodDescriptor find(Class<?> declaringClass, String name, Class<?>... parameterTypes) {
+		MethodSignature methodSignature = MethodSignature.obtain(declaringClass, name, parameterTypes);
+		ScriptMethodDescriptor descriptor = instances.get(methodSignature);
+		methodSignature.free();
+		return descriptor;
+	}
+
+	ScriptMethodDescriptor(Method method, Class<? extends ScriptMethodDecorator> decoratorClass) {
 		id = INDEX++;
 		this.declaringClass = method.getDeclaringClass();
 		this.name = method.getName();
 		this.parameterTypes = method.getParameterTypes();
-		ScriptMethodDecoratorProvider annotation = ReflectionUtils.getDeclaredAnnotation(method,
-				ScriptMethodDecoratorProvider.class);
-		this.decorator = annotation == null ? null : ReflectionUtils.newInstance(annotation.decorator());
+		this.decorator = decoratorClass == null || ScriptMethodDecorator.class == decoratorClass ? null
+				: ReflectionUtils.newInstance(decoratorClass);
+		instances.put(MethodSignature.obtain(declaringClass, name, parameterTypes), this);
 	}
 
 	void componentActivated(ScriptComponent component) {
@@ -40,11 +49,6 @@ public final class ScriptMethodDescriptor {
 	boolean isEqual(Method method) {
 		return name.equals(method.getName()) && Arrays.equals(parameterTypes, method.getParameterTypes())
 				&& ClassReflection.isAssignableFrom(declaringClass, method.getDeclaringClass());
-	}
-
-	boolean isEqual(Class<?> declaringClass, String name, Class<?>[] parameterTypes) {
-		return this.name.equals(name) && Arrays.equals(this.parameterTypes, parameterTypes)
-				&& ClassReflection.isAssignableFrom(this.declaringClass, declaringClass);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class TestInputComponnent extends ScriptComponent {
 	////////////INPUT EVENTS
 	@Override
 	public void onTouchDown(IntersectionTouchEvent pointerEvent) {
-		//System.out.println("onTouchDown");
+		System.out.println("onTouchDown");
 	}
 
 	@Override

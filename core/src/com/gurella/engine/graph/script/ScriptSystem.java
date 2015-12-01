@@ -20,16 +20,6 @@ public class ScriptSystem extends GraphListenerSystem {
 	private final IntMap<ArrayExt<ScriptComponent>> componentsByMethod = new IntMap<ArrayExt<ScriptComponent>>();
 	private final IntMap<IntMap<ArrayExt<ScriptComponent>>> nodeComponentsByMethod = new IntMap<IntMap<ArrayExt<ScriptComponent>>>();
 
-	public static ScriptMethodDescriptor findScriptMethod(Class<? extends ScriptComponent> declaringClass, String name,
-			Class<?>... parameterTypes) {
-		for (ScriptMethodDescriptor descriptor : getScriptMethods(declaringClass)) {
-			if (descriptor.isEqual(declaringClass, name, parameterTypes)) {
-				return descriptor;
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected void activated() {
 		ComponentsManager componentManager = getGraph().componentsManager;

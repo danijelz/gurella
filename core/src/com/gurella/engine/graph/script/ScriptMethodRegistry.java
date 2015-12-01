@@ -6,11 +6,17 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.resource.model.Resource;
 import com.gurella.engine.utils.ReflectionUtils;
 
 class ScriptMethodRegistry {
 	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>> markerScriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>>();
 	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>> scriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>>();
+
+	static {
+		markerScriptMethods.put(SceneNodeComponent.class, new ObjectSet<ScriptMethodDescriptor>());
+		scriptMethods.put(SceneNodeComponent.class, new ObjectSet<ScriptMethodDescriptor>());
+	}
 
 	private ScriptMethodRegistry() {
 	}
@@ -39,12 +45,10 @@ class ScriptMethodRegistry {
 		initScriptMethods(superclass);
 
 		ObjectSet<ScriptMethodDescriptor> superMethods = scriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor> methods = superMethods == null ? new ObjectSet<ScriptMethodDescriptor>()
-				: new ObjectSet<ScriptMethodDescriptor>(superMethods);
+		ObjectSet<ScriptMethodDescriptor> methods = new ObjectSet<ScriptMethodDescriptor>(superMethods);
 
 		ObjectSet<ScriptMethodDescriptor> superMarkerMethods = markerScriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor> markerMethods = superMarkerMethods == null
-				? new ObjectSet<ScriptMethodDescriptor>() : new ObjectSet<ScriptMethodDescriptor>(superMarkerMethods);
+		ObjectSet<ScriptMethodDescriptor> markerMethods = new ObjectSet<ScriptMethodDescriptor>(superMarkerMethods);
 
 		for (Method method : ClassReflection.getDeclaredMethods(componentClass)) {
 			ScriptMethodDescriptor descriptor = find(superMarkerMethods, method);
@@ -53,7 +57,7 @@ class ScriptMethodRegistry {
 				if (descriptor == null) {
 					ScriptMethod scriptMethod = ReflectionUtils.getDeclaredAnnotation(method, ScriptMethod.class);
 					if (scriptMethod != null) {
-						descriptor = new ScriptMethodDescriptor(method);
+						descriptor = new ScriptMethodDescriptor(method, scriptMethod.decorator());
 						if (scriptMethod.marker()) {
 							markerMethods.add(descriptor);
 						} else {
@@ -89,6 +93,7 @@ class ScriptMethodRegistry {
 		markerScriptMethods.get(B.class).iterator().toArray();
 		scriptMethods.get(A.class).iterator().toArray();
 		scriptMethods.get(B.class).iterator().toArray();
+		ClassReflection.getAnnotations(B.class);
 
 		for (Method method : ClassReflection.getMethods(A.class)) {
 			System.out.println(method.getName() + ": " + method.getDeclaringClass());
@@ -98,6 +103,12 @@ class ScriptMethodRegistry {
 			System.out.println(method.getName() + ": " + method.getDeclaringClass());
 		}
 	}
+	
+	@Resource
+	public interface I {
+		@ScriptMethod
+		void ddd();
+	}
 
 	public static abstract class A extends ScriptComponent {
 		@Override
@@ -105,6 +116,9 @@ class ScriptMethodRegistry {
 		}
 	}
 
-	public static class B extends A {
+	public static class B extends A implements I{
+		@Override
+		public void ddd() {
+		}
 	}
 }
