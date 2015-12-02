@@ -27,6 +27,7 @@ import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
 import com.gurella.engine.graph.manager.NodesManager.SceneNodeFamily;
 import com.gurella.engine.graph.renderable.RenderableComponent;
+import com.gurella.engine.graph.script.decorator.NodeComponentAddedDecorator;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.tag.Tag;
 import com.gurella.engine.resource.AsyncResourceCallback;
@@ -390,7 +391,7 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
-	@ScriptMethod(marker = true)
+	@ScriptMethod(marker = true, decorator = NodeComponentAddedDecorator.class)
 	public void nodeComponentAdded(SceneNodeComponent component) {
 	}
 

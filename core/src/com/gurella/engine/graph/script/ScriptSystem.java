@@ -47,11 +47,11 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	private void componentActivated(ScriptComponent scriptComponent) {
 		int nodeId = scriptComponent.getNode().id;
-		for (ScriptMethodDescriptor scriptMethod : getScriptMethods(scriptComponent.getClass())) {
+		for (ScriptMethodDescriptor<?> scriptMethod : getScriptMethods(scriptComponent.getClass())) {
 			int methodId = scriptMethod.id;
 			findScriptsByMethod(methodId).add(scriptComponent);
 			findNodeScriptsByMethod(nodeId, methodId).add(scriptComponent);
-			scriptMethod.componentActivated(scriptComponent);
+			scriptMethod.decorator.componentActivated(scriptComponent);
 		}
 	}
 
@@ -64,11 +64,11 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	private void componentDeactivated(ScriptComponent scriptComponent) {
 		int nodeId = scriptComponent.getNode().id;
-		for (ScriptMethodDescriptor scriptMethod : getScriptMethods(scriptComponent.getClass())) {
+		for (ScriptMethodDescriptor<?> scriptMethod : getScriptMethods(scriptComponent.getClass())) {
 			int methodId = scriptMethod.id;
 			componentsByMethod.get(methodId).removeValue(scriptComponent, true);
 			findNodeScriptsByMethod(nodeId, methodId).removeValue(scriptComponent, true);
-			scriptMethod.componentDeactivated(scriptComponent);
+			scriptMethod.decorator.componentDeactivated(scriptComponent);
 		}
 	}
 
@@ -79,11 +79,6 @@ public class ScriptSystem extends GraphListenerSystem {
 			componentsByMethod.put(methodId, scripts);
 		}
 		return scripts;
-	}
-
-	public ImmutableArray<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
-		ArrayExt<ScriptComponent> scripts = componentsByMethod.get(method.id);
-		return scripts == null ? ImmutableArray.<ScriptComponent> empty() : scripts.immutable();
 	}
 
 	private ArrayExt<ScriptComponent> findNodeScriptsByMethod(int nodeId, int methodId) {
@@ -102,24 +97,31 @@ public class ScriptSystem extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public ImmutableArray<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
+	public <T extends SceneNodeComponent> ImmutableArray<T> getScriptsByMethod(ScriptMethodDescriptor<T> method) {
+		@SuppressWarnings("unchecked")
+		ArrayExt<T> scripts = (ArrayExt<T>) componentsByMethod.get(method.id);
+		return scripts == null ? ImmutableArray.<T> empty() : scripts.immutable();
+	}
+
+	public <T extends SceneNodeComponent> ImmutableArray<T> getNodeScriptsByMethod(SceneNode node,
+			ScriptMethodDescriptor<T> method) {
 		int nodeId = node.id;
 		IntMap<ArrayExt<ScriptComponent>> nodeScripts = nodeComponentsByMethod.get(nodeId);
 		if (nodeScripts == null) {
-			return ImmutableArray.<ScriptComponent> empty();
+			return ImmutableArray.<T> empty();
 		}
 		int methodId = method.id;
-		ArrayExt<ScriptComponent> scripts = nodeScripts.get(methodId);
-		return scripts == null ? ImmutableArray.<ScriptComponent> empty() : scripts.immutable();
+		@SuppressWarnings("unchecked")
+		ArrayExt<T> scripts = (ArrayExt<T>) nodeScripts.get(methodId);
+		return scripts == null ? ImmutableArray.<T> empty() : scripts.immutable();
 	}
 
 	// TODO remove
-	public <T extends ScriptComponent> void execute(SceneNode node, ScriptMethodDescriptor method,
+	public <T extends SceneNodeComponent> void execute(SceneNode node, ScriptMethodDescriptor<T> method,
 			Consumer<T> consumer) {
-		ImmutableArray<ScriptComponent> scripts = getNodeScriptsByMethod(node, method);
+		ImmutableArray<T> scripts = getNodeScriptsByMethod(node, method);
 		for (int i = 0; i < scripts.size(); i++) {
-			@SuppressWarnings("unchecked")
-			T script = (T) scripts.get(i);
+			T script = scripts.get(i);
 			consumer.accept(script);
 		}
 	}

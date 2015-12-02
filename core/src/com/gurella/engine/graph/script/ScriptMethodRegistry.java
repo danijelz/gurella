@@ -10,20 +10,20 @@ import com.gurella.engine.resource.model.Resource;
 import com.gurella.engine.utils.ReflectionUtils;
 
 class ScriptMethodRegistry {
-	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>> markerScriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>>();
-	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>> scriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor>>();
+	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor<?>>> markerScriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor<?>>>();
+	private static final ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor<?>>> scriptMethods = new ObjectMap<Class<?>, ObjectSet<ScriptMethodDescriptor<?>>>();
 
 	static {
-		markerScriptMethods.put(SceneNodeComponent.class, new ObjectSet<ScriptMethodDescriptor>());
-		scriptMethods.put(SceneNodeComponent.class, new ObjectSet<ScriptMethodDescriptor>());
+		markerScriptMethods.put(SceneNodeComponent.class, new ObjectSet<ScriptMethodDescriptor<?>>());
+		scriptMethods.put(SceneNodeComponent.class, new ObjectSet<ScriptMethodDescriptor<?>>());
 	}
 
 	private ScriptMethodRegistry() {
 	}
 
-	static synchronized ObjectSet<ScriptMethodDescriptor> getScriptMethods(
+	static synchronized ObjectSet<ScriptMethodDescriptor<?>> getScriptMethods(
 			Class<? extends ScriptComponent> componentClass) {
-		ObjectSet<ScriptMethodDescriptor> methods = scriptMethods.get(componentClass);
+		ObjectSet<ScriptMethodDescriptor<?>> methods = scriptMethods.get(componentClass);
 		if (methods != null) {
 			return methods;
 		}
@@ -56,20 +56,20 @@ class ScriptMethodRegistry {
 		Class<?> superclass = componentClass.getSuperclass();
 		initScriptMethods(superclass);
 
-		ObjectSet<ScriptMethodDescriptor> superMethods = scriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor> methods = new ObjectSet<ScriptMethodDescriptor>(superMethods);
+		ObjectSet<ScriptMethodDescriptor<?>> superMethods = scriptMethods.get(superclass);
+		ObjectSet<ScriptMethodDescriptor<?>> methods = new ObjectSet<ScriptMethodDescriptor<?>>(superMethods);
 
-		ObjectSet<ScriptMethodDescriptor> superMarkerMethods = markerScriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor> markerMethods = new ObjectSet<ScriptMethodDescriptor>(superMarkerMethods);
+		ObjectSet<ScriptMethodDescriptor<?>> superMarkerMethods = markerScriptMethods.get(superclass);
+		ObjectSet<ScriptMethodDescriptor<?>> markerMethods = new ObjectSet<ScriptMethodDescriptor<?>>(superMarkerMethods);
 
 		for (Method method : ClassReflection.getDeclaredMethods(componentClass)) {
-			ScriptMethodDescriptor descriptor = find(superMarkerMethods, method);
+			ScriptMethodDescriptor<?> descriptor = find(superMarkerMethods, method);
 			if (descriptor == null) {
 				descriptor = find(superMethods, method);
 				if (descriptor == null) {
 					ScriptMethod scriptMethod = ReflectionUtils.getDeclaredAnnotation(method, ScriptMethod.class);
 					if (scriptMethod != null) {
-						descriptor = new ScriptMethodDescriptor(method, scriptMethod.decorator());
+						descriptor = new ScriptMethodDescriptor<SceneNodeComponent>(method, scriptMethod.decorator());
 						if (scriptMethod.marker()) {
 							markerMethods.add(descriptor);
 						} else {
@@ -87,9 +87,9 @@ class ScriptMethodRegistry {
 		markerScriptMethods.put(componentClass, markerMethods);
 	}
 
-	private static ScriptMethodDescriptor find(ObjectSet<ScriptMethodDescriptor> methods, Method method) {
+	private static ScriptMethodDescriptor<?> find(ObjectSet<ScriptMethodDescriptor<?>> methods, Method method) {
 		if (methods != null) {
-			for (ScriptMethodDescriptor descriptor : methods) {
+			for (ScriptMethodDescriptor<?> descriptor : methods) {
 				if (descriptor.isEqual(method)) {
 					return descriptor;
 				}
@@ -106,14 +106,7 @@ class ScriptMethodRegistry {
 		scriptMethods.get(A.class).iterator().toArray();
 		scriptMethods.get(B.class).iterator().toArray();
 		ClassReflection.getAnnotations(B.class);
-
-		for (Method method : ClassReflection.getMethods(A.class)) {
-			System.out.println(method.getName() + ": " + method.getDeclaringClass());
-		}
-
-		for (Method method : ClassReflection.getMethods(B.class)) {
-			System.out.println(method.getName() + ": " + method.getDeclaringClass());
-		}
+		ReflectionUtils.getMethod(B.class, "ddd").isAnnotationPresent(ScriptMethod.class);
 	}
 
 	@Resource

@@ -303,6 +303,11 @@ public class ScriptManager extends GraphListenerSystem {
 			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentActivated)) {
 				scriptComponent.componentActivated(component);
 			}
+			
+			SceneNode node = component.getNode();
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.nodeComponentActivated)) {
+				scriptComponent.componentActivated(node, component);
+			}
 		}
 
 		@Override

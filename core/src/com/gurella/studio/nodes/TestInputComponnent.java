@@ -3,6 +3,7 @@ package com.gurella.studio.nodes;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.input.DragSource;
 import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.DropTarget;
@@ -274,5 +275,10 @@ public class TestInputComponnent extends ScriptComponent {
 				System.out.println("dragIn");
 			}
 		};
+	}
+	
+	@Override
+	public void nodeComponentAdded(SceneNodeComponent component) {
+		super.nodeComponentAdded(component);
 	}
 }
