@@ -2,6 +2,7 @@ package com.gurella.engine.graph.script;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
@@ -18,9 +19,14 @@ public final class ScriptMethodDescriptor {
 	final ScriptMethodDecorator decorator;
 
 	static ScriptMethodDescriptor find(Class<?> declaringClass, String name, Class<?>... parameterTypes) {
+		ScriptMethodRegistry.checkInitScriptMethods(declaringClass);
 		MethodSignature methodSignature = MethodSignature.obtain(declaringClass, name, parameterTypes);
 		ScriptMethodDescriptor descriptor = instances.get(methodSignature);
 		methodSignature.free();
+		if (descriptor == null) {
+			throw new GdxRuntimeException("Can't find method: [declaringClass=" + declaringClass + ", name=" + name
+					+ ", parameterTypes=" + Arrays.toString(parameterTypes) + "]");
+		}
 		return descriptor;
 	}
 

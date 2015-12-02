@@ -236,14 +236,13 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 
 	public PickResult pickNodeExcludeLayers(PickResult out, float screenX, float screenY, Layer... excludedLayers) {
+		Arrays.sort(excludedLayers);
 		for (Layer layer : orderedLayers) {
 			if (Arrays.binarySearch(excludedLayers, layer) < 0) {
-				continue;
-			}
-
-			pickNode(out, screenX, screenY, layer);
-			if (out.node != null) {
-				return out;
+				pickNode(out, screenX, screenY, layer);
+				if (out.node != null) {
+					return out;
+				}
 			}
 		}
 
@@ -256,6 +255,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 
 	public PickResult pickNodeIncludeLayers(PickResult out, float screenX, float screenY, Layer... includedLayers) {
+		Arrays.sort(includedLayers);
 		for (Layer layer : orderedLayers) {
 			if (Arrays.binarySearch(includedLayers, layer) >= 0) {
 				pickNode(out, screenX, screenY, layer);

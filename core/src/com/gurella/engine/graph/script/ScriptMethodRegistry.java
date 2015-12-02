@@ -36,6 +36,18 @@ class ScriptMethodRegistry {
 		return scriptMethods.get(componentClass);
 	}
 
+	static void checkInitScriptMethods(Class<?> componentClass) {
+		if (componentClass == SceneNodeComponent.class || scriptMethods.containsKey(componentClass)) {
+			return;
+		}
+
+		if (!ClassReflection.isAssignableFrom(ScriptComponent.class, componentClass)) {
+			throw new GdxRuntimeException("Provided class must be subtype of ScriptComponent!");
+		}
+
+		initScriptMethods(componentClass);
+	}
+
 	private static void initScriptMethods(Class<?> componentClass) {
 		if (componentClass == SceneNodeComponent.class || scriptMethods.containsKey(componentClass)) {
 			return;
@@ -103,7 +115,7 @@ class ScriptMethodRegistry {
 			System.out.println(method.getName() + ": " + method.getDeclaringClass());
 		}
 	}
-	
+
 	@Resource
 	public interface I {
 		@ScriptMethod
@@ -116,7 +128,7 @@ class ScriptMethodRegistry {
 		}
 	}
 
-	public static class B extends A implements I{
+	public static class B extends A implements I {
 		@Override
 		public void ddd() {
 		}

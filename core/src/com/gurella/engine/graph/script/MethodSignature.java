@@ -7,22 +7,22 @@ import com.badlogic.gdx.utils.Pools;
 
 final class MethodSignature implements Poolable {
 	Class<?> declaringClass;
-	String methodName;
-	Class<?>[] methodParameterTypes;
+	String name;
+	Class<?>[] parameterTypes;
 
 	static MethodSignature obtain(Class<?> declaringClass, String name, Class<?>... parameterTypes) {
 		MethodSignature signature = Pools.obtain(MethodSignature.class);
 		signature.declaringClass = declaringClass;
-		signature.methodName = name;
-		signature.methodParameterTypes = parameterTypes;
+		signature.name = name;
+		signature.parameterTypes = parameterTypes;
 		return signature;
 	}
 
 	@Override
 	public void reset() {
 		declaringClass = null;
-		methodName = null;
-		methodParameterTypes = null;
+		name = null;
+		parameterTypes = null;
 	}
 
 	public void free() {
@@ -31,7 +31,7 @@ final class MethodSignature implements Poolable {
 
 	@Override
 	public int hashCode() {
-		return 31 + declaringClass.hashCode() + methodName.hashCode() + Arrays.hashCode(methodParameterTypes);
+		return 31 + declaringClass.hashCode() + name.hashCode() + Arrays.hashCode(parameterTypes);
 	}
 
 	@Override
@@ -46,7 +46,13 @@ final class MethodSignature implements Poolable {
 			return false;
 		}
 		MethodSignature other = (MethodSignature) obj;
-		return declaringClass.equals(other.declaringClass) && methodName.equals(other.methodName)
-				&& Arrays.equals(methodParameterTypes, other.methodParameterTypes);
+		return declaringClass.equals(other.declaringClass) && name.equals(other.name)
+				&& Arrays.equals(parameterTypes, other.parameterTypes);
+	}
+	
+	@Override
+	public String toString() {
+		return "MethodSignature [declaringClass=" + declaringClass + ", name=" + name + ", parameterTypes="
+				+ Arrays.toString(parameterTypes) + "]";
 	}
 }

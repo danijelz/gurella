@@ -88,9 +88,9 @@ public final class DefaultScriptMethod {
 	public static final ScriptMethodDescriptor onPhysicsSimulationEnd = get("onPhysicsSimulationEnd", btDynamicsWorld.class);
 	
 	//GLOBAL BULLET COLLISIONS
-	public static final ScriptMethodDescriptor onCollisionEnterGlobal = get("onCollisionEnterGlobal", CollisionPair.class);
-	public static final ScriptMethodDescriptor onCollisionStayGlobal = get("onCollisionStayGlobal", CollisionPair.class);
-	public static final ScriptMethodDescriptor onCollisionExitGlobal = get("onCollisionExitGlobal", BulletPhysicsRigidBodyComponent.class, BulletPhysicsRigidBodyComponent.class);
+	public static final ScriptMethodDescriptor onCollisionEnterGlobal = get("onCollisionEnter", CollisionPair.class);
+	public static final ScriptMethodDescriptor onCollisionStayGlobal = get("onCollisionStay", CollisionPair.class);
+	public static final ScriptMethodDescriptor onCollisionExitGlobal = get("onCollisionExit", BulletPhysicsRigidBodyComponent.class, BulletPhysicsRigidBodyComponent.class);
 	
 	//GRAPH
 	public static final ScriptMethodDescriptor componentAdded = get("componentAdded", SceneNodeComponent.class);

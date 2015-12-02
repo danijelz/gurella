@@ -131,6 +131,7 @@ public abstract class ScriptComponent extends SceneNodeComponent implements Scen
 	}
 
 	@SuppressWarnings("unused")
+	@ScriptMethod(marker = true)
 	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection) {
 	}
 
