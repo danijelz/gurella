@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.METHOD })
 public @interface ScriptMethod {
+	String id() default "";
+	
 	boolean marker() default false;
 
 	Class<? extends ScriptMethodDecorator> decorator() default ScriptMethodDecorator.class;

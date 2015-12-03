@@ -89,7 +89,7 @@ class ScriptMethodRegistry {
 				if (descriptor == null) {
 					ScriptMethod scriptMethod = ReflectionUtils.getDeclaredAnnotation(method, ScriptMethod.class);
 					if (scriptMethod != null) {
-						descriptor = new ScriptMethodDescriptor<SceneNodeComponent>(method, scriptMethod.decorator());
+						descriptor = new ScriptMethodDescriptor<SceneNodeComponent>(method, scriptMethod);
 						if (scriptMethod.marker() || componentClass.isInterface()) {
 							markerMethods.add(descriptor);
 						} else {

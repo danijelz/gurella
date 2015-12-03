@@ -76,7 +76,7 @@ public class SceneGraph implements UpdateListener {
 		addSystemSafely(scriptSystem);
 
 		spatialPartitioningManager = new BvhSpatialPartitioningManager();
-		addSystemSafely(spatialPartitioningManager);
+		addSystemSafely(spatialPartitioningManager) ;
 
 		inputSystem = new InputSystem();
 		addSystemSafely(inputSystem);

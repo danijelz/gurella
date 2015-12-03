@@ -20,13 +20,13 @@ public final class DefaultScriptMethod {
 	//@formatter:off
 	
 	//UPDATE
-	public static final ScriptMethodDescriptor<ScriptComponent> onInput = get("onInput"); 
-	public static final ScriptMethodDescriptor<ScriptComponent> onThink = get("onThink"); 
+	public static final ScriptMethodDescriptor<ScriptComponent> onInput = get("onInput");
+	public static final ScriptMethodDescriptor<ScriptComponent> onThink = get("onThink");
 	public static final ScriptMethodDescriptor<ScriptComponent> onPreRender = get("onPreRender");
-	public static final ScriptMethodDescriptor<ScriptComponent> onRender = get("onRender"); 
-	public static final ScriptMethodDescriptor<ScriptComponent> onDebugRender = get("onDebugRender"); 
-	public static final ScriptMethodDescriptor<ScriptComponent> onAfterRender = get("onAfterRender"); 
-	public static final ScriptMethodDescriptor<ScriptComponent> onCleanup = get("onCleanup"); 
+	public static final ScriptMethodDescriptor<ScriptComponent> onRender = get("onRender");
+	public static final ScriptMethodDescriptor<ScriptComponent> onDebugRender = get("onDebugRender");
+	public static final ScriptMethodDescriptor<ScriptComponent> onAfterRender = get("onAfterRender");
+	public static final ScriptMethodDescriptor<ScriptComponent> onCleanup = get("onCleanup");
 	
 	//NODE INPUT
 	public static final ScriptMethodDescriptor<ScriptComponent> onTouchDown = get("onTouchDown", IntersectionTouchEvent.class);
@@ -80,8 +80,8 @@ public final class DefaultScriptMethod {
 	public static final ScriptMethodDescriptor<ScriptComponent> longPress = get("longPress", TouchEvent.class);
 	
 	//BULLET PHYSICS
-	public static final ScriptMethodDescriptor<ScriptComponent> onCollisionEnter = get("onCollisionEnter", Collision.class); 
-	public static final ScriptMethodDescriptor<ScriptComponent> onCollisionStay = get("onCollisionStay", Collision.class); 
+	public static final ScriptMethodDescriptor<ScriptComponent> onCollisionEnter = get("onCollisionEnter", Collision.class);
+	public static final ScriptMethodDescriptor<ScriptComponent> onCollisionStay = get("onCollisionStay", Collision.class);
 	public static final ScriptMethodDescriptor<ScriptComponent> onCollisionExit = get("onCollisionExit", BulletPhysicsRigidBodyComponent.class);
 	public static final ScriptMethodDescriptor<ScriptComponent> onPhysicsSimulationStart = get("onPhysicsSimulationStart", btDynamicsWorld.class);
 	public static final ScriptMethodDescriptor<ScriptComponent> onPhysicsSimulationStep = get("onPhysicsSimulationStep", btDynamicsWorld.class, Float.TYPE);
