@@ -1,7 +1,7 @@
 package com.gurella.engine.graph.bullet;
 
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onPhysicsSimulationEnd;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onPhysicsSimulationStart;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onPhysicsSimulationEnd;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onPhysicsSimulationStart;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +22,7 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
-import com.gurella.engine.graph.script.ScriptComponent;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class BulletPhysicsProcessor extends SceneProcessorManager {
@@ -90,13 +90,13 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	}
 
 	private void dispatchSimulationStartEvent() {
-		for (ScriptComponent scriptComponent : getGraph().scriptSystem.getScriptsByMethod(onPhysicsSimulationStart)) {
+		for (ScriptComponent scriptComponent : getGraph().eventSystem.getScriptsByMethod(onPhysicsSimulationStart)) {
 			scriptComponent.onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
 
 	private void dispatchSimulationEndEvent() {
-		for (ScriptComponent scriptComponent : getGraph().scriptSystem.getScriptsByMethod(onPhysicsSimulationEnd)) {
+		for (ScriptComponent scriptComponent : getGraph().eventSystem.getScriptsByMethod(onPhysicsSimulationEnd)) {
 			scriptComponent.onPhysicsSimulationEnd(dynamicsWorld);
 		}
 	}

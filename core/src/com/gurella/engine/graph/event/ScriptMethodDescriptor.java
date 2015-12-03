@@ -1,4 +1,4 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
 
 import java.util.Arrays;
 
@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.graph.script.ScriptMethodDecorator.NopScriptMethodDecorator;
+import com.gurella.engine.graph.event.ScriptMethodDecorator.NopScriptMethodDecorator;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
@@ -21,21 +21,8 @@ public final class ScriptMethodDescriptor<T> {
 	public final Class<?>[] parameterTypes;
 	final ScriptMethodDecorator decorator;
 
-	static <T> ScriptMethodDescriptor<T> get(Class<T> declaringClass, String name, Class<?>... parameterTypes) {
-		ScriptMethodRegistry.checkInitScriptMethods(declaringClass);
-		MethodSignature methodSignature = MethodSignature.obtain(declaringClass, name, parameterTypes);
-		@SuppressWarnings("unchecked")
-		ScriptMethodDescriptor<T> descriptor = (ScriptMethodDescriptor<T>) instances.get(methodSignature);
-		methodSignature.free();
-		if (descriptor == null) {
-			throw new GdxRuntimeException("Can't find method: [declaringClass=" + declaringClass + ", name=" + name
-					+ ", parameterTypes=" + Arrays.toString(parameterTypes) + "]");
-		}
-		return descriptor;
-	}
-
 	static <T> ScriptMethodDescriptor<T> get(Class<T> declaringClass, String id) {
-		ScriptMethodRegistry.checkInitScriptMethods(declaringClass);
+		ScriptMethodRegistry.initScriptMethods(declaringClass);
 		@SuppressWarnings("unchecked")
 		ScriptMethodDescriptor<T> descriptor = (ScriptMethodDescriptor<T>) instancesById
 				.get(declaringClass.getName() + id);
@@ -45,7 +32,7 @@ public final class ScriptMethodDescriptor<T> {
 		return descriptor;
 	}
 
-	ScriptMethodDescriptor(Method method, ScriptMethod scriptMethod) {
+	ScriptMethodDescriptor(Method method, EventCallback scriptMethod) {
 		id = INDEX++;
 		@SuppressWarnings("unchecked")
 		Class<T> casted = method.getDeclaringClass();
@@ -61,13 +48,14 @@ public final class ScriptMethodDescriptor<T> {
 		String id = scriptMethod.id();
 		id = ValueUtils.isEmpty(id) ? method.getName() : id;
 		String fullId = method.getDeclaringClass().getName() + id;
-		if(instancesById.containsKey(fullId)) {
+		if (instancesById.containsKey(fullId)) {
 			throw new GdxRuntimeException("Duplicate event id: [declaringClass=" + declaringClass + ", id=" + id + "]");
 		}
 		instancesById.put(fullId, this);
 	}
 
 	boolean isEqual(Method method) {
+		//TODO generic parameters not handled
 		return name.equals(method.getName()) && Arrays.equals(parameterTypes, method.getParameterTypes())
 				&& ClassReflection.isAssignableFrom(declaringClass, method.getDeclaringClass());
 	}

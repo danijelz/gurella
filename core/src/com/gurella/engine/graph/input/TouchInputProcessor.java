@@ -1,11 +1,11 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.DefaultScriptMethod.longPress;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onLongPress;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onLongPressResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onTap;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onTapResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.tap;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.longPress;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onLongPress;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onLongPressResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTap;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTapResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.tap;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -15,9 +15,9 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.graph.SceneNode;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.script.ScriptComponent;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.utils.IntLongMap;
 

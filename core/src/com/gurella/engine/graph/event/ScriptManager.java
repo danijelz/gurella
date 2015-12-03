@@ -1,4 +1,4 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
@@ -7,14 +7,16 @@ import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;
@@ -300,34 +302,37 @@ public class ScriptManager extends GraphListenerSystem {
 	private class ScriptSceneGraphListener implements SceneGraphListener {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentActivated)) {
-				scriptComponent.componentActivated(component);
-			}
-			
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.nodeComponentActivated)) {
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentActivated)) {
 				scriptComponent.componentActivated(node, component);
+			}
+
+			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.nodeComponentActivated)) {
+				scriptComponent.nodeComponentActivated(component);
 			}
 		}
 
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
+			SceneNode node = component.getNode();
 			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentDeactivated)) {
-				scriptComponent.componentDeactivated(component);
+				scriptComponent.componentDeactivated(node, component);
 			}
 		}
 
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
+			SceneNode node = component.getNode();
 			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentAdded)) {
-				scriptComponent.componentAdded(component);
+				scriptComponent.componentAdded(node, component);
 			}
 		}
 
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
+			SceneNode node = component.getNode();
 			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentRemoved)) {
-				scriptComponent.componentRemoved(component);
+				scriptComponent.componentRemoved(node, component);
 			}
 		}
 	}

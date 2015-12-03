@@ -1,11 +1,11 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.utils.ReflectionUtils;
 
 class ScriptMethodRegistry {
@@ -21,33 +21,17 @@ class ScriptMethodRegistry {
 	}
 
 	static synchronized ObjectSet<ScriptMethodDescriptor<?>> getScriptMethods(
-			Class<? extends ScriptComponent> componentClass) {
+			Class<? extends SceneNodeComponent> componentClass) {
 		ObjectSet<ScriptMethodDescriptor<?>> methods = scriptMethods.get(componentClass);
 		if (methods != null) {
 			return methods;
-		}
-
-		if (!ClassReflection.isAssignableFrom(ScriptComponent.class, componentClass)) {
-			throw new GdxRuntimeException("Provided class must be subtype of ScriptComponent!");
 		}
 
 		initScriptMethods(componentClass);
 		return scriptMethods.get(componentClass);
 	}
 
-	static void checkInitScriptMethods(Class<?> componentClass) {
-		if (componentClass == SceneNodeComponent.class || scriptMethods.containsKey(componentClass)) {
-			return;
-		}
-
-		if (!ClassReflection.isAssignableFrom(ScriptComponent.class, componentClass)) {
-			throw new GdxRuntimeException("Provided class must be subtype of ScriptComponent!");
-		}
-
-		initScriptMethods(componentClass);
-	}
-
-	private static void initScriptMethods(Class<?> componentClass) {
+	static void initScriptMethods(Class<?> componentClass) {
 		if (componentClass == SceneNodeComponent.class || scriptMethods.containsKey(componentClass)) {
 			return;
 		}
@@ -87,7 +71,7 @@ class ScriptMethodRegistry {
 			if (descriptor == null) {
 				descriptor = find(methods, method);
 				if (descriptor == null) {
-					ScriptMethod scriptMethod = ReflectionUtils.getDeclaredAnnotation(method, ScriptMethod.class);
+					EventCallback scriptMethod = ReflectionUtils.getDeclaredAnnotation(method, EventCallback.class);
 					if (scriptMethod != null) {
 						descriptor = new ScriptMethodDescriptor<SceneNodeComponent>(method, scriptMethod);
 						if (scriptMethod.marker() || componentClass.isInterface()) {
@@ -128,20 +112,20 @@ class ScriptMethodRegistry {
 		markerScriptMethods.get(I.class).iterator().toArray();
 		markerScriptMethods.get(J.class).iterator().toArray();
 		ClassReflection.getAnnotations(B.class);
-		ReflectionUtils.getMethod(B.class, "ddd").isAnnotationPresent(ScriptMethod.class);
+		ReflectionUtils.getMethod(B.class, "ddd").isAnnotationPresent(EventCallback.class);
 	}
 
 	public interface I {
-		@ScriptMethod
+		@EventCallback
 		void ddd();
 	}
-	
+
 	public interface J extends I {
 		@Override
-		@ScriptMethod
+		@EventCallback
 		void ddd();
-		
-		@ScriptMethod
+
+		@EventCallback
 		void ooo();
 	}
 

@@ -7,9 +7,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.InternalTickCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graph.SceneGraph;
-import com.gurella.engine.graph.script.DefaultScriptMethod;
-import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethodDescriptor;
+import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.event.ScriptMethodDescriptor;
 import com.gurella.engine.utils.ImmutableArray;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
@@ -135,7 +135,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 
 	private ImmutableArray<ScriptComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
 			ScriptMethodDescriptor scriptMethod) {
-		return graph.scriptSystem.getNodeScriptsByMethod(rigidBodyComponent.getNode(), scriptMethod);
+		return graph.eventSystem.getNodeScriptsByMethod(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
 	private void swapCollisionPairs() {
@@ -151,7 +151,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private ImmutableArray<ScriptComponent> getScripts(ScriptMethodDescriptor method) {
-		return graph.scriptSystem.getScriptsByMethod(method);
+		return graph.eventSystem.getScriptsByMethod(method);
 	}
 
 	void clear() {

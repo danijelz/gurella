@@ -1,12 +1,12 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.DefaultScriptMethod.getDragSource;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.getDropTarget;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.getDragSource;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.getDropTarget;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.script.ScriptComponent;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class DragAndDropProcessor implements PointerActivityListener {

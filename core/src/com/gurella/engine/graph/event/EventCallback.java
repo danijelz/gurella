@@ -1,4 +1,4 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.METHOD })
-public @interface ScriptMethod {
+public @interface EventCallback {
 	String id() default "";
 	
 	boolean marker() default false;

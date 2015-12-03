@@ -1,4 +1,4 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.gurella.engine.graph.script.decorator;
+package com.gurella.engine.graph.event.decorator;
 
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
@@ -9,9 +9,9 @@ import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneSystem;
-import com.gurella.engine.graph.script.DefaultScriptMethod;
-import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptSystem;
+import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener0;
 
@@ -29,12 +29,12 @@ public class SceneEventsSystem extends SceneSystem {
 	private final PauseListener pauseListener = new PauseListener();
 	private final ResumeListener resumeListener = new ResumeListener();
 
-	private ScriptSystem scriptSystem;
+	private EventSystem eventSystem;
 
 	@Override
 	protected void activated() {
 		SceneGraph graph = getGraph();
-		scriptSystem = graph.scriptSystem;
+		eventSystem = graph.eventSystem;
 		EventService.addListener(UpdateEvent.class, onInputUpdateListener);
 		EventService.addListener(UpdateEvent.class, onThinkUpdateListener);
 		EventService.addListener(UpdateEvent.class, onPreRenderUpdateListener);
@@ -65,7 +65,7 @@ public class SceneEventsSystem extends SceneSystem {
 		scene.stopSignal.removeListener(sceneStopListener);
 		scene.pauseSignal.removeListener(pauseListener);
 		scene.resumeSignal.removeListener(resumeListener);
-		scriptSystem = null;
+		eventSystem = null;
 	}
 
 	private class OnInputUpdateListener implements UpdateListener {
@@ -76,7 +76,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onInput)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onInput)) {
 				scriptComponent.onInput();
 			}
 		}
@@ -90,7 +90,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onThink)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onThink)) {
 				scriptComponent.onThink();
 			}
 		}
@@ -104,7 +104,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onPreRender)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onPreRender)) {
 				scriptComponent.onPreRender();
 			}
 		}
@@ -118,7 +118,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onRender)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onRender)) {
 				scriptComponent.onRender();
 			}
 		}
@@ -132,7 +132,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onDebugRender)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onDebugRender)) {
 				scriptComponent.onDebugRender();
 			}
 		}
@@ -146,7 +146,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onAfterRender)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onAfterRender)) {
 				scriptComponent.onAfterRender();
 			}
 		}
@@ -160,7 +160,7 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onCleanup)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onCleanup)) {
 				scriptComponent.onCleanup();
 			}
 		}
@@ -169,57 +169,57 @@ public class SceneEventsSystem extends SceneSystem {
 	private class ScriptSceneGraphListener implements SceneGraphListener {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : scriptSystem
+			SceneNode node = component.getNode();
+			for (ScriptComponent scriptComponent : eventSystem
 					.getScriptsByMethod(DefaultScriptMethod.componentActivated)) {
-				scriptComponent.componentActivated(component);
+				scriptComponent.componentActivated(node, component);
 			}
 
-			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : scriptSystem
-					.getScriptsByMethod(DefaultScriptMethod.nodeComponentActivated)) {
-				scriptComponent.componentActivated(node, component);
+			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
+					DefaultScriptMethod.nodeComponentActivated)) {
+				scriptComponent.nodeComponentActivated(component);
 			}
 		}
 
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : scriptSystem
+			SceneNode node = component.getNode();
+			for (ScriptComponent scriptComponent : eventSystem
 					.getScriptsByMethod(DefaultScriptMethod.componentDeactivated)) {
-				scriptComponent.componentDeactivated(component);
+				scriptComponent.componentDeactivated(node, component);
 			}
 
-			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : scriptSystem
-					.getScriptsByMethod(DefaultScriptMethod.nodeComponentDeactivated)) {
-				scriptComponent.componentActivated(node, component);
+			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
+					DefaultScriptMethod.nodeComponentDeactivated)) {
+				scriptComponent.nodeComponentDeactivated(component);
 			}
 		}
 
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : scriptSystem
+			SceneNode node = component.getNode();
+			for (ScriptComponent scriptComponent : eventSystem
 					.getScriptsByMethod(DefaultScriptMethod.componentAdded)) {
-				scriptComponent.componentAdded(component);
+				scriptComponent.componentAdded(node, component);
 			}
 
-			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : scriptSystem
-					.getScriptsByMethod(DefaultScriptMethod.nodeComponentAdded)) {
-				scriptComponent.componentActivated(node, component);
+			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
+					DefaultScriptMethod.nodeComponentAdded)) {
+				scriptComponent.nodeComponentAdded(component);
 			}
 		}
 
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
-			for (ScriptComponent scriptComponent : scriptSystem
+			SceneNode node = component.getNode();
+			for (ScriptComponent scriptComponent : eventSystem
 					.getScriptsByMethod(DefaultScriptMethod.componentRemoved)) {
-				scriptComponent.componentRemoved(component);
+				scriptComponent.componentRemoved(node, component);
 			}
 
-			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : scriptSystem
-					.getScriptsByMethod(DefaultScriptMethod.nodeComponentRemoved)) {
-				scriptComponent.componentActivated(node, component);
+			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
+					DefaultScriptMethod.nodeComponentRemoved)) {
+				scriptComponent.nodeComponentRemoved(component);
 			}
 		}
 	}
@@ -227,7 +227,7 @@ public class SceneEventsSystem extends SceneSystem {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onSceneStart)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onSceneStart)) {
 				scriptComponent.onSceneStart();
 			}
 		}
@@ -236,7 +236,7 @@ public class SceneEventsSystem extends SceneSystem {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onSceneStop)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onSceneStop)) {
 				scriptComponent.onSceneStop();
 			}
 		}
@@ -245,7 +245,7 @@ public class SceneEventsSystem extends SceneSystem {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onPause)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onPause)) {
 				scriptComponent.onPause();
 			}
 		}
@@ -254,7 +254,7 @@ public class SceneEventsSystem extends SceneSystem {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : scriptSystem.getScriptsByMethod(DefaultScriptMethod.onResume)) {
+			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onResume)) {
 				scriptComponent.onPause();
 			}
 		}

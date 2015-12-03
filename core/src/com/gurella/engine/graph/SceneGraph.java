@@ -8,12 +8,12 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
 import com.gurella.engine.graph.manager.ComponentManager;
 import com.gurella.engine.graph.manager.NodeManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
-import com.gurella.engine.graph.script.ScriptSystem;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningManager;
 import com.gurella.engine.graph.tag.TagManager;
@@ -50,7 +50,7 @@ public class SceneGraph implements UpdateListener {
 	public final NodeManager nodeManager;
 	public final TagManager tagManager;
 	public final LayerManager layerManager;
-	public final ScriptSystem scriptSystem;
+	public final EventSystem eventSystem;
 	public final SpatialPartitioningManager<?> spatialPartitioningManager;
 	public final InputSystem inputSystem;
 	public final RenderSystem renderSystem;
@@ -72,8 +72,8 @@ public class SceneGraph implements UpdateListener {
 		layerManager = new LayerManager();
 		addSystemSafely(layerManager);
 
-		scriptSystem = new ScriptSystem();
-		addSystemSafely(scriptSystem);
+		eventSystem = new EventSystem();
+		addSystemSafely(eventSystem);
 
 		spatialPartitioningManager = new BvhSpatialPartitioningManager();
 		addSystemSafely(spatialPartitioningManager) ;
@@ -91,7 +91,7 @@ public class SceneGraph implements UpdateListener {
 		addSystemSafely(nodeManager);
 		addSystemSafely(tagManager);
 		addSystemSafely(layerManager);
-		addSystemSafely(scriptSystem);
+		addSystemSafely(eventSystem);
 		addSystemSafely(spatialPartitioningManager);
 		addSystemSafely(inputSystem);
 		addSystemSafely(renderSystem);

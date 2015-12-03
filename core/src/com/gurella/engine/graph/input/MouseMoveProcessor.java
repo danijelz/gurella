@@ -1,16 +1,16 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.DefaultScriptMethod.mouseMoved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverEnd;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverEndResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverMove;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverMoveResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onMouseOverStartResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.mouseMoved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onMouseOverEnd;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onMouseOverEndResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onMouseOverMove;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onMouseOverMoveResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onMouseOverStartResolved;
 
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graph.SceneNode;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.script.ScriptComponent;
 
 public class MouseMoveProcessor {
 	private SceneNode mouseOverNode;

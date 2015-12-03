@@ -1,20 +1,20 @@
 package com.gurella.engine.graph.input;
 
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.keyDown;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.keyTyped;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.keyUp;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onScrolledResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchDown;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchDownGlobal;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchUp;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchUpResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.scrolled;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchDown;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchDragged;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchUp;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.begin;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.end;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.move;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.keyDown;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.keyTyped;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.keyUp;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onScrolledResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchDown;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchDownResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchUp;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onTouchUpResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.scrolled;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.touchDown;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.touchDragged;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.touchUp;
 
 import java.util.Arrays;
 
@@ -36,13 +36,13 @@ import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.UpdateListenerSystem;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.camera.CameraComponent;
+import com.gurella.engine.graph.event.ScriptMethodDescriptor;
+import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethodDescriptor;
-import com.gurella.engine.graph.script.ScriptSystem;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
 import com.gurella.engine.pools.SynchronizedPools;
@@ -53,7 +53,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
-	private ScriptSystem scriptSystem;
+	private EventSystem eventSystem;
 	private SpatialPartitioningManager<?> spatialPartitioningManager;
 
 	private InputProcessorDelegate delegate = new InputProcessorDelegate();
@@ -80,13 +80,13 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	@Override
 	protected void attached() {
 		SceneGraph graph = getGraph();
-		scriptSystem = graph.scriptSystem;
+		eventSystem = graph.eventSystem;
 		spatialPartitioningManager = graph.spatialPartitioningManager;
 	}
 
 	@Override
 	protected void detached() {
-		scriptSystem = null;
+		eventSystem = null;
 		spatialPartitioningManager = null;
 	}
 
@@ -352,11 +352,11 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 
 	ImmutableArray<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
-		return scriptSystem.getScriptsByMethod(method);
+		return eventSystem.getScriptsByMethod(method);
 	}
 
 	ImmutableArray<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
-		return scriptSystem.getNodeScriptsByMethod(node, method);
+		return eventSystem.getNodeScriptsByMethod(node, method);
 	}
 
 	@Override
@@ -438,7 +438,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (ScriptComponent scriptComponent : getScriptsByMethod(onTouchDownResolved)) {
+				for (ScriptComponent scriptComponent : getScriptsByMethod(onTouchDownGlobal)) {
 					scriptComponent.onTouchDown(renderableComponent, intersectionTouchEvent);
 				}
 

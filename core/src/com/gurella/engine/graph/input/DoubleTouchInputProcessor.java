@@ -3,9 +3,9 @@ package com.gurella.engine.graph.input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.graph.SceneNode;
+import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.DefaultScriptMethod;
 import com.gurella.engine.utils.IntLongMap;
 
 public class DoubleTouchInputProcessor implements PointerActivityListener {

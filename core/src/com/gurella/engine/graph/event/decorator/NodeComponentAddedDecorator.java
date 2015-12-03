@@ -1,9 +1,9 @@
-package com.gurella.engine.graph.script.decorator;
+package com.gurella.engine.graph.event.decorator;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.script.ScriptComponent;
-import com.gurella.engine.graph.script.ScriptMethodDecorator;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.event.ScriptMethodDecorator;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;

@@ -1,11 +1,12 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
 
-import static com.gurella.engine.graph.script.ScriptMethodRegistry.getScriptMethods;
+import static com.gurella.engine.graph.event.ScriptMethodRegistry.getScriptMethods;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.manager.ComponentTypePredicate;
 import com.gurella.engine.graph.manager.ComponentManager;
 import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
@@ -13,7 +14,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.Consumer;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class ScriptSystem extends GraphListenerSystem {
+public class EventSystem extends GraphListenerSystem {
 	private static final ComponentFamily<? extends ScriptComponent> scriptsFamily = new ComponentFamily<ScriptComponent>(
 			new ComponentTypePredicate(ScriptComponent.class));
 
@@ -119,6 +120,16 @@ public class ScriptSystem extends GraphListenerSystem {
 	// TODO remove
 	public <T extends SceneNodeComponent> void execute(SceneNode node, ScriptMethodDescriptor<T> method,
 			Consumer<T> consumer) {
+		ImmutableArray<T> scripts = getNodeScriptsByMethod(node, method);
+		for (int i = 0; i < scripts.size(); i++) {
+			T script = scripts.get(i);
+			consumer.accept(script);
+		}
+	}
+
+	public <T extends SceneNodeComponent> void execute(Class<T> declaringClass, String id, SceneNode node,
+			Consumer<T> consumer) {
+		ScriptMethodDescriptor<T> method = ScriptMethodDescriptor.get(declaringClass, id);
 		ImmutableArray<T> scripts = getNodeScriptsByMethod(node, method);
 		for (int i = 0; i < scripts.size(); i++) {
 			T script = scripts.get(i);

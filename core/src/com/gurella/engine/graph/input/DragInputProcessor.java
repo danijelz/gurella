@@ -1,22 +1,22 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragEnd;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragEndResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragMove;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragMoveResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverEnd;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverEndResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverMove;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverMoveResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragOverStartResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragStart;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.onDragStartResolved;
-import static com.gurella.engine.graph.script.DefaultScriptMethod.touchDragged;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragEnd;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragEndResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragMove;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragMoveResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragOverEnd;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragOverEndResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragOverMove;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragOverMoveResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragOverStartResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragStart;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onDragStartResolved;
+import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchDragged;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graph.SceneNode;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.script.ScriptComponent;
 
 public class DragInputProcessor implements PointerActivityListener {
 	private final IntMap<SceneNode> dragStartNodes = new IntMap<SceneNode>(10);

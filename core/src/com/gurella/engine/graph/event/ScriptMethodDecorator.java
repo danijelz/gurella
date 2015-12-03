@@ -1,4 +1,6 @@
-package com.gurella.engine.graph.script;
+package com.gurella.engine.graph.event;
+
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 
 public interface ScriptMethodDecorator {
 	void componentActivated(ScriptComponent component);

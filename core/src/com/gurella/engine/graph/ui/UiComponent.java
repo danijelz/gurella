@@ -1,8 +1,8 @@
 package com.gurella.engine.graph.ui;
 
 import com.gurella.engine.graph.BaseSceneElementType;
+import com.gurella.engine.graph.behaviour.ScriptComponent;
 import com.gurella.engine.graph.layer.Layer;
-import com.gurella.engine.graph.script.ScriptComponent;
 
 @BaseSceneElementType
 public class UiComponent extends ScriptComponent {
