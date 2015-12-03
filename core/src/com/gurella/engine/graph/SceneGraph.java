@@ -10,8 +10,8 @@ import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
-import com.gurella.engine.graph.manager.ComponentsManager;
-import com.gurella.engine.graph.manager.NodesManager;
+import com.gurella.engine.graph.manager.ComponentManager;
+import com.gurella.engine.graph.manager.NodeManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
 import com.gurella.engine.graph.script.ScriptSystem;
 import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
@@ -46,8 +46,8 @@ public class SceneGraph implements UpdateListener {
 	// TODO add seperate state listeners
 	private SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
-	public final ComponentsManager componentsManager;
-	public final NodesManager nodesManager;
+	public final ComponentManager componentManager;
+	public final NodeManager nodeManager;
 	public final TagManager tagManager;
 	public final LayerManager layerManager;
 	public final ScriptSystem scriptSystem;
@@ -60,11 +60,11 @@ public class SceneGraph implements UpdateListener {
 		this.scene.startSignal.addListener(sceneStartListener);
 		this.scene.stopSignal.addListener(sceneStopListener);
 
-		componentsManager = new ComponentsManager();
-		addSystemSafely(componentsManager);
+		componentManager = new ComponentManager();
+		addSystemSafely(componentManager);
 
-		nodesManager = new NodesManager();
-		addSystemSafely(nodesManager);
+		nodeManager = new NodeManager();
+		addSystemSafely(nodeManager);
 
 		tagManager = new TagManager();
 		addSystemSafely(tagManager);
@@ -86,9 +86,9 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	// TODO unused
-	public void init(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
-		addSystemSafely(componentsManager);
-		addSystemSafely(nodesManager);
+	void init(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
+		addSystemSafely(componentManager);
+		addSystemSafely(nodeManager);
 		addSystemSafely(tagManager);
 		addSystemSafely(layerManager);
 		addSystemSafely(scriptSystem);

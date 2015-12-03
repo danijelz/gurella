@@ -7,8 +7,8 @@ import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.manager.ComponentTypePredicate;
-import com.gurella.engine.graph.manager.ComponentsManager;
-import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
+import com.gurella.engine.graph.manager.ComponentManager;
+import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.Consumer;
 import com.gurella.engine.utils.ImmutableArray;
@@ -22,7 +22,7 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	@Override
 	protected void activated() {
-		ComponentsManager componentManager = getGraph().componentsManager;
+		ComponentManager componentManager = getGraph().componentManager;
 		componentManager.registerComponentFamily(scriptsFamily);
 
 		ImmutableArray<? extends ScriptComponent> components = componentManager.getComponents(scriptsFamily);
@@ -33,7 +33,7 @@ public class ScriptSystem extends GraphListenerSystem {
 
 	@Override
 	protected void deactivated() {
-		getGraph().componentsManager.unregisterComponentFamily(scriptsFamily);
+		getGraph().componentManager.unregisterComponentFamily(scriptsFamily);
 		componentsByMethod.clear();
 		nodeComponentsByMethod.clear();
 	}

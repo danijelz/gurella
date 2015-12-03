@@ -10,8 +10,8 @@ import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.manager.ComponentTypePredicate;
-import com.gurella.engine.graph.manager.ComponentsManager;
-import com.gurella.engine.graph.manager.ComponentsManager.ComponentFamily;
+import com.gurella.engine.graph.manager.ComponentManager;
+import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -24,7 +24,7 @@ public class TagManager extends GraphListenerSystem {
 
 	@Override
 	protected void activated() {
-		ComponentsManager componentManager = getGraph().componentsManager;
+		ComponentManager componentManager = getGraph().componentManager;
 		componentManager.registerComponentFamily(family);
 		ImmutableArray<? extends TagComponent> components = componentManager.getComponents(family);
 		for (int i = 0; i < components.size(); i++) {
@@ -34,7 +34,7 @@ public class TagManager extends GraphListenerSystem {
 
 	@Override
 	protected void deactivated() {
-		getGraph().componentsManager.unregisterComponentFamily(family);
+		getGraph().componentManager.unregisterComponentFamily(family);
 
 		for (ArrayExt<SceneNode> nodes : nodesByTag.values()) {
 			nodes.clear();
@@ -101,7 +101,7 @@ public class TagManager extends GraphListenerSystem {
 			return;
 		}
 
-		ImmutableArray<TagComponent> components = graph.componentsManager.getComponents(family);
+		ImmutableArray<TagComponent> components = graph.componentManager.getComponents(family);
 		for (int i = 0; i < components.size(); i++) {
 			familyNodes.handle(components.get(i));
 		}

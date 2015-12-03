@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.resource.model.Resource;
 import com.gurella.engine.utils.ReflectionUtils;
 
 class ScriptMethodRegistry {
@@ -53,31 +52,52 @@ class ScriptMethodRegistry {
 			return;
 		}
 
+		ObjectSet<ScriptMethodDescriptor<?>> methods = new ObjectSet<ScriptMethodDescriptor<?>>();
+		ObjectSet<ScriptMethodDescriptor<?>> markerMethods = new ObjectSet<ScriptMethodDescriptor<?>>();
+
+		// TODO replace with ClassReflection.getInterfaces(componentClass)
+		Class<?>[] interfaces = componentClass.getInterfaces();
+		for (int i = 0; i < interfaces.length; i++) {
+			Class<?> componentInterface = interfaces[i];
+			initScriptMethods(componentInterface);
+
+			ObjectSet<ScriptMethodDescriptor<?>> interfaceMarkerMethods = markerScriptMethods.get(componentInterface);
+			if (componentClass.isInterface()) {
+				markerMethods.addAll(interfaceMarkerMethods);
+			} else {
+				for (ScriptMethodDescriptor<?> interfaceMarkerMethod : interfaceMarkerMethods) {
+					if (!methods.contains(interfaceMarkerMethod)) {
+						markerMethods.add(interfaceMarkerMethod);
+					}
+				}
+			}
+		}
+
 		Class<?> superclass = componentClass.getSuperclass();
-		initScriptMethods(superclass);
+		if (superclass != null) {
+			initScriptMethods(superclass);
+			methods.addAll(scriptMethods.get(superclass));
+			markerMethods.addAll(markerScriptMethods.get(superclass));
 
-		ObjectSet<ScriptMethodDescriptor<?>> superMethods = scriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor<?>> methods = new ObjectSet<ScriptMethodDescriptor<?>>(superMethods);
-
-		ObjectSet<ScriptMethodDescriptor<?>> superMarkerMethods = markerScriptMethods.get(superclass);
-		ObjectSet<ScriptMethodDescriptor<?>> markerMethods = new ObjectSet<ScriptMethodDescriptor<?>>(superMarkerMethods);
+		}
 
 		for (Method method : ClassReflection.getDeclaredMethods(componentClass)) {
-			ScriptMethodDescriptor<?> descriptor = find(superMarkerMethods, method);
+			ScriptMethodDescriptor<?> descriptor = find(markerMethods, method);
+
 			if (descriptor == null) {
-				descriptor = find(superMethods, method);
+				descriptor = find(methods, method);
 				if (descriptor == null) {
 					ScriptMethod scriptMethod = ReflectionUtils.getDeclaredAnnotation(method, ScriptMethod.class);
 					if (scriptMethod != null) {
 						descriptor = new ScriptMethodDescriptor<SceneNodeComponent>(method, scriptMethod.decorator());
-						if (scriptMethod.marker()) {
+						if (scriptMethod.marker() || componentClass.isInterface()) {
 							markerMethods.add(descriptor);
 						} else {
 							methods.add(descriptor);
 						}
 					}
 				}
-			} else {
+			} else if (!componentClass.isInterface()) {
 				methods.add(descriptor);
 				markerMethods.remove(descriptor);
 			}
@@ -105,25 +125,39 @@ class ScriptMethodRegistry {
 		markerScriptMethods.get(B.class).iterator().toArray();
 		scriptMethods.get(A.class).iterator().toArray();
 		scriptMethods.get(B.class).iterator().toArray();
+		markerScriptMethods.get(I.class).iterator().toArray();
+		markerScriptMethods.get(J.class).iterator().toArray();
 		ClassReflection.getAnnotations(B.class);
 		ReflectionUtils.getMethod(B.class, "ddd").isAnnotationPresent(ScriptMethod.class);
 	}
 
-	@Resource
 	public interface I {
 		@ScriptMethod
 		void ddd();
 	}
+	
+	public interface J extends I {
+		@Override
+		@ScriptMethod
+		void ddd();
+		
+		@ScriptMethod
+		void ooo();
+	}
 
-	public static abstract class A extends ScriptComponent {
+	public static abstract class A extends ScriptComponent implements I {
 		@Override
 		public void onInput() {
 		}
 	}
 
-	public static class B extends A implements I {
+	public static class B extends A implements J {
 		@Override
 		public void ddd() {
+		}
+
+		@Override
+		public void ooo() {
 		}
 	}
 }

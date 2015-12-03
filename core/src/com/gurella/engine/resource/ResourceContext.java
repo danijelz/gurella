@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
@@ -78,11 +79,11 @@ public class ResourceContext {
 		AsyncResolver.resolve(this, resourceIds, callback);
 	}
 
-	private synchronized void addObtainedResource(Object resource, int resourceId) {
+	private synchronized <T> void addObtainedResource(T resource, ResourceReference<T> reference) {
 		ObtainedResource obtainedResource = obtainedResources.get(resource);
 		if (obtainedResource == null) {
 			obtainedResource = ObtainedResource.getInstance();
-			obtainedResource.resourceId = resourceId;
+			obtainedResource.reference = reference;
 			obtainedResources.put(resource, obtainedResource);
 		}
 
@@ -102,9 +103,11 @@ public class ResourceContext {
 	}
 
 	public void releaseResources() {
-		for (Object resource : obtainedResources.keys()) {
-			ObtainedResource obtainedResource = obtainedResources.get(resource);
-			ResourceReference<Object> resourceReference = getReference(obtainedResource.resourceId);
+		for (Entry<Object, ObtainedResource> entry : obtainedResources.entries()) {
+			Object resource = entry.key;
+			ObtainedResource obtainedResource = entry.value;
+			@SuppressWarnings("unchecked")
+			ResourceReference<Object> resourceReference = (ResourceReference<Object>) obtainedResource.reference;
 			for (int i = 0; i < obtainedResource.count; i++) {
 				resourceReference.release(resource);
 			}
@@ -117,7 +120,8 @@ public class ResourceContext {
 	public boolean releaseResource(Object resource) {
 		ObtainedResource obtainedResource = obtainedResources.get(resource);
 		if (obtainedResource != null) {
-			ResourceReference<Object> resourceReference = getReference(obtainedResource.resourceId);
+			@SuppressWarnings("unchecked")
+			ResourceReference<Object> resourceReference = (ResourceReference<Object>) obtainedResource.reference;
 			resourceReference.release(resource);
 			if (--obtainedResource.count == 0) {
 				obtainedResources.remove(resource);
@@ -254,10 +258,10 @@ public class ResourceContext {
 
 	private static <T> void validateAssetType(String fileName, Class<T> type, Class<T> resourceType) {
 		if (resourceType != type) {
-			throw new GdxRuntimeException("Asset with name '" + fileName
-					+ "' already in preload queue, but has different type (expected: "
-					+ ClassReflection.getSimpleName(type) + ", found: " + ClassReflection.getSimpleName(resourceType)
-					+ ")");
+			throw new GdxRuntimeException(
+					"Asset with name '" + fileName + "' already in preload queue, but has different type (expected: "
+							+ ClassReflection.getSimpleName(type) + ", found: "
+							+ ClassReflection.getSimpleName(resourceType) + ")");
 		}
 	}
 
@@ -293,7 +297,6 @@ public class ResourceContext {
 		}
 
 		private T getResource() {
-			int resourceId = resourceReference.getId();
 			resourceReference.obtain(this);
 			while (!done) {
 				try {
@@ -307,9 +310,10 @@ public class ResourceContext {
 
 			if (resourceException != null) {
 				// TODO specialized exception
-				throw new GdxRuntimeException("Error obtaining resource: " + resourceId, resourceException);
+				throw new GdxRuntimeException("Error obtaining resource: " + resourceReference.getId(),
+						resourceException);
 			} else {
-				context.addObtainedResource(obtainedResource, resourceId);
+				context.addObtainedResource(obtainedResource, resourceReference);
 				return obtainedResource;
 			}
 		}
@@ -368,7 +372,7 @@ public class ResourceContext {
 
 		@Override
 		public void handleResource(T resource) {
-			context.addObtainedResource(resource, resourceReference.getId());
+			context.addObtainedResource(resource, resourceReference);
 			callback.handleResource(resource);
 			SynchronizedPools.free(this);
 		}
@@ -393,8 +397,8 @@ public class ResourceContext {
 	}
 
 	private static class ObtainedResource implements Poolable {
-		int resourceId;
 		int count;
+		ResourceReference<?> reference;
 
 		static ObtainedResource getInstance() {
 			return SynchronizedPools.obtain(ObtainedResource.class);
@@ -403,6 +407,7 @@ public class ResourceContext {
 		@Override
 		public void reset() {
 			count = 0;
+			reference = null;
 		}
 
 		void free() {
@@ -466,8 +471,7 @@ public class ResourceContext {
 			Object resolvedResource = context.obtainResource(resourceId);
 			resourceMap.addResolvedResource(resourceId, resolvedResource);
 			int resolvedResourcesCount = resourceMap.resolvedResourcesCount;
-			float proportionalProgress = resolvedResourcesCount == 0
-					? 0
+			float proportionalProgress = resolvedResourcesCount == 0 ? 0
 					: resolvedResourcesCount / requestedResourcesCount;
 			callback.handleProgress(proportionalProgress);
 		}
@@ -541,9 +545,7 @@ public class ResourceContext {
 				totalProgress += progressArray.get(i);
 			}
 
-			float proportionalProgress = totalProgress == 0
-					? 0
-					: totalProgress / size;
+			float proportionalProgress = totalProgress == 0 ? 0 : totalProgress / size;
 			callback.handleProgress(proportionalProgress);
 		}
 

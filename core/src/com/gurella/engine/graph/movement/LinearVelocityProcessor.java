@@ -6,8 +6,8 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.manager.ComponentBitsPredicate;
-import com.gurella.engine.graph.manager.NodesManager;
-import com.gurella.engine.graph.manager.NodesManager.SceneNodeFamily;
+import com.gurella.engine.graph.manager.NodeManager;
+import com.gurella.engine.graph.manager.NodeManager.SceneNodeFamily;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -15,7 +15,7 @@ public class LinearVelocityProcessor extends UpdateListenerSystem {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 
-	private NodesManager nodeManager;
+	private NodeManager nodeManager;
 	private Vector3 tempTranslate = new Vector3();
 	private Vector3 tempVelocity = new Vector3();
 
@@ -26,7 +26,7 @@ public class LinearVelocityProcessor extends UpdateListenerSystem {
 
 	@Override
 	protected void activated() {
-		nodeManager = getGraph().nodesManager;
+		nodeManager = getGraph().nodeManager;
 		nodeManager.registerFamily(family);
 	}
 
