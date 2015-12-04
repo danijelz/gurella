@@ -14,5 +14,5 @@ public @interface EventCallback {
 	
 	boolean marker() default false;
 
-	Class<? extends ScriptMethodDecorator> decorator() default ScriptMethodDecorator.class;
+	Class<? extends EventCallbackDecorator> decorator() default EventCallbackDecorator.class;
 }

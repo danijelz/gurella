@@ -1,17 +1,17 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.keyDown;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.keyTyped;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.keyUp;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onScrolledResolved;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchDown;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchDownGlobal;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchUp;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTouchUpResolved;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.scrolled;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchDown;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchDragged;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.touchUp;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.keyDown;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.keyTyped;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.keyUp;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onScrolledGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchDown;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchDownGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchUp;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchUpGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.scrolled;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchDown;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchDragged;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchUp;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.begin;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.end;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.move;
@@ -36,9 +36,9 @@ import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.UpdateListenerSystem;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.camera.CameraComponent;
-import com.gurella.engine.graph.event.ScriptMethodDescriptor;
+import com.gurella.engine.graph.event.EventCallbackInstance;
 import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
@@ -220,6 +220,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 
 	public PickResult pickNode(PickResult out, float screenX, float screenY) {
+		out.reset();
 		for (Layer layer : orderedLayers) {
 			pickNode(out, screenX, screenY, layer);
 			if (out.node != null) {
@@ -236,6 +237,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 
 	public PickResult pickNodeExcludeLayers(PickResult out, float screenX, float screenY, Layer... excludedLayers) {
+		out.reset();
 		Arrays.sort(excludedLayers);
 		for (Layer layer : orderedLayers) {
 			if (Arrays.binarySearch(excludedLayers, layer) < 0) {
@@ -351,17 +353,17 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		return trackers.get(key);
 	}
 
-	ImmutableArray<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
-		return eventSystem.getScriptsByMethod(method);
-	}
-
-	ImmutableArray<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
-		return eventSystem.getNodeScriptsByMethod(node, method);
-	}
-
 	@Override
 	public int getOrdinal() {
 		return CommonUpdateOrder.INPUT;
+	}
+	
+	ImmutableArray<BehaviourComponent> getListeners(EventCallbackInstance<BehaviourComponent> method) {
+		return eventSystem.getListeners(method);
+	}
+
+	ImmutableArray<BehaviourComponent> getListeners(SceneNode node, EventCallbackInstance<BehaviourComponent> method) {
+		return eventSystem.getListeners(node, method);
 	}
 
 	private class InputProcessorDelegate implements com.badlogic.gdx.InputProcessor {
@@ -370,24 +372,24 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean keyDown(int keycode) {
-			for (ScriptComponent scriptComponent : getScriptsByMethod(keyDown)) {
-				scriptComponent.keyDown(keycode);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(keyDown)) {
+				behaviourComponent.keyDown(keycode);
 			}
 			return false;
 		}
 
 		@Override
 		public boolean keyUp(int keycode) {
-			for (ScriptComponent scriptComponent : getScriptsByMethod(keyUp)) {
-				scriptComponent.keyUp(keycode);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(keyUp)) {
+				behaviourComponent.keyUp(keycode);
 			}
 			return false;
 		}
 
 		@Override
 		public boolean keyTyped(char character) {
-			for (ScriptComponent scriptComponent : getScriptsByMethod(keyTyped)) {
-				scriptComponent.keyTyped(character);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(keyTyped)) {
+				behaviourComponent.keyTyped(character);
 			}
 			return false;
 		}
@@ -404,19 +406,19 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
 
-			for (ScriptComponent scriptComponent : getScriptsByMethod(scrolled)) {
-				scriptComponent.scrolled(screenX, screenY, amount);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(scrolled)) {
+				behaviourComponent.scrolled(screenX, screenY, amount);
 			}
 
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (ScriptComponent scriptComponent : getScriptsByMethod(onScrolledResolved)) {
-					scriptComponent.onScrolled(renderableComponent, screenX, screenY, amount, closestIntersection);
+				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onScrolledGlobal)) {
+					behaviourComponent.onScrolled(renderableComponent, screenX, screenY, amount, closestIntersection);
 				}
 
-				for (ScriptComponent scriptComponent : getNodeScriptsByMethod(node, onTouchDown)) {
-					scriptComponent.onScrolled(screenX, screenY, amount, closestIntersection);
+				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, onTouchDown)) {
+					behaviourComponent.onScrolled(screenX, screenY, amount, closestIntersection);
 				}
 			}
 
@@ -431,19 +433,19 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
 
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (ScriptComponent scriptComponent : getScriptsByMethod(touchDown)) {
-				scriptComponent.touchDown(touchEvent);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(touchDown)) {
+				behaviourComponent.touchDown(touchEvent);
 			}
 
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (ScriptComponent scriptComponent : getScriptsByMethod(onTouchDownGlobal)) {
-					scriptComponent.onTouchDown(renderableComponent, intersectionTouchEvent);
+				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onTouchDownGlobal)) {
+					behaviourComponent.onTouchDown(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (ScriptComponent scriptComponent : getNodeScriptsByMethod(node, onTouchDown)) {
-					scriptComponent.onTouchDown(intersectionTouchEvent);
+				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, onTouchDown)) {
+					behaviourComponent.onTouchDown(intersectionTouchEvent);
 				}
 			}
 
@@ -455,20 +457,20 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (ScriptComponent scriptComponent : getScriptsByMethod(touchUp)) {
-				scriptComponent.touchUp(touchEvent);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(touchUp)) {
+				behaviourComponent.touchUp(touchEvent);
 			}
 
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (ScriptComponent scriptComponent : getScriptsByMethod(onTouchUpResolved)) {
-					scriptComponent.onTouchUp(renderableComponent, intersectionTouchEvent);
+				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onTouchUpGlobal)) {
+					behaviourComponent.onTouchUp(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (ScriptComponent scriptComponent : getNodeScriptsByMethod(node, onTouchUp)) {
-					scriptComponent.onTouchUp(intersectionTouchEvent);
+				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, onTouchUp)) {
+					behaviourComponent.onTouchUp(intersectionTouchEvent);
 				}
 			}
 
@@ -490,8 +492,8 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					touchEvent.set(pointer, button, screenX, screenY);
-					for (ScriptComponent scriptComponent : getScriptsByMethod(touchDragged)) {
-						scriptComponent.touchDragged(touchEvent);
+					for (BehaviourComponent behaviourComponent : eventSystem.getListeners(touchDragged)) {
+						behaviourComponent.touchDragged(touchEvent);
 					}
 
 					PointerTrack tracker = getTracker(pointer, button);

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.input.DragSource;
 import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.DropTarget;
@@ -13,7 +13,7 @@ import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.renderable.TextureComponent;
 
-public class TestInputComponnent extends ScriptComponent {
+public class TestInputComponnent extends BehaviourComponent {
 	////////////INPUT EVENTS
 	@Override
 	public void onTouchDown(IntersectionTouchEvent pointerEvent) {

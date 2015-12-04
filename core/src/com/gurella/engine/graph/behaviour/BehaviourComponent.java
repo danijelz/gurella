@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.bullet.BulletPhysicsRigidBodyComponent;
@@ -36,7 +35,7 @@ import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
-public abstract class ScriptComponent extends SceneNodeComponent {
+public abstract class BehaviourComponent extends SceneNodeComponent {
 	// UPDATE EVENTS
 	@EventCallback(marker = true)
 	public void onInput() {

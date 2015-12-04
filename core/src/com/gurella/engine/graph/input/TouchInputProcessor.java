@@ -1,11 +1,11 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.longPress;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onLongPress;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onLongPressResolved;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTap;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onTapResolved;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.tap;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.longPress;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onLongPress;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onLongPressGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTap;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTapGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.tap;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.pools.SynchronizedPools;
@@ -148,19 +148,19 @@ public class TouchInputProcessor implements PointerActivityListener {
 		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
 		int tapCount = tapCounters.get(key, 1);
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(tap)) {
-			scriptComponent.tap(touchEvent, tapCount);
+		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(tap)) {
+			behaviourComponent.tap(touchEvent, tapCount);
 		}
 
 		SceneNode node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(onTapResolved)) {
-				scriptComponent.onTap(renderableComponent, intersectionTouchEvent, tapCount);
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onTapGlobal)) {
+				behaviourComponent.onTap(renderableComponent, intersectionTouchEvent, tapCount);
 			}
-			for (ScriptComponent scriptComponent : inputSystem.getNodeScriptsByMethod(node, onTap)) {
-				scriptComponent.onTap(intersectionTouchEvent, tapCount);
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, onTap)) {
+				behaviourComponent.onTap(intersectionTouchEvent, tapCount);
 			}
 		}
 	}
@@ -168,19 +168,19 @@ public class TouchInputProcessor implements PointerActivityListener {
 	private void dispatchLongPress(int pointer, int button, PointerTrack pointerTrack) {
 		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(longPress)) {
-			scriptComponent.longPress(touchEvent);
+		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(longPress)) {
+			behaviourComponent.longPress(touchEvent);
 		}
 
 		SceneNode node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(onLongPressResolved)) {
-				scriptComponent.onLongPress(renderableComponent, intersectionTouchEvent);
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onLongPressGlobal)) {
+				behaviourComponent.onLongPress(renderableComponent, intersectionTouchEvent);
 			}
-			for (ScriptComponent scriptComponent : inputSystem.getNodeScriptsByMethod(node, onLongPress)) {
-				scriptComponent.onLongPress(intersectionTouchEvent);
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, onLongPress)) {
+				behaviourComponent.onLongPress(intersectionTouchEvent);
 			}
 
 			if (pointer == 0 && button == Buttons.LEFT && pointerTrack.getPhase() != PointerTrackerPhase.end) {

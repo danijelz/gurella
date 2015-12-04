@@ -15,8 +15,8 @@ import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;
@@ -25,8 +25,8 @@ import com.gurella.engine.signal.Listener1;
 public class ScriptManager extends GraphListenerSystem {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
 
-	private IntMap<OrderedSet<ScriptComponent>> scriptsByMethod = new IntMap<OrderedSet<ScriptComponent>>();
-	private IntMap<IntMap<OrderedSet<ScriptComponent>>> nodeScriptsByMethod = new IntMap<IntMap<OrderedSet<ScriptComponent>>>();
+	private IntMap<OrderedSet<BehaviourComponent>> scriptsByMethod = new IntMap<OrderedSet<BehaviourComponent>>();
+	private IntMap<IntMap<OrderedSet<BehaviourComponent>>> nodeScriptsByMethod = new IntMap<IntMap<OrderedSet<BehaviourComponent>>>();
 
 	private OnInputUpdateListener onInputUpdateListener = new OnInputUpdateListener();
 	private OnThinkUpdateListener onThinkUpdateListener = new OnThinkUpdateListener();
@@ -76,11 +76,11 @@ public class ScriptManager extends GraphListenerSystem {
 		nodeScriptsByMethod.clear();
 	}
 
-	private static OverridenScriptMethods getOverridenScriptMethods(ScriptComponent scriptComponent) {
-		int componentType = scriptComponent.componentType;
+	private static OverridenScriptMethods getOverridenScriptMethods(BehaviourComponent behaviourComponent) {
+		int componentType = behaviourComponent.componentType;
 		OverridenScriptMethods overridenScriptMethods = scriptMethods.get(componentType);
 		if (overridenScriptMethods == null) {
-			overridenScriptMethods = new OverridenScriptMethods(scriptComponent.getClass());
+			overridenScriptMethods = new OverridenScriptMethods(behaviourComponent.getClass());
 			scriptMethods.put(componentType, overridenScriptMethods);
 		}
 		return overridenScriptMethods;
@@ -90,43 +90,43 @@ public class ScriptManager extends GraphListenerSystem {
 	public void componentActivated(SceneNodeComponent component) {
 		super.componentActivated(component);
 
-		if (component instanceof ScriptComponent) {
-			ScriptComponent scriptComponent = (ScriptComponent) component;
-			int nodeId = scriptComponent.getNode().id;
-			OverridenScriptMethods overridenScriptMethods = getOverridenScriptMethods(scriptComponent);
+		if (component instanceof BehaviourComponent) {
+			BehaviourComponent behaviourComponent = (BehaviourComponent) component;
+			int nodeId = behaviourComponent.getNode().id;
+			OverridenScriptMethods overridenScriptMethods = getOverridenScriptMethods(behaviourComponent);
 			for (IntSetIterator iterator = overridenScriptMethods.methods.iterator(); iterator.hasNext;) {
 				int methodId = iterator.next();
-				getScriptsByMethod(methodId).add(scriptComponent);
-				getNodeScriptsByMethod(nodeId, methodId).add(scriptComponent);
-				addNodeListenerMethod(methodId, scriptComponent);
+				getScriptsByMethod(methodId).add(behaviourComponent);
+				getNodeScriptsByMethod(nodeId, methodId).add(behaviourComponent);
+				addNodeListenerMethod(methodId, behaviourComponent);
 			}
 		}
 	}
 
-	private static void addNodeListenerMethod(int methodId, ScriptComponent scriptComponent) {
-		if (methodId == DefaultScriptMethod.nodeComponentAdded.id) {
-			NodeComponentAddedListener.obtain(scriptComponent);
+	private static void addNodeListenerMethod(int methodId, BehaviourComponent behaviourComponent) {
+		if (methodId == BehaviourEventCallbacks.nodeComponentAdded.id) {
+			NodeComponentAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeComponentAdded.id) {
-			NodeComponentAddedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeComponentAdded.id) {
+			NodeComponentAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeComponentRemoved.id) {
-			NodeComponentRemovedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeComponentRemoved.id) {
+			NodeComponentRemovedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeComponentActivated.id) {
-			NodeComponentActivatedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeComponentActivated.id) {
+			NodeComponentActivatedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeComponentDeactivated.id) {
-			NodeComponentDeactivatedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeComponentDeactivated.id) {
+			NodeComponentDeactivatedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeParentChanged.id) {
-			NodeParentChangedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeParentChanged.id) {
+			NodeParentChangedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeChildAdded.id) {
-			NodeChildAddedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeChildAdded.id) {
+			NodeChildAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == DefaultScriptMethod.nodeChildRemoved.id) {
-			NodeChildRemovedListener.obtain(scriptComponent);
+		} else if (methodId == BehaviourEventCallbacks.nodeChildRemoved.id) {
+			NodeChildRemovedListener.obtain(behaviourComponent);
 			return;
 		}
 	}
@@ -135,62 +135,62 @@ public class ScriptManager extends GraphListenerSystem {
 	public void componentDeactivated(SceneNodeComponent component) {
 		super.componentDeactivated(component);
 
-		if (component instanceof ScriptComponent) {
-			ScriptComponent scriptComponent = (ScriptComponent) component;
-			int nodeId = scriptComponent.getNode().id;
-			OverridenScriptMethods overridenScriptMethods = getOverridenScriptMethods(scriptComponent);
+		if (component instanceof BehaviourComponent) {
+			BehaviourComponent behaviourComponent = (BehaviourComponent) component;
+			int nodeId = behaviourComponent.getNode().id;
+			OverridenScriptMethods overridenScriptMethods = getOverridenScriptMethods(behaviourComponent);
 			for (IntSetIterator iterator = overridenScriptMethods.methods.iterator(); iterator.hasNext;) {
 				int methodId = iterator.next();
-				getScriptsByMethod(methodId).remove(scriptComponent);
-				getNodeScriptsByMethod(nodeId, methodId).remove(scriptComponent);
+				getScriptsByMethod(methodId).remove(behaviourComponent);
+				getNodeScriptsByMethod(nodeId, methodId).remove(behaviourComponent);
 			}
 		}
 	}
 
-	public OrderedSet<ScriptComponent> getScriptsByMethod(ScriptMethodDescriptor method) {
+	public OrderedSet<BehaviourComponent> getScriptsByMethod(EventCallbackInstance method) {
 		return getScriptsByMethod(method.id);
 	}
 
-	public OrderedSet<ScriptComponent> getScriptsByMethod(int methodId) {
-		OrderedSet<ScriptComponent> scripts = scriptsByMethod.get(methodId);
+	public OrderedSet<BehaviourComponent> getScriptsByMethod(int methodId) {
+		OrderedSet<BehaviourComponent> scripts = scriptsByMethod.get(methodId);
 		if (scripts == null) {
-			scripts = new OrderedSet<ScriptComponent>();
+			scripts = new OrderedSet<BehaviourComponent>();
 			scriptsByMethod.put(methodId, scripts);
 		}
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(SceneNode node, ScriptMethodDescriptor method) {
+	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(SceneNode node, EventCallbackInstance method) {
 		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
 	}
 
-	public OrderedSet<ScriptComponent> getNodeScriptsByMethod(int nodeId, int methodId) {
-		IntMap<OrderedSet<ScriptComponent>> nodeScripts = nodeScriptsByMethod.get(nodeId);
+	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(int nodeId, int methodId) {
+		IntMap<OrderedSet<BehaviourComponent>> nodeScripts = nodeScriptsByMethod.get(nodeId);
 		if (nodeScripts == null) {
-			nodeScripts = new IntMap<OrderedSet<ScriptComponent>>();
+			nodeScripts = new IntMap<OrderedSet<BehaviourComponent>>();
 			nodeScriptsByMethod.put(nodeId, nodeScripts);
 		}
 
-		OrderedSet<ScriptComponent> scripts = nodeScripts.get(methodId);
+		OrderedSet<BehaviourComponent> scripts = nodeScripts.get(methodId);
 		if (scripts == null) {
-			scripts = new OrderedSet<ScriptComponent>();
+			scripts = new OrderedSet<BehaviourComponent>();
 			nodeScripts.put(methodId, scripts);
 		}
 		return scripts;
 	}
 
-	public OrderedSet<ScriptComponent> getScriptComponents(ScriptMethodDescriptor scriptMethod) {
+	public OrderedSet<BehaviourComponent> getScriptComponents(EventCallbackInstance scriptMethod) {
 		return getScriptsByMethod(scriptMethod.id);
 	}
 
 	private static class OverridenScriptMethods {
 		IntSet methods = new IntSet();
 
-		OverridenScriptMethods(Class<? extends ScriptComponent> scriptComponentClass) {
+		OverridenScriptMethods(Class<? extends BehaviourComponent> scriptComponentClass) {
 			Class<?> tempClass = scriptComponentClass;
-			while (tempClass != ScriptComponent.class) {
+			while (tempClass != BehaviourComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					ScriptMethodDescriptor scriptMethod = DefaultScriptMethod.valueOf(method);
+					EventCallbackInstance scriptMethod = BehaviourEventCallbacks.valueOf(method);
 					if (scriptMethod != null) {
 						methods.add(scriptMethod.id);
 					}
@@ -209,8 +209,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onInput)) {
-				scriptComponent.onInput();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onInput)) {
+				behaviourComponent.onInput();
 			}
 		}
 	}
@@ -223,8 +223,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onThink)) {
-				scriptComponent.onThink();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onThink)) {
+				behaviourComponent.onThink();
 			}
 		}
 	}
@@ -237,8 +237,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onPreRender)) {
-				scriptComponent.onPreRender();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onPreRender)) {
+				behaviourComponent.onPreRender();
 			}
 		}
 	}
@@ -251,8 +251,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onRender)) {
-				scriptComponent.onRender();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onRender)) {
+				behaviourComponent.onRender();
 			}
 		}
 	}
@@ -265,8 +265,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onDebugRender)) {
-				scriptComponent.onDebugRender();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onDebugRender)) {
+				behaviourComponent.onDebugRender();
 			}
 		}
 	}
@@ -279,8 +279,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onAfterRender)) {
-				scriptComponent.onAfterRender();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onAfterRender)) {
+				behaviourComponent.onAfterRender();
 			}
 		}
 	}
@@ -293,8 +293,8 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onCleanup)) {
-				scriptComponent.onCleanup();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onCleanup)) {
+				behaviourComponent.onCleanup();
 			}
 		}
 	}
@@ -303,36 +303,36 @@ public class ScriptManager extends GraphListenerSystem {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentActivated)) {
-				scriptComponent.componentActivated(node, component);
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentActivated)) {
+				behaviourComponent.componentActivated(node, component);
 			}
 
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.nodeComponentActivated)) {
-				scriptComponent.nodeComponentActivated(component);
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.nodeComponentActivated)) {
+				behaviourComponent.nodeComponentActivated(component);
 			}
 		}
 
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentDeactivated)) {
-				scriptComponent.componentDeactivated(node, component);
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentDeactivated)) {
+				behaviourComponent.componentDeactivated(node, component);
 			}
 		}
 
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentAdded)) {
-				scriptComponent.componentAdded(node, component);
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentAdded)) {
+				behaviourComponent.componentAdded(node, component);
 			}
 		}
 
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.componentRemoved)) {
-				scriptComponent.componentRemoved(node, component);
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentRemoved)) {
+				behaviourComponent.componentRemoved(node, component);
 			}
 		}
 	}
@@ -340,8 +340,8 @@ public class ScriptManager extends GraphListenerSystem {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onSceneStart)) {
-				scriptComponent.onSceneStart();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onSceneStart)) {
+				behaviourComponent.onSceneStart();
 			}
 		}
 	}
@@ -349,8 +349,8 @@ public class ScriptManager extends GraphListenerSystem {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onSceneStop)) {
-				scriptComponent.onSceneStop();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onSceneStop)) {
+				behaviourComponent.onSceneStop();
 			}
 		}
 	}
@@ -358,8 +358,8 @@ public class ScriptManager extends GraphListenerSystem {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onPause)) {
-				scriptComponent.onPause();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onPause)) {
+				behaviourComponent.onPause();
 			}
 		}
 	}
@@ -367,38 +367,38 @@ public class ScriptManager extends GraphListenerSystem {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : getScriptComponents(DefaultScriptMethod.onResume)) {
-				scriptComponent.onPause();
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onResume)) {
+				behaviourComponent.onPause();
 			}
 		}
 	}
 
 	private static class NodeComponentAddedListener implements Listener1<SceneNodeComponent>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeComponentAddedListener obtain(ScriptComponent scriptComponent) {
+		static NodeComponentAddedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeComponentAddedListener listener = SynchronizedPools.obtain(NodeComponentAddedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().componentAddedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().componentAddedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNodeComponent component) {
-			scriptComponent.nodeComponentAdded(component);
+			behaviourComponent.nodeComponentAdded(component);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().componentAddedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().componentAddedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {
@@ -407,31 +407,31 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static class NodeComponentRemovedListener implements Listener1<SceneNodeComponent>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeComponentRemovedListener obtain(ScriptComponent scriptComponent) {
+		static NodeComponentRemovedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeComponentRemovedListener listener = SynchronizedPools.obtain(NodeComponentRemovedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().componentRemovedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().componentRemovedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNodeComponent component) {
-			scriptComponent.nodeComponentRemoved(component);
+			behaviourComponent.nodeComponentRemoved(component);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().componentRemovedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().componentRemovedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {
@@ -440,31 +440,31 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static class NodeComponentActivatedListener implements Listener1<SceneNodeComponent>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeComponentActivatedListener obtain(ScriptComponent scriptComponent) {
+		static NodeComponentActivatedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeComponentActivatedListener listener = SynchronizedPools.obtain(NodeComponentActivatedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().componentActivatedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().componentActivatedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNodeComponent component) {
-			scriptComponent.nodeComponentActivated(component);
+			behaviourComponent.nodeComponentActivated(component);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().componentActivatedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().componentActivatedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {
@@ -474,32 +474,32 @@ public class ScriptManager extends GraphListenerSystem {
 
 	private static class NodeComponentDeactivatedListener
 			implements Listener1<SceneNodeComponent>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeComponentDeactivatedListener obtain(ScriptComponent scriptComponent) {
+		static NodeComponentDeactivatedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeComponentDeactivatedListener listener = SynchronizedPools
 					.obtain(NodeComponentDeactivatedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().componentDeactivatedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().componentDeactivatedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNodeComponent component) {
-			scriptComponent.nodeComponentDeactivated(component);
+			behaviourComponent.nodeComponentDeactivated(component);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().componentDeactivatedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().componentDeactivatedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {
@@ -508,31 +508,31 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static class NodeParentChangedListener implements Listener1<SceneNode>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeParentChangedListener obtain(ScriptComponent scriptComponent) {
+		static NodeParentChangedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeParentChangedListener listener = SynchronizedPools.obtain(NodeParentChangedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().parentChangedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().parentChangedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNode newParent) {
-			scriptComponent.nodeParentChanged(newParent);
+			behaviourComponent.nodeParentChanged(newParent);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().parentChangedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().parentChangedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {
@@ -541,31 +541,31 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static class NodeChildAddedListener implements Listener1<SceneNode>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeChildAddedListener obtain(ScriptComponent scriptComponent) {
+		static NodeChildAddedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeChildAddedListener listener = SynchronizedPools.obtain(NodeChildAddedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().childAddedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().childAddedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNode child) {
-			scriptComponent.nodeChildAdded(child);
+			behaviourComponent.nodeChildAdded(child);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().childAddedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().childAddedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {
@@ -574,31 +574,31 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static class NodeChildRemovedListener implements Listener1<SceneNode>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeChildRemovedListener obtain(ScriptComponent scriptComponent) {
+		static NodeChildRemovedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeChildRemovedListener listener = SynchronizedPools.obtain(NodeChildRemovedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().childRemovedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().childRemovedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNode child) {
-			scriptComponent.nodeChildRemoved(child);
+			behaviourComponent.nodeChildRemoved(child);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().childRemovedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().childRemovedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {

@@ -1,7 +1,7 @@
 package com.gurella.engine.graph.bullet;
 
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onPhysicsSimulationEnd;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.onPhysicsSimulationStart;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onPhysicsSimulationEnd;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onPhysicsSimulationStart;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +22,8 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
+import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class BulletPhysicsProcessor extends SceneProcessorManager {
@@ -36,6 +37,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	private CollisionTrackingInternalTickCallback tickCallback;
 
 	private Vector3 gravity = new Vector3(0, -10f, 0);
+	private EventSystem eventSystem;
 
 	public BulletPhysicsProcessor() {
 		collisionConfig = Application.DISPOSABLE_MANAGER.add(new btDefaultCollisionConfiguration());
@@ -56,9 +58,10 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	}
 
 	@Override
-	protected void attached() {
+	protected void activated() {
 		SceneGraph graph = getGraph();
 		tickCallback.graph = graph;
+		eventSystem = graph.eventSystem;
 		ImmutableArray<SceneNodeComponent> components = graph.activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
@@ -66,7 +69,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	}
 
 	@Override
-	protected void detached() {
+	protected void deactivated() {
 		int numCollisionObjects = dynamicsWorld.getNumCollisionObjects();
 		btCollisionObjectArray collisionObjectArray = dynamicsWorld.getCollisionObjectArray();
 
@@ -75,6 +78,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 		}
 
 		tickCallback.clear();
+		eventSystem = null;
 	}
 
 	@Override
@@ -90,14 +94,14 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	}
 
 	private void dispatchSimulationStartEvent() {
-		for (ScriptComponent scriptComponent : getGraph().eventSystem.getScriptsByMethod(onPhysicsSimulationStart)) {
-			scriptComponent.onPhysicsSimulationStart(dynamicsWorld);
+		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPhysicsSimulationStart)) {
+			behaviourComponent.onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
 
 	private void dispatchSimulationEndEvent() {
-		for (ScriptComponent scriptComponent : getGraph().eventSystem.getScriptsByMethod(onPhysicsSimulationEnd)) {
-			scriptComponent.onPhysicsSimulationEnd(dynamicsWorld);
+		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPhysicsSimulationEnd)) {
+			behaviourComponent.onPhysicsSimulationEnd(dynamicsWorld);
 		}
 	}
 

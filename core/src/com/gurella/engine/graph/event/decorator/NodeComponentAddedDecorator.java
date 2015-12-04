@@ -2,48 +2,48 @@ package com.gurella.engine.graph.event.decorator;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
-import com.gurella.engine.graph.event.ScriptMethodDecorator;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
+import com.gurella.engine.graph.event.EventCallbackDecorator;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;
 
-public class NodeComponentAddedDecorator implements ScriptMethodDecorator {
+public class NodeComponentAddedDecorator implements EventCallbackDecorator {
 	@Override
-	public void componentActivated(ScriptComponent component) {
-		NodeComponentAddedListener.obtain(component);
+	public void componentActivated(SceneNodeComponent component) {
+		NodeComponentAddedListener.obtain((BehaviourComponent) component);
 	}
 
 	@Override
-	public void componentDeactivated(ScriptComponent component) {
+	public void componentDeactivated(SceneNodeComponent component) {
 	}
 
 	private static class NodeComponentAddedListener implements Listener1<SceneNodeComponent>, Listener0, Poolable {
-		ScriptComponent scriptComponent;
+		BehaviourComponent behaviourComponent;
 
-		static NodeComponentAddedListener obtain(ScriptComponent scriptComponent) {
+		static NodeComponentAddedListener obtain(BehaviourComponent behaviourComponent) {
 			NodeComponentAddedListener listener = SynchronizedPools.obtain(NodeComponentAddedListener.class);
-			listener.scriptComponent = scriptComponent;
-			scriptComponent.getNode().componentAddedSignal.addListener(listener);
-			scriptComponent.deactivatedSignal.addListener(listener);
+			listener.behaviourComponent = behaviourComponent;
+			behaviourComponent.getNode().componentAddedSignal.addListener(listener);
+			behaviourComponent.deactivatedSignal.addListener(listener);
 			return listener;
 		}
 
 		@Override
 		public void handle(SceneNodeComponent component) {
-			scriptComponent.nodeComponentAdded(component);
+			behaviourComponent.nodeComponentAdded(component);
 		}
 
 		@Override
 		public void handle() {
-			scriptComponent.getNode().componentAddedSignal.removeListener(this);
-			scriptComponent.deactivatedSignal.removeListener(this);
+			behaviourComponent.getNode().componentAddedSignal.removeListener(this);
+			behaviourComponent.deactivatedSignal.removeListener(this);
 			free();
 		}
 
 		@Override
 		public void reset() {
-			scriptComponent = null;
+			behaviourComponent = null;
 		}
 
 		void free() {

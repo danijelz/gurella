@@ -1,11 +1,11 @@
 package com.gurella.engine.graph.ui;
 
 import com.gurella.engine.graph.BaseSceneElementType;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.layer.Layer;
 
 @BaseSceneElementType
-public class UiComponent extends ScriptComponent {
+public class UiComponent extends BehaviourComponent {
 	public Layer layer;
 	private int x;
 	private int y;

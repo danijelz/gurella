@@ -3,8 +3,8 @@ package com.gurella.engine.graph.input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.utils.IntLongMap;
 
@@ -88,19 +88,19 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(DefaultScriptMethod.doubleTouchDown)) {
-			scriptComponent.doubleTouchDown(touchEvent);
+		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEventCallbacks.doubleTouchDown)) {
+			behaviourComponent.doubleTouchDown(touchEvent);
 		}
 
 		SceneNode node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (ScriptComponent scriptComponent : inputSystem.getScriptsByMethod(DefaultScriptMethod.onDoubleTouchResolved)) {
-				scriptComponent.onDoubleTouch(renderableComponent, intersectionTouchEvent);
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEventCallbacks.onDoubleTouchGlobal)) {
+				behaviourComponent.onDoubleTouch(renderableComponent, intersectionTouchEvent);
 			}
-			for (ScriptComponent scriptComponent : inputSystem.getNodeScriptsByMethod(node, DefaultScriptMethod.onDoubleTouch)) {
-				scriptComponent.onDoubleTouch(intersectionTouchEvent);
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, BehaviourEventCallbacks.onDoubleTouch)) {
+				behaviourComponent.onDoubleTouch(intersectionTouchEvent);
 			}
 
 			if (pointer == 0 && button == Buttons.LEFT) {

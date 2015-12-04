@@ -1,12 +1,12 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.getDragSource;
-import static com.gurella.engine.graph.behaviour.DefaultScriptMethod.getDropTarget;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.getDragSource;
+import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.getDropTarget;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class DragAndDropProcessor implements PointerActivityListener {
@@ -63,13 +63,13 @@ public class DragAndDropProcessor implements PointerActivityListener {
 
 	private void initDragSources(SceneNode node, DragStartCondition condition) {
 		dragSources.clear();
-		ImmutableArray<ScriptComponent> scripts = inputSystem.getNodeScriptsByMethod(node, getDragSource);
+		ImmutableArray<BehaviourComponent> scripts = inputSystem.getListeners(node, getDragSource);
 		if (scripts == null || scripts.size() < 1) {
 			return;
 		}
 
-		for (ScriptComponent scriptComponent : scripts) {
-			DragSource dragSource = scriptComponent.getDragSource(condition);
+		for (BehaviourComponent behaviourComponent : scripts) {
+			DragSource dragSource = behaviourComponent.getDragSource(condition);
 			if (dragSource != null) {
 				dragSources.add(dragSource);
 			}
@@ -117,13 +117,13 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	}
 
 	private void initDropTargets(SceneNode node) {
-		ImmutableArray<ScriptComponent> scripts = inputSystem.getNodeScriptsByMethod(node, getDropTarget);
+		ImmutableArray<BehaviourComponent> scripts = inputSystem.getListeners(node, getDropTarget);
 		if (scripts == null || scripts.size() < 1) {
 			return;
 		}
 
-		for (ScriptComponent scriptComponent : scripts) {
-			DropTarget dropTarget = scriptComponent.getDropTarget(dragSources);
+		for (BehaviourComponent behaviourComponent : scripts) {
+			DropTarget dropTarget = behaviourComponent.getDropTarget(dragSources);
 			if (dropTarget != null) {
 				dropTargets.add(dropTarget);
 			}

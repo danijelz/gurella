@@ -9,8 +9,8 @@ import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneSystem;
-import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener0;
@@ -76,8 +76,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onInput)) {
-				scriptComponent.onInput();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onInput)) {
+				behaviourComponent.onInput();
 			}
 		}
 	}
@@ -90,8 +90,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onThink)) {
-				scriptComponent.onThink();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onThink)) {
+				behaviourComponent.onThink();
 			}
 		}
 	}
@@ -104,8 +104,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onPreRender)) {
-				scriptComponent.onPreRender();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onPreRender)) {
+				behaviourComponent.onPreRender();
 			}
 		}
 	}
@@ -118,8 +118,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onRender)) {
-				scriptComponent.onRender();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onRender)) {
+				behaviourComponent.onRender();
 			}
 		}
 	}
@@ -132,8 +132,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onDebugRender)) {
-				scriptComponent.onDebugRender();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onDebugRender)) {
+				behaviourComponent.onDebugRender();
 			}
 		}
 	}
@@ -146,8 +146,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onAfterRender)) {
-				scriptComponent.onAfterRender();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onAfterRender)) {
+				behaviourComponent.onAfterRender();
 			}
 		}
 	}
@@ -160,8 +160,8 @@ public class SceneEventsSystem extends SceneSystem {
 
 		@Override
 		public void update() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onCleanup)) {
-				scriptComponent.onCleanup();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onCleanup)) {
+				behaviourComponent.onCleanup();
 			}
 		}
 	}
@@ -170,56 +170,52 @@ public class SceneEventsSystem extends SceneSystem {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : eventSystem
-					.getScriptsByMethod(DefaultScriptMethod.componentActivated)) {
-				scriptComponent.componentActivated(node, component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.componentActivated)) {
+				behaviourComponent.componentActivated(node, component);
 			}
 
-			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
-					DefaultScriptMethod.nodeComponentActivated)) {
-				scriptComponent.nodeComponentActivated(component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+					BehaviourEventCallbacks.nodeComponentActivated)) {
+				behaviourComponent.nodeComponentActivated(component);
 			}
 		}
 
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : eventSystem
-					.getScriptsByMethod(DefaultScriptMethod.componentDeactivated)) {
-				scriptComponent.componentDeactivated(node, component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.componentDeactivated)) {
+				behaviourComponent.componentDeactivated(node, component);
 			}
 
-			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
-					DefaultScriptMethod.nodeComponentDeactivated)) {
-				scriptComponent.nodeComponentDeactivated(component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+					BehaviourEventCallbacks.nodeComponentDeactivated)) {
+				behaviourComponent.nodeComponentDeactivated(component);
 			}
 		}
 
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : eventSystem
-					.getScriptsByMethod(DefaultScriptMethod.componentAdded)) {
-				scriptComponent.componentAdded(node, component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.componentAdded)) {
+				behaviourComponent.componentAdded(node, component);
 			}
 
-			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
-					DefaultScriptMethod.nodeComponentAdded)) {
-				scriptComponent.nodeComponentAdded(component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+					BehaviourEventCallbacks.nodeComponentAdded)) {
+				behaviourComponent.nodeComponentAdded(component);
 			}
 		}
 
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (ScriptComponent scriptComponent : eventSystem
-					.getScriptsByMethod(DefaultScriptMethod.componentRemoved)) {
-				scriptComponent.componentRemoved(node, component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.componentRemoved)) {
+				behaviourComponent.componentRemoved(node, component);
 			}
 
-			for (ScriptComponent scriptComponent : eventSystem.getNodeScriptsByMethod(node,
-					DefaultScriptMethod.nodeComponentRemoved)) {
-				scriptComponent.nodeComponentRemoved(component);
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+					BehaviourEventCallbacks.nodeComponentRemoved)) {
+				behaviourComponent.nodeComponentRemoved(component);
 			}
 		}
 	}
@@ -227,8 +223,8 @@ public class SceneEventsSystem extends SceneSystem {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onSceneStart)) {
-				scriptComponent.onSceneStart();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onSceneStart)) {
+				behaviourComponent.onSceneStart();
 			}
 		}
 	}
@@ -236,8 +232,8 @@ public class SceneEventsSystem extends SceneSystem {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onSceneStop)) {
-				scriptComponent.onSceneStop();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onSceneStop)) {
+				behaviourComponent.onSceneStop();
 			}
 		}
 	}
@@ -245,8 +241,8 @@ public class SceneEventsSystem extends SceneSystem {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onPause)) {
-				scriptComponent.onPause();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onPause)) {
+				behaviourComponent.onPause();
 			}
 		}
 	}
@@ -254,8 +250,8 @@ public class SceneEventsSystem extends SceneSystem {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (ScriptComponent scriptComponent : eventSystem.getScriptsByMethod(DefaultScriptMethod.onResume)) {
-				scriptComponent.onPause();
+			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEventCallbacks.onResume)) {
+				behaviourComponent.onPause();
 			}
 		}
 	}

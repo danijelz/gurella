@@ -4,8 +4,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.graph.behaviour.DefaultScriptMethod;
-import com.gurella.engine.graph.behaviour.ScriptComponent;
+import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
@@ -228,10 +228,10 @@ public final class SceneNode extends SceneGraphElement {
 
 	public void broadcastMessage(Object sender, Object messageType, Object messageData) {
 		if (graph != null) {
-			ImmutableArray<ScriptComponent> listeners = graph.eventSystem.getNodeScriptsByMethod(this,
-					DefaultScriptMethod.onMessage);
+			ImmutableArray<BehaviourComponent> listeners = graph.eventSystem.getListeners(this,
+					BehaviourEventCallbacks.onMessage);
 			for (int i = 0; i < listeners.size(); i++) {
-				ScriptComponent listener = listeners.get(i);
+				BehaviourComponent listener = listeners.get(i);
 				listener.onMessage(sender, messageType, messageData);
 			}
 		}
