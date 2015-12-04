@@ -1,11 +1,11 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.longPress;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onLongPress;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onLongPressGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTap;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTapGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.tap;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.longPress;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onLongPress;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onLongPressGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onTap;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onTapGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.tap;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;

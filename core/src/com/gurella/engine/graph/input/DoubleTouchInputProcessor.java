@@ -3,7 +3,7 @@ package com.gurella.engine.graph.input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.utils.IntLongMap;
@@ -88,7 +88,7 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEventCallbacks.doubleTouchDown)) {
+		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEvents.doubleTouchDown)) {
 			behaviourComponent.doubleTouchDown(touchEvent);
 		}
 
@@ -96,10 +96,10 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEventCallbacks.onDoubleTouchGlobal)) {
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEvents.onDoubleTouchGlobal)) {
 				behaviourComponent.onDoubleTouch(renderableComponent, intersectionTouchEvent);
 			}
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, BehaviourEventCallbacks.onDoubleTouch)) {
+			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, BehaviourEvents.onDoubleTouch)) {
 				behaviourComponent.onDoubleTouch(intersectionTouchEvent);
 			}
 

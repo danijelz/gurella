@@ -106,7 +106,7 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 
 	@Override
 	public int getOrdinal() {
-		return CommonUpdateOrder.STATE_TRANSITION;
+		return CommonUpdateOrder.THINK;
 	}
 
 	public void addListener(STATE state, StateListener<STATE> listener) {

@@ -15,7 +15,7 @@ import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.Listener0;
@@ -104,28 +104,28 @@ public class ScriptManager extends GraphListenerSystem {
 	}
 
 	private static void addNodeListenerMethod(int methodId, BehaviourComponent behaviourComponent) {
-		if (methodId == BehaviourEventCallbacks.nodeComponentAdded.id) {
+		if (methodId == BehaviourEvents.nodeComponentAdded.id) {
 			NodeComponentAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeComponentAdded.id) {
+		} else if (methodId == BehaviourEvents.nodeComponentAdded.id) {
 			NodeComponentAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeComponentRemoved.id) {
+		} else if (methodId == BehaviourEvents.nodeComponentRemoved.id) {
 			NodeComponentRemovedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeComponentActivated.id) {
+		} else if (methodId == BehaviourEvents.nodeComponentActivated.id) {
 			NodeComponentActivatedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeComponentDeactivated.id) {
+		} else if (methodId == BehaviourEvents.nodeComponentDeactivated.id) {
 			NodeComponentDeactivatedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeParentChanged.id) {
+		} else if (methodId == BehaviourEvents.nodeParentChanged.id) {
 			NodeParentChangedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeChildAdded.id) {
+		} else if (methodId == BehaviourEvents.nodeChildAdded.id) {
 			NodeChildAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEventCallbacks.nodeChildRemoved.id) {
+		} else if (methodId == BehaviourEvents.nodeChildRemoved.id) {
 			NodeChildRemovedListener.obtain(behaviourComponent);
 			return;
 		}
@@ -147,7 +147,7 @@ public class ScriptManager extends GraphListenerSystem {
 		}
 	}
 
-	public OrderedSet<BehaviourComponent> getScriptsByMethod(EventCallbackInstance method) {
+	public OrderedSet<BehaviourComponent> getScriptsByMethod(EventCallbackSignature method) {
 		return getScriptsByMethod(method.id);
 	}
 
@@ -160,7 +160,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(SceneNode node, EventCallbackInstance method) {
+	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(SceneNode node, EventCallbackSignature method) {
 		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
 	}
 
@@ -179,7 +179,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<BehaviourComponent> getScriptComponents(EventCallbackInstance scriptMethod) {
+	public OrderedSet<BehaviourComponent> getScriptComponents(EventCallbackSignature scriptMethod) {
 		return getScriptsByMethod(scriptMethod.id);
 	}
 
@@ -190,7 +190,7 @@ public class ScriptManager extends GraphListenerSystem {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != BehaviourComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					EventCallbackInstance scriptMethod = BehaviourEventCallbacks.valueOf(method);
+					EventCallbackSignature scriptMethod = BehaviourEvents.valueOf(method);
 					if (scriptMethod != null) {
 						methods.add(scriptMethod.id);
 					}
@@ -209,7 +209,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onInput)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onInput)) {
 				behaviourComponent.onInput();
 			}
 		}
@@ -223,7 +223,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onThink)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onThink)) {
 				behaviourComponent.onThink();
 			}
 		}
@@ -237,7 +237,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onPreRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onPreRender)) {
 				behaviourComponent.onPreRender();
 			}
 		}
@@ -251,7 +251,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onRender)) {
 				behaviourComponent.onRender();
 			}
 		}
@@ -265,7 +265,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onDebugRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onDebugRender)) {
 				behaviourComponent.onDebugRender();
 			}
 		}
@@ -279,7 +279,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onAfterRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onAfterRender)) {
 				behaviourComponent.onAfterRender();
 			}
 		}
@@ -293,7 +293,7 @@ public class ScriptManager extends GraphListenerSystem {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onCleanup)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onCleanup)) {
 				behaviourComponent.onCleanup();
 			}
 		}
@@ -303,11 +303,11 @@ public class ScriptManager extends GraphListenerSystem {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentActivated)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentActivated)) {
 				behaviourComponent.componentActivated(node, component);
 			}
 
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.nodeComponentActivated)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.nodeComponentActivated)) {
 				behaviourComponent.nodeComponentActivated(component);
 			}
 		}
@@ -315,7 +315,7 @@ public class ScriptManager extends GraphListenerSystem {
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentDeactivated)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentDeactivated)) {
 				behaviourComponent.componentDeactivated(node, component);
 			}
 		}
@@ -323,7 +323,7 @@ public class ScriptManager extends GraphListenerSystem {
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentAdded)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentAdded)) {
 				behaviourComponent.componentAdded(node, component);
 			}
 		}
@@ -331,7 +331,7 @@ public class ScriptManager extends GraphListenerSystem {
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.componentRemoved)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentRemoved)) {
 				behaviourComponent.componentRemoved(node, component);
 			}
 		}
@@ -340,7 +340,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onSceneStart)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onSceneStart)) {
 				behaviourComponent.onSceneStart();
 			}
 		}
@@ -349,7 +349,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onSceneStop)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onSceneStop)) {
 				behaviourComponent.onSceneStop();
 			}
 		}
@@ -358,7 +358,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onPause)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onPause)) {
 				behaviourComponent.onPause();
 			}
 		}
@@ -367,7 +367,7 @@ public class ScriptManager extends GraphListenerSystem {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEventCallbacks.onResume)) {
+			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onResume)) {
 				behaviourComponent.onPause();
 			}
 		}

@@ -7,9 +7,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.InternalTickCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graph.SceneGraph;
-import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
-import com.gurella.engine.graph.event.EventCallbackInstance;
+import com.gurella.engine.graph.event.EventCallbackSignature;
 import com.gurella.engine.utils.ImmutableArray;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
@@ -66,33 +66,33 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		if (previousTickCollisionPairs.contains(cachedCollisionPair)) {
 			rigidBodyComponent0.collisionSignal.onCollisionStay(collision0);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
-					BehaviourEventCallbacks.onCollisionStay)) {
+					BehaviourEvents.onCollisionStay)) {
 				behaviourComponent.onCollisionStay(collision0);
 			}
 
 			rigidBodyComponent1.collisionSignal.onCollisionStay(collision1);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
-					BehaviourEventCallbacks.onCollisionStay)) {
+					BehaviourEvents.onCollisionStay)) {
 				behaviourComponent.onCollisionStay(collision1);
 			}
 
-			for (BehaviourComponent behaviourComponent : getScripts(BehaviourEventCallbacks.onCollisionStayGlobal)) {
+			for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onCollisionStayGlobal)) {
 				behaviourComponent.onCollisionStay(collisionPair);
 			}
 		} else {
 			rigidBodyComponent0.collisionSignal.onCollisionEnter(collision0);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
-					BehaviourEventCallbacks.onCollisionEnter)) {
+					BehaviourEvents.onCollisionEnter)) {
 				behaviourComponent.onCollisionEnter(collision0);
 			}
 
 			rigidBodyComponent1.collisionSignal.onCollisionEnter(collision1);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
-					BehaviourEventCallbacks.onCollisionEnter)) {
+					BehaviourEvents.onCollisionEnter)) {
 				behaviourComponent.onCollisionEnter(collision1);
 			}
 
-			for (BehaviourComponent behaviourComponent : getScripts(BehaviourEventCallbacks.onCollisionEnterGlobal)) {
+			for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onCollisionEnterGlobal)) {
 				behaviourComponent.onCollisionEnter(collisionPair);
 			}
 		}
@@ -118,23 +118,23 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 
 		rigidBodyComponent0.collisionSignal.onCollisionExit(rigidBodyComponent1);
 		for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
-				BehaviourEventCallbacks.onCollisionExit)) {
+				BehaviourEvents.onCollisionExit)) {
 			behaviourComponent.onCollisionExit(rigidBodyComponent1);
 		}
 
 		rigidBodyComponent1.collisionSignal.onCollisionExit(rigidBodyComponent0);
 		for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
-				BehaviourEventCallbacks.onCollisionExit)) {
+				BehaviourEvents.onCollisionExit)) {
 			behaviourComponent.onCollisionExit(rigidBodyComponent0);
 		}
 
-		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEventCallbacks.onCollisionExitGlobal)) {
+		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onCollisionExitGlobal)) {
 			behaviourComponent.onCollisionExit(rigidBodyComponent0, rigidBodyComponent1);
 		}
 	}
 
 	private ImmutableArray<BehaviourComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
-			EventCallbackInstance<BehaviourComponent> scriptMethod) {
+			EventCallbackSignature<BehaviourComponent> scriptMethod) {
 		return graph.eventSystem.getListeners(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
@@ -145,12 +145,12 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private void fireSimulationStepEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
-		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEventCallbacks.onPhysicsSimulationStep)) {
+		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onPhysicsSimulationStep)) {
 			behaviourComponent.onPhysicsSimulationStep(dynamicsWorld, timeStep);
 		}
 	}
 
-	private ImmutableArray<BehaviourComponent> getScripts(EventCallbackInstance<BehaviourComponent> method) {
+	private ImmutableArray<BehaviourComponent> getScripts(EventCallbackSignature<BehaviourComponent> method) {
 		return graph.eventSystem.getListeners(method);
 	}
 

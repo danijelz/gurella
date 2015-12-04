@@ -1,17 +1,17 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.keyDown;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.keyTyped;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.keyUp;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onScrolledGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchDown;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchDownGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchUp;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onTouchUpGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.scrolled;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchDown;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchDragged;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchUp;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.keyDown;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.keyTyped;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.keyUp;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onScrolledGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onTouchDown;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onTouchDownGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onTouchUp;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onTouchUpGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.scrolled;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.touchDown;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.touchDragged;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.touchUp;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.begin;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.end;
 import static com.gurella.engine.graph.input.PointerTrack.PointerTrackerPhase.move;
@@ -38,7 +38,7 @@ import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.camera.CameraComponent;
-import com.gurella.engine.graph.event.EventCallbackInstance;
+import com.gurella.engine.graph.event.EventCallbackSignature;
 import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
@@ -358,11 +358,11 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		return CommonUpdateOrder.INPUT;
 	}
 	
-	ImmutableArray<BehaviourComponent> getListeners(EventCallbackInstance<BehaviourComponent> method) {
+	ImmutableArray<BehaviourComponent> getListeners(EventCallbackSignature<BehaviourComponent> method) {
 		return eventSystem.getListeners(method);
 	}
 
-	ImmutableArray<BehaviourComponent> getListeners(SceneNode node, EventCallbackInstance<BehaviourComponent> method) {
+	ImmutableArray<BehaviourComponent> getListeners(SceneNode node, EventCallbackSignature<BehaviourComponent> method) {
 		return eventSystem.getListeners(node, method);
 	}
 

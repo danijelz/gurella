@@ -1,7 +1,7 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.getDragSource;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.getDropTarget;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.getDragSource;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.getDropTarget;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;

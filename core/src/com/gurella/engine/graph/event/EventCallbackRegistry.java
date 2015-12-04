@@ -9,19 +9,19 @@ import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.utils.ReflectionUtils;
 
 class EventCallbackRegistry {
-	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackInstance<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackInstance<?>>>();
-	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackInstance<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackInstance<?>>>();
+	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackSignature<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackSignature<?>>>();
+	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackSignature<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackSignature<?>>>();
 
 	static {
-		markerCallbacks.put(SceneNodeComponent.class, new ObjectSet<EventCallbackInstance<?>>());
-		callbacks.put(SceneNodeComponent.class, new ObjectSet<EventCallbackInstance<?>>());
+		markerCallbacks.put(SceneNodeComponent.class, new ObjectSet<EventCallbackSignature<?>>());
+		callbacks.put(SceneNodeComponent.class, new ObjectSet<EventCallbackSignature<?>>());
 	}
 
 	private EventCallbackRegistry() {
 	}
 
-	static synchronized ObjectSet<EventCallbackInstance<?>> getCallbacks(Class<?> componentClass) {
-		ObjectSet<EventCallbackInstance<?>> methods = callbacks.get(componentClass);
+	static synchronized ObjectSet<EventCallbackSignature<?>> getCallbacks(Class<?> componentClass) {
+		ObjectSet<EventCallbackSignature<?>> methods = callbacks.get(componentClass);
 		if (methods != null) {
 			return methods;
 		}
@@ -35,8 +35,8 @@ class EventCallbackRegistry {
 			return;
 		}
 
-		ObjectSet<EventCallbackInstance<?>> methods = new ObjectSet<EventCallbackInstance<?>>();
-		ObjectSet<EventCallbackInstance<?>> markerMethods = new ObjectSet<EventCallbackInstance<?>>();
+		ObjectSet<EventCallbackSignature<?>> methods = new ObjectSet<EventCallbackSignature<?>>();
+		ObjectSet<EventCallbackSignature<?>> markerMethods = new ObjectSet<EventCallbackSignature<?>>();
 
 		// TODO replace with ClassReflection.getInterfaces(componentClass)
 		Class<?>[] interfaces = componentClass.getInterfaces();
@@ -44,11 +44,11 @@ class EventCallbackRegistry {
 			Class<?> componentInterface = interfaces[i];
 			initCallbacks(componentInterface);
 
-			ObjectSet<EventCallbackInstance<?>> interfaceMarkerMethods = markerCallbacks.get(componentInterface);
+			ObjectSet<EventCallbackSignature<?>> interfaceMarkerMethods = markerCallbacks.get(componentInterface);
 			if (componentClass.isInterface()) {
 				markerMethods.addAll(interfaceMarkerMethods);
 			} else {
-				for (EventCallbackInstance<?> interfaceMarkerMethod : interfaceMarkerMethods) {
+				for (EventCallbackSignature<?> interfaceMarkerMethod : interfaceMarkerMethods) {
 					if (!methods.contains(interfaceMarkerMethod)) {
 						markerMethods.add(interfaceMarkerMethod);
 					}
@@ -65,7 +65,7 @@ class EventCallbackRegistry {
 		}
 
 		for (Method method : ClassReflection.getDeclaredMethods(componentClass)) {
-			EventCallbackInstance<?> descriptor = find(markerMethods, method);
+			EventCallbackSignature<?> descriptor = find(markerMethods, method);
 
 			if (descriptor == null) {
 				descriptor = find(methods, method);
@@ -73,7 +73,7 @@ class EventCallbackRegistry {
 					EventCallback callbackAnnotation = ReflectionUtils.getDeclaredAnnotation(method,
 							EventCallback.class);
 					if (callbackAnnotation != null) {
-						descriptor = new EventCallbackInstance<SceneNodeComponent>(method, callbackAnnotation);
+						descriptor = new EventCallbackSignature<SceneNodeComponent>(method, callbackAnnotation);
 						if (callbackAnnotation.marker() || componentClass.isInterface()) {
 							markerMethods.add(descriptor);
 						} else {
@@ -91,9 +91,9 @@ class EventCallbackRegistry {
 		markerCallbacks.put(componentClass, markerMethods);
 	}
 
-	private static EventCallbackInstance<?> find(ObjectSet<EventCallbackInstance<?>> callbacks, Method method) {
+	private static EventCallbackSignature<?> find(ObjectSet<EventCallbackSignature<?>> callbacks, Method method) {
 		if (callbacks != null) {
-			for (EventCallbackInstance<?> callback : callbacks) {
+			for (EventCallbackSignature<?> callback : callbacks) {
 				if (callback.isEqual(method)) {
 					return callback;
 				}

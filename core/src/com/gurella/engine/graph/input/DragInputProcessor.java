@@ -1,17 +1,17 @@
 package com.gurella.engine.graph.input;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragEnd;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragEndGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragMove;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragMoveGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragOverEnd;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragOverEndGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragOverMove;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragOverMoveGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragOverStartGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragStart;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onDragStartGlobal;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.touchDragged;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragEnd;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragEndGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragMove;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragMoveGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragOverEnd;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragOverEndGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragOverMove;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragOverMoveGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragOverStartGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragStart;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDragStartGlobal;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.touchDragged;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graph.SceneNode;

@@ -6,40 +6,38 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.graph.event.EventCallbackDecorator.NopEventCallbackDecorator;
-import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
-public final class EventCallbackInstance<T> {
+public final class EventCallbackSignature<T> {
 	private static int INDEX = 0;
-	private static final ObjectMap<String, EventCallbackInstance<?>> instancesById = new ObjectMap<String, EventCallbackInstance<?>>();
+	private static final ObjectMap<String, EventCallbackSignature<?>> instancesById = new ObjectMap<String, EventCallbackSignature<?>>();
 
 	public final int id;
 	public final Class<T> declaringClass;
 	public final String name;
 	public final Class<?>[] parameterTypes;
-	final EventCallbackDecorator decorator;
+	final Class<? extends EventTrigger> triggerClass;
 
-	public static <T> EventCallbackInstance<T> get(Class<T> declaringClass, String id) {
+	public static <T> EventCallbackSignature<T> get(Class<T> declaringClass, String id) {
 		EventCallbackRegistry.initCallbacks(declaringClass);
 		@SuppressWarnings("unchecked")
-		EventCallbackInstance<T> instance = (EventCallbackInstance<T>) instancesById.get(declaringClass.getName() + id);
+		EventCallbackSignature<T> instance = (EventCallbackSignature<T>) instancesById
+				.get(declaringClass.getName() + id);
 		if (instance == null) {
-			throw new GdxRuntimeException("Can't find callback: [declaringClass=" + declaringClass + ", id=" + id + "]");
+			throw new GdxRuntimeException(
+					"Can't find callback: [declaringClass=" + declaringClass + ", id=" + id + "]");
 		}
 		return instance;
 	}
 
-	EventCallbackInstance(Method method, EventCallback callbackAnnotation) {
+	EventCallbackSignature(Method method, EventCallback callbackAnnotation) {
 		id = INDEX++;
 		@SuppressWarnings("unchecked")
 		Class<T> castedDeclaringClass = method.getDeclaringClass();
 		declaringClass = castedDeclaringClass;
 		name = method.getName();
 		parameterTypes = method.getParameterTypes();
-		Class<? extends EventCallbackDecorator> decoratorClass = callbackAnnotation.decorator();
-		decorator = decoratorClass == null || EventCallbackDecorator.class == decoratorClass
-				? NopEventCallbackDecorator.instance : ReflectionUtils.newInstance(decoratorClass);
+		triggerClass = callbackAnnotation.trigger();
 
 		String id = callbackAnnotation.id();
 		id = ValueUtils.isEmpty(id) ? method.getName() : id;
@@ -47,7 +45,7 @@ public final class EventCallbackInstance<T> {
 		if (instancesById.containsKey(fullId)) {
 			throw new GdxRuntimeException("Duplicate event id: [declaringClass=" + declaringClass + ", id=" + id + "]");
 		}
-		
+
 		instancesById.put(fullId, this);
 	}
 

@@ -5,15 +5,15 @@ import com.gurella.engine.utils.IndexedType;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public abstract class SceneSystem extends SceneGraphElement {
-	private static final ObjectIntMap<Class<? extends SceneSystem>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem>>(); 
+	private static final ObjectIntMap<Class<? extends SceneSystem>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem>>();
 	private static IndexedType<SceneSystem> SYSTEM_TYPE_INDEXER = new IndexedType<SceneSystem>();
 
+	public final int baseSystemType;
 	public final int systemType;
-	public final int implementationSystemType;
 
 	public SceneSystem() {
-		systemType = getSystemType(getClass());
-		implementationSystemType = SYSTEM_TYPE_INDEXER.getType(getClass());
+		baseSystemType = getSystemType(getClass());
+		systemType = SYSTEM_TYPE_INDEXER.getType(getClass());
 	}
 
 	public static int getSystemType(SceneSystem system) {
@@ -25,14 +25,14 @@ public abstract class SceneSystem extends SceneGraphElement {
 		if (type != -1) {
 			return type;
 		}
-		
+
 		type = SYSTEM_TYPE_INDEXER.findType(systemClass, -1);
 		if (type != -1) {
 			return type;
 		}
-		
+
 		Class<? extends SceneSystem> baseSystemType = findBaseSystemType(systemClass);
-		if(baseSystemType == null) {
+		if (baseSystemType == null) {
 			return SYSTEM_TYPE_INDEXER.getType(systemClass);
 		} else {
 			type = SYSTEM_TYPE_INDEXER.getType(baseSystemType);
@@ -45,29 +45,29 @@ public abstract class SceneSystem extends SceneGraphElement {
 		Class<?> temp = systemClass;
 		while (temp != null && !SceneSystem.class.equals(systemClass) && !Object.class.equals(systemClass)) {
 			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(temp, BaseSceneElementType.class);
-			if(annotation != null) {
+			if (annotation != null) {
 				@SuppressWarnings("unchecked")
 				Class<? extends SceneSystem> casted = (Class<? extends SceneSystem>) temp;
 				return casted;
 			}
-			
+
 			temp = temp.getSuperclass();
 		}
 		return null;
 	}
-	
+
 	public static int getImplementationSystemType(SceneSystem system) {
 		return getImplementationSystemType(system.getClass());
 	}
-	
+
 	public static int getImplementationSystemType(Class<? extends SceneSystem> systemClass) {
 		int type = SYSTEM_TYPE_INDEXER.findType(systemClass, -1);
 		if (type != -1) {
 			return type;
 		}
-		
+
 		Class<? extends SceneSystem> baseSystemType = findBaseSystemType(systemClass);
-		if(baseSystemType == null) {
+		if (baseSystemType == null) {
 			return SYSTEM_TYPE_INDEXER.getType(systemClass);
 		} else {
 			int baseType = SYSTEM_TYPE_INDEXER.getType(baseSystemType);
@@ -77,11 +77,11 @@ public abstract class SceneSystem extends SceneGraphElement {
 	}
 
 	public int getSystemType() {
-		return systemType;
+		return baseSystemType;
 	}
-	
+
 	public int getImplementationSystemType() {
-		return implementationSystemType;
+		return systemType;
 	}
 
 	@Override
@@ -118,16 +118,14 @@ public abstract class SceneSystem extends SceneGraphElement {
 		disposedSignal.dispatch();
 		INDEXER.removeIndexed(this);
 	}
-	
+
 	@Override
 	public final void setEnabled(boolean enabled) {
-		if(this.enabled == enabled) {
-			return;
-		} else {
+		if (this.enabled != enabled) {
 			this.enabled = enabled;
-			if(!enabled && active) {
+			if (!enabled && active) {
 				deactivate();
-			} else if(enabled && !active) {
+			} else if (enabled && !active) {
 				activate();
 			}
 		}

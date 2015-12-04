@@ -1,7 +1,7 @@
 package com.gurella.engine.graph.bullet;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onPhysicsSimulationEnd;
-import static com.gurella.engine.graph.behaviour.BehaviourEventCallbacks.onPhysicsSimulationStart;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onPhysicsSimulationEnd;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onPhysicsSimulationStart;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;

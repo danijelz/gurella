@@ -6,16 +6,22 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.event.EventTrigger.NopEventTrigger;
 import com.gurella.engine.utils.ArrayExt;
-import com.gurella.engine.utils.Consumer;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ReflectionUtils;
 
 public class EventSystem extends GraphListenerSystem {
 	private final IntMap<ArrayExt<SceneNodeComponent>> componentsByCallback = new IntMap<ArrayExt<SceneNodeComponent>>();
 	private final IntMap<IntMap<ArrayExt<SceneNodeComponent>>> nodeComponentsByCallback = new IntMap<IntMap<ArrayExt<SceneNodeComponent>>>();
+	private final IntMap<EventTrigger> triggers = new IntMap<EventTrigger>();
 
 	@Override
 	protected void activated() {
+		for (EventTrigger trigger : triggers.values()) {
+			trigger.activated();
+		}
+
 		ImmutableArray<? extends SceneNodeComponent> components = getGraph().activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
@@ -24,6 +30,10 @@ public class EventSystem extends GraphListenerSystem {
 
 	@Override
 	protected void deactivated() {
+		for (EventTrigger trigger : triggers.values()) {
+			trigger.deactivated();
+		}
+
 		componentsByCallback.clear();
 		nodeComponentsByCallback.clear();
 	}
@@ -31,22 +41,36 @@ public class EventSystem extends GraphListenerSystem {
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
 		int nodeId = component.getNode().id;
-		for (EventCallbackInstance<?> callback : getCallbacks(component.getClass())) {
+		for (EventCallbackSignature<?> callback : getCallbacks(component.getClass())) {
 			int callbackId = callback.id;
 			findListeners(callbackId).add(component);
 			findListeners(nodeId, callbackId).add(component);
-			callback.decorator.componentActivated(component);
+			ensureTrigger(callback);
+		}
+	}
+
+	private void ensureTrigger(EventCallbackSignature<?> callback) {
+		int callbackId = callback.id;
+		if (!triggers.containsKey(callbackId)) {
+			Class<? extends EventTrigger> triggerClass = callback.triggerClass;
+			if (NopEventTrigger.class.equals(triggerClass)) {
+				triggers.put(callbackId, NopEventTrigger.instance);
+			} else {
+				EventTrigger trigger = ReflectionUtils.newInstance(triggerClass);
+				trigger.eventSystem = this;
+				trigger.activated();
+				triggers.put(callbackId, trigger);
+			}
 		}
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
 		int nodeId = component.getNode().id;
-		for (EventCallbackInstance<?> callback : getCallbacks(component.getClass())) {
+		for (EventCallbackSignature<?> callback : getCallbacks(component.getClass())) {
 			int callbackId = callback.id;
 			componentsByCallback.get(callbackId).removeValue(component, true);
 			findListeners(nodeId, callbackId).removeValue(component, true);
-			callback.decorator.componentDeactivated(component);
 		}
 	}
 
@@ -75,14 +99,13 @@ public class EventSystem extends GraphListenerSystem {
 		return listeners;
 	}
 
-	public <T extends SceneNodeComponent> ImmutableArray<T> getListeners(EventCallbackInstance<T> callback) {
+	public <T> ImmutableArray<T> getListeners(EventCallbackSignature<T> callback) {
 		@SuppressWarnings("unchecked")
 		ArrayExt<T> listeners = (ArrayExt<T>) componentsByCallback.get(callback.id);
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	public <T extends SceneNodeComponent> ImmutableArray<T> getListeners(SceneNode node,
-			EventCallbackInstance<T> callback) {
+	public <T> ImmutableArray<T> getListeners(SceneNode node, EventCallbackSignature<T> callback) {
 		int nodeId = node.id;
 		IntMap<ArrayExt<SceneNodeComponent>> listenersByNode = nodeComponentsByCallback.get(nodeId);
 		if (listenersByNode == null) {
@@ -95,22 +118,19 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	// TODO remove
-	public <T extends SceneNodeComponent> void execute(SceneNode node, EventCallbackInstance<T> callback,
-			Consumer<T> consumer) {
-		ImmutableArray<T> listeners = getListeners(node, callback);
+	public <T> void notify(SceneNode node, CallbackEvent<T> event) {
+		ImmutableArray<T> listeners = getListeners(node, event.eventCallbackSignature);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
-			consumer.accept(script);
+			event.notify(script);
 		}
 	}
 
-	public <T extends SceneNodeComponent> void execute(Class<T> declaringClass, String id, SceneNode node,
-			Consumer<T> consumer) {
-		EventCallbackInstance<T> callback = EventCallbackInstance.get(declaringClass, id);
-		ImmutableArray<T> listeners = getListeners(node, callback);
+	public <T> void notify(CallbackEvent<T> event) {
+		ImmutableArray<T> listeners = getListeners(event.eventCallbackSignature);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
-			consumer.accept(script);
+			event.notify(script);
 		}
 	}
 }

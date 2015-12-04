@@ -21,6 +21,7 @@ import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Listener0;
+import com.gurella.engine.signal.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class SceneGraph implements UpdateListener {
@@ -43,8 +44,11 @@ public class SceneGraph implements UpdateListener {
 
 	private Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
 
-	// TODO add seperate state listeners
-	private SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
+	public final Signal1Impl<SceneNodeComponent> componentAddedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1Impl<SceneNodeComponent> componentRemovedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1Impl<SceneNodeComponent> componentActivatedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1Impl<SceneNodeComponent> componentDeactivatedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
 	public final ComponentManager componentManager;
 	public final NodeManager nodeManager;
@@ -76,7 +80,7 @@ public class SceneGraph implements UpdateListener {
 		addSystemSafely(eventSystem);
 
 		spatialPartitioningManager = new BvhSpatialPartitioningManager();
-		addSystemSafely(spatialPartitioningManager) ;
+		addSystemSafely(spatialPartitioningManager);
 
 		inputSystem = new InputSystem();
 		addSystemSafely(inputSystem);
@@ -126,7 +130,7 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	void addSystemSafely(SceneSystem system) {
-		int systemType = system.systemType;
+		int systemType = system.baseSystemType;
 
 		if (allSystems.containsKey(systemType)) {
 			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
@@ -152,7 +156,7 @@ public class SceneGraph implements UpdateListener {
 
 	void activateSystem(SceneSystem system) {
 		if (system.graph != this) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("System does not belong to graph.");
 		}
 
 		pendingOperations.add(GraphOperation.obtain().activateSystem(system));
@@ -168,7 +172,7 @@ public class SceneGraph implements UpdateListener {
 
 	void deactivateSystem(SceneSystem system) {
 		if (system.graph != this) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("System does not belong to graph.");
 		}
 
 		pendingOperations.add(GraphOperation.obtain().deactivateSystem(system));
@@ -184,7 +188,7 @@ public class SceneGraph implements UpdateListener {
 
 	public void removeSystem(SceneSystem system) {
 		if (system.graph != this) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Node does not belong to graph.");
 		}
 
 		pendingOperations.add(GraphOperation.obtain().detachSystem(system));
@@ -195,7 +199,7 @@ public class SceneGraph implements UpdateListener {
 		system.lifecycleSignal.detached();
 		system.scene = null;
 		system.graph = null;
-		allSystems.remove(system.systemType);
+		allSystems.remove(system.baseSystemType);
 	}
 
 	public <T extends SceneSystem> T getSystem(Class<T> systemClass) {
@@ -364,7 +368,7 @@ public class SceneGraph implements UpdateListener {
 
 	void deactivateNode(SceneNode node) {
 		if (node.graph != this) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Node does not belong to graph.");
 		}
 
 		pendingOperations.add(GraphOperation.obtain().deactivateNode(node));
@@ -404,6 +408,7 @@ public class SceneGraph implements UpdateListener {
 		if (node.parent != null) {
 			node.parent.childrenInternal.removeValue(node, true);
 			node.parent = null;
+			node.nodeChangedSignal.parentChanged(null);
 		}
 	}
 
@@ -468,29 +473,33 @@ public class SceneGraph implements UpdateListener {
 		}
 	}
 
-	private static class SceneGraphListenerSignal extends AbstractSignal<SceneGraphListener> {
+	public class SceneGraphListenerSignal extends AbstractSignal<SceneGraphListener> {
 		public void componentActivated(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentActivated(component);
 			}
+			componentActivatedSignal.dispatch(component);
 		}
 
 		public void componentDeactivated(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentDeactivated(component);
 			}
+			componentDeactivatedSignal.dispatch(component);
 		}
 
 		public void componentAdded(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentAdded(component);
 			}
+			componentAddedSignal.dispatch(component);
 		}
 
 		public void componentRemoved(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentRemoved(component);
 			}
+			componentRemovedSignal.dispatch(component);
 		}
 	}
 }

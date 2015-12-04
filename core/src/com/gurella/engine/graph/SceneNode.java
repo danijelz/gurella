@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.graph.behaviour.BehaviourEventCallbacks;
+import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
@@ -193,43 +193,40 @@ public final class SceneNode extends SceneGraphElement {
 			throw new IllegalStateException("Child already belongs to node.");
 		}
 
-		if (graph == null) {
-			if (child.graph != null) {
-				throw new IllegalStateException("Child is owned by other graph.");
-			}
+		if (child.graph != graph) {
+			throw new IllegalStateException("Child is owned by other graph.");
+		}
 
-			child.parent = this;
-			childrenInternal.add(child);
+		child.parent = this;
+		childrenInternal.add(child);
+
+		if (graph == null) {
 			nodeChangedSignal.childAdded(child);
 			child.nodeChangedSignal.parentChanged(child);
-		} else {
-			child.parent = this;
-			childrenInternal.add(child);
-
-			if (child.graph == null) {
-				graph.addNode(child);
-			}
+		} else if (child.graph == null) {
+			graph.addNode(child);
 		}
 	}
 
 	public void removeChild(SceneNode child) {
-		if (child.parent == this) {
-			if (child.graph != null) {
-				graph.removeNode(child);
-			}
+		if (child.parent != this) {
+			throw new IllegalStateException("Child is not owned by node.");
+		}
 
+		if (child.graph != null) {
+			graph.removeNode(child);
+		} else {
 			// TODO graph must handle child
 			childrenInternal.removeValue(child, true);
+			child.parent = null;
 			child.nodeChangedSignal.parentChanged(null);
-		} else {
-			throw new IllegalStateException("Child is not owned by node.");
 		}
 	}
 
 	public void broadcastMessage(Object sender, Object messageType, Object messageData) {
 		if (graph != null) {
 			ImmutableArray<BehaviourComponent> listeners = graph.eventSystem.getListeners(this,
-					BehaviourEventCallbacks.onMessage);
+					BehaviourEvents.onMessage);
 			for (int i = 0; i < listeners.size(); i++) {
 				BehaviourComponent listener = listeners.get(i);
 				listener.onMessage(sender, messageType, messageData);

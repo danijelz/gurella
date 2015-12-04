@@ -18,7 +18,6 @@ import com.gurella.engine.graph.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.graph.bullet.Collision;
 import com.gurella.engine.graph.bullet.CollisionPair;
 import com.gurella.engine.graph.event.EventCallback;
-import com.gurella.engine.graph.event.decorator.NodeComponentAddedDecorator;
 import com.gurella.engine.graph.input.DragSource;
 import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.DropTarget;
@@ -37,11 +36,11 @@ import com.gurella.engine.utils.ImmutableArray;
 //TODO move methods to parent classes
 public abstract class BehaviourComponent extends SceneNodeComponent {
 	// UPDATE EVENTS
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnInputUpdateTrigger.class, marker = true)
 	public void onInput() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnThinkUpdateTrigger.class, marker = true)
 	public void onThink() {
 	}
 
@@ -370,7 +369,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true, decorator = NodeComponentAddedDecorator.class)
+	@EventCallback(marker = true, trigger = NodeComponentAddedTrigger.class)
 	public void nodeComponentAdded(SceneNodeComponent component) {
 	}
 
