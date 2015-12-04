@@ -15,11 +15,6 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.signal.Listener0;
 
 public class SceneEventsTrgger extends EventTrigger {
-	private final OnPreRenderUpdateListener onPreRenderUpdateListener = new OnPreRenderUpdateListener();
-	private final OnRenderUpdateListener onRenderUpdateListener = new OnRenderUpdateListener();
-	private final OnDebugRenderUpdateListener onDebugRenderUpdateListener = new OnDebugRenderUpdateListener();
-	private final OnAfterRenderUpdateListener onAfterRenderUpdateListener = new OnAfterRenderUpdateListener();
-	private final OnCleanupUpdateListener onCleanupUpdateListener = new OnCleanupUpdateListener();
 	private final ScriptSceneGraphListener scriptSceneGraphListener = new ScriptSceneGraphListener();
 	private final SceneStartListener sceneStartListener = new SceneStartListener();
 	private final SceneStopListener sceneStopListener = new SceneStopListener();
@@ -28,14 +23,9 @@ public class SceneEventsTrgger extends EventTrigger {
 
 	@Override
 	protected void activated() {
-		EventService.addListener(UpdateEvent.class, onPreRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onDebugRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onAfterRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onCleanupUpdateListener);
 		eventSystem.getGraph().addListener(scriptSceneGraphListener);
 		Scene scene = eventSystem.getScene();
-		scene.startSignal.addListener(sceneStartListener);
+		eventSystem.getScene().startSignal.addListener(sceneStartListener);
 		scene.stopSignal.addListener(sceneStopListener);
 		scene.pauseSignal.addListener(pauseListener);
 		scene.resumeSignal.addListener(resumeListener);
@@ -43,11 +33,6 @@ public class SceneEventsTrgger extends EventTrigger {
 
 	@Override
 	protected void deactivated() {
-		EventService.removeListener(UpdateEvent.class, onPreRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onDebugRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onAfterRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onCleanupUpdateListener);
 		eventSystem.getGraph().removeListener(scriptSceneGraphListener);
 		Scene scene = eventSystem.getScene();
 		scene.startSignal.removeListener(sceneStartListener);

@@ -44,23 +44,23 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	public void onThink() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnPreRenderUpdateTrigger.class, marker = true)
 	public void onPreRender() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnRenderUpdateTrigger.class, marker = true)
 	public void onRender() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnDebugRenderUpdateTrigger.class, marker = true)
 	public void onDebugRender() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnAfterRenderUpdateTrigger.class, marker = true)
 	public void onAfterRender() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = OnCleanupUpdateTrigger.class, marker = true)
 	public void onCleanup() {
 	}
 
@@ -369,25 +369,26 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true, trigger = NodeComponentAddedTrigger.class)
+	@EventCallback(trigger = NodeComponentAddedTrigger.class, marker = true)
 	public void nodeComponentAdded(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = NodeComponentRemovedTrigger.class, marker = true)
 	public void nodeComponentRemoved(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = NodeComponentActivatedTrigger.class, marker = true)
 	public void nodeComponentActivated(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = NodeComponentDeactivatedTrigger.class, marker = true)
 	public void nodeComponentDeactivated(SceneNodeComponent component) {
 	}
 
+	// TODO triggers
 	@SuppressWarnings("unused")
 	@EventCallback(marker = true)
 	public void nodeParentChanged(SceneNode newParent) {
@@ -403,27 +404,27 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	public void nodeChildRemoved(SceneNode child) {
 	}
 
-	// TODO global node events
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = ComponentAddedTrigger.class, marker = true)
 	public void componentAdded(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = ComponentRemovedTrigger.class, marker = true)
 	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = ComponentActivatedTrigger.class, marker = true)
 	public void componentActivated(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventCallback(marker = true)
+	@EventCallback(trigger = ComponentDeactivatedTrigger.class, marker = true)
 	public void componentDeactivated(SceneNode node, SceneNodeComponent component) {
 	}
 
+	// TODO triggers
 	@SuppressWarnings("unused")
 	@EventCallback(marker = true)
 	public void parentChanged(SceneNode node, SceneNode newParent) {
@@ -440,20 +441,20 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// SCENE EVENTS
-	@EventCallback(marker = true)
+	@EventCallback(trigger = SceneStartTrigger.class, marker = true)
 	public void onSceneStart() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = SceneStopTrigger.class, marker = true)
 	public void onSceneStop() {
 	}
 
 	// APPLICATION EVENTS
-	@EventCallback(marker = true)
+	@EventCallback(trigger = PauseTrigger.class, marker = true)
 	public void onPause() {
 	}
 
-	@EventCallback(marker = true)
+	@EventCallback(trigger = ResumeTrigger.class, marker = true)
 	public void onResume() {
 	}
 
@@ -487,18 +488,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// //////////TODO METHODS
-	public void sendMessage(Object message) {
-
-	}
-
-	public void sendMessageToChildren(Object message) {
-
-	}
-
-	public void sendMessageToParents(Object message) {
-
-	}
-
 	// TODO getActiveComponent getComponentSafely
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);
@@ -560,7 +549,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	public void runAction(final Action action) {
 	}
 
-	public SceneNode getNodeParent() {
+	public SceneNode getParentNode() {
 		SceneNode node = getNode();
 		return node == null ? null : node.getParent();
 	}
@@ -600,31 +589,27 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 		return null;
 	}
 
-	public void registerNodeGroup(SceneNodeFamily nodeGroup) {
+	public void registerNodeFamily(SceneNodeFamily nodeFamily) {
 
 	}
 
-	public void unregisterNodeGroup(SceneNodeFamily nodeGroup) {
+	public void unregisterNodeFamily(SceneNodeFamily nodeFamily) {
 
 	}
 
-	public Array<SceneNode> getNodes(SceneNodeFamily nodeGroup) {
+	public Array<SceneNode> getNodes(SceneNodeFamily nodeFamily) {
 		return null;
 	}
 
-	public ComponentFamily<?>[] registerComponentGroupsOnInit() {
-		return null;
-	}
-
-	public void registerComponentGroup(ComponentFamily<?> componentGroup) {
+	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily<T> componentFamily) {
 
 	}
 
-	public void unregisterComponentGroup(ComponentFamily<?> componentGroup) {
+	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily<?> componentFamily) {
 
 	}
 
-	public Array<SceneNodeComponent> getComponents(ComponentFamily<?> componentGroup) {
+	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily<T> componentFamily) {
 		return null;
 	}
 
