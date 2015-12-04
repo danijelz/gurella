@@ -65,14 +65,17 @@ public class ImmutableArray<T> implements Iterable<T> {
 		return array.toArray(type);
 	}
 
+	@Override
 	public int hashCode() {
 		return array.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object object) {
 		return array.equals(object);
 	}
 
+	@Override
 	public String toString() {
 		return array.toString();
 	}

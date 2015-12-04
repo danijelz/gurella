@@ -1,10 +1,5 @@
 package com.gurella.engine.graph.event.decorator;
 
-import com.gurella.engine.application.CommonUpdateOrder;
-import com.gurella.engine.application.UpdateEvent;
-import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.event.EventService;
-import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -39,104 +34,6 @@ public class SceneEventsTrgger extends EventTrigger {
 		scene.stopSignal.removeListener(sceneStopListener);
 		scene.pauseSignal.removeListener(pauseListener);
 		scene.resumeSignal.removeListener(resumeListener);
-	}
-
-	private class OnInputUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.INPUT;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onInput)) {
-				behaviourComponent.onInput();
-			}
-		}
-	}
-
-	private class OnThinkUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.THINK;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onThink)) {
-				behaviourComponent.onThink();
-			}
-		}
-	}
-
-	private class OnPreRenderUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.PRE_RENDER;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onPreRender)) {
-				behaviourComponent.onPreRender();
-			}
-		}
-	}
-
-	private class OnRenderUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.RENDER;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onRender)) {
-				behaviourComponent.onRender();
-			}
-		}
-	}
-
-	private class OnDebugRenderUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.DEBUG_RENDER;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onDebugRender)) {
-				behaviourComponent.onDebugRender();
-			}
-		}
-	}
-
-	private class OnAfterRenderUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.AFTER_RENDER;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onAfterRender)) {
-				behaviourComponent.onAfterRender();
-			}
-		}
-	}
-
-	private class OnCleanupUpdateListener implements UpdateListener {
-		@Override
-		public int getOrdinal() {
-			return CommonUpdateOrder.CLEANUP;
-		}
-
-		@Override
-		public void update() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onCleanup)) {
-				behaviourComponent.onCleanup();
-			}
-		}
 	}
 
 	private class ScriptSceneGraphListener implements SceneGraphListener {

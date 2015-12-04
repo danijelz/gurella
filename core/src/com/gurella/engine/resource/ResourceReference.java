@@ -67,12 +67,12 @@ public abstract class ResourceReference<T> implements Disposable, Serializable {
 
 	@Override
 	public void write(Json json) {
-		json.writeValue(ID_TAG, id);
+		json.writeValue(ID_TAG, Integer.valueOf(id));
 		if (persistent) {
-			json.writeValue(PERSISTENT_TAG, persistent);
+			json.writeValue(PERSISTENT_TAG, Boolean.valueOf(persistent));
 		}
 		if (initOnStart) {
-			json.writeValue(INIT_ON_START_TAG, initOnStart);
+			json.writeValue(INIT_ON_START_TAG, Boolean.valueOf(initOnStart));
 		}
 		if (!ValueUtils.isEmpty(name)) {
 			json.writeValue(NAME_TAG, name);

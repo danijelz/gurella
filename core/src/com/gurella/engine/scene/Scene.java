@@ -28,13 +28,13 @@ public class Scene extends SceneElementsResourceContext {
 
 	public final Signal0Impl startSignal = new Signal0Impl();
 	public final Signal0Impl stopSignal = new Signal0Impl();
+	//TODO pause, resume and resize signals should be handled globaly 
 	public final Signal0Impl pauseSignal = new Signal0Impl();
 	public final Signal0Impl resumeSignal = new Signal0Impl();
 	public final Signal1Impl<Vector2> resizeSignal = new Signal1Impl<Vector2>();
+	private final Vector2 screenSize = new Vector2();
 
 	public final SceneGraph graph = new SceneGraph(this);
-
-	private final Vector2 screenSize = new Vector2();
 
 	public Scene(Application application, String id) {
 		super(application);
@@ -121,14 +121,14 @@ public class Scene extends SceneElementsResourceContext {
 		json.writeArrayStart(INITIAL_SYSTEMS_TAG);
 		for (int i = 0; i < initialSystems.size; i++) {
 			int initialSystemId = initialSystems.get(i);
-			json.writeValue(initialSystemId);
+			json.writeValue(Integer.valueOf(initialSystemId));
 		}
 		json.writeArrayEnd();
 
 		json.writeArrayStart(INITIAL_NODES_TAG);
 		for (int i = 0; i < initialNodes.size; i++) {
 			int initialNodeId = initialNodes.get(i);
-			json.writeValue(initialNodeId);
+			json.writeValue(Integer.valueOf(initialNodeId));
 		}
 		json.writeArrayEnd();
 
