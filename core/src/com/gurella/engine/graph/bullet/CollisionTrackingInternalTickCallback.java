@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
-import com.gurella.engine.graph.event.EventCallbackSignature;
+import com.gurella.engine.graph.event.EventCallbackIdentifier;
 import com.gurella.engine.utils.ImmutableArray;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
@@ -134,7 +134,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private ImmutableArray<BehaviourComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
-			EventCallbackSignature<BehaviourComponent> scriptMethod) {
+			EventCallbackIdentifier<BehaviourComponent> scriptMethod) {
 		return graph.eventSystem.getListeners(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
@@ -150,7 +150,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		}
 	}
 
-	private ImmutableArray<BehaviourComponent> getScripts(EventCallbackSignature<BehaviourComponent> method) {
+	private ImmutableArray<BehaviourComponent> getScripts(EventCallbackIdentifier<BehaviourComponent> method) {
 		return graph.eventSystem.getListeners(method);
 	}
 

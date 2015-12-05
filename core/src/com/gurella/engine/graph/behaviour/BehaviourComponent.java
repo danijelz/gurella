@@ -3,6 +3,7 @@ package com.gurella.engine.graph.behaviour;
 import java.util.Comparator;
 import java.util.concurrent.Callable;
 
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -31,6 +32,7 @@ import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.tag.Tag;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.scene.SceneTransition;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
@@ -488,6 +490,21 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// //////////TODO METHODS
+	
+	public void loadScene(String sceneId, SceneTransition transition) {
+	}
+	
+	public void nextScene(SceneTransition transition) {
+	}
+	
+	//TODO InputMapper InputContext
+	
+	public void addInputProcessor(InputProcessor inputProcessor) {
+	}
+	
+	public void removeInputProcessor(InputProcessor inputProcessor) {
+	}
+	
 	// TODO getActiveComponent getComponentSafely
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);

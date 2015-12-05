@@ -38,7 +38,7 @@ import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.camera.CameraComponent;
-import com.gurella.engine.graph.event.EventCallbackSignature;
+import com.gurella.engine.graph.event.EventCallbackIdentifier;
 import com.gurella.engine.graph.event.EventSystem;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
@@ -358,11 +358,11 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		return CommonUpdateOrder.INPUT;
 	}
 	
-	ImmutableArray<BehaviourComponent> getListeners(EventCallbackSignature<BehaviourComponent> method) {
+	ImmutableArray<BehaviourComponent> getListeners(EventCallbackIdentifier<BehaviourComponent> method) {
 		return eventSystem.getListeners(method);
 	}
 
-	ImmutableArray<BehaviourComponent> getListeners(SceneNode node, EventCallbackSignature<BehaviourComponent> method) {
+	ImmutableArray<BehaviourComponent> getListeners(SceneNode node, EventCallbackIdentifier<BehaviourComponent> method) {
 		return eventSystem.getListeners(node, method);
 	}
 

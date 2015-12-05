@@ -41,7 +41,7 @@ public class EventSystem extends GraphListenerSystem {
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
 		int nodeId = component.getNode().id;
-		for (EventCallbackSignature<?> callback : getCallbacks(component.getClass())) {
+		for (EventCallbackIdentifier<?> callback : getCallbacks(component.getClass())) {
 			int callbackId = callback.id;
 			findListeners(callbackId).add(component);
 			findListeners(nodeId, callbackId).add(component);
@@ -49,7 +49,7 @@ public class EventSystem extends GraphListenerSystem {
 		}
 	}
 
-	private void ensureTrigger(EventCallbackSignature<?> callback) {
+	private void ensureTrigger(EventCallbackIdentifier<?> callback) {
 		int callbackId = callback.id;
 		if (!triggers.containsKey(callbackId)) {
 			Class<? extends EventTrigger> triggerClass = callback.triggerClass;
@@ -67,7 +67,7 @@ public class EventSystem extends GraphListenerSystem {
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
 		int nodeId = component.getNode().id;
-		for (EventCallbackSignature<?> callback : getCallbacks(component.getClass())) {
+		for (EventCallbackIdentifier<?> callback : getCallbacks(component.getClass())) {
 			int callbackId = callback.id;
 			componentsByCallback.get(callbackId).removeValue(component, true);
 			findListeners(nodeId, callbackId).removeValue(component, true);
@@ -99,13 +99,13 @@ public class EventSystem extends GraphListenerSystem {
 		return listeners;
 	}
 
-	public <T> ImmutableArray<T> getListeners(EventCallbackSignature<T> callback) {
+	public <T> ImmutableArray<T> getListeners(EventCallbackIdentifier<T> callback) {
 		@SuppressWarnings("unchecked")
 		ArrayExt<T> listeners = (ArrayExt<T>) componentsByCallback.get(callback.id);
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	public <T> ImmutableArray<T> getListeners(SceneNode node, EventCallbackSignature<T> callback) {
+	public <T> ImmutableArray<T> getListeners(SceneNode node, EventCallbackIdentifier<T> callback) {
 		int nodeId = node.id;
 		IntMap<ArrayExt<SceneNodeComponent>> listenersByNode = nodeComponentsByCallback.get(nodeId);
 		if (listenersByNode == null) {
@@ -119,7 +119,7 @@ public class EventSystem extends GraphListenerSystem {
 
 	// TODO remove
 	public <T> void notify(SceneNode node, CallbackEvent<T> event) {
-		ImmutableArray<T> listeners = getListeners(node, event.eventCallbackSignature);
+		ImmutableArray<T> listeners = getListeners(node, event.eventCallbackIdentifier);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
 			event.notify(script);
@@ -127,7 +127,7 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	public <T> void notify(CallbackEvent<T> event) {
-		ImmutableArray<T> listeners = getListeners(event.eventCallbackSignature);
+		ImmutableArray<T> listeners = getListeners(event.eventCallbackIdentifier);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
 			event.notify(script);

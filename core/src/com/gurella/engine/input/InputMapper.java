@@ -16,13 +16,12 @@ public class InputMapper implements InputProcessor {
 	}
 
 	public void addInputContext(InputContext inputContext) {
-		activeContexts.add(inputContext);
+		activeContexts.insert(0, inputContext);
 		activeContexts.sort();
 	}
 
 	public void removeInputContext(InputContext inputContext) {
 		activeContexts.removeValue(inputContext, true);
-		activeContexts.sort();
 	}
 
 	private void handleButton(ButtonTrigger buttonTrigger) {

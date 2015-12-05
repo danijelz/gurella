@@ -18,20 +18,18 @@ public class BvhSpatial extends Spatial {
 		return spatial;
 	}
 
-	public void free() {
-		SynchronizedPools.free(this);
-	}
-
 	Vector3 getPosition() {
 		TransformComponent transformComponent = renderableComponent.getTransformComponent();
-		return transformComponent == null
-				? translate.setZero()
-				: transformComponent.getWorldTranslation(translate);
+		return transformComponent == null ? translate.setZero() : transformComponent.getWorldTranslation(translate);
 	}
 
 	public BoundingBox getBounds() {
 		renderableComponent.getBounds(bounds.inf());
 		return bounds;
+	}
+
+	public void free() {
+		SynchronizedPools.free(this);
 	}
 
 	@Override

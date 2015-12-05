@@ -147,7 +147,7 @@ public class ScriptManager extends GraphListenerSystem {
 		}
 	}
 
-	public OrderedSet<BehaviourComponent> getScriptsByMethod(EventCallbackSignature method) {
+	public OrderedSet<BehaviourComponent> getScriptsByMethod(EventCallbackIdentifier method) {
 		return getScriptsByMethod(method.id);
 	}
 
@@ -160,7 +160,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(SceneNode node, EventCallbackSignature method) {
+	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(SceneNode node, EventCallbackIdentifier method) {
 		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
 	}
 
@@ -179,7 +179,7 @@ public class ScriptManager extends GraphListenerSystem {
 		return scripts;
 	}
 
-	public OrderedSet<BehaviourComponent> getScriptComponents(EventCallbackSignature scriptMethod) {
+	public OrderedSet<BehaviourComponent> getScriptComponents(EventCallbackIdentifier scriptMethod) {
 		return getScriptsByMethod(scriptMethod.id);
 	}
 
@@ -190,7 +190,7 @@ public class ScriptManager extends GraphListenerSystem {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != BehaviourComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					EventCallbackSignature scriptMethod = BehaviourEvents.valueOf(method);
+					EventCallbackIdentifier scriptMethod = BehaviourEvents.valueOf(method);
 					if (scriptMethod != null) {
 						methods.add(scriptMethod.id);
 					}

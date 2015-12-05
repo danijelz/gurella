@@ -8,9 +8,9 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.utils.ValueUtils;
 
-public final class EventCallbackSignature<T> {
+public final class EventCallbackIdentifier<T> {
 	private static int INDEX = 0;
-	private static final ObjectMap<String, EventCallbackSignature<?>> instancesById = new ObjectMap<String, EventCallbackSignature<?>>();
+	private static final ObjectMap<String, EventCallbackIdentifier<?>> instancesById = new ObjectMap<String, EventCallbackIdentifier<?>>();
 
 	public final int id;
 	public final Class<T> declaringClass;
@@ -18,10 +18,10 @@ public final class EventCallbackSignature<T> {
 	public final Class<?>[] parameterTypes;
 	final Class<? extends EventTrigger> triggerClass;
 
-	public static <T> EventCallbackSignature<T> get(Class<T> declaringClass, String id) {
+	public static <T> EventCallbackIdentifier<T> get(Class<T> declaringClass, String id) {
 		EventCallbackRegistry.initCallbacks(declaringClass);
 		@SuppressWarnings("unchecked")
-		EventCallbackSignature<T> instance = (EventCallbackSignature<T>) instancesById
+		EventCallbackIdentifier<T> instance = (EventCallbackIdentifier<T>) instancesById
 				.get(declaringClass.getName() + id);
 		if (instance == null) {
 			throw new GdxRuntimeException(
@@ -30,7 +30,7 @@ public final class EventCallbackSignature<T> {
 		return instance;
 	}
 
-	EventCallbackSignature(Method method, EventCallback callbackAnnotation) {
+	EventCallbackIdentifier(Method method, EventCallback callbackAnnotation) {
 		id = INDEX++;
 		@SuppressWarnings("unchecked")
 		Class<T> castedDeclaringClass = method.getDeclaringClass();

@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -89,6 +88,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 
 	@Override
 	public void render() {
+		//TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		EventService.notify(UpdateEvent.instance);
@@ -144,22 +144,5 @@ public class Application extends SceneElementsResourceContext implements Applica
 			addScene(scene);
 		}
 		super.read(json, jsonData);
-	}
-
-	public interface ApplicationInitializer {
-		void init(Application application);
-	}
-
-	public static class JsonApplicationInitializer implements ApplicationInitializer {
-		private final String projectFileName;
-
-		public JsonApplicationInitializer(String projectFileName) {
-			this.projectFileName = projectFileName;
-		}
-
-		@Override
-		public void init(Application application) {
-			application.read(new Json(), new JsonReader().parse(Gdx.files.internal(projectFileName).readString()));
-		}
 	}
 }

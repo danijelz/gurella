@@ -16,7 +16,7 @@ import com.gurella.engine.signal.Signal1.Signal1Impl;
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElementType
 public abstract class RenderableComponent extends SceneNodeComponent {
-	//TODO LayerComponent
+	//TODO LayerComponent ??
 	public Layer layer = Layer.DEFAULT;
 
 	TransformComponent transformComponent;

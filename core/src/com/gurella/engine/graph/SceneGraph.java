@@ -23,31 +23,45 @@ import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ImmutableIntMapValues;
 
 public class SceneGraph implements UpdateListener {
 	private Scene scene;
-	private SceneStartListener sceneStartListener = new SceneStartListener();
-	private SceneStopListener sceneStopListener = new SceneStopListener();
+	private final SceneStartListener sceneStartListener = new SceneStartListener();
+	private final SceneStopListener sceneStopListener = new SceneStopListener();
 
-	private Array<SceneNode> allNodesInternal = new Array<SceneNode>();
-	public ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
-	private Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
-	public ImmutableArray<SceneNode> activeNodes = ImmutableArray.with(activeNodesInternal);
+	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
+	public final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
+	private final Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
+	public final ImmutableArray<SceneNode> activeNodes = ImmutableArray.with(activeNodesInternal);
 
-	private Array<SceneNodeComponent> allComponentsInternal = new Array<SceneNodeComponent>();
-	public ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray.with(allComponentsInternal);
-	private Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
-	public ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray.with(activeComponentsInternal);
+	private final Array<SceneNodeComponent> allComponentsInternal = new Array<SceneNodeComponent>();
+	public final ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray.with(allComponentsInternal);
+	private final Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
+	public final ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray.with(activeComponentsInternal);
 
-	private IntMap<SceneSystem> allSystems = new IntMap<SceneSystem>();
-	private Array<SceneSystem> activeSystems = new Array<SceneSystem>();
+	private final IntMap<SceneSystem> allSystemsInternal = new IntMap<SceneSystem>();
+	public final ImmutableIntMapValues<SceneSystem> allSystems = ImmutableIntMapValues.with(allSystemsInternal);
+	private final Array<SceneSystem> activeSystemsInternal = new Array<SceneSystem>();
+	public final ImmutableArray<SceneSystem> activeSystems = ImmutableArray.with(activeSystemsInternal);
 
-	private Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
+	private final Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
+
+	public final Signal1Impl<SceneNode> nodeAddedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1Impl<SceneNode> nodeRemovedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1Impl<SceneNode> nodeActivatedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1Impl<SceneNode> nodeDeactivatedSignal = new Signal1Impl<SceneNode>();
+
+	public final Signal1Impl<SceneNode> systemAddedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1Impl<SceneNode> systemRemovedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1Impl<SceneNode> systemActivatedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1Impl<SceneNode> systemDeactivatedSignal = new Signal1Impl<SceneNode>();
 
 	public final Signal1Impl<SceneNodeComponent> componentAddedSignal = new Signal1Impl<SceneNodeComponent>();
 	public final Signal1Impl<SceneNodeComponent> componentRemovedSignal = new Signal1Impl<SceneNodeComponent>();
 	public final Signal1Impl<SceneNodeComponent> componentActivatedSignal = new Signal1Impl<SceneNodeComponent>();
 	public final Signal1Impl<SceneNodeComponent> componentDeactivatedSignal = new Signal1Impl<SceneNodeComponent>();
+
 	public final SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
 	public final ComponentManager componentManager;
@@ -122,21 +136,20 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	public void addSystem(SceneSystem system) {
-		if (system.graph != null) {
-			throw new IllegalArgumentException("System is already attached to graph.");
-		}
-
 		pendingOperations.add(GraphOperation.obtain().addSystem(this, system));
 	}
 
 	void addSystemSafely(SceneSystem system) {
-		int systemType = system.baseSystemType;
+		if (system.graph != null) {
+			throw new IllegalArgumentException("System is already attached to graph.");
+		}
 
-		if (allSystems.containsKey(systemType)) {
+		int systemType = system.baseSystemType;
+		if (allSystemsInternal.containsKey(systemType)) {
 			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
 		}
 
-		allSystems.put(systemType, system);
+		allSystemsInternal.put(systemType, system);
 		system.scene = scene;
 		system.graph = this;
 		attachElement(system);
@@ -166,7 +179,7 @@ public class SceneGraph implements UpdateListener {
 		if (!system.active) {
 			system.active = true;
 			system.lifecycleSignal.activated();
-			activeSystems.add(system);
+			activeSystemsInternal.add(system);
 		}
 	}
 
@@ -182,7 +195,7 @@ public class SceneGraph implements UpdateListener {
 		if (system.active) {
 			system.active = false;
 			system.lifecycleSignal.deactivated();
-			activeSystems.removeValue(system, true);
+			activeSystemsInternal.removeValue(system, true);
 		}
 	}
 
@@ -199,7 +212,7 @@ public class SceneGraph implements UpdateListener {
 		system.lifecycleSignal.detached();
 		system.scene = null;
 		system.graph = null;
-		allSystems.remove(system.baseSystemType);
+		allSystemsInternal.remove(system.baseSystemType);
 	}
 
 	public <T extends SceneSystem> T getSystem(Class<T> systemClass) {
@@ -213,7 +226,7 @@ public class SceneGraph implements UpdateListener {
 
 	public <T extends SceneSystem> T getSystem(int systemType) {
 		@SuppressWarnings("unchecked")
-		T casted = (T) allSystems.get(systemType);
+		T casted = (T) allSystemsInternal.get(systemType);
 		return casted;
 	}
 
@@ -474,28 +487,28 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	public class SceneGraphListenerSignal extends AbstractSignal<SceneGraphListener> {
-		public void componentActivated(SceneNodeComponent component) {
+		private void componentActivated(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentActivated(component);
 			}
 			componentActivatedSignal.dispatch(component);
 		}
 
-		public void componentDeactivated(SceneNodeComponent component) {
+		private void componentDeactivated(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentDeactivated(component);
 			}
 			componentDeactivatedSignal.dispatch(component);
 		}
 
-		public void componentAdded(SceneNodeComponent component) {
+		private void componentAdded(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentAdded(component);
 			}
 			componentAddedSignal.dispatch(component);
 		}
 
-		public void componentRemoved(SceneNodeComponent component) {
+		private void componentRemoved(SceneNodeComponent component) {
 			for (SceneGraphListener listener : listeners) {
 				listener.componentRemoved(component);
 			}
