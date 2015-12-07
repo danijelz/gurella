@@ -5,17 +5,19 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.signal.Listener1;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Ordered;
 
 public class EventBus {
-	private final ObjectMap<Class<? extends Event<?>>, Array<?>> listeners = new ObjectMap<Class<? extends Event<?>>, Array<?>>();
-	private final ObjectMap<String, Array<Listener1<String>>> simpleListeners = new ObjectMap<String, Array<Listener1<String>>>();
+	private final ObjectMap<Class<? extends Event<?>>, ArrayExt<?>> listeners = new ObjectMap<Class<? extends Event<?>>, ArrayExt<?>>();
+	private final ObjectMap<Object, ArrayExt<?>> simpleListeners = new ObjectMap<Object, ArrayExt<?>>();
 	private final Array<Object> eventPool = new Array<Object>();
-	
+
 	private boolean processing;
 
-	public <LISTENER> boolean addListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
-		final Array<LISTENER> listenersByType = listenersByType(eventClass);
+	public <LISTENER> boolean addListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
+		final ArrayExt<LISTENER> listenersByType = listenersByType(eventType);
 		synchronized (listenersByType) {
 			if (listenersByType.contains(listener, true)) {
 				return false;
@@ -29,63 +31,90 @@ public class EventBus {
 		}
 	}
 
-	private <LISTENER> Array<LISTENER> listenersByType(Class<? extends Event<LISTENER>> eventClass) {
+	private <LISTENER> ArrayExt<LISTENER> listenersByType(Class<? extends Event<LISTENER>> eventType) {
 		synchronized (listeners) {
 			@SuppressWarnings("unchecked")
-			Array<LISTENER> listenersByType = (Array<LISTENER>) listeners.get(eventClass);
+			ArrayExt<LISTENER> listenersByType = (ArrayExt<LISTENER>) listeners.get(eventType);
 
 			if (listenersByType == null) {
-				listenersByType = new Array<LISTENER>();
-				listeners.put(eventClass, listenersByType);
+				listenersByType = new ArrayExt<LISTENER>();
+				listeners.put(eventType, listenersByType);
 			}
 
 			return listenersByType;
 		}
 	}
 
-	public <LISTENER> boolean removeListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
-		final Array<LISTENER> listenersByType = listenersByType(eventClass);
+	public <LISTENER> boolean removeListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
+		final ArrayExt<LISTENER> listenersByType = listenersByType(eventType);
 		synchronized (listenersByType) {
 			return listenersByType.removeValue(listener, true);
 		}
 	}
 
-	public synchronized <LISTENER> void notify(final Event<LISTENER> event) {
-		if (processing) {
-			eventPool.add(event);
-		} else {
-			processing = true;
+	public <LISTENER> void notify(final Event<LISTENER> event) {
+		if (checkProcessEvents(event)) {
 			notifyListeners(event);
-			processing = false;
+		}
+	}
+
+	private boolean checkProcessEvents(Object event) {
+		synchronized (eventPool) {
+			if (processing) {
+				eventPool.add(event);
+				return false;
+			} else {
+				processing = true;
+				return true;
+			}
 		}
 	}
 
 	private <LISTENER> void notifyListeners(final Event<LISTENER> event) {
 		@SuppressWarnings("unchecked")
 		Class<Event<LISTENER>> eventClass = (Class<Event<LISTENER>>) event.getClass();
-		final Array<LISTENER> listenersByType = listenersByType(eventClass);
+		final ArrayExt<LISTENER> listenersByType = listenersByType(eventClass);
 
-		for (int i = 0; i < listenersByType.size; i++) {
-			LISTENER listener = listenersByType.get(i);
-			event.notify(listener);
+		synchronized (listenersByType) {
+			for (int i = 0; i < listenersByType.size; i++) {
+				LISTENER listener = listenersByType.get(i);
+				event.notify(listener);
+			}
 		}
 
 		processPooledEvents();
 	}
 
 	private void processPooledEvents() {
-		if (eventPool.size > 0) {
-			Object pooledEvent = eventPool.removeIndex(0);
-			if(pooledEvent instanceof Event) {
+		Object pooledEvent = null;
+		synchronized (eventPool) {
+			if (eventPool.size > 0) {
+				pooledEvent = eventPool.removeIndex(0);
+			} else {
+				processing = false;
+			}
+		}
+
+		if (pooledEvent != null) {
+			if (pooledEvent instanceof Event) {
 				notifyListeners((Event<?>) pooledEvent);
 			} else {
-				notifyListeners((String) pooledEvent);
+				notifyListeners(pooledEvent);
 			}
 		}
 	}
-	
-	public boolean addListener(String evenType, Listener1<String> listener) {
-		final Array<Listener1<String>> listenersByType = simpleListenersByType(evenType);
+
+	public <LISTENER> ImmutableArray<LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType) {
+		return listenersByType(eventType).immutable();
+	}
+
+	public <LISTENER> Array<LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType, Array<LISTENER> out) {
+		out.addAll(listenersByType(eventType));
+		return out;
+	}
+
+	public <T> boolean addListener(T eventType, Listener1<? super T> listener) {
+		final ArrayExt<Listener1<? super T>> listenersByType = simpleListenersByType(eventType);
 		synchronized (listenersByType) {
 			if (listenersByType.contains(listener, true)) {
 				return false;
@@ -98,46 +127,55 @@ public class EventBus {
 			}
 		}
 	}
-	
-	private Array<Listener1<String>> simpleListenersByType(String evenType) {
+
+	private <T> ArrayExt<Listener1<? super T>> simpleListenersByType(T eventType) {
 		synchronized (simpleListeners) {
-			Array<Listener1<String>> listenersByType = simpleListeners.get(evenType);
+			@SuppressWarnings("unchecked")
+			ArrayExt<Listener1<? super T>> listenersByType = (ArrayExt<Listener1<? super T>>) simpleListeners
+					.get(eventType);
 
 			if (listenersByType == null) {
-				listenersByType = new Array<Listener1<String>>();
-				simpleListeners.put(evenType, listenersByType);
+				listenersByType = new ArrayExt<Listener1<? super T>>();
+				simpleListeners.put(eventType, listenersByType);
 			}
 
 			return listenersByType;
 		}
 	}
-	
-	public boolean removeListener(String evenType, Listener1<String> listener) {
-		final Array<Listener1<String>> listenersByType = simpleListenersByType(evenType);
+
+	public <T> boolean removeListener(T event, Listener1<? super T> listener) {
+		final ArrayExt<Listener1<? super T>> listenersByType = simpleListenersByType(event);
 		synchronized (listenersByType) {
 			return listenersByType.removeValue(listener, true);
 		}
 	}
 
-	public synchronized void notify(String evenType) {
-		if (processing) {
-			eventPool.add(evenType);
-		} else {
-			processing = true;
-			notifyListeners(evenType);
-			processing = false;
+	public void notify(Object event) {
+		if (checkProcessEvents(event)) {
+			notifyListeners(event);
 		}
 	}
 
-	private void notifyListeners(String evenType) {
-		final Array<Listener1<String>> listenersByType = simpleListenersByType(evenType);
+	private <T> void notifyListeners(T evenType) {
+		final ArrayExt<Listener1<? super T>> listenersByType = simpleListenersByType(evenType);
 
-		for (int i = 0; i < listenersByType.size; i++) {
-			Listener1<String> listener = listenersByType.get(i);
-			listener.handle(evenType);
+		synchronized (listenersByType) {
+			for (int i = 0; i < listenersByType.size; i++) {
+				Listener1<? super T> listener = listenersByType.get(i);
+				listener.handle(evenType);
+			}
 		}
 
 		processPooledEvents();
+	}
+
+	public <T> ImmutableArray<Listener1<? super T>> getListeners(T eventType) {
+		return simpleListenersByType(eventType).immutable();
+	}
+
+	public <T> Array<Listener1<? super T>> getListeners(T eventType, Array<Listener1<? super T>> out) {
+		out.addAll(simpleListenersByType(eventType));
+		return out;
 	}
 
 	private static class ListenersComparator implements Comparator<Object> {
