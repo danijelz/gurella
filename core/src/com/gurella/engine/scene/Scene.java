@@ -95,8 +95,8 @@ public class Scene extends SceneElementsResourceContext {
 	}
 
 	public void stop() {
-		releaseResources();
 		stopSignal.dispatch();
+		releaseResources();
 		// TODO reset graph
 	}
 
