@@ -33,6 +33,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public static SpriteBatch SPRITE_BATCH;
 	public static ShapeRenderer SHAPE_RENDERER;
 
+	private boolean paused;
 	private String initialSceneId;
 	private Color backgroundColor;
 	private final SceneManager sceneManager = new SceneManager(this);
@@ -71,6 +72,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 
 	@Override
 	public void create() {
+		//TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		Gdx.input.setInputProcessor(INPUT_PROCESSORS);
 		INPUT_PROCESSORS.addProcessor(InputMapper.INSTANCE);// TODO beautify
@@ -97,12 +99,18 @@ public class Application extends SceneElementsResourceContext implements Applica
 
 	@Override
 	public void pause() {
+		paused = true;
 		sceneManager.pause();
 	}
 
 	@Override
 	public void resume() {
+		paused = false;
 		sceneManager.resume();
+	}
+	
+	public boolean isPaused() {
+		return paused;
 	}
 
 	public static void addInputProcessor(InputProcessor processor) {

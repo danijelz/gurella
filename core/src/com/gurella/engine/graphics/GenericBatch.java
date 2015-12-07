@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Disposable;
 public class GenericBatch implements Disposable {
 	private final PolygonSpriteBatch polygonSpriteBatch = new PolygonSpriteBatch();
 	private final ModelBatch modelBatch = new ModelBatch();
+	//TODO ShapeRenderer
 
 	private Object activeBatch;
 	private Camera activeCamera;
