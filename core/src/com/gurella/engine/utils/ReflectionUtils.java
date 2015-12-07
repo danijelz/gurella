@@ -2,12 +2,19 @@ package com.gurella.engine.utils;
 
 import java.lang.annotation.Annotation;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
+//TODO caches + exceptions description
 public class ReflectionUtils {
+	private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
+	private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>, Constructor>();
+	
 	private ReflectionUtils() {
 	}
 
@@ -17,7 +24,7 @@ public class ReflectionUtils {
 			Class<T> resourceType = ClassReflection.forName(className);
 			return resourceType;
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -35,7 +42,7 @@ public class ReflectionUtils {
 		try {
 			return ClassReflection.newInstance(type);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -51,7 +58,7 @@ public class ReflectionUtils {
 		try {
 			return ClassReflection.newInstance(ReflectionUtils.<T> forName(className));
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -67,7 +74,7 @@ public class ReflectionUtils {
 		try {
 			return ClassReflection.getDeclaredMethod(c, name, parameterTypes);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -83,7 +90,7 @@ public class ReflectionUtils {
 		try {
 			return ClassReflection.getMethod(c, name, parameterTypes);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -99,7 +106,7 @@ public class ReflectionUtils {
 		try {
 			return ClassReflection.getDeclaredField(c, name);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -164,7 +171,7 @@ public class ReflectionUtils {
 		try {
 			field.set(object, value);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -172,7 +179,7 @@ public class ReflectionUtils {
 		try {
 			return field.get(object);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 
@@ -180,7 +187,7 @@ public class ReflectionUtils {
 		try {
 			return method.invoke(object, args);
 		} catch (ReflectionException e) {
-			throw new IllegalStateException(e);
+			throw new GdxRuntimeException(e);
 		}
 	}
 }

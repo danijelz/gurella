@@ -18,12 +18,14 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	private Array<ResourceModelProperty> properties;
 
 	public static <T> ReflectionResourceModel<T> getInstance(Class<T> resourceType) {
-		@SuppressWarnings("unchecked")
-		ReflectionResourceModel<T> instance = (ReflectionResourceModel<T>) instancesByClass.get(resourceType);
-		if (instance == null) {
-			instance = new ReflectionResourceModel<T>(resourceType);
+		synchronized (instancesByClass) {
+			@SuppressWarnings("unchecked")
+			ReflectionResourceModel<T> instance = (ReflectionResourceModel<T>) instancesByClass.get(resourceType);
+			if (instance == null) {
+				instance = new ReflectionResourceModel<T>(resourceType);
+			}
+			return instance;
 		}
-		return instance;
 	}
 
 	private ReflectionResourceModel(Class<T> resourceType) {
@@ -39,9 +41,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 			return resourceType.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			return ValueUtils.isEmpty(descriptiveName)
-					? resourceType.getSimpleName()
-					: descriptiveName;
+			return ValueUtils.isEmpty(descriptiveName) ? resourceType.getSimpleName() : descriptiveName;
 		}
 	}
 
@@ -92,7 +92,8 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 		return cachedProperties;
 	}
 
-	private static ResourceModelProperty findProperty(String propertyName, Array<ResourceModelProperty> cachedProperties) {
+	private static ResourceModelProperty findProperty(String propertyName,
+			Array<ResourceModelProperty> cachedProperties) {
 		for (int i = 0; i < cachedProperties.size; i++) {
 			ResourceModelProperty property = cachedProperties.get(i);
 			if (propertyName.equals(property.getName())) {
@@ -150,8 +151,8 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 		if (fieldType.isPrimitive()) {
 			return true;
 		}
-		
-		if(ReflectionUtils.getDeclaredAnnotation(field, ResourceProperty.class) == null) {
+
+		if (ReflectionUtils.getDeclaredAnnotation(field, ResourceProperty.class) == null) {
 			return true;
 		}
 
@@ -160,9 +161,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 		}
 
 		Array<ResourceModelProperty> modelProperties = ResourceModelUtils.getModel(fieldType).getProperties();
-		return modelProperties == null
-				? false
-				: modelProperties.size == 0;
+		return modelProperties == null ? false : modelProperties.size == 0;
 	}
 
 	private static ResourceModelProperty getModelProperty(Field field) {
@@ -172,17 +171,14 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 		} else {
 			Class<? extends ResourceModelProperty> propertyModelClass = resourceProperty.model();
 			return ReflectionResourceModelProperty.class.equals(propertyModelClass)
-					? createReflectionModelProperty(field, true)
-					: createAnnotationModelProperty(propertyModelClass);
+					? createReflectionModelProperty(field, true) : createAnnotationModelProperty(propertyModelClass);
 		}
 	}
 
 	private static ResourceModelProperty createAnnotationModelProperty(
 			Class<? extends ResourceModelProperty> propertyModelClass) {
 		ResourceModelProperty resourceModelProperty = getModelPropertyFromFactoryMethod(propertyModelClass);
-		return resourceModelProperty == null
-				? ReflectionUtils.newInstance(propertyModelClass)
-				: resourceModelProperty;
+		return resourceModelProperty == null ? ReflectionUtils.newInstance(propertyModelClass) : resourceModelProperty;
 	}
 
 	private static ResourceModelProperty getModelPropertyFromFactoryMethod(
@@ -232,16 +228,12 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
-		String prefix = Boolean.TYPE.equals(fieldType)
-				? "is"
-				: "get";
+		String prefix = Boolean.TYPE.equals(fieldType) ? "is" : "get";
 		Method getter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
 		if (getter == null || (!forced && !getter.isPublic())) {
 			return null;
 		} else {
-			return fieldType.equals(getter.getReturnType())
-					? getter
-					: null;
+			return fieldType.equals(getter.getReturnType()) ? getter : null;
 		}
 	}
 
@@ -251,9 +243,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 		if (setter == null || (!forced && !setter.isPublic())) {
 			return null;
 		} else {
-			return Void.TYPE.equals(setter.getReturnType())
-					? setter
-					: null;
+			return Void.TYPE.equals(setter.getReturnType()) ? setter : null;
 		}
 	}
 }
