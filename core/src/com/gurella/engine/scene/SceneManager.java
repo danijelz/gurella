@@ -164,7 +164,7 @@ public class SceneManager {
 				if (transition.onTransitionOut()) {
 					transition.afterTransitionOut();
 					transition.beforeTransitionHold();
-					releaseUnneededResources();
+					stopCurrentScene();
 					transitionStateManager.apply(SceneTransitionState.HOLD);
 				}
 			} catch (Exception exception) {
@@ -172,7 +172,7 @@ public class SceneManager {
 			}
 		}
 
-		private void releaseUnneededResources() {
+		private void stopCurrentScene() {
 			if (currentScene != null) {
 				currentScene.stop();
 			}
@@ -214,7 +214,7 @@ public class SceneManager {
 			EventService.removeListener(UpdateEvent.class, this);
 			try {
 				transition.onTransitionException(initializationException);
-				releaseUnneededResources();
+				stopCurrentScene();
 
 				if (destinationSceneResources != null) {
 					destinationScene.rollback(destinationSceneResources);
