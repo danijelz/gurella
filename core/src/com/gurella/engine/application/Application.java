@@ -83,6 +83,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 
 	@Override
 	public void resize(int width, int height) {
+		//TODO must be handled globally
 		sceneManager.resize(width, height);
 	}
 

@@ -174,7 +174,7 @@ public class SceneManager {
 
 		private void releaseUnneededResources() {
 			if (currentScene != null) {
-				currentScene.releaseResources();
+				currentScene.stop();
 			}
 		}
 
