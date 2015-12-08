@@ -9,28 +9,28 @@ public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
 	private static final ObjectMap<Object, EventBus> eventBuses = new ObjectMap<Object, EventBus>();
 
-	public static <LISTENER> boolean addListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
-		return globalEventBus.addListener(eventClass, listener);
+	public static <LISTENER> void addListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
+		globalEventBus.addListener(eventClass, listener);
 	}
 
-	public static <LISTENER> boolean removeListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
-		return globalEventBus.removeListener(eventClass, listener);
+	public static <LISTENER> void removeListener(Class<? extends Event<LISTENER>> eventClass, LISTENER listener) {
+		globalEventBus.removeListener(eventClass, listener);
 	}
 
 	public static <LISTENER> void notify(final Event<LISTENER> event) {
 		globalEventBus.notify(event);
 	}
 
-	public static boolean addListener(Object evenType, Listener1<Object> listener) {
-		return globalEventBus.addListener(evenType, listener);
+	public static <T> void addListener(T eventType, Listener1<T> listener) {
+		globalEventBus.addListener(eventType, listener);
 	}
 
-	public static boolean removeListener(Object evenType, Listener1<Object> listener) {
-		return globalEventBus.removeListener(evenType, listener);
+	public static <T> void removeListener(T eventType, Listener1<T> listener) {
+		globalEventBus.removeListener(eventType, listener);
 	}
 
-	public static void notify(Object evenType) {
-		globalEventBus.notify(evenType);
+	public static void notify(Object eventType) {
+		globalEventBus.notify(eventType);
 	}
 
 	public <LISTENER> ImmutableArray<LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType) {
@@ -49,9 +49,9 @@ public class EventService {
 		return globalEventBus.getListeners(eventType, out);
 	}
 
-	public static <LISTENER> boolean addListener(Object source, Class<? extends Event<LISTENER>> eventClass,
+	public static <LISTENER> void addListener(Object source, Class<? extends Event<LISTENER>> eventClass,
 			LISTENER listener) {
-		return getEventBusBySource(source).addListener(eventClass, listener);
+		getEventBusBySource(source).addListener(eventClass, listener);
 	}
 
 	private static EventBus getEventBusBySource(Object source) {
@@ -65,25 +65,25 @@ public class EventService {
 		}
 	}
 
-	public static <LISTENER> boolean removeListener(Object source, Class<? extends Event<LISTENER>> eventClass,
+	public static <LISTENER> void removeListener(Object source, Class<? extends Event<LISTENER>> eventClass,
 			LISTENER listener) {
-		return getEventBusBySource(source).removeListener(eventClass, listener);
+		getEventBusBySource(source).removeListener(eventClass, listener);
 	}
 
 	public static <LISTENER> void notify(Object source, final Event<LISTENER> event) {
 		getEventBusBySource(source).notify(event);
 	}
 
-	public static <T> boolean addListener(Object source, T evenType, Listener1<T> listener) {
-		return getEventBusBySource(source).addListener(evenType, listener);
+	public static <T> void addListener(Object source, T eventType, Listener1<T> listener) {
+		getEventBusBySource(source).addListener(eventType, listener);
 	}
 
-	public static <T> boolean removeListener(Object source, T evenType, Listener1<T> listener) {
-		return getEventBusBySource(source).removeListener(evenType, listener);
+	public static <T> void removeListener(Object source, T eventType, Listener1<T> listener) {
+		getEventBusBySource(source).removeListener(eventType, listener);
 	}
 
-	public static <T> void notify(Object source, T evenType) {
-		getEventBusBySource(source).notify(evenType);
+	public static <T> void notify(Object source, T eventType) {
+		getEventBusBySource(source).notify(eventType);
 	}
 
 	public <LISTENER> ImmutableArray<LISTENER> getListeners(Object source, Class<? extends Event<LISTENER>> eventType) {
