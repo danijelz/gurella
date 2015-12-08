@@ -4,9 +4,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.Application;
+import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
-import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
@@ -257,6 +257,7 @@ public class SceneManager {
 	private static class TransitionStateManager extends StateMachine<SceneTransitionState> {
 		public TransitionStateManager() {
 			super(SceneTransitionState.OUT);
+
 			put(SceneTransitionState.OUT, SceneTransitionState.HOLD);
 			put(SceneTransitionState.HOLD, SceneTransitionState.IN);
 			put(SceneTransitionState.IN, SceneTransitionState.OUT);

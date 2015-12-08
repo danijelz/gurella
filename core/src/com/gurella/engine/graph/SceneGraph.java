@@ -47,6 +47,7 @@ public class SceneGraph implements UpdateListener {
 
 	private final Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
 
+	//TODO unused signals
 	public final Signal1Impl<SceneNode> nodeAddedSignal = new Signal1Impl<SceneNode>();
 	public final Signal1Impl<SceneNode> nodeRemovedSignal = new Signal1Impl<SceneNode>();
 	public final Signal1Impl<SceneNode> nodeActivatedSignal = new Signal1Impl<SceneNode>();
