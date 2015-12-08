@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
+import com.gurella.engine.graph.event.EventCallback;
+import com.gurella.engine.graph.event.EventCallbackIdentifier;
 import com.gurella.engine.graph.input.DragSource;
 import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.DropTarget;
@@ -12,8 +14,11 @@ import com.gurella.engine.graph.input.IntersectionTouchEvent;
 import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.renderable.TextureComponent;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class TestInputComponnent extends BehaviourComponent {
+	private static final EventCallbackIdentifier<TestInputComponnent> testCallback = EventCallbackIdentifier.get(TestInputComponnent.class, "testCallback");
+	
 	////////////INPUT EVENTS
 	@Override
 	public void onTouchDown(IntersectionTouchEvent pointerEvent) {
@@ -28,6 +33,16 @@ public class TestInputComponnent extends BehaviourComponent {
 	@Override
 	public void onTap(IntersectionTouchEvent pointerEvent, int count) {
 		System.out.println("onTap");
+		ImmutableArray<TestInputComponnent> listeners = getGraph().eventSystem.getListeners(getNode(), testCallback);
+		for(int i = 0; i < listeners.size(); i++) {
+			TestInputComponnent testInputComponnent = listeners.get(i);
+			testInputComponnent.testCallback();
+		}
+	}
+	
+	@EventCallback()
+	public void testCallback() {
+		System.out.println("testCallback");
 	}
 
 	@Override
