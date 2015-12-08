@@ -15,10 +15,6 @@ import com.gurella.engine.signal.Signal1.Signal1Impl;
 public class TransformComponent extends SceneNodeComponent {
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
 
-	private final Vector3 initialTranslation = new Vector3();
-	private final Quaternion initialRotation = new Quaternion();
-	private final Vector3 initialScale = new Vector3(1, 1, 1);
-
 	@ResourceProperty
 	private final Vector3 translation = new Vector3();
 	private final Vector3 worldTranslation = new Vector3();
@@ -70,14 +66,6 @@ public class TransformComponent extends SceneNodeComponent {
 			}
 		}
 	};
-
-	public TransformComponent() {
-	}
-
-	public TransformComponent(float x, float y, float z) {
-		setInitialTranslation(x, y, z);
-		setTranslation(x, y, z);
-	}
 
 	// //////////translate
 
@@ -938,36 +926,6 @@ public class TransformComponent extends SceneNodeComponent {
 		return worldTransformInverse;
 	}
 
-	// /////////initial values
-
-	public TransformComponent setInitialTranslation(float x, float y, float z) {
-		this.initialTranslation.set(x, y, z);
-		return this;
-	}
-
-	public TransformComponent setInitialScale(float x, float y, float z) {
-		this.initialScale.set(x, y, z);
-		return this;
-	}
-
-	public TransformComponent setInitialRotation(float x, float y, float z) {
-		this.initialRotation.setEulerAngles(y, x, z);
-		return this;
-	}
-
-	public TransformComponent setInitialRotation(Quaternion rotation) {
-		this.initialRotation.set(rotation);
-		return this;
-	}
-
-	public TransformComponent updateToInitial() {
-		setTranslation(initialTranslation);
-		setScale(initialScale);
-		setRotation(initialRotation);
-		markTransformDirty();
-		return this;
-	}
-
 	public Vector3 localToWorld(Vector3 point) {
 		return point.mul(getWorldTransform());
 	}
@@ -990,7 +948,11 @@ public class TransformComponent extends SceneNodeComponent {
 		parentTransform = null;
 		childTransforms.clear();
 		dirtySignal.clear();
-		updateToInitial();
+		translation.setZero();
+		rotation.idt();
+		eulerRotation.setZero();
+		scale.set(1, 1, 1);
+		markTransformDirty();
 	}
 
 	@Override

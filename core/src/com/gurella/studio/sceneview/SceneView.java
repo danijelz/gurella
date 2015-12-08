@@ -132,7 +132,7 @@ public class SceneView extends Container<Image> {
 	private void addPlane() {
 		SceneNode node = new SceneNode();
 
-		TransformComponent transformComponent = new TransformComponent(0, 0, 0);
+		TransformComponent transformComponent = new TransformComponent();
 		node.addComponent(transformComponent);
 
 		ModelComponent modelComponent = new ModelComponent();
@@ -185,7 +185,8 @@ public class SceneView extends Container<Image> {
 	private void addCamera() {
 		SceneNode node = new SceneNode();
 
-		TransformComponent transformComponent = new TransformComponent(1, 3, 10);
+		TransformComponent transformComponent = new TransformComponent();
+		transformComponent.setTranslation(1, 3, 10);
 		node.addComponent(transformComponent);
 
 		cameraComponent = new PerspectiveCameraComponent();
