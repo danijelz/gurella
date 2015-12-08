@@ -96,6 +96,9 @@ public class EventBus {
 		final ArrayExt<Object> listenersByType = getListenersByType(eventType);
 		if (listenersByType != null) {
 			listenersByType.removeValue(listener, true);
+			if (listenersByType.size == 0) {
+				listeners.remove(eventType);
+			}
 		}
 		processPool();
 	}

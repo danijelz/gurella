@@ -112,6 +112,8 @@ class EventCallbackRegistry {
 		markerCallbacks.get(J.class).iterator().toArray();
 		ClassReflection.getAnnotations(B.class);
 		ReflectionUtils.getMethod(B.class, "ddd").isAnnotationPresent(EventCallback.class);
+		ClassReflection.getDeclaredMethods(C.class);
+		ClassReflection.getDeclaredMethods(D.class);
 	}
 
 	public interface I {
@@ -141,6 +143,19 @@ class EventCallbackRegistry {
 
 		@Override
 		public void ooo() {
+		}
+	}
+
+	public static class C<T extends A> {
+		public void ddd(T a) {
+			
+		}
+	}
+
+	public static class D extends C<B> {
+		@Override
+		public void ddd(B a) {
+			super.ddd(a);
 		}
 	}
 }
