@@ -319,8 +319,8 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	@SuppressWarnings("unused")
 	@EventCallback(id = "onCollisionExitGlobal", marker = true)
-	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent,
-			BulletPhysicsRigidBodyComponent rigidBodyComponent1) {
+	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent1,
+			BulletPhysicsRigidBodyComponent rigidBodyComponent2) {
 	}
 
 	@SuppressWarnings("unused")
