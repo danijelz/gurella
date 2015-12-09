@@ -40,7 +40,6 @@ import com.gurella.engine.graph.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.graph.bullet.Collision;
 import com.gurella.engine.graph.bullet.CollisionPair;
 import com.gurella.engine.graph.event.EventCallback;
-import com.gurella.engine.graph.event.EventTrigger;
 import com.gurella.engine.graph.input.DragSource;
 import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.DropTarget;
@@ -56,7 +55,6 @@ import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.tag.Tag;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneTransition;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -72,22 +70,16 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 	
 	// TODO events
-	protected void registerListeners(Object listener) {
+	protected void registerListener(Object listener) {
 	}
 
-	protected void unregisterListeners(Object listener) {
+	protected void unregisterListener(Object listener) {
 	}
 
-	protected void registerListeners(SceneGraphElement element, Object listener) {
+	protected void registerListener(SceneGraphElement element, Object listener) {
 	}
 
-	protected void unregisterListeners(SceneGraphElement node, Object listener) {
-	}
-
-	protected void registerEventTrigger(EventTrigger trigger) {
-	}
-
-	protected void unregisterEventTrigger(EventTrigger trigger) {
+	protected void unregisterListener(SceneGraphElement element, Object listener) {
 	}
 
 	// UPDATE EVENTS
@@ -670,11 +662,9 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily<T> componentFamily) {
-
 	}
 
 	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily<?> componentFamily) {
-
 	}
 
 	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily<T> componentFamily) {
