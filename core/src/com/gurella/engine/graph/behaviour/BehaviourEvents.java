@@ -106,9 +106,6 @@ public final class BehaviourEvents {
 	public static final EventCallbackIdentifier<BehaviourComponent> onPause = get("onPause");
 	public static final EventCallbackIdentifier<BehaviourComponent> onResume = get("onResume");
 
-	// APPLICATION
-	public static final EventCallbackIdentifier<BehaviourComponent> onMessage = get("onMessage");
-
 	private static EventCallbackIdentifier<BehaviourComponent> get(String id) {
 		return EventCallbackIdentifier.get(BehaviourComponent.class, id);
 	}

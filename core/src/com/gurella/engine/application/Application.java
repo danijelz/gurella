@@ -97,12 +97,14 @@ public class Application extends SceneElementsResourceContext implements Applica
 	@Override
 	public void pause() {
 		paused = true;
+		// TODO must be handled globally
 		sceneManager.pause();
 	}
 
 	@Override
 	public void resume() {
 		paused = false;
+		// TODO must be handled globally
 		sceneManager.resume();
 	}
 

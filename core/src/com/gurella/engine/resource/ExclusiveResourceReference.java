@@ -81,8 +81,8 @@ public class ExclusiveResourceReference<T> extends FactoryResourceReference<T> {
 		if (dependentResourceIds == null) {
 			createResource(null);
 		} else {
-			DependenciesResolverCallback callback = DependenciesResolverCallback
-					.obtain(this, dependentResourceIds.size);
+			DependenciesResolverCallback callback = DependenciesResolverCallback.obtain(this,
+					dependentResourceIds.size);
 			getOwningContext().obtainResources(dependentResourceIds, callback);
 		}
 	}

@@ -4,8 +4,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.graph.behaviour.BehaviourEvents;
-import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
@@ -223,32 +221,6 @@ public final class SceneNode extends SceneGraphElement {
 		}
 	}
 
-	public void broadcastMessage(Object sender, Object messageType, Object messageData) {
-		if (graph != null) {
-			ImmutableArray<BehaviourComponent> listeners = graph.eventSystem.getListeners(this,
-					BehaviourEvents.onMessage);
-			for (int i = 0; i < listeners.size(); i++) {
-				BehaviourComponent listener = listeners.get(i);
-				listener.onMessage(sender, messageType, messageData);
-			}
-		}
-	}
-
-	public void broadcastMessageToChildren(Object sender, Object messageType, Object messageData) {
-		broadcastMessage(sender, messageType, messageData);
-		for (int i = 0; i < childrenInternal.size; i++) {
-			SceneNode child = childrenInternal.get(i);
-			child.broadcastMessageToChildren(sender, messageType, messageData);
-		}
-	}
-
-	public void broadcastMessageToParents(Object sender, Object messageType, Object messageData) {
-		broadcastMessage(sender, messageType, messageData);
-		if (parent != null) {
-			parent.broadcastMessageToParents(sender, messageType, messageData);
-		}
-	}
-
 	@Override
 	public final void reset() {
 		for (SceneNodeComponent component : componentsInternal.values()) {
@@ -280,36 +252,6 @@ public final class SceneNode extends SceneGraphElement {
 		void componentActivated(SceneNodeComponent component);
 
 		void componentDeactivated(SceneNodeComponent component);
-	}
-
-	public static class NodeChangedListenerAdapter implements NodeChangedListener {
-		@Override
-		public void parentChanged(SceneNode newParent) {
-		}
-
-		@Override
-		public void childAdded(SceneNode child) {
-		}
-
-		@Override
-		public void childRemoved(SceneNode child) {
-		}
-
-		@Override
-		public void componentAdded(SceneNodeComponent component) {
-		}
-
-		@Override
-		public void componentRemoved(SceneNodeComponent component) {
-		}
-
-		@Override
-		public void componentActivated(SceneNodeComponent component) {
-		}
-
-		@Override
-		public void componentDeactivated(SceneNodeComponent component) {
-		}
 	}
 
 	public class NodeChangedSignal extends AbstractSignal<NodeChangedListener> {

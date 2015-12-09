@@ -19,6 +19,7 @@ class EventCallbackRegistry {
 	static {
 		markerCallbacks.put(Object.class, new ObjectSet<EventCallbackIdentifier<?>>());
 		callbacks.put(Object.class, new ObjectSet<EventCallbackIdentifier<?>>());
+		priorities.put(Object.class, new IntIntMap());
 	}
 
 	private EventCallbackRegistry() {
@@ -60,15 +61,15 @@ class EventCallbackRegistry {
 			}
 		}
 
+		IntIntMap prioritiesByCallback = new IntIntMap();
 		Class<?> superclass = listenerClass.getSuperclass();
 		if (superclass != null) {
 			initCallbacks(superclass);
 			methods.addAll(callbacks.get(superclass));
 			markerMethods.addAll(markerCallbacks.get(superclass));
-
+			prioritiesByCallback.putAll(priorities.get(superclass));
 		}
 
-		IntIntMap prioritiesByCallback = new IntIntMap();
 		EventCallbackPriority classPriority = getAnnotation(listenerClass, EventCallbackPriority.class);
 
 		for (Method method : ClassReflection.getDeclaredMethods(listenerClass)) {
@@ -95,8 +96,8 @@ class EventCallbackRegistry {
 			if (callback != null) {
 				int callbackId = callback.id;
 				EventCallbackPriority methodPriority = getDeclaredAnnotation(method, EventCallbackPriority.class);
-				prioritiesByCallback.put(callbackId,
-						getPriority(classPriority, methodPriority, superclass, callbackId));
+				int priority = getPriority(classPriority, methodPriority, superclass, callbackId);
+				prioritiesByCallback.put(callbackId, priority);
 			}
 		}
 
@@ -113,6 +114,10 @@ class EventCallbackRegistry {
 
 		if (classPriority != null) {
 			return classPriority.value();
+		}
+		
+		if(superclass == null) {
+			return Integer.MAX_VALUE;
 		}
 
 		return getPriority(superclass, callbackId);
@@ -166,12 +171,14 @@ class EventCallbackRegistry {
 
 	public static abstract class A extends BehaviourComponent implements I {
 		@Override
+		@EventCallbackPriority(1)
 		public void onInput() {
 		}
 	}
 
 	public static class B extends A implements J {
 		@Override
+		@EventCallbackPriority(1)
 		public void ddd() {
 		}
 
@@ -189,7 +196,6 @@ class EventCallbackRegistry {
 
 	public static class D extends C<B> {
 		@Override
-		@EventCallbackPriority(1)
 		public void ddd(B a) {
 			super.ddd(a);
 		}

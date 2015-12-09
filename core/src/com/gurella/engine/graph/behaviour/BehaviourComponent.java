@@ -17,6 +17,25 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.graph.SceneGraphElement;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.behaviour.trigger.ComponentActivatedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.ComponentAddedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.ComponentDeactivatedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.ComponentRemovedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.NodeComponentActivatedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.NodeComponentAddedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.NodeComponentDeactivatedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.NodeComponentRemovedTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnAfterRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnCleanupUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnDebugRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnInputUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnPreRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.OnThinkUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.PauseTrigger;
+import com.gurella.engine.graph.behaviour.trigger.ResumeTrigger;
+import com.gurella.engine.graph.behaviour.trigger.SceneStartTrigger;
+import com.gurella.engine.graph.behaviour.trigger.SceneStopTrigger;
 import com.gurella.engine.graph.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.graph.bullet.Collision;
 import com.gurella.engine.graph.bullet.CollisionPair;
@@ -43,25 +62,34 @@ import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
 public abstract class BehaviourComponent extends SceneNodeComponent {
-	//TODO events
+	private final Array<Releasable<?>> releasables = new Array<Releasable<?>>();
+	
+	private void addReleasable(Releasable<?> releasable) {
+		releasables.add(releasable);
+		if(isActive()) {
+			releasable.attach();
+		}
+	}
+	
+	// TODO events
 	protected void registerListeners(Object listener) {
 	}
-	
+
 	protected void unregisterListeners(Object listener) {
 	}
-	
+
 	protected void registerListeners(SceneGraphElement element, Object listener) {
 	}
-	
+
 	protected void unregisterListeners(SceneGraphElement node, Object listener) {
 	}
-	
+
 	protected void registerEventTrigger(EventTrigger trigger) {
 	}
-	
+
 	protected void unregisterEventTrigger(EventTrigger trigger) {
 	}
-	
+
 	// UPDATE EVENTS
 	@EventCallback(trigger = OnInputUpdateTrigger.class, marker = true)
 	public void onInput() {
@@ -484,7 +512,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	@EventCallback(trigger = ResumeTrigger.class, marker = true)
 	public void onResume() {
 	}
-	
+
 	public boolean isPaused() {
 		Application application = getApplication();
 		return application == null ? false : application.isPaused();
@@ -495,8 +523,8 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	@EventCallback(marker = true)
 	public void onResize(int width, int height) {
 	}
-	
-	//TODO transform events
+
+	// TODO transform events
 	public void onTransformChanged(TransformComponent transformComponent) {
 	}
 
@@ -524,24 +552,24 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// //////////TODO METHODS
-	
+
 	public void loadScene(String sceneId, SceneTransition transition) {
 	}
-	
+
 	public void nextScene(SceneTransition transition) {
 	}
-	
+
 	public void previousScene(SceneTransition transition) {
 	}
-	
-	//TODO InputMapper InputContext
-	
+
+	// TODO InputMapper InputContext
+
 	public void addInputProcessor(InputProcessor inputProcessor) {
 	}
-	
+
 	public void removeInputProcessor(InputProcessor inputProcessor) {
 	}
-	
+
 	// TODO getActiveComponent getComponentSafely
 	public <T extends SceneNodeComponent> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);
@@ -581,20 +609,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	public Array<SceneNodeComponent> getSceneComponents(Class<? extends SceneNodeComponent> componentClass,
 			Comparator<SceneNodeComponent> comparator) {
 		return null;
-	}
-
-	public void broadcastMessage(Object messageType, Object messageData) {
-		getNode().broadcastMessage(this, messageType, messageData);
-	}
-
-	// Calls the method named methodName on every Component in this node or any
-	// of its children.
-	public void broadcastMessageToChildren(Object messageType, Object messageData) {
-		getNode().broadcastMessageToChildren(this, messageType, messageData);
-	}
-
-	public void broadcastMessageToParents(Object messageType, Object messageData) {
-		getNode().broadcastMessageToParents(this, messageType, messageData);
 	}
 
 	public <T> void runAssync(final AsyncRequest<T> request) {
@@ -684,10 +698,10 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
 	}
-	
+
 	public void addPointerActivityListener(PointerActivityListener pointerActivityListener) {
 	}
-	
+
 	public void removePointerActivityListener(PointerActivityListener pointerActivityListener) {
 	}
 
@@ -703,5 +717,42 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	public abstract class Action {
 
+	}
+
+	public static abstract class Releasable<T> {
+		T value;
+		SceneGraphElement owningElement;
+		
+		public Releasable(T value) {
+			this.value = value;
+		}
+		
+		public T getValue() {
+			return value;
+		}
+		
+		public SceneGraphElement getOwningElement() {
+			return owningElement;
+		}
+
+		protected abstract void attach();
+
+		protected abstract void release(T value);
+	}
+	
+	public static class PointerActivityListenerReleasable extends Releasable<PointerActivityListener> {
+		public PointerActivityListenerReleasable(PointerActivityListener value) {
+			super(value);
+		}
+
+		@Override
+		protected void attach() {
+			getOwningElement().getGraph().inputSystem.pointerActivitySignal.addListener(getValue());
+		}
+
+		@Override
+		protected void release(PointerActivityListener value) {
+			getOwningElement().getGraph().inputSystem.pointerActivitySignal.removeListener(getValue());
+		}
 	}
 }

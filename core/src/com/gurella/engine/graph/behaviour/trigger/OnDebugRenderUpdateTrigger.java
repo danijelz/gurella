@@ -1,4 +1,4 @@
-package com.gurella.engine.graph.behaviour;
+package com.gurella.engine.graph.behaviour.trigger;
 
 import static com.gurella.engine.graph.behaviour.BehaviourEvents.onDebugRender;
 
@@ -6,6 +6,7 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.event.EventTrigger;
 
 public class OnDebugRenderUpdateTrigger extends EventTrigger implements UpdateListener {

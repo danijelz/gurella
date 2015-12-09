@@ -25,6 +25,8 @@ public class ResourceContext {
 
 	private ObjectMap<String, AssetResourceReference<?>> assetsByFileName = new ObjectMap<String, AssetResourceReference<?>>();
 	private OrderedMap<String, AssetResourceDescriptor<?>> assetDescriptorsByFileName = new OrderedMap<String, AssetResourceDescriptor<?>>();
+	
+	private int lastId = -1;
 
 	public ResourceContext(ResourceContext parent) {
 		this.parent = parent;
@@ -62,6 +64,7 @@ public class ResourceContext {
 		return ObtainResourceCallback.run(this, resourceReference);
 	}
 
+	//TODO must be implemented vithout callback
 	public void obtainResources(IntArray resourceIds, AsyncResourceCallback<ResourceMap> callback) {
 		ConcurrentResolver.resolve(this, resourceIds, callback);
 	}
@@ -134,9 +137,9 @@ public class ResourceContext {
 	}
 
 	public int getNextId() {
-		for (int id = 0; id < 10000; id++) {
-			if (!references.containsKey(id) && (parent == null || !parent.references.containsKey(id))) {
-				return id;
+		while (++lastId < 1000000) {
+			if (!references.containsKey(lastId) && (parent == null || !parent.references.containsKey(lastId))) {
+				return lastId;
 			}
 		}
 		throw new IllegalStateException("Too many resources!");
