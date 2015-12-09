@@ -1,9 +1,15 @@
 package com.gurella.engine.graph.event;
 
 import static com.gurella.engine.graph.event.EventCallbackRegistry.getCallbacks;
+import static com.gurella.engine.graph.event.EventCallbackRegistry.getPriority;
+
+import java.util.Comparator;
 
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.Pools;
 import com.gurella.engine.graph.GraphListenerSystem;
+import com.gurella.engine.graph.SceneGraphElement;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.event.EventTrigger.NopEventTrigger;
@@ -12,8 +18,8 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class EventSystem extends GraphListenerSystem {
-	private final IntMap<ArrayExt<SceneNodeComponent>> componentsByCallback = new IntMap<ArrayExt<SceneNodeComponent>>();
-	private final IntMap<IntMap<ArrayExt<SceneNodeComponent>>> nodeComponentsByCallback = new IntMap<IntMap<ArrayExt<SceneNodeComponent>>>();
+	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
+	private final IntMap<IntMap<ArrayExt<Object>>> nodeListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
 	private final IntMap<EventTrigger> triggers = new IntMap<EventTrigger>();
 
 	@Override
@@ -34,22 +40,63 @@ public class EventSystem extends GraphListenerSystem {
 			trigger.deactivated();
 		}
 
-		componentsByCallback.clear();
-		nodeComponentsByCallback.clear();
+		listenersByCallback.clear();
+		nodeListenersByCallback.clear();
 	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
-		int nodeId = component.getNode().id;
-		for (EventCallbackIdentifier<?> callback : getCallbacks(component.getClass())) {
-			int callbackId = callback.id;
-			findListeners(callbackId).add(component);
-			findListeners(nodeId, callbackId).add(component);
-			ensureTrigger(callback);
-		}
+		register(component.getNode().id, component);
 	}
 
-	private void ensureTrigger(EventCallbackIdentifier<?> callback) {
+	public void register(Object listener) {
+		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
+		if (callbacks.size == 0) {
+			return;
+		}
+
+		ListenersComparator comparator = Pools.obtain(ListenersComparator.class);
+
+		for (EventCallbackIdentifier<?> callback : callbacks) {
+			int callbackId = callback.id;
+			comparator.callbackId = callbackId;
+			ArrayExt<Object> listeners = findListeners(callbackId);
+			listeners.add(listener);
+			listeners.sort(comparator);
+			ensureTriggerExists(callback);
+		}
+
+		Pools.free(comparator);
+	}
+
+	public void register(SceneGraphElement element, Object listener) {
+		register(element.id, listener);
+	}
+
+	private void register(int elementId, Object listener) {
+		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
+		if (callbacks.size == 0) {
+			return;
+		}
+
+		ListenersComparator comparator = Pools.obtain(ListenersComparator.class);
+
+		for (EventCallbackIdentifier<?> callback : callbacks) {
+			int callbackId = callback.id;
+			comparator.callbackId = callbackId;
+			ArrayExt<Object> listeners = findListeners(callbackId);
+			listeners.add(listener);
+			listeners.sort(comparator);
+			ArrayExt<Object> listenersByElement = findListenersByElement(elementId, callbackId);
+			listenersByElement.add(listener);
+			listenersByElement.sort(comparator);
+			ensureTriggerExists(callback);
+		}
+
+		Pools.free(comparator);
+	}
+
+	private void ensureTriggerExists(EventCallbackIdentifier<?> callback) {
 		int callbackId = callback.id;
 		if (!triggers.containsKey(callbackId)) {
 			Class<? extends EventTrigger> triggerClass = callback.triggerClass;
@@ -66,34 +113,71 @@ public class EventSystem extends GraphListenerSystem {
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
-		int nodeId = component.getNode().id;
-		for (EventCallbackIdentifier<?> callback : getCallbacks(component.getClass())) {
+		unregister(component.getNode().id, component);
+	}
+
+	public void unregister(Object listener) {
+		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
+		if (callbacks.size == 0) {
+			return;
+		}
+
+		for (EventCallbackIdentifier<?> callback : callbacks) {
 			int callbackId = callback.id;
-			componentsByCallback.get(callbackId).removeValue(component, true);
-			findListeners(nodeId, callbackId).removeValue(component, true);
+			ArrayExt<Object> listeners = listenersByCallback.get(callbackId);
+			if (listeners != null) {
+				listeners.removeValue(listener, true);
+			}
 		}
 	}
 
-	private ArrayExt<SceneNodeComponent> findListeners(int callbackId) {
-		ArrayExt<SceneNodeComponent> listeners = componentsByCallback.get(callbackId);
+	public void unregister(SceneGraphElement element, Object listener) {
+		unregister(element.id, listener);
+	}
+
+	private void unregister(int elementId, Object listener) {
+		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
+		if (callbacks.size == 0) {
+			return;
+		}
+
+		for (EventCallbackIdentifier<?> callback : callbacks) {
+			int callbackId = callback.id;
+			ArrayExt<Object> listeners = listenersByCallback.get(callbackId);
+			if (listeners != null) {
+				listeners.removeValue(listener, true);
+			}
+
+			IntMap<ArrayExt<Object>> listenersByElement = nodeListenersByCallback.get(elementId);
+			if (listenersByElement != null) {
+				listeners = listenersByElement.get(callbackId);
+				if (listeners != null) {
+					listeners.removeValue(listener, true);
+				}
+			}
+		}
+	}
+
+	private ArrayExt<Object> findListeners(int callbackId) {
+		ArrayExt<Object> listeners = listenersByCallback.get(callbackId);
 		if (listeners == null) {
-			listeners = new ArrayExt<SceneNodeComponent>();
-			componentsByCallback.put(callbackId, listeners);
+			listeners = new ArrayExt<Object>();
+			listenersByCallback.put(callbackId, listeners);
 		}
 		return listeners;
 	}
 
-	private ArrayExt<SceneNodeComponent> findListeners(int nodeId, int callbackId) {
-		IntMap<ArrayExt<SceneNodeComponent>> listenersByNode = nodeComponentsByCallback.get(nodeId);
-		if (listenersByNode == null) {
-			listenersByNode = new IntMap<ArrayExt<SceneNodeComponent>>();
-			nodeComponentsByCallback.put(nodeId, listenersByNode);
+	private ArrayExt<Object> findListenersByElement(int elementId, int callbackId) {
+		IntMap<ArrayExt<Object>> listenersByElement = nodeListenersByCallback.get(elementId);
+		if (listenersByElement == null) {
+			listenersByElement = new IntMap<ArrayExt<Object>>();
+			nodeListenersByCallback.put(elementId, listenersByElement);
 		}
 
-		ArrayExt<SceneNodeComponent> listeners = listenersByNode.get(callbackId);
+		ArrayExt<Object> listeners = listenersByElement.get(callbackId);
 		if (listeners == null) {
-			listeners = new ArrayExt<SceneNodeComponent>();
-			listenersByNode.put(callbackId, listeners);
+			listeners = new ArrayExt<Object>();
+			listenersByElement.put(callbackId, listeners);
 		}
 
 		return listeners;
@@ -101,13 +185,12 @@ public class EventSystem extends GraphListenerSystem {
 
 	public <T> ImmutableArray<T> getListeners(EventCallbackIdentifier<T> callback) {
 		@SuppressWarnings("unchecked")
-		ArrayExt<T> listeners = (ArrayExt<T>) componentsByCallback.get(callback.id);
+		ArrayExt<T> listeners = (ArrayExt<T>) listenersByCallback.get(callback.id);
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	public <T> ImmutableArray<T> getListeners(SceneNode node, EventCallbackIdentifier<T> callback) {
-		int nodeId = node.id;
-		IntMap<ArrayExt<SceneNodeComponent>> listenersByNode = nodeComponentsByCallback.get(nodeId);
+	public <T> ImmutableArray<T> getListeners(SceneGraphElement element, EventCallbackIdentifier<T> callback) {
+		IntMap<ArrayExt<Object>> listenersByNode = nodeListenersByCallback.get(element.id);
 		if (listenersByNode == null) {
 			return ImmutableArray.<T> empty();
 		}
@@ -126,11 +209,39 @@ public class EventSystem extends GraphListenerSystem {
 		}
 	}
 
+	public <T> void notifyParentHierarchy(SceneNode node, CallbackEvent<T> event) {
+		notify(node, event);
+		SceneNode parent = node.getParent();
+		if (parent != null) {
+			notifyParentHierarchy(parent, event);
+		}
+	}
+
+	public <T> void notifyChildHierarchy(SceneNode node, CallbackEvent<T> event) {
+		notify(node, event);
+		ImmutableArray<SceneNode> children = node.children;
+		for (int i = 0; i < children.size(); i++) {
+			SceneNode child = children.get(i);
+			if (child.isActive()) {
+				notifyChildHierarchy(child, event);
+			}
+		}
+	}
+
 	public <T> void notify(CallbackEvent<T> event) {
 		ImmutableArray<T> listeners = getListeners(event.eventCallbackIdentifier);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
 			event.notify(script);
+		}
+	}
+
+	private static class ListenersComparator implements Comparator<Object> {
+		private int callbackId;
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			return Integer.compare(getPriority(o1.getClass(), callbackId), getPriority(o2.getClass(), callbackId));
 		}
 	}
 }

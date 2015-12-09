@@ -2,6 +2,7 @@ package com.gurella.engine.graph;
 
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.application.Application;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.Scene;
@@ -99,6 +100,10 @@ public abstract class SceneGraphElement implements Poolable, Disposable {
 
 	public abstract void setEnabled(boolean enabled);
 
+	public Application getApplication() {
+		return scene == null ? null : scene.getApplication();
+	}
+	
 	public Scene getScene() {
 		return scene;
 	}

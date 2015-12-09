@@ -77,7 +77,7 @@ public class Scene extends SceneElementsResourceContext {
 		return initialNodes;
 	}
 
-	public void init(ResourceMap initialResources) {
+	public void start(ResourceMap initialResources) {
 		//TODO init graph
 		for (int i = 0; i < initialSystems.size; i++) {
 			int initialSystemId = initialSystems.get(i);

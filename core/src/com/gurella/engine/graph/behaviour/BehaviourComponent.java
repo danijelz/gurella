@@ -13,30 +13,55 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap.Values;
+import com.gurella.engine.application.Application;
+import com.gurella.engine.graph.SceneGraphElement;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.graph.bullet.Collision;
 import com.gurella.engine.graph.bullet.CollisionPair;
 import com.gurella.engine.graph.event.EventCallback;
+import com.gurella.engine.graph.event.EventTrigger;
 import com.gurella.engine.graph.input.DragSource;
 import com.gurella.engine.graph.input.DragStartCondition;
 import com.gurella.engine.graph.input.DropTarget;
 import com.gurella.engine.graph.input.IntersectionTouchEvent;
+import com.gurella.engine.graph.input.PointerActivityListener;
 import com.gurella.engine.graph.input.TouchEvent;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.graph.manager.NodeManager.SceneNodeFamily;
+import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.tag.Tag;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneTransition;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
 public abstract class BehaviourComponent extends SceneNodeComponent {
+	//TODO events
+	protected void registerListeners(Object listener) {
+	}
+	
+	protected void unregisterListeners(Object listener) {
+	}
+	
+	protected void registerListeners(SceneGraphElement element, Object listener) {
+	}
+	
+	protected void unregisterListeners(SceneGraphElement node, Object listener) {
+	}
+	
+	protected void registerEventTrigger(EventTrigger trigger) {
+	}
+	
+	protected void unregisterEventTrigger(EventTrigger trigger) {
+	}
+	
 	// UPDATE EVENTS
 	@EventCallback(trigger = OnInputUpdateTrigger.class, marker = true)
 	public void onInput() {
@@ -459,11 +484,20 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	@EventCallback(trigger = ResumeTrigger.class, marker = true)
 	public void onResume() {
 	}
+	
+	public boolean isPaused() {
+		Application application = getApplication();
+		return application == null ? false : application.isPaused();
+	}
 
 	// TODO
 	@SuppressWarnings("unused")
 	@EventCallback(marker = true)
 	public void onResize(int width, int height) {
+	}
+	
+	//TODO transform events
+	public void onTransformChanged(TransformComponent transformComponent) {
 	}
 
 	// TODO box2d physics events
@@ -495,6 +529,9 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 	
 	public void nextScene(SceneTransition transition) {
+	}
+	
+	public void previousScene(SceneTransition transition) {
 	}
 	
 	//TODO InputMapper InputContext
@@ -646,6 +683,12 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
+	}
+	
+	public void addPointerActivityListener(PointerActivityListener pointerActivityListener) {
+	}
+	
+	public void removePointerActivityListener(PointerActivityListener pointerActivityListener) {
 	}
 
 	// TODO Gdx.input methods

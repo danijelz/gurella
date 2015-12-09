@@ -76,6 +76,14 @@ public class SceneManager {
 
 		transitionWorker.startTransition(destinationScene, transition);
 	}
+	
+	public Scene getCurrentScene() {
+		return currentScene;
+	}
+	
+	public String getCurrentSceneGroup() {
+		return currentSceneGroup;
+	}
 
 	public void resize(int width, int height) {
 		if (currentScene != null) {
@@ -182,7 +190,7 @@ public class SceneManager {
 			try {
 				if (transition.onTransitionHold(initializationProgress) && destinationSceneResources != null) {
 					transition.afterTransitionHold();
-					destinationScene.init(destinationSceneResources);
+					destinationScene.start(destinationSceneResources);
 					transition.beforeTransitionIn();
 					transitionStateManager.apply(SceneTransitionState.IN);
 				}

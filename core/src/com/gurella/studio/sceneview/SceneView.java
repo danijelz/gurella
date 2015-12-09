@@ -109,7 +109,7 @@ public class SceneView extends Container<Image> {
 		application = new Application(null);
 		view = new Scene(application, "");
 		graph = view.graph;
-		view.init(null);
+		view.start(null);
 		addPlane();
 		addCamera();
 		graph.update();

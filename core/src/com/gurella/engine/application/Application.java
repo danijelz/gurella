@@ -33,9 +33,10 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public static SpriteBatch SPRITE_BATCH;
 	public static ShapeRenderer SHAPE_RENDERER;
 
-	private boolean paused;
 	private String initialSceneId;
 	private Color backgroundColor;
+	
+	private boolean paused;
 	private final SceneManager sceneManager = new SceneManager(this);
 
 	private final ApplicationInitializer initializer;
@@ -66,13 +67,9 @@ public class Application extends SceneElementsResourceContext implements Applica
 		this.initialSceneId = initialSceneId;
 	}
 
-	public ObjectMap<String, Scene> getScenes() {
-		return sceneManager.getScenes();
-	}
-
 	@Override
 	public void create() {
-		//TODO create services by checking if this is studio
+		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		Gdx.input.setInputProcessor(INPUT_PROCESSORS);
 		INPUT_PROCESSORS.addProcessor(InputMapper.INSTANCE);// TODO beautify
@@ -85,13 +82,13 @@ public class Application extends SceneElementsResourceContext implements Applica
 
 	@Override
 	public void resize(int width, int height) {
-		//TODO must be handled globally
+		// TODO must be handled globally
 		sceneManager.resize(width, height);
 	}
 
 	@Override
 	public void render() {
-		//TODO clear must be handled by RenderSystem with spec from camera
+		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		EventService.notify(UpdateEvent.instance);
@@ -108,9 +105,21 @@ public class Application extends SceneElementsResourceContext implements Applica
 		paused = false;
 		sceneManager.resume();
 	}
-	
+
 	public boolean isPaused() {
 		return paused;
+	}
+
+	public ObjectMap<String, Scene> getScenes() {
+		return sceneManager.getScenes();
+	}
+
+	public Scene getCurrentScene() {
+		return sceneManager.getCurrentScene();
+	}
+
+	public String getCurrentSceneGroup() {
+		return sceneManager.getCurrentSceneGroup();
 	}
 
 	public static void addInputProcessor(InputProcessor processor) {
