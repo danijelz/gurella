@@ -24,6 +24,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
+//TODO activate and deactivate triggers
 public class EventManager implements ComponentActivatedListener, ComponentDeactivatedListener, SystemActivatedListener,
 		SystemDeactivatedListener {
 	private final SceneGraph sceneGraph;
