@@ -39,12 +39,12 @@ import com.gurella.engine.graph.UpdateListenerSystem;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.camera.CameraComponent;
 import com.gurella.engine.graph.event.EventCallbackIdentifier;
-import com.gurella.engine.graph.event.EventSystem;
+import com.gurella.engine.graph.event.EventManager;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
-import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
+import com.gurella.engine.graph.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.utils.ImmutableArray;
@@ -53,8 +53,8 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
-	private EventSystem eventSystem;
-	private SpatialPartitioningManager<?> spatialPartitioningManager;
+	private EventManager eventManager;
+	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
 
 	private InputProcessorDelegate delegate = new InputProcessorDelegate();
 	private InputAdapter dummyDelegate = new InputAdapter();
@@ -79,14 +79,14 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	@Override
 	protected void attached() {
 		SceneGraph graph = getGraph();
-		eventSystem = graph.eventSystem;
-		spatialPartitioningManager = graph.spatialPartitioningManager;
+		eventManager = graph.eventManager;
+		spatialPartitioningSystem = graph.spatialPartitioningSystem;
 	}
 
 	@Override
 	protected void detached() {
-		eventSystem = null;
-		spatialPartitioningManager = null;
+		eventManager = null;
+		spatialPartitioningSystem = null;
 	}
 
 	@Override
@@ -305,7 +305,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		float closestDistance = Float.MAX_VALUE;
 
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		spatialPartitioningManager.getSpatials(pickRay, spatials, layer);
+		spatialPartitioningSystem.getSpatials(pickRay, spatials, layer);
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderableComponent = spatial.renderableComponent;
@@ -358,11 +358,11 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 	}
 	
 	ImmutableArray<BehaviourComponent> getListeners(EventCallbackIdentifier<BehaviourComponent> method) {
-		return eventSystem.getListeners(method);
+		return eventManager.getListeners(method);
 	}
 
 	ImmutableArray<BehaviourComponent> getListeners(SceneNode node, EventCallbackIdentifier<BehaviourComponent> method) {
-		return eventSystem.getListeners(node, method);
+		return eventManager.getListeners(node, method);
 	}
 
 	private class InputProcessorDelegate implements com.badlogic.gdx.InputProcessor {
@@ -371,7 +371,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean keyDown(int keycode) {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(keyDown)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(keyDown)) {
 				behaviourComponent.keyDown(keycode);
 			}
 			return false;
@@ -379,7 +379,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean keyUp(int keycode) {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(keyUp)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(keyUp)) {
 				behaviourComponent.keyUp(keycode);
 			}
 			return false;
@@ -387,7 +387,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 
 		@Override
 		public boolean keyTyped(char character) {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(keyTyped)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(keyTyped)) {
 				behaviourComponent.keyTyped(character);
 			}
 			return false;
@@ -405,18 +405,18 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
 
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(scrolled)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(scrolled)) {
 				behaviourComponent.scrolled(screenX, screenY, amount);
 			}
 
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onScrolledGlobal)) {
+				for (BehaviourComponent behaviourComponent : eventManager.getListeners(onScrolledGlobal)) {
 					behaviourComponent.onScrolled(renderableComponent, screenX, screenY, amount, closestIntersection);
 				}
 
-				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, onTouchDown)) {
+				for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, onTouchDown)) {
 					behaviourComponent.onScrolled(screenX, screenY, amount, closestIntersection);
 				}
 			}
@@ -432,18 +432,18 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
 
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(touchDown)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(touchDown)) {
 				behaviourComponent.touchDown(touchEvent);
 			}
 
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onTouchDownGlobal)) {
+				for (BehaviourComponent behaviourComponent : eventManager.getListeners(onTouchDownGlobal)) {
 					behaviourComponent.onTouchDown(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, onTouchDown)) {
+				for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, onTouchDown)) {
 					behaviourComponent.onTouchDown(intersectionTouchEvent);
 				}
 			}
@@ -456,7 +456,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(touchUp)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(touchUp)) {
 				behaviourComponent.touchUp(touchEvent);
 			}
 
@@ -464,11 +464,11 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onTouchUpGlobal)) {
+				for (BehaviourComponent behaviourComponent : eventManager.getListeners(onTouchUpGlobal)) {
 					behaviourComponent.onTouchUp(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, onTouchUp)) {
+				for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, onTouchUp)) {
 					behaviourComponent.onTouchUp(intersectionTouchEvent);
 				}
 			}
@@ -491,7 +491,7 @@ public class InputSystem extends UpdateListenerSystem implements SceneGraphListe
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					touchEvent.set(pointer, button, screenX, screenY);
-					for (BehaviourComponent behaviourComponent : eventSystem.getListeners(touchDragged)) {
+					for (BehaviourComponent behaviourComponent : eventManager.getListeners(touchDragged)) {
 						behaviourComponent.touchDragged(touchEvent);
 					}
 

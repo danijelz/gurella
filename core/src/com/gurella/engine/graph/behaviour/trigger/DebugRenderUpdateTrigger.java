@@ -27,7 +27,7 @@ public class DebugRenderUpdateTrigger extends EventTrigger implements UpdateList
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onDebugRender)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onDebugRender)) {
 			behaviourComponent.onInput();
 		}
 	}

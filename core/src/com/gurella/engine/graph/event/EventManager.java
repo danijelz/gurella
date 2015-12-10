@@ -1,8 +1,8 @@
 package com.gurella.engine.graph.event;
 
-import static com.gurella.engine.graph.event.EventCallbackRegistry.getCallbacks;
-import static com.gurella.engine.graph.event.EventCallbackRegistry.getPriority;
-import static com.gurella.engine.graph.event.EventCallbackRegistry.getSubscriptions;
+import static com.gurella.engine.graph.event.EventRegistry.getCallbacks;
+import static com.gurella.engine.graph.event.EventRegistry.getPriority;
+import static com.gurella.engine.graph.event.EventRegistry.getSubscriptions;
 
 import java.util.Comparator;
 
@@ -19,7 +19,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class EventSystem extends GraphListenerSystem {
+public class EventManager extends GraphListenerSystem {
 	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
 	private final ObjectMap<Class<?>, ArrayExt<Object>> listenersBySubscription = new ObjectMap<Class<?>, ArrayExt<Object>>();
 	private final IntMap<IntMap<ArrayExt<Object>>> elementListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
@@ -153,7 +153,7 @@ public class EventSystem extends GraphListenerSystem {
 				triggers.put(callbackId, NopEventTrigger.instance);
 			} else {
 				EventTrigger trigger = ReflectionUtils.newInstance(triggerClass);
-				trigger.eventSystem = this;
+				trigger.eventManager = this;
 				trigger.activated();
 				triggers.put(callbackId, trigger);
 			}
@@ -320,14 +320,14 @@ public class EventSystem extends GraphListenerSystem {
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	public <T> ImmutableArray<T> getListeners(Class<? extends EventSubscription> subscription) {
+	public <T extends EventSubscription> ImmutableArray<T> getListeners(Class<T> subscription) {
 		@SuppressWarnings("unchecked")
 		ArrayExt<T> listeners = (ArrayExt<T>) listenersBySubscription.get(subscription);
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	public <T> ImmutableArray<T> getListeners(SceneGraphElement element,
-			Class<? extends EventSubscription> subscription) {
+	public <T extends EventSubscription> ImmutableArray<T> getListeners(SceneGraphElement element,
+			Class<T> subscription) {
 		ObjectMap<Class<?>, ArrayExt<Object>> listenersByElement = elementListenersBySubscription.get(element.id);
 		if (listenersByElement == null) {
 			return ImmutableArray.<T> empty();
@@ -338,8 +338,8 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	// TODO remove
-	public <T> void notify(SceneNode node, CallbackEvent<T> event) {
-		ImmutableArray<T> listeners = getListeners(node, event.eventCallbackIdentifier);
+	public <T> void notify(SceneGraphElement element, CallbackEvent<T> event) {
+		ImmutableArray<T> listeners = getListeners(element, event.eventCallbackIdentifier);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
 			event.notify(script);
@@ -367,6 +367,41 @@ public class EventSystem extends GraphListenerSystem {
 
 	public <T> void notify(CallbackEvent<T> event) {
 		ImmutableArray<T> listeners = getListeners(event.eventCallbackIdentifier);
+		for (int i = 0; i < listeners.size(); i++) {
+			T script = listeners.get(i);
+			event.notify(script);
+		}
+	}
+
+	public <T extends EventSubscription> void notify(SceneGraphElement element, SubscriptionEvent<T> event) {
+		ImmutableArray<T> listeners = getListeners(element, event.subscriptionType);
+		for (int i = 0; i < listeners.size(); i++) {
+			T script = listeners.get(i);
+			event.notify(script);
+		}
+	}
+
+	public <T extends EventSubscription> void notifyParentHierarchy(SceneNode node, SubscriptionEvent<T> event) {
+		notify(node, event);
+		SceneNode parent = node.getParent();
+		if (parent != null) {
+			notifyParentHierarchy(parent, event);
+		}
+	}
+
+	public <T extends EventSubscription> void notifyChildHierarchy(SceneNode node, SubscriptionEvent<T> event) {
+		notify(node, event);
+		ImmutableArray<SceneNode> children = node.children;
+		for (int i = 0; i < children.size(); i++) {
+			SceneNode child = children.get(i);
+			if (child.isActive()) {
+				notifyChildHierarchy(child, event);
+			}
+		}
+	}
+
+	public <T extends EventSubscription> void notify(SubscriptionEvent<T> event) {
+		ImmutableArray<T> listeners = getListeners(event.subscriptionType);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
 			event.notify(script);

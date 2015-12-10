@@ -8,14 +8,14 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.graph.event.EventSystem;
+import com.gurella.engine.graph.event.EventManager;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
 import com.gurella.engine.graph.manager.ComponentManager;
 import com.gurella.engine.graph.manager.NodeManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
-import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
-import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningManager;
+import com.gurella.engine.graph.spatial.SpatialPartitioningSystem;
+import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.graph.tag.TagManager;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.Scene;
@@ -69,8 +69,8 @@ public class SceneGraph implements UpdateListener {
 	public final NodeManager nodeManager;
 	public final TagManager tagManager;
 	public final LayerManager layerManager;
-	public final EventSystem eventSystem;
-	public final SpatialPartitioningManager<?> spatialPartitioningManager;
+	public final EventManager eventManager;
+	public final SpatialPartitioningSystem<?> spatialPartitioningSystem;
 	public final InputSystem inputSystem;
 	public final RenderSystem renderSystem;
 
@@ -91,11 +91,11 @@ public class SceneGraph implements UpdateListener {
 		layerManager = new LayerManager();
 		addSystemSafely(layerManager);
 
-		eventSystem = new EventSystem();
-		addSystemSafely(eventSystem);
+		eventManager = new EventManager();
+		addSystemSafely(eventManager);
 
-		spatialPartitioningManager = new BvhSpatialPartitioningManager();
-		addSystemSafely(spatialPartitioningManager);
+		spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
+		addSystemSafely(spatialPartitioningSystem);
 
 		inputSystem = new InputSystem();
 		addSystemSafely(inputSystem);
@@ -110,8 +110,8 @@ public class SceneGraph implements UpdateListener {
 		addSystemSafely(nodeManager);
 		addSystemSafely(tagManager);
 		addSystemSafely(layerManager);
-		addSystemSafely(eventSystem);
-		addSystemSafely(spatialPartitioningManager);
+		addSystemSafely(eventManager);
+		addSystemSafely(spatialPartitioningSystem);
 		addSystemSafely(inputSystem);
 		addSystemSafely(renderSystem);
 

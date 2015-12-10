@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.METHOD })
-public @interface EventCallbackPriority {
+@Target(value = { ElementType.METHOD, ElementType.TYPE })
+public @interface Priority {
 	int value();
 }

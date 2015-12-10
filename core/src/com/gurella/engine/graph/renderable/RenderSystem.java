@@ -42,7 +42,7 @@ public class RenderSystem extends SceneProcessorManager {
 	}
 
 	private void renderSpatials(Layer layer, Camera camera) {
-		getGraph().spatialPartitioningManager.getSpatials(camera.frustum, tempSpatials, layer);
+		getGraph().spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layer);
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			spatial.renderableComponent.render(batch);

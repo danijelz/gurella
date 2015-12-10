@@ -9,17 +9,17 @@ import com.gurella.engine.signal.Listener0;
 public class PauseTrigger extends EventTrigger implements Listener0 {
 	@Override
 	protected void activated() {
-		eventSystem.getScene().pauseSignal.addListener(this);
+		eventManager.getScene().pauseSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventSystem.getScene().pauseSignal.removeListener(this);
+		eventManager.getScene().pauseSignal.removeListener(this);
 	}
 
 	@Override
 	public void handle() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPause)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onPause)) {
 			behaviourComponent.onPause();
 		}
 	}

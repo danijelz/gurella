@@ -135,7 +135,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 
 	private ImmutableArray<BehaviourComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
 			EventCallbackIdentifier<BehaviourComponent> scriptMethod) {
-		return graph.eventSystem.getListeners(rigidBodyComponent.getNode(), scriptMethod);
+		return graph.eventManager.getListeners(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
 	private void swapCollisionPairs() {
@@ -151,7 +151,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private ImmutableArray<BehaviourComponent> getScripts(EventCallbackIdentifier<BehaviourComponent> method) {
-		return graph.eventSystem.getListeners(method);
+		return graph.eventManager.getListeners(method);
 	}
 
 	void clear() {

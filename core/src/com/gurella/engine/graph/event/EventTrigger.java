@@ -1,7 +1,7 @@
 package com.gurella.engine.graph.event;
 
 public abstract class EventTrigger {
-	protected EventSystem eventSystem;
+	protected EventManager eventManager;
 
 	protected abstract void activated();
 

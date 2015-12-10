@@ -9,17 +9,17 @@ import com.gurella.engine.signal.Listener0;
 public class SceneStartTrigger extends EventTrigger implements Listener0 {
 	@Override
 	protected void activated() {
-		eventSystem.getScene().startSignal.addListener(this);
+		eventManager.getScene().startSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventSystem.getScene().startSignal.removeListener(this);
+		eventManager.getScene().startSignal.removeListener(this);
 	}
 
 	@Override
 	public void handle() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onSceneStart)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onSceneStart)) {
 			behaviourComponent.onSceneStart();
 		}
 	}

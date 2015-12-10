@@ -18,9 +18,9 @@ public class SceneEventsTrgger extends EventTrigger {
 
 	@Override
 	protected void activated() {
-		eventSystem.getGraph().addListener(scriptSceneGraphListener);
-		Scene scene = eventSystem.getScene();
-		eventSystem.getScene().startSignal.addListener(sceneStartListener);
+		eventManager.getGraph().addListener(scriptSceneGraphListener);
+		Scene scene = eventManager.getScene();
+		eventManager.getScene().startSignal.addListener(sceneStartListener);
 		scene.stopSignal.addListener(sceneStopListener);
 		scene.pauseSignal.addListener(pauseListener);
 		scene.resumeSignal.addListener(resumeListener);
@@ -28,8 +28,8 @@ public class SceneEventsTrgger extends EventTrigger {
 
 	@Override
 	protected void deactivated() {
-		eventSystem.getGraph().removeListener(scriptSceneGraphListener);
-		Scene scene = eventSystem.getScene();
+		eventManager.getGraph().removeListener(scriptSceneGraphListener);
+		Scene scene = eventManager.getScene();
 		scene.startSignal.removeListener(sceneStartListener);
 		scene.stopSignal.removeListener(sceneStopListener);
 		scene.pauseSignal.removeListener(pauseListener);
@@ -40,11 +40,11 @@ public class SceneEventsTrgger extends EventTrigger {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.componentActivated)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.componentActivated)) {
 				behaviourComponent.componentActivated(node, component);
 			}
 
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(node,
 					BehaviourEvents.nodeComponentActivated)) {
 				behaviourComponent.nodeComponentActivated(component);
 			}
@@ -53,12 +53,12 @@ public class SceneEventsTrgger extends EventTrigger {
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : eventSystem
+			for (BehaviourComponent behaviourComponent : eventManager
 					.getListeners(BehaviourEvents.componentDeactivated)) {
 				behaviourComponent.componentDeactivated(node, component);
 			}
 
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(node,
 					BehaviourEvents.nodeComponentDeactivated)) {
 				behaviourComponent.nodeComponentDeactivated(component);
 			}
@@ -67,11 +67,11 @@ public class SceneEventsTrgger extends EventTrigger {
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.componentAdded)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.componentAdded)) {
 				behaviourComponent.componentAdded(node, component);
 			}
 
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(node,
 					BehaviourEvents.nodeComponentAdded)) {
 				behaviourComponent.nodeComponentAdded(component);
 			}
@@ -80,11 +80,11 @@ public class SceneEventsTrgger extends EventTrigger {
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.componentRemoved)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.componentRemoved)) {
 				behaviourComponent.componentRemoved(node, component);
 			}
 
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node,
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(node,
 					BehaviourEvents.nodeComponentRemoved)) {
 				behaviourComponent.nodeComponentRemoved(component);
 			}
@@ -94,7 +94,7 @@ public class SceneEventsTrgger extends EventTrigger {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onSceneStart)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.onSceneStart)) {
 				behaviourComponent.onSceneStart();
 			}
 		}
@@ -103,7 +103,7 @@ public class SceneEventsTrgger extends EventTrigger {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onSceneStop)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.onSceneStop)) {
 				behaviourComponent.onSceneStop();
 			}
 		}
@@ -112,7 +112,7 @@ public class SceneEventsTrgger extends EventTrigger {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onPause)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.onPause)) {
 				behaviourComponent.onPause();
 			}
 		}
@@ -121,7 +121,7 @@ public class SceneEventsTrgger extends EventTrigger {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : eventSystem.getListeners(BehaviourEvents.onResume)) {
+			for (BehaviourComponent behaviourComponent : eventManager.getListeners(BehaviourEvents.onResume)) {
 				behaviourComponent.onPause();
 			}
 		}

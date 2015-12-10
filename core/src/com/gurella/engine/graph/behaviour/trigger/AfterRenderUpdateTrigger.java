@@ -27,7 +27,7 @@ public class AfterRenderUpdateTrigger extends EventTrigger implements UpdateList
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onAfterRender)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onAfterRender)) {
 			behaviourComponent.onInput();
 		}
 	}

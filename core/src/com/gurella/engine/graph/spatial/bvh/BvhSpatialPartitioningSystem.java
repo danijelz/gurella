@@ -9,9 +9,9 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
-import com.gurella.engine.graph.spatial.SpatialPartitioningManager;
+import com.gurella.engine.graph.spatial.SpatialPartitioningSystem;
 
-public class BvhSpatialPartitioningManager extends SpatialPartitioningManager<BvhSpatial> {
+public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhSpatial> {
 	private Bvh bvh = new Bvh(1);
 
 	@Override

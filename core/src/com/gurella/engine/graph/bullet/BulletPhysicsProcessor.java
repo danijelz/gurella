@@ -23,7 +23,7 @@ import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
-import com.gurella.engine.graph.event.EventSystem;
+import com.gurella.engine.graph.event.EventManager;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class BulletPhysicsProcessor extends SceneProcessorManager {
@@ -37,7 +37,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	private CollisionTrackingInternalTickCallback tickCallback;
 
 	private Vector3 gravity = new Vector3(0, -10f, 0);
-	private EventSystem eventSystem;
+	private EventManager eventManager;
 
 	public BulletPhysicsProcessor() {
 		collisionConfig = Application.DISPOSABLE_MANAGER.add(new btDefaultCollisionConfiguration());
@@ -61,7 +61,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	protected void activated() {
 		SceneGraph graph = getGraph();
 		tickCallback.graph = graph;
-		eventSystem = graph.eventSystem;
+		eventManager = graph.eventManager;
 		ImmutableArray<SceneNodeComponent> components = graph.activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
@@ -78,7 +78,7 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 		}
 
 		tickCallback.clear();
-		eventSystem = null;
+		eventManager = null;
 	}
 
 	@Override
@@ -94,13 +94,13 @@ public class BulletPhysicsProcessor extends SceneProcessorManager {
 	}
 
 	private void dispatchSimulationStartEvent() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPhysicsSimulationStart)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onPhysicsSimulationStart)) {
 			behaviourComponent.onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
 
 	private void dispatchSimulationEndEvent() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPhysicsSimulationEnd)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onPhysicsSimulationEnd)) {
 			behaviourComponent.onPhysicsSimulationEnd(dynamicsWorld);
 		}
 	}

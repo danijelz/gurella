@@ -27,7 +27,7 @@ public class ThinkUpdateTrigger extends EventTrigger implements UpdateListener {
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onThink)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onThink)) {
 			behaviourComponent.onInput();
 		}
 	}

@@ -9,17 +9,17 @@ import com.gurella.engine.signal.Listener0;
 public class ResumeTrigger extends EventTrigger implements Listener0 {
 	@Override
 	protected void activated() {
-		eventSystem.getScene().resumeSignal.addListener(this);
+		eventManager.getScene().resumeSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventSystem.getScene().resumeSignal.removeListener(this);
+		eventManager.getScene().resumeSignal.removeListener(this);
 	}
 
 	@Override
 	public void handle() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onResume)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onResume)) {
 			behaviourComponent.onResume();
 		}
 	}

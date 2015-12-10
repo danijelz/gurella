@@ -11,18 +11,18 @@ import com.gurella.engine.signal.Listener1;
 public class NodeComponentRemovedTrigger extends EventTrigger implements Listener1<SceneNodeComponent> {
 	@Override
 	protected void activated() {
-		eventSystem.getGraph().componentRemovedSignal.addListener(this);
+		eventManager.getGraph().componentRemovedSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventSystem.getGraph().componentRemovedSignal.removeListener(this);
+		eventManager.getGraph().componentRemovedSignal.removeListener(this);
 	}
 
 	@Override
 	public void handle(SceneNodeComponent component) {
 		SceneNode node = component.getNode();
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(node, nodeComponentRemoved)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, nodeComponentRemoved)) {
 			behaviourComponent.nodeComponentRemoved(component);
 		}
 	}

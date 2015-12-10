@@ -27,7 +27,7 @@ public class PreRenderUpdateTrigger extends EventTrigger implements UpdateListen
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPreRender)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onPreRender)) {
 			behaviourComponent.onInput();
 		}
 	}

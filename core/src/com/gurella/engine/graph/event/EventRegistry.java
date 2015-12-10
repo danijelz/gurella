@@ -14,7 +14,7 @@ import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.event.EventTrigger.NopEventTrigger;
 import com.gurella.engine.utils.ValueUtils;
 
-class EventCallbackRegistry {
+class EventRegistry {
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<Class<?>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<?>>>();
@@ -29,7 +29,7 @@ class EventCallbackRegistry {
 		priorities.put(Object.class, new IntIntMap());
 	}
 
-	private EventCallbackRegistry() {
+	private EventRegistry() {
 	}
 
 	static synchronized ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerType) {
@@ -93,7 +93,7 @@ class EventCallbackRegistry {
 			prioritiesByCallback.putAll(priorities.get(superclass));
 		}
 
-		EventCallbackPriority classPriority = getAnnotation(listenerType, EventCallbackPriority.class);
+		Priority classPriority = getAnnotation(listenerType, Priority.class);
 		boolean eventSubscriber = listenerType.isInterface() && isAssignableFrom(EventSubscription.class, listenerType);
 
 		for (Method method : getDeclaredMethods(listenerType)) {
@@ -119,7 +119,7 @@ class EventCallbackRegistry {
 
 			if (callback != null) {
 				int callbackId = callback.id;
-				EventCallbackPriority methodPriority = getDeclaredAnnotation(method, EventCallbackPriority.class);
+				Priority methodPriority = getDeclaredAnnotation(method, Priority.class);
 				int priority = getPriority(classPriority, methodPriority, superclass, callbackId);
 				prioritiesByCallback.put(callbackId, priority);
 			}
@@ -150,7 +150,7 @@ class EventCallbackRegistry {
 		return callbackIdentifier;
 	}
 
-	private static int getPriority(EventCallbackPriority classPriority, EventCallbackPriority methodPriority,
+	private static int getPriority(Priority classPriority, Priority methodPriority,
 			Class<?> superclass, int callbackId) {
 		if (methodPriority != null) {
 			return methodPriority.value();
@@ -221,14 +221,14 @@ class EventCallbackRegistry {
 
 	public static abstract class A extends BehaviourComponent implements I {
 		@Override
-		@EventCallbackPriority(1)
+		@Priority(1)
 		public void onInput() {
 		}
 	}
 
 	public static class B extends A implements J {
 		@Override
-		@EventCallbackPriority(1)
+		@Priority(1)
 		public void ddd() {
 		}
 

@@ -27,7 +27,7 @@ public class RenderUpdateTrigger extends EventTrigger implements UpdateListener 
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onRender)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onRender)) {
 			behaviourComponent.onInput();
 		}
 	}

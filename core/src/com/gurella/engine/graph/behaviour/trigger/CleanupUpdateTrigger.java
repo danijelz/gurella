@@ -27,7 +27,7 @@ public class CleanupUpdateTrigger extends EventTrigger implements UpdateListener
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onCleanup)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onCleanup)) {
 			behaviourComponent.onInput();
 		}
 	}

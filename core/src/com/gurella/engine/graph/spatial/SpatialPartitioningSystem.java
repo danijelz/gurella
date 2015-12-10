@@ -21,7 +21,7 @@ import com.gurella.engine.signal.Listener0;
 import com.gurella.engine.signal.Listener1;
 
 @BaseSceneElementType
-public abstract class SpatialPartitioningManager<T extends Spatial> extends GraphListenerSystem {
+public abstract class SpatialPartitioningSystem<T extends Spatial> extends GraphListenerSystem {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();

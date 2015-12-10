@@ -27,7 +27,7 @@ public class InputUpdateTrigger extends EventTrigger implements UpdateListener {
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onInput)) {
+		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onInput)) {
 			behaviourComponent.onInput();
 		}
 	}
