@@ -1,6 +1,6 @@
 package com.gurella.engine.graph.behaviour.trigger;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEvents.onCleanup;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onAfterRender;
 
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
@@ -9,7 +9,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.event.EventTrigger;
 
-public class OnCleanupUpdateTrigger extends EventTrigger implements UpdateListener {
+public class AfterRenderUpdateTrigger extends EventTrigger implements UpdateListener {
 	@Override
 	protected void activated() {
 		EventService.addListener(UpdateEvent.class, this);
@@ -22,12 +22,12 @@ public class OnCleanupUpdateTrigger extends EventTrigger implements UpdateListen
 
 	@Override
 	public int getOrdinal() {
-		return CommonUpdateOrder.CLEANUP;
+		return CommonUpdateOrder.AFTER_RENDER;
 	}
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onCleanup)) {
+		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onAfterRender)) {
 			behaviourComponent.onInput();
 		}
 	}

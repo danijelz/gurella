@@ -1,6 +1,6 @@
 package com.gurella.engine.graph.behaviour.trigger;
 
-import static com.gurella.engine.graph.behaviour.BehaviourEvents.onThink;
+import static com.gurella.engine.graph.behaviour.BehaviourEvents.onPreRender;
 
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
@@ -9,7 +9,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.event.EventTrigger;
 
-public class OnThinkUpdateTrigger extends EventTrigger implements UpdateListener {
+public class PreRenderUpdateTrigger extends EventTrigger implements UpdateListener {
 	@Override
 	protected void activated() {
 		EventService.addListener(UpdateEvent.class, this);
@@ -22,12 +22,12 @@ public class OnThinkUpdateTrigger extends EventTrigger implements UpdateListener
 
 	@Override
 	public int getOrdinal() {
-		return CommonUpdateOrder.THINK;
+		return CommonUpdateOrder.PRE_RENDER;
 	}
 
 	@Override
 	public void update() {
-		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onThink)) {
+		for (BehaviourComponent behaviourComponent : eventSystem.getListeners(onPreRender)) {
 			behaviourComponent.onInput();
 		}
 	}

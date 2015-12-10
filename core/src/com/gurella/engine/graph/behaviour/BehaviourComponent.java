@@ -25,13 +25,13 @@ import com.gurella.engine.graph.behaviour.trigger.NodeComponentActivatedTrigger;
 import com.gurella.engine.graph.behaviour.trigger.NodeComponentAddedTrigger;
 import com.gurella.engine.graph.behaviour.trigger.NodeComponentDeactivatedTrigger;
 import com.gurella.engine.graph.behaviour.trigger.NodeComponentRemovedTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnAfterRenderUpdateTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnCleanupUpdateTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnDebugRenderUpdateTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnInputUpdateTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnPreRenderUpdateTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnRenderUpdateTrigger;
-import com.gurella.engine.graph.behaviour.trigger.OnThinkUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.AfterRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.CleanupUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.DebugRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.InputUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.PreRenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.RenderUpdateTrigger;
+import com.gurella.engine.graph.behaviour.trigger.ThinkUpdateTrigger;
 import com.gurella.engine.graph.behaviour.trigger.PauseTrigger;
 import com.gurella.engine.graph.behaviour.trigger.ResumeTrigger;
 import com.gurella.engine.graph.behaviour.trigger.SceneStartTrigger;
@@ -83,31 +83,31 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// UPDATE EVENTS
-	@EventCallback(trigger = OnInputUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = InputUpdateTrigger.class, marker = true)
 	public void onInput() {
 	}
 
-	@EventCallback(trigger = OnThinkUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = ThinkUpdateTrigger.class, marker = true)
 	public void onThink() {
 	}
 
-	@EventCallback(trigger = OnPreRenderUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = PreRenderUpdateTrigger.class, marker = true)
 	public void onPreRender() {
 	}
 
-	@EventCallback(trigger = OnRenderUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = RenderUpdateTrigger.class, marker = true)
 	public void onRender() {
 	}
 
-	@EventCallback(trigger = OnDebugRenderUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = DebugRenderUpdateTrigger.class, marker = true)
 	public void onDebugRender() {
 	}
 
-	@EventCallback(trigger = OnAfterRenderUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = AfterRenderUpdateTrigger.class, marker = true)
 	public void onAfterRender() {
 	}
 
-	@EventCallback(trigger = OnCleanupUpdateTrigger.class, marker = true)
+	@EventCallback(trigger = CleanupUpdateTrigger.class, marker = true)
 	public void onCleanup() {
 	}
 

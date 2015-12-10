@@ -9,7 +9,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.event.EventTrigger;
 
-public class OnRenderUpdateTrigger extends EventTrigger implements UpdateListener {
+public class RenderUpdateTrigger extends EventTrigger implements UpdateListener {
 	@Override
 	protected void activated() {
 		EventService.addListener(UpdateEvent.class, this);
