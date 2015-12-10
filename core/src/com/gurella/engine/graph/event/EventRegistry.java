@@ -38,7 +38,7 @@ class EventRegistry {
 			return methods;
 		}
 
-		initCallbacks(listenerType);
+		initCaches(listenerType);
 		return callbacks.get(listenerType);
 	}
 
@@ -48,11 +48,11 @@ class EventRegistry {
 			return impementedSubscribers;
 		}
 
-		initCallbacks(listenerType);
+		initCaches(listenerType);
 		return subscriptions.get(listenerType);
 	}
 
-	private static void initCallbacks(Class<?> listenerType) {
+	private static void initCaches(Class<?> listenerType) {
 		if (listenerType == Object.class || callbacks.containsKey(listenerType)) {
 			return;
 		}
@@ -65,7 +65,7 @@ class EventRegistry {
 		Class<?>[] interfaces = listenerType.getInterfaces();
 		for (int i = 0; i < interfaces.length; i++) {
 			Class<?> listenerInterface = interfaces[i];
-			initCallbacks(listenerInterface);
+			initCaches(listenerInterface);
 			if (listenerInterface != EventSubscription.class
 					&& isAssignableFrom(EventSubscription.class, listenerInterface)) {
 				listenerSubscriptions.add(listenerInterface);
@@ -86,7 +86,7 @@ class EventRegistry {
 		IntIntMap prioritiesByCallback = new IntIntMap();
 		Class<?> superclass = listenerType.getSuperclass();
 		if (superclass != null) {
-			initCallbacks(superclass);
+			initCaches(superclass);
 			listenerCallbacks.addAll(callbacks.get(superclass));
 			listenerMarkerCallbacks.addAll(markerCallbacks.get(superclass));
 			listenerSubscriptions.addAll(subscriptions.get(superclass));
@@ -186,12 +186,12 @@ class EventRegistry {
 
 	@SuppressWarnings("unchecked")
 	static <T> EventCallbackIdentifier<T> getIdentifier(Class<T> declaringClass, String id) {
-		initCallbacks(declaringClass);
+		initCaches(declaringClass);
 		return (EventCallbackIdentifier<T>) callbacksById.get(declaringClass.getName() + id);
 	}
 
 	public static void main(String[] args) {
-		initCallbacks(B.class);
+		initCaches(B.class);
 		markerCallbacks.get(BehaviourComponent.class).iterator().toArray();
 		markerCallbacks.get(A.class).iterator().toArray();
 		markerCallbacks.get(B.class).iterator().toArray();
