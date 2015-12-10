@@ -2,10 +2,12 @@ package com.gurella.engine.graph.event;
 
 import static com.gurella.engine.graph.event.EventCallbackRegistry.getCallbacks;
 import static com.gurella.engine.graph.event.EventCallbackRegistry.getPriority;
+import static com.gurella.engine.graph.event.EventCallbackRegistry.getSubscriptions;
 
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pools;
 import com.gurella.engine.graph.GraphListenerSystem;
@@ -19,7 +21,9 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class EventSystem extends GraphListenerSystem {
 	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
-	private final IntMap<IntMap<ArrayExt<Object>>> nodeListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
+	private final ObjectMap<Class<?>, ArrayExt<Object>> listenersBySubscription = new ObjectMap<Class<?>, ArrayExt<Object>>();
+	private final IntMap<IntMap<ArrayExt<Object>>> elementListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
+	private final IntMap<ObjectMap<Class<?>, ArrayExt<Object>>> elementListenersBySubscription = new IntMap<ObjectMap<Class<?>, ArrayExt<Object>>>();
 	private final IntMap<EventTrigger> triggers = new IntMap<EventTrigger>();
 
 	@Override
@@ -41,7 +45,7 @@ public class EventSystem extends GraphListenerSystem {
 		}
 
 		listenersByCallback.clear();
-		nodeListenersByCallback.clear();
+		elementListenersByCallback.clear();
 	}
 
 	@Override
@@ -50,6 +54,11 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	public void register(Object listener) {
+		registerCallbacks(listener);
+		registerSubscriptions(listener);
+	}
+
+	private void registerCallbacks(Object listener) {
 		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
 		if (callbacks.size == 0) {
 			return;
@@ -67,6 +76,20 @@ public class EventSystem extends GraphListenerSystem {
 		}
 
 		Pools.free(comparator);
+	}
+
+	private void registerSubscriptions(Object listener) {
+		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		for (Class<?> subscription : subscriptions) {
+			ArrayExt<Object> subscribers = findSubscribers(subscription);
+			subscribers.add(listener);
+			// TODO subscribers.sort(comparator);
+			// TODO trigger
+		}
 	}
 
 	public void register(SceneGraphElement element, Object listener) {
@@ -74,6 +97,11 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	private void register(int elementId, Object listener) {
+		registerCallbacks(elementId, listener);
+		registerSubscriptions(elementId, listener);
+	}
+
+	private void registerCallbacks(int elementId, Object listener) {
 		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
 		if (callbacks.size == 0) {
 			return;
@@ -84,16 +112,37 @@ public class EventSystem extends GraphListenerSystem {
 		for (EventCallbackIdentifier<?> callback : callbacks) {
 			int callbackId = callback.id;
 			comparator.callbackId = callbackId;
+
 			ArrayExt<Object> listeners = findListeners(callbackId);
 			listeners.add(listener);
 			listeners.sort(comparator);
-			ArrayExt<Object> listenersByElement = findListenersByElement(elementId, callbackId);
+
+			ArrayExt<Object> listenersByElement = findListeners(elementId, callbackId);
 			listenersByElement.add(listener);
 			listenersByElement.sort(comparator);
+
 			ensureTriggerExists(callback);
 		}
 
 		Pools.free(comparator);
+	}
+
+	private void registerSubscriptions(int elementId, Object listener) {
+		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		for (Class<?> subscription : subscriptions) {
+			ArrayExt<Object> subscribers = findSubscribers(subscription);
+			subscribers.add(listener);
+			// TODO subscribers.sort(comparator);
+
+			ArrayExt<Object> listenersByElement = findSubscribers(elementId, subscription);
+			listenersByElement.add(listener);
+			// TODO listenersByElement.sort(comparator);
+			// TODO trigger
+		}
 	}
 
 	private void ensureTriggerExists(EventCallbackIdentifier<?> callback) {
@@ -117,6 +166,11 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	public void unregister(Object listener) {
+		unregisterCallbacks(listener);
+		unregisterSubscriptions(listener);
+	}
+
+	private void unregisterCallbacks(Object listener) {
 		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
 		if (callbacks.size == 0) {
 			return;
@@ -125,6 +179,20 @@ public class EventSystem extends GraphListenerSystem {
 		for (EventCallbackIdentifier<?> callback : callbacks) {
 			int callbackId = callback.id;
 			ArrayExt<Object> listeners = listenersByCallback.get(callbackId);
+			if (listeners != null) {
+				listeners.removeValue(listener, true);
+			}
+		}
+	}
+
+	private void unregisterSubscriptions(Object listener) {
+		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		for (Class<?> subscription : subscriptions) {
+			ArrayExt<Object> listeners = listenersBySubscription.get(subscription);
 			if (listeners != null) {
 				listeners.removeValue(listener, true);
 			}
@@ -136,6 +204,11 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	private void unregister(int elementId, Object listener) {
+		unregisterCallbacks(elementId, listener);
+		unregisterSubscriptions(elementId, listener);
+	}
+
+	private void unregisterCallbacks(int elementId, Object listener) {
 		ObjectSet<EventCallbackIdentifier<?>> callbacks = getCallbacks(listener.getClass());
 		if (callbacks.size == 0) {
 			return;
@@ -148,9 +221,31 @@ public class EventSystem extends GraphListenerSystem {
 				listeners.removeValue(listener, true);
 			}
 
-			IntMap<ArrayExt<Object>> listenersByElement = nodeListenersByCallback.get(elementId);
+			IntMap<ArrayExt<Object>> listenersByElement = elementListenersByCallback.get(elementId);
 			if (listenersByElement != null) {
 				listeners = listenersByElement.get(callbackId);
+				if (listeners != null) {
+					listeners.removeValue(listener, true);
+				}
+			}
+		}
+	}
+
+	private void unregisterSubscriptions(int elementId, Object listener) {
+		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		for (Class<?> subscription : subscriptions) {
+			ArrayExt<Object> listeners = listenersBySubscription.get(subscription);
+			if (listeners != null) {
+				listeners.removeValue(listener, true);
+			}
+
+			ObjectMap<Class<?>, ArrayExt<Object>> listenersByElement = elementListenersBySubscription.get(elementId);
+			if (listenersByElement != null) {
+				listeners = listenersByElement.get(subscription);
 				if (listeners != null) {
 					listeners.removeValue(listener, true);
 				}
@@ -167,17 +262,42 @@ public class EventSystem extends GraphListenerSystem {
 		return listeners;
 	}
 
-	private ArrayExt<Object> findListenersByElement(int elementId, int callbackId) {
-		IntMap<ArrayExt<Object>> listenersByElement = nodeListenersByCallback.get(elementId);
+	private ArrayExt<Object> findSubscribers(Class<?> subscription) {
+		ArrayExt<Object> listeners = listenersBySubscription.get(subscription);
+		if (listeners == null) {
+			listeners = new ArrayExt<Object>();
+			listenersBySubscription.put(subscription, listeners);
+		}
+		return listeners;
+	}
+
+	private ArrayExt<Object> findListeners(int elementId, int callbackId) {
+		IntMap<ArrayExt<Object>> listenersByElement = elementListenersByCallback.get(elementId);
 		if (listenersByElement == null) {
 			listenersByElement = new IntMap<ArrayExt<Object>>();
-			nodeListenersByCallback.put(elementId, listenersByElement);
+			elementListenersByCallback.put(elementId, listenersByElement);
 		}
 
 		ArrayExt<Object> listeners = listenersByElement.get(callbackId);
 		if (listeners == null) {
 			listeners = new ArrayExt<Object>();
 			listenersByElement.put(callbackId, listeners);
+		}
+
+		return listeners;
+	}
+
+	private ArrayExt<Object> findSubscribers(int elementId, Class<?> subscription) {
+		ObjectMap<Class<?>, ArrayExt<Object>> listenersByElement = elementListenersBySubscription.get(elementId);
+		if (listenersByElement == null) {
+			listenersByElement = new ObjectMap<Class<?>, ArrayExt<Object>>();
+			elementListenersBySubscription.put(elementId, listenersByElement);
+		}
+
+		ArrayExt<Object> listeners = listenersByElement.get(subscription);
+		if (listeners == null) {
+			listeners = new ArrayExt<Object>();
+			listenersByElement.put(subscription, listeners);
 		}
 
 		return listeners;
@@ -190,13 +310,30 @@ public class EventSystem extends GraphListenerSystem {
 	}
 
 	public <T> ImmutableArray<T> getListeners(SceneGraphElement element, EventCallbackIdentifier<T> callback) {
-		IntMap<ArrayExt<Object>> listenersByNode = nodeListenersByCallback.get(element.id);
-		if (listenersByNode == null) {
+		IntMap<ArrayExt<Object>> listenersByElement = elementListenersByCallback.get(element.id);
+		if (listenersByElement == null) {
 			return ImmutableArray.<T> empty();
 		}
 		int callbackId = callback.id;
 		@SuppressWarnings("unchecked")
-		ArrayExt<T> listeners = (ArrayExt<T>) listenersByNode.get(callbackId);
+		ArrayExt<T> listeners = (ArrayExt<T>) listenersByElement.get(callbackId);
+		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
+	}
+
+	public <T> ImmutableArray<T> getListeners(Class<? extends EventSubscription> subscription) {
+		@SuppressWarnings("unchecked")
+		ArrayExt<T> listeners = (ArrayExt<T>) listenersBySubscription.get(subscription);
+		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
+	}
+
+	public <T> ImmutableArray<T> getListeners(SceneGraphElement element,
+			Class<? extends EventSubscription> subscription) {
+		ObjectMap<Class<?>, ArrayExt<Object>> listenersByElement = elementListenersBySubscription.get(element.id);
+		if (listenersByElement == null) {
+			return ImmutableArray.<T> empty();
+		}
+		@SuppressWarnings("unchecked")
+		ArrayExt<T> listeners = (ArrayExt<T>) listenersByElement.get(subscription);
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 

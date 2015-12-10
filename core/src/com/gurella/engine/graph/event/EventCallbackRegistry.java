@@ -1,96 +1,120 @@
 package com.gurella.engine.graph.event;
 
+import static com.badlogic.gdx.utils.reflect.ClassReflection.getDeclaredMethods;
+import static com.badlogic.gdx.utils.reflect.ClassReflection.isAssignableFrom;
 import static com.gurella.engine.utils.ReflectionUtils.getAnnotation;
 import static com.gurella.engine.utils.ReflectionUtils.getDeclaredAnnotation;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.graph.event.EventTrigger.NopEventTrigger;
+import com.gurella.engine.utils.ValueUtils;
 
 class EventCallbackRegistry {
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
+	private static final ObjectMap<Class<?>, ObjectSet<Class<?>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<?>>>();
 	private static final ObjectMap<Class<?>, IntIntMap> priorities = new ObjectMap<Class<?>, IntIntMap>();
+
+	private static final ObjectMap<String, EventCallbackIdentifier<?>> callbacksById = new ObjectMap<String, EventCallbackIdentifier<?>>();
 
 	static {
 		markerCallbacks.put(Object.class, new ObjectSet<EventCallbackIdentifier<?>>());
 		callbacks.put(Object.class, new ObjectSet<EventCallbackIdentifier<?>>());
+		subscriptions.put(Object.class, new ObjectSet<Class<?>>());
 		priorities.put(Object.class, new IntIntMap());
 	}
 
 	private EventCallbackRegistry() {
 	}
 
-	static synchronized ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerClass) {
-		ObjectSet<EventCallbackIdentifier<?>> methods = callbacks.get(listenerClass);
+	static synchronized ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerType) {
+		ObjectSet<EventCallbackIdentifier<?>> methods = callbacks.get(listenerType);
 		if (methods != null) {
 			return methods;
 		}
 
-		initCallbacks(listenerClass);
-		return callbacks.get(listenerClass);
+		initCallbacks(listenerType);
+		return callbacks.get(listenerType);
 	}
 
-	static void initCallbacks(Class<?> listenerClass) {
-		if (listenerClass == Object.class || callbacks.containsKey(listenerClass)) {
+	static synchronized ObjectSet<Class<?>> getSubscriptions(Class<?> listenerType) {
+		ObjectSet<Class<?>> impementedSubscribers = subscriptions.get(listenerType);
+		if (impementedSubscribers != null) {
+			return impementedSubscribers;
+		}
+
+		initCallbacks(listenerType);
+		return subscriptions.get(listenerType);
+	}
+
+	private static void initCallbacks(Class<?> listenerType) {
+		if (listenerType == Object.class || callbacks.containsKey(listenerType)) {
 			return;
 		}
 
-		ObjectSet<EventCallbackIdentifier<?>> methods = new ObjectSet<EventCallbackIdentifier<?>>();
-		ObjectSet<EventCallbackIdentifier<?>> markerMethods = new ObjectSet<EventCallbackIdentifier<?>>();
+		ObjectSet<EventCallbackIdentifier<?>> listenerCallbacks = new ObjectSet<EventCallbackIdentifier<?>>();
+		ObjectSet<EventCallbackIdentifier<?>> listenerMarkerCallbacks = new ObjectSet<EventCallbackIdentifier<?>>();
+		ObjectSet<Class<?>> listenerSubscriptions = new ObjectSet<Class<?>>();
 
 		// TODO replace with ClassReflection.getInterfaces(componentClass)
-		Class<?>[] interfaces = listenerClass.getInterfaces();
+		Class<?>[] interfaces = listenerType.getInterfaces();
 		for (int i = 0; i < interfaces.length; i++) {
-			Class<?> componentInterface = interfaces[i];
-			initCallbacks(componentInterface);
+			Class<?> listenerInterface = interfaces[i];
+			initCallbacks(listenerInterface);
+			if (listenerInterface != EventSubscription.class
+					&& isAssignableFrom(EventSubscription.class, listenerInterface)) {
+				listenerSubscriptions.add(listenerInterface);
+			}
 
-			ObjectSet<EventCallbackIdentifier<?>> interfaceMarkerMethods = markerCallbacks.get(componentInterface);
-			if (listenerClass.isInterface()) {
-				markerMethods.addAll(interfaceMarkerMethods);
+			ObjectSet<EventCallbackIdentifier<?>> interfaceMarkerCallbacks = markerCallbacks.get(listenerInterface);
+			if (listenerType.isInterface()) {
+				listenerMarkerCallbacks.addAll(interfaceMarkerCallbacks);
 			} else {
-				for (EventCallbackIdentifier<?> interfaceMarkerMethod : interfaceMarkerMethods) {
-					if (!methods.contains(interfaceMarkerMethod)) {
-						markerMethods.add(interfaceMarkerMethod);
+				for (EventCallbackIdentifier<?> interfaceMarkerCallback : interfaceMarkerCallbacks) {
+					if (!listenerCallbacks.contains(interfaceMarkerCallback)) {
+						listenerMarkerCallbacks.add(interfaceMarkerCallback);
 					}
 				}
 			}
 		}
 
 		IntIntMap prioritiesByCallback = new IntIntMap();
-		Class<?> superclass = listenerClass.getSuperclass();
+		Class<?> superclass = listenerType.getSuperclass();
 		if (superclass != null) {
 			initCallbacks(superclass);
-			methods.addAll(callbacks.get(superclass));
-			markerMethods.addAll(markerCallbacks.get(superclass));
+			listenerCallbacks.addAll(callbacks.get(superclass));
+			listenerMarkerCallbacks.addAll(markerCallbacks.get(superclass));
+			listenerSubscriptions.addAll(subscriptions.get(superclass));
 			prioritiesByCallback.putAll(priorities.get(superclass));
 		}
 
-		EventCallbackPriority classPriority = getAnnotation(listenerClass, EventCallbackPriority.class);
+		EventCallbackPriority classPriority = getAnnotation(listenerType, EventCallbackPriority.class);
+		boolean eventSubscriber = listenerType.isInterface() && isAssignableFrom(EventSubscription.class, listenerType);
 
-		for (Method method : ClassReflection.getDeclaredMethods(listenerClass)) {
+		for (Method method : getDeclaredMethods(listenerType)) {
 			EventCallback callbackAnnotation = getDeclaredAnnotation(method, EventCallback.class);
-			EventCallbackIdentifier<?> callback = find(markerMethods, method);
+			EventCallbackIdentifier<?> callback = find(listenerMarkerCallbacks, method);
 
 			if (callback == null) {
-				callback = find(methods, method);
+				callback = find(listenerCallbacks, method);
 				if (callback == null) {
-					if (callbackAnnotation != null) {
-						callback = new EventCallbackIdentifier<Object>(method, callbackAnnotation);
-						if (callbackAnnotation.marker() || listenerClass.isInterface()) {
-							markerMethods.add(callback);
+					if (eventSubscriber || callbackAnnotation != null) {
+						callback = createCallbackIdentifier(method, callbackAnnotation);
+						if (listenerType.isInterface() || (callbackAnnotation != null && callbackAnnotation.marker())) {
+							listenerMarkerCallbacks.add(callback);
 						} else {
-							methods.add(callback);
+							listenerCallbacks.add(callback);
 						}
 					}
 				}
-			} else if (!listenerClass.isInterface() && (callbackAnnotation == null || !callbackAnnotation.marker())) {
-				methods.add(callback);
-				markerMethods.remove(callback);
+			} else if (!listenerType.isInterface() && (callbackAnnotation == null || !callbackAnnotation.marker())) {
+				listenerCallbacks.add(callback);
+				listenerMarkerCallbacks.remove(callback);
 			}
 
 			if (callback != null) {
@@ -101,9 +125,29 @@ class EventCallbackRegistry {
 			}
 		}
 
-		callbacks.put(listenerClass, methods);
-		markerCallbacks.put(listenerClass, markerMethods);
-		priorities.put(listenerClass, prioritiesByCallback);
+		callbacks.put(listenerType, listenerCallbacks);
+		markerCallbacks.put(listenerType, listenerMarkerCallbacks);
+		subscriptions.put(listenerType, listenerSubscriptions);
+		priorities.put(listenerType, prioritiesByCallback);
+	}
+
+	private static EventCallbackIdentifier<Object> createCallbackIdentifier(Method method,
+			EventCallback callbackAnnotation) {
+		String id = callbackAnnotation == null ? null : callbackAnnotation.id();
+		id = ValueUtils.isEmpty(id) ? method.getName() : id;
+		String fullId = method.getDeclaringClass().getName() + id;
+
+		if (callbacksById.containsKey(fullId)) {
+			throw new GdxRuntimeException(
+					"Duplicate event id: [declaringClass=" + method.getDeclaringClass() + ", id=" + id + "]");
+		}
+
+		Class<? extends EventTrigger> triggerClass = callbackAnnotation == null ? NopEventTrigger.class
+				: callbackAnnotation.trigger();
+		EventCallbackIdentifier<Object> callbackIdentifier = new EventCallbackIdentifier<Object>(method, triggerClass);
+
+		callbacksById.put(fullId, callbackIdentifier);
+		return callbackIdentifier;
 	}
 
 	private static int getPriority(EventCallbackPriority classPriority, EventCallbackPriority methodPriority,
@@ -115,8 +159,8 @@ class EventCallbackRegistry {
 		if (classPriority != null) {
 			return classPriority.value();
 		}
-		
-		if(superclass == null) {
+
+		if (superclass == null) {
 			return Integer.MAX_VALUE;
 		}
 
@@ -140,6 +184,12 @@ class EventCallbackRegistry {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	static <T> EventCallbackIdentifier<T> getIdentifier(Class<T> declaringClass, String id) {
+		initCallbacks(declaringClass);
+		return (EventCallbackIdentifier<T>) callbacksById.get(declaringClass.getName() + id);
+	}
+
 	public static void main(String[] args) {
 		initCallbacks(B.class);
 		markerCallbacks.get(BehaviourComponent.class).iterator().toArray();
@@ -149,13 +199,13 @@ class EventCallbackRegistry {
 		callbacks.get(B.class).iterator().toArray();
 		markerCallbacks.get(I.class).iterator().toArray();
 		markerCallbacks.get(J.class).iterator().toArray();
-		ClassReflection.getAnnotations(B.class);
-		ReflectionUtils.getMethod(B.class, "ddd").isAnnotationPresent(EventCallback.class);
-		ClassReflection.getDeclaredMethods(C.class);
-		ClassReflection.getDeclaredMethods(D.class);
+		subscriptions.get(I.class).iterator().toArray();
+		subscriptions.get(J.class).iterator().toArray();
+		subscriptions.get(A.class).iterator().toArray();
+		subscriptions.get(B.class).iterator().toArray();
 	}
 
-	public interface I {
+	public interface I extends EventSubscription {
 		@EventCallback
 		void ddd();
 	}
