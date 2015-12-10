@@ -9,12 +9,12 @@ import com.gurella.engine.graph.event.EventTrigger;
 public class ResumeTrigger extends EventTrigger implements Listener0 {
 	@Override
 	protected void activated() {
-		eventManager.getScene().resumeSignal.addListener(this);
+		sceneGraph.scene.resumeSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventManager.getScene().resumeSignal.removeListener(this);
+		sceneGraph.scene.resumeSignal.removeListener(this);
 	}
 
 	@Override

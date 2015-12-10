@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pools;
-import com.gurella.engine.graph.GraphListenerSystem;
+import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneGraphElement;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -24,55 +24,36 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class EventManager extends GraphListenerSystem implements ComponentActivatedListener, ComponentDeactivatedListener, SystemActivatedListener, SystemDeactivatedListener {
+public class EventManager implements ComponentActivatedListener, ComponentDeactivatedListener, SystemActivatedListener,
+		SystemDeactivatedListener {
+	private final SceneGraph sceneGraph;
+
 	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
 	private final ObjectMap<Class<?>, ArrayExt<Object>> listenersBySubscription = new ObjectMap<Class<?>, ArrayExt<Object>>();
 	private final IntMap<IntMap<ArrayExt<Object>>> elementListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
 	private final IntMap<ObjectMap<Class<?>, ArrayExt<Object>>> elementListenersBySubscription = new IntMap<ObjectMap<Class<?>, ArrayExt<Object>>>();
 	private final IntMap<EventTrigger> triggers = new IntMap<EventTrigger>();
 
-	public EventManager() {
-		//TODO
+	public EventManager(SceneGraph sceneGraph) {
+		this.sceneGraph = sceneGraph;
 		register(this);
-	}
-
-	@Override
-	protected void activated() {
-		for (EventTrigger trigger : triggers.values()) {
-			trigger.activated();
-		}
-
-		ImmutableArray<? extends SceneNodeComponent> components = getGraph().activeComponents;
-		for (int i = 0; i < components.size(); i++) {
-			componentActivated(components.get(i));
-		}
-	}
-
-	@Override
-	protected void deactivated() {
-		for (EventTrigger trigger : triggers.values()) {
-			trigger.deactivated();
-		}
-
-		listenersByCallback.clear();
-		elementListenersByCallback.clear();
 	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
 		register(component.getNode().id, component);
 	}
-	
+
 	@Override
 	public void componentDeactivated(SceneNodeComponent component) {
 		unregister(component.getNode().id, component);
 	}
-	
+
 	@Override
 	public void systemActivated(SceneSystem system) {
 		register(system);
 	}
-	
+
 	@Override
 	public void systemDeactivated(SceneSystem system) {
 		unregister(system);
@@ -178,6 +159,7 @@ public class EventManager extends GraphListenerSystem implements ComponentActiva
 				triggers.put(callbackId, NopEventTrigger.instance);
 			} else {
 				EventTrigger trigger = ReflectionUtils.newInstance(triggerClass);
+				trigger.sceneGraph = sceneGraph;
 				trigger.eventManager = this;
 				trigger.activated();
 				triggers.put(callbackId, trigger);

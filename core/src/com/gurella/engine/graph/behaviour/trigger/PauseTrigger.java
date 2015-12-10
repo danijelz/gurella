@@ -9,12 +9,12 @@ import com.gurella.engine.graph.event.EventTrigger;
 public class PauseTrigger extends EventTrigger implements Listener0 {
 	@Override
 	protected void activated() {
-		eventManager.getScene().pauseSignal.addListener(this);
+		sceneGraph.scene.pauseSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventManager.getScene().pauseSignal.removeListener(this);
+		sceneGraph.scene.pauseSignal.removeListener(this);
 	}
 
 	@Override

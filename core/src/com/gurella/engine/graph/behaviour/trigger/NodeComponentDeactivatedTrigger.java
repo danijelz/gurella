@@ -11,12 +11,12 @@ import com.gurella.engine.graph.event.EventTrigger;
 public class NodeComponentDeactivatedTrigger extends EventTrigger implements Listener1<SceneNodeComponent> {
 	@Override
 	protected void activated() {
-		eventManager.getGraph().componentDeactivatedSignal.addListener(this);
+		sceneGraph.componentDeactivatedSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventManager.getGraph().componentDeactivatedSignal.removeListener(this);
+		sceneGraph.componentDeactivatedSignal.removeListener(this);
 	}
 
 	@Override

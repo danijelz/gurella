@@ -9,12 +9,12 @@ import com.gurella.engine.graph.event.EventTrigger;
 public class SceneStartTrigger extends EventTrigger implements Listener0 {
 	@Override
 	protected void activated() {
-		eventManager.getScene().startSignal.addListener(this);
+		sceneGraph.scene.startSignal.addListener(this);
 	}
 
 	@Override
 	protected void deactivated() {
-		eventManager.getScene().startSignal.removeListener(this);
+		sceneGraph.scene.startSignal.removeListener(this);
 	}
 
 	@Override

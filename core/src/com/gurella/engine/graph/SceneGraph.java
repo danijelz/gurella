@@ -27,7 +27,8 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 
 public class SceneGraph implements UpdateListener {
-	private Scene scene;
+	public final Scene scene;
+	
 	private final SceneStartListener sceneStartListener = new SceneStartListener();
 	private final SceneStopListener sceneStopListener = new SceneStopListener();
 
@@ -66,7 +67,7 @@ public class SceneGraph implements UpdateListener {
 
 	public final SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
-	public final EventManager eventManager = new EventManager();
+	public final EventManager eventManager = new EventManager(this);
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
 	public final TagManager tagManager = new TagManager();
@@ -84,7 +85,6 @@ public class SceneGraph implements UpdateListener {
 		this.scene.stopSignal.addListener(sceneStopListener);
 
 		//TODO addListener(eventManager);
-		addSystemSafely(eventManager);
 		addListener(componentManager);
 		addListener(nodeManager);
 		addListener(tagManager);
