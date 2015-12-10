@@ -1,5 +1,6 @@
 package com.gurella.engine.graph.event.decorator;
 
+import com.gurella.engine.event.Listener0;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -7,7 +8,6 @@ import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.event.EventTrigger;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.signal.Listener0;
 
 public class SceneEventsTrgger extends EventTrigger {
 	private final ScriptSceneGraphListener scriptSceneGraphListener = new ScriptSceneGraphListener();

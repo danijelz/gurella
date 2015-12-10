@@ -36,6 +36,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -49,7 +50,6 @@ import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.signal.Listener1;
 import com.gurella.studio.project.ProjectHeaderContainer.SceneSelectionChangedEvent;
 
 public class SceneView extends Container<Image> {

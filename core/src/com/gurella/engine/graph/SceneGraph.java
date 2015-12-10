@@ -7,7 +7,10 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
+import com.gurella.engine.event.AbstractSignal;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.Listener0;
+import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.graph.event.EventManager;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
@@ -19,9 +22,6 @@ import com.gurella.engine.graph.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.graph.tag.TagManager;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.signal.AbstractSignal;
-import com.gurella.engine.signal.Listener0;
-import com.gurella.engine.signal.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 
@@ -65,42 +65,29 @@ public class SceneGraph implements UpdateListener {
 
 	public final SceneGraphListenerSignal sceneGraphListenerSignal = new SceneGraphListenerSignal();
 
-	public final ComponentManager componentManager;
-	public final NodeManager nodeManager;
-	public final TagManager tagManager;
-	public final LayerManager layerManager;
-	public final EventManager eventManager;
-	public final SpatialPartitioningSystem<?> spatialPartitioningSystem;
-	public final InputSystem inputSystem;
-	public final RenderSystem renderSystem;
+	public final EventManager eventManager = new EventManager();
+	public final ComponentManager componentManager = new ComponentManager();
+	public final NodeManager nodeManager = new NodeManager();
+	public final TagManager tagManager = new TagManager();
+	public final LayerManager layerManager = new LayerManager();
+
+	public final SpatialPartitioningSystem<?> spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
+	public final InputSystem inputSystem = new InputSystem();
+	public final RenderSystem renderSystem = new RenderSystem();
 
 	public SceneGraph(Scene scene) {
 		this.scene = scene;
 		this.scene.startSignal.addListener(sceneStartListener);
 		this.scene.stopSignal.addListener(sceneStopListener);
 
-		componentManager = new ComponentManager();
+		addListener(eventManager);
 		addListener(componentManager);
-
-		nodeManager = new NodeManager();
 		addListener(nodeManager);
-
-		tagManager = new TagManager();
 		addListener(tagManager);
-
-		layerManager = new LayerManager();
 		addListener(layerManager);
 
-		eventManager = new EventManager();
-		addListener(eventManager);
-
-		spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
 		addSystemSafely(spatialPartitioningSystem);
-
-		inputSystem = new InputSystem();
 		addSystemSafely(inputSystem);
-
-		renderSystem = new RenderSystem();
 		addSystemSafely(renderSystem);
 	}
 

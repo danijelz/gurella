@@ -11,6 +11,8 @@ import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.Listener0;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
@@ -18,8 +20,6 @@ import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.behaviour.BehaviourEvents;
 import com.gurella.engine.graph.behaviour.BehaviourComponent;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.signal.Listener0;
-import com.gurella.engine.signal.Listener1;
 
 //TODO return null values
 public class ScriptManager extends GraphListenerSystem {

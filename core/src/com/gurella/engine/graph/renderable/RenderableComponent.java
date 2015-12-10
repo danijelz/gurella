@@ -3,6 +3,8 @@ package com.gurella.engine.graph.renderable;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.gurella.engine.event.Listener1;
+import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.graph.BaseSceneElementType;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -10,8 +12,6 @@ import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.signal.Listener1;
-import com.gurella.engine.signal.Signal1.Signal1Impl;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElementType

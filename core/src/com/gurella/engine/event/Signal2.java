@@ -1,4 +1,4 @@
-package com.gurella.engine.signal;
+package com.gurella.engine.event;
 
 public abstract class Signal2<LISTENER, ARG1, ARG2> extends AbstractSignal<LISTENER> {
 	public void dispatch(ARG1 arg1, ARG2 arg2) {

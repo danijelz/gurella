@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.event.AbstractSignal;
 import com.gurella.engine.graph.SceneGraph;
 import com.gurella.engine.graph.SceneGraphListener;
 import com.gurella.engine.graph.SceneNode;
@@ -46,7 +47,6 @@ import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.graph.spatial.Spatial;
 import com.gurella.engine.graph.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.signal.AbstractSignal;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class InputSystem extends UpdateListenerSystem implements SceneGraphListener {

@@ -5,8 +5,8 @@ import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.signal.Signal1;
-import com.gurella.engine.signal.Signal2;
+import com.gurella.engine.event.Signal1;
+import com.gurella.engine.event.Signal2;
 import com.gurella.engine.state.StateTransition.SimpleStateTransition;
 
 public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListener<STATE>, STATE, STATE> implements UpdateListener {

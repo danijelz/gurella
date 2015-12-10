@@ -1,6 +1,6 @@
 package com.gurella.engine.graph.bullet;
 
-import com.gurella.engine.signal.AbstractSignal;
+import com.gurella.engine.event.AbstractSignal;
 
 public class CollisionSignal extends AbstractSignal<CollisionListener> {
 	BulletPhysicsRigidBodyComponent bulletRigidBodyComponent;

@@ -1,6 +1,6 @@
 package com.gurella.engine.message;
 
-import com.gurella.engine.signal.Listener0;
+import com.gurella.engine.event.Listener0;
 
 public class MesageSubscriber {
 	public MessageQuery query;

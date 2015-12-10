@@ -4,13 +4,13 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.event.Listener1;
+import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.signal.Listener1;
-import com.gurella.engine.signal.Signal1.Signal1Impl;
 
 public class TransformComponent extends SceneNodeComponent {
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);

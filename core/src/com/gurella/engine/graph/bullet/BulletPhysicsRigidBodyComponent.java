@@ -9,9 +9,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstruct
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Bits;
 import com.gurella.engine.application.Application;
+import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.movement.TransformComponent;
-import com.gurella.engine.signal.Signal1.Signal1Impl;
 
 public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent {
 	private TransformComponent transformComponent;

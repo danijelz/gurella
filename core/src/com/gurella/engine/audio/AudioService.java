@@ -1,6 +1,6 @@
 package com.gurella.engine.audio;
 
-import com.gurella.engine.signal.Signal1.Signal1Impl;
+import com.gurella.engine.event.Signal1.Signal1Impl;
 
 public class AudioService {
 	private static final Volume volume = new Volume();

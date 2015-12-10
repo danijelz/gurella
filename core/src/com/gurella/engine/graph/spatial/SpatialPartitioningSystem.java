@@ -10,6 +10,8 @@ import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.Listener0;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.graph.BaseSceneElementType;
 import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -17,8 +19,6 @@ import com.gurella.engine.graph.layer.Layer;
 import com.gurella.engine.graph.layer.LayerComponent;
 import com.gurella.engine.graph.renderable.RenderableComponent;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.signal.Listener0;
-import com.gurella.engine.signal.Listener1;
 
 @BaseSceneElementType
 public abstract class SpatialPartitioningSystem<T extends Spatial> extends GraphListenerSystem {

@@ -3,11 +3,11 @@ package com.gurella.engine.graph;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.application.Application;
+import com.gurella.engine.event.AbstractSignal;
+import com.gurella.engine.event.Signal0.Signal0Impl;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.signal.AbstractSignal;
-import com.gurella.engine.signal.Signal0.Signal0Impl;
 import com.gurella.engine.utils.IndexedValue;
 
 //TODO remove Disposable

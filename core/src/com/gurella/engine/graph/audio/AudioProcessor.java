@@ -8,11 +8,11 @@ import com.badlogic.gdx.utils.LongMap;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.graph.SceneNodeComponent;
 import com.gurella.engine.graph.SceneProcessorManager;
 import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.signal.Listener1;
 
 public class AudioProcessor extends SceneProcessorManager {
 	private RemoveOnFinishCompletitionCallback removeOnFinishCompletitionCallback = new RemoveOnFinishCompletitionCallback();

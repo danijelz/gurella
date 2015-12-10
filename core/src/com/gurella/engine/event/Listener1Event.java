@@ -1,7 +1,5 @@
 package com.gurella.engine.event;
 
-import com.gurella.engine.signal.Listener1;
-
 public abstract class Listener1Event<T> implements Event<Listener1<T>> {
 	protected T value;
 

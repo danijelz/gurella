@@ -3,7 +3,7 @@ package com.gurella.engine.graph;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.signal.Listener0;
+import com.gurella.engine.event.Listener0;
 
 public class SceneGraphUtils {
 	private SceneGraphUtils() {

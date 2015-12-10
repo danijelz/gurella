@@ -2,8 +2,8 @@ package com.gurella.studio.inspector;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Listener1Event;
-import com.gurella.engine.signal.Listener1;
 import com.gurella.engine.utils.ValueUtils;
 import com.kotcrab.vis.ui.widget.VisTable;
 

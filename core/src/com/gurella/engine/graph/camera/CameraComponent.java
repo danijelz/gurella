@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.graph.BaseSceneElementType;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
@@ -14,7 +15,6 @@ import com.gurella.engine.graph.movement.TransformComponent;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.signal.Listener1;
 
 @BaseSceneElementType
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent implements

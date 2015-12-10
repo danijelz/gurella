@@ -1,4 +1,4 @@
-package com.gurella.engine.signal;
+package com.gurella.engine.event;
 
 import java.util.Comparator;
 
