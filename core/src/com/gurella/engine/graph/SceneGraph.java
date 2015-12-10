@@ -47,7 +47,7 @@ public class SceneGraph implements UpdateListener {
 
 	private final Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
 
-	//TODO unused signals
+	// TODO unused signals
 	public final Signal1Impl<SceneNode> nodeAddedSignal = new Signal1Impl<SceneNode>();
 	public final Signal1Impl<SceneNode> nodeRemovedSignal = new Signal1Impl<SceneNode>();
 	public final Signal1Impl<SceneNode> nodeActivatedSignal = new Signal1Impl<SceneNode>();
@@ -80,19 +80,19 @@ public class SceneGraph implements UpdateListener {
 		this.scene.stopSignal.addListener(sceneStopListener);
 
 		componentManager = new ComponentManager();
-		addSystemSafely(componentManager);
+		addListener(componentManager);
 
 		nodeManager = new NodeManager();
-		addSystemSafely(nodeManager);
+		addListener(nodeManager);
 
 		tagManager = new TagManager();
-		addSystemSafely(tagManager);
+		addListener(tagManager);
 
 		layerManager = new LayerManager();
-		addSystemSafely(layerManager);
+		addListener(layerManager);
 
 		eventManager = new EventManager();
-		addSystemSafely(eventManager);
+		addListener(eventManager);
 
 		spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
 		addSystemSafely(spatialPartitioningSystem);
@@ -105,12 +105,13 @@ public class SceneGraph implements UpdateListener {
 	}
 
 	// TODO unused
-	void init(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
-		addSystemSafely(componentManager);
-		addSystemSafely(nodeManager);
-		addSystemSafely(tagManager);
-		addSystemSafely(layerManager);
-		addSystemSafely(eventManager);
+	void start(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
+		addListener(componentManager);
+		addListener(nodeManager);
+		addListener(tagManager);
+		addListener(layerManager);
+		addListener(eventManager);
+
 		addSystemSafely(spatialPartitioningSystem);
 		addSystemSafely(inputSystem);
 		addSystemSafely(renderSystem);
@@ -126,6 +127,11 @@ public class SceneGraph implements UpdateListener {
 			SceneNode node = initialResources.getResource(initialNodeId);
 			addNodeSafely(node);
 		}
+	}
+
+	// TODO unused
+	void stop() {
+
 	}
 
 	public void addListener(SceneGraphListener listener) {
