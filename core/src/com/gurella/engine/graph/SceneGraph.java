@@ -15,6 +15,7 @@ import com.gurella.engine.graph.event.EventManager;
 import com.gurella.engine.graph.input.InputSystem;
 import com.gurella.engine.graph.layer.LayerManager;
 import com.gurella.engine.graph.manager.ComponentManager;
+import com.gurella.engine.graph.manager.GraphEventsSignal;
 import com.gurella.engine.graph.manager.NodeManager;
 import com.gurella.engine.graph.renderable.RenderSystem;
 import com.gurella.engine.graph.spatial.SpatialPartitioningSystem;
@@ -74,13 +75,16 @@ public class SceneGraph implements UpdateListener {
 	public final SpatialPartitioningSystem<?> spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
 	public final InputSystem inputSystem = new InputSystem();
 	public final RenderSystem renderSystem = new RenderSystem();
+	
+	private final GraphEventsSignal graphEventsSignal = new GraphEventsSignal(eventManager);
 
 	public SceneGraph(Scene scene) {
 		this.scene = scene;
 		this.scene.startSignal.addListener(sceneStartListener);
 		this.scene.stopSignal.addListener(sceneStopListener);
 
-		addListener(eventManager);
+		//TODO addListener(eventManager);
+		addSystemSafely(eventManager);
 		addListener(componentManager);
 		addListener(nodeManager);
 		addListener(tagManager);
@@ -93,11 +97,11 @@ public class SceneGraph implements UpdateListener {
 
 	// TODO unused
 	void start(IntArray initialSystems, IntArray initialNodes, ResourceMap initialResources) {
+		//TODO addListener(eventManager);
 		addListener(componentManager);
 		addListener(nodeManager);
 		addListener(tagManager);
 		addListener(layerManager);
-		addListener(eventManager);
 
 		addSystemSafely(spatialPartitioningSystem);
 		addSystemSafely(inputSystem);
@@ -174,6 +178,7 @@ public class SceneGraph implements UpdateListener {
 			system.active = true;
 			system.lifecycleSignal.activated();
 			activeSystemsInternal.add(system);
+			graphEventsSignal.systemActivated(system);
 		}
 	}
 
@@ -486,6 +491,7 @@ public class SceneGraph implements UpdateListener {
 				listener.componentActivated(component);
 			}
 			componentActivatedSignal.dispatch(component);
+			graphEventsSignal.componentActivated(component);
 		}
 
 		private void componentDeactivated(SceneNodeComponent component) {
@@ -493,6 +499,7 @@ public class SceneGraph implements UpdateListener {
 				listener.componentDeactivated(component);
 			}
 			componentDeactivatedSignal.dispatch(component);
+			graphEventsSignal.componentDeactivated(component);
 		}
 
 		private void componentAdded(SceneNodeComponent component) {
@@ -500,6 +507,7 @@ public class SceneGraph implements UpdateListener {
 				listener.componentAdded(component);
 			}
 			componentAddedSignal.dispatch(component);
+			graphEventsSignal.componentAdded(component);
 		}
 
 		private void componentRemoved(SceneNodeComponent component) {
@@ -507,6 +515,7 @@ public class SceneGraph implements UpdateListener {
 				listener.componentRemoved(component);
 			}
 			componentRemovedSignal.dispatch(component);
+			graphEventsSignal.componentRemoved(component);
 		}
 	}
 }

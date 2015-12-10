@@ -14,17 +14,27 @@ import com.gurella.engine.graph.GraphListenerSystem;
 import com.gurella.engine.graph.SceneGraphElement;
 import com.gurella.engine.graph.SceneNode;
 import com.gurella.engine.graph.SceneNodeComponent;
+import com.gurella.engine.graph.SceneSystem;
 import com.gurella.engine.graph.event.EventTrigger.NopEventTrigger;
+import com.gurella.engine.graph.manager.GraphEventsSignal.ComponentActivatedListener;
+import com.gurella.engine.graph.manager.GraphEventsSignal.ComponentDeactivatedListener;
+import com.gurella.engine.graph.manager.GraphEventsSignal.SystemActivatedListener;
+import com.gurella.engine.graph.manager.GraphEventsSignal.SystemDeactivatedListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class EventManager extends GraphListenerSystem {
+public class EventManager extends GraphListenerSystem implements ComponentActivatedListener, ComponentDeactivatedListener, SystemActivatedListener, SystemDeactivatedListener {
 	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
 	private final ObjectMap<Class<?>, ArrayExt<Object>> listenersBySubscription = new ObjectMap<Class<?>, ArrayExt<Object>>();
 	private final IntMap<IntMap<ArrayExt<Object>>> elementListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
 	private final IntMap<ObjectMap<Class<?>, ArrayExt<Object>>> elementListenersBySubscription = new IntMap<ObjectMap<Class<?>, ArrayExt<Object>>>();
 	private final IntMap<EventTrigger> triggers = new IntMap<EventTrigger>();
+
+	public EventManager() {
+		//TODO
+		register(this);
+	}
 
 	@Override
 	protected void activated() {
@@ -51,6 +61,21 @@ public class EventManager extends GraphListenerSystem {
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
 		register(component.getNode().id, component);
+	}
+	
+	@Override
+	public void componentDeactivated(SceneNodeComponent component) {
+		unregister(component.getNode().id, component);
+	}
+	
+	@Override
+	public void systemActivated(SceneSystem system) {
+		register(system);
+	}
+	
+	@Override
+	public void systemDeactivated(SceneSystem system) {
+		unregister(system);
 	}
 
 	public void register(Object listener) {
@@ -158,11 +183,6 @@ public class EventManager extends GraphListenerSystem {
 				triggers.put(callbackId, trigger);
 			}
 		}
-	}
-
-	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
-		unregister(component.getNode().id, component);
 	}
 
 	public void unregister(Object listener) {
