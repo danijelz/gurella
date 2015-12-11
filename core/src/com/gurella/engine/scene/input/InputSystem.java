@@ -68,8 +68,7 @@ public class InputSystem extends SceneSystem implements SceneGraphListener, Upda
 	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(this);
 	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(this);
 	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(this, dragAndDropProcessor);
-	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(this,
-			dragAndDropProcessor);
+	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(this, dragAndDropProcessor);
 	private DragInputProcessor dragInputProcessor = new DragInputProcessor(this);
 
 	public InputSystem() {

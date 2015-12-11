@@ -113,13 +113,16 @@ public class EventBus2 {
 		}
 	}
 
-	public boolean addListener(String eventType, Listener1<String> listener) {
-		final Array<Listener1<String>> listenersByType = listenersByType(eventType);
+	public <T> boolean addListener(T eventType, Listener1<? super T> listener) {
+		@SuppressWarnings("unchecked")
+		Listener1<T> casted = (Listener1<T>) listener;
+		final Array<Listener1<T>> listenersByType = listenersByType(eventType);
+
 		synchronized (listenersByType) {
-			if (listenersByType.contains(listener, true)) {
+			if (listenersByType.contains(casted, true)) {
 				return false;
 			} else {
-				listenersByType.add(listener);
+				listenersByType.add(casted);
 				if (listener instanceof Ordered) {
 					listenersByType.sort(ListenersComparator.instance);
 				}
@@ -128,11 +131,11 @@ public class EventBus2 {
 		}
 	}
 
-	public boolean removeListener(String eventType, Listener1<String> listener) {
-		Array<Listener1<String>> listenersByType;
+	public <T> boolean removeListener(T eventType, Listener1<? super T> listener) {
+		Array<Listener1<T>> listenersByType;
 		synchronized (listeners) {
 			@SuppressWarnings("unchecked")
-			Array<Listener1<String>> casted = (Array<Listener1<String>>) listeners.get(eventType);
+			Array<Listener1<T>> casted = (Array<Listener1<T>>) listeners.get(eventType);
 			if (casted == null) {
 				return false;
 			}
@@ -140,12 +143,15 @@ public class EventBus2 {
 			listenersByType = casted;
 		}
 
+		@SuppressWarnings("unchecked")
+		Listener1<T> casted = (Listener1<T>) listener;
+
 		synchronized (listenersByType) {
-			return listenersByType.removeValue(listener, true);
+			return listenersByType.removeValue(casted, true);
 		}
 	}
 
-	public synchronized void notify(String eventType) {
+	public synchronized void notify(Object eventType) {
 		synchronized (eventPool) {
 			if (processing) {
 				eventPool.add(eventType);
@@ -157,11 +163,11 @@ public class EventBus2 {
 		notifyListeners(eventType);
 	}
 
-	private void notifyListeners(String eventType) {
-		Array<Listener1<String>> listenersByType;
+	private <T> void notifyListeners(T eventType) {
+		Array<Listener1<T>> listenersByType;
 		synchronized (listeners) {
 			@SuppressWarnings("unchecked")
-			Array<Listener1<String>> casted = (Array<Listener1<String>>) listeners.get(eventType);
+			Array<Listener1<T>> casted = (Array<Listener1<T>>) listeners.get(eventType);
 			if (casted == null) {
 				return;
 			}
@@ -171,7 +177,7 @@ public class EventBus2 {
 
 		synchronized (listenersByType) {
 			for (int i = 0; i < listenersByType.size; i++) {
-				Listener1<String> listener = listenersByType.get(i);
+				Listener1<T> listener = listenersByType.get(i);
 				listener.handle(eventType);
 			}
 		}
