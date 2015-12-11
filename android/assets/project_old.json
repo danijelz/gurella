@@ -20,13 +20,13 @@ scenes: [
 				name: "01"
 				resourceFactory: {
 					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-					resourceType: "com.gurella.engine.graph.SceneNode"
+					resourceType: "com.gurella.engine.scene.SceneNode"
 					properties: {
 						enabled: true
 						components: [
 							{
 								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-								resourceType: "com.gurella.engine.graph.audio.AudioSourceComponent"
+								resourceType: "com.gurella.engine.scene.audio.AudioSourceComponent"
 								properties: {
 									enabled: false
 									audioClip: {
@@ -144,7 +144,7 @@ scenes: [
 							}
 							{
 								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-								resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+								resourceType: "com.gurella.engine.scene.movement.TransformComponent"
 								properties: {
 									translation: {
 										resourceType: "com.badlogic.gdx.math.Vector3"
@@ -183,7 +183,7 @@ scenes: [
 				name: "ddd"
 				resourceFactory: {
 					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-					resourceType: "com.gurella.engine.graph.SceneNode"
+					resourceType: "com.gurella.engine.scene.SceneNode"
 					properties: {
 						enabled: true
 					}
@@ -196,7 +196,7 @@ scenes: [
 				name: "aaa1"
 				resourceFactory: {
 					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-					resourceType: "com.gurella.engine.graph.SceneNode"
+					resourceType: "com.gurella.engine.scene.SceneNode"
 					properties: {
 						enabled: true
 						components: [
@@ -215,13 +215,13 @@ scenes: [
 				name: "00"
 				resourceFactory: {
 					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-					resourceType: "com.gurella.engine.graph.SceneNode"
+					resourceType: "com.gurella.engine.scene.SceneNode"
 					properties: {
 						enabled: true
 						children: [
 							{
 								class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-								resourceType: "com.gurella.engine.graph.SceneNode"
+								resourceType: "com.gurella.engine.scene.SceneNode"
 								properties: {
 									enabled: true
 								}
@@ -244,7 +244,7 @@ scenes: [
 				initOnStart: false
 				resourceFactory: {
 					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-					resourceType: "com.gurella.engine.graph.movement.TransformComponent"
+					resourceType: "com.gurella.engine.scene.movement.TransformComponent"
 					properties: {
 						translation: {
 							resourceType: "com.badlogic.gdx.math.Vector3"
@@ -279,7 +279,7 @@ scenes: [
 				initOnStart: true
 				resourceFactory: {
 					class: "com.gurella.engine.resource.factory.ResourceModelFactory"
-					resourceType: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					resourceType: "com.gurella.engine.scene.audio.AudioListenerComponent"
 					properties: {
 						enabled: false
 					}

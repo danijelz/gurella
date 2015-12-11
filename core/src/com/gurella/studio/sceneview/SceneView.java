@@ -37,19 +37,19 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.application.UpdateEvent;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.graph.SceneGraph;
-import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.camera.CameraComponent;
-import com.gurella.engine.graph.camera.PerspectiveCameraComponent;
-import com.gurella.engine.graph.movement.TransformComponent;
-import com.gurella.engine.graph.renderable.ModelComponent;
-import com.gurella.engine.graph.renderable.TextureComponent;
 import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneGraph;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
+import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.renderable.ModelComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.studio.project.ProjectHeaderContainer.SceneSelectionChangedEvent;
 
 public class SceneView extends Container<Image> {

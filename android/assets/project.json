@@ -17,7 +17,7 @@ scenes: [
 				id: 0
 				name: "test1"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [ 2, 35, 20 ]
 				}
 			}
@@ -25,7 +25,7 @@ scenes: [
 				id: 4
 				name: "ccc"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [ 5, 6, 16, 26, 31 ]
 				}
 			}
@@ -33,7 +33,7 @@ scenes: [
 				id: 37
 				name: "test3"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [ 40, 41 ]
 				}
 			}
@@ -41,7 +41,7 @@ scenes: [
 				id: 12
 				name: "testTextureRegion"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [ 17, 18, 19 ]
 				}
 			}
@@ -49,14 +49,14 @@ scenes: [
 				id: 28
 				name: "test"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 				}
 			}
 			{
 				id: 29
 				name: "camera"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [ 30, 24 ]
 				}
 			}
@@ -64,7 +64,7 @@ scenes: [
 				id: 36
 				name: "test2"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [ 38, 39, 21 ]
 				}
 			}
@@ -74,7 +74,7 @@ scenes: [
 			{
 				id: 1
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					pan: {
@@ -97,19 +97,19 @@ scenes: [
 			{
 				id: 2
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 				}
 			}
 			{
 				id: 3
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 				}
 			}
 			{
 				id: 5
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					pan: {
@@ -169,13 +169,13 @@ scenes: [
 			{
 				id: 9
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 				}
 			}
 			{
 				id: 10
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					dopplerFactor: 0
@@ -215,7 +215,7 @@ scenes: [
 			{
 				id: 14
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 				}
 			}
 			{
@@ -240,7 +240,7 @@ scenes: [
 			{
 				id: 17
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureRegionComponent"
+					class: "com.gurella.engine.scene.renderable.TextureRegionComponent"
 					tint: {
 						r: 1
 						g: 1
@@ -257,7 +257,7 @@ scenes: [
 			{
 				id: 18
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						y: 100
 					}
@@ -266,7 +266,7 @@ scenes: [
 			{
 				id: 19
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					repeatable: true
 					pitch: {
 						pitch: 1.26
@@ -288,7 +288,7 @@ scenes: [
 			{
 				id: 23
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -301,14 +301,14 @@ scenes: [
 			{
 				id: 24
 				model: {
-					class: "com.gurella.engine.graph.camera.OrtographicCameraComponent"
+					class: "com.gurella.engine.scene.camera.OrtographicCameraComponent"
 					renderingLayers: null
 				}
 			}
 			{
 				id: 25
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					enabled: false
 					translation: {
 						x: 200
@@ -323,7 +323,7 @@ scenes: [
 			{
 				id: 26
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						x: -200
 					}
@@ -332,7 +332,7 @@ scenes: [
 			{
 				id: 27
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -345,13 +345,13 @@ scenes: [
 			{
 				id: 30
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 				}
 			}
 			{
 				id: 31
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -364,7 +364,7 @@ scenes: [
 			{
 				id: 35
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					dimensionsFromTexture: false
@@ -378,7 +378,7 @@ scenes: [
 			{
 				id: 38
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						x: -100
 					}
@@ -387,7 +387,7 @@ scenes: [
 			{
 				id: 39
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					dimensionsFromTexture: false
@@ -401,7 +401,7 @@ scenes: [
 			{
 				id: 40
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						x: 100
 					}
@@ -418,7 +418,7 @@ scenes: [
 			{
 				id: 41
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					dimensionsFromTexture: false
@@ -435,7 +435,7 @@ scenes: [
 			{
 				id: 11
 				model: {
-					class: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+					class: "com.gurella.engine.scene.bullet.BulletPhysicsProcessor"
 				}
 			}
 		]
@@ -456,7 +456,7 @@ scenes: [
 			{
 				id: 16
 				model: {
-					class: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+					class: "com.gurella.engine.scene.bullet.BulletPhysicsProcessor"
 				}
 			}
 		]

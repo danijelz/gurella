@@ -7,9 +7,9 @@ import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.graph.SceneNode;
-import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.SceneSystem;
+import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneSystem;
 
 public class SceneElementsResourceContext extends ResourceContext implements Serializable {
 	private static final String SCENE_NODES_TAG = "sceneNodes";

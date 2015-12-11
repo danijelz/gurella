@@ -19,7 +19,7 @@ scenes: [
 				initOnStart: false
 				name: "test1"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -38,7 +38,7 @@ scenes: [
 				initOnStart: false
 				name: "ccc"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -69,7 +69,7 @@ scenes: [
 				initOnStart: false
 				name: "test3"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -88,7 +88,7 @@ scenes: [
 				initOnStart: false
 				name: "testTextureRegion"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -111,7 +111,7 @@ scenes: [
 				initOnStart: false
 				name: "test"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 				}
 			}
 			{
@@ -120,7 +120,7 @@ scenes: [
 				initOnStart: false
 				name: "camera"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -139,7 +139,7 @@ scenes: [
 				initOnStart: false
 				name: "test2"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -160,7 +160,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					pan: {
@@ -185,7 +185,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 				}
 			}
 			{
@@ -193,7 +193,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 				}
 			}
 			{
@@ -201,7 +201,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					pan: {
@@ -265,7 +265,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.drawable.CameraComponent"
+					class: "com.gurella.engine.scene.drawable.CameraComponent"
 				}
 			}
 			{
@@ -273,7 +273,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 				}
 			}
 			{
@@ -281,7 +281,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					dopplerFactor: 0
@@ -341,7 +341,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 				}
 			}
 			{
@@ -370,7 +370,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.drawable.CameraComponent"
+					class: "com.gurella.engine.scene.drawable.CameraComponent"
 				}
 			}
 			{
@@ -378,7 +378,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureRegionComponent"
+					class: "com.gurella.engine.scene.renderable.TextureRegionComponent"
 					dimensionsFromTexture: true
 					tint: {
 						r: 1
@@ -402,7 +402,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						y: 100
 					}
@@ -413,7 +413,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					repeatable: true
 					pitch: {
 						pitch: 1.26
@@ -425,7 +425,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -444,7 +444,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.camera.OrtographicCameraComponent"
+					class: "com.gurella.engine.scene.camera.OrtographicCameraComponent"
 					renderingLayers: null
 				}
 			}
@@ -453,7 +453,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					enabled: false
 					translation: {
 						x: 200
@@ -470,7 +470,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						x: -200
 					}
@@ -481,7 +481,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -500,7 +500,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 				}
 			}
 			{
@@ -508,7 +508,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -527,7 +527,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -546,7 +546,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						x: -100
 					}
@@ -557,7 +557,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -576,7 +576,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.movement.TransformComponent"
+					class: "com.gurella.engine.scene.movement.TransformComponent"
 					translation: {
 						x: 100
 					}
@@ -595,7 +595,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.renderable.TextureComponent"
+					class: "com.gurella.engine.scene.renderable.TextureComponent"
 					width: 50
 					height: 50
 					tint: {
@@ -617,7 +617,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.drawable.DrawableRenderProcessor"
+					class: "com.gurella.engine.scene.drawable.DrawableRenderProcessor"
 				}
 			}
 			{
@@ -625,7 +625,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+					class: "com.gurella.engine.scene.bullet.BulletPhysicsProcessor"
 				}
 			}
 		]
@@ -645,7 +645,7 @@ scenes: [
 				initOnStart: false
 				name: "zzz"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					children: [ 2 ]
 					components: [
 						{
@@ -669,7 +669,7 @@ scenes: [
 				initOnStart: false
 				name: "xxx"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -696,7 +696,7 @@ scenes: [
 				initOnStart: false
 				name: "ccc"
 				model: {
-					class: "com.gurella.engine.graph.SceneNode"
+					class: "com.gurella.engine.scene.SceneNode"
 					components: [
 						{
 							class: "com.gurella.engine.resource.model.ResourceId"
@@ -721,7 +721,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 				}
 			}
 			{
@@ -729,7 +729,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					dopplerFactor: 0
@@ -767,7 +767,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 					enabled: false
 				}
 			}
@@ -776,7 +776,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					dopplerFactor: 0
@@ -814,7 +814,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioListenerComponent"
+					class: "com.gurella.engine.scene.audio.AudioListenerComponent"
 				}
 			}
 			{
@@ -822,7 +822,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.audio.AudioSourceComponent"
+					class: "com.gurella.engine.scene.audio.AudioSourceComponent"
 					spatial: false
 					priority: 0
 					dopplerFactor: 0
@@ -863,7 +863,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.input.InputProcessor"
+					class: "com.gurella.engine.scene.input.InputProcessor"
 				}
 			}
 			{
@@ -871,7 +871,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.drawable.DrawableRenderProcessor"
+					class: "com.gurella.engine.scene.drawable.DrawableRenderProcessor"
 				}
 			}
 			{
@@ -879,7 +879,7 @@ scenes: [
 				persistent: false
 				initOnStart: false
 				model: {
-					class: "com.gurella.engine.graph.bullet.BulletPhysicsProcessor"
+					class: "com.gurella.engine.scene.bullet.BulletPhysicsProcessor"
 				}
 			}
 		]

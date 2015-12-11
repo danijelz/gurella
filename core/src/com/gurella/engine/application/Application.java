@@ -17,7 +17,6 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputMapper;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneManager;
 import com.gurella.engine.utils.DisposableManager;
 
 public class Application extends SceneElementsResourceContext implements ApplicationListener {

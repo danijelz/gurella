@@ -10,9 +10,6 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.graph.SceneNodeComponent;
-import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.renderable.TextureComponent;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.AssetResourceReference;
 import com.gurella.engine.resource.ResourceMap;
@@ -20,6 +17,9 @@ import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.factory.GlobalAssetManager;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.AssetId;
+import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
 
 public class SceneRenderableComponent extends RenderableComponent {
 	private static final GlobalAssetManager globalAssetManager = new GlobalAssetManager();

@@ -3,16 +3,16 @@ package com.gurella.studio.nodes;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.graph.behaviour.BehaviourComponent;
-import com.gurella.engine.graph.event.EventCallback;
-import com.gurella.engine.graph.event.EventCallbackIdentifier;
-import com.gurella.engine.graph.input.DragSource;
-import com.gurella.engine.graph.input.DragStartCondition;
-import com.gurella.engine.graph.input.DropTarget;
-import com.gurella.engine.graph.input.IntersectionTouchEvent;
-import com.gurella.engine.graph.input.TouchEvent;
-import com.gurella.engine.graph.renderable.RenderableComponent;
-import com.gurella.engine.graph.renderable.TextureComponent;
+import com.gurella.engine.scene.behaviour.BehaviourComponent;
+import com.gurella.engine.scene.event.EventCallback;
+import com.gurella.engine.scene.event.EventCallbackIdentifier;
+import com.gurella.engine.scene.input.DragSource;
+import com.gurella.engine.scene.input.DragStartCondition;
+import com.gurella.engine.scene.input.DropTarget;
+import com.gurella.engine.scene.input.IntersectionTouchEvent;
+import com.gurella.engine.scene.input.TouchEvent;
+import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class TestInputComponnent extends BehaviourComponent implements TestEventSubscription {
