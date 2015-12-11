@@ -95,6 +95,7 @@ public final class SceneNode extends SceneElement {
 		INDEXER.removeIndexed(this);
 	}
 
+	//TODO slow -> cache value
 	public final boolean isHierarchyEnabled() {
 		return this.enabled && (parent == null || parent.isHierarchyEnabled());
 	}

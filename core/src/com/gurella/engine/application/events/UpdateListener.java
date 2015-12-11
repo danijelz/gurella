@@ -1,4 +1,4 @@
-package com.gurella.engine.application;
+package com.gurella.engine.application.events;
 
 import com.gurella.engine.utils.Ordered;
 

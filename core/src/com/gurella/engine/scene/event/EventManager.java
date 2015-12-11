@@ -339,7 +339,6 @@ public class EventManager implements ComponentActivatedListener, ComponentDeacti
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	// TODO remove
 	public <T> void notify(SceneElement element, CallbackEvent<T> event) {
 		ImmutableArray<T> listeners = getListeners(element, event.eventCallbackIdentifier);
 		for (int i = 0; i < listeners.size(); i++) {

@@ -3,7 +3,7 @@ package com.gurella.engine.scene.movement;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.application.CommonUpdateOrder;
-import com.gurella.engine.application.UpdateListener;
+import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneSystem;

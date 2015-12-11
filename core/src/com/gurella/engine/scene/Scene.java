@@ -37,6 +37,7 @@ public class Scene extends SceneElementsResourceContext {
 
 	private String id;
 	private String group = defaultGroup;
+	
 	public final IntArray initialSystems = new IntArray();
 	public final IntArray initialNodes = new IntArray();
 
@@ -61,6 +62,7 @@ public class Scene extends SceneElementsResourceContext {
 	private final Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
 
 	public final EventManager eventManager = new EventManager();
+	private final SceneEventsSignal sceneEventsSignal = new SceneEventsSignal(eventManager);
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -73,7 +75,6 @@ public class Scene extends SceneElementsResourceContext {
 	public final AudioSystem audioSystem = new AudioSystem();
 	//TODO physics system
 
-	private final SceneEventsSignal sceneEventsSignal = new SceneEventsSignal(eventManager);
 
 	public Scene(Application application, String id) {
 		super(application);
@@ -267,7 +268,7 @@ public class Scene extends SceneElementsResourceContext {
 		node.componentsInternal.put(component.baseComponentType, component);
 		node.componentBitsInternal.set(component.componentType);
 		attachElement(component);
-		sceneGraphListenerSignal.componentAdded(component);
+		sceneEventsSignal.componentAdded(component);
 		node.nodeChangedSignal.componentAdded(component);
 		activateComponentSafely(component);
 	}
@@ -287,7 +288,7 @@ public class Scene extends SceneElementsResourceContext {
 			activeComponentsInternal.add(component);
 			node.activeComponentBitsInternal.set(component.componentType);
 			component.lifecycleSignal.activated();
-			sceneGraphListenerSignal.componentActivated(component);
+			sceneEventsSignal.componentActivated(component);
 			node.componentActivatedSignal.dispatch(component);
 		}
 	}
@@ -307,7 +308,7 @@ public class Scene extends SceneElementsResourceContext {
 			component.lifecycleSignal.deactivated();
 			node.activeComponentBitsInternal.clear(component.componentType);
 			activeComponentsInternal.removeValue(component, true);
-			sceneGraphListenerSignal.componentDeactivated(component);
+			sceneEventsSignal.componentDeactivated(component);
 			node.componentDeactivatedSignal.dispatch(component);
 		}
 	}

@@ -34,7 +34,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.UpdateEvent;
+import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.ResourceReference;

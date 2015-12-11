@@ -2,10 +2,10 @@ package com.gurella.engine.event;
 
 import java.util.Comparator;
 
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.SnapshotArray;
 
 public abstract class AbstractSignal<LISTENER> {
-	protected Array<LISTENER> listeners = new Array<LISTENER>();
+	protected SnapshotArray<LISTENER> listeners = new SnapshotArray<LISTENER>();
 
 	public boolean addListener(LISTENER listener) {
 		if (listener == null || listeners.contains(listener, true)) {

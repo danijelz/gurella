@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.gurella.engine.application.events.ApplicationResizeSignal;
+import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputMapper;
 import com.gurella.engine.resource.SceneElementsResourceContext;
@@ -37,6 +39,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	
 	private boolean paused;
 	private final SceneManager sceneManager = new SceneManager(this);
+	private final ApplicationResizeSignal applicationResizeSignal = new ApplicationResizeSignal();
 
 	private final ApplicationInitializer initializer;
 
@@ -83,6 +86,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public void resize(int width, int height) {
 		// TODO must be handled globally
 		sceneManager.resize(width, height);
+		applicationResizeSignal.onResize(width, height);
 	}
 
 	@Override

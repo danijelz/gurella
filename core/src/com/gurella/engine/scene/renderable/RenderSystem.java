@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
-import com.gurella.engine.application.UpdateListener;
+import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneGraphListener;
 import com.gurella.engine.scene.SceneNodeComponent;

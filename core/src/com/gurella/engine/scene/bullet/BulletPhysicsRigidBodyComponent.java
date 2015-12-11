@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstruct
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Bits;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.movement.TransformComponent;
 
@@ -25,15 +24,8 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent {
 	public Bits collisionMasks = new Bits(32);
 
 	public BulletPhysicsRigidBodyType rigidBodyType = BulletPhysicsRigidBodyType.DYNAMIC;
-
 	public BulletPhysicsCollisionShape bulletPhysicsCollisionShape;
-
 	public btRigidBody rigidBody;
-
-	public final Signal1Impl<Collision> collisionEnterSignal = new Signal1Impl<Collision>();
-	public final Signal1Impl<Collision> collisionStaySignal = new Signal1Impl<Collision>();
-	public final Signal1Impl<BulletPhysicsRigidBodyComponent> collisionExitSignal = new Signal1Impl<BulletPhysicsRigidBodyComponent>();
-	public final CollisionSignal collisionSignal = new CollisionSignal(this);
 
 	public BulletPhysicsRigidBodyComponent() {
 	}
@@ -62,15 +54,6 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent {
 		}
 
 		rigidBody.activate(true);
-	}
-
-	@Override
-	protected void deactivated() {
-		super.deactivated();
-		collisionEnterSignal.clear();
-		collisionStaySignal.clear();
-		collisionExitSignal.clear();
-		collisionSignal.clear();
 	}
 
 	@Override

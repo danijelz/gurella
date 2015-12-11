@@ -1,9 +1,9 @@
 package com.gurella.engine.state;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.application.UpdateEvent;
-import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.event.Signal2;

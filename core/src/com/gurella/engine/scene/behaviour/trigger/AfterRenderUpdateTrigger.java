@@ -3,8 +3,8 @@ package com.gurella.engine.scene.behaviour.trigger;
 import static com.gurella.engine.scene.behaviour.BehaviourEvents.onAfterRender;
 
 import com.gurella.engine.application.CommonUpdateOrder;
-import com.gurella.engine.application.UpdateEvent;
-import com.gurella.engine.application.UpdateListener;
+import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.event.EventTrigger;

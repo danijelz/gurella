@@ -4,8 +4,8 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.engine.application.UpdateListener;
 import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.events.UpdateListener;
 
 public class GlobalAssetManager implements UpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();

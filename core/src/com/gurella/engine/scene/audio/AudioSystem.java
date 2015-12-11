@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
 import com.gurella.engine.application.CommonUpdateOrder;
-import com.gurella.engine.application.UpdateListener;
+import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
