@@ -64,13 +64,11 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		currentTickCollisionPairs.add(cachedCollisionPair);
 
 		if (previousTickCollisionPairs.contains(cachedCollisionPair)) {
-			rigidBodyComponent0.collisionSignal.onCollisionStay(collision0);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
 					BehaviourEvents.onCollisionStay)) {
 				behaviourComponent.onCollisionStay(collision0);
 			}
 
-			rigidBodyComponent1.collisionSignal.onCollisionStay(collision1);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
 					BehaviourEvents.onCollisionStay)) {
 				behaviourComponent.onCollisionStay(collision1);
@@ -80,13 +78,11 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 				behaviourComponent.onCollisionStay(collisionPair);
 			}
 		} else {
-			rigidBodyComponent0.collisionSignal.onCollisionEnter(collision0);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
 					BehaviourEvents.onCollisionEnter)) {
 				behaviourComponent.onCollisionEnter(collision0);
 			}
 
-			rigidBodyComponent1.collisionSignal.onCollisionEnter(collision1);
 			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
 					BehaviourEvents.onCollisionEnter)) {
 				behaviourComponent.onCollisionEnter(collision1);
@@ -116,13 +112,11 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		BulletPhysicsRigidBodyComponent rigidBodyComponent0 = cachedCollisionPair.rigidBodyComponent0;
 		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
 
-		rigidBodyComponent0.collisionSignal.onCollisionExit(rigidBodyComponent1);
 		for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
 				BehaviourEvents.onCollisionExit)) {
 			behaviourComponent.onCollisionExit(rigidBodyComponent1);
 		}
 
-		rigidBodyComponent1.collisionSignal.onCollisionExit(rigidBodyComponent0);
 		for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
 				BehaviourEvents.onCollisionExit)) {
 			behaviourComponent.onCollisionExit(rigidBodyComponent0);
