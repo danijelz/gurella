@@ -13,7 +13,9 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.gurella.engine.application.events.ApplicationActivitySignal;
 import com.gurella.engine.application.events.ApplicationResizeSignal;
+import com.gurella.engine.application.events.ApplicationUpdateSignal;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputMapper;
@@ -36,10 +38,13 @@ public class Application extends SceneElementsResourceContext implements Applica
 
 	private String initialSceneId;
 	private Color backgroundColor;
-	
+
 	private boolean paused;
 	private final SceneManager sceneManager = new SceneManager(this);
+
+	private final ApplicationUpdateSignal applicationUpdateSignal = new ApplicationUpdateSignal();
 	private final ApplicationResizeSignal applicationResizeSignal = new ApplicationResizeSignal();
+	private final ApplicationActivitySignal applicationActivitySignal = new ApplicationActivitySignal();
 
 	private final ApplicationInitializer initializer;
 
@@ -79,6 +84,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 		SHAPE_RENDERER = DISPOSABLE_MANAGER.add(new ShapeRenderer());
 		// TODO Auto-generated method stub
 		initializer.init(this);
+		//TODO add init scripts to initializer
 		sceneManager.showScene(initialSceneId);
 	}
 
@@ -95,6 +101,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		EventService.notify(UpdateEvent.instance);
+		applicationUpdateSignal.update();
 	}
 
 	@Override
@@ -102,6 +109,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 		paused = true;
 		// TODO must be handled globally
 		sceneManager.pause();
+		applicationActivitySignal.onPause();
 	}
 
 	@Override
@@ -109,6 +117,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 		paused = false;
 		// TODO must be handled globally
 		sceneManager.resume();
+		applicationActivitySignal.onResume();
 	}
 
 	public boolean isPaused() {

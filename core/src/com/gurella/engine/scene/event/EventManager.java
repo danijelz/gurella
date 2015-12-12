@@ -40,6 +40,21 @@ public class EventManager implements ComponentActivatedListener, ComponentDeacti
 		register(this);
 	}
 
+	public void start() {
+		for (EventTrigger trigger : triggers.values()) {
+			trigger.activated();
+		}
+		register(this);
+	}
+
+	public void stop() {
+		for (EventTrigger trigger : triggers.values()) {
+			trigger.deactivated();
+		}
+		listenersByCallback.clear();
+		listenersBySubscription.clear();
+	}
+
 	@Override
 	public void componentActivated(SceneNodeComponent component) {
 		register(component.getNode().id, component);
