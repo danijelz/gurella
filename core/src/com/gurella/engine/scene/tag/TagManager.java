@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
@@ -17,7 +17,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-public class TagManager extends SceneSystem implements SceneGraphListener {
+public class TagManager extends SceneSystem implements SceneListener {
 	private static final ComponentFamily<TagComponent> family = new ComponentFamily<TagComponent>(
 			new ComponentTypePredicate(TagComponent.class));
 

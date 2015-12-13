@@ -8,12 +8,12 @@ import com.gurella.engine.scene.event.EventTrigger;
 
 public class ResumeTrigger extends EventTrigger implements Listener0 {
 	@Override
-	protected void activated() {
+	protected void start() {
 		sceneGraph.scene.resumeSignal.addListener(this);
 	}
 
 	@Override
-	protected void deactivated() {
+	protected void stop() {
 		sceneGraph.scene.resumeSignal.removeListener(this);
 	}
 

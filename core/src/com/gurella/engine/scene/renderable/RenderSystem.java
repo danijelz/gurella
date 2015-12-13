@@ -7,7 +7,7 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.graphics.GenericBatch;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.camera.CameraComponent;
@@ -16,7 +16,7 @@ import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 
 //TODO attach listeners on activate
-public class RenderSystem extends SceneSystem implements SceneGraphListener, UpdateListener {
+public class RenderSystem extends SceneSystem implements SceneListener, UpdateListener {
 	private final GenericBatch batch = Application.DISPOSABLE_MANAGER.add(new GenericBatch());
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();

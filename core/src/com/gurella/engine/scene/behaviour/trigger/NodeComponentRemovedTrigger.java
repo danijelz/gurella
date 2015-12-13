@@ -10,12 +10,12 @@ import com.gurella.engine.scene.event.EventTrigger;
 
 public class NodeComponentRemovedTrigger extends EventTrigger implements Listener1<SceneNodeComponent> {
 	@Override
-	protected void activated() {
+	protected void start() {
 		sceneGraph.componentRemovedSignal.addListener(this);
 	}
 
 	@Override
-	protected void deactivated() {
+	protected void stop() {
 		sceneGraph.componentRemovedSignal.removeListener(this);
 	}
 

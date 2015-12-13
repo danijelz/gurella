@@ -7,13 +7,13 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-public class ComponentManager extends SceneSystem implements SceneGraphListener {
+public class ComponentManager extends SceneSystem implements SceneListener {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	@Override

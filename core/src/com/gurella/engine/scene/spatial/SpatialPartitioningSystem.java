@@ -14,7 +14,7 @@ import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.scene.BaseSceneElementType;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.layer.Layer;
@@ -23,7 +23,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 
 //TODO attach listeners
 @BaseSceneElementType
-public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem implements SceneGraphListener {
+public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem implements SceneListener {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();

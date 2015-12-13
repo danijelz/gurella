@@ -33,13 +33,13 @@ public class TestInputComponnent extends BehaviourComponent implements TestEvent
 	@Override
 	public void onTap(IntersectionTouchEvent pointerEvent, int count) {
 		System.out.println("onTap");
-		ImmutableArray<TestInputComponnent> listeners = getGraph().eventManager.getListeners(getNode(), testCallback);
+		ImmutableArray<TestInputComponnent> listeners = getScene().eventManager.getListeners(getNode(), testCallback);
 		for (int i = 0; i < listeners.size(); i++) {
 			TestInputComponnent testInputComponnent = listeners.get(i);
 			testInputComponnent.testCallback();
 		}
 
-		ImmutableArray<TestEventSubscription> subListeners = getGraph().eventManager.getListeners(getNode(),
+		ImmutableArray<TestEventSubscription> subListeners = getScene().eventManager.getListeners(getNode(),
 				TestEventSubscription.class);
 		for (int i = 0; i < listeners.size(); i++) {
 			TestEventSubscription listener = subListeners.get(i);

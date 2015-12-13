@@ -3,7 +3,7 @@ package com.gurella.engine.scene.layer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
@@ -11,7 +11,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-public class LayerManager extends SceneSystem implements SceneGraphListener {
+public class LayerManager extends SceneSystem implements SceneListener {
 	private IntMap<ArrayExt<SceneNode>> nodesByLayer = new IntMap<ArrayExt<SceneNode>>();
 	private IntIntMap nodeLayers = new IntIntMap();
 

@@ -6,19 +6,19 @@ public abstract class EventTrigger {
 	protected Scene scene;
 	protected EventManager eventManager;
 
-	protected abstract void activated();
+	protected abstract void start();
 
-	protected abstract void deactivated();
+	protected abstract void stop();
 
 	static final class NopEventTrigger extends EventTrigger {
 		static final NopEventTrigger instance = new NopEventTrigger();
 
 		@Override
-		protected void activated() {
+		protected void start() {
 		}
 
 		@Override
-		protected void deactivated() {
+		protected void stop() {
 		}
 	}
 }

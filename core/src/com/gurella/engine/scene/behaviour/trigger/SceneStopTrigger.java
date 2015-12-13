@@ -8,12 +8,12 @@ import com.gurella.engine.scene.event.EventTrigger;
 
 public class SceneStopTrigger extends EventTrigger implements Listener0 {
 	@Override
-	protected void activated() {
+	protected void start() {
 		sceneGraph.scene.stopSignal.addListener(this);
 	}
 
 	@Override
-	protected void deactivated() {
+	protected void stop() {
 		sceneGraph.scene.stopSignal.removeListener(this);
 	}
 

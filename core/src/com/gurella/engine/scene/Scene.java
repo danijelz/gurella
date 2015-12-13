@@ -59,9 +59,9 @@ public class Scene extends SceneElementsResourceContext {
 	private final Array<SceneSystem> activeSystemsInternal = new Array<SceneSystem>();
 	public final ImmutableArray<SceneSystem> activeSystems = ImmutableArray.with(activeSystemsInternal);
 
-	private final Array<GraphOperation> pendingOperations = new Array<GraphOperation>();
+	private final Array<SceneOperation> pendingOperations = new Array<SceneOperation>();
 
-	public final EventManager eventManager = new EventManager();
+	public final EventManager eventManager = new EventManager(this);
 	private final SceneEventsSignal sceneEventsSignal = new SceneEventsSignal(eventManager);
 
 	public final ComponentManager componentManager = new ComponentManager();
@@ -118,6 +118,8 @@ public class Scene extends SceneElementsResourceContext {
 	}
 
 	public void start(ResourceMap initialResources) {
+		eventManager.start();
+		
 		addSystemSafely(componentManager);
 		addSystemSafely(nodeManager);
 		addSystemSafely(tagManager);
@@ -156,10 +158,12 @@ public class Scene extends SceneElementsResourceContext {
 			SceneSystem system = allSystemsInternal.get(i);
 			removeSystemSafely(system);
 		}
+		
+		eventManager.stop();
 	}
 
 	public void addSystem(SceneSystem system) {
-		pendingOperations.add(GraphOperation.obtain().addSystem(this, system));
+		pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
 	}
 
 	void addSystemSafely(SceneSystem system) {
@@ -194,7 +198,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException("System does not belong to graph.");
 		}
 
-		pendingOperations.add(GraphOperation.obtain().activateSystem(system));
+		pendingOperations.add(SceneOperation.obtain().activateSystem(system));
 	}
 
 	void activateSystemSafely(SceneSystem system) {
@@ -203,6 +207,7 @@ public class Scene extends SceneElementsResourceContext {
 			system.lifecycleSignal.activated();
 			activeSystemsInternal.add(system);
 			sceneEventsSignal.systemActivated(system);
+			eventManager.register(system);
 		}
 	}
 
@@ -211,7 +216,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException("System does not belong to graph.");
 		}
 
-		pendingOperations.add(GraphOperation.obtain().deactivateSystem(system));
+		pendingOperations.add(SceneOperation.obtain().deactivateSystem(system));
 	}
 
 	void deactivateSystemSafely(SceneSystem system) {
@@ -219,6 +224,7 @@ public class Scene extends SceneElementsResourceContext {
 			system.active = false;
 			system.lifecycleSignal.deactivated();
 			activeSystemsInternal.removeValue(system, true);
+			eventManager.unregister(system);
 		}
 	}
 
@@ -227,7 +233,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException("Node does not belong to graph.");
 		}
 
-		pendingOperations.add(GraphOperation.obtain().detachSystem(system));
+		pendingOperations.add(SceneOperation.obtain().detachSystem(system));
 	}
 
 	void removeSystemSafely(SceneSystem system) {
@@ -257,7 +263,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalStateException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().attachComponent(this, node, component));
+		pendingOperations.add(SceneOperation.obtain().attachComponent(this, node, component));
 	}
 
 	void addComponentSafely(SceneNode node, SceneNodeComponent component) {
@@ -278,18 +284,19 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().activateComponent(component));
+		pendingOperations.add(SceneOperation.obtain().activateComponent(component));
 	}
 
 	void activateComponentSafely(SceneNodeComponent component) {
 		SceneNode node = component.node;
-		if (!component.active && component.isHierarchyEnabled() && node.active) {
+		if (!component.active && component.isHierarchyEnabled()) {
 			component.active = true;
 			activeComponentsInternal.add(component);
 			node.activeComponentBitsInternal.set(component.componentType);
 			component.lifecycleSignal.activated();
 			sceneEventsSignal.componentActivated(component);
 			node.componentActivatedSignal.dispatch(component);
+			eventManager.register(node, component);
 		}
 	}
 
@@ -298,7 +305,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().deactivateComponent(component));
+		pendingOperations.add(SceneOperation.obtain().deactivateComponent(component));
 	}
 
 	void deactivateComponentSafely(SceneNodeComponent component) {
@@ -310,6 +317,7 @@ public class Scene extends SceneElementsResourceContext {
 			activeComponentsInternal.removeValue(component, true);
 			sceneEventsSignal.componentDeactivated(component);
 			node.componentDeactivatedSignal.dispatch(component);
+			eventManager.unregister(node, component);
 		}
 	}
 
@@ -318,7 +326,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().detachComponent(component));
+		pendingOperations.add(SceneOperation.obtain().detachComponent(component));
 	}
 
 	void removeComponentSafely(SceneNodeComponent component) {
@@ -339,7 +347,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().attachNode(this, node));
+		pendingOperations.add(SceneOperation.obtain().attachNode(this, node));
 	}
 
 	void addNodeSafely(SceneNode node) {
@@ -374,7 +382,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().activateNode(node));
+		pendingOperations.add(SceneOperation.obtain().activateNode(node));
 	}
 
 	private void activateNodeSafely(SceneNode node) {
@@ -403,7 +411,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException("Node does not belong to graph.");
 		}
 
-		pendingOperations.add(GraphOperation.obtain().deactivateNode(node));
+		pendingOperations.add(SceneOperation.obtain().deactivateNode(node));
 	}
 
 	void deactivateNodeSafely(SceneNode node) {
@@ -428,7 +436,7 @@ public class Scene extends SceneElementsResourceContext {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(GraphOperation.obtain().removeNode(node));
+		pendingOperations.add(SceneOperation.obtain().removeNode(node));
 	}
 
 	void removeNodeSafely(SceneNode node) {
@@ -465,13 +473,14 @@ public class Scene extends SceneElementsResourceContext {
 
 	@Override
 	public void update() {
+		//TODO add to signal
 		cleanup();
 	}
 
 	private void cleanup() {
 		pendingOperations.sort();
 
-		for (GraphOperation graphOperation : pendingOperations) {
+		for (SceneOperation graphOperation : pendingOperations) {
 			graphOperation.execute();
 			graphOperation.free();
 		}

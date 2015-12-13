@@ -1,6 +1,6 @@
 package com.gurella.engine.scene;
 
-public interface SceneGraphListener {
+public interface SceneListener {
 	//TODO add nodeAdded and nodeRemoved...
 	void componentActivated(SceneNodeComponent component);
 

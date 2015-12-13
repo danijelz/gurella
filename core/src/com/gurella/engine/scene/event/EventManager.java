@@ -13,20 +13,13 @@ import com.badlogic.gdx.utils.Pools;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.event.EventTrigger.NopEventTrigger;
-import com.gurella.engine.scene.manager.SceneEventsSignal.ComponentActivatedListener;
-import com.gurella.engine.scene.manager.SceneEventsSignal.ComponentDeactivatedListener;
-import com.gurella.engine.scene.manager.SceneEventsSignal.SystemActivatedListener;
-import com.gurella.engine.scene.manager.SceneEventsSignal.SystemDeactivatedListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 //TODO activate and deactivate triggers
-public class EventManager implements ComponentActivatedListener, ComponentDeactivatedListener, SystemActivatedListener,
-		SystemDeactivatedListener {
+public class EventManager {
 	private final Scene scene;
 
 	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
@@ -37,42 +30,20 @@ public class EventManager implements ComponentActivatedListener, ComponentDeacti
 
 	public EventManager(Scene scene) {
 		this.scene = scene;
-		register(this);
 	}
 
 	public void start() {
 		for (EventTrigger trigger : triggers.values()) {
-			trigger.activated();
+			trigger.start();
 		}
-		register(this);
 	}
 
 	public void stop() {
 		for (EventTrigger trigger : triggers.values()) {
-			trigger.deactivated();
+			trigger.stop();
 		}
 		listenersByCallback.clear();
 		listenersBySubscription.clear();
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
-		register(component.getNode().id, component);
-	}
-
-	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
-		unregister(component.getNode().id, component);
-	}
-
-	@Override
-	public void systemActivated(SceneSystem system) {
-		register(system);
-	}
-
-	@Override
-	public void systemDeactivated(SceneSystem system) {
-		unregister(system);
 	}
 
 	public void register(Object listener) {
@@ -177,7 +148,7 @@ public class EventManager implements ComponentActivatedListener, ComponentDeacti
 				EventTrigger trigger = ReflectionUtils.newInstance(triggerClass);
 				trigger.scene = scene;
 				trigger.eventManager = this;
-				trigger.activated();
+				trigger.start();
 				triggers.put(callbackId, trigger);
 			}
 		}

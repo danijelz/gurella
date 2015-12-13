@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
@@ -16,7 +16,7 @@ import com.gurella.engine.utils.ImmutableArray;
 
 //TODO add nodeAdded and nodeRemoved...
 //TODO attach listeners
-public class NodeManager extends SceneSystem implements SceneGraphListener {
+public class NodeManager extends SceneSystem implements SceneListener {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override

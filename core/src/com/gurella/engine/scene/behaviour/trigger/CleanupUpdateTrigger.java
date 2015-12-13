@@ -11,12 +11,12 @@ import com.gurella.engine.scene.event.EventTrigger;
 
 public class CleanupUpdateTrigger extends EventTrigger implements UpdateListener {
 	@Override
-	protected void activated() {
+	protected void start() {
 		EventService.addListener(UpdateEvent.class, this);
 	}
 
 	@Override
-	protected void deactivated() {
+	protected void stop() {
 		EventService.removeListener(UpdateEvent.class, this);
 	}
 

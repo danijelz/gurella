@@ -15,6 +15,7 @@ public final class SceneEventsSignal {
 		this.eventManager = eventManager;
 	}
 
+	//TODO are notifications about systems and nodes needed
 	public void systemActivated(SceneSystem system) {
 		ImmutableArray<SystemActivatedListener> listeners = eventManager.getListeners(SystemActivatedListener.class);
 		for (int i = 0; i < listeners.size(); i++) {

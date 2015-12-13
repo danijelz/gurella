@@ -14,7 +14,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
@@ -22,7 +22,7 @@ import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.behaviour.BehaviourEvents;
 
 //TODO return null values
-public class ScriptManager extends SceneSystem implements SceneGraphListener {
+public class ScriptManager extends SceneSystem implements SceneListener {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
 
 	private IntMap<OrderedSet<BehaviourComponent>> scriptsByMethod = new IntMap<OrderedSet<BehaviourComponent>>();
@@ -303,7 +303,7 @@ public class ScriptManager extends SceneSystem implements SceneGraphListener {
 		}
 	}
 
-	private class ScriptSceneGraphListener implements SceneGraphListener {
+	private class ScriptSceneGraphListener implements SceneListener {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();

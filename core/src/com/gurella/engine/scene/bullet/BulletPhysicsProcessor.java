@@ -21,7 +21,7 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
@@ -29,7 +29,7 @@ import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners on activate
-public class BulletPhysicsProcessor extends SceneSystem implements SceneGraphListener, UpdateListener {
+public class BulletPhysicsProcessor extends SceneSystem implements SceneListener, UpdateListener {
 	private btCollisionConfiguration collisionConfig;
 	private btDispatcher dispatcher;
 	private btBroadphaseInterface broadphase;

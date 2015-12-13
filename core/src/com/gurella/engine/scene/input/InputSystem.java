@@ -35,7 +35,7 @@ import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.AbstractSignal;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneGraphListener;
+import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
@@ -51,7 +51,7 @@ import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-public class InputSystem extends SceneSystem implements SceneGraphListener, UpdateListener {
+public class InputSystem extends SceneSystem implements SceneListener, UpdateListener {
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 

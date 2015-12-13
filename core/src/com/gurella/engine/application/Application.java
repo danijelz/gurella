@@ -84,14 +84,13 @@ public class Application extends SceneElementsResourceContext implements Applica
 		SHAPE_RENDERER = DISPOSABLE_MANAGER.add(new ShapeRenderer());
 		// TODO Auto-generated method stub
 		initializer.init(this);
-		//TODO add init scripts to initializer
+		// TODO add init scripts to initializer
 		sceneManager.showScene(initialSceneId);
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO must be handled globally
-		sceneManager.resize(width, height);
+		// TODO not yet handled by scene
 		applicationResizeSignal.onResize(width, height);
 	}
 
@@ -107,16 +106,14 @@ public class Application extends SceneElementsResourceContext implements Applica
 	@Override
 	public void pause() {
 		paused = true;
-		// TODO must be handled globally
-		sceneManager.pause();
+		// TODO not yet handled by scene
 		applicationActivitySignal.onPause();
 	}
 
 	@Override
 	public void resume() {
 		paused = false;
-		// TODO must be handled globally
-		sceneManager.resume();
+		// TODO not yet handled by scene
 		applicationActivitySignal.onResume();
 	}
 

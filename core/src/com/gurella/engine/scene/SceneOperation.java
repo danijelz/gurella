@@ -3,7 +3,7 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pools.SynchronizedPools;
 
-class GraphOperation implements Comparable<GraphOperation>, Poolable {
+class SceneOperation implements Comparable<SceneOperation>, Poolable {
 	private enum ElementType {
 		SYSTEM, NODE, COMPONENT
 	}
@@ -12,23 +12,23 @@ class GraphOperation implements Comparable<GraphOperation>, Poolable {
 		ATTACH, ACTIVATE, DEACTIVATE, REMOVE
 	}
 
-	GraphOperation.ElementType elementType;
-	GraphOperation.GraphOperationType graphOperationType;
+	SceneOperation.ElementType elementType;
+	SceneOperation.GraphOperationType graphOperationType;
 
 	Scene scene;
 	SceneNode node;
 	SceneSystem system;
 	SceneNodeComponent component;
 
-	static GraphOperation obtain() {
-		return SynchronizedPools.obtain(GraphOperation.class);
+	static SceneOperation obtain() {
+		return SynchronizedPools.obtain(SceneOperation.class);
 	}
 
 	void free() {
 		SynchronizedPools.free(this);
 	}
 
-	GraphOperation addSystem(Scene scene, SceneSystem sceneSystem) {
+	SceneOperation addSystem(Scene scene, SceneSystem sceneSystem) {
 		elementType = ElementType.SYSTEM;
 		graphOperationType = GraphOperationType.ATTACH;
 		this.scene = scene;
@@ -36,28 +36,28 @@ class GraphOperation implements Comparable<GraphOperation>, Poolable {
 		return this;
 	}
 
-	GraphOperation activateSystem(SceneSystem sceneSystem) {
+	SceneOperation activateSystem(SceneSystem sceneSystem) {
 		elementType = ElementType.SYSTEM;
 		graphOperationType = GraphOperationType.ACTIVATE;
 		this.system = sceneSystem;
 		return this;
 	}
 
-	GraphOperation deactivateSystem(SceneSystem sceneSystem) {
+	SceneOperation deactivateSystem(SceneSystem sceneSystem) {
 		elementType = ElementType.SYSTEM;
 		graphOperationType = GraphOperationType.DEACTIVATE;
 		this.system = sceneSystem;
 		return this;
 	}
 
-	GraphOperation detachSystem(SceneSystem sceneSystem) {
+	SceneOperation detachSystem(SceneSystem sceneSystem) {
 		elementType = ElementType.SYSTEM;
 		graphOperationType = GraphOperationType.REMOVE;
 		this.system = sceneSystem;
 		return this;
 	}
 
-	GraphOperation attachNode(Scene scene, SceneNode sceneNode) {
+	SceneOperation attachNode(Scene scene, SceneNode sceneNode) {
 		elementType = ElementType.NODE;
 		graphOperationType = GraphOperationType.ATTACH;
 		this.scene = scene;
@@ -65,28 +65,28 @@ class GraphOperation implements Comparable<GraphOperation>, Poolable {
 		return this;
 	}
 
-	GraphOperation activateNode(SceneNode sceneNode) {
+	SceneOperation activateNode(SceneNode sceneNode) {
 		elementType = ElementType.NODE;
 		graphOperationType = GraphOperationType.ACTIVATE;
 		this.node = sceneNode;
 		return this;
 	}
 
-	GraphOperation deactivateNode(SceneNode sceneNode) {
+	SceneOperation deactivateNode(SceneNode sceneNode) {
 		elementType = ElementType.NODE;
 		graphOperationType = GraphOperationType.DEACTIVATE;
 		this.node = sceneNode;
 		return this;
 	}
 
-	GraphOperation removeNode(SceneNode sceneNode) {
+	SceneOperation removeNode(SceneNode sceneNode) {
 		elementType = ElementType.NODE;
 		graphOperationType = GraphOperationType.REMOVE;
 		this.node = sceneNode;
 		return this;
 	}
 
-	GraphOperation attachComponent(Scene scene, SceneNode sceneNode, SceneNodeComponent sceneComponent) {
+	SceneOperation attachComponent(Scene scene, SceneNode sceneNode, SceneNodeComponent sceneComponent) {
 		elementType = ElementType.COMPONENT;
 		graphOperationType = GraphOperationType.ATTACH;
 		this.scene = scene;
@@ -95,21 +95,21 @@ class GraphOperation implements Comparable<GraphOperation>, Poolable {
 		return this;
 	}
 
-	GraphOperation activateComponent(SceneNodeComponent sceneComponent) {
+	SceneOperation activateComponent(SceneNodeComponent sceneComponent) {
 		elementType = ElementType.COMPONENT;
 		graphOperationType = GraphOperationType.ACTIVATE;
 		this.component = sceneComponent;
 		return this;
 	}
 
-	GraphOperation deactivateComponent(SceneNodeComponent sceneComponent) {
+	SceneOperation deactivateComponent(SceneNodeComponent sceneComponent) {
 		elementType = ElementType.COMPONENT;
 		graphOperationType = GraphOperationType.DEACTIVATE;
 		this.component = sceneComponent;
 		return this;
 	}
 
-	GraphOperation detachComponent(SceneNodeComponent sceneComponent) {
+	SceneOperation detachComponent(SceneNodeComponent sceneComponent) {
 		elementType = ElementType.COMPONENT;
 		graphOperationType = GraphOperationType.REMOVE;
 		this.component = sceneComponent;
@@ -197,7 +197,7 @@ class GraphOperation implements Comparable<GraphOperation>, Poolable {
 	}
 
 	@Override
-	public int compareTo(GraphOperation other) {
+	public int compareTo(SceneOperation other) {
 		return Integer.compare(getOrder(), other.getOrder());
 	}
 }

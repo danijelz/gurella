@@ -42,7 +42,6 @@ import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneGraph;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.camera.CameraComponent;
@@ -64,7 +63,6 @@ public class SceneView extends Container<Image> {
 
 	private Application application;
 	private Scene view;
-	private SceneGraph graph;
 	private CameraComponent cameraComponent;
 	private CameraInputController cameraInputController;
 	private InputProcessor inputProcessor;
@@ -108,11 +106,10 @@ public class SceneView extends Container<Image> {
 
 		application = new Application(null);
 		view = new Scene(application, "");
-		graph = view.graph;
 		view.start(null);
 		addPlane();
 		addCamera();
-		graph.update();
+		view.update();
 
 		EventService.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
 	}
@@ -179,7 +176,7 @@ public class SceneView extends Container<Image> {
 		modelComponent.setModel(model);
 		node.addComponent(modelComponent);
 
-		graph.addNode(node);
+		view.addNode(node);
 	}
 
 	private void addCamera() {
@@ -196,16 +193,17 @@ public class SceneView extends Container<Image> {
 		inputMultiplexer.addProcessor(cameraInputController);
 
 		/*
-		 * cameraComponent = new OrtographicCameraComponent(); node.addComponent(cameraComponent);
+		 * cameraComponent = new OrtographicCameraComponent();
+		 * node.addComponent(cameraComponent);
 		 */
 
-		graph.addNode(node);
+		view.addNode(node);
 	}
 
 	@Override
 	public void act(float delta) {
 		updateView();
-		graph.update();
+		view.update();
 
 		frameBuffer.bind();
 		gl.glClearColor(0, 0, 0.3f, 1);
@@ -261,7 +259,7 @@ public class SceneView extends Container<Image> {
 				node.addComponent(transformComponent);
 				sceneRenderableComponent = new SceneRenderableComponent();
 				node.addComponent(sceneRenderableComponent);
-				graph.addNode(node);
+				view.addNode(node);
 				nodesMap.put(nodeReference, node);
 			} else {
 				sceneRenderableComponent = node.getComponent(SceneRenderableComponent.class);
