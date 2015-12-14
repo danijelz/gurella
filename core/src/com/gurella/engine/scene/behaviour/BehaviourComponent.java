@@ -14,7 +14,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.SceneTransition;
 import com.gurella.engine.resource.AsyncResourceCallback;
@@ -22,7 +21,6 @@ import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.behaviour.BehaviourComponent.Releasable;
 import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.bullet.Collision;
 import com.gurella.engine.scene.bullet.CollisionPair;
@@ -52,19 +50,22 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 			releasable.attach();
 		}
 	}
-	
+
 	private void removeReleasable(Object value) {
 		Releasable<?> releasable = releasables.remove(value);
 		if (releasable != null && isActive()) {
 			releasable.release();
 		}
 	}
-	
-	private void clearReleasables(Object value) {
-		Releasable<?> releasable = releasables.remove(value);
-		if (releasable != null && isActive()) {
-			releasable.release();
+
+	private void clearReleasables() {
+		if (isActive()) {
+			for (Releasable<?> releasable : releasables.values()) {
+				releasable.release();
+			}
 		}
+
+		releasables.clear();
 	}
 
 	// UPDATE EVENTS
@@ -523,11 +524,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	public void onNodeLayerChanged(SceneNode node, Layer oldLayer, Layer newLayer) {
 	}
 
-	@EventSubscriptionCallback(marker = true)
-	public boolean onMessage(Object sender, Object messageType, Object messageData) {
-		return false;
-	}
-
 	// //////////TODO METHODS
 
 	public void loadScene(String sceneId, SceneTransition transition) {
@@ -603,7 +599,8 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 		return null;
 	}
 
-	public void obtainResources(IntArray resourceIds, AsyncResourceCallback<ResourceMap> callback) {
+	public ResourceMap obtainResources(IntArray resourceIds) {
+		return null;
 	}
 
 	public <T> void obtainResourceAsync(int resourceId, AsyncResourceCallback<T> callback) {
@@ -698,7 +695,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	}
 
-	//TODO poolable
+	// TODO poolable
 	public static abstract class Releasable<T> {
 		SceneElement owningElement;
 		T value;
