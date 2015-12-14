@@ -32,8 +32,6 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	private SceneStartListener sceneStartListener = new SceneStartListener();
 	private SceneStopListener sceneStopListener = new SceneStopListener();
 
-	private UpdateListenerImpl updateListener = new UpdateListenerImpl();
-
 	protected IntMap<T> spatialsByRenderableComponent = new IntMap<T>();
 	private SpatialDirtyListener spatialDirtyListener = new SpatialDirtyListener();
 
@@ -172,27 +170,13 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 		@Override
 		public void handle() {
 			initSpatials();
-			EventService.addListener(UpdateEvent.class, updateListener);
 		}
 	}
 
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			EventService.removeListener(UpdateEvent.class, updateListener);
 			clear();
-		}
-	}
-
-	private class UpdateListenerImpl implements UpdateListener {
-		@Override
-		public int getPriority() {
-			return CommonUpdateOrder.CLEANUP;
-		}
-
-		@Override
-		public void update() {
-			updateSpatials();
 		}
 	}
 
