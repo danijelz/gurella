@@ -49,7 +49,7 @@ public class GlobalAssetManager implements UpdateListener, Disposable {
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.INPUT;
 	}
 

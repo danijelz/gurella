@@ -59,7 +59,7 @@ public class LinearVelocityProcessor extends SceneSystem implements UpdateListen
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.THINK;
 	}
 

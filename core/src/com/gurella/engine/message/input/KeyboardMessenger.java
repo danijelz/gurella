@@ -73,7 +73,7 @@ public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.INPUT;
 	}
 }

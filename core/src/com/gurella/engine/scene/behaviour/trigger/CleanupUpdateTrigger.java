@@ -21,7 +21,7 @@ public class CleanupUpdateTrigger extends EventTrigger implements UpdateListener
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.CLEANUP;
 	}
 

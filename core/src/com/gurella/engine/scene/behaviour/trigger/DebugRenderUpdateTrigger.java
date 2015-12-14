@@ -21,7 +21,7 @@ public class DebugRenderUpdateTrigger extends EventTrigger implements UpdateList
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.DEBUG_RENDER;
 	}
 

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.event.EventCallback;
+import com.gurella.engine.scene.event.EventSubscriptionCallback;
 import com.gurella.engine.scene.event.EventCallbackIdentifier;
 import com.gurella.engine.scene.input.DragSource;
 import com.gurella.engine.scene.input.DragStartCondition;
@@ -47,7 +47,7 @@ public class TestInputComponnent extends BehaviourComponent implements TestEvent
 		}
 	}
 
-	@EventCallback()
+	@EventSubscriptionCallback()
 	public void testCallback() {
 		System.out.println("testCallback");
 	}

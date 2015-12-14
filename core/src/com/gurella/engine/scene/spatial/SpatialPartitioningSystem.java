@@ -186,7 +186,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	private class UpdateListenerImpl implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.CLEANUP;
 		}
 

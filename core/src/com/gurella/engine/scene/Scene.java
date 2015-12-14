@@ -1,6 +1,5 @@
 package com.gurella.engine.scene;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
@@ -10,16 +9,16 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.Signal0.Signal0Impl;
-import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.audio.AudioSystem;
+import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
-import com.gurella.engine.scene.manager.SceneEventsSignal;
 import com.gurella.engine.scene.manager.NodeManager;
+import com.gurella.engine.scene.manager.SceneEventsSignal;
 import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
@@ -37,7 +36,7 @@ public class Scene extends SceneElementsResourceContext {
 
 	private String id;
 	private String group = defaultGroup;
-	
+
 	public final IntArray initialSystems = new IntArray();
 	public final IntArray initialNodes = new IntArray();
 
@@ -61,7 +60,7 @@ public class Scene extends SceneElementsResourceContext {
 
 	private final Array<SceneOperation> pendingOperations = new Array<SceneOperation>();
 
-	public final EventManager eventManager = new EventManager(this);
+	public final EventManager eventManager = new EventManager();
 	private final SceneEventsSignal sceneEventsSignal = new SceneEventsSignal(eventManager);
 
 	public final ComponentManager componentManager = new ComponentManager();
@@ -73,8 +72,9 @@ public class Scene extends SceneElementsResourceContext {
 	public final InputSystem inputSystem = new InputSystem();
 	public final RenderSystem renderSystem = new RenderSystem();
 	public final AudioSystem audioSystem = new AudioSystem();
-	//TODO physics system
+	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 
+	private boolean active;
 
 	public Scene(Application application, String id) {
 		super(application);
@@ -118,8 +118,6 @@ public class Scene extends SceneElementsResourceContext {
 	}
 
 	public void start(ResourceMap initialResources) {
-		eventManager.start();
-		
 		addSystemSafely(componentManager);
 		addSystemSafely(nodeManager);
 		addSystemSafely(tagManager);
@@ -128,6 +126,8 @@ public class Scene extends SceneElementsResourceContext {
 		addSystemSafely(spatialPartitioningSystem);
 		addSystemSafely(inputSystem);
 		addSystemSafely(renderSystem);
+		addSystemSafely(audioSystem);
+		addSystemSafely(bulletPhysicsSystem);
 
 		for (int i = 0; i < initialSystems.size; i++) {
 			int initialSystemId = initialSystems.get(i);
@@ -141,10 +141,12 @@ public class Scene extends SceneElementsResourceContext {
 			addNodeSafely(node);
 		}
 
+		active = true;
 		startSignal.dispatch();
 	}
 
 	public void stop() {
+		active = false;
 		stopSignal.dispatch();
 		releaseResources();
 
@@ -158,8 +160,12 @@ public class Scene extends SceneElementsResourceContext {
 			SceneSystem system = allSystemsInternal.get(i);
 			removeSystemSafely(system);
 		}
-		
-		eventManager.stop();
+
+		eventManager.clear();
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 
 	public void addSystem(SceneSystem system) {
@@ -206,7 +212,6 @@ public class Scene extends SceneElementsResourceContext {
 			system.active = true;
 			system.lifecycleSignal.activated();
 			activeSystemsInternal.add(system);
-			sceneEventsSignal.systemActivated(system);
 			eventManager.register(system);
 		}
 	}
@@ -331,7 +336,7 @@ public class Scene extends SceneElementsResourceContext {
 
 	void removeComponentSafely(SceneNodeComponent component) {
 		deactivateComponentSafely(component);
-		sceneGraphListenerSignal.componentRemoved(component);
+		sceneEventsSignal.componentRemoved(component);
 		SceneNode node = component.node;
 		node.nodeChangedSignal.componentRemoved(component);
 		component.lifecycleSignal.detached();
@@ -473,7 +478,7 @@ public class Scene extends SceneElementsResourceContext {
 
 	@Override
 	public void update() {
-		//TODO add to signal
+		// TODO add to signal
 		cleanup();
 	}
 

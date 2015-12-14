@@ -11,10 +11,9 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.event.EventTrigger.NopEventTrigger;
 import com.gurella.engine.utils.ValueUtils;
 
-class EventRegistry {
+class EventSubscriptionRegistry {
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<Class<?>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<?>>>();
@@ -29,7 +28,7 @@ class EventRegistry {
 		priorities.put(Object.class, new IntIntMap());
 	}
 
-	private EventRegistry() {
+	private EventSubscriptionRegistry() {
 	}
 
 	static synchronized ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerType) {
@@ -97,7 +96,8 @@ class EventRegistry {
 		boolean eventSubscriber = listenerType.isInterface() && isAssignableFrom(EventSubscription.class, listenerType);
 
 		for (Method method : getDeclaredMethods(listenerType)) {
-			EventCallback callbackAnnotation = getDeclaredAnnotation(method, EventCallback.class);
+			EventSubscriptionCallback callbackAnnotation = getDeclaredAnnotation(method,
+					EventSubscriptionCallback.class);
 			EventCallbackIdentifier<?> callback = find(listenerMarkerCallbacks, method);
 
 			if (callback == null) {
@@ -131,9 +131,8 @@ class EventRegistry {
 		priorities.put(listenerType, prioritiesByCallback);
 	}
 
-	private static EventCallbackIdentifier<Object> createCallbackIdentifier(Method method,
-			EventCallback callbackAnnotation) {
-		String id = callbackAnnotation == null ? null : callbackAnnotation.id();
+	private static EventCallbackIdentifier<?> createCallbackIdentifier(Method method, EventSubscriptionCallback callback) {
+		String id = callback == null ? null : callback.id();
 		id = ValueUtils.isEmpty(id) ? method.getName() : id;
 		String fullId = method.getDeclaringClass().getName() + id;
 
@@ -142,16 +141,14 @@ class EventRegistry {
 					"Duplicate event id: [declaringClass=" + method.getDeclaringClass() + ", id=" + id + "]");
 		}
 
-		Class<? extends EventTrigger> triggerClass = callbackAnnotation == null ? NopEventTrigger.class
-				: callbackAnnotation.trigger();
-		EventCallbackIdentifier<Object> callbackIdentifier = new EventCallbackIdentifier<Object>(method, triggerClass);
+		EventCallbackIdentifier<Object> callbackIdentifier = new EventCallbackIdentifier<Object>(method);
 
 		callbacksById.put(fullId, callbackIdentifier);
 		return callbackIdentifier;
 	}
 
-	private static int getPriority(Priority classPriority, Priority methodPriority,
-			Class<?> superclass, int callbackId) {
+	private static int getPriority(Priority classPriority, Priority methodPriority, Class<?> superclass,
+			int callbackId) {
 		if (methodPriority != null) {
 			return methodPriority.value();
 		}
@@ -206,16 +203,16 @@ class EventRegistry {
 	}
 
 	public interface I extends EventSubscription {
-		@EventCallback
+		@EventSubscriptionCallback
 		void ddd();
 	}
 
 	public interface J extends I {
 		@Override
-		@EventCallback
+		@EventSubscriptionCallback
 		void ddd();
 
-		@EventCallback
+		@EventSubscriptionCallback
 		void ooo();
 	}
 

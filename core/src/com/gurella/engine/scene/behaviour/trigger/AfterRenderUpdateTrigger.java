@@ -21,7 +21,7 @@ public class AfterRenderUpdateTrigger extends EventTrigger implements UpdateList
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.AFTER_RENDER;
 	}
 

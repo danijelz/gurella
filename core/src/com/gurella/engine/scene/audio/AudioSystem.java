@@ -155,7 +155,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, UpdateLis
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.PRE_RENDER;
 	}
 

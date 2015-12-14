@@ -13,10 +13,9 @@ public final class EventCallbackIdentifier<T> {
 	public final Class<T> declaringClass;
 	public final String name;
 	public final Class<?>[] parameterTypes;
-	final Class<? extends EventTrigger> triggerClass;
 
 	public static <T> EventCallbackIdentifier<T> get(Class<T> declaringClass, String id) {
-		EventCallbackIdentifier<T> instance = EventRegistry.getIdentifier(declaringClass, id);
+		EventCallbackIdentifier<T> instance = EventSubscriptionRegistry.getIdentifier(declaringClass, id);
 		if (instance == null) {
 			throw new GdxRuntimeException(
 					"Can't find callback: [declaringClass=" + declaringClass + ", id=" + id + "]");
@@ -24,14 +23,13 @@ public final class EventCallbackIdentifier<T> {
 		return instance;
 	}
 
-	EventCallbackIdentifier(Method method, Class<? extends EventTrigger> triggerClass) {
+	EventCallbackIdentifier(Method method) {
 		id = INDEX++;
 		@SuppressWarnings("unchecked")
 		Class<T> castedDeclaringClass = method.getDeclaringClass();
 		declaringClass = castedDeclaringClass;
 		name = method.getName();
 		parameterTypes = method.getParameterTypes();
-		this.triggerClass = triggerClass;
 	}
 
 	boolean isEqual(Method method) {

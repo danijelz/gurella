@@ -126,7 +126,7 @@ public class SceneManager {
 		}
 
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.INPUT;
 		}
 

@@ -6,15 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.gurella.engine.scene.event.EventTrigger.NopEventTrigger;
-
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.METHOD, ElementType.TYPE })
-public @interface EventCallback {
+@Target(value = { ElementType.METHOD })
+public @interface EventSubscriptionCallback {
 	String id() default "";
 
 	boolean marker() default false;
-
-	Class<? extends EventTrigger> trigger() default NopEventTrigger.class;
 }

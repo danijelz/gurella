@@ -29,7 +29,7 @@ import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners on activate
-public class BulletPhysicsProcessor extends SceneSystem implements SceneListener, UpdateListener {
+public class BulletPhysicsSystem extends SceneSystem implements SceneListener, UpdateListener {
 	private btCollisionConfiguration collisionConfig;
 	private btDispatcher dispatcher;
 	private btBroadphaseInterface broadphase;
@@ -42,7 +42,7 @@ public class BulletPhysicsProcessor extends SceneSystem implements SceneListener
 	private Vector3 gravity = new Vector3(0, -10f, 0);
 	private EventManager eventManager;
 
-	public BulletPhysicsProcessor() {
+	public BulletPhysicsSystem() {
 		collisionConfig = Application.DISPOSABLE_MANAGER.add(new btDefaultCollisionConfiguration());
 		dispatcher = Application.DISPOSABLE_MANAGER.add(new btCollisionDispatcher(collisionConfig));
 		broadphase = Application.DISPOSABLE_MANAGER.add(new btDbvtBroadphase());
@@ -85,7 +85,7 @@ public class BulletPhysicsProcessor extends SceneSystem implements SceneListener
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.PHYSICS;
 	}
 

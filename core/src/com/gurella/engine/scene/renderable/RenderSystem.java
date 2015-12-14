@@ -54,7 +54,7 @@ public class RenderSystem extends SceneSystem implements SceneListener, UpdateLi
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.RENDER;
 	}
 

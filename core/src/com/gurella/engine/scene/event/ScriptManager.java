@@ -207,7 +207,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnInputUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.INPUT;
 		}
 
@@ -221,7 +221,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnThinkUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.THINK;
 		}
 
@@ -235,7 +235,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnPreRenderUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.PRE_RENDER;
 		}
 
@@ -249,7 +249,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnRenderUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.RENDER;
 		}
 
@@ -263,7 +263,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnDebugRenderUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.DEBUG_RENDER;
 		}
 
@@ -277,7 +277,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnAfterRenderUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.AFTER_RENDER;
 		}
 
@@ -291,7 +291,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	private class OnCleanupUpdateListener implements UpdateListener {
 		@Override
-		public int getOrdinal() {
+		public int getPriority() {
 			return CommonUpdateOrder.CLEANUP;
 		}
 

@@ -1,8 +1,8 @@
 package com.gurella.engine.scene.event;
 
-import static com.gurella.engine.scene.event.EventRegistry.getCallbacks;
-import static com.gurella.engine.scene.event.EventRegistry.getPriority;
-import static com.gurella.engine.scene.event.EventRegistry.getSubscriptions;
+import static com.gurella.engine.scene.event.EventSubscriptionRegistry.getCallbacks;
+import static com.gurella.engine.scene.event.EventSubscriptionRegistry.getPriority;
+import static com.gurella.engine.scene.event.EventSubscriptionRegistry.getSubscriptions;
 
 import java.util.Comparator;
 
@@ -10,41 +10,17 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pools;
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.event.EventTrigger.NopEventTrigger;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
 
 //TODO activate and deactivate triggers
 public class EventManager {
-	private final Scene scene;
-
 	private final IntMap<ArrayExt<Object>> listenersByCallback = new IntMap<ArrayExt<Object>>();
 	private final ObjectMap<Class<?>, ArrayExt<Object>> listenersBySubscription = new ObjectMap<Class<?>, ArrayExt<Object>>();
 	private final IntMap<IntMap<ArrayExt<Object>>> elementListenersByCallback = new IntMap<IntMap<ArrayExt<Object>>>();
 	private final IntMap<ObjectMap<Class<?>, ArrayExt<Object>>> elementListenersBySubscription = new IntMap<ObjectMap<Class<?>, ArrayExt<Object>>>();
-	private final IntMap<EventTrigger> triggers = new IntMap<EventTrigger>();
-
-	public EventManager(Scene scene) {
-		this.scene = scene;
-	}
-
-	public void start() {
-		for (EventTrigger trigger : triggers.values()) {
-			trigger.start();
-		}
-	}
-
-	public void stop() {
-		for (EventTrigger trigger : triggers.values()) {
-			trigger.stop();
-		}
-		listenersByCallback.clear();
-		listenersBySubscription.clear();
-	}
 
 	public void register(Object listener) {
 		registerCallbacks(listener);
@@ -65,7 +41,6 @@ public class EventManager {
 			ArrayExt<Object> listeners = findListeners(callbackId);
 			listeners.add(listener);
 			listeners.sort(comparator);
-			ensureTriggerExists(callback);
 		}
 
 		Pools.free(comparator);
@@ -113,8 +88,6 @@ public class EventManager {
 			ArrayExt<Object> listenersByElement = findListeners(elementId, callbackId);
 			listenersByElement.add(listener);
 			listenersByElement.sort(comparator);
-
-			ensureTriggerExists(callback);
 		}
 
 		Pools.free(comparator);
@@ -135,22 +108,6 @@ public class EventManager {
 			listenersByElement.add(listener);
 			// TODO listenersByElement.sort(comparator);
 			// TODO trigger
-		}
-	}
-
-	private void ensureTriggerExists(EventCallbackIdentifier<?> callback) {
-		int callbackId = callback.id;
-		if (!triggers.containsKey(callbackId)) {
-			Class<? extends EventTrigger> triggerClass = callback.triggerClass;
-			if (NopEventTrigger.class.equals(triggerClass)) {
-				triggers.put(callbackId, NopEventTrigger.instance);
-			} else {
-				EventTrigger trigger = ReflectionUtils.newInstance(triggerClass);
-				trigger.scene = scene;
-				trigger.eventManager = this;
-				trigger.start();
-				triggers.put(callbackId, trigger);
-			}
 		}
 	}
 
@@ -393,6 +350,11 @@ public class EventManager {
 			T script = listeners.get(i);
 			event.notify(script);
 		}
+	}
+
+	public void clear() {
+		listenersByCallback.clear();
+		listenersBySubscription.clear();
 	}
 
 	private static class ListenersComparator implements Comparator<Object> {

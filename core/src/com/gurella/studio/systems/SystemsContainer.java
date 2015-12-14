@@ -14,7 +14,7 @@ import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneSystem;
-import com.gurella.engine.scene.bullet.BulletPhysicsProcessor;
+import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.studio.project.ProjectHeaderContainer.SceneSelectionChangedEvent;
@@ -115,7 +115,7 @@ public class SystemsContainer extends VisTable {
 			menu.addSeparator();
 			addItem("Render", RenderSystem.class);
 			menu.addSeparator();
-			addItem("BulletPhysics", BulletPhysicsProcessor.class);
+			addItem("BulletPhysics", BulletPhysicsSystem.class);
 			menu.addSeparator();
 			return menu;
 		}

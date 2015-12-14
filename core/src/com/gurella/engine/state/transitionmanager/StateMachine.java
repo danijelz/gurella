@@ -105,7 +105,7 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.THINK;
 	}
 

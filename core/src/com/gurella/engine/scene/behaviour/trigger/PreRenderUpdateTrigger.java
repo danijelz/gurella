@@ -21,7 +21,7 @@ public class PreRenderUpdateTrigger extends EventTrigger implements UpdateListen
 	}
 
 	@Override
-	public int getOrdinal() {
+	public int getPriority() {
 		return CommonUpdateOrder.PRE_RENDER;
 	}
 
