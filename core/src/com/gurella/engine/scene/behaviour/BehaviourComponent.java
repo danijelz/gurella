@@ -670,6 +670,12 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
 	}
+	
+	public void registerListener(Object listener) {
+	}
+	
+	public void unregisterListener(Object listener) {
+	}
 
 	public void addPointerActivityListener(PointerActivityListener pointerActivityListener) {
 		PointerActivityListenerReleasable releasable = new PointerActivityListenerReleasable();
