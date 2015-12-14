@@ -278,7 +278,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnAfterRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.AFTER_RENDER;
+			return CommonUpdateOrder.POST_RENDER;
 		}
 
 		@Override

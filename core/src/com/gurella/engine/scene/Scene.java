@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.event.Signal0.Signal0Impl;
 import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.resource.SceneElementsResourceContext;
@@ -477,6 +476,7 @@ public class Scene extends SceneElementsResourceContext {
 		allNodesInternal.removeValue(node, true);
 	}
 
+	//TODO use removeComponentSafely
 	private void removeComponentFromGraph(SceneNodeComponent component) {
 		sceneGraphListenerSignal.nodeComponentRemoved(component);
 		component.lifecycleSignal.detached();
@@ -487,6 +487,7 @@ public class Scene extends SceneElementsResourceContext {
 	@Override
 	public void update() {
 		// TODO add to signal
+		sceneEventsSignal.update();
 		cleanup();
 	}
 
@@ -499,11 +500,6 @@ public class Scene extends SceneElementsResourceContext {
 		}
 
 		pendingOperations.clear();
-	}
-
-	@Override
-	public int getOrdinal() {
-		return CommonUpdateOrder.CLEANUP;
 	}
 
 	@Override

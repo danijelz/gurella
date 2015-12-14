@@ -12,7 +12,7 @@ public class EventBus {
 
 	private boolean processing;
 
-	public <LISTENER> boolean addListener(Class<Event<LISTENER>> eventType, LISTENER listener) {
+	public <LISTENER> boolean addListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		return addListenerInternal(eventType, listener);
 	}
 
@@ -50,7 +50,7 @@ public class EventBus {
 		}
 	}
 
-	public <LISTENER> boolean removeListener(Class<Event<LISTENER>> eventType, LISTENER listener) {
+	public <LISTENER> boolean removeListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		return removeListenerInternal(eventType, listener);
 	}
 
@@ -102,7 +102,7 @@ public class EventBus {
 
 	private <LISTENER> void notifyListeners(final Event<LISTENER> event) {
 		@SuppressWarnings("unchecked")
-		Class<Event<LISTENER>> eventType = (Class<Event<LISTENER>>) event.getClass();
+		Class<? extends Event<LISTENER>> eventType = (Class<? extends Event<LISTENER>>) event.getClass();
 		Array<LISTENER> listenersByType;
 		synchronized (listeners) {
 			@SuppressWarnings("unchecked")
@@ -164,7 +164,7 @@ public class EventBus {
 		}
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(Class<Event<LISTENER>> eventType,
+	public <LISTENER> Array<? super LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType,
 			Array<? super LISTENER> out) {
 		getListenersInternal(eventType, out);
 		return out;

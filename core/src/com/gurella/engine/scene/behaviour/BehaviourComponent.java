@@ -20,25 +20,6 @@ import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.behaviour.trigger.AfterRenderUpdateTrigger;
-import com.gurella.engine.scene.behaviour.trigger.CleanupUpdateTrigger;
-import com.gurella.engine.scene.behaviour.trigger.ComponentActivatedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.ComponentAddedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.ComponentDeactivatedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.ComponentRemovedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.DebugRenderUpdateTrigger;
-import com.gurella.engine.scene.behaviour.trigger.InputUpdateTrigger;
-import com.gurella.engine.scene.behaviour.trigger.NodeComponentActivatedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.NodeComponentAddedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.NodeComponentDeactivatedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.NodeComponentRemovedTrigger;
-import com.gurella.engine.scene.behaviour.trigger.PauseTrigger;
-import com.gurella.engine.scene.behaviour.trigger.PreRenderUpdateTrigger;
-import com.gurella.engine.scene.behaviour.trigger.RenderUpdateTrigger;
-import com.gurella.engine.scene.behaviour.trigger.ResumeTrigger;
-import com.gurella.engine.scene.behaviour.trigger.SceneStartTrigger;
-import com.gurella.engine.scene.behaviour.trigger.SceneStopTrigger;
-import com.gurella.engine.scene.behaviour.trigger.ThinkUpdateTrigger;
 import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.bullet.Collision;
 import com.gurella.engine.scene.bullet.CollisionPair;
@@ -83,31 +64,31 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// UPDATE EVENTS
-	@EventSubscriptionCallback(trigger = InputUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onInput() {
 	}
 
-	@EventSubscriptionCallback(trigger = ThinkUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onThink() {
 	}
 
-	@EventSubscriptionCallback(trigger = PreRenderUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onPreRender() {
 	}
 
-	@EventSubscriptionCallback(trigger = RenderUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onRender() {
 	}
 
-	@EventSubscriptionCallback(trigger = DebugRenderUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onDebugRender() {
 	}
 
-	@EventSubscriptionCallback(trigger = AfterRenderUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onAfterRender() {
 	}
 
-	@EventSubscriptionCallback(trigger = CleanupUpdateTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onCleanup() {
 	}
 
@@ -416,22 +397,22 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = NodeComponentAddedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentAdded(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = NodeComponentRemovedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentRemoved(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = NodeComponentActivatedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentActivated(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = NodeComponentDeactivatedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentDeactivated(SceneNodeComponent component) {
 	}
 
@@ -452,22 +433,22 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = ComponentAddedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void componentAdded(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = ComponentRemovedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = ComponentActivatedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void componentActivated(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(trigger = ComponentDeactivatedTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void componentDeactivated(SceneNode node, SceneNodeComponent component) {
 	}
 
@@ -488,20 +469,20 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// SCENE EVENTS
-	@EventSubscriptionCallback(trigger = SceneStartTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onSceneStart() {
 	}
 
-	@EventSubscriptionCallback(trigger = SceneStopTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onSceneStop() {
 	}
 
 	// APPLICATION EVENTS
-	@EventSubscriptionCallback(trigger = PauseTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onPause() {
 	}
 
-	@EventSubscriptionCallback(trigger = ResumeTrigger.class, marker = true)
+	@EventSubscriptionCallback(marker = true)
 	public void onResume() {
 	}
 

@@ -7,11 +7,11 @@ public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
 	private static final ObjectMap<Object, EventBus> eventBuses = new ObjectMap<Object, EventBus>();
 
-	public static <LISTENER> void addListener(Class<Event<LISTENER>> eventType, LISTENER listener) {
+	public static <LISTENER> void addListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		globalEventBus.addListener(eventType, listener);
 	}
 
-	public static <LISTENER> void removeListener(Class<Event<LISTENER>> eventType, LISTENER listener) {
+	public static <LISTENER> void removeListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		globalEventBus.removeListener(eventType, listener);
 	}
 
@@ -31,7 +31,7 @@ public class EventService {
 		globalEventBus.notify(eventType);
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(Class<Event<LISTENER>> eventType,
+	public <LISTENER> Array<? super LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType,
 			Array<? super LISTENER> out) {
 		return globalEventBus.getListeners(eventType, out);
 	}
@@ -40,7 +40,7 @@ public class EventService {
 		return globalEventBus.getListeners(eventType, out);
 	}
 
-	public static <LISTENER> void addListener(Object source, Class<Event<LISTENER>> eventType, LISTENER listener) {
+	public static <LISTENER> void addListener(Object source, Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		getEventBusBySource(source).addListener(eventType, listener);
 	}
 
@@ -55,7 +55,7 @@ public class EventService {
 		}
 	}
 
-	public static <LISTENER> void removeListener(Object source, Class<Event<LISTENER>> eventType, LISTENER listener) {
+	public static <LISTENER> void removeListener(Object source, Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		EventBus eventBus;
 		synchronized (eventBuses) {
 			eventBus = eventBuses.get(source);
@@ -99,7 +99,7 @@ public class EventService {
 		}
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(Object source, Class<Event<LISTENER>> eventType,
+	public <LISTENER> Array<? super LISTENER> getListeners(Object source, Class<? extends Event<LISTENER>> eventType,
 			Array<? super LISTENER> out) {
 		EventBus eventBus;
 		synchronized (eventBuses) {

@@ -82,6 +82,51 @@ public final class SceneEventsSignal {
 		}
 	}
 
+	public void update() {
+		ImmutableArray<InputUpdateListener> onInputListeners = eventManager.getListeners(InputUpdateListener.class);
+		for (int i = 0; i < onInputListeners.size(); i++) {
+			onInputListeners.get(i).onInputUpdate();
+		}
+
+		ImmutableArray<ThinkUpdateListener> onThinkListeners = eventManager.getListeners(ThinkUpdateListener.class);
+		for (int i = 0; i < onThinkListeners.size(); i++) {
+			onThinkListeners.get(i).onThinkUpdate();
+		}
+
+		ImmutableArray<PhysicsUpdateListener> onPhysicsListeners = eventManager
+				.getListeners(PhysicsUpdateListener.class);
+		for (int i = 0; i < onPhysicsListeners.size(); i++) {
+			onPhysicsListeners.get(i).onPhysicsUpdate();
+		}
+
+		ImmutableArray<UpdateListener> updateListeners = eventManager.getListeners(UpdateListener.class);
+		for (int i = 0; i < updateListeners.size(); i++) {
+			updateListeners.get(i).onUpdate();
+		}
+
+		ImmutableArray<PreRenderUpdateListener> preRenderListeners = eventManager
+				.getListeners(PreRenderUpdateListener.class);
+		for (int i = 0; i < preRenderListeners.size(); i++) {
+			preRenderListeners.get(i).onPreRenderUpdate();
+		}
+
+		ImmutableArray<RenderUpdateListener> renderListeners = eventManager.getListeners(RenderUpdateListener.class);
+		for (int i = 0; i < renderListeners.size(); i++) {
+			renderListeners.get(i).onRenderUpdate();
+		}
+
+		ImmutableArray<PostRenderUpdateListener> postRenderListeners = eventManager
+				.getListeners(PostRenderUpdateListener.class);
+		for (int i = 0; i < postRenderListeners.size(); i++) {
+			postRenderListeners.get(i).onPostRenderUpdate();
+		}
+
+		ImmutableArray<CleanupUpdateListener> cleanupListeners = eventManager.getListeners(CleanupUpdateListener.class);
+		for (int i = 0; i < cleanupListeners.size(); i++) {
+			cleanupListeners.get(i).onCleanupUpdate();
+		}
+	}
+
 	public interface SceneActivityListener extends EventSubscription {
 		void sceneStarted();
 
@@ -110,5 +155,37 @@ public final class SceneEventsSignal {
 		void nodeComponentAdded(SceneNodeComponent component);
 
 		void nodeComponentRemoved(SceneNodeComponent component);
+	}
+
+	public interface InputUpdateListener extends EventSubscription {
+		void onInputUpdate();
+	}
+
+	public interface ThinkUpdateListener extends EventSubscription {
+		void onThinkUpdate();
+	}
+
+	public interface PhysicsUpdateListener extends EventSubscription {
+		void onPhysicsUpdate();
+	}
+
+	public interface UpdateListener extends EventSubscription {
+		void onUpdate();
+	}
+
+	public interface PreRenderUpdateListener extends EventSubscription {
+		void onPreRenderUpdate();
+	}
+
+	public interface RenderUpdateListener extends EventSubscription {
+		void onRenderUpdate();
+	}
+
+	public interface PostRenderUpdateListener extends EventSubscription {
+		void onPostRenderUpdate();
+	}
+
+	public interface CleanupUpdateListener extends EventSubscription {
+		void onCleanupUpdate();
 	}
 }
