@@ -12,6 +12,20 @@ public final class SceneEventsSignal {
 		this.eventManager = eventManager;
 	}
 
+	public void sceneStarted() {
+		ImmutableArray<SceneActivityListener> listeners = eventManager.getListeners(SceneActivityListener.class);
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).sceneStarted();
+		}
+	}
+
+	public void sceneStopped() {
+		ImmutableArray<SceneActivityListener> listeners = eventManager.getListeners(SceneActivityListener.class);
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).sceneStopped();
+		}
+	}
+
 	public void componentActivated(SceneNodeComponent component) {
 		ImmutableArray<ComponentActivityListener> listeners = eventManager
 				.getListeners(ComponentActivityListener.class);
@@ -22,7 +36,7 @@ public final class SceneEventsSignal {
 		ImmutableArray<NodeComponentActivityListener> nodeListeners = eventManager.getListeners(component.getNode(),
 				NodeComponentActivityListener.class);
 		for (int i = 0; i < nodeListeners.size(); i++) {
-			nodeListeners.get(i).componentActivated(component);
+			nodeListeners.get(i).nodeComponentActivated(component);
 		}
 	}
 
@@ -36,34 +50,42 @@ public final class SceneEventsSignal {
 		ImmutableArray<NodeComponentActivityListener> nodeListeners = eventManager.getListeners(component.getNode(),
 				NodeComponentActivityListener.class);
 		for (int i = 0; i < nodeListeners.size(); i++) {
-			nodeListeners.get(i).componentDeactivated(component);
+			nodeListeners.get(i).nodeComponentDeactivated(component);
 		}
 	}
 
 	public void componentAdded(SceneNodeComponent component) {
-		ImmutableArray<ComponentAddedListener> listeners = eventManager.getListeners(ComponentAddedListener.class);
+		ImmutableArray<ComponentAccumulationListener> listeners = eventManager
+				.getListeners(ComponentAccumulationListener.class);
 		for (int i = 0; i < listeners.size(); i++) {
 			listeners.get(i).componentAdded(component);
 		}
 
-		ImmutableArray<NodeComponentAddedListener> nodeListeners = eventManager.getListeners(component.getNode(),
-				NodeComponentAddedListener.class);
+		ImmutableArray<NodeComponentAccumulationListener> nodeListeners = eventManager.getListeners(component.getNode(),
+				NodeComponentAccumulationListener.class);
 		for (int i = 0; i < nodeListeners.size(); i++) {
-			nodeListeners.get(i).componentAdded(component);
+			nodeListeners.get(i).nodeComponentAdded(component);
 		}
 	}
 
 	public void componentRemoved(SceneNodeComponent component) {
-		ImmutableArray<ComponentRemovedListener> listeners = eventManager.getListeners(ComponentRemovedListener.class);
+		ImmutableArray<ComponentAccumulationListener> listeners = eventManager
+				.getListeners(ComponentAccumulationListener.class);
 		for (int i = 0; i < listeners.size(); i++) {
 			listeners.get(i).componentRemoved(component);
 		}
 
-		ImmutableArray<NodeComponentRemovedListener> nodeListeners = eventManager.getListeners(component.getNode(),
-				NodeComponentRemovedListener.class);
+		ImmutableArray<NodeComponentAccumulationListener> nodeListeners = eventManager.getListeners(component.getNode(),
+				NodeComponentAccumulationListener.class);
 		for (int i = 0; i < nodeListeners.size(); i++) {
-			nodeListeners.get(i).componentRemoved(component);
+			nodeListeners.get(i).nodeComponentRemoved(component);
 		}
+	}
+
+	public interface SceneActivityListener extends EventSubscription {
+		void sceneStarted();
+
+		void sceneStopped();
 	}
 
 	public interface ComponentActivityListener extends EventSubscription {
@@ -72,25 +94,21 @@ public final class SceneEventsSignal {
 		void componentDeactivated(SceneNodeComponent component);
 	}
 
-	public interface ComponentAddedListener extends EventSubscription {
+	public interface ComponentAccumulationListener extends EventSubscription {
 		void componentAdded(SceneNodeComponent component);
-	}
 
-	public interface ComponentRemovedListener extends EventSubscription {
 		void componentRemoved(SceneNodeComponent component);
 	}
 
 	public interface NodeComponentActivityListener extends EventSubscription {
-		void componentActivated(SceneNodeComponent component);
+		void nodeComponentActivated(SceneNodeComponent component);
 
-		void componentDeactivated(SceneNodeComponent component);
+		void nodeComponentDeactivated(SceneNodeComponent component);
 	}
 
-	public interface NodeComponentAddedListener extends EventSubscription {
-		void componentAdded(SceneNodeComponent component);
-	}
+	public interface NodeComponentAccumulationListener extends EventSubscription {
+		void nodeComponentAdded(SceneNodeComponent component);
 
-	public interface NodeComponentRemovedListener extends EventSubscription {
-		void componentRemoved(SceneNodeComponent component);
+		void nodeComponentRemoved(SceneNodeComponent component);
 	}
 }

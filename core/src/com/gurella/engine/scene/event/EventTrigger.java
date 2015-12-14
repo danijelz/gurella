@@ -2,6 +2,7 @@ package com.gurella.engine.scene.event;
 
 import com.gurella.engine.scene.Scene;
 
+//TODO unused
 public abstract class EventTrigger {
 	protected Scene scene;
 	protected EventManager eventManager;

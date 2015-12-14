@@ -1,6 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
@@ -40,6 +41,7 @@ public class Scene extends SceneElementsResourceContext {
 	public final IntArray initialSystems = new IntArray();
 	public final IntArray initialNodes = new IntArray();
 
+	// TODO remove signals
 	public final Signal0Impl startSignal = new Signal0Impl();
 	public final Signal0Impl stopSignal = new Signal0Impl();
 
@@ -118,6 +120,10 @@ public class Scene extends SceneElementsResourceContext {
 	}
 
 	public void start(ResourceMap initialResources) {
+		if (active) {
+			throw new GdxRuntimeException("Scene is already active.");
+		}
+
 		addSystemSafely(componentManager);
 		addSystemSafely(nodeManager);
 		addSystemSafely(tagManager);
@@ -142,12 +148,14 @@ public class Scene extends SceneElementsResourceContext {
 		}
 
 		active = true;
+		sceneEventsSignal.sceneStarted();
 		startSignal.dispatch();
 	}
 
 	public void stop() {
 		active = false;
 		stopSignal.dispatch();
+		sceneEventsSignal.sceneStopped();
 		releaseResources();
 
 		// TODO remove only root nodes
@@ -470,7 +478,7 @@ public class Scene extends SceneElementsResourceContext {
 	}
 
 	private void removeComponentFromGraph(SceneNodeComponent component) {
-		sceneGraphListenerSignal.componentRemoved(component);
+		sceneGraphListenerSignal.nodeComponentRemoved(component);
 		component.lifecycleSignal.detached();
 		component.scene = null;
 		allComponentsInternal.removeValue(component, true);
