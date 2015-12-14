@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.manager;
 
+import com.gurella.engine.application.events.ApplicationActivityListener;
+import com.gurella.engine.application.events.ApplicationResizeListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.scene.event.EventSubscription;
@@ -124,6 +126,30 @@ public final class SceneEventsSignal {
 		ImmutableArray<CleanupUpdateListener> cleanupListeners = eventManager.getListeners(CleanupUpdateListener.class);
 		for (int i = 0; i < cleanupListeners.size(); i++) {
 			cleanupListeners.get(i).onCleanupUpdate();
+		}
+	}
+
+	public void resize(int width, int height) {
+		ImmutableArray<ApplicationResizeListener> listeners = eventManager
+				.getListeners(ApplicationResizeListener.class);
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).onResize(width, height);
+		}
+	}
+
+	public void pause(int width, int height) {
+		ImmutableArray<ApplicationActivityListener> listeners = eventManager
+				.getListeners(ApplicationActivityListener.class);
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).onPause();
+		}
+	}
+
+	public void resume(int width, int height) {
+		ImmutableArray<ApplicationActivityListener> listeners = eventManager
+				.getListeners(ApplicationActivityListener.class);
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).onResume();
 		}
 	}
 

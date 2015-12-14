@@ -35,7 +35,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private OnDebugRenderUpdateListener onDebugRenderUpdateListener = new OnDebugRenderUpdateListener();
 	private OnAfterRenderUpdateListener onAfterRenderUpdateListener = new OnAfterRenderUpdateListener();
 	private OnCleanupUpdateListener onCleanupUpdateListener = new OnCleanupUpdateListener();
-	private ScriptSceneGraphListener scriptSceneGraphListener = new ScriptSceneGraphListener();
+	private ScriptSceneListener scriptSceneListener = new ScriptSceneListener();
 	private SceneStartListener sceneStartListener = new SceneStartListener();
 	private SceneStopListener sceneStopListener = new SceneStopListener();
 	private PauseListener pauseListener = new PauseListener();
@@ -50,7 +50,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		EventService.addListener(UpdateEvent.class, onDebugRenderUpdateListener);
 		EventService.addListener(UpdateEvent.class, onAfterRenderUpdateListener);
 		EventService.addListener(UpdateEvent.class, onCleanupUpdateListener);
-		getGraph().addListener(scriptSceneGraphListener);
+		getGraph().addListener(scriptSceneListener);
 		getScene().startSignal.addListener(sceneStartListener);
 		getScene().stopSignal.addListener(sceneStopListener);
 		getScene().pauseSignal.addListener(pauseListener);
@@ -66,7 +66,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		EventService.removeListener(UpdateEvent.class, onDebugRenderUpdateListener);
 		EventService.removeListener(UpdateEvent.class, onAfterRenderUpdateListener);
 		EventService.removeListener(UpdateEvent.class, onCleanupUpdateListener);
-		getGraph().removeListener(scriptSceneGraphListener);
+		getGraph().removeListener(scriptSceneListener);
 		getScene().startSignal.removeListener(sceneStartListener);
 		getScene().stopSignal.removeListener(sceneStopListener);
 		getScene().pauseSignal.removeListener(pauseListener);
@@ -303,7 +303,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class ScriptSceneGraphListener implements SceneListener {
+	private class ScriptSceneListener implements SceneListener {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();

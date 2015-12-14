@@ -11,8 +11,10 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap.Values;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.SceneTransition;
 import com.gurella.engine.resource.AsyncResourceCallback;
@@ -20,6 +22,7 @@ import com.gurella.engine.resource.ResourceMap;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.behaviour.BehaviourComponent.Releasable;
 import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.bullet.Collision;
 import com.gurella.engine.scene.bullet.CollisionPair;
@@ -41,26 +44,27 @@ import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
 public abstract class BehaviourComponent extends SceneNodeComponent {
-	private final Array<Releasable<?>> releasables = new Array<Releasable<?>>();
+	private final IdentityMap<Object, Releasable<?>> releasables = new IdentityMap<Object, Releasable<?>>();
 
 	private void addReleasable(Releasable<?> releasable) {
-		releasables.add(releasable);
+		releasables.put(releasable.value, releasable);
 		if (isActive()) {
 			releasable.attach();
 		}
 	}
-
-	// TODO events
-	protected void registerListener(Object listener) {
+	
+	private void removeReleasable(Object value) {
+		Releasable<?> releasable = releasables.remove(value);
+		if (releasable != null && isActive()) {
+			releasable.release();
+		}
 	}
-
-	protected void unregisterListener(Object listener) {
-	}
-
-	protected void registerListener(SceneElement element, Object listener) {
-	}
-
-	protected void unregisterListener(SceneElement element, Object listener) {
+	
+	private void clearReleasables(Object value) {
+		Releasable<?> releasable = releasables.remove(value);
+		if (releasable != null && isActive()) {
+			releasable.release();
+		}
 	}
 
 	// UPDATE EVENTS
@@ -671,9 +675,13 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	public void addPointerActivityListener(PointerActivityListener pointerActivityListener) {
+		PointerActivityListenerReleasable releasable = new PointerActivityListenerReleasable();
+		releasable.init(this, pointerActivityListener);
+		addReleasable(releasable);
 	}
 
 	public void removePointerActivityListener(PointerActivityListener pointerActivityListener) {
+		removeReleasable(pointerActivityListener);
 	}
 
 	// TODO Gdx.input methods
@@ -690,11 +698,13 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	}
 
+	//TODO poolable
 	public static abstract class Releasable<T> {
-		T value;
 		SceneElement owningElement;
+		T value;
 
-		public Releasable(T value) {
+		void init(SceneElement owningElement, T value) {
+			this.owningElement = owningElement;
 			this.value = value;
 		}
 
@@ -708,21 +718,17 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 		protected abstract void attach();
 
-		protected abstract void release(T value);
+		protected abstract void release();
 	}
 
 	public static class PointerActivityListenerReleasable extends Releasable<PointerActivityListener> {
-		public PointerActivityListenerReleasable(PointerActivityListener value) {
-			super(value);
-		}
-
 		@Override
 		protected void attach() {
 			getOwningElement().getScene().inputSystem.pointerActivitySignal.addListener(getValue());
 		}
 
 		@Override
-		protected void release(PointerActivityListener value) {
+		protected void release() {
 			getOwningElement().getScene().inputSystem.pointerActivitySignal.removeListener(getValue());
 		}
 	}

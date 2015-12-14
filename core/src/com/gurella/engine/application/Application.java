@@ -84,7 +84,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 		SHAPE_RENDERER = DISPOSABLE_MANAGER.add(new ShapeRenderer());
 		// TODO Auto-generated method stub
 		initializer.init(this);
-		// TODO add init scripts to initializer
+		// TODO add init scripts to initializer 
 		sceneManager.showScene(initialSceneId);
 	}
 
@@ -144,6 +144,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
+		//TODO sceneManager.stop();
 		DISPOSABLE_MANAGER.dispose();
 	}
 
