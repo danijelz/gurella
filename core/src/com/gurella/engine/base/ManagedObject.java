@@ -1,9 +1,11 @@
 package com.gurella.engine.base;
 
-import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Json.Serializable;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.utils.IndexedValue;
 
-public abstract class ManagedObject implements Poolable {
+public class ManagedObject implements Serializable {
 	private static IndexedValue<ManagedObject> INDEXER = new IndexedValue<ManagedObject>();
 
 	public final int id;
@@ -20,5 +22,17 @@ public abstract class ManagedObject implements Poolable {
 
 	public static void dispose(ManagedObject managedObject) {
 		INDEXER.removeIndexed(managedObject);
+	}
+
+	@Override
+	public void write(Json json) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void read(Json json, JsonValue jsonData) {
+		// TODO Auto-generated method stub
+		
 	}
 }
