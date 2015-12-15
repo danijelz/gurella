@@ -67,7 +67,6 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 			propertiesByClass.put(resourceType, cachedProperties);
 
 			Array<Class<?>> classHierarchy = getClassHierarchy(resourceType);
-			classHierarchy.reverse();
 			for (Class<?> clazz : classHierarchy) {
 				appendProperties(clazz, cachedProperties);
 			}
@@ -115,6 +114,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 			classHierarchy.add(tempClass);
 			tempClass = tempClass.getSuperclass();
 		}
+		classHierarchy.reverse();
 		return classHierarchy;
 	}
 
@@ -138,7 +138,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	}
 
 	private static boolean isIgnoredField(Class<?> resourceType, Field field) {
-		return field.isStatic() || field.getDeclaredAnnotation(TransientProperty.class) != null
+		return field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null
 				|| isIgnoredFinalField(resourceType, field);
 	}
 

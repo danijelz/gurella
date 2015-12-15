@@ -91,21 +91,21 @@ public class SharedResourceReference<T> extends FactoryResourceReference<T> {
 		}
 	}
 
-	private void createResource(ResourceMap resourceMap) {
+	private void createResource(DependencyMap dependencyMap) {
 		try {
 			ResourceFactory<T> factory = getResourceFactory();
-			T createdResource = factory.create(resourceMap);
+			T createdResource = factory.create(dependencyMap);
 			handleCreatedResource(createdResource);
 			notifyProgress(1);
 			notifySucess();
-			if (resourceMap != null) {
-				resourceMap.free();
+			if (dependencyMap != null) {
+				dependencyMap.free();
 			}
 		} catch (Exception exception) {
 			handleCreationException(exception);
-			if (resourceMap != null) {
-				getOwningContext().rollback(resourceMap);
-				resourceMap.free();
+			if (dependencyMap != null) {
+				getOwningContext().rollback(dependencyMap);
+				dependencyMap.free();
 			}
 		}
 	}
@@ -196,7 +196,7 @@ public class SharedResourceReference<T> extends FactoryResourceReference<T> {
 		cretionException = null;
 	}
 
-	private static class DependenciesResolverCallback implements AsyncResourceCallback<ResourceMap>, Poolable {
+	private static class DependenciesResolverCallback implements AsyncResourceCallback<DependencyMap>, Poolable {
 		private SharedResourceReference<?> reference;
 		private int dependenciesCount;
 
@@ -208,7 +208,7 @@ public class SharedResourceReference<T> extends FactoryResourceReference<T> {
 		}
 
 		@Override
-		public void handleResource(ResourceMap resource) {
+		public void handleResource(DependencyMap resource) {
 			reference.createResource(resource);
 			SynchronizedPools.free(this);
 		}

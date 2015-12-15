@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.resource.ResourceMap.ResourceMapEntry;
+import com.gurella.engine.resource.DependencyMap.ResourceMapEntry;
 
 //TODO Pools class is not thread safe
 public class ResourceContext {
@@ -65,7 +65,7 @@ public class ResourceContext {
 	}
 
 	//TODO must be implemented vithout callback
-	public void obtainResources(IntArray resourceIds, AsyncResourceCallback<ResourceMap> callback) {
+	public void obtainResources(IntArray resourceIds, AsyncResourceCallback<DependencyMap> callback) {
 		ConcurrentResolver.resolve(this, resourceIds, callback);
 	}
 
@@ -78,7 +78,7 @@ public class ResourceContext {
 		}
 	}
 
-	public void obtainResourcesAsync(IntArray resourceIds, AsyncResourceCallback<ResourceMap> callback) {
+	public void obtainResourcesAsync(IntArray resourceIds, AsyncResourceCallback<DependencyMap> callback) {
 		AsyncResolver.resolve(this, resourceIds, callback);
 	}
 
@@ -94,8 +94,8 @@ public class ResourceContext {
 	}
 
 	// TODO make private
-	public void rollback(ResourceMap resourceMap) {
-		Array<ResourceMapEntry<?>> entries = resourceMap.entries;
+	public void rollback(DependencyMap dependencyMap) {
+		Array<ResourceMapEntry<?>> entries = dependencyMap.entries;
 		for (int i = 0; i < entries.size; i++) {
 			ResourceMapEntry<?> entry = entries.get(i);
 			Array<?> initializedResources = entry.initializedResources;
@@ -420,15 +420,15 @@ public class ResourceContext {
 
 	private static class ConcurrentResolver implements Poolable {
 		private ResourceContext context;
-		private ResourceMap resourceMap;
-		private AsyncResourceCallback<ResourceMap> callback;
+		private DependencyMap dependencyMap;
+		private AsyncResourceCallback<DependencyMap> callback;
 
 		public static void resolve(ResourceContext context, IntArray resourceIds,
-				AsyncResourceCallback<ResourceMap> callback) {
+				AsyncResourceCallback<DependencyMap> callback) {
 			ConcurrentResolver resolver = SynchronizedPools.obtain(ConcurrentResolver.class);
 			resolver.context = context;
 			// TODO resourceMap is never freed
-			resolver.resourceMap = ResourceMap.obtain(context, resourceIds);
+			resolver.dependencyMap = DependencyMap.obtain(context, resourceIds);
 			resolver.callback = callback;
 			resolver.resolve();
 			SynchronizedPools.free(resolver);
@@ -443,14 +443,14 @@ public class ResourceContext {
 		}
 
 		private void resolveSafely() {
-			int requestedResourcesCount = resourceMap.getRequestedResourcesCount();
+			int requestedResourcesCount = dependencyMap.getRequestedResourcesCount();
 			if (requestedResourcesCount == 0) {
 				handleResource();
 				return;
 			}
 
 			for (int i = 0; i < requestedResourcesCount; i++) {
-				int resourceId = resourceMap.getRequestedResourceId(i);
+				int resourceId = dependencyMap.getRequestedResourceId(i);
 
 				try {
 					resolve(requestedResourcesCount, resourceId);
@@ -465,15 +465,15 @@ public class ResourceContext {
 
 		private void handleResource() {
 			try {
-				callback.handleResource(resourceMap);
+				callback.handleResource(dependencyMap);
 			} catch (Exception ignored) {
 			}
 		}
 
 		private void resolve(int requestedResourcesCount, int resourceId) {
 			Object resolvedResource = context.obtainResource(resourceId);
-			resourceMap.addResolvedResource(resourceId, resolvedResource);
-			int resolvedResourcesCount = resourceMap.resolvedResourcesCount;
+			dependencyMap.addResolvedResource(resourceId, resolvedResource);
+			int resolvedResourcesCount = dependencyMap.resolvedResourcesCount;
 			float proportionalProgress = resolvedResourcesCount == 0 ? 0
 					: resolvedResourcesCount / requestedResourcesCount;
 			callback.handleProgress(proportionalProgress);
@@ -481,7 +481,7 @@ public class ResourceContext {
 
 		private void handleException(Exception exception) {
 			try {
-				context.rollback(resourceMap);
+				context.rollback(dependencyMap);
 				callback.handleException(exception);
 				Gdx.app.debug(ConcurrentResolver.class.getName(), exception.toString());
 			} catch (Exception ignored) {
@@ -491,24 +491,24 @@ public class ResourceContext {
 		@Override
 		public void reset() {
 			context = null;
-			resourceMap = null;
+			dependencyMap = null;
 			callback = null;
 		}
 	}
 
 	private static class AsyncResolver implements Poolable {
 		private ResourceContext context;
-		private ResourceMap resourceMap;
-		private AsyncResourceCallback<ResourceMap> callback;
+		private DependencyMap dependencyMap;
+		private AsyncResourceCallback<DependencyMap> callback;
 
 		private boolean consistent = true;
 		private FloatArray progressArray = new FloatArray();
 
 		public static void resolve(ResourceContext context, IntArray resourceIds,
-				AsyncResourceCallback<ResourceMap> callback) {
+				AsyncResourceCallback<DependencyMap> callback) {
 			AsyncResolver resolver = SynchronizedPools.obtain(AsyncResolver.class);
 			resolver.context = context;
-			resolver.resourceMap = ResourceMap.obtain(context, resourceIds);
+			resolver.dependencyMap = DependencyMap.obtain(context, resourceIds);
 			resolver.callback = callback;
 			resolver.resolve();
 		}
@@ -522,14 +522,14 @@ public class ResourceContext {
 		}
 
 		public void resolveSafely() {
-			int requestedResourcesCount = resourceMap.getRequestedResourcesCount();
+			int requestedResourcesCount = dependencyMap.getRequestedResourcesCount();
 			if (requestedResourcesCount == 0) {
 				return;
 			}
 
 			for (int i = 0; i < requestedResourcesCount; i++) {
 				progressArray.add(0);
-				int resourceId = resourceMap.getRequestedResourceId(i);
+				int resourceId = dependencyMap.getRequestedResourceId(i);
 				context.obtainResourceAsync(resourceId, InitCallback.obtain(i, resourceId, this));
 			}
 		}
@@ -553,7 +553,7 @@ public class ResourceContext {
 		}
 
 		private synchronized void addResource(int index, int resourceId, Object resource) {
-			resourceMap.addResolvedResource(resourceId, resource);
+			dependencyMap.addResolvedResource(resourceId, resource);
 
 			if (consistent) {
 				progressArray.set(index, 1);
@@ -564,13 +564,13 @@ public class ResourceContext {
 		}
 
 		private void finalizeIfFinished() {
-			int resolvedResourcesCount = resourceMap.resolvedResourcesCount;
-			int requestedResourcesCount = resourceMap.getRequestedResourcesCount();
+			int resolvedResourcesCount = dependencyMap.resolvedResourcesCount;
+			int requestedResourcesCount = dependencyMap.getRequestedResourcesCount();
 			if (requestedResourcesCount == resolvedResourcesCount) {
 				if (consistent) {
-					callback.handleResource(resourceMap);
+					callback.handleResource(dependencyMap);
 				} else {
-					context.rollback(resourceMap);
+					context.rollback(dependencyMap);
 				}
 
 				SynchronizedPools.free(this);
@@ -589,7 +589,7 @@ public class ResourceContext {
 		@Override
 		public void reset() {
 			context = null;
-			resourceMap = null;
+			dependencyMap = null;
 			callback = null;
 
 			consistent = true;

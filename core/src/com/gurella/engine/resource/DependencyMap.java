@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pools.SynchronizedPools;
 
-public class ResourceMap implements Poolable {
+public class DependencyMap implements Poolable {
 	private final IntMap<ResourceMapEntry<?>> resourcesById = new IntMap<ResourceMapEntry<?>>();
 	final Array<ResourceMapEntry<?>> entries = new Array<ResourceMapEntry<?>>();
 	private final IntArray requestedResourceIdsOrder = new IntArray();
@@ -14,8 +14,8 @@ public class ResourceMap implements Poolable {
 	int resolvedResourcesCount;
 	private ResourceContext context;
 
-	public static ResourceMap obtain(ResourceContext context, IntArray resourceIds) {
-		ResourceMap instance = SynchronizedPools.obtain(ResourceMap.class);
+	public static DependencyMap obtain(ResourceContext context, IntArray resourceIds) {
+		DependencyMap instance = SynchronizedPools.obtain(DependencyMap.class);
 		instance.context = context;
 		instance.addDependecies(resourceIds);
 		return instance;

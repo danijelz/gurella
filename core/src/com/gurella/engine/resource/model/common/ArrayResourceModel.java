@@ -4,12 +4,13 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.AbstractResourceModel;
 import com.gurella.engine.resource.model.AbstractResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelUtils;
+import com.gurella.engine.utils.Range;
 
 public class ArrayResourceModel<T> extends AbstractResourceModel<T> {
 	private static final ObjectMap<Class<?>, ArrayResourceModel<?>> instances = new ObjectMap<Class<?>, ArrayResourceModel<?>>();
@@ -70,7 +71,7 @@ public class ArrayResourceModel<T> extends AbstractResourceModel<T> {
 		}
 
 		@Override
-		public void initFromSerializableValue(Object resource, Object items, ResourceMap dependencies) {
+		public void initFromSerializableValue(Object resource, Object items, DependencyMap dependencies) {
 			int length = ArrayReflection.getLength(items);
 			for (int i = 0; i < length; i++) {
 				Object item = ArrayReflection.get(items, i);
@@ -108,6 +109,11 @@ public class ArrayResourceModel<T> extends AbstractResourceModel<T> {
 
 		@Override
 		public Object getDefaultValue() {
+			return null;
+		}
+
+		@Override
+		public Range<?> getRange() {
 			return null;
 		}
 	}

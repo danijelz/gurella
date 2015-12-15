@@ -3,7 +3,7 @@ package com.gurella.engine.resource.model;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ValueRange.ByteRange;
 import com.gurella.engine.resource.model.ValueRange.CharRange;
@@ -203,7 +203,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 	}
 
 	@Override
-	public void initFromSerializableValue(Object resource, Object serializableValue, ResourceMap dependencies) {
+	public void initFromSerializableValue(Object resource, Object serializableValue, DependencyMap dependencies) {
 		if (setter != null) {
 			initFromSerializableValueBySetter(resource, serializableValue, dependencies);
 		} else if (field != null) {
@@ -211,7 +211,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 		}
 	}
 
-	private void initFromSerializableValueBySetter(Object resource, Object serializableValue, ResourceMap dependencies) {
+	private void initFromSerializableValueBySetter(Object resource, Object serializableValue, DependencyMap dependencies) {
 		boolean accessible = setter.isAccessible();
 		try {
 			if (!accessible) {
@@ -226,7 +226,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 		}
 	}
 
-	private void initFromSerializableValueByField(Object resource, Object serializableValue, ResourceMap dependencies) {
+	private void initFromSerializableValueByField(Object resource, Object serializableValue, DependencyMap dependencies) {
 		boolean accessible = field.isAccessible();
 		try {
 			if (!accessible) {
@@ -245,7 +245,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 	}
 
 	private static void initFinalProperty(Object resource, Field field, Object serializableValue,
-			ResourceMap dependencies) {
+			DependencyMap dependencies) {
 		if (serializableValue instanceof ModelResourceFactory) {
 			Object fieldValue = ReflectionUtils.getFieldValue(field, resource);
 			@SuppressWarnings("unchecked")
@@ -254,7 +254,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 		}
 	}
 
-	private static void initProperty(Object resource, Field field, Object serializableValue, ResourceMap dependencies) {
+	private static void initProperty(Object resource, Field field, Object serializableValue, DependencyMap dependencies) {
 		Object resolvedValue = ResourceModelUtils.resolvePropertyValue(serializableValue, dependencies);
 		ReflectionUtils.setFieldValue(field, resource, resolvedValue);
 	}

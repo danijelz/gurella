@@ -7,7 +7,7 @@ import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AsyncResourceCallback;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.state.StateMachine;
 import com.gurella.engine.utils.ValueUtils;
@@ -84,7 +84,7 @@ public class SceneManager {
 		return currentSceneGroup;
 	}
 
-	private class TransitionWorker implements AsyncResourceCallback<ResourceMap>, UpdateListener {
+	private class TransitionWorker implements AsyncResourceCallback<DependencyMap>, UpdateListener {
 		private TransitionStateManager transitionStateManager = new TransitionStateManager();
 
 		private boolean active;
@@ -94,7 +94,7 @@ public class SceneManager {
 
 		private float initializationProgress;
 		private Throwable initializationException;
-		private ResourceMap destinationSceneResources;
+		private DependencyMap destinationSceneResources;
 
 		private final IntArray dependentResourceIds = new IntArray();
 
@@ -111,7 +111,7 @@ public class SceneManager {
 		}
 
 		@Override
-		public void handleResource(ResourceMap resource) {
+		public void handleResource(DependencyMap resource) {
 			destinationSceneResources = resource;
 		}
 

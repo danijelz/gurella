@@ -7,9 +7,9 @@ import com.badlogic.gdx.utils.Json;
 public interface ResourceFactory<T> extends Disposable, Json.Serializable {
 	Class<T> getResourceType();
 
-	T create(ResourceMap dependencies);
+	T create(DependencyMap dependencies);
 
-	void init(T resource, ResourceMap dependencies);
+	void init(T resource, DependencyMap dependencies);
 
 	IntArray getDependentResourceIds(ResourceContext context);
 }

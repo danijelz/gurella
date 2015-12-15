@@ -2,11 +2,12 @@ package com.gurella.engine.resource.model.common;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.model.AbstractResourceModel;
 import com.gurella.engine.resource.model.AbstractResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelUtils;
+import com.gurella.engine.utils.Range;
 
 public class GdxArrayResourceModel<T> extends AbstractResourceModel<Array<T>> {
 	private static final String ARRAY_ITEMS_PROPERTY_NAME = "items";
@@ -46,7 +47,7 @@ public class GdxArrayResourceModel<T> extends AbstractResourceModel<Array<T>> {
 		}
 
 		@Override
-		public void initFromSerializableValue(Object resource, Object serializableValue, ResourceMap dependencies) {
+		public void initFromSerializableValue(Object resource, Object serializableValue, DependencyMap dependencies) {
 			if (serializableValue == null) {
 				return;
 			}
@@ -83,6 +84,11 @@ public class GdxArrayResourceModel<T> extends AbstractResourceModel<Array<T>> {
 
 		@Override
 		public Object getDefaultValue() {
+			return null;
+		}
+
+		@Override
+		public Range<?> getRange() {
 			return null;
 		}
 	}

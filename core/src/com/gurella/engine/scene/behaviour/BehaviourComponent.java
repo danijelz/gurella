@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.SceneTransition;
 import com.gurella.engine.resource.AsyncResourceCallback;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -599,14 +599,14 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 		return null;
 	}
 
-	public ResourceMap obtainResources(IntArray resourceIds) {
+	public DependencyMap obtainResources(IntArray resourceIds) {
 		return null;
 	}
 
 	public <T> void obtainResourceAsync(int resourceId, AsyncResourceCallback<T> callback) {
 	}
 
-	public void obtainResourcesAsync(IntArray resourceIds, AsyncResourceCallback<ResourceMap> callback) {
+	public void obtainResourcesAsync(IntArray resourceIds, AsyncResourceCallback<DependencyMap> callback) {
 	}
 
 	public <T> T load(String fileName, Class<T> type) {

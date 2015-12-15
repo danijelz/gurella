@@ -1,39 +1,39 @@
-package com.gurella.engine.resource.model;
+package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.resource.DependencyMap;
 
-public abstract class AbstractResourceModel<T> implements ResourceModel<T> {
-	public final Class<T> resourceType;
+public abstract class AbstractModel<T> implements Model<T>{
+	public final Class<T> type;
 
-	public AbstractResourceModel(Class<T> resourceType) {
-		this.resourceType = resourceType;
+	public AbstractModel(Class<T> type) {
+		this.type = type;
 	}
 
 	@Override
-	public Class<T> getResourceType() {
-		return resourceType;
+	public Class<T> getType() {
+		return type;
 	}
 
 	@Override
-	public T createResource(ObjectMap<String, Object> propertyValues, DependencyMap dependencies) {
+	public T createInstance(ObjectMap<String, Object> propertyValues, DependencyMap dependencies) {
 		T resource = createResourceInstance(propertyValues);
-		initResource(resource, propertyValues, dependencies);
+		init(resource, propertyValues, dependencies);
 		return resource;
 	}
 
 	protected abstract T createResourceInstance(ObjectMap<String, Object> propertyValues);
 
 	@Override
-	public void initResource(T resource, ObjectMap<String, Object> propertyValues, DependencyMap dependencies) {
+	public void init(T resource, ObjectMap<String, Object> propertyValues, DependencyMap dependencies) {
 		if (resource == null) {
 			return;
 		}
 
-		Array<ResourceModelProperty> properties = getProperties();
+		Array<ModelProperty<?>> properties = getProperties();
 		for (int i = 0; i < properties.size; i++) {
-			ResourceModelProperty property = properties.get(i);
+			ModelProperty<?> property = properties.get(i);
 			String propertyName = property.getName();
 			if (propertyValues.containsKey(propertyName)) {
 				Object serializableValue = propertyValues.get(propertyName);

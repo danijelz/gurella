@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.event.Signal0.Signal0Impl;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
@@ -118,7 +118,7 @@ public class Scene extends SceneElementsResourceContext {
 		return initialNodes;
 	}
 
-	public void start(ResourceMap initialResources) {
+	public void start(DependencyMap initialResources) {
 		if (active) {
 			throw new GdxRuntimeException("Scene is already active.");
 		}

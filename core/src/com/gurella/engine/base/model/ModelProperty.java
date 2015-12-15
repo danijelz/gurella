@@ -1,14 +1,14 @@
-package com.gurella.engine.resource.model;
+package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.utils.Range;
 
-public interface ResourceModelProperty {
+public interface ModelProperty<T> {
 	String getName();
 
-	Class<?> getPropertyType();
+	Class<T> getType();
 
 	Range<?> getRange();
 
@@ -20,7 +20,7 @@ public interface ResourceModelProperty {
 
 	String getGroup();
 	
-	Object getDefaultValue();
+	T getDefaultValue();
 
 	void initFromDefaultValue(Object resource);
 
@@ -28,5 +28,5 @@ public interface ResourceModelProperty {
 
 	void writeValue(Json json, Object serializableValue);
 
-	Object readValue(Json json, JsonValue propertyValue);
+	T readValue(Json json, JsonValue propertyValue);
 }

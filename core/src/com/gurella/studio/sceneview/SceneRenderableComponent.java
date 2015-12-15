@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.AssetResourceReference;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.factory.GlobalAssetManager;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
@@ -105,12 +105,12 @@ public class SceneRenderableComponent extends RenderableComponent {
 			Texture ttt = globalAssetManager.get(descriptor);
 			IntArray dependencies = new IntArray();
 			dependencies.add(textureReference.getId());
-			ResourceMap resourceMap = ResourceMap.obtain(getScene(), dependencies);
-			resourceMap.addResolvedResource(textureReference.getId(), ttt);
+			DependencyMap dependencyMap = DependencyMap.obtain(getScene(), dependencies);
+			dependencyMap.addResolvedResource(textureReference.getId(), ttt);
 
 			textureComponent = new TextureComponent();
 			textureComponent.setTransformComponent(getTransformComponent());
-			resourceFactory.init(textureComponent, resourceMap);
+			resourceFactory.init(textureComponent, dependencyMap);
 		}
 	}
 

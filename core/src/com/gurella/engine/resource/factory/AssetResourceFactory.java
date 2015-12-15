@@ -11,7 +11,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.ResourceContext;
 import com.gurella.engine.resource.ResourceFactory;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class AssetResourceFactory<T> implements ResourceFactory<T> {
@@ -59,7 +59,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 	}
 
 	@Override
-	public T create(ResourceMap dependencies) {
+	public T create(DependencyMap dependencies) {
 		T resource = globalAssetManager.load(getAssetDescriptor());
 		while (resource == null) {
 			resource = globalAssetManager.get(getAssetDescriptor());
@@ -82,7 +82,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 	}
 
 	@Override
-	public void init(T resource, ResourceMap dependencies) {
+	public void init(T resource, DependencyMap dependencies) {
 	}
 
 	public void unload() {

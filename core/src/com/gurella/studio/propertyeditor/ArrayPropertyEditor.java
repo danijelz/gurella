@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.utils.Range;
@@ -218,7 +218,7 @@ public class ArrayPropertyEditor<T, V> extends AbstractResourcePropertyEditor<Mo
 		}
 
 		@Override
-		public void initFromSerializableValue(Object resource, Object serializableValue, ResourceMap dependencies) {
+		public void initFromSerializableValue(Object resource, Object serializableValue, DependencyMap dependencies) {
 		}
 
 		@Override

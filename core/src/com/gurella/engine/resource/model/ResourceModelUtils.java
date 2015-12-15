@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.resource.ResourceContext;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.common.ArrayResourceModel;
 import com.gurella.engine.resource.model.common.GdxArrayResourceModel;
@@ -118,7 +118,7 @@ public class ResourceModelUtils {
 		return null;
 	}
 
-	public static <T> T resolvePropertyValue(Object serializableValue, ResourceMap dependencies) {
+	public static <T> T resolvePropertyValue(Object serializableValue, DependencyMap dependencies) {
 		if (serializableValue instanceof ResourceId) {
 			return dependencies.getResource(((ResourceId) serializableValue).getId());
 		} else if (serializableValue instanceof AssetId) {

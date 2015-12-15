@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.resource.ResourceContext;
 import com.gurella.engine.resource.ResourceFactory;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.model.ResourceModel;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelUtils;
@@ -44,12 +44,12 @@ public final class ModelResourceFactory<T> implements ResourceFactory<T> {
 	}
 
 	@Override
-	public T create(ResourceMap dependencies) {
+	public T create(DependencyMap dependencies) {
 		return getModel().createResource(propertyValues, dependencies);
 	}
 
 	@Override
-	public void init(T resource, ResourceMap dependencies) {
+	public void init(T resource, DependencyMap dependencies) {
 		getModel().initResource(resource, propertyValues, dependencies);
 	}
 

@@ -120,7 +120,7 @@ public class TemplateResourceReference<T> extends FactoryResourceReference<T> {
 		json.writeValue(INIT_ON_START_COUNT_TAG, initOnStartCount);
 	}
 
-	private static class CreateResourceWorker<T> implements AsyncResourceCallback<ResourceMap>, Poolable {
+	private static class CreateResourceWorker<T> implements AsyncResourceCallback<DependencyMap>, Poolable {
 		private TemplateResourceReference<T> reference;
 		private int dependenciesCount;
 		private AsyncResourceCallback<T> callback;
@@ -135,8 +135,8 @@ public class TemplateResourceReference<T> extends FactoryResourceReference<T> {
 		}
 
 		@Override
-		public void handleResource(ResourceMap resourceMap) {
-			createResource(resourceMap);
+		public void handleResource(DependencyMap dependencyMap) {
+			createResource(dependencyMap);
 			SynchronizedPools.free(this);
 		}
 
@@ -178,20 +178,20 @@ public class TemplateResourceReference<T> extends FactoryResourceReference<T> {
 			}
 		}
 
-		private void createResource(ResourceMap resourceMap) {
+		private void createResource(DependencyMap dependencyMap) {
 			try {
 				ResourceFactory<T> factory = reference.getResourceFactory();
-				T createdResource = factory.create(resourceMap);
+				T createdResource = factory.create(dependencyMap);
 				notifyProgress(1);
 				handleCreatedResource(createdResource);
-				if (resourceMap != null) {
-					resourceMap.free();
+				if (dependencyMap != null) {
+					dependencyMap.free();
 				}
 			} catch (Exception exception) {
 				notifyException(exception);
-				if (resourceMap != null) {
-					reference.getOwningContext().rollback(resourceMap);
-					resourceMap.free();
+				if (dependencyMap != null) {
+					reference.getOwningContext().rollback(dependencyMap);
+					dependencyMap.free();
 				}
 			}
 		}

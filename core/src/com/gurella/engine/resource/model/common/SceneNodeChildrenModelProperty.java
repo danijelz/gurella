@@ -3,7 +3,7 @@ package com.gurella.engine.resource.model.common;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.resource.ResourceMap;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelUtils;
@@ -44,7 +44,7 @@ public class SceneNodeChildrenModelProperty implements ResourceModelProperty {
 	}
 
 	@Override
-	public void initFromSerializableValue(Object resource, Object serializableValue, ResourceMap dependencies) {
+	public void initFromSerializableValue(Object resource, Object serializableValue, DependencyMap dependencies) {
 		if (serializableValue == null) {
 			return;
 		}
