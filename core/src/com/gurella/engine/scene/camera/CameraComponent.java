@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.ResourceProperty;
@@ -15,10 +14,12 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.ImmutableArray;
 
 @BaseSceneElementType
-public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent implements
-		Comparable<CameraComponent<?>> {
+public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent
+		implements Comparable<CameraComponent<?>> {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -30,9 +31,9 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public float far = 1000;
 
 	private int ordinal;
-	//TODO notify render system for layer changes
+	// TODO notify render system for layer changes
 	@ResourceProperty
-	public final Array<Layer> renderingLayers = new Array<Layer>();
+	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
 
 	@TransientProperty
 	public T camera;
@@ -40,7 +41,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public CameraViewport viewport;
 	@TransientProperty
 	private TransformComponent transformComponent;
-	
+
 	private final TransformComponentActivatedListener transformComponentActivatedListener = new TransformComponentActivatedListener();
 	private final TransformComponentDeactivatedListener transformComponentDeactivatedListener = new TransformComponentDeactivatedListener();
 	private final TransformDirtyListener transformDirtyListener = new TransformDirtyListener();
@@ -115,14 +116,27 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		// TODO notify RenderSystem
 	}
 
-	public Array<Layer> getRenderingLayers() {
-		return renderingLayers;
+	public ImmutableArray<Layer> getRenderingLayers() {
+		return renderingLayers.immutable();
 	}
 
 	public void setRenderingLayers(Layer... layers) {
 		renderingLayers.clear();
 		renderingLayers.addAll(layers);
 		// TODO notify RenderSystem
+	}
+
+	public void addRenderingLayer(Layer layer) {
+		if (!renderingLayers.contains(layer, true)) {
+			renderingLayers.add(layer);
+			// TODO notify RenderSystem
+		}
+	}
+
+	public void removeRenderingLayer(Layer layer) {
+		if (renderingLayers.removeValue(layer, true)) {
+			// TODO notify RenderSystem
+		}
 	}
 
 	@Override

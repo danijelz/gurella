@@ -13,4 +13,19 @@ public class UiComponent extends BehaviourComponent {
 	private int h;
 	private boolean visible;
 	private boolean blocked;
+	
+	//TODO
+	public void requestFocus() {
+	}
+	
+	public boolean hasFocus() {
+		return false;
+	}
+	
+	public boolean isFocusable() {
+		return false;
+	}
+	
+	public void setFocusable() {
+	}
 }
