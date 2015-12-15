@@ -6,10 +6,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.application.CommonUpdateOrder;
-import com.gurella.engine.application.events.UpdateEvent;
-import com.gurella.engine.application.events.UpdateListener;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.scene.BaseSceneElementType;
@@ -161,6 +157,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	@Override
 	protected void detached() {
+		clear();
 		Scene scene = getScene();
 		scene.startSignal.removeListener(sceneStartListener);
 		scene.stopSignal.removeListener(sceneStopListener);

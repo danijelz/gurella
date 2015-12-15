@@ -79,21 +79,11 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 	}
 
 	@Override
-	protected void attached() {
+	protected void activated() {
 		Scene scene = getScene();
 		eventManager = scene.eventManager;
 		spatialPartitioningSystem = scene.spatialPartitioningSystem;
-	}
-
-	@Override
-	protected void detached() {
-		eventManager = null;
-		spatialPartitioningSystem = null;
-	}
-
-	@Override
-	protected void activated() {
-		Scene scene = getScene();
+		
 		scene.addListener(this);
 
 		// TODO use componentManager
@@ -109,6 +99,8 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 	protected void deactivated() {
 		Application.removeInputProcessor(inputProcessorQueue);
 		resetData();
+		eventManager = null;
+		spatialPartitioningSystem = null;
 	}
 
 	@Override

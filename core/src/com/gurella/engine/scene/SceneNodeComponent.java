@@ -174,7 +174,6 @@ public class SceneNodeComponent extends SceneElement {
 
 	@Override
 	public final void reset() {
-		resettedSignal.dispatch();
 		clearSignals();
 		initialized = false;
 	}
@@ -182,7 +181,6 @@ public class SceneNodeComponent extends SceneElement {
 	@Override
 	public final void dispose() {
 		detach();
-		disposedSignal.dispatch();
 		INDEXER.removeIndexed(this);
 	}
 

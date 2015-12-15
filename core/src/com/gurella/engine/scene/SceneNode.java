@@ -91,7 +91,6 @@ public final class SceneNode extends SceneElement {
 		}
 
 		detach();
-		disposedSignal.dispatch();
 		INDEXER.removeIndexed(this);
 	}
 
@@ -232,7 +231,6 @@ public final class SceneNode extends SceneElement {
 			child.reset();
 		}
 
-		resettedSignal.dispatch();
 		clearSignals();
 		initialized = false;
 		componentBitsInternal.clear();

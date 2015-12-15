@@ -28,6 +28,7 @@ public abstract class SceneElement implements Poolable, Disposable {
 	@DefaultValue(booleanValue = true)
 	boolean enabled = true;
 
+	//TODO attached and detached are not needed
 	@TransientProperty
 	public final Signal0Impl attachedSignal = new Signal0Impl();
 	@TransientProperty
@@ -36,10 +37,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 	public final Signal0Impl deactivatedSignal = new Signal0Impl();
 	@TransientProperty
 	public final Signal0Impl detachedSignal = new Signal0Impl();
-	@TransientProperty
-	public final Signal0Impl resettedSignal = new Signal0Impl();
-	@TransientProperty
-	public final Signal0Impl disposedSignal = new Signal0Impl();
 	@TransientProperty
 	public final SceneGraphElementLifecycleSignal lifecycleSignal = new SceneGraphElementLifecycleSignal();
 
@@ -110,8 +107,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 		activatedSignal.clear();
 		deactivatedSignal.clear();
 		detachedSignal.clear();
-		resettedSignal.clear();
-		disposedSignal.clear();
 		lifecycleSignal.clear();
 	}
 
@@ -199,22 +194,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 				listener.detached();
 			}
 			detachedSignal.dispatch();
-		}
-
-		void resetted() {
-			SceneElement.this.resetted();
-			for (SceneGraphElementLifecycleListener listener : listeners) {
-				listener.resetted();
-			}
-			resettedSignal.dispatch();
-		}
-
-		void disposed() {
-			SceneElement.this.disposed();
-			for (SceneGraphElementLifecycleListener listener : listeners) {
-				listener.disposed();
-			}
-			disposedSignal.dispatch();
 		}
 	}
 }
