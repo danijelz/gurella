@@ -18,12 +18,12 @@ public abstract class AbstractModel<T> implements Model<T>{
 
 	@Override
 	public T createInstance(ObjectMap<String, Object> propertyValues, DependencyMap dependencies) {
-		T resource = createResourceInstance(propertyValues);
+		T resource = createInstance(propertyValues);
 		init(resource, propertyValues, dependencies);
 		return resource;
 	}
 
-	protected abstract T createResourceInstance(ObjectMap<String, Object> propertyValues);
+	protected abstract T createInstance(ObjectMap<String, Object> propertyValues);
 
 	@Override
 	public void init(T resource, ObjectMap<String, Object> propertyValues, DependencyMap dependencies) {

@@ -11,7 +11,7 @@ public interface Model<T> {
 
 	T createInstance(ObjectMap<String, Object> propertyValues, DependencyMap dependencies);
 
-	void init(T resource, ObjectMap<String, Object> propertyValues, DependencyMap dependencies);
+	void init(T object, ObjectMap<String, Object> propertyValues, DependencyMap dependencies);
 
 	Array<ModelProperty<?>> getProperties();
 }
