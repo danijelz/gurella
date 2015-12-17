@@ -41,7 +41,7 @@ public class ManagedObject {
 	}
 	
 	public void set(ManagedObject other) {
-		
+		//TODO
 	}
 
 	public void write(Container container, Json json) {
