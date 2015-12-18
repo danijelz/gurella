@@ -56,7 +56,7 @@ public class ManagedObject {
 		templateId = value.getInt(TEMPLATE_ID_TAG, -1);
 		name = value.getString(NAME_TAG, "");
 
-		JsonValue prefabValue = container.getDefinition(templateId);
+		JsonValue templateValue = container.getDefinition(templateId);
 		// TODO Auto-generated method stub
 	}
 }
