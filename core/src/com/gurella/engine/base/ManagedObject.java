@@ -3,65 +3,60 @@ package com.gurella.engine.base;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.model.Model;
-import com.gurella.engine.utils.IndexedValue;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject {
 	private static final String ID_TAG = "id";
-	private static final String PREFAB_ID_TAG = "id";
+	private static final String TEMPLATE_ID_TAG = "id";
 	private static final String NAME_TAG = "name";
-	
-	private static IndexedValue<ManagedObject> INDEXER = new IndexedValue<ManagedObject>();
+
+	private static int indexer = 0;
 
 	private int id;
-	private int prefabId;
+	private int templateId;
+	private ManagedObject template;
 	private String name;
-	
-	private transient Model<?> model;
-	
+
+	transient Model<? extends ManagedObject> model;
+	transient Container container;
+
 	public transient final int instanceId;
 
 	public ManagedObject() {
-		instanceId = INDEXER.getIndex(this);
+		instanceId = indexer++;
 	}
 
-	public static <T extends ManagedObject> T getObjectById(int id) {
-		@SuppressWarnings("unchecked")
-		T casted = (T) INDEXER.getValueByIndex(id);
-		return casted;
-	}
-
-	public static void dispose(ManagedObject managedObject) {
-		INDEXER.removeIndexed(managedObject);
-	}
-	
 	public ManagedObject duplicate() {
-		//TODO
+		// TODO
 		return null;
 	}
+
+	public void clone(ManagedObject template) {
+		// TODO
+	}
 	
-	public void set(ManagedObject other) {
-		//TODO
+	void init(JsonValue value, ManagedObject template) {
+		// TODO
 	}
 
-	public void write(Container container, Json json) {
+	public void write(Json json) {
 		json.writeValue(ID_TAG, Integer.valueOf(id));
-		if(prefabId > -1) {
-			json.writeValue(PREFAB_ID_TAG, Integer.valueOf(prefabId));
+		if (templateId > -1) {
+			json.writeValue(TEMPLATE_ID_TAG, Integer.valueOf(templateId));
 		}
-		if(ValueUtils.isNotEmpty(name)) {
+		if (ValueUtils.isNotEmpty(name)) {
 			json.writeValue(NAME_TAG, name);
 		}
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	public void read(Container container, Json json, JsonValue value) {
+	public void read(JsonValue value) {
 		id = value.getInt(ID_TAG);
-		prefabId = value.getInt(PREFAB_ID_TAG, -1);
+		templateId = value.getInt(TEMPLATE_ID_TAG, -1);
 		name = value.getString(NAME_TAG, "");
-		
-		JsonValue prefabValue = container.getDefinition(prefabId);
+
+		JsonValue prefabValue = container.getDefinition(templateId);
 		// TODO Auto-generated method stub
 	}
 }
