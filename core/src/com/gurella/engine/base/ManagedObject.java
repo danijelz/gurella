@@ -30,13 +30,14 @@ public class ManagedObject {
 		// TODO
 		return null;
 	}
-
-	public void clone(ManagedObject template) {
+	
+	void init(JsonValue value, ManagedObject template, InitializationContext context) {
+		this.template = template;
 		// TODO
+		init();
 	}
 	
-	void init(JsonValue value, ManagedObject template) {
-		// TODO
+	protected void init() {
 	}
 
 	public void write(Json json) {
