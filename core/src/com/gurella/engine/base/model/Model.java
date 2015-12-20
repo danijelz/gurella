@@ -1,17 +1,14 @@
 package com.gurella.engine.base.model;
 
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.resource.DependencyMap;
+import com.gurella.engine.base.InitializationContext;
+import com.gurella.engine.utils.ImmutableArray;
 
 public interface Model<T> {
 	Class<T> getType();
 
 	String getDescriptiveName();
 
-	T createInstance(ObjectMap<String, Object> propertyValues, DependencyMap dependencies);
+	T createInstance(InitializationContext context);
 
-	void init(T object, ObjectMap<String, Object> propertyValues, DependencyMap dependencies);
-
-	Array<ModelProperty<?>> getProperties();
+	ImmutableArray<ModelProperty<?>> getProperties();
 }

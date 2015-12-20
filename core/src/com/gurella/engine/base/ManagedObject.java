@@ -3,6 +3,9 @@ package com.gurella.engine.base;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.model.Model;
+import com.gurella.engine.base.model.ModelProperty;
+import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject {
@@ -16,6 +19,7 @@ public class ManagedObject {
 	private int templateId;
 	private ManagedObject template;
 	private String name;
+	private boolean initialized;
 
 	transient Model<? extends ManagedObject> model;
 	transient Container container;
@@ -26,17 +30,30 @@ public class ManagedObject {
 		instanceId = indexer++;
 	}
 
-	public ManagedObject duplicate() {
+	public final ManagedObject duplicate() {
+		ManagedObject duplicate = ReflectionUtils.newInstance(getClass());
+		//TODO garbage
+		InitializationContext context = new InitializationContext();
+		context.initializingObject = duplicate;
+		context.container = container;
+		context.template = this;
+		duplicate.id = instanceId;
+		duplicate.init(context);
 		// TODO
-		return null;
+		return duplicate;
 	}
-	
-	void init(JsonValue value, ManagedObject template, InitializationContext context) {
-		this.template = template;
+
+	void init(InitializationContext context) {
+		initialized = true;
+		this.template = context.template;
+		ImmutableArray<ModelProperty<?>> properties = model.getProperties();
+		for (int i = 0; i < properties.size(); i++) {
+			properties.get(i).init(context);
+		}
 		// TODO
 		init();
 	}
-	
+
 	protected void init() {
 	}
 

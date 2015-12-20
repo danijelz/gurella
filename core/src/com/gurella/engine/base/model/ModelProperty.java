@@ -2,6 +2,7 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
+import com.gurella.engine.base.InitializationContext;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.utils.Range;
 
@@ -29,4 +30,6 @@ public interface ModelProperty<T> {
 	void writeValue(Json json, Object serializableValue);
 
 	T readValue(Json json, JsonValue propertyValue);
+
+	void init(InitializationContext context);
 }
