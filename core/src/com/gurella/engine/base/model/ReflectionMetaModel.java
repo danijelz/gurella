@@ -169,7 +169,7 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 	}
 
 	private static MetaProperty<?> getPropertyFromFactoryMethod(Class<? extends MetaProperty<?>> propertyType) {
-		//TODO should be annotation based @FactoryMethod
+		// TODO should be annotation based @FactoryMethod
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(propertyType, "getInstance");
 		if (factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == propertyType
 				&& factoryMethod.isStatic()) {
@@ -188,7 +188,8 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 		if (propertyModel != null) {
 			return propertyModel;
 		} else if (forced || field.isPublic()) {
-			return new ReflectionMetaProperty<Object>(field);
+			return field.getType().isArray() ? new ArrayMetaProperty<Object>(field)
+					: new ReflectionMetaProperty<Object>(field);
 		} else {
 			return null;
 		}
@@ -210,7 +211,8 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 			return null;
 		}
 
-		return new ReflectionMetaProperty<Object>(field, getter, setter);
+		return field.getType().isArray() ? new ArrayMetaProperty<Object>(field)
+				: new ReflectionMetaProperty<Object>(field, getter, setter);
 	}
 
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
