@@ -1,4 +1,4 @@
-package com.gurella.engine.resource.model;
+package com.gurella.engine.base.model;
 
 import java.util.List;
 
@@ -8,61 +8,60 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.resource.ResourceContext;
-import com.gurella.engine.resource.DependencyMap;
-import com.gurella.engine.resource.factory.ModelResourceFactory;
-import com.gurella.engine.resource.model.common.ArrayResourceModel;
-import com.gurella.engine.resource.model.common.GdxArrayResourceModel;
+import com.gurella.engine.base.container.AssetId;
+import com.gurella.engine.base.container.ObjectReference;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class ResourceModelUtils {
-	private static final ObjectMap<Class<?>, ResourceModel<?>> resolvedResourceModels = new ObjectMap<Class<?>, ResourceModel<?>>();
-	private static final ObjectMap<Class<?>, ResourceModel<?>> defaultResourceModels = new ObjectMap<Class<?>, ResourceModel<?>>();
-	static {
-		defaultResourceModels.put(Array.class, GdxArrayResourceModel.getInstance());
-	}
+public class ModelUtils {
+	private static final ObjectMap<Class<?>, MetaModel<?>> resolvedModels = new ObjectMap<Class<?>, MetaModel<?>>();
+	private static final ObjectMap<Class<?>, MetaModel<?>> defaultModels = new ObjectMap<Class<?>, MetaModel<?>>();
 
-	public static <T> ResourceModel<T> getModel(Class<T> resourceType) {
-		@SuppressWarnings("unchecked")
-		ResourceModel<T> resourceModel = (ResourceModel<T>) resolvedResourceModels.get(resourceType);
-		if(resourceModel == null) {
-			resourceModel = resolveResourceModel(resourceType);
-			resolvedResourceModels.put(resourceType, resourceModel);
-		}
-		return resourceModel;
-	}
+	// TODO
+	/*
+	 * static { defaultResourceModels.put(Array.class, GdxArrayResourceModel.getInstance()); }
+	 */
 
-	private static <T> ResourceModel<T> resolveResourceModel(Class<T> resourceType) {
-		ResourceModel<T> resourceModel = getAnnotationModel(resourceType);
-		if (resourceModel != null) {
-			return resourceModel;
-		}
-
-		if (resourceType.isArray()) {
-			return ArrayResourceModel.<T> getInstance(resourceType);
-		}
-
-		resourceModel = getDefaultModel(resourceType);
-		if (resourceModel != null) {
-			return resourceModel;
-		}
-
-		return ReflectionResourceModel.<T> getInstance(resourceType);
-	}
-
-	private static <T> ResourceModel<T> getAnnotationModel(Class<T> resourceType) {
-		Resource resource = ReflectionUtils.getDeclaredAnnotation(resourceType, Resource.class);
-		if (resource != null) {
+	public static <T> MetaModel<T> getModel(Class<T> type) {
+		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
-			Class<ResourceModel<T>> resourceModelClass = (Class<ResourceModel<T>>) resource.model();
-			if (resourceModelClass != null) {
-				if (ReflectionResourceModel.class.equals(resourceModelClass)) {
-					return ReflectionResourceModel.<T> getInstance(resourceType);
+			MetaModel<T> resourceModel = (MetaModel<T>) resolvedModels.get(type);
+			if (resourceModel == null) {
+				resourceModel = resolveResourceModel(type);
+				resolvedModels.put(type, resourceModel);
+			}
+			return resourceModel;
+		}
+	}
+
+	private static <T> MetaModel<T> resolveResourceModel(Class<T> type) {
+		MetaModel<T> resourceModel = getModelType(type);
+		if (resourceModel != null) {
+			return resourceModel;
+		}
+
+		if (type.isArray()) {
+			return ArrayMetaModel.<T> getInstance(type);
+		}
+
+		resourceModel = getDefaultModel(type);
+		if (resourceModel != null) {
+			return resourceModel;
+		}
+
+		return ReflectionMetaModel.<T> getInstance(type);
+	}
+
+	private static <T> MetaModel<T> getModelType(Class<T> type) {
+		Model model = ReflectionUtils.getDeclaredAnnotation(type, Model.class);
+		if (model != null) {
+			@SuppressWarnings("unchecked")
+			Class<MetaModel<T>> modelType = (Class<MetaModel<T>>) model.model();
+			if (modelType != null) {
+				if (ReflectionMetaModel.class.equals(modelType)) {
+					return ReflectionMetaModel.<T> getInstance(type);
 				} else {
-					ResourceModel<T> resourceModel = getModelFromFactoryMethod(resourceModelClass);
-					return resourceModel == null
-							? ReflectionUtils.newInstance(resourceModelClass)
-							: resourceModel;
+					MetaModel<T> resourceModel = getModelFromFactoryMethod(modelType);
+					return resourceModel == null ? ReflectionUtils.newInstance(modelType) : resourceModel;
 				}
 			}
 		}
@@ -70,42 +69,44 @@ public class ResourceModelUtils {
 		return null;
 	}
 
-	private static <T> ResourceModel<T> getModelFromFactoryMethod(Class<ResourceModel<T>> resourceModelType) {
+	private static <T> MetaModel<T> getModelFromFactoryMethod(Class<MetaModel<T>> resourceModelType) {
+		// TODO should be annotation based
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance");
 		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				ResourceModel<T> casted = (ResourceModel<T>) factoryMethod.invoke(null);
-				return casted;
-			} catch (ReflectionException e) {
-				return null;
-			}
-		} 
-		
-		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance", Class.class);
-		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
-			try {
-				@SuppressWarnings("unchecked")
-				ResourceModel<T> casted = (ResourceModel<T>) factoryMethod.invoke(resourceModelType);
+				MetaModel<T> casted = (MetaModel<T>) factoryMethod.invoke(null);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
 			}
 		}
-		
+
+		// TODO should be annotation based
+		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance", Class.class);
+		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
+			try {
+				@SuppressWarnings("unchecked")
+				MetaModel<T> casted = (MetaModel<T>) factoryMethod.invoke(resourceModelType);
+				return casted;
+			} catch (ReflectionException e) {
+				return null;
+			}
+		}
+
 		return null;
 	}
 
-	private static <T> boolean isValidFactoryMethod(Class<ResourceModel<T>> resourceModelClass, Method factoryMethod) {
-		return factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == resourceModelClass
+	private static <T> boolean isValidFactoryMethod(Class<MetaModel<T>> modelClass, Method factoryMethod) {
+		return factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == modelClass
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> ResourceModel<T> getDefaultModel(Class<? extends T> resourceType) {
-		Class<?> temp = resourceType;
+	private static <T> MetaModel<T> getDefaultModel(Class<? extends T> type) {
+		Class<?> temp = type;
 		while (!temp.isInterface() && !Object.class.equals(temp)) {
 			@SuppressWarnings("unchecked")
-			ResourceModel<T> resourceModel = (ResourceModel<T>) defaultResourceModels.get(temp);
+			MetaModel<T> resourceModel = (MetaModel<T>) defaultModels.get(temp);
 			if (resourceModel != null) {
 				return resourceModel;
 			}
@@ -117,8 +118,8 @@ public class ResourceModelUtils {
 	}
 
 	public static <T> T resolvePropertyValue(Object serializableValue, DependencyMap dependencies) {
-		if (serializableValue instanceof ResourceId) {
-			return dependencies.getResource(((ResourceId) serializableValue).getId());
+		if (serializableValue instanceof ObjectReference) {
+			return dependencies.getResource(((ObjectReference) serializableValue).getId());
 		} else if (serializableValue instanceof AssetId) {
 			AssetId asset = (AssetId) serializableValue;
 			return dependencies.getAssetResource(asset.getFileName());

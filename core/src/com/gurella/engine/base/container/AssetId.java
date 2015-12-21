@@ -1,4 +1,4 @@
-package com.gurella.engine.base;
+package com.gurella.engine.base.container;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;

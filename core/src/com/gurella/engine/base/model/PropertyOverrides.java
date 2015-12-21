@@ -7,16 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Inherited
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.TYPE })
-public @interface Model {
-	//TODO rename
-	@SuppressWarnings("rawtypes")
-	Class<? extends MetaModel> model() default ReflectionMetaModel.class;
+public @interface PropertyOverrides {
+	boolean updateResourceOnInit() default true;
 
-	String descriptiveName() default "";
-
-	String description() default "";
-
-	String group() default "";
+	PropertyValue[] values();
 }

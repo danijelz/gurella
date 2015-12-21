@@ -1,11 +1,10 @@
-package com.gurella.engine.base;
+package com.gurella.engine.base.container;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.ModelProperty;
+import com.gurella.engine.base.model.MetaModel;
+import com.gurella.engine.base.model.MetaProperty;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject {
@@ -21,7 +20,7 @@ public class ManagedObject {
 	private String name;
 	private boolean initialized;
 
-	transient Model<? extends ManagedObject> model;
+	transient MetaModel<ManagedObject> metaModel;
 	transient Container container;
 
 	public transient final int instanceId;
@@ -31,22 +30,22 @@ public class ManagedObject {
 	}
 
 	public final ManagedObject duplicate() {
-		ManagedObject duplicate = ReflectionUtils.newInstance(getClass());
 		//TODO garbage
-		InitializationContext context = new InitializationContext();
-		context.initializingObject = duplicate;
+		InitializationContext<ManagedObject> context = new InitializationContext<ManagedObject>();
 		context.container = container;
 		context.template = this;
+		ManagedObject duplicate = metaModel.createInstance(context);
+		context.initializingObject = duplicate;
 		duplicate.id = instanceId;
 		duplicate.init(context);
 		// TODO
 		return duplicate;
 	}
 
-	void init(InitializationContext context) {
+	void init(InitializationContext<ManagedObject> context) {
 		initialized = true;
 		this.template = context.template;
-		ImmutableArray<ModelProperty<?>> properties = model.getProperties();
+		ImmutableArray<MetaProperty<?>> properties = metaModel.getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).init(context);
 		}
