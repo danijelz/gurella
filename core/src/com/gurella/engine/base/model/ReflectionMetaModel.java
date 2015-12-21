@@ -12,12 +12,12 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
-	private static final ObjectMap<Class<?>, ArrayExt<MetaProperty<?>>> declaredPropertiesByClass = new ObjectMap<Class<?>, ArrayExt<MetaProperty<?>>>();
-	private static final ObjectMap<Class<?>, ArrayExt<MetaProperty<?>>> propertiesByClass = new ObjectMap<Class<?>, ArrayExt<MetaProperty<?>>>();
+	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> declaredPropertiesByClass = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
+	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> propertiesByClass = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
 	private static final ObjectMap<Class<?>, ReflectionMetaModel<?>> instancesByClass = new ObjectMap<Class<?>, ReflectionMetaModel<?>>();
 
 	private String name;
-	private ArrayExt<MetaProperty<?>> properties;
+	private ArrayExt<Property<?>> properties;
 
 	public static <T> ReflectionMetaModel<T> getInstance(Class<T> resourceType) {
 		synchronized (instancesByClass) {
@@ -38,7 +38,7 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 	}
 
 	private String resolveName() {
-		Model resourceAnnotation = ReflectionUtils.getAnnotation(type, Model.class);
+		ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
 		if (resourceAnnotation == null) {
 			return type.getSimpleName();
 		} else {
@@ -47,10 +47,10 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 		}
 	}
 
-	private ArrayExt<MetaProperty<?>> findProperties() {
-		ArrayExt<MetaProperty<?>> cachedProperties = propertiesByClass.get(type);
+	private ArrayExt<Property<?>> findProperties() {
+		ArrayExt<Property<?>> cachedProperties = propertiesByClass.get(type);
 		if (cachedProperties == null) {
-			cachedProperties = new ArrayExt<MetaProperty<?>>();
+			cachedProperties = new ArrayExt<Property<?>>();
 			propertiesByClass.put(type, cachedProperties);
 
 			Array<Class<?>> classHierarchy = getClassHierarchy();
@@ -64,7 +64,7 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 				PropertyValue[] values = overrides.values();
 				for (int i = 0; i < values.length; i++) {
 					PropertyValue propertyValue = values[i];
-					MetaProperty<?> property = findProperty(propertyValue.name(), cachedProperties);
+					Property<?> property = findProperty(propertyValue.name(), cachedProperties);
 					if (property instanceof ReflectionMetaProperty) {
 						ReflectionMetaProperty<?> reflectionProperty = (ReflectionMetaProperty<?>) property;
 						if (!isDeclaredProperty(property)) {
@@ -89,16 +89,16 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 		return classHierarchy;
 	}
 
-	private static void appendProperties(Class<?> resourceType, ArrayExt<MetaProperty<?>> properties) {
+	private static void appendProperties(Class<?> resourceType, ArrayExt<Property<?>> properties) {
 		synchronized (declaredPropertiesByClass) {
-			ArrayExt<MetaProperty<?>> cachedProperties = declaredPropertiesByClass.get(resourceType);
+			ArrayExt<Property<?>> cachedProperties = declaredPropertiesByClass.get(resourceType);
 			if (cachedProperties == null) {
-				cachedProperties = new ArrayExt<MetaProperty<?>>();
+				cachedProperties = new ArrayExt<Property<?>>();
 				declaredPropertiesByClass.put(resourceType, cachedProperties);
 
 				for (Field field : ClassReflection.getDeclaredFields(resourceType)) {
 					if (!isIgnoredField(resourceType, field)) {
-						MetaProperty<?> property = getModelProperty(field);
+						Property<?> property = getModelProperty(field);
 						if (property != null) {
 							cachedProperties.add(property);
 						}
@@ -124,7 +124,7 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 			return true;
 		}
 
-		if (ReflectionUtils.getDeclaredAnnotation(field, Property.class) == null) {
+		if (ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
 			return true;
 		}
 
@@ -132,18 +132,18 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 			return false;
 		}
 
-		ImmutableArray<MetaProperty<?>> modelProperties = ModelUtils.getModel(fieldType).getProperties();
+		ImmutableArray<Property<?>> modelProperties = ModelUtils.getModel(fieldType).getProperties();
 		return modelProperties == null ? false : modelProperties.size() == 0;
 	}
 
-	private boolean isDeclaredProperty(MetaProperty<?> property) {
-		ArrayExt<MetaProperty<?>> cachedProperties = declaredPropertiesByClass.get(type);
+	private boolean isDeclaredProperty(Property<?> property) {
+		ArrayExt<Property<?>> cachedProperties = declaredPropertiesByClass.get(type);
 		return cachedProperties != null && cachedProperties.contains(property, true);
 	}
 
-	private static MetaProperty<?> findProperty(String propertyName, ArrayExt<MetaProperty<?>> cachedProperties) {
+	private static Property<?> findProperty(String propertyName, ArrayExt<Property<?>> cachedProperties) {
 		for (int i = 0; i < cachedProperties.size; i++) {
-			MetaProperty<?> property = cachedProperties.get(i);
+			Property<?> property = cachedProperties.get(i);
 			if (propertyName.equals(property.getName())) {
 				return property;
 			}
@@ -151,30 +151,30 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 		return null;
 	}
 
-	private static MetaProperty<?> getModelProperty(Field field) {
-		Property property = ReflectionUtils.getDeclaredAnnotation(field, Property.class);
-		if (property == null) {
+	private static Property<?> getModelProperty(Field field) {
+		PropertyDescriptor propertyDescriptor = ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class);
+		if (propertyDescriptor == null) {
 			return createReflectionProperty(field, false);
 		} else {
 			@SuppressWarnings("unchecked")
-			Class<? extends MetaProperty<?>> propertyType = (Class<? extends MetaProperty<?>>) property.model();
+			Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) propertyDescriptor.property();
 			return ReflectionMetaProperty.class.equals(propertyType) ? createReflectionProperty(field, true)
 					: createAnnotationProperty(propertyType);
 		}
 	}
 
-	private static MetaProperty<?> createAnnotationProperty(Class<? extends MetaProperty<?>> propertyType) {
-		MetaProperty<?> property = getPropertyFromFactoryMethod(propertyType);
+	private static Property<?> createAnnotationProperty(Class<? extends Property<?>> propertyType) {
+		Property<?> property = getPropertyFromFactoryMethod(propertyType);
 		return property == null ? ReflectionUtils.newInstance(propertyType) : property;
 	}
 
-	private static MetaProperty<?> getPropertyFromFactoryMethod(Class<? extends MetaProperty<?>> propertyType) {
+	private static Property<?> getPropertyFromFactoryMethod(Class<? extends Property<?>> propertyType) {
 		// TODO should be annotation based @FactoryMethod
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(propertyType, "getInstance");
 		if (factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == propertyType
 				&& factoryMethod.isStatic()) {
 			try {
-				return (MetaProperty<?>) factoryMethod.invoke(null);
+				return (Property<?>) factoryMethod.invoke(null);
 			} catch (ReflectionException e) {
 				return null;
 			}
@@ -242,7 +242,7 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 	}
 
 	@Override
-	public ImmutableArray<MetaProperty<?>> getProperties() {
+	public ImmutableArray<Property<?>> getProperties() {
 		return properties.immutable();
 	}
 }

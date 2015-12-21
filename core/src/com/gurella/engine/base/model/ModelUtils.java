@@ -13,18 +13,18 @@ import com.gurella.engine.base.container.ObjectReference;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class ModelUtils {
-	private static final ObjectMap<Class<?>, MetaModel<?>> resolvedModels = new ObjectMap<Class<?>, MetaModel<?>>();
-	private static final ObjectMap<Class<?>, MetaModel<?>> defaultModels = new ObjectMap<Class<?>, MetaModel<?>>();
+	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
+	private static final ObjectMap<Class<?>, Model<?>> defaultModels = new ObjectMap<Class<?>, Model<?>>();
 
 	// TODO
 	/*
 	 * static { defaultResourceModels.put(Array.class, GdxArrayResourceModel.getInstance()); }
 	 */
 
-	public static <T> MetaModel<T> getModel(Class<T> type) {
+	public static <T> Model<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
-			MetaModel<T> resourceModel = (MetaModel<T>) resolvedModels.get(type);
+			Model<T> resourceModel = (Model<T>) resolvedModels.get(type);
 			if (resourceModel == null) {
 				resourceModel = resolveResourceModel(type);
 				resolvedModels.put(type, resourceModel);
@@ -33,8 +33,8 @@ public class ModelUtils {
 		}
 	}
 
-	private static <T> MetaModel<T> resolveResourceModel(Class<T> type) {
-		MetaModel<T> resourceModel = getModelType(type);
+	private static <T> Model<T> resolveResourceModel(Class<T> type) {
+		Model<T> resourceModel = getModelType(type);
 		if (resourceModel != null) {
 			return resourceModel;
 		}
@@ -51,16 +51,16 @@ public class ModelUtils {
 		return ReflectionMetaModel.<T> getInstance(type);
 	}
 
-	private static <T> MetaModel<T> getModelType(Class<T> type) {
-		Model model = ReflectionUtils.getDeclaredAnnotation(type, Model.class);
-		if (model != null) {
+	private static <T> Model<T> getModelType(Class<T> type) {
+		ModelDescriptor modelDescriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
+		if (modelDescriptor != null) {
 			@SuppressWarnings("unchecked")
-			Class<MetaModel<T>> modelType = (Class<MetaModel<T>>) model.model();
+			Class<Model<T>> modelType = (Class<Model<T>>) modelDescriptor.model();
 			if (modelType != null) {
 				if (ReflectionMetaModel.class.equals(modelType)) {
 					return ReflectionMetaModel.<T> getInstance(type);
 				} else {
-					MetaModel<T> resourceModel = getModelFromFactoryMethod(modelType);
+					Model<T> resourceModel = getModelFromFactoryMethod(modelType);
 					return resourceModel == null ? ReflectionUtils.newInstance(modelType) : resourceModel;
 				}
 			}
@@ -69,13 +69,13 @@ public class ModelUtils {
 		return null;
 	}
 
-	private static <T> MetaModel<T> getModelFromFactoryMethod(Class<MetaModel<T>> resourceModelType) {
+	private static <T> Model<T> getModelFromFactoryMethod(Class<Model<T>> resourceModelType) {
 		// TODO should be annotation based
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance");
 		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				MetaModel<T> casted = (MetaModel<T>) factoryMethod.invoke(null);
+				Model<T> casted = (Model<T>) factoryMethod.invoke(null);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -87,7 +87,7 @@ public class ModelUtils {
 		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				MetaModel<T> casted = (MetaModel<T>) factoryMethod.invoke(resourceModelType);
+				Model<T> casted = (Model<T>) factoryMethod.invoke(resourceModelType);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -97,16 +97,16 @@ public class ModelUtils {
 		return null;
 	}
 
-	private static <T> boolean isValidFactoryMethod(Class<MetaModel<T>> modelClass, Method factoryMethod) {
+	private static <T> boolean isValidFactoryMethod(Class<Model<T>> modelClass, Method factoryMethod) {
 		return factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == modelClass
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> MetaModel<T> getDefaultModel(Class<? extends T> type) {
+	private static <T> Model<T> getDefaultModel(Class<? extends T> type) {
 		Class<?> temp = type;
 		while (!temp.isInterface() && !Object.class.equals(temp)) {
 			@SuppressWarnings("unchecked")
-			MetaModel<T> resourceModel = (MetaModel<T>) defaultModels.get(temp);
+			Model<T> resourceModel = (Model<T>) defaultModels.get(temp);
 			if (resourceModel != null) {
 				return resourceModel;
 			}

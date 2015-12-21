@@ -9,11 +9,11 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 
-public class ArrayMetaModel<T> implements MetaModel<T> {
+public class ArrayMetaModel<T> implements Model<T> {
 	private static final ObjectMap<Class<?>, ArrayMetaModel<?>> instances = new ObjectMap<Class<?>, ArrayMetaModel<?>>();
 
 	public final Class<T> type;
-	private ArrayExt<MetaProperty<?>> properties;
+	private ArrayExt<Property<?>> properties;
 
 	public static <T> ArrayMetaModel<T> getInstance(Class<T> type) {
 		synchronized (instances) {
@@ -29,7 +29,7 @@ public class ArrayMetaModel<T> implements MetaModel<T> {
 	public ArrayMetaModel(Class<T> type) {
 		this.type = type;
 		instances.put(type, this);
-		properties = ArrayExt.<MetaProperty<?>> with(new ItemsMetaProperty<T>(type));
+		properties = ArrayExt.<Property<?>> with(new ItemsMetaProperty<T>(type));
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class ArrayMetaModel<T> implements MetaModel<T> {
 	}
 
 	@Override
-	public ImmutableArray<MetaProperty<?>> getProperties() {
+	public ImmutableArray<Property<?>> getProperties() {
 		return properties.immutable();
 	}
 

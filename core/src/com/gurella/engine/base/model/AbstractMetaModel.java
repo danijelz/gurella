@@ -3,7 +3,7 @@ package com.gurella.engine.base.model;
 import com.gurella.engine.base.container.InitializationContext;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public abstract class AbstractMetaModel<T> implements MetaModel<T> {
+public abstract class AbstractMetaModel<T> implements Model<T> {
 	public final Class<T> type;
 
 	public AbstractMetaModel(Class<T> type) {

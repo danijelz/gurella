@@ -1,22 +1,14 @@
 package com.gurella.engine.base.model;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.gurella.engine.base.container.InitializationContext;
+import com.gurella.engine.utils.ImmutableArray;
 
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.TYPE })
-public @interface Model {
-	//TODO rename
-	@SuppressWarnings("rawtypes")
-	Class<? extends MetaModel> model() default ReflectionMetaModel.class;
+public interface Model<T> {
+	Class<T> getType();
 
-	String descriptiveName() default "";
+	String getDescriptiveName();
 
-	String description() default "";
+	T createInstance(InitializationContext<T> context);
 
-	String group() default "";
+	ImmutableArray<Property<?>> getProperties();
 }

@@ -20,7 +20,7 @@ public class ArrayMetaProperty<T> extends ReflectionMetaProperty<T> {
 		if (serializedValue == null) {
 			Object template = context.template;
 			if (template != null) {
-				MetaModel<? extends Object> model = ModelUtils.getModel(template.getClass());
+				Model<? extends Object> model = ModelUtils.getModel(template.getClass());
 				initValue(context.initializingObject, getValue(template));
 			} else if (initByDefaultValue) {
 				initValue(context.initializingObject, getDefaultValue());

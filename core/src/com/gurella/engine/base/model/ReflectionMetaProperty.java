@@ -17,7 +17,7 @@ import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
-public class ReflectionMetaProperty<T> implements MetaProperty<T> {
+public class ReflectionMetaProperty<T> implements Property<T> {
 	private String name;
 	private String descriptiveName;
 	private String description;
@@ -50,25 +50,25 @@ public class ReflectionMetaProperty<T> implements MetaProperty<T> {
 	}
 
 	private void init() {
-		init(ReflectionUtils.getDeclaredAnnotation(field, Property.class));
+		init(ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class));
 		range = initRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
 		resolvedDefaultValue = initDefaultValue(ReflectionUtils.getDeclaredAnnotation(field, DefaultValue.class));
 	}
 
-	private void init(Property property) {
-		if (property == null) {
+	private void init(PropertyDescriptor propertyDescriptor) {
+		if (propertyDescriptor == null) {
 			descriptiveName = name;
 			description = "";
 			group = "";
 			nullable = isDefaultNullable();
 		} else {
-			descriptiveName = property.descriptiveName();
+			descriptiveName = propertyDescriptor.descriptiveName();
 			if (ValueUtils.isEmpty(descriptiveName)) {
 				descriptiveName = name;
 			}
-			description = property.description();
-			group = property.group();
-			nullable = isDefaultNullable() ? property.nullable() : false;
+			description = propertyDescriptor.description();
+			group = propertyDescriptor.group();
+			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 		}
 	}
 
@@ -155,7 +155,7 @@ public class ReflectionMetaProperty<T> implements MetaProperty<T> {
 			for (int i = 0; i < values.length; i++) {
 				PropertyValue propertyValue = values[i];
 				String propertyName = propertyValue.name();
-				MetaProperty<?> resourceProperty = factory.getProperty(propertyName);
+				Property<?> resourceProperty = factory.getProperty(propertyName);
 				Object value = getDefaultValue(propertyValue, resourceProperty.getType());
 				factory.setPropertyValue(propertyName, value);
 			}
@@ -231,7 +231,7 @@ public class ReflectionMetaProperty<T> implements MetaProperty<T> {
 		if (serializedValue == null) {
 			Object template = context.template;
 			if (template != null) {
-				MetaModel<? extends Object> model = ModelUtils.getModel(template.getClass());
+				Model<? extends Object> model = ModelUtils.getModel(template.getClass());
 				initValue(context.initializingObject, getValue(template));
 			} else if (initByDefaultValue) {
 				initValue(context.initializingObject, getDefaultValue());
@@ -289,12 +289,12 @@ public class ReflectionMetaProperty<T> implements MetaProperty<T> {
 
 	private void initFinalProperty(Object initializingObject, Object value) {
 		Object fieldValue = ReflectionUtils.getFieldValue(field, initializingObject);
-		MetaModel<?> model = ModelUtils.getModel(fieldValue.getClass());
+		Model<?> model = ModelUtils.getModel(fieldValue.getClass());
 		// TODO garbage
 		InitializationContext<Object> context = new InitializationContext<Object>();
 		context.template = fieldValue;
 
-		ImmutableArray<MetaProperty<?>> properties = model.getProperties();
+		ImmutableArray<Property<?>> properties = model.getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).init(context);
 		}

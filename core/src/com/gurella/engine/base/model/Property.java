@@ -1,23 +1,22 @@
 package com.gurella.engine.base.model;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.gurella.engine.base.container.InitializationContext;
+import com.gurella.engine.utils.Range;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.FIELD })
-public @interface Property {
-	//TODO rename
-	@SuppressWarnings("rawtypes")
-	Class<? extends MetaProperty> model() default ReflectionMetaProperty.class;
+public interface Property<T> {
+	String getName();
 
-	boolean nullable() default true;
+	Class<T> getType();
 
-	String descriptiveName() default "";
+	Range<?> getRange();
 
-	String description() default "";
+	boolean isNullable();
 
-	String group() default "";
+	String getDescriptiveName();
+
+	String getDescription();
+
+	String getGroup();
+
+	void init(InitializationContext<?> context);
 }
-
