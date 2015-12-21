@@ -120,7 +120,7 @@ public class ReflectionMetaModel<T> extends AbstractMetaModel<T> {
 		}
 
 		Class<?> fieldType = field.getType();
-		if (fieldType.isPrimitive()) {
+		if (fieldType.isPrimitive() || fieldType.isArray()) {
 			return true;
 		}
 
