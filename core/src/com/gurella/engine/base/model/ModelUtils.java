@@ -16,11 +16,6 @@ public class ModelUtils {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	private static final ObjectMap<Class<?>, Model<?>> defaultModels = new ObjectMap<Class<?>, Model<?>>();
 
-	// TODO
-	/*
-	 * static { defaultResourceModels.put(Array.class, GdxArrayResourceModel.getInstance()); }
-	 */
-
 	public static <T> Model<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
@@ -39,16 +34,8 @@ public class ModelUtils {
 			return resourceModel;
 		}
 
-		if (type.isArray()) {
-			return ArrayMetaModel.<T> getInstance(type);
-		}
-
 		resourceModel = getDefaultModel(type);
-		if (resourceModel != null) {
-			return resourceModel;
-		}
-
-		return ReflectionMetaModel.<T> getInstance(type);
+		return resourceModel == null ? ReflectionModel.<T> getInstance(type) : resourceModel;
 	}
 
 	private static <T> Model<T> getModelType(Class<T> type) {
@@ -57,8 +44,8 @@ public class ModelUtils {
 			@SuppressWarnings("unchecked")
 			Class<Model<T>> modelType = (Class<Model<T>>) modelDescriptor.model();
 			if (modelType != null) {
-				if (ReflectionMetaModel.class.equals(modelType)) {
-					return ReflectionMetaModel.<T> getInstance(type);
+				if (ReflectionModel.class.equals(modelType)) {
+					return ReflectionModel.<T> getInstance(type);
 				} else {
 					Model<T> resourceModel = getModelFromFactoryMethod(modelType);
 					return resourceModel == null ? ReflectionUtils.newInstance(modelType) : resourceModel;

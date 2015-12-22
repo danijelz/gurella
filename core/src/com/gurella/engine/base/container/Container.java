@@ -1,15 +1,21 @@
 package com.gurella.engine.base.container;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.application.Application;
+import com.gurella.engine.base.model.Model;
+import com.gurella.engine.base.model.ModelUtils;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.resource.AsyncResourceCallback;
+import com.gurella.engine.resource.AsyncResourceCallback.SimpleAsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
+import com.gurella.engine.utils.ReflectionUtils;
 
 public class Container {
 	private IntMap<JsonValue> definitions = new IntMap<JsonValue>();
@@ -20,6 +26,31 @@ public class Container {
 		return definitions.get(id);
 	}
 
+	public <T extends ManagedObject> T obtain(int id) {
+		@SuppressWarnings("unchecked")
+		SimpleAsyncResourceCallback<T> callback = Pools.obtain(SimpleAsyncResourceCallback.class);
+		obtain(id, callback);
+		while (!callback.isDone()) {
+			try {
+				synchronized (this) {
+					wait(5);
+				}
+			} catch (InterruptedException e) {
+				continue;
+			}
+		}
+
+		Throwable exception = callback.getException();
+		T resource = callback.getResource();
+		Pools.free(callback);
+
+		if (exception != null) {
+			throw new GdxRuntimeException("Exception while obtaining resource: " + id, exception);
+		}
+
+		return resource;
+	}
+
 	public <T extends ManagedObject> void obtain(int id, AsyncResourceCallback<T> callback) {
 		int count;
 		synchronized (counters) {
@@ -27,7 +58,7 @@ public class Container {
 		}
 
 		if (count == 1) {
-			ObtainObjectTask.run(this, id, callback);
+			ObtainObjectTask.submit(this, id, callback);
 		} else {
 			@SuppressWarnings("unchecked")
 			T object = (T) objects.get(id);
@@ -45,26 +76,29 @@ public class Container {
 		private int id;
 		private AsyncResourceCallback<T> callback;
 
-		public static <T extends ManagedObject> void run(Container container, int id,
+		public static <T extends ManagedObject> void submit(Container container, int id,
 				AsyncResourceCallback<T> callback) {
 			@SuppressWarnings("unchecked")
-			ObtainObjectTask<T> instance = SynchronizedPools.obtain(ObtainObjectTask.class);
-			instance.container = container;
-			instance.id = id;
-			instance.callback = callback;
-			Application.ASYNC_EXECUTOR.submit(instance);
+			ObtainObjectTask<T> task = SynchronizedPools.obtain(ObtainObjectTask.class);
+			task.container = container;
+			task.id = id;
+			task.callback = callback;
+			Application.ASYNC_EXECUTOR.submit(task);
 		}
 
 		@Override
 		public Void call() throws Exception {
-			JsonValue definition = container.getSerializedValue(id);
-			DependencyMap dependencies = DependencyMap.obtain(context, resourceIds)
+			JsonValue serializedValue = container.getSerializedValue(id);
+			Class<ManagedObject> type = ReflectionUtils.forName(serializedValue.getString("class"));
+			Model<ManagedObject> model = ModelUtils.getModel(type);
+
+			DependencyMap dependencies = DependencyMap.obtain(context, resourceIds);
 			resourceReference.obtain(callback);
-			
+
 			synchronized (container.counters) {
 				container.objects.put(id, value);
 			}
-			
+
 			return null;
 		}
 

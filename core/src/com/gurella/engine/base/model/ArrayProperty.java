@@ -5,12 +5,12 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.base.container.InitializationContext;
 
-public class ArrayMetaProperty<T> extends ReflectionMetaProperty<T> {
-	public ArrayMetaProperty(Field field, Method getter, Method setter) {
+public class ArrayProperty<T> extends ReflectionProperty<T> {
+	public ArrayProperty(Field field, Method getter, Method setter) {
 		super(field, getter, setter);
 	}
 
-	public ArrayMetaProperty(Field field) {
+	public ArrayProperty(Field field) {
 		super(field);
 	}
 

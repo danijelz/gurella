@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface PropertyDescriptor {
 	//TODO rename
 	@SuppressWarnings("rawtypes")
-	Class<? extends Property> property() default ReflectionMetaProperty.class;
+	Class<? extends Property> property() default ReflectionProperty.class;
 
 	boolean nullable() default true;
 
