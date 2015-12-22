@@ -96,7 +96,7 @@ public class Container {
 			context.serializedValue = serializedValue;
 			//TODO
 			context.template = null;
-			context.initializingObject = model.createInstance(context);
+			context.initializingObject = model.createInstance();
 			//TODO find dependencies
 			context.initializingObject
 
