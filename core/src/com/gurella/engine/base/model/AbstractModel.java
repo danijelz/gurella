@@ -1,6 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.gurella.engine.base.container.InitializationContext;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public abstract class AbstractModel<T> implements Model<T> {
@@ -16,7 +17,15 @@ public abstract class AbstractModel<T> implements Model<T> {
 	}
 
 	@Override
-	public T createInstance(InitializationContext<T> context) {
+	public T createInstance() {
 		return ReflectionUtils.newInstance(type);
+	}
+
+	@Override
+	public void initInstance(InitializationContext<T> context) {
+		ImmutableArray<Property<?>> properties = getProperties();
+		for (int i = 0; i < properties.size(); i++) {
+			properties.get(i).init(context);
+		}
 	}
 }

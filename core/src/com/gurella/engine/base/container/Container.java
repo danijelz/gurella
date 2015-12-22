@@ -91,12 +91,17 @@ public class Container {
 			JsonValue serializedValue = container.getSerializedValue(id);
 			Class<ManagedObject> type = ReflectionUtils.forName(serializedValue.getString("class"));
 			Model<ManagedObject> model = ModelUtils.getModel(type);
-
-			DependencyMap dependencies = DependencyMap.obtain(context, resourceIds);
-			resourceReference.obtain(callback);
+			//TODO garbage
+			InitializationContext<ManagedObject> context = new InitializationContext<ManagedObject>();
+			context.serializedValue = serializedValue;
+			//TODO
+			context.template = null;
+			context.initializingObject = model.createInstance(context);
+			//TODO find dependencies
+			context.initializingObject
 
 			synchronized (container.counters) {
-				container.objects.put(id, value);
+				container.objects.put(id, context.initializingObject);
 			}
 
 			return null;

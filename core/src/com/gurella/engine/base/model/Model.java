@@ -8,7 +8,11 @@ public interface Model<T> {
 
 	String getDescriptiveName();
 
-	T createInstance(InitializationContext<T> context);
+	T createInstance();
+
+	void initInstance(InitializationContext<T> context);
 
 	ImmutableArray<Property<?>> getProperties();
+	
+	<P> Property<P> getProperty(String name);
 }

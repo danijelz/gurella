@@ -18,6 +18,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 
 	private String name;
 	private ArrayExt<Property<?>> properties;
+	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> resourceType) {
 		synchronized (instancesByClass) {
@@ -33,8 +34,12 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 	public ReflectionModel(Class<T> type) {
 		super(type);
 		instancesByClass.put(type, this);
-		properties = findProperties();
 		name = resolveName();
+		properties = findProperties();
+		for (int i = 0; i < properties.size; i++) {
+			Property<?> property = properties.get(i);
+			propertiesByName.put(property.getName(), property);
+		}
 	}
 
 	private String resolveName() {
@@ -243,5 +248,11 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 	@Override
 	public ImmutableArray<Property<?>> getProperties() {
 		return properties.immutable();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <P> Property<P> getProperty(String name) {
+		return (Property<P>) propertiesByName.get(name);
 	}
 }

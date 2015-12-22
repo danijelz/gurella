@@ -1,8 +1,6 @@
 package com.gurella.engine.base.container;
 
 import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Property;
-import com.gurella.engine.utils.ImmutableArray;
 
 public class ManagedObject {
 	private static final String ID_TAG = "id";
@@ -26,10 +24,10 @@ public class ManagedObject {
 	}
 
 	public final ManagedObject duplicate() {
-		//TODO garbage
+		// TODO garbage
 		InitializationContext<ManagedObject> context = new InitializationContext<ManagedObject>();
 		context.template = this;
-		ManagedObject duplicate = model.createInstance(context);
+		ManagedObject duplicate = model.createInstance();
 		context.initializingObject = duplicate;
 		duplicate.id = instanceId;
 		duplicate.init(context);
@@ -39,10 +37,7 @@ public class ManagedObject {
 	void init(InitializationContext<ManagedObject> context) {
 		initialized = true;
 		this.template = context.template;
-		ImmutableArray<Property<?>> properties = model.getProperties();
-		for (int i = 0; i < properties.size(); i++) {
-			properties.get(i).init(context);
-		}
+		model.initInstance(context);
 		init();
 	}
 

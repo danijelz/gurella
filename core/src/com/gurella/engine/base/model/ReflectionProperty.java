@@ -11,7 +11,6 @@ import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
-import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -44,17 +43,17 @@ public class ReflectionProperty<T> implements Property<T> {
 		@SuppressWarnings("unchecked")
 		Class<T> castedType = field.getType();
 		type = castedType;
-		
+
 		this.getter = getter;
-		if(this.getter != null) {
+		if (this.getter != null) {
 			this.getter.setAccessible(true);
 		}
-		
+
 		this.setter = setter;
-		if(this.setter != null) {
+		if (this.setter != null) {
 			this.setter.setAccessible(true);
 		}
-		
+
 		init();
 	}
 
@@ -156,27 +155,27 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	private Object createCompositeDefaultValue(DefaultValue defaultValue) {
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		ModelResourceFactory<?> factory = new ModelResourceFactory(type);
-
+		Model<T> model = ModelUtils.getModel(type);
+		T resolvedDefaultValue = model.createInstance();
 		PropertyValue[] values = defaultValue.compositeValues();
+
 		if (ValueUtils.isNotEmpty(values)) {
 			for (int i = 0; i < values.length; i++) {
 				PropertyValue propertyValue = values[i];
 				String propertyName = propertyValue.name();
-				Property<?> resourceProperty = factory.getProperty(propertyName);
+				Property<?> resourceProperty = model.getProperty(propertyName);
 				Object value = getDefaultValue(propertyValue, resourceProperty.getType());
 				factory.setPropertyValue(propertyName, value);
 			}
 		}
 
-		return factory;
+		return resolvedDefaultValue;
 	}
 
 	private static Object getDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
-		if (Integer.class.equals(valueType) || Integer.TYPE.equals(valueType)) {
+		if (Integer.class == valueType || int.class == valueType) {
 			return Integer.valueOf(propertyValue.integerValue());
-		} else if (Boolean.class.equals(valueType) || Boolean.TYPE.equals(valueType)) {
+		} else if (Boolean.class == valueType || boolean.class.equals(valueType)) {
 			return Boolean.valueOf(propertyValue.booleanValue());
 		} else if (Float.class.equals(valueType) || Float.TYPE.equals(valueType)) {
 			return Float.valueOf(propertyValue.floatValue());
@@ -268,6 +267,10 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	private void initFinalProperty(Object initializingObject, Object value) {
 		Object fieldValue = ReflectionUtils.getFieldValue(field, initializingObject);
+		if (fieldValue == null) {
+			return;
+		}
+
 		Model<?> model = ModelUtils.getModel(fieldValue.getClass());
 		// TODO garbage
 		InitializationContext<Object> context = new InitializationContext<Object>();
@@ -281,7 +284,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit) {
 		Object overridenValue = getDefaultValue(applyDefaultValueOnInit);
-		if (ValueUtils.isEqual(getDefaultValue(), overridenValue)) {
+		if (ValueUtils.isEqual(defaultValue, overridenValue)) {
 			return this;
 		} else {
 			ReflectionProperty<T> copy = new ReflectionProperty<T>(field, getter, setter);

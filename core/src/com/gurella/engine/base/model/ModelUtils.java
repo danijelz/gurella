@@ -21,14 +21,14 @@ public class ModelUtils {
 			@SuppressWarnings("unchecked")
 			Model<T> resourceModel = (Model<T>) resolvedModels.get(type);
 			if (resourceModel == null) {
-				resourceModel = resolveResourceModel(type);
+				resourceModel = resolveModel(type);
 				resolvedModels.put(type, resourceModel);
 			}
 			return resourceModel;
 		}
 	}
 
-	private static <T> Model<T> resolveResourceModel(Class<T> type) {
+	private static <T> Model<T> resolveModel(Class<T> type) {
 		Model<T> resourceModel = getModelType(type);
 		if (resourceModel != null) {
 			return resourceModel;
