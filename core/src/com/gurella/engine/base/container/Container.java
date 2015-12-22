@@ -97,8 +97,8 @@ public class Container {
 			//TODO
 			context.template = null;
 			context.initializingObject = model.createInstance();
-			//TODO find dependencies
-			context.initializingObject
+			//TODO find dependencies and notify progress
+			model.initInstance(context);
 
 			synchronized (container.counters) {
 				container.objects.put(id, context.initializingObject);
