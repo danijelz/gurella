@@ -240,24 +240,12 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		if (serializedValue == null || !serializedValue.has(name)) {
 			Object template = context.template;
-			if (template != null) {
-				initValue(initializingObject, getValue(template), true);
-			} else if (applyDefaultValueOnInit) {
-				initValue(initializingObject, defaultValue, true);
-			}
+			Object value = template == null ? defaultValue : getValue(template);
+			Object resolvedValue = field.isFinal() ? value : copyValue(value);
+			setValue(initializingObject, resolvedValue);
 		} else {
 			JsonValue serializedPropertyValue = serializedValue.get(name);
-			initValue(initializingObject, deserializeValue(serializedPropertyValue), false);
-		}
-	}
-
-	private void initValue(Object initializingObject, Object value, boolean needsCopy) {
-		if (setter != null) {
-			ReflectionUtils.invokeMethod(setter, initializingObject, value);
-		} else if (field.isFinal()) {
-			initFinalProperty(initializingObject, value);
-		} else {
-			ReflectionUtils.setFieldValue(field, initializingObject, value);
+			setValue(initializingObject, deserializeValue(serializedPropertyValue));
 		}
 	}
 
