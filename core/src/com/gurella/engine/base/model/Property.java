@@ -19,4 +19,8 @@ public interface Property<T> {
 	String getGroup();
 
 	void init(InitializationContext<?> context);
+
+	T getValue(Object object);
+
+	void setValue(Object object, T value);
 }

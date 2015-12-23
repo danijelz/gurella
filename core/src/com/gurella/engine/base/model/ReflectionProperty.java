@@ -163,16 +163,16 @@ public class ReflectionProperty<T> implements Property<T> {
 			for (int i = 0; i < values.length; i++) {
 				PropertyValue propertyValue = values[i];
 				String propertyName = propertyValue.name();
-				Property<?> resourceProperty = model.getProperty(propertyName);
-				Object value = getDefaultValue(propertyValue, resourceProperty.getType());
-				factory.setPropertyValue(propertyName, value);
+				Property<Object> resourceProperty = model.getProperty(propertyName);
+				Object value = getCompositeDefaultValue(propertyValue, resourceProperty.getType());
+				resourceProperty.setValue(resolvedDefaultValue, value);
 			}
 		}
 
 		return resolvedDefaultValue;
 	}
 
-	private static Object getDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
+	private static Object getCompositeDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
 		if (Integer.class == valueType || int.class == valueType) {
 			return Integer.valueOf(propertyValue.integerValue());
 		} else if (Boolean.class == valueType || boolean.class.equals(valueType)) {
@@ -236,32 +236,28 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void init(InitializationContext<?> context) {
 		JsonValue serializedValue = context.serializedValue;
-		if (serializedValue == null) {
+		Object initializingObject = context.initializingObject;
+
+		if (serializedValue == null || !serializedValue.has(name)) {
 			Object template = context.template;
 			if (template != null) {
-				initValue(context.initializingObject, copyValue(template));
+				initValue(initializingObject, getValue(template), true);
 			} else if (applyDefaultValueOnInit) {
-				initValue(context.initializingObject, defaultValue);
+				initValue(initializingObject, defaultValue, true);
 			}
 		} else {
 			JsonValue serializedPropertyValue = serializedValue.get(name);
-			if (serializedPropertyValue != null) {
-				initValue(context.initializingObject, deserializeValue(serializedPropertyValue));
-			} else if (applyDefaultValueOnInit) {
-				initValue(context.initializingObject, defaultValue);
-			}
+			initValue(initializingObject, deserializeValue(serializedPropertyValue), false);
 		}
 	}
 
-	private void initValue(Object initializingObject, Object value) {
+	private void initValue(Object initializingObject, Object value, boolean needsCopy) {
 		if (setter != null) {
 			ReflectionUtils.invokeMethod(setter, initializingObject, value);
-		} else if (field != null) {
-			if (field.isFinal()) {
-				initFinalProperty(initializingObject, value);
-			} else {
-				ReflectionUtils.setFieldValue(field, initializingObject, value);
-			}
+		} else if (field.isFinal()) {
+			initFinalProperty(initializingObject, value);
+		} else {
+			ReflectionUtils.setFieldValue(field, initializingObject, value);
 		}
 	}
 
@@ -299,6 +295,30 @@ public class ReflectionProperty<T> implements Property<T> {
 			copy.applyDefaultValueOnInit = applyDefaultValueOnInit;
 			copy.defaultValue = overridenValue;
 			return copy;
+		}
+	}
+
+	@Override
+	public T getValue(Object object) {
+		if (getter == null) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) ReflectionUtils.getFieldValue(field, object);
+			return casted;
+		} else {
+			@SuppressWarnings("unchecked")
+			T casted = (T) ReflectionUtils.invokeMethod(getter, object);
+			return casted;
+		}
+	}
+
+	@Override
+	public void setValue(Object object, T value) {
+		if (setter != null) {
+			ReflectionUtils.invokeMethod(setter, object, value);
+		} else if (field.isFinal()) {
+			initFinalProperty(object, value);
+		} else {
+			ReflectionUtils.setFieldValue(field, object, value);
 		}
 	}
 }

@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.OrderedSet;
 
-public class Scene3 implements Serializable {
+public class SceneElementsContainer implements Serializable {
 	private Container container = new Container();
 	
 	private OrderedSet<ManagedObject> objects = new OrderedSet<ManagedObject>();
