@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.OrderedSet;
 
+//TODO unused
 public class SceneElementsContainer implements Serializable {
 	private Container container = new Container();
 	

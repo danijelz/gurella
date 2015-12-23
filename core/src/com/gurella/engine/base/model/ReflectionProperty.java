@@ -25,7 +25,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Range<?> range;
 	private boolean nullable;
 	private boolean applyDefaultValueOnInit;
-	private Object defaultValue;
+	private T defaultValue;
 
 	private Field field;
 
@@ -60,7 +60,9 @@ public class ReflectionProperty<T> implements Property<T> {
 	private void init() {
 		init(ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class));
 		range = initRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
-		defaultValue = initDefaultValue(ReflectionUtils.getDeclaredAnnotation(field, DefaultValue.class));
+		@SuppressWarnings("unchecked")
+		T casted = (T) initDefaultValue(ReflectionUtils.getDeclaredAnnotation(field, DefaultValue.class));
+		defaultValue = casted;
 	}
 
 	private void init(PropertyDescriptor propertyDescriptor) {
@@ -127,7 +129,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			return null;
 		}
 
-		applyDefaultValueOnInit = defaultValue.updateResourceOnInit();
+		applyDefaultValueOnInit = defaultValue.applyOnInit();
 
 		if (Integer.class.equals(type) || Integer.TYPE.equals(type)) {
 			return Integer.valueOf(defaultValue.integerValue());
@@ -164,7 +166,7 @@ public class ReflectionProperty<T> implements Property<T> {
 				PropertyValue propertyValue = values[i];
 				String propertyName = propertyValue.name();
 				Property<Object> resourceProperty = model.getProperty(propertyName);
-				Object value = getCompositeDefaultValue(propertyValue, resourceProperty.getType());
+				Object value = getDefaultValue(propertyValue, resourceProperty.getType());
 				resourceProperty.setValue(resolvedDefaultValue, value);
 			}
 		}
@@ -172,7 +174,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		return resolvedDefaultValue;
 	}
 
-	private static Object getCompositeDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
+	private static Object getDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
 		if (Integer.class == valueType || int.class == valueType) {
 			return Integer.valueOf(propertyValue.integerValue());
 		} else if (Boolean.class == valueType || boolean.class.equals(valueType)) {
@@ -240,8 +242,15 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		if (serializedValue == null || !serializedValue.has(name)) {
 			Object template = context.template;
-			Object value = template == null ? defaultValue : getValue(template);
-			Object resolvedValue = field.isFinal() ? value : copyValue(value);
+			T value;
+			if(template != null) {
+				value = getValue(template);
+			} else if(!applyDefaultValueOnInit){
+				return;
+			} else {
+				value = defaultValue;
+			}
+			T resolvedValue = field.isFinal() ? value : copyValue(value);
 			setValue(initializingObject, resolvedValue);
 		} else {
 			JsonValue serializedPropertyValue = serializedValue.get(name);
@@ -268,7 +277,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit) {
-		Object overridenValue = getDefaultValue(applyDefaultValueOnInit);
+		@SuppressWarnings("unchecked")
+		T overridenValue = (T) getDefaultValue(propertyValue, type);
 		if (ValueUtils.isEqual(defaultValue, overridenValue)) {
 			return this;
 		} else {
