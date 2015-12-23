@@ -4,6 +4,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
@@ -18,12 +20,12 @@ import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Container {
-	private IntMap<JsonValue> definitions = new IntMap<JsonValue>();
+	private IntMap<JsonValue> serializedValues = new IntMap<JsonValue>();
 	private IntMap<ManagedObject> objects = new IntMap<ManagedObject>();
 	private IntIntMap counters = new IntIntMap();
 
 	public JsonValue getSerializedValue(int id) {
-		return definitions.get(id);
+		return serializedValues.get(id);
 	}
 
 	public <T extends ManagedObject> T obtain(int id) {
@@ -68,7 +70,7 @@ public class Container {
 	}
 
 	public void obtain(IntArray ids, AsyncResourceCallback<DependencyMap> callback) {
-		AsyncResolver.resolve(this, resourceIds, callback);
+		//TODO AsyncResolver.resolve(this, resourceIds, callback);
 	}
 
 	private static class ObtainObjectTask<T extends ManagedObject> implements AsyncTask<Void>, Poolable {

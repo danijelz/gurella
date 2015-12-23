@@ -2,11 +2,7 @@ package com.gurella.engine.base.container;
 
 import com.gurella.engine.base.model.Model;
 
-public class ManagedObject {
-	private static final String ID_TAG = "id";
-	private static final String TEMPLATE_ID_TAG = "id";
-	private static final String NAME_TAG = "name";
-
+public class ManagedObject implements Comparable<ManagedObject> {
 	private static int indexer = 0;
 
 	private int id;
@@ -42,5 +38,10 @@ public class ManagedObject {
 	}
 
 	protected void init() {
+	}
+
+	@Override
+	public int compareTo(ManagedObject other) {
+		return Integer.compare(instanceId, other.instanceId);
 	}
 }

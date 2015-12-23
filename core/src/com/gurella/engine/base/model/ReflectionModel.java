@@ -84,6 +84,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 	}
 
 	private Array<Class<?>> getClassHierarchy() {
+		//TODO garbage
 		Array<Class<?>> classHierarchy = new Array<Class<?>>();
 		Class<?> tempClass = type;
 		while (!tempClass.isInterface() && tempClass != Object.class) {

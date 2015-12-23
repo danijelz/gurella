@@ -274,7 +274,8 @@ public class ReflectionProperty<T> implements Property<T> {
 		Model<?> model = ModelUtils.getModel(fieldValue.getClass());
 		// TODO garbage
 		InitializationContext<Object> context = new InitializationContext<Object>();
-		context.template = fieldValue;
+		context.initializingObject = fieldValue;
+		context.template = value;
 
 		ImmutableArray<Property<?>> properties = model.getProperties();
 		for (int i = 0; i < properties.size(); i++) {

@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.base.container.AssetId;
+import com.gurella.engine.base.container.Container;
 import com.gurella.engine.base.container.ObjectReference;
 import com.gurella.engine.utils.ReflectionUtils;
 
@@ -110,10 +111,6 @@ public class ModelUtils {
 		} else if (serializableValue instanceof AssetId) {
 			AssetId asset = (AssetId) serializableValue;
 			return dependencies.getAssetResource(asset.getFileName());
-		} else if (serializableValue instanceof ModelResourceFactory) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) ((ModelResourceFactory<?>) serializableValue).create(dependencies);
-			return casted;
 		} else {
 			@SuppressWarnings("unchecked")
 			T casted = (T) serializableValue;
@@ -121,17 +118,14 @@ public class ModelUtils {
 		}
 	}
 
-	public static void appendDependentResourceIds(ResourceContext context, Object serializableValue,
+	public static void appendDependentResourceIds(Container container, Object serializableValue,
 			IntArray dependentResourceIds) {
 		if (serializableValue == null) {
 			return;
 		}
 
-		if (serializableValue instanceof ModelResourceFactory) {
-			ModelResourceFactory<?> factory = (ModelResourceFactory<?>) serializableValue;
-			dependentResourceIds.addAll(factory.getDependentResourceIds(context));
-		} else if (serializableValue instanceof ResourceId) {
-			dependentResourceIds.add(((ResourceId) serializableValue).getId());
+		if (serializableValue instanceof ObjectReference) {
+			dependentResourceIds.add(((ObjectReference) serializableValue).getId());
 		} else if (serializableValue instanceof AssetId) {
 			AssetId asset = (AssetId) serializableValue;
 			String fileName = asset.getFileName();
@@ -142,21 +136,21 @@ public class ModelUtils {
 				Object[] items = (Object[]) serializableValue;
 				for (int i = 0; i < items.length; i++) {
 					Object item = items[i];
-					appendDependentResourceIds(context, item, dependentResourceIds);
+					appendDependentResourceIds(container, item, dependentResourceIds);
 				}
 			} else if (ClassReflection.isAssignableFrom(Array.class, type)) {
 				Array<?> array = (Array<?>) serializableValue;
 				for (int i = 0; i < array.size; i++) {
-					appendDependentResourceIds(context, array.get(i), dependentResourceIds);
+					appendDependentResourceIds(container, array.get(i), dependentResourceIds);
 				}
 			} else if (ClassReflection.isAssignableFrom(List.class, type)) {
 				List<?> list = (List<?>) serializableValue;
 				for (int i = 0; i < list.size(); i++) {
-					appendDependentResourceIds(context, list.get(i), dependentResourceIds);
+					appendDependentResourceIds(container, list.get(i), dependentResourceIds);
 				}
 			} else if (ClassReflection.isAssignableFrom(Iterable.class, type)) {
 				for (Object item : ((Iterable<?>) serializableValue)) {
-					appendDependentResourceIds(context, item, dependentResourceIds);
+					appendDependentResourceIds(container, item, dependentResourceIds);
 				}
 			}
 			// TODO Map.Entry ...
