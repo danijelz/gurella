@@ -6,12 +6,12 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.base.container.InitializationContext;
 
 public class ArrayProperty<T> extends ReflectionProperty<T> {
-	public ArrayProperty(Field field, Method getter, Method setter) {
-		super(field, getter, setter);
-	}
-
 	public ArrayProperty(Field field) {
 		super(field);
+	}
+	
+	public ArrayProperty(Field field, Method getter, Method setter) {
+		super(field, getter, setter);
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class ArrayProperty<T> extends ReflectionProperty<T> {
 		if (serializedValue == null) {
 			Object template = context.template;
 			if (template != null) {
-				Model<? extends Object> model = ModelUtils.getModel(template.getClass());
+				Model<? extends Object> model = Models.getModel(template.getClass());
 				initValue(context.initializingObject, getValue(template));
 			} else if (initByDefaultValue) {
 				initValue(context.initializingObject, getDefaultValue());

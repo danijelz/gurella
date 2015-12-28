@@ -138,7 +138,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 			return false;
 		}
 
-		ImmutableArray<Property<?>> modelProperties = ModelUtils.getModel(fieldType).getProperties();
+		ImmutableArray<Property<?>> modelProperties = Models.getModel(fieldType).getProperties();
 		return modelProperties == null ? false : modelProperties.size() == 0;
 	}
 
@@ -216,7 +216,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 			return null;
 		}
 
-		return field.getType().isArray() ? new ArrayProperty<Object>(field)
+		return field.getType().isArray() ? new ArrayProperty<Object>(field, getter, setter)
 				: new ReflectionProperty<Object>(field, getter, setter);
 	}
 

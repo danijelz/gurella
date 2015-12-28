@@ -9,11 +9,11 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.base.container.AssetId;
-import com.gurella.engine.base.container.Container;
+import com.gurella.engine.base.container.ObjectManager;
 import com.gurella.engine.base.container.ObjectReference;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class ModelUtils {
+public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	private static final ObjectMap<Class<?>, Model<?>> defaultModels = new ObjectMap<Class<?>, Model<?>>();
 
@@ -118,7 +118,7 @@ public class ModelUtils {
 		}
 	}
 
-	public static void appendDependentResourceIds(Container container, Object serializableValue,
+	public static void appendDependentResourceIds(ObjectManager container, Object serializableValue,
 			IntArray dependentResourceIds) {
 		if (serializableValue == null) {
 			return;

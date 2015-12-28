@@ -1,17 +1,22 @@
 package com.gurella.engine.base.container;
 
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Json.Serializable;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.model.Model;
+import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.model.Property;
+import com.gurella.engine.utils.ImmutableArray;
 
-public class ManagedObject implements Comparable<ManagedObject> {
+public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	private static int indexer = 0;
 
-	private int id;
-	private int templateId;
-	private ManagedObject template;
+	int id;
+	int templateId;
+	ManagedObject template;
+	
 	private String name;
 	private boolean initialized;
-
-	transient Model<ManagedObject> model;
 
 	public transient final int instanceId;
 
@@ -20,21 +25,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public final ManagedObject duplicate() {
-		// TODO garbage
-		InitializationContext<ManagedObject> context = new InitializationContext<ManagedObject>();
-		context.template = this;
-		ManagedObject duplicate = model.createInstance();
-		context.initializingObject = duplicate;
-		duplicate.id = instanceId;
-		duplicate.init(context);
+		ManagedObject duplicate = Objects.duplicate(this);
+		duplicate.id = duplicate.instanceId;
+		duplicate.templateId = id;
+		duplicate.template = this;
+		duplicate.init();
 		return duplicate;
-	}
-
-	void init(InitializationContext<ManagedObject> context) {
-		initialized = true;
-		this.template = context.template;
-		model.initInstance(context);
-		init();
 	}
 
 	protected void init() {
@@ -43,5 +39,52 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	@Override
 	public int compareTo(ManagedObject other) {
 		return Integer.compare(instanceId, other.instanceId);
+	}
+
+	@Override
+	public void write(Json json) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void read(Json json, JsonValue jsonData) {
+		// TODO Auto-generated method stub
+
+	}
+	
+	void readProperties(Json json, JsonValue jsonData) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public final int hashCode() {
+		return instanceId;
+	}
+
+	@Override
+	public final boolean equals(Object obj) {
+		return this == obj;
+	}
+
+	public boolean isEqualAs(ManagedObject obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		Model<? extends ManagedObject> model = Models.getModel(getClass());
+		ImmutableArray<Property<?>> properties = model.getProperties();
+		for(int i = 0; i < properties.size(); i++) {
+			Property<?> property = properties.get(i);
+			
+		}
+		
+		//TODO
+		
+		return true;
 	}
 }

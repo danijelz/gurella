@@ -18,35 +18,27 @@ public class SynchronizedPools {
 
 	/**
 	 * Returns a new or existing pool for the specified type, stored in a a
-	 * Class to {@link ReflectionPool} map. Note the max size is ignored if this
-	 * is not the first time this pool has been requested.
+	 * Class to {@link ReflectionPool} map. The max size of the pool used is
+	 * 100.
 	 */
-	static public <T> Pool<T> get(Class<T> type, int max) {
-		synchronized (type) {
+	static private <T> Pool<T> get(Class<T> type) {
+		synchronized (typePools) {
 			@SuppressWarnings("unchecked")
 			ReflectionPool<T> pool = (ReflectionPool<T>) typePools.get(type);
 			if (pool == null) {
-				pool = new ReflectionPool<T>(type, 4, max);
+				pool = new ReflectionPool<T>(type, 4, 100);
 				typePools.put(type, pool);
 			}
 			return pool;
 		}
 	}
 
-	/**
-	 * Returns a new or existing pool for the specified type, stored in a a
-	 * Class to {@link ReflectionPool} map. The max size of the pool used is
-	 * 100.
-	 */
-	static public <T> Pool<T> get(Class<T> type) {
-		return get(type, 100);
-	}
-
 	/** Obtains an object from the {@link #get(Class) pool}. */
 	@SuppressWarnings("cast")
 	static public <T> T obtain(Class<T> type) {
-		synchronized (type) {
-			return (T) get(type).obtain();
+		Pool<T> pool = get(type);
+		synchronized (pool) {
+			return (T) pool.obtain();
 		}
 	}
 
@@ -58,12 +50,18 @@ public class SynchronizedPools {
 
 		@SuppressWarnings("unchecked")
 		Class<T> type = (Class<T>) object.getClass();
-		synchronized (type) {
+		ReflectionPool<T> pool;
+		synchronized (typePools) {
 			@SuppressWarnings("unchecked")
-			ReflectionPool<T> pool = (ReflectionPool<T>) typePools.get(type);
-			if (pool == null) {
-				return; // Ignore freeing an object that was never retained.
-			}
+			ReflectionPool<T> casted = (ReflectionPool<T>) typePools.get(type);
+			pool = casted;
+		}
+
+		if (pool == null) {
+			// Ignore freeing an object that was never retained.
+			return;
+		}
+		synchronized (pool) {
 			pool.free(object);
 		}
 	}
@@ -89,8 +87,8 @@ public class SynchronizedPools {
 			}
 
 			Class<?> type = object.getClass();
-			synchronized (type) {
-				if (currentType != type) {
+			if (currentType != type) {
+				synchronized (typePools) {
 					@SuppressWarnings("unchecked")
 					ReflectionPool<Object> casted = (ReflectionPool<Object>) typePools.get(type);
 					pool = casted;
@@ -98,7 +96,9 @@ public class SynchronizedPools {
 						continue;
 					}
 				}
+			}
 
+			synchronized (pool) {
 				pool.free(object);
 			}
 		}

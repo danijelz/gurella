@@ -1,9 +1,12 @@
 package com.gurella.engine.base.model;
 
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.base.container.InitializationContext;
+import com.gurella.engine.base.container.ManagedObject;
+import com.gurella.engine.base.container.Objects;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
 import com.gurella.engine.base.model.ValueRange.CharRange;
 import com.gurella.engine.base.model.ValueRange.DoubleRange;
@@ -11,7 +14,6 @@ import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
@@ -131,7 +133,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		applyDefaultValueOnInit = defaultValue.applyOnInit();
 
-		if (Integer.class.equals(type) || Integer.TYPE.equals(type)) {
+		if (Integer.class == type || int.class == type) {
 			return Integer.valueOf(defaultValue.integerValue());
 		} else if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
 			return Boolean.valueOf(defaultValue.booleanValue());
@@ -157,7 +159,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	private Object createCompositeDefaultValue(DefaultValue defaultValue) {
-		Model<T> model = ModelUtils.getModel(type);
+		Model<T> model = Models.getModel(type);
 		T resolvedDefaultValue = model.createInstance();
 		PropertyValue[] values = defaultValue.compositeValues();
 
@@ -243,14 +245,14 @@ public class ReflectionProperty<T> implements Property<T> {
 		if (serializedValue == null || !serializedValue.has(name)) {
 			Object template = context.template;
 			T value;
-			if(template != null) {
+			if (template != null) {
 				value = getValue(template);
-			} else if(!applyDefaultValueOnInit){
+			} else if (!applyDefaultValueOnInit) {
 				return;
 			} else {
 				value = defaultValue;
 			}
-			T resolvedValue = field.isFinal() ? value : copyValue(value);
+			T resolvedValue = field.isFinal() ? value : copyValue(context, value);
 			setValue(initializingObject, resolvedValue);
 		} else {
 			JsonValue serializedPropertyValue = serializedValue.get(name);
@@ -258,22 +260,32 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
-	private void initFinalProperty(Object initializingObject, Object value) {
-		Object fieldValue = ReflectionUtils.getFieldValue(field, initializingObject);
-		if (fieldValue == null) {
-			return;
+	private T copyValue(InitializationContext<?> context, T value) {
+		if (value == null || type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
+				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
+				|| Double.class == type || Float.class == type || String.class == type) {
+			return value;
+		} else if (value instanceof ManagedObject) {
+			ManagedObject object = (ManagedObject) value;
+			@SuppressWarnings("unchecked")
+			T copy = (T) context.getManagedObject(object);
+			return copy;
+		} else {
+			return Objects.duplicate(value);
 		}
+	}
 
-		Model<?> model = ModelUtils.getModel(fieldValue.getClass());
-		// TODO garbage
-		InitializationContext<Object> context = new InitializationContext<Object>();
-		context.initializingObject = fieldValue;
-		context.template = value;
-
-		ImmutableArray<Property<?>> properties = model.getProperties();
-		for (int i = 0; i < properties.size(); i++) {
-			properties.get(i).init(context);
+	private T deserializeValue(JsonValue serializedPropertyValue) {
+		if(type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
+				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
+				|| Double.class == type || Float.class == type || String.class == type) {
+			
 		}
+		Json json = new Json();
+		T value = json.readValue(type, serializedPropertyValue);
+		serializedPropertyValue
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit) {
@@ -314,7 +326,8 @@ public class ReflectionProperty<T> implements Property<T> {
 		if (setter != null) {
 			ReflectionUtils.invokeMethod(setter, object, value);
 		} else if (field.isFinal()) {
-			initFinalProperty(object, value);
+			Object fieldValue = ReflectionUtils.getFieldValue(field, object);
+			Objects.copyProperties(value, fieldValue);
 		} else {
 			ReflectionUtils.setFieldValue(field, object, value);
 		}
