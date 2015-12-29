@@ -1,11 +1,11 @@
 package com.gurella.engine.base.model;
 
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.base.container.InitializationContext;
 import com.gurella.engine.base.container.ManagedObject;
+import com.gurella.engine.base.container.ObjectReference;
 import com.gurella.engine.base.container.Objects;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
 import com.gurella.engine.base.model.ValueRange.CharRange;
@@ -239,10 +239,10 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void init(InitializationContext<?> context) {
-		JsonValue serializedValue = context.serializedValue;
 		Object initializingObject = context.initializingObject;
+		JsonValue serializedPropertyValue = context.serializedValue == null ? null : context.serializedValue.get(name);
 
-		if (serializedValue == null || !serializedValue.has(name)) {
+		if (serializedPropertyValue == null) {
 			Object template = context.template;
 			T value;
 			if (template != null) {
@@ -255,8 +255,17 @@ public class ReflectionProperty<T> implements Property<T> {
 			T resolvedValue = field.isFinal() ? value : copyValue(context, value);
 			setValue(initializingObject, resolvedValue);
 		} else {
-			JsonValue serializedPropertyValue = serializedValue.get(name);
-			setValue(initializingObject, deserializeValue(serializedPropertyValue));
+			T resolvedValue;
+			T value = context.json.readValue(type, null, serializedPropertyValue);
+			if (value instanceof ObjectReference) {
+				ObjectReference objectReference = (ObjectReference) value;
+				@SuppressWarnings("unchecked")
+				T managedObject = (T) context.findManagedObject(objectReference.getId());
+				resolvedValue = managedObject;
+			} else {
+				resolvedValue = value;
+			}
+			setValue(initializingObject, resolvedValue);
 		}
 	}
 
@@ -273,19 +282,6 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else {
 			return Objects.duplicate(value);
 		}
-	}
-
-	private T deserializeValue(JsonValue serializedPropertyValue) {
-		if(type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
-				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
-				|| Double.class == type || Float.class == type || String.class == type) {
-			
-		}
-		Json json = new Json();
-		T value = json.readValue(type, serializedPropertyValue);
-		serializedPropertyValue
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit) {

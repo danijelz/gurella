@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class ManagedObject implements Comparable<ManagedObject>, Serializable {
@@ -13,22 +14,19 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 
 	int id;
 	int templateId;
-	ManagedObject template;
 	
 	private String name;
-	private boolean initialized;
-
 	public transient final int instanceId;
 
 	public ManagedObject() {
 		instanceId = indexer++;
+		id = instanceId;
 	}
 
 	public final ManagedObject duplicate() {
 		ManagedObject duplicate = Objects.duplicate(this);
 		duplicate.id = duplicate.instanceId;
 		duplicate.templateId = id;
-		duplicate.template = this;
 		duplicate.init();
 		return duplicate;
 	}
@@ -37,25 +35,26 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	}
 
 	@Override
-	public int compareTo(ManagedObject other) {
-		return Integer.compare(instanceId, other.instanceId);
-	}
-
-	@Override
 	public void write(Json json) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
 		// TODO Auto-generated method stub
-
 	}
 	
 	void readProperties(Json json, JsonValue jsonData) {
-		// TODO Auto-generated method stub
-
+		@SuppressWarnings("unchecked")
+		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
+		@SuppressWarnings("unchecked")
+		InitializationContext<ManagedObject> context = SynchronizedPools.obtain(InitializationContext.class);
+		context.initializingObject = this;
+		context.json = json;
+		context.serializedValue = jsonData;
+		model.initInstance(context);
+		init();
+		SynchronizedPools.free(context);
 	}
 
 	@Override
@@ -80,11 +79,14 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		ImmutableArray<Property<?>> properties = model.getProperties();
 		for(int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			
+			//TODO
 		}
 		
-		//TODO
-		
 		return true;
+	}
+
+	@Override
+	public int compareTo(ManagedObject other) {
+		return Integer.compare(instanceId, other.instanceId);
 	}
 }

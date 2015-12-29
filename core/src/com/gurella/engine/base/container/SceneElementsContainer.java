@@ -15,9 +15,9 @@ public abstract class SceneElementsContainer implements Serializable {
 
 	private final OrderedSet<ManagedObject> templates = new OrderedSet<ManagedObject>();
 	private final OrderedSet<ManagedObject> objects = new OrderedSet<ManagedObject>();
-	
+
 	protected abstract void clear();
-	
+
 	protected abstract void reset();
 
 	@Override
@@ -52,16 +52,28 @@ public abstract class SceneElementsContainer implements Serializable {
 				templates.add(template);
 				manager.manage(template);
 			}
-			
-			//TODO readProperties
+
+			int i = 0;
+			Array<ManagedObject> templateItems = templates.orderedItems();
+			for (JsonValue value : values) {
+				ManagedObject template = templateItems.get(i++);
+				template.readProperties(json, value);
+			}
 		}
-		
+
 		values = jsonData.get(OBJECTS_TAG);
 		if (values != null) {
 			for (JsonValue value : values) {
 				ManagedObject object = json.readValue(null, value);
 				objects.add(object);
 				manager.manage(object);
+			}
+
+			int i = 0;
+			Array<ManagedObject> objectItems = objects.orderedItems();
+			for (JsonValue value : values) {
+				ManagedObject object = objectItems.get(i++);
+				object.readProperties(json, value);
 			}
 		}
 	}

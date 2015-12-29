@@ -1,21 +1,13 @@
 package com.gurella.engine.base.model;
 
-import java.util.List;
-
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.base.container.AssetId;
-import com.gurella.engine.base.container.ObjectManager;
-import com.gurella.engine.base.container.ObjectReference;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
-	private static final ObjectMap<Class<?>, Model<?>> defaultModels = new ObjectMap<Class<?>, Model<?>>();
+	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
 
 	public static <T> Model<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
@@ -35,7 +27,7 @@ public class Models {
 			return resourceModel;
 		}
 
-		resourceModel = getDefaultModel(type);
+		resourceModel = getCustomModel(type);
 		return resourceModel == null ? ReflectionModel.<T> getInstance(type) : resourceModel;
 	}
 
@@ -90,11 +82,11 @@ public class Models {
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> Model<T> getDefaultModel(Class<? extends T> type) {
+	private static <T> Model<T> getCustomModel(Class<? extends T> type) {
 		Class<?> temp = type;
 		while (!temp.isInterface() && !Object.class.equals(temp)) {
 			@SuppressWarnings("unchecked")
-			Model<T> resourceModel = (Model<T>) defaultModels.get(temp);
+			Model<T> resourceModel = (Model<T>) customModels.get(temp);
 			if (resourceModel != null) {
 				return resourceModel;
 			}
@@ -103,57 +95,5 @@ public class Models {
 		}
 
 		return null;
-	}
-
-	public static <T> T resolvePropertyValue(Object serializableValue, DependencyMap dependencies) {
-		if (serializableValue instanceof ObjectReference) {
-			return dependencies.getResource(((ObjectReference) serializableValue).getId());
-		} else if (serializableValue instanceof AssetId) {
-			AssetId asset = (AssetId) serializableValue;
-			return dependencies.getAssetResource(asset.getFileName());
-		} else {
-			@SuppressWarnings("unchecked")
-			T casted = (T) serializableValue;
-			return casted;
-		}
-	}
-
-	public static void appendDependentResourceIds(ObjectManager container, Object serializableValue,
-			IntArray dependentResourceIds) {
-		if (serializableValue == null) {
-			return;
-		}
-
-		if (serializableValue instanceof ObjectReference) {
-			dependentResourceIds.add(((ObjectReference) serializableValue).getId());
-		} else if (serializableValue instanceof AssetId) {
-			AssetId asset = (AssetId) serializableValue;
-			String fileName = asset.getFileName();
-			dependentResourceIds.add(context.findOrCreateAssetReference(fileName, asset.getAssetType()).getId());
-		} else {
-			Class<?> type = serializableValue.getClass();
-			if (type.isArray() && !type.getComponentType().isPrimitive()) {
-				Object[] items = (Object[]) serializableValue;
-				for (int i = 0; i < items.length; i++) {
-					Object item = items[i];
-					appendDependentResourceIds(container, item, dependentResourceIds);
-				}
-			} else if (ClassReflection.isAssignableFrom(Array.class, type)) {
-				Array<?> array = (Array<?>) serializableValue;
-				for (int i = 0; i < array.size; i++) {
-					appendDependentResourceIds(container, array.get(i), dependentResourceIds);
-				}
-			} else if (ClassReflection.isAssignableFrom(List.class, type)) {
-				List<?> list = (List<?>) serializableValue;
-				for (int i = 0; i < list.size(); i++) {
-					appendDependentResourceIds(container, list.get(i), dependentResourceIds);
-				}
-			} else if (ClassReflection.isAssignableFrom(Iterable.class, type)) {
-				for (Object item : ((Iterable<?>) serializableValue)) {
-					appendDependentResourceIds(container, item, dependentResourceIds);
-				}
-			}
-			// TODO Map.Entry ...
-		}
 	}
 }
