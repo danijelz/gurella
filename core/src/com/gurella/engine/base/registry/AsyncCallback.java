@@ -1,4 +1,4 @@
-package com.gurella.engine.base.container;
+package com.gurella.engine.base.registry;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 

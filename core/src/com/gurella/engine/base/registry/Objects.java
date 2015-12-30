@@ -1,4 +1,4 @@
-package com.gurella.engine.base.container;
+package com.gurella.engine.base.registry;
 
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;

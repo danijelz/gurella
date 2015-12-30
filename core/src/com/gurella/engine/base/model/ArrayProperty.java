@@ -3,7 +3,7 @@ package com.gurella.engine.base.model;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.base.container.InitializationContext;
+import com.gurella.engine.base.registry.InitializationContext;
 
 public class ArrayProperty<T> extends ReflectionProperty<T> {
 	public ArrayProperty(Field field) {

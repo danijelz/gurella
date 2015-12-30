@@ -1,4 +1,4 @@
-package com.gurella.engine.base.container;
+package com.gurella.engine.base.registry;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
@@ -14,7 +14,8 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 
 	int id;
 	int templateId;
-	
+	boolean initialized;
+
 	private String name;
 	public transient final int instanceId;
 
@@ -27,8 +28,21 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		ManagedObject duplicate = Objects.duplicate(this);
 		duplicate.id = duplicate.instanceId;
 		duplicate.templateId = id;
-		duplicate.init();
+		duplicate.initInternal();
 		return duplicate;
+	}
+	
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	final void initInternal(AsyncCallback<?> asyncCallback) {
+		initialized = true;
+		asyncInit(asyncCallback);
+		init();
+	}
+
+	protected void asyncInit(AsyncCallback<?> asyncCallback) {
 	}
 
 	protected void init() {
@@ -43,7 +57,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	public void read(Json json, JsonValue jsonData) {
 		// TODO Auto-generated method stub
 	}
-	
+
 	void readProperties(Json json, JsonValue jsonData) {
 		@SuppressWarnings("unchecked")
 		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
@@ -53,7 +67,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		context.json = json;
 		context.serializedValue = jsonData;
 		model.initInstance(context);
-		init();
 		SynchronizedPools.free(context);
 	}
 
@@ -74,14 +87,14 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		Model<? extends ManagedObject> model = Models.getModel(getClass());
 		ImmutableArray<Property<?>> properties = model.getProperties();
-		for(int i = 0; i < properties.size(); i++) {
+		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			//TODO
+			// TODO
 		}
-		
+
 		return true;
 	}
 

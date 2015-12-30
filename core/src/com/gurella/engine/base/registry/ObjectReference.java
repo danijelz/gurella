@@ -1,4 +1,4 @@
-package com.gurella.engine.base.container;
+package com.gurella.engine.base.registry;
 
 public class ObjectReference {
 	private int id;
