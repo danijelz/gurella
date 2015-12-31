@@ -27,7 +27,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	public final ManagedObject duplicate() {
 		ManagedObject duplicate = Objects.duplicate(this);
 		duplicate.id = duplicate.instanceId;
-		duplicate.templateId = id;
+		duplicate.templateId = templateId;
 		duplicate.initInternal();
 		return duplicate;
 	}

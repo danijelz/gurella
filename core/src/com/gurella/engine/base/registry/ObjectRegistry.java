@@ -12,7 +12,6 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.registry.AsyncCallback.SimpleAsyncCallback;
-import com.gurella.engine.base.registry.ObjectManager.ObtainObjectTask;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.badlogic.gdx.utils.JsonValue;
@@ -34,9 +33,21 @@ public abstract class ObjectRegistry implements Serializable {
 	void addObject(ManagedObject object) {
 		objects.put(object.id, object);
 	}
+	
+	<T extends ManagedObject> T getObject(int id) {
+		@SuppressWarnings("unchecked")
+		T object = (T) objects.get(id);
+		return object;
+	}
 
 	void addTemplate(ManagedObject object) {
 		templates.put(object.id, object);
+	}
+	
+	<T extends ManagedObject> T getTemplate(int id) {
+		@SuppressWarnings("unchecked")
+		T template = (T) templates.get(id);
+		return template;
 	}
 
 	private <T extends ManagedObject> T find(int id) {
@@ -174,6 +185,7 @@ public abstract class ObjectRegistry implements Serializable {
 			if(object != null) {
 				if(!object.isInitialized()) {
 					object.initInternal(asyncCallback);
+					callback.onSuccess(object);
 				}
 			}
 			
@@ -191,7 +203,7 @@ public abstract class ObjectRegistry implements Serializable {
 			context.initializingObject = model.createInstance();
 			// TODO find dependencies and notify progress
 			model.initInstance(context);
-
+			
 			return null;
 		}
 
