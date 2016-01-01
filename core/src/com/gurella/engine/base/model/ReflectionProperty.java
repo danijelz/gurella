@@ -260,8 +260,8 @@ public class ReflectionProperty<T> implements Property<T> {
 			if (value instanceof ObjectReference) {
 				ObjectReference objectReference = (ObjectReference) value;
 				@SuppressWarnings("unchecked")
-				T managedObject = (T) context.findManagedObject(objectReference.getId());
-				resolvedValue = managedObject;
+				T instance = (T) context.getInstance(objectReference.getId());
+				resolvedValue = instance;
 			} else {
 				resolvedValue = value;
 			}
@@ -277,8 +277,8 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else if (value instanceof ManagedObject) {
 			ManagedObject object = (ManagedObject) value;
 			@SuppressWarnings("unchecked")
-			T copy = (T) context.getManagedObject(object);
-			return copy;
+			T instance = (T) context.getInstance(object);
+			return instance;
 		} else {
 			return Objects.duplicate(value);
 		}

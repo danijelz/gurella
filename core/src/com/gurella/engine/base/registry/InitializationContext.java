@@ -15,7 +15,11 @@ public class InitializationContext<T> implements Poolable {
 
 	private IntMap<ManagedObject> instances = new IntMap<ManagedObject>();
 
-	public <MO extends ManagedObject> MO findManagedObject(int objectId) {
+	public <MO extends ManagedObject> MO getInstance(MO object) {
+		return getInstance(object.id);
+	}
+
+	public <MO extends ManagedObject> MO getInstance(int objectId) {
 		@SuppressWarnings("unchecked")
 		MO instance = (MO) instances.get(objectId);
 		if (instance == null) {
@@ -27,17 +31,6 @@ public class InitializationContext<T> implements Poolable {
 				}
 				instance = Objects.duplicate(template);
 			}
-			instances.put(objectId, instance);
-		}
-		return instance;
-	}
-
-	public <MO extends ManagedObject> MO getManagedObject(MO object) {
-		int objectId = object.id;
-		@SuppressWarnings("unchecked")
-		MO instance = (MO) instances.get(objectId);
-		if (instance == null) {
-			instance = Objects.duplicate(object);
 			instances.put(objectId, instance);
 		}
 		return instance;

@@ -13,7 +13,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	private static int indexer = 0;
 
 	int id;
-	int templateId;
 	boolean initialized;
 
 	private String name;
@@ -27,7 +26,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	public final ManagedObject duplicate() {
 		ManagedObject duplicate = Objects.duplicate(this);
 		duplicate.id = duplicate.instanceId;
-		duplicate.templateId = templateId;
 		duplicate.initInternal();
 		return duplicate;
 	}
@@ -55,7 +53,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
-		// TODO Auto-generated method stub
+		id = jsonData.getInt("id");
 	}
 
 	void readProperties(Json json, JsonValue jsonData) {
