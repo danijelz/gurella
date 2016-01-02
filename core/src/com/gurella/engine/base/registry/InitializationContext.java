@@ -12,6 +12,7 @@ public class InitializationContext<T> implements Poolable {
 	public T template;
 	public Json json;
 	public JsonValue serializedValue;
+	public boolean duplicate;
 
 	private IntMap<ManagedObject> instances = new IntMap<ManagedObject>();
 
@@ -22,17 +23,25 @@ public class InitializationContext<T> implements Poolable {
 	public <MO extends ManagedObject> MO getInstance(int objectId) {
 		@SuppressWarnings("unchecked")
 		MO instance = (MO) instances.get(objectId);
-		if (instance == null) {
-			instance = registry.getObject(objectId);
-			if (instance == null) {
-				MO template = registry.getTemplate(objectId);
-				if (template == null) {
-					throw new GdxRuntimeException("Can't find object by id: " + objectId);
-				}
-				instance = Objects.duplicate(template);
+		if (instance != null) {
+			return instance;
+		}
+
+		instance = registry.getObject(objectId);
+		if (instance != null) {
+			if (duplicate) {
+				instance = Objects.duplicate(instance);
 			}
 			instances.put(objectId, instance);
+			return instance;
 		}
+
+		MO template = registry.getTemplate(objectId);
+		if (template == null) {
+			throw new GdxRuntimeException("Can't find object by id: " + objectId);
+		}
+		instance = Objects.duplicate(template);
+		instances.put(objectId, instance);
 		return instance;
 	}
 
@@ -42,5 +51,7 @@ public class InitializationContext<T> implements Poolable {
 		initializingObject = null;
 		serializedValue = null;
 		template = null;
+		duplicate = false;
+		instances.clear();
 	}
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.application.Application;
@@ -13,9 +14,6 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.registry.AsyncCallback.SimpleAsyncCallback;
 import com.gurella.engine.pools.SynchronizedPools;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.OrderedSet;
 
 //TODO unused
 public abstract class ObjectRegistry implements Serializable {
@@ -33,36 +31,21 @@ public abstract class ObjectRegistry implements Serializable {
 	void addObject(ManagedObject object) {
 		objects.put(object.id, object);
 	}
-	
+
 	<T extends ManagedObject> T getObject(int id) {
 		@SuppressWarnings("unchecked")
 		T object = (T) objects.get(id);
 		return object;
 	}
 
-	void addTemplate(ManagedObject object) {
-		templates.put(object.id, object);
+	void addTemplate(ManagedObject template) {
+		templates.put(template.id, template);
 	}
-	
+
 	<T extends ManagedObject> T getTemplate(int id) {
 		@SuppressWarnings("unchecked")
 		T template = (T) templates.get(id);
 		return template;
-	}
-
-	private <T extends ManagedObject> T find(int id) {
-		ManagedObject managedObject = objects.get(id);
-		if (managedObject == null) {
-			managedObject = templates.get(id);
-		}
-
-		if (managedObject == null) {
-			throw new GdxRuntimeException("Can't find object by id: " + id);
-		}
-
-		@SuppressWarnings("unchecked")
-		T casted = (T) managedObject;
-		return casted;
 	}
 
 	public <T extends ManagedObject> T obtain(int id) {
@@ -91,16 +74,26 @@ public abstract class ObjectRegistry implements Serializable {
 	}
 
 	public <T extends ManagedObject> void obtain(int id, AsyncCallback<T> callback) {
-		ObtainObjectTask.submit(this, id, callback);
-
-		if (count == 1) {
-			ObtainObjectTask.submit(this, id, callback);
-		} else {
-			@SuppressWarnings("unchecked")
-			T object = (T) objects.get(id);
-			callback.onProgress(1);
-			callback.onSuccess(object);
+		@SuppressWarnings("unchecked")
+		T object = (T) objects.get(id);
+		if (object != null) {
+			if (object.isInitialized()) {
+				callback.onProgress(1);
+				callback.onSuccess(object);
+			} else {
+				InitObjectTask.submit(this, object, callback);
+			}
+			return;
 		}
+
+		@SuppressWarnings("unchecked")
+		T template = (T) templates.get(id);
+		if (template == null) {
+			throw new GdxRuntimeException("Can't find object by id: " + id);
+		}
+
+		object = Objects.duplicate(template);
+		InitObjectTask.submit(this, object, callback);
 	}
 
 	@Override
@@ -130,19 +123,24 @@ public abstract class ObjectRegistry implements Serializable {
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
+		@SuppressWarnings("unchecked")
+		InitializationContext<ManagedObject> context = SynchronizedPools.obtain(InitializationContext.class);
+		context.json = json;
+		context.registry = this;
+		
 		JsonValue values = jsonData.get(TEMPLATES_TAG);
 		if (values != null) {
 			for (JsonValue value : values) {
 				ManagedObject template = json.readValue(null, value);
-				addTemplate(template);
-				addObject(template);
+				templates.put(template.id, template);
 			}
-
-			int i = 0;
-			Array<ManagedObject> templateItems = templates.orderedItems();
+			
 			for (JsonValue value : values) {
-				ManagedObject template = templateItems.get(i++);
-				template.readProperties(json, value);
+				int id = value.getInt("id");
+				ManagedObject template = templates.get(id);
+				context.initializingObject = template;
+				context.serializedValue = value;
+				template.init(context);
 			}
 		}
 
@@ -150,66 +148,51 @@ public abstract class ObjectRegistry implements Serializable {
 		if (values != null) {
 			for (JsonValue value : values) {
 				ManagedObject object = json.readValue(null, value);
-				addObject(object);
-				addObject(object);
+				objects.put(object.id, object);
 			}
 
-			int i = 0;
-			Array<ManagedObject> objectItems = objects.orderedItems();
 			for (JsonValue value : values) {
-				ManagedObject object = objectItems.get(i++);
-				object.readProperties(json, value);
+				int id = value.getInt("id");
+				ManagedObject object = templates.get(id);
+				context.initializingObject = object;
+				context.serializedValue = value;
+				context.template = templates.get(templateMappings.get(id, -1));
+				object.init(context);
 			}
 		}
+		
+		SynchronizedPools.free(context);
 	}
 
-	private static class ObtainObjectTask<T extends ManagedObject> implements AsyncTask<Void>, Poolable {
+	private static class InitObjectTask<T extends ManagedObject> implements AsyncTask<Void>, Poolable {
 		private ObjectRegistry registry;
-		private int id;
+		private ManagedObject object;
 		private AsyncCallback<T> callback;
 
-		public static <T extends ManagedObject> void submit(ObjectRegistry registry, int id,
+		public static <T extends ManagedObject> void submit(ObjectRegistry registry, ManagedObject object,
 				AsyncCallback<T> callback) {
 			@SuppressWarnings("unchecked")
-			ObtainObjectTask<T> task = SynchronizedPools.obtain(ObtainObjectTask.class);
+			InitObjectTask<T> task = SynchronizedPools.obtain(InitObjectTask.class);
 			task.registry = registry;
-			task.id = id;
+			task.object = object;
 			task.callback = callback;
 			Application.ASYNC_EXECUTOR.submit(task);
 		}
 
 		@Override
 		public Void call() throws Exception {
-			@SuppressWarnings("unchecked")
-			T object = (T) registry.objects.get(id);
-			if(object != null) {
-				if(!object.isInitialized()) {
-					object.initInternal(asyncCallback);
-					callback.onSuccess(object);
-				}
-			}
-			
-			@SuppressWarnings("unchecked")
-			T template = (T) registry.templates.get(id);
-			if (template == null) {
-				throw new GdxRuntimeException("Can't find object by id: " + id);
-			}
-			
-			Model<ManagedObject> model = Models.getModel(type);
-			// TODO garbage
-			InitializationContext<ManagedObject> context = new InitializationContext<ManagedObject>();
-			// TODO
-			context.template = null;
-			context.initializingObject = model.createInstance();
+			Model<? extends ManagedObject> model = Models.getModel(object.getClass());
 			// TODO find dependencies and notify progress
 			model.initInstance(context);
-			
+			callback.onProgress(1);
+			SynchronizedPools.free(this);
 			return null;
 		}
 
 		@Override
 		public void reset() {
 			registry = null;
+			object = null;
 			callback = null;
 		}
 	}

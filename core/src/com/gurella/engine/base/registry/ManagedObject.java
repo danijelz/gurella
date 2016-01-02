@@ -8,6 +8,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	private static int indexer = 0;
@@ -23,13 +24,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		id = instanceId;
 	}
 
-	public final ManagedObject duplicate() {
-		ManagedObject duplicate = Objects.duplicate(this);
-		duplicate.id = duplicate.instanceId;
-		duplicate.initInternal();
-		return duplicate;
-	}
-	
 	public boolean isInitialized() {
 		return initialized;
 	}
@@ -48,24 +42,25 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 
 	@Override
 	public void write(Json json) {
+		json.writeObjectStart(getClass(), null);
+		json.writeField(Integer.valueOf(id), "id");
+		json.writeField(name, "name");
 		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
 		id = jsonData.getInt("id");
+		name = jsonData.getString("name");
 	}
 
-	void readProperties(Json json, JsonValue jsonData) {
-		@SuppressWarnings("unchecked")
-		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
-		@SuppressWarnings("unchecked")
-		InitializationContext<ManagedObject> context = SynchronizedPools.obtain(InitializationContext.class);
+	void init(InitializationContext<ManagedObject> context) {
 		context.initializingObject = this;
 		context.json = json;
 		context.serializedValue = jsonData;
+		@SuppressWarnings("unchecked")
+		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
 		model.initInstance(context);
-		SynchronizedPools.free(context);
 	}
 
 	@Override
@@ -74,23 +69,21 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	}
 
 	@Override
-	public final boolean equals(Object obj) {
-		return this == obj;
-	}
-
-	public boolean isEqualAs(ManagedObject obj) {
-		if (this == obj)
+	public final boolean equals(Object other) {
+		if (this == other)
 			return true;
-		if (obj == null)
+		if (other == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (getClass() != other.getClass())
 			return false;
 
 		Model<? extends ManagedObject> model = Models.getModel(getClass());
 		ImmutableArray<Property<?>> properties = model.getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			// TODO
+			if (!ValueUtils.isEqual(property.getValue(this), property.getValue(other))) {
+				return false;
+			}
 		}
 
 		return true;

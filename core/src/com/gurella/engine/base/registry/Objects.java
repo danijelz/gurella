@@ -22,17 +22,17 @@ public class Objects {
 		return duplicate;
 	}
 
-	public static <T> void copyProperties(T original, T duplicate) {
-		if (original == null || duplicate == null) {
+	public static <T> void copyProperties(T source, T target) {
+		if (source == null || target == null) {
 			return;
 		}
 
 		@SuppressWarnings("unchecked")
-		Model<T> model = (Model<T>) Models.getModel(original.getClass());
+		Model<T> model = (Model<T>) Models.getModel(source.getClass());
 		@SuppressWarnings("unchecked")
 		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
-		context.template = original;
-		context.initializingObject = duplicate;
+		context.template = source;
+		context.initializingObject = target;
 		model.initInstance(context);
 		SynchronizedPools.free(context);
 	}
