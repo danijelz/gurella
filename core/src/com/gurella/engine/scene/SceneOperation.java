@@ -1,7 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 class SceneOperation implements Comparable<SceneOperation>, Poolable {
 	private enum ElementType {

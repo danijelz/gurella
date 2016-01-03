@@ -33,7 +33,6 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdateOrder;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.AbstractSignal;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
@@ -49,6 +48,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO attach listeners
 public class InputSystem extends SceneSystem implements SceneListener, UpdateListener {

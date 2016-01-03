@@ -11,9 +11,9 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.utils.SynchronizedPools;
 
 class AudioSourceData implements Poolable {
 	private static Attenuation defaultAttenuation = Attenuation.ROLLOFF;

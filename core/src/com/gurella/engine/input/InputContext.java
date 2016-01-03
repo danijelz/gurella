@@ -6,7 +6,7 @@ import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Listener2;
 import com.gurella.engine.input.ButtonTrigger.ButtonType;
 import com.gurella.engine.input.DragTrigger.DragDirection;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class InputContext implements Comparable<InputContext> {
 	public int priority;

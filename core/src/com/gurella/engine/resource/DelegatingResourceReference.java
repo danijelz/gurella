@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class DelegatingResourceReference<T> extends ResourceReference<T> {
 	private static final String DELEGATE_ID_TAG = "delegateId";

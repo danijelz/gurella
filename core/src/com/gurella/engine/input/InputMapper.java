@@ -5,7 +5,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.input.ButtonTrigger.ButtonType;
 import com.gurella.engine.input.DragTrigger.DragDirection;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class InputMapper implements InputProcessor {
 	public static final InputMapper INSTANCE = new InputMapper();

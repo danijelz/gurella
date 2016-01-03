@@ -11,7 +11,7 @@ import com.gurella.engine.message.MessageCenter;
 import com.gurella.engine.message.MessageId;
 import com.gurella.engine.message.input.KeyboardMessages.KeyboardAction;
 import com.gurella.engine.message.input.KeyboardMessages.KeyboardMessage;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 	private IntMap<Message> temporaryMessages = new IntMap<Message>();

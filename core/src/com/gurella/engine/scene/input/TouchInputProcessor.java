@@ -14,12 +14,12 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.utils.IntLongMap;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class TouchInputProcessor implements PointerActivityListener {
 	private float tapSquareSize = 20;

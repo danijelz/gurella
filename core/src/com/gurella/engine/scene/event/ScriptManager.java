@@ -13,13 +13,13 @@ import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.behaviour.BehaviourEvents;
+import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO return null values
 public class ScriptManager extends SceneSystem implements SceneListener {

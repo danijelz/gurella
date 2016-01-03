@@ -2,10 +2,10 @@ package com.gurella.engine.scene.spatial.bvh;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class BvhSpatial extends Spatial {
 	BvhNode node;

@@ -14,8 +14,8 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.resource.DependencyMap.ResourceMapEntry;
+import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO Pools class is not thread safe
 public class ResourceContext {

@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class TemplateResourceReference<T> extends FactoryResourceReference<T> {
 	private static final String INIT_ON_START_COUNT_TAG = "initOnStartCount";

@@ -10,11 +10,11 @@ import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO attach listeners on activate
 public class AudioSystem extends SceneSystem implements SceneListener, UpdateListener {

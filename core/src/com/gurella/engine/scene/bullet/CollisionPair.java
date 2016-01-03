@@ -3,8 +3,8 @@ package com.gurella.engine.scene.bullet;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO unused
 public class CollisionPair implements Poolable {

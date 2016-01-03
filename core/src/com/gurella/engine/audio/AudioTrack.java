@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Signal1.Signal1Impl;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class AudioTrack implements Poolable, Listener1<Float> {
 	private AudioChannel audioChannel;

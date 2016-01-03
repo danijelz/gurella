@@ -2,7 +2,7 @@ package com.gurella.engine.base.registry;
 
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class Objects {
 	public static <T> T duplicate(T original) {

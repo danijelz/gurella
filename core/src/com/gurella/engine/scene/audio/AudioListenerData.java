@@ -4,9 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.utils.SynchronizedPools;
 
 class AudioListenerData implements Poolable {
 	AudioListenerComponent audioListenerComponent;

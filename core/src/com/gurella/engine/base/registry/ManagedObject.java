@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.pools.SynchronizedPools;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueUtils;
 
@@ -55,9 +54,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	}
 
 	void init(InitializationContext<ManagedObject> context) {
-		context.initializingObject = this;
-		context.json = json;
-		context.serializedValue = jsonData;
 		@SuppressWarnings("unchecked")
 		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
 		model.initInstance(context);

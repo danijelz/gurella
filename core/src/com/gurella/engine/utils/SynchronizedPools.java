@@ -1,4 +1,4 @@
-package com.gurella.engine.pools;
+package com.gurella.engine.utils;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;

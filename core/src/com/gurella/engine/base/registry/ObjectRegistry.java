@@ -13,7 +13,7 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.registry.AsyncCallback.SimpleAsyncCallback;
-import com.gurella.engine.pools.SynchronizedPools;
+import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO unused
 public abstract class ObjectRegistry implements Serializable {
@@ -182,6 +182,7 @@ public abstract class ObjectRegistry implements Serializable {
 		@Override
 		public Void call() throws Exception {
 			Model<? extends ManagedObject> model = Models.getModel(object.getClass());
+			
 			// TODO find dependencies and notify progress
 			model.initInstance(context);
 			callback.onProgress(1);
