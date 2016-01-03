@@ -22,37 +22,39 @@ public class Models {
 	}
 
 	private static <T> Model<T> resolveModel(Class<T> type) {
-		Model<T> resourceModel = getModelType(type);
-		if (resourceModel != null) {
-			return resourceModel;
+		Model<T> model = resolveModelByDescriptor(type);
+		if (model != null) {
+			return model;
 		}
 
-		resourceModel = getCustomModel(type);
-		return resourceModel == null ? ReflectionModel.<T> getInstance(type) : resourceModel;
+		model = resolveCustomModel(type);
+		return model == null ? ReflectionModel.<T> getInstance(type) : model;
 	}
 
-	private static <T> Model<T> getModelType(Class<T> type) {
-		ModelDescriptor modelDescriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
-		if (modelDescriptor != null) {
-			@SuppressWarnings("unchecked")
-			Class<Model<T>> modelType = (Class<Model<T>>) modelDescriptor.model();
-			if (modelType != null) {
-				if (ReflectionModel.class.equals(modelType)) {
-					return ReflectionModel.<T> getInstance(type);
-				} else {
-					Model<T> resourceModel = getModelFromFactoryMethod(modelType);
-					return resourceModel == null ? ReflectionUtils.newInstance(modelType) : resourceModel;
-				}
-			}
+	private static <T> Model<T> resolveModelByDescriptor(Class<T> type) {
+		ModelDescriptor descriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
+		if (descriptor == null) {
+			return null;
 		}
 
-		return null;
+		@SuppressWarnings("unchecked")
+		Class<Model<T>> modelType = (Class<Model<T>>) descriptor.model();
+		if (modelType == null) {
+			return null;
+		}
+
+		if (ReflectionModel.class.equals(modelType)) {
+			return ReflectionModel.<T> getInstance(type);
+		} else {
+			Model<T> model = instantiateModelByFactoryMethod(modelType);
+			return model == null ? ReflectionUtils.newInstance(modelType) : model;
+		}
 	}
 
-	private static <T> Model<T> getModelFromFactoryMethod(Class<Model<T>> resourceModelType) {
+	private static <T> Model<T> instantiateModelByFactoryMethod(Class<Model<T>> modelType) {
 		// TODO should be annotation based
-		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance");
-		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
+		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance");
+		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
 				Model<T> casted = (Model<T>) factoryMethod.invoke(null);
@@ -63,11 +65,11 @@ public class Models {
 		}
 
 		// TODO should be annotation based
-		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance", Class.class);
-		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
+		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance", Class.class);
+		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				Model<T> casted = (Model<T>) factoryMethod.invoke(resourceModelType);
+				Model<T> casted = (Model<T>) factoryMethod.invoke(modelType);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -82,13 +84,13 @@ public class Models {
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> Model<T> getCustomModel(Class<? extends T> type) {
+	private static <T> Model<T> resolveCustomModel(Class<? extends T> type) {
 		Class<?> temp = type;
 		while (!temp.isInterface() && !Object.class.equals(temp)) {
 			@SuppressWarnings("unchecked")
-			Model<T> resourceModel = (Model<T>) customModels.get(temp);
-			if (resourceModel != null) {
-				return resourceModel;
+			Model<T> model = (Model<T>) customModels.get(temp);
+			if (model != null) {
+				return model;
 			}
 
 			temp = temp.getSuperclass();
