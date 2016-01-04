@@ -1,7 +1,7 @@
 package com.gurella.engine.state.transitionmanager;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
@@ -106,7 +106,7 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 
 	@Override
 	public int getPriority() {
-		return CommonUpdateOrder.THINK;
+		return CommonUpdatePriority.THINK;
 	}
 
 	public void addListener(STATE state, StateListener<STATE> listener) {

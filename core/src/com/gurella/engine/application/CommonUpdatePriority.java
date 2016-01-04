@@ -1,7 +1,7 @@
 package com.gurella.engine.application;
 
 //TODO try to extract enum
-public interface CommonUpdateOrder {
+public interface CommonUpdatePriority {
 	public static int INPUT = 100;
 	public static int THINK = 200;
 	public static int PHYSICS = 300;

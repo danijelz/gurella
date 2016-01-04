@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
@@ -208,7 +208,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnInputUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.INPUT;
+			return CommonUpdatePriority.INPUT;
 		}
 
 		@Override
@@ -222,7 +222,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnThinkUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.THINK;
+			return CommonUpdatePriority.THINK;
 		}
 
 		@Override
@@ -236,7 +236,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnPreRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.PRE_RENDER;
+			return CommonUpdatePriority.PRE_RENDER;
 		}
 
 		@Override
@@ -250,7 +250,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.RENDER;
+			return CommonUpdatePriority.RENDER;
 		}
 
 		@Override
@@ -264,7 +264,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnDebugRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.DEBUG_RENDER;
+			return CommonUpdatePriority.DEBUG_RENDER;
 		}
 
 		@Override
@@ -278,7 +278,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnAfterRenderUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.POST_RENDER;
+			return CommonUpdatePriority.POST_RENDER;
 		}
 
 		@Override
@@ -292,7 +292,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class OnCleanupUpdateListener implements UpdateListener {
 		@Override
 		public int getPriority() {
-			return CommonUpdateOrder.CLEANUP;
+			return CommonUpdatePriority.CLEANUP;
 		}
 
 		@Override

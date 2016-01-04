@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneListener;
@@ -17,7 +17,7 @@ import com.gurella.engine.scene.spatial.Spatial;
 
 //TODO attach listeners on activate
 public class RenderSystem extends SceneSystem implements SceneListener, UpdateListener {
-	private final GenericBatch batch = Application.DISPOSABLE_MANAGER.add(new GenericBatch());
+	private final GenericBatch batch = Application.DISPOSABLES_SERVICE.add(new GenericBatch());
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 
@@ -55,7 +55,7 @@ public class RenderSystem extends SceneSystem implements SceneListener, UpdateLi
 
 	@Override
 	public int getPriority() {
-		return CommonUpdateOrder.RENDER;
+		return CommonUpdatePriority.RENDER;
 	}
 
 	@Override

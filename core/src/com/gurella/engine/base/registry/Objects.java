@@ -6,6 +6,10 @@ import com.gurella.engine.utils.SynchronizedPools;
 
 public class Objects {
 	public static <T> T duplicate(T original) {
+		return duplicate(original, null);
+	}
+
+	public static <T> T duplicate(T original, InitializationContext<?> parentContext) {
 		if (original == null) {
 			return null;
 		}
@@ -15,6 +19,7 @@ public class Objects {
 		@SuppressWarnings("unchecked")
 		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.template = original;
+		context.parentContext = parentContext;
 		T duplicate = model.createInstance();
 		context.initializingObject = duplicate;
 		model.initInstance(context);

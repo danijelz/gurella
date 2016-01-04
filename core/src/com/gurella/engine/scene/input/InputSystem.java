@@ -30,7 +30,7 @@ import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.AbstractSignal;
 import com.gurella.engine.scene.Scene;
@@ -348,7 +348,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 
 	@Override
 	public int getPriority() {
-		return CommonUpdateOrder.INPUT;
+		return CommonUpdatePriority.INPUT;
 	}
 
 	ImmutableArray<BehaviourComponent> getListeners(EventCallbackIdentifier<BehaviourComponent> method) {

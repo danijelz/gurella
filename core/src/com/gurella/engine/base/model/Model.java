@@ -6,7 +6,7 @@ import com.gurella.engine.utils.ImmutableArray;
 public interface Model<T> {
 	Class<T> getType();
 
-	String getDescriptiveName();
+	String getName();
 
 	T createInstance();
 

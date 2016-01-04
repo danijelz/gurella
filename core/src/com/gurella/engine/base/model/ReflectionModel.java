@@ -84,7 +84,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 	}
 
 	private Array<Class<?>> getClassHierarchy() {
-		//TODO garbage
+		// TODO garbage
 		Array<Class<?>> classHierarchy = new Array<Class<?>>();
 		Class<?> tempClass = type;
 		while (!tempClass.isInterface() && tempClass != Object.class) {
@@ -194,7 +194,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 		if (propertyModel != null) {
 			return propertyModel;
 		} else if (forced || field.isPublic()) {
-			return field.getType().isArray() ? new ArrayProperty<Object>(field) : new ReflectionProperty<Object>(field);
+			return new ReflectionProperty<Object>(field);
 		} else {
 			return null;
 		}
@@ -216,8 +216,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 			return null;
 		}
 
-		return field.getType().isArray() ? new ArrayProperty<Object>(field, getter, setter)
-				: new ReflectionProperty<Object>(field, getter, setter);
+		return new ReflectionProperty<Object>(field, getter, setter);
 	}
 
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
@@ -242,7 +241,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 	}
 
 	@Override
-	public String getDescriptiveName() {
+	public String getName() {
 		return name;
 	}
 

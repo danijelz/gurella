@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.ResourceContext;
@@ -15,11 +16,11 @@ import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class AssetResourceFactory<T> implements ResourceFactory<T> {
-	private static final GlobalAssetManager globalAssetManager = Application.DISPOSABLE_MANAGER
-			.add(new GlobalAssetManager());
+	private static final AssetRegistry assetRegistry = Application.DISPOSABLES_SERVICE
+			.add(new AssetRegistry());
 
 	static {
-		EventService.addListener(UpdateEvent.class, globalAssetManager);
+		EventService.addListener(UpdateEvent.class, assetRegistry);
 	}
 
 	private AssetDescriptor<T> assetDescriptor;
@@ -60,9 +61,9 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 
 	@Override
 	public T create(DependencyMap dependencies) {
-		T resource = globalAssetManager.load(getAssetDescriptor());
+		T resource = assetRegistry.load(getAssetDescriptor());
 		while (resource == null) {
-			resource = globalAssetManager.get(getAssetDescriptor());
+			resource = assetRegistry.get(getAssetDescriptor());
 			try {
 				synchronized (this) {
 					wait(5);
@@ -86,7 +87,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 	}
 
 	public void unload() {
-		globalAssetManager.unload(assetDescriptor);
+		assetRegistry.unload(assetDescriptor);
 	}
 
 	@Override

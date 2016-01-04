@@ -2,7 +2,7 @@ package com.gurella.engine.message.input;
 
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
@@ -74,6 +74,6 @@ public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 
 	@Override
 	public int getPriority() {
-		return CommonUpdateOrder.INPUT;
+		return CommonUpdatePriority.INPUT;
 	}
 }

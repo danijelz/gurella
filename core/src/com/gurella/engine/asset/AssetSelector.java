@@ -1,4 +1,4 @@
-package com.gurella.engine.resource;
+package com.gurella.engine.asset;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
@@ -19,7 +19,7 @@ public class AssetSelector<T> {
 		this.fileName = fileName;
 	}
 	
-	public static class ApplicationTypeAssetPredicate implements Predicate<Void> {
+	public static class OsAssetPredicate implements Predicate<Void> {
 		public ApplicationType applicationType;
 
 		@Override

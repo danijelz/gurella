@@ -57,7 +57,7 @@ public abstract class ObjectRegistry implements Serializable {
 				synchronized (this) {
 					wait(5);
 				}
-			} catch (InterruptedException e) {
+			} catch (@SuppressWarnings("unused") InterruptedException ignored) {
 				continue;
 			}
 		}
@@ -127,14 +127,14 @@ public abstract class ObjectRegistry implements Serializable {
 		InitializationContext<ManagedObject> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.json = json;
 		context.registry = this;
-		
+
 		JsonValue values = jsonData.get(TEMPLATES_TAG);
 		if (values != null) {
 			for (JsonValue value : values) {
 				ManagedObject template = json.readValue(null, value);
 				templates.put(template.id, template);
 			}
-			
+
 			for (JsonValue value : values) {
 				int id = value.getInt("id");
 				ManagedObject template = templates.get(id);
@@ -160,7 +160,7 @@ public abstract class ObjectRegistry implements Serializable {
 				object.init(context);
 			}
 		}
-		
+
 		SynchronizedPools.free(context);
 	}
 
@@ -182,7 +182,7 @@ public abstract class ObjectRegistry implements Serializable {
 		@Override
 		public Void call() throws Exception {
 			Model<? extends ManagedObject> model = Models.getModel(object.getClass());
-			
+
 			// TODO find dependencies and notify progress
 			model.initInstance(context);
 			callback.onProgress(1);

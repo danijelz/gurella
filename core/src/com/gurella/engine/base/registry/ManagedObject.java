@@ -15,7 +15,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	int id;
 	boolean initialized;
 
-	private String name;
+	String name;
 	public transient final int instanceId;
 
 	public ManagedObject() {
@@ -75,6 +75,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 
 		Model<? extends ManagedObject> model = Models.getModel(getClass());
 		ImmutableArray<Property<?>> properties = model.getProperties();
+
 		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
 			if (!ValueUtils.isEqual(property.getValue(this), property.getValue(other))) {

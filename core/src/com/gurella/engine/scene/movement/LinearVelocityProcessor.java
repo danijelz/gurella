@@ -2,7 +2,7 @@ package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.scene.SceneNode;
@@ -60,7 +60,7 @@ public class LinearVelocityProcessor extends SceneSystem implements UpdateListen
 
 	@Override
 	public int getPriority() {
-		return CommonUpdateOrder.THINK;
+		return CommonUpdatePriority.THINK;
 	}
 
 	private class ActivateListener implements Listener0 {

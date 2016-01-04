@@ -10,6 +10,10 @@ public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
 
 	public static <T> Model<T> getModel(Class<T> type) {
+		if(type.isArray()) {
+			return ArrayModel.getInstance(type);
+		}
+		
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
 			Model<T> resourceModel = (Model<T>) resolvedModels.get(type);

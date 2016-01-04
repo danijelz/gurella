@@ -13,6 +13,8 @@ public class InitializationContext<T> implements Poolable {
 	public Json json;
 	public JsonValue serializedValue;
 	public boolean duplicate;
+	public InitializationLevel level;
+	public InitializationContext<?> parentContext;
 
 	private IntMap<ManagedObject> instances = new IntMap<ManagedObject>();
 
@@ -21,6 +23,10 @@ public class InitializationContext<T> implements Poolable {
 	}
 
 	public <MO extends ManagedObject> MO getInstance(int objectId) {
+		if (parentContext != null) {
+			return parentContext.getInstance(objectId);
+		}
+
 		@SuppressWarnings("unchecked")
 		MO instance = (MO) instances.get(objectId);
 		if (instance != null) {
@@ -40,6 +46,7 @@ public class InitializationContext<T> implements Poolable {
 		if (template == null) {
 			throw new GdxRuntimeException("Can't find object by id: " + objectId);
 		}
+
 		instance = Objects.duplicate(template);
 		instances.put(objectId, instance);
 		return instance;
@@ -52,6 +59,12 @@ public class InitializationContext<T> implements Poolable {
 		serializedValue = null;
 		template = null;
 		duplicate = false;
+		level = null;
+		parentContext = null;
 		instances.clear();
+	}
+
+	public enum InitializationLevel {
+		lazy, full;
 	}
 }

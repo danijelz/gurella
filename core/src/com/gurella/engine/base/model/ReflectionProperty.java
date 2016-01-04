@@ -3,6 +3,7 @@ package com.gurella.engine.base.model;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
+import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
 import com.gurella.engine.base.model.ValueRange.CharRange;
 import com.gurella.engine.base.model.ValueRange.DoubleRange;
@@ -30,7 +31,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	private T defaultValue;
 
 	private Field field;
-
 	private Method getter;
 	private Method setter;
 
@@ -237,6 +237,10 @@ public class ReflectionProperty<T> implements Property<T> {
 		return group;
 	}
 
+	public boolean isApplyDefaultValueOnInit() {
+		return applyDefaultValueOnInit;
+	}
+
 	@Override
 	public void init(InitializationContext<?> context) {
 		Object initializingObject = context.initializingObject;
@@ -252,6 +256,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			} else {
 				value = defaultValue;
 			}
+
 			T resolvedValue = field.isFinal() ? value : copyValue(context, value);
 			setValue(initializingObject, resolvedValue);
 		} else {
@@ -259,6 +264,11 @@ public class ReflectionProperty<T> implements Property<T> {
 			T value = context.json.readValue(type, null, serializedPropertyValue);
 			if (value instanceof ObjectReference) {
 				ObjectReference objectReference = (ObjectReference) value;
+				@SuppressWarnings("unchecked")
+				T instance = (T) context.getInstance(objectReference.getId());
+				resolvedValue = instance;
+			} else if (value instanceof AssetId) {
+				AssetId assetId = (AssetId) value;
 				@SuppressWarnings("unchecked")
 				T instance = (T) context.getInstance(objectReference.getId());
 				resolvedValue = instance;
@@ -280,7 +290,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			T instance = (T) context.getInstance(object);
 			return instance;
 		} else {
-			return Objects.duplicate(value);
+			return Objects.duplicate(value, context);
 		}
 	}
 

@@ -2,12 +2,10 @@ package com.gurella.engine.application;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -19,9 +17,10 @@ import com.gurella.engine.application.events.ApplicationUpdateSignal;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputMapper;
+import com.gurella.engine.input.InputService;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.utils.DisposableManager;
+import com.gurella.engine.utils.DisposablesService;
 
 public class Application extends SceneElementsResourceContext implements ApplicationListener {
 	private static final String SCENES_TAG = "scenes";
@@ -29,12 +28,11 @@ public class Application extends SceneElementsResourceContext implements Applica
 	private static final String BACKGROUND_COLOR_TAG = "backgroundColor";
 
 	// TODO make not static
-	public static final DisposableManager DISPOSABLE_MANAGER = new DisposableManager();
-	public static final AsyncExecutor ASYNC_EXECUTOR = DISPOSABLE_MANAGER.add(new AsyncExecutor(4));
-	private static final InputMultiplexer INPUT_PROCESSORS = new InputMultiplexer();
+	public static final DisposablesService DISPOSABLES_SERVICE = new DisposablesService();
+	public static final AsyncExecutor ASYNC_EXECUTOR = DISPOSABLES_SERVICE.add(new AsyncExecutor(4));
+	private static final InputService INPUT_SERVICE = new InputService();
 
 	public static SpriteBatch SPRITE_BATCH;
-	public static ShapeRenderer SHAPE_RENDERER;
 
 	private String initialSceneId;
 	private Color backgroundColor;
@@ -78,10 +76,9 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public void create() {
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
-		Gdx.input.setInputProcessor(INPUT_PROCESSORS);
-		INPUT_PROCESSORS.addProcessor(InputMapper.INSTANCE);// TODO beautify
-		SPRITE_BATCH = DISPOSABLE_MANAGER.add(new SpriteBatch());
-		SHAPE_RENDERER = DISPOSABLE_MANAGER.add(new ShapeRenderer());
+		Gdx.input.setInputProcessor(INPUT_SERVICE);
+		INPUT_SERVICE.addInputProcessor(InputMapper.INSTANCE);// TODO beautify
+		SPRITE_BATCH = DISPOSABLES_SERVICE.add(new SpriteBatch());
 		// TODO Auto-generated method stub
 		initializer.init(this);
 		// TODO add init scripts to initializer 
@@ -134,18 +131,18 @@ public class Application extends SceneElementsResourceContext implements Applica
 	}
 
 	public static void addInputProcessor(InputProcessor processor) {
-		INPUT_PROCESSORS.addProcessor(processor);
+		INPUT_SERVICE.addInputProcessor(processor);
 	}
 
 	public static void removeInputProcessor(InputProcessor processor) {
-		INPUT_PROCESSORS.removeProcessor(processor);
+		INPUT_SERVICE.removeInputProcessor(processor);
 	}
 
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
 		//TODO sceneManager.stop();
-		DISPOSABLE_MANAGER.dispose();
+		DISPOSABLES_SERVICE.dispose();
 	}
 
 	@Override

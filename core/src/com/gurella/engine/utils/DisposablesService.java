@@ -3,7 +3,7 @@ package com.gurella.engine.utils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
-public class DisposableManager {
+public class DisposablesService {
 	private Array<Disposable> disposables = new Array<Disposable>();
 
 	public void dispose() {

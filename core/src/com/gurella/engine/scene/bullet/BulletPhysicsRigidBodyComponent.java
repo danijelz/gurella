@@ -46,7 +46,7 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent {
 		transformComponent = getNode().getComponent(TransformComponent.class);
 		if (rigidBody == null) {
 			constructionInfo.setMotionState(new MotionState());
-			rigidBody = Application.DISPOSABLE_MANAGER.add(new btRigidBody(constructionInfo));
+			rigidBody = Application.DISPOSABLES_SERVICE.add(new btRigidBody(constructionInfo));
 			rigidBody.userData = this;
 			rigidBody.setFriction(0.4f);
 			rigidBody.setRestitution(0.2f);

@@ -18,7 +18,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.CommonUpdateOrder;
+import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
@@ -43,16 +43,16 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, U
 	private EventManager eventManager;
 
 	public BulletPhysicsSystem() {
-		collisionConfig = Application.DISPOSABLE_MANAGER.add(new btDefaultCollisionConfiguration());
-		dispatcher = Application.DISPOSABLE_MANAGER.add(new btCollisionDispatcher(collisionConfig));
-		broadphase = Application.DISPOSABLE_MANAGER.add(new btDbvtBroadphase());
-		constraintSolver = Application.DISPOSABLE_MANAGER.add(new btSequentialImpulseConstraintSolver());
+		collisionConfig = Application.DISPOSABLES_SERVICE.add(new btDefaultCollisionConfiguration());
+		dispatcher = Application.DISPOSABLES_SERVICE.add(new btCollisionDispatcher(collisionConfig));
+		broadphase = Application.DISPOSABLES_SERVICE.add(new btDbvtBroadphase());
+		constraintSolver = Application.DISPOSABLES_SERVICE.add(new btSequentialImpulseConstraintSolver());
 
-		dynamicsWorld = Application.DISPOSABLE_MANAGER
+		dynamicsWorld = Application.DISPOSABLES_SERVICE
 				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
-		tickCallback = Application.DISPOSABLE_MANAGER.add(new CollisionTrackingInternalTickCallback());
+		tickCallback = Application.DISPOSABLES_SERVICE.add(new CollisionTrackingInternalTickCallback());
 		tickCallback.attach(dynamicsWorld, false);
 	}
 
@@ -86,7 +86,7 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, U
 
 	@Override
 	public int getPriority() {
-		return CommonUpdateOrder.PHYSICS;
+		return CommonUpdatePriority.PHYSICS;
 	}
 
 	@Override

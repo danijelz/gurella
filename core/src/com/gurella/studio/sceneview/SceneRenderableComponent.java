@@ -10,11 +10,11 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.AssetResourceReference;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.ResourceReference;
-import com.gurella.engine.resource.factory.GlobalAssetManager;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.AssetId;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -22,7 +22,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 
 public class SceneRenderableComponent extends RenderableComponent {
-	private static final GlobalAssetManager globalAssetManager = new GlobalAssetManager();
+	private static final AssetRegistry assetRegistry = new AssetRegistry();
 
 	private TextureComponent textureComponent;
 
@@ -69,12 +69,12 @@ public class SceneRenderableComponent extends RenderableComponent {
 		AssetId texture = resourceFactory.getPropertyValue("texture");
 		AssetDescriptor<Texture> descriptor = new AssetDescriptor<Texture>(texture.getFileName(),
 				(Class<Texture>) texture.getAssetType());
-		globalAssetManager.load(descriptor);
-		while (!globalAssetManager.isLoaded(descriptor)) {
-			globalAssetManager.update();
+		assetRegistry.load(descriptor);
+		while (!assetRegistry.isLoaded(descriptor)) {
+			assetRegistry.update();
 		}
 
-		Texture ttt = globalAssetManager.get(descriptor);
+		Texture ttt = assetRegistry.get(descriptor);
 		// TODO Auto-generated method stub
 
 	}
@@ -94,15 +94,15 @@ public class SceneRenderableComponent extends RenderableComponent {
 
 			AssetDescriptor<Texture> descriptor = new AssetDescriptor<Texture>(texture.getFileName(),
 					(Class<Texture>) texture.getAssetType());
-			globalAssetManager.load(descriptor);
-			while (!globalAssetManager.isLoaded(descriptor)) {
-				globalAssetManager.update();
+			assetRegistry.load(descriptor);
+			while (!assetRegistry.isLoaded(descriptor)) {
+				assetRegistry.update();
 			}
 
 			AssetResourceReference<?> textureReference = getScene().findOrCreateAssetReference(texture.getFileName(),
 					texture.getAssetType());
 
-			Texture ttt = globalAssetManager.get(descriptor);
+			Texture ttt = assetRegistry.get(descriptor);
 			IntArray dependencies = new IntArray();
 			dependencies.add(textureReference.getId());
 			DependencyMap dependencyMap = DependencyMap.obtain(getScene(), dependencies);
