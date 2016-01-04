@@ -23,22 +23,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		id = instanceId;
 	}
 
-	public boolean isInitialized() {
-		return initialized;
-	}
-
-	final void initInternal(AsyncCallback<?> asyncCallback) {
-		initialized = true;
-		asyncInit(asyncCallback);
-		init();
-	}
-
-	protected void asyncInit(AsyncCallback<?> asyncCallback) {
-	}
-
-	protected void init() {
-	}
-
 	@Override
 	public void write(Json json) {
 		json.writeObjectStart(getClass(), null);
@@ -57,6 +41,15 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		@SuppressWarnings("unchecked")
 		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
 		model.initInstance(context);
+		initialized = true;
+		init();
+	}
+
+	protected void init() {
+	}
+
+	public boolean isInitialized() {
+		return initialized;
 	}
 
 	@Override

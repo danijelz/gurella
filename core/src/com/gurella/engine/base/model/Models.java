@@ -9,11 +9,14 @@ public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
 
+	private Models() {
+	}
+
 	public static <T> Model<T> getModel(Class<T> type) {
-		if(type.isArray()) {
+		if (type.isArray()) {
 			return ArrayModel.getInstance(type);
 		}
-		
+
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
 			Model<T> resourceModel = (Model<T>) resolvedModels.get(type);
