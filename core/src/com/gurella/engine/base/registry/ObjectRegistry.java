@@ -18,11 +18,11 @@ import com.gurella.engine.utils.SynchronizedPools;
 //TODO unused
 public abstract class ObjectRegistry implements Serializable {
 	private static final String TEMPLATES_TAG = "templates";
-	private static final String OBJECTS_TAG = "templates";
+	private static final String OBJECTS_TAG = "objects";
 
 	private final IntMap<ManagedObject> templates = new IntMap<ManagedObject>();
 	private final IntMap<ManagedObject> objects = new IntMap<ManagedObject>();
-	private IntIntMap templateMappings = new IntIntMap();
+	private final IntMap<Prefab> prefabs = new IntMap<Prefab>();
 
 	protected abstract void clear();
 

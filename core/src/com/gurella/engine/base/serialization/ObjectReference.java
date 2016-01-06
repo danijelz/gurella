@@ -1,11 +1,11 @@
-package com.gurella.engine.base.registry;
+package com.gurella.engine.base.serialization;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class ObjectReference implements Serializable {
+public class ObjectReference implements Serializable, Reference {
 	private int id;
 	private String file;
 	private String typeName;

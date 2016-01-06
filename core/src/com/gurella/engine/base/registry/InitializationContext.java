@@ -1,10 +1,15 @@
 package com.gurella.engine.base.registry;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.Property;
+import com.gurella.engine.base.serialization.Reference;
+import com.gurella.engine.base.serialization.ReferenceProperty;
+import com.gurella.engine.utils.SynchronizedPools;
 
 public class InitializationContext<T> implements Poolable {
 	public ObjectRegistry registry;
@@ -13,10 +18,10 @@ public class InitializationContext<T> implements Poolable {
 	public Json json;
 	public JsonValue serializedValue;
 	public boolean duplicate;
-	public InitializationLevel level;
 	public InitializationContext<?> parentContext;
 
-	private IntMap<ManagedObject> instances = new IntMap<ManagedObject>();
+	private final IntMap<ManagedObject> instances = new IntMap<ManagedObject>();
+	private final Array<ReferenceProperty<?>> referenceProperties = new Array<ReferenceProperty<?>>();
 
 	public <MO extends ManagedObject> MO getInstance(MO object) {
 		return getInstance(object.id);
@@ -47,9 +52,25 @@ public class InitializationContext<T> implements Poolable {
 			throw new GdxRuntimeException("Can't find object by id: " + objectId);
 		}
 
-		instance = Objects.duplicate(template);
+		instance = Objects.duplicate(template, this);
 		instances.put(objectId, instance);
 		return instance;
+	}
+
+	public <P> void addReferenceProperty(Property<P> property, Reference reference) {
+		@SuppressWarnings("unchecked")
+		ReferenceProperty<P> referenceProperty = SynchronizedPools.obtain(ReferenceProperty.class);
+		referenceProperty.property = property;
+		referenceProperty.reference = reference;
+		addReferenceProperty(referenceProperty);
+	}
+
+	private <P> void addReferenceProperty(ReferenceProperty<P> referenceProperty) {
+		if (parentContext == null) {
+			referenceProperties.add(referenceProperty);
+		} else {
+			parentContext.addReferenceProperty(referenceProperty);
+		}
 	}
 
 	@Override
@@ -59,12 +80,8 @@ public class InitializationContext<T> implements Poolable {
 		serializedValue = null;
 		template = null;
 		duplicate = false;
-		level = null;
 		parentContext = null;
 		instances.clear();
-	}
-
-	public enum InitializationLevel {
-		lazy, full;
+		referenceProperties.clear();
 	}
 }

@@ -3,7 +3,6 @@ package com.gurella.engine.base.model;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
 import com.gurella.engine.base.model.ValueRange.CharRange;
 import com.gurella.engine.base.model.ValueRange.DoubleRange;
@@ -13,8 +12,9 @@ import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.ManagedObject;
-import com.gurella.engine.base.registry.ObjectReference;
 import com.gurella.engine.base.registry.Objects;
+import com.gurella.engine.base.serialization.AssetReference;
+import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
@@ -262,13 +262,13 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else {
 			T resolvedValue;
 			T value = context.json.readValue(type, null, serializedPropertyValue);
+			if (value instanceof AssetReference) {
+				context.addReferenceProperty(this, (AssetReference) value);
+				return;
+			}
+
 			if (value instanceof ObjectReference) {
 				ObjectReference objectReference = (ObjectReference) value;
-				@SuppressWarnings("unchecked")
-				T instance = (T) context.getInstance(objectReference.getId());
-				resolvedValue = instance;
-			} else if (value instanceof AssetId) {
-				AssetId assetId = (AssetId) value;
 				@SuppressWarnings("unchecked")
 				T instance = (T) context.getInstance(objectReference.getId());
 				resolvedValue = instance;

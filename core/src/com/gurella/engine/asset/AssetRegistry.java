@@ -2,6 +2,7 @@ package com.gurella.engine.asset;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.application.CommonUpdatePriority;
@@ -10,6 +11,10 @@ import com.gurella.engine.application.events.UpdateListener;
 public class AssetRegistry implements UpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
 	private final ObjectIntMap<String> managedAssets = new ObjectIntMap<String>();
+
+	public AssetRegistry() {
+		Texture.setAssetManager(assetManager);
+	}
 
 	public <T> T load(AssetDescriptor<T> assetDescriptor) {
 		synchronized (assetManager) {

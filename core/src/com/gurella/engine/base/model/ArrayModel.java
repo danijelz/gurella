@@ -4,9 +4,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
-import com.gurella.engine.asset.AssetId;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.ObjectReference;
+import com.gurella.engine.base.serialization.AssetReference;
+import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class ArrayModel<T> implements Model<T> {
@@ -72,8 +72,8 @@ public class ArrayModel<T> implements Model<T> {
 					@SuppressWarnings("unchecked")
 					T instance = (T) context.getInstance(objectReference.getId());
 					resolvedValue = instance;
-				} else if (value instanceof AssetId) {
-					AssetId assetId = (AssetId) value;
+				} else if (value instanceof AssetReference) {
+					AssetReference assetReference = (AssetReference) value;
 					@SuppressWarnings("unchecked")
 					T instance = (T) context.getInstance(objectReference.getId());
 					resolvedValue = instance;

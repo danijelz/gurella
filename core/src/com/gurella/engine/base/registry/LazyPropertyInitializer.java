@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.SynchronizedPools;
 
+//TODO unused
 public class LazyPropertyInitializer<T> implements Poolable {
 	public Object initializingObject;
 	public Property<T> property;

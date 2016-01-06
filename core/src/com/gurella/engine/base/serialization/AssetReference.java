@@ -1,11 +1,11 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.base.serialization;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class AssetId implements Serializable {
+public class AssetReference implements Serializable, Reference {
 	private static final String FILE_NAME_TAG = "fileName";
 
 	private String fileName;
@@ -13,15 +13,15 @@ public class AssetId implements Serializable {
 
 	private Class<?> assetType;
 
-	AssetId() {
+	AssetReference() {
 	}
 
-	public AssetId(String fileName, String assetTypeName) {
+	public AssetReference(String fileName, String assetTypeName) {
 		this.fileName = fileName;
 		this.assetTypeName = assetTypeName;
 	}
 
-	public AssetId(String fileName, Class<?> assetType) {
+	public AssetReference(String fileName, Class<?> assetType) {
 		this.fileName = fileName;
 		this.assetType = assetType;
 		this.assetTypeName = assetType.getName();

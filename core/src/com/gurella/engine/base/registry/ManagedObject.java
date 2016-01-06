@@ -13,7 +13,8 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	private static int indexer = 0;
 
 	int id;
-	boolean initialized;
+	int templateId;
+	transient boolean initialized;
 
 	String name;
 	public transient final int instanceId;
@@ -27,6 +28,9 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	public void write(Json json) {
 		json.writeObjectStart(getClass(), null);
 		json.writeField(Integer.valueOf(id), "id");
+		if (templateId > -1) {
+			json.writeField(Integer.valueOf(templateId), "templateId");
+		}
 		json.writeField(name, "name");
 		// TODO Auto-generated method stub
 	}
@@ -34,6 +38,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	@Override
 	public void read(Json json, JsonValue jsonData) {
 		id = jsonData.getInt("id");
+		templateId = jsonData.getInt("templateId", -1);
 		name = jsonData.getString("name");
 	}
 
@@ -53,12 +58,12 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	}
 
 	@Override
-	public final int hashCode() {
+	public int hashCode() {
 		return instanceId;
 	}
 
 	@Override
-	public final boolean equals(Object other) {
+	public boolean equals(Object other) {
 		if (this == other)
 			return true;
 		if (other == null)

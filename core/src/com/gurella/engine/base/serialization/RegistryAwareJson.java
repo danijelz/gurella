@@ -6,6 +6,6 @@ import com.badlogic.gdx.utils.JsonValue;
 public class RegistryAwareJson extends Json {
 	@Override
 	public <T> T readValue(Class<T> type, Class elementType, JsonValue jsonData) {
-
+		T value = super.readValue(type, elementType, jsonData);
 	}
 }
