@@ -22,27 +22,27 @@ public abstract class ObjectRegistry implements Serializable {
 
 	private final IntMap<ManagedObject> templates = new IntMap<ManagedObject>();
 	private final IntMap<ManagedObject> objects = new IntMap<ManagedObject>();
-	private final IntMap<Prefab> prefabs = new IntMap<Prefab>();
+	private final IntMap<ManagedObject> prefabs = new IntMap<ManagedObject>();
 
 	protected abstract void clear();
 
 	protected abstract void reset();
 
-	void addObject(ManagedObject object) {
+	public void addObject(ManagedObject object) {
 		objects.put(object.id, object);
 	}
 
-	<T extends ManagedObject> T getObject(int id) {
+	public <T extends ManagedObject> T getObject(int id) {
 		@SuppressWarnings("unchecked")
 		T object = (T) objects.get(id);
 		return object;
 	}
 
-	void addTemplate(ManagedObject template) {
+	public void addTemplate(ManagedObject template) {
 		templates.put(template.id, template);
 	}
 
-	<T extends ManagedObject> T getTemplate(int id) {
+	public <T extends ManagedObject> T getTemplate(int id) {
 		@SuppressWarnings("unchecked")
 		T template = (T) templates.get(id);
 		return template;

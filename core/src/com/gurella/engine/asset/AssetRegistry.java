@@ -19,11 +19,10 @@ public class AssetRegistry implements UpdateListener, Disposable {
 	public <T> T load(AssetDescriptor<T> assetDescriptor) {
 		synchronized (assetManager) {
 			String fileName = assetDescriptor.fileName;
-			int refCount = managedAssets.get(fileName, 0);
+			int refCount = managedAssets.getAndIncrement(fileName, 0, 1);
 			if (refCount == 0) {
 				assetManager.load(assetDescriptor);
 			}
-			managedAssets.put(fileName, refCount + 1);
 			return assetManager.isLoaded(fileName) ? assetManager.get(assetDescriptor) : null;
 		}
 	}
@@ -31,6 +30,12 @@ public class AssetRegistry implements UpdateListener, Disposable {
 	public boolean isLoaded(AssetDescriptor<?> assetDescriptor) {
 		synchronized (assetManager) {
 			return assetManager.isLoaded(assetDescriptor.fileName);
+		}
+	}
+	
+	public boolean isLoaded(String fileName) {
+		synchronized (assetManager) {
+			return assetManager.isLoaded(fileName);
 		}
 	}
 

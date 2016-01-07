@@ -265,9 +265,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			if (value instanceof AssetReference) {
 				context.addReferenceProperty(this, (AssetReference) value);
 				return;
-			}
-
-			if (value instanceof ObjectReference) {
+			} else if (value instanceof ObjectReference) {
 				ObjectReference objectReference = (ObjectReference) value;
 				@SuppressWarnings("unchecked")
 				T instance = (T) context.getInstance(objectReference.getId());
