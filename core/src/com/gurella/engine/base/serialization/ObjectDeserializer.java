@@ -12,7 +12,6 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.registry.AsyncCallback;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.ObjectRegistry;
-import com.gurella.engine.base.registry.Prefab;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 

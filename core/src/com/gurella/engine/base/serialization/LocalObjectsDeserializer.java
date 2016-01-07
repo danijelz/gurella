@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.registry.AsyncCallback;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.ObjectRegistry;
@@ -30,7 +31,7 @@ public class LocalObjectsDeserializer {
 
 	LocalObjectsDeserializer parent;
 	ObjectMap<String, LocalObjectsDeserializer> children = new ObjectMap<String, LocalObjectsDeserializer>();
-	
+
 	Array<ReferenceProperty<?>> referenceProperties = new Array<ReferenceProperty<?>>();
 
 	LoadingStage stage = LoadingStage.start;
@@ -124,8 +125,7 @@ public class LocalObjectsDeserializer {
 		ManagedObject object = null;
 		ManagedObject prefab = null;
 		Model<ManagedObject> model = null;
-		
-		
+
 		// TODO Auto-generated method stub
 	}
 
@@ -138,7 +138,7 @@ public class LocalObjectsDeserializer {
 		case prefabsLoaded:
 			return 0.1f;
 		case loadingAssets:
-			//TODO
+			// TODO
 			return 0.1f;
 		default:
 			break;
@@ -162,5 +162,43 @@ public class LocalObjectsDeserializer {
 
 	private enum LoadingStage {
 		start, jsonLoaded, prefabsLoaded, loadingAssets
+	}
+
+	private static class ObjectMapper {
+		LocalObjectsDeserializer deserializer;
+		JsonValue serializedObject;
+		Model<?> model;
+		Array<Reference> properties;
+
+		void appendReferences(Array<Reference> references) {
+
+		}
+
+		void init() {
+
+		}
+
+		Object deserialize() {
+			Object instance = model.createInstance();
+		}
+	}
+
+	private static class PropertyMapper {
+		LocalObjectsDeserializer deserializer;
+		JsonValue serializedProperty;
+		Property<?> property;
+
+		ObjectMapper object;
+
+		void appendReferences(Array<Reference> references) {
+		}
+
+		void init() {
+			property.getType();
+		}
+
+		void deserialize() {
+
+		}
 	}
 }
