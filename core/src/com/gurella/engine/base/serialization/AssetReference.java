@@ -27,6 +27,7 @@ public class AssetReference implements Serializable, Reference {
 		this.assetTypeName = assetType.getName();
 	}
 
+	@Override
 	public String getFileName() {
 		return fileName;
 	}

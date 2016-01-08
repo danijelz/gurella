@@ -81,7 +81,7 @@ public class ObjectDeserializer<T> {
 		}
 
 		ObjectReference prefabReference = json.readValue(ObjectReference.class, prefabValue);
-		if (objectRegistry.isLoaded(prefabReference.getFilePath())) {
+		if (objectRegistry.isLoaded(prefabReference.getFileName())) {
 			prefab = objectRegistry.getPrefab(prefabReference);
 		} else {
 			waitingForPrefab = true;

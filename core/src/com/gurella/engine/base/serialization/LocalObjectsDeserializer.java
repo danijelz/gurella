@@ -77,7 +77,7 @@ public class LocalObjectsDeserializer {
 		}
 
 		ObjectReference prefabReference = json.readValue(ObjectReference.class, prefabValue);
-		String filePath = prefabReference.getFilePath();
+		String filePath = prefabReference.getFileName();
 		if (assetRegistry.isLoaded(filePath) || children.containsKey(filePath)) {
 			return;
 		}

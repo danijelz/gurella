@@ -74,6 +74,23 @@ public class AssetRegistry implements UpdateListener, Disposable {
 		}
 	}
 
+	public <T> void inreaseRef(T asset) {
+		synchronized (assetManager) {
+			String fileName = assetManager.getAssetFileName(asset);
+			if (managedAssets.containsKey(fileName)) {
+				managedAssets.getAndIncrement(fileName, 0, 1);
+			}
+		}
+	}
+
+	public void inreaseRef(String fileName) {
+		synchronized (assetManager) {
+			if (managedAssets.containsKey(fileName)) {
+				managedAssets.getAndIncrement(fileName, 0, 1);
+			}
+		}
+	}
+
 	@Override
 	public int getPriority() {
 		return CommonUpdatePriority.INPUT;

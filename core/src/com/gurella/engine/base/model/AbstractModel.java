@@ -42,6 +42,10 @@ public abstract class AbstractModel<T> implements Model<T> {
 
 	@Override
 	public void initInstance(InitializationContext<T> context) {
+		if (context.initializingObject == null) {
+			return;
+		}
+
 		ImmutableArray<Property<?>> properties = getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).init(context);

@@ -131,6 +131,9 @@ public class GdxArrayModel implements Model<Array<?>> {
 				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
 				|| Double.class == type || Float.class == type || String.class == type || Assets.isAssetType(type)) {
 			return value;
+		} else if (Assets.isAssetType(type)) {
+			context.assetRegistry.inreaseRef(value);
+			return value;
 		} else if (value instanceof ManagedObject) {
 			ManagedObject object = (ManagedObject) value;
 			@SuppressWarnings("unchecked")

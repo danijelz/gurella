@@ -143,6 +143,9 @@ public class ArrayModel<T> implements Model<T> {
 				|| Character.class == componentType || Boolean.class == componentType || Double.class == componentType
 				|| Float.class == componentType || String.class == componentType || Assets.isAssetType(componentType)) {
 			return value;
+		} else if (Assets.isAssetType(componentType)) {
+			context.assetRegistry.inreaseRef(value);
+			return value;
 		} else if (value instanceof ManagedObject) {
 			ManagedObject object = (ManagedObject) value;
 			@SuppressWarnings("unchecked")

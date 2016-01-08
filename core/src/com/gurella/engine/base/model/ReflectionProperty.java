@@ -305,7 +305,10 @@ public class ReflectionProperty<T> implements Property<T> {
 	private T copyValue(T value, InitializationContext<?> context) {
 		if (value == null || type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
 				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
-				|| Double.class == type || Float.class == type || String.class == type || Assets.isAssetType(type)) {
+				|| Double.class == type || Float.class == type || String.class == type) {
+			return value;
+		} else if (Assets.isAssetType(type)) {
+			context.assetRegistry.inreaseRef(value);
 			return value;
 		} else if (value instanceof ManagedObject) {
 			ManagedObject object = (ManagedObject) value;

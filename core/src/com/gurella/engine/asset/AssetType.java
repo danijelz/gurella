@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.base.registry.ManagedObject;
 
 public enum AssetType {
 	texture(Texture.class, "png"),
@@ -26,7 +25,6 @@ public enum AssetType {
 	pixmap(Pixmap.class),
 	polygonRegion(PolygonRegion.class),
 	text(String.class, "txt"),
-	template(ManagedObject.class),
 	renderProgram(null),
 	material(null),
 	spritter(null),
