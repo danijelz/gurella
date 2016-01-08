@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -126,7 +127,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 		}
 
 		Class<?> fieldType = field.getType();
-		if (fieldType.isPrimitive() || fieldType.isArray()) {
+		if (fieldType.isPrimitive() || fieldType.isArray() || Assets.isAssetType(fieldType)) {
 			return true;
 		}
 

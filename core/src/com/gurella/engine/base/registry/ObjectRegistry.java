@@ -126,7 +126,7 @@ public abstract class ObjectRegistry implements Serializable {
 		@SuppressWarnings("unchecked")
 		InitializationContext<ManagedObject> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.json = json;
-		context.registry = this;
+		context.objectRegistry = this;
 
 		JsonValue values = jsonData.get(TEMPLATES_TAG);
 		if (values != null) {

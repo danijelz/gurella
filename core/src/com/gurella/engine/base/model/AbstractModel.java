@@ -1,5 +1,6 @@
 package com.gurella.engine.base.model;
 
+import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -17,8 +18,26 @@ public abstract class AbstractModel<T> implements Model<T> {
 	}
 
 	@Override
-	public T createInstance() {
-		return ReflectionUtils.newInstance(type);
+	public T newInstance(InitializationContext<T> context) {
+		JsonValue serializedValue = context.serializedValue;
+		if (serializedValue == null) {
+			T template = context.template;
+			if (template == null) {
+				return null;
+			}
+
+			@SuppressWarnings("unchecked")
+			T instance = (T) ReflectionUtils.newInstance(template.getClass());
+			return instance;
+		} else {
+			if (serializedValue.isNull()) {
+				return null;
+			}
+			String explicitTypeName = serializedValue.getString("class", null);
+			Class<T> resolvedType = explicitTypeName == null ? type : ReflectionUtils.<T> forName(explicitTypeName);
+			T instance = (T) ReflectionUtils.newInstance(resolvedType);
+			return instance;
+		}
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class ObjectDeserializer<T> {
 	public void deserialize() {
 		resolvedType = resolveObjectType();
 		Model<T> model = Models.getModel(resolvedType);
-		deserializedObject = model.createInstance();
+		deserializedObject = model.newInstance();
 		if(deserializedObject instanceof ManagedObject) {
 			objectRegistry.addObject((ManagedObject) deserializedObject);
 		}

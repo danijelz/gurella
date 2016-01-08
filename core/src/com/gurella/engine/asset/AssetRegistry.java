@@ -32,7 +32,7 @@ public class AssetRegistry implements UpdateListener, Disposable {
 			return assetManager.isLoaded(assetDescriptor.fileName);
 		}
 	}
-	
+
 	public boolean isLoaded(String fileName) {
 		synchronized (assetManager) {
 			return assetManager.isLoaded(fileName);
@@ -40,9 +40,17 @@ public class AssetRegistry implements UpdateListener, Disposable {
 	}
 
 	public <T> T get(AssetDescriptor<T> assetDescriptor) {
+		return get(assetDescriptor, false);
+	}
+
+	public <T> T get(AssetDescriptor<T> assetDescriptor, boolean strict) {
 		String fileName = assetDescriptor.fileName;
 		synchronized (assetManager) {
-			return assetManager.isLoaded(fileName) ? assetManager.get(assetDescriptor) : null;
+			if (strict || assetManager.isLoaded(fileName)) {
+				return assetManager.get(assetDescriptor);
+			} else {
+				return null;
+			}
 		}
 	}
 

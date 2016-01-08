@@ -1,5 +1,6 @@
 package com.gurella.engine.base.model;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
@@ -7,7 +8,12 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
+	//TODO handle by ModelResolvers...
 	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
+
+	static {
+		customModels.put(Array.class, GdxArrayModel.getInstance());
+	}
 
 	private Models() {
 	}

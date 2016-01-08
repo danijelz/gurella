@@ -6,13 +6,17 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.Reference;
 import com.gurella.engine.base.serialization.ReferenceProperty;
 import com.gurella.engine.utils.SynchronizedPools;
 
 public class InitializationContext<T> implements Poolable {
-	public ObjectRegistry registry;
+	public ObjectRegistry objectRegistry;
+	public AssetRegistry assetRegistry;
+
 	public T initializingObject;
 	public T template;
 	public Json json;
@@ -38,7 +42,7 @@ public class InitializationContext<T> implements Poolable {
 			return instance;
 		}
 
-		instance = registry.getObject(objectId);
+		instance = objectRegistry.getObject(objectId);
 		if (instance != null) {
 			if (duplicate) {
 				instance = Objects.duplicate(instance);
@@ -47,7 +51,7 @@ public class InitializationContext<T> implements Poolable {
 			return instance;
 		}
 
-		MO template = registry.getTemplate(objectId);
+		MO template = objectRegistry.getTemplate(objectId);
 		if (template == null) {
 			throw new GdxRuntimeException("Can't find object by id: " + objectId);
 		}
@@ -73,9 +77,21 @@ public class InitializationContext<T> implements Poolable {
 		}
 	}
 
+	public boolean fromTemplate() {
+		return serializedValue == null && template != null;
+	}
+
+	public boolean fromSerializedValue() {
+		return serializedValue != null;
+	}
+
+	public <A> A getAsset(AssetReference assetReference) {
+		return assetRegistry.get(null, true);
+	}
+
 	@Override
 	public void reset() {
-		registry = null;
+		objectRegistry = null;
 		initializingObject = null;
 		serializedValue = null;
 		template = null;

@@ -1,8 +1,10 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
 import com.gurella.engine.base.model.ValueRange.CharRange;
 import com.gurella.engine.base.model.ValueRange.DoubleRange;
@@ -15,6 +17,7 @@ import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
+import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
@@ -93,31 +96,31 @@ public class ReflectionProperty<T> implements Property<T> {
 			return null;
 		}
 
-		if (Integer.class.equals(type) || Integer.TYPE.equals(type)) {
+		if (Integer.class == type || int.class == type) {
 			IntegerRange integerRange = valueRange.integerRange();
 			return integerRange == null ? null
 					: new Range<Integer>(Integer.valueOf(integerRange.min()), Integer.valueOf(integerRange.max()));
-		} else if (Float.class.equals(type) || Float.TYPE.equals(type)) {
+		} else if (Float.class == type || float.class == type) {
 			FloatRange floatRange = valueRange.floatRange();
 			return floatRange == null ? null
 					: new Range<Float>(Float.valueOf(floatRange.min()), Float.valueOf(floatRange.max()));
-		} else if (Long.class.equals(type) || Long.TYPE.equals(type)) {
+		} else if (Long.class == type || long.class == type) {
 			LongRange longRange = valueRange.longRange();
 			return longRange == null ? null
 					: new Range<Long>(Long.valueOf(longRange.min()), Long.valueOf(longRange.max()));
-		} else if (Double.class.equals(type) || Double.TYPE.equals(type)) {
+		} else if (Double.class == type || double.class == type) {
 			DoubleRange doubleRange = valueRange.doubleRange();
 			return doubleRange == null ? null
 					: new Range<Double>(Double.valueOf(doubleRange.min()), Double.valueOf(doubleRange.max()));
-		} else if (Short.class.equals(type) || Short.TYPE.equals(type)) {
+		} else if (Short.class == type || short.class == type) {
 			ShortRange shortRange = valueRange.shortRange();
 			return shortRange == null ? null
 					: new Range<Short>(Short.valueOf(shortRange.min()), Short.valueOf(shortRange.max()));
-		} else if (Byte.class.equals(type) || Byte.TYPE.equals(type)) {
+		} else if (Byte.class == type || byte.class == type) {
 			ByteRange byteRange = valueRange.byteRange();
 			return byteRange == null ? null
 					: new Range<Byte>(Byte.valueOf(byteRange.min()), Byte.valueOf(byteRange.max()));
-		} else if (Character.class.equals(type) || Character.TYPE.equals(type)) {
+		} else if (Character.class == type || char.class == type) {
 			CharRange charRange = valueRange.charRange();
 			return charRange == null ? null
 					: new Range<Character>(Character.valueOf(charRange.min()), Character.valueOf(charRange.max()));
@@ -135,21 +138,21 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		if (Integer.class == type || int.class == type) {
 			return Integer.valueOf(defaultValue.integerValue());
-		} else if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
+		} else if (Boolean.class == type || boolean.class == type) {
 			return Boolean.valueOf(defaultValue.booleanValue());
-		} else if (Float.class.equals(type) || Float.TYPE.equals(type)) {
+		} else if (Float.class == type || float.class == type) {
 			return Float.valueOf(defaultValue.floatValue());
-		} else if (Long.class.equals(type) || Long.TYPE.equals(type)) {
+		} else if (Long.class == type || long.class == type) {
 			return Long.valueOf(defaultValue.longValue());
-		} else if (Double.class.equals(type) || Double.TYPE.equals(type)) {
+		} else if (Double.class == type || double.class == type) {
 			return Double.valueOf(defaultValue.doubleValue());
-		} else if (Short.class.equals(type) || Short.TYPE.equals(type)) {
+		} else if (Short.class == type || short.class == type) {
 			return Short.valueOf(defaultValue.shortValue());
-		} else if (Byte.class.equals(type) || Byte.TYPE.equals(type)) {
+		} else if (Byte.class == type || byte.class == type) {
 			return Byte.valueOf(defaultValue.byteValue());
-		} else if (Character.class.equals(type) || Character.TYPE.equals(type)) {
+		} else if (Character.class == type || char.class == type) {
 			return Character.valueOf(defaultValue.charValue());
-		} else if (String.class.equals(type)) {
+		} else if (String.class == type) {
 			return defaultValue.stringValue();
 		} else if (type.isEnum()) {
 			return type.getEnumConstants()[defaultValue.enumOrdinal()];
@@ -160,7 +163,8 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	private Object createCompositeDefaultValue(DefaultValue defaultValue) {
 		Model<T> model = Models.getModel(type);
-		T resolvedDefaultValue = model.createInstance();
+		T resolvedDefaultValue = model.newInstance(null); // TODO
+															// newInstance(context)
 		PropertyValue[] values = defaultValue.compositeValues();
 
 		if (ValueUtils.isNotEmpty(values)) {
@@ -179,21 +183,21 @@ public class ReflectionProperty<T> implements Property<T> {
 	private static Object getDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
 		if (Integer.class == valueType || int.class == valueType) {
 			return Integer.valueOf(propertyValue.integerValue());
-		} else if (Boolean.class == valueType || boolean.class.equals(valueType)) {
+		} else if (Boolean.class == valueType || boolean.class == valueType) {
 			return Boolean.valueOf(propertyValue.booleanValue());
-		} else if (Float.class.equals(valueType) || Float.TYPE.equals(valueType)) {
+		} else if (Float.class == valueType || float.class == valueType) {
 			return Float.valueOf(propertyValue.floatValue());
-		} else if (Long.class.equals(valueType) || Long.TYPE.equals(valueType)) {
+		} else if (Long.class == valueType || long.class == valueType) {
 			return Long.valueOf(propertyValue.longValue());
-		} else if (Double.class.equals(valueType) || Double.TYPE.equals(valueType)) {
+		} else if (Double.class == valueType || double.class == valueType) {
 			return Double.valueOf(propertyValue.doubleValue());
-		} else if (Short.class.equals(valueType) || Short.TYPE.equals(valueType)) {
+		} else if (Short.class == valueType || short.class == valueType) {
 			return Short.valueOf(propertyValue.shortValue());
-		} else if (Byte.class.equals(valueType) || Byte.TYPE.equals(valueType)) {
+		} else if (Byte.class == valueType || byte.class == valueType) {
 			return Byte.valueOf(propertyValue.byteValue());
-		} else if (Character.class.equals(valueType) || Character.TYPE.equals(valueType)) {
+		} else if (Character.class == valueType || char.class == valueType) {
 			return Character.valueOf(propertyValue.charValue());
-		} else if (String.class.equals(valueType)) {
+		} else if (String.class == valueType) {
 			return propertyValue.stringValue();
 		} else if (valueType.isEnum()) {
 			return valueType.getEnumConstants()[propertyValue.enumOrdinal()];
@@ -244,9 +248,9 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void init(InitializationContext<?> context) {
 		Object initializingObject = context.initializingObject;
-		JsonValue serializedPropertyValue = context.serializedValue == null ? null : context.serializedValue.get(name);
+		JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
 
-		if (serializedPropertyValue == null) {
+		if (serializedValue == null) {
 			Object template = context.template;
 			T value;
 			if (template != null) {
@@ -257,30 +261,51 @@ public class ReflectionProperty<T> implements Property<T> {
 				value = defaultValue;
 			}
 
-			T resolvedValue = field.isFinal() ? value : copyValue(context, value);
+			T resolvedValue = field.isFinal() ? value : copyValue(value, context);
 			setValue(initializingObject, resolvedValue);
 		} else {
 			T resolvedValue;
-			T value = context.json.readValue(type, null, serializedPropertyValue);
-			if (value instanceof AssetReference) {
-				context.addReferenceProperty(this, (AssetReference) value);
+
+			if (serializedValue.isNull()) {
 				return;
-			} else if (value instanceof ObjectReference) {
-				ObjectReference objectReference = (ObjectReference) value;
+			}
+
+			if (Assets.isAssetType(type)) {
+				AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
+				setValue(initializingObject, context.<T> getAsset(assetReference));
+				return;
+			}
+
+			if (type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
+					|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
+					|| Double.class == type || Float.class == type || String.class == type) {
+				resolvedValue = context.json.readValue(type, null, serializedValue);
+				setValue(initializingObject, resolvedValue);
+				return;
+			}
+
+			Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
+			if (ClassReflection.isAssignableFrom(ManagedObject.class, resolvedType)) {
+				ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, serializedValue);
 				@SuppressWarnings("unchecked")
 				T instance = (T) context.getInstance(objectReference.getId());
 				resolvedValue = instance;
-			} else {
-				resolvedValue = value;
+				setValue(initializingObject, resolvedValue);
+				return;
 			}
-			setValue(initializingObject, resolvedValue);
+
+			if (field.isFinal()) {
+				Objects.initProperties(getValue(initializingObject), serializedValue, context);
+			} else {
+				setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
+			}
 		}
 	}
 
-	private T copyValue(InitializationContext<?> context, T value) {
+	private T copyValue(T value, InitializationContext<?> context) {
 		if (value == null || type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
 				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
-				|| Double.class == type || Float.class == type || String.class == type) {
+				|| Double.class == type || Float.class == type || String.class == type || Assets.isAssetType(type)) {
 			return value;
 		} else if (value instanceof ManagedObject) {
 			ManagedObject object = (ManagedObject) value;

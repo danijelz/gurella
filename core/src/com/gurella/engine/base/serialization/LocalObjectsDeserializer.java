@@ -65,7 +65,7 @@ public class LocalObjectsDeserializer {
 
 	private void createEmptyObject(JsonValue serializedObject) {
 		Model<ManagedObject> model = getModel(serializedObject);
-		ManagedObject object = model.createInstance();
+		ManagedObject object = model.newInstance();
 		object.id = serializedObject.getInt("id");
 		object.name = serializedObject.getString("name");
 
@@ -179,7 +179,7 @@ public class LocalObjectsDeserializer {
 		}
 
 		Object deserialize() {
-			Object instance = model.createInstance();
+			Object instance = model.newInstance();
 		}
 	}
 

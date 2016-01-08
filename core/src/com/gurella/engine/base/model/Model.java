@@ -8,7 +8,7 @@ public interface Model<T> {
 
 	String getName();
 
-	T createInstance();
+	T newInstance(InitializationContext<T> context);
 
 	void initInstance(InitializationContext<T> context);
 
