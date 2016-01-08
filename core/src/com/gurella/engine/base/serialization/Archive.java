@@ -2,7 +2,6 @@ package com.gurella.engine.base.serialization;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -18,11 +17,12 @@ import com.gurella.engine.base.registry.AsyncCallback;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.ObjectRegistry;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.ValueUtils;
 
-public class Archive {
+public class Archive implements Poolable {
 	AsyncCallback<Object> callback;
 	String fileName;
 	Class<?> knownType;
@@ -35,8 +35,8 @@ public class Archive {
 	ObjectRegistry objectRegistry;
 	AssetRegistry assetRegistry;
 
-	private IntMap<ManagedObject> archivedObjects = new IntMap<ManagedObject>();
 	private ObjectMap<String, ExtenalDependency<?>> externalDependencies = new ObjectMap<String, ExtenalDependency<?>>();
+	private Array<Throwable> exceptions = new Array<Throwable>();
 
 	public void deserialize() {
 		JsonReader reader = SynchronizedPools.obtain(JsonReader.class);
@@ -49,18 +49,29 @@ public class Archive {
 
 	private void updateProgress() {
 		float dependenciesProgress = 0;
+		int dependenciesSize = externalDependencies.size;
 		for (ExtenalDependency<?> extenalDependency : externalDependencies.values()) {
 			dependenciesProgress += extenalDependency.progress;
 		}
 
+		boolean finished = dependenciesProgress == dependenciesSize;
 		dependenciesProgress *= 0.99f;
-		dependenciesProgress /= externalDependencies.size;
+		dependenciesProgress /= dependenciesSize;
 
-		callback.onProgress(dependenciesProgress + 0.01f);
+		float progress = dependenciesProgress + 0.01f;
+		callback.onProgress(progress);
+
+		if (finished) {
+			if (exceptions.size == 0) {
+				callback.onSuccess(value);
+			} else {
+				callback.onException(exceptions);
+			}
+		}
 	}
 
 	private void addException(Throwable exception) {
-		// TODO
+		exceptions.add(exception);
 		updateProgress();
 	}
 
@@ -105,17 +116,12 @@ public class Archive {
 		private float progress;
 
 		public void resolve(Archive archive) {
-			if (ClassReflection.isAssignableFrom(ManagedObject.class, knownType)) {
-
-			} else {
-
-			}
-
-			// TODO Auto-generated method stub
+			ResourceService.loadResource(fileName, knownType, this);
 		}
 
 		@Override
 		public void onSuccess(T value) {
+			// TODO value
 			progress = 1;
 			archive.updateProgress();
 		}
