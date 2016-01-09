@@ -20,6 +20,18 @@ public class Objects {
 			return null;
 		}
 
+		// if (Serialization.isSimpleType(type)) {
+		// return original;
+		// } else if (Assets.isAssetType(type)) {
+		// parentContext.assetRegistry.inreaseRef(value);
+		// return original;
+		// } else if (value instanceof ManagedObject) {
+		// ManagedObject object = (ManagedObject) value;
+		// @SuppressWarnings("unchecked")
+		// T instance = (T) parentContext.getInstance(object);
+		// return instance;
+		// }
+
 		@SuppressWarnings("unchecked")
 		Model<T> model = (Model<T>) Models.getModel(original.getClass());
 		@SuppressWarnings("unchecked")

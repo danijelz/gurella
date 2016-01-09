@@ -1,6 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
@@ -247,6 +248,70 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void init(InitializationContext<?> context) {
+		if (type.isArray()) {
+			initArrayProperty(context);
+		} else {
+			initProperty(context);
+		}
+	}
+
+	private void initArrayProperty(InitializationContext<?> context) {
+		Object initializingObject = context.initializingObject;
+		JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
+
+		if (serializedValue == null) {
+			T template = getValue(context.template);
+			if (template == null) {
+				setValue(initializingObject, null);
+				return;
+			}
+
+			int length = ArrayReflection.getLength(template);
+			@SuppressWarnings("unchecked")
+			T array = (T) ArrayReflection.newInstance(type, length);
+			for (int i = 0; i < length; i++) {
+				Object value = ArrayReflection.get(template, i);
+				ArrayReflection.set(array, i, copyValue(value, context));
+			}
+			setValue(context.initializingObject, array);
+		} else {
+			if (serializedValue.isNull()) {
+				setValue(initializingObject, null);
+				return;
+			}
+
+			@SuppressWarnings("unchecked")
+			T array = (T) ArrayReflection.newInstance(type, serializedValue.size);
+			Class<?> componentType = type.getComponentType();
+
+			int i = 0;
+			for (JsonValue item = serializedValue.child; item != null; item = item.next) {
+				if (serializedValue.isNull()) {
+					ArrayReflection.set(array, i++, null);
+					continue;
+				}
+
+				Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+				if (Serialization.isSimpleType(resolvedType)) {
+					ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
+				} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+					AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
+					ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
+				} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
+					ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
+					@SuppressWarnings("unchecked")
+					T instance = (T) context.getInstance(objectReference.getId());
+					ArrayReflection.set(array, i++, instance);
+				} else {
+					ArrayReflection.set(array, i++, Objects.deserialize(serializedValue, resolvedType, context));
+				}
+			}
+
+			setValue(context.initializingObject, array);
+		}
+	}
+
+	private void initProperty(InitializationContext<?> context) {
 		Object initializingObject = context.initializingObject;
 		JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
 
@@ -255,46 +320,31 @@ public class ReflectionProperty<T> implements Property<T> {
 			T value;
 			if (template != null) {
 				value = getValue(template);
-			} else if (!applyDefaultValueOnInit) {
-				return;
-			} else {
+			} else if (applyDefaultValueOnInit) {
 				value = defaultValue;
+			} else {
+				return;
 			}
 
-			T resolvedValue = field.isFinal() ? value : copyValue(value, context);
-			setValue(initializingObject, resolvedValue);
+			setValue(initializingObject, field.isFinal() ? value : copyValue(value, context));
 		} else {
-			T resolvedValue;
-
 			if (serializedValue.isNull()) {
-				return;
-			}
-
-			if (Assets.isAssetType(type)) {
-				AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
-				setValue(initializingObject, context.<T> getAsset(assetReference));
-				return;
-			}
-
-			if (type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
-					|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
-					|| Double.class == type || Float.class == type || String.class == type) {
-				resolvedValue = context.json.readValue(type, null, serializedValue);
-				setValue(initializingObject, resolvedValue);
+				setValue(initializingObject, null);
 				return;
 			}
 
 			Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
-			if (ClassReflection.isAssignableFrom(ManagedObject.class, resolvedType)) {
+			if (Serialization.isSimpleType(resolvedType)) {
+				setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
+			} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+				AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
+				setValue(initializingObject, context.<T> getAsset(assetReference));
+			} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
 				ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, serializedValue);
 				@SuppressWarnings("unchecked")
 				T instance = (T) context.getInstance(objectReference.getId());
-				resolvedValue = instance;
-				setValue(initializingObject, resolvedValue);
-				return;
-			}
-
-			if (field.isFinal()) {
+				setValue(initializingObject, instance);
+			} else if (field.isFinal()) {
 				Objects.initProperties(getValue(initializingObject), serializedValue, context);
 			} else {
 				setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
@@ -302,18 +352,21 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
-	private T copyValue(T value, InitializationContext<?> context) {
-		if (value == null || type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type
-				|| Short.class == type || Byte.class == type || Character.class == type || Boolean.class == type
-				|| Double.class == type || Float.class == type || String.class == type) {
+	private <V> V copyValue(V value, InitializationContext<?> context) {
+		if (value == null) {
+			return null;
+		}
+
+		Class<?> valueType = value.getClass();
+		if (value == null || Serialization.isSimpleType(valueType)) {
 			return value;
-		} else if (Assets.isAssetType(type)) {
+		} else if (Assets.isAssetType(valueType)) {
 			context.assetRegistry.inreaseRef(value);
 			return value;
 		} else if (value instanceof ManagedObject) {
 			ManagedObject object = (ManagedObject) value;
 			@SuppressWarnings("unchecked")
-			T instance = (T) context.getInstance(object);
+			V instance = (V) context.getInstance(object);
 			return instance;
 		} else {
 			return Objects.duplicate(value, context);

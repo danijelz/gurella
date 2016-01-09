@@ -8,7 +8,7 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
-	//TODO handle by ModelResolvers...
+	// TODO handle with ModelResolvers...
 	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
 
 	static {
@@ -19,10 +19,6 @@ public class Models {
 	}
 
 	public static <T> Model<T> getModel(Class<T> type) {
-		if (type.isArray()) {
-			return ArrayModel.getInstance(type);
-		}
-
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
 			Model<T> resourceModel = (Model<T>) resolvedModels.get(type);

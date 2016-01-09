@@ -1,22 +1,31 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
+import com.gurella.engine.base.registry.InitializationContext;
+import com.gurella.engine.base.registry.ManagedObject;
+import com.gurella.engine.base.registry.Objects;
+import com.gurella.engine.base.serialization.AssetReference;
+import com.gurella.engine.base.serialization.ObjectReference;
+import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
-public class ReflectionModel<T> extends AbstractModel<T> {
+public class ReflectionModel<T> implements Model<T> {
 	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> declaredPropertiesByClass = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
 	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> propertiesByClass = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> instancesByClass = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
+	private Class<T> type;
 	private String name;
 	private ArrayExt<Property<?>> properties;
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
@@ -33,7 +42,7 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 	}
 
 	public ReflectionModel(Class<T> type) {
-		super(type);
+		this.type = type;
 		instancesByClass.put(type, this);
 		name = resolveName();
 		properties = findProperties();
@@ -50,6 +59,143 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
 			return ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
+		}
+	}
+
+	@Override
+	public Class<T> getType() {
+		return type;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public ImmutableArray<Property<?>> getProperties() {
+		return properties.immutable();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <P> Property<P> getProperty(String name) {
+		return (Property<P>) propertiesByName.get(name);
+	}
+
+	@Override
+	public T newInstance(InitializationContext<T> context) {
+		if (type.isArray()) {
+			JsonValue serializedValue = context.serializedValue;
+			if (serializedValue == null) {
+				T template = context.template;
+				if (template == null) {
+					return null;
+				}
+				int length = ArrayReflection.getLength(template);
+				@SuppressWarnings("unchecked")
+				T array = (T) ArrayReflection.newInstance(type, length);
+				return array;
+			} else {
+				if (serializedValue.isNull()) {
+					return null;
+				}
+				int length = serializedValue.size;
+				@SuppressWarnings("unchecked")
+				T array = (T) ArrayReflection.newInstance(type, length);
+				return array;
+			}
+		} else {
+			JsonValue serializedValue = context.serializedValue;
+			if (serializedValue == null) {
+				T template = context.template;
+				if (template == null) {
+					return null;
+				}
+
+				@SuppressWarnings("unchecked")
+				T instance = (T) ReflectionUtils.newInstance(template.getClass());
+				return instance;
+			} else {
+				if (serializedValue.isNull()) {
+					return null;
+				}
+				String explicitTypeName = serializedValue.getString("class", null);
+				Class<T> resolvedType = explicitTypeName == null ? type : ReflectionUtils.<T> forName(explicitTypeName);
+				T instance = (T) ReflectionUtils.newInstance(resolvedType);
+				return instance;
+			}
+		}
+	}
+
+	@Override
+	public void initInstance(InitializationContext<T> context) {
+		if(context.initializingObject == null) {
+			return;
+		}
+		
+		if (type.isArray()) {
+			T array = context.initializingObject;
+			JsonValue serializedValue = context.serializedValue;
+
+			if (serializedValue == null) {
+				T template = context.template;
+				int length = ArrayReflection.getLength(template);
+				for (int i = 0; i < length; i++) {
+					Object value = ArrayReflection.get(template, i);
+					ArrayReflection.set(array, i, copyValue(value, context));
+				}
+			} else {
+				Class<?> componentType = type.getComponentType();
+				int i = 0;
+				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
+					if (serializedValue.isNull()) {
+						ArrayReflection.set(array, i++, null);
+						continue;
+					}
+
+					Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+					if (Serialization.isSimpleType(resolvedType)) {
+						ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
+					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
+						ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
+					} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
+						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
+						@SuppressWarnings("unchecked")
+						T instance = (T) context.getInstance(objectReference.getId());
+						ArrayReflection.set(array, i++, instance);
+					} else {
+						ArrayReflection.set(array, i++, Objects.deserialize(serializedValue, resolvedType, context));
+					}
+				}
+			}
+		} else {
+			ImmutableArray<Property<?>> properties = getProperties();
+			for (int i = 0; i < properties.size(); i++) {
+				properties.get(i).init(context);
+			}
+		}
+	}
+	
+	private <V> V copyValue(V value, InitializationContext<?> context) {
+		if (value == null) {
+			return null;
+		}
+
+		Class<?> valueType = value.getClass();
+		if (value == null || Serialization.isSimpleType(valueType)) {
+			return value;
+		} else if (Assets.isAssetType(valueType)) {
+			context.assetRegistry.inreaseRef(value);
+			return value;
+		} else if (value instanceof ManagedObject) {
+			ManagedObject object = (ManagedObject) value;
+			@SuppressWarnings("unchecked")
+			V instance = (V) context.getInstance(object);
+			return instance;
+		} else {
+			return Objects.duplicate(value, context);
 		}
 	}
 
@@ -239,21 +385,5 @@ public class ReflectionModel<T> extends AbstractModel<T> {
 		} else {
 			return Void.TYPE.equals(setter.getReturnType()) ? setter : null;
 		}
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public ImmutableArray<Property<?>> getProperties() {
-		return properties.immutable();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <P> Property<P> getProperty(String name) {
-		return (Property<P>) propertiesByName.get(name);
 	}
 }
