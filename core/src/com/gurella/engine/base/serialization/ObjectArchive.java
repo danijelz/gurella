@@ -57,23 +57,32 @@ public class ObjectArchive<T> {
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
 				Object value = property.getValue(obj);
-
-				if (value == null) {
-
-				} else if (Serialization.isSimpleType(property.getType())) {
-
-				} else if (value instanceof ManagedObject) {
-					slicedObjects.add((ManagedObject) value);
-				} else if (ResourceService.isResource(value)) {
-					
-				} else {
-
-				}
+				slice(property, value);
 			}
 		}
-		
-		if(slicedObjects.size > 0) {
+
+		if (slicedObjects.size > 0) {
 			slice(slicedObjects.removeIndex(0));
+		}
+	}
+
+	private <O> void slice(Property<?> property, O value) {
+		if (value == null) {
+			return;
+		} else if (value instanceof ManagedObject) {
+			ManagedObject managedObject = (ManagedObject) value;
+			String objectFileName = getObjectArchiveFileName(managedObject);
+			if (fileName.equals(objectFileName)) {
+				slicedObjects.add(managedObject);
+			} else {
+				ObjectReference reference = new ObjectReference(managedObject.getId(), objectFileName);
+				dependentObjects.add(reference);
+			}
+		} else if (ResourceService.isResource(value)) {
+			AssetReference reference = new AssetReference(fileName, value.getClass());
+			dependentAssets.add(reference);
+		} else if (!Serialization.isSimpleType(property.getType())) {
+			slice(value);
 		}
 	}
 }

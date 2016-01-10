@@ -149,22 +149,22 @@ public class ReflectionModel<T> implements Model<T> {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					if (serializedValue.isNull()) {
 						ArrayReflection.set(array, i++, null);
-						continue;
-					}
-
-					Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-					if (Serialization.isSimpleType(resolvedType)) {
-						ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
-					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-						ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
-					} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-						@SuppressWarnings("unchecked")
-						T instance = (T) context.getInstance(objectReference.getId());
-						ArrayReflection.set(array, i++, instance);
 					} else {
-						ArrayReflection.set(array, i++, Objects.deserialize(serializedValue, resolvedType, context));
+						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+						if (Serialization.isSimpleType(resolvedType)) {
+							ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
+						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
+							ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
+						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
+							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
+							@SuppressWarnings("unchecked")
+							T instance = (T) context.getInstance(objectReference.getId());
+							ArrayReflection.set(array, i++, instance);
+						} else {
+							ArrayReflection.set(array, i++,
+									Objects.deserialize(serializedValue, resolvedType, context));
+						}
 					}
 				}
 			}

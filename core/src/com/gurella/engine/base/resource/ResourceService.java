@@ -3,6 +3,7 @@ package com.gurella.engine.base.resource;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
@@ -12,6 +13,8 @@ public class ResourceService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 	private static final AssetManager assetManager = new AssetManager();
 	private static final ObjectIntMap<String> managedAssets = new ObjectIntMap<String>();
+	
+	private static final IntMap<String> objectsByFile = new IntMap<String>();
 
 	private ResourceService() {
 		Texture.setAssetManager(assetManager);
