@@ -18,6 +18,12 @@ public class Models {
 	private Models() {
 	}
 
+	public static <T> Model<T> getModel(T object) {
+		@SuppressWarnings("unchecked")
+		Class<T> casted = (Class<T>) object.getClass();
+		return getModel(casted);
+	}
+
 	public static <T> Model<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")

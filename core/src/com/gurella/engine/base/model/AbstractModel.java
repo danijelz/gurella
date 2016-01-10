@@ -5,6 +5,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
+//TODO unused
 public abstract class AbstractModel<T> implements Model<T> {
 	public final Class<T> type;
 

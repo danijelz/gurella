@@ -2,6 +2,7 @@ package com.gurella.engine.base.registry;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Serialization;
@@ -19,18 +20,6 @@ public class Objects {
 		if (original == null) {
 			return null;
 		}
-
-		// if (Serialization.isSimpleType(type)) {
-		// return original;
-		// } else if (Assets.isAssetType(type)) {
-		// parentContext.assetRegistry.inreaseRef(value);
-		// return original;
-		// } else if (value instanceof ManagedObject) {
-		// ManagedObject object = (ManagedObject) value;
-		// @SuppressWarnings("unchecked")
-		// T instance = (T) parentContext.getInstance(object);
-		// return instance;
-		// }
 
 		@SuppressWarnings("unchecked")
 		Model<T> model = (Model<T>) Models.getModel(original.getClass());
@@ -98,5 +87,26 @@ public class Objects {
 
 		model.initInstance(context);
 		SynchronizedPools.free(context);
+	}
+	
+	public static <V> V copyValue(V value, InitializationContext<?> context) {
+		if (value == null) {
+			return null;
+		}
+
+		Class<?> valueType = value.getClass();
+		if (Serialization.isSimpleType(valueType)) {
+			return value;
+		} else if (Assets.isAssetType(valueType)) {
+			context.assetRegistry.inreaseRef(value);
+			return value;
+		} else if (value instanceof ManagedObject) {
+			ManagedObject object = (ManagedObject) value;
+			@SuppressWarnings("unchecked")
+			V instance = (V) context.getInstance(object);
+			return instance;
+		} else {
+			return Objects.duplicate(value, context);
+		}
 	}
 }

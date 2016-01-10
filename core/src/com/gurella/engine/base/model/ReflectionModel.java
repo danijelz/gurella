@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
@@ -122,18 +121,17 @@ public class ReflectionModel<T> implements Model<T> {
 				}
 				String explicitTypeName = serializedValue.getString("class", null);
 				Class<T> resolvedType = explicitTypeName == null ? type : ReflectionUtils.<T> forName(explicitTypeName);
-				T instance = (T) ReflectionUtils.newInstance(resolvedType);
-				return instance;
+				return ReflectionUtils.newInstance(resolvedType);
 			}
 		}
 	}
 
 	@Override
 	public void initInstance(InitializationContext<T> context) {
-		if(context.initializingObject == null) {
+		if (context.initializingObject == null) {
 			return;
 		}
-		
+
 		if (type.isArray()) {
 			T array = context.initializingObject;
 			JsonValue serializedValue = context.serializedValue;
@@ -143,7 +141,7 @@ public class ReflectionModel<T> implements Model<T> {
 				int length = ArrayReflection.getLength(template);
 				for (int i = 0; i < length; i++) {
 					Object value = ArrayReflection.get(template, i);
-					ArrayReflection.set(array, i, copyValue(value, context));
+					ArrayReflection.set(array, i, Objects.copyValue(value, context));
 				}
 			} else {
 				Class<?> componentType = type.getComponentType();
@@ -175,27 +173,6 @@ public class ReflectionModel<T> implements Model<T> {
 			for (int i = 0; i < properties.size(); i++) {
 				properties.get(i).init(context);
 			}
-		}
-	}
-	
-	private <V> V copyValue(V value, InitializationContext<?> context) {
-		if (value == null) {
-			return null;
-		}
-
-		Class<?> valueType = value.getClass();
-		if (value == null || Serialization.isSimpleType(valueType)) {
-			return value;
-		} else if (Assets.isAssetType(valueType)) {
-			context.assetRegistry.inreaseRef(value);
-			return value;
-		} else if (value instanceof ManagedObject) {
-			ManagedObject object = (ManagedObject) value;
-			@SuppressWarnings("unchecked")
-			V instance = (V) context.getInstance(object);
-			return instance;
-		} else {
-			return Objects.duplicate(value, context);
 		}
 	}
 

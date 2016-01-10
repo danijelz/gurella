@@ -18,6 +18,10 @@ public class Assets {
 	private Assets() {
 	}
 
+	public static boolean isAsset(Object obj) {
+		return isAssetType(obj.getClass());
+	}
+
 	public static boolean isAssetType(Class<?> type) {
 		Class<?> temp = type;
 		while (temp != null && temp != Object.class) {

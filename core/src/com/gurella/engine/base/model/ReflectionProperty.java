@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
 import com.gurella.engine.base.model.ValueRange.CharRange;
 import com.gurella.engine.base.model.ValueRange.DoubleRange;
@@ -14,7 +13,6 @@ import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
@@ -164,8 +162,8 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	private Object createCompositeDefaultValue(DefaultValue defaultValue) {
 		Model<T> model = Models.getModel(type);
-		T resolvedDefaultValue = model.newInstance(null); // TODO
-															// newInstance(context)
+		// TODO newInstance(context)
+		T resolvedDefaultValue = model.newInstance(null);
 		PropertyValue[] values = defaultValue.compositeValues();
 
 		if (ValueUtils.isNotEmpty(values)) {
@@ -271,7 +269,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			T array = (T) ArrayReflection.newInstance(type, length);
 			for (int i = 0; i < length; i++) {
 				Object value = ArrayReflection.get(template, i);
-				ArrayReflection.set(array, i, copyValue(value, context));
+				ArrayReflection.set(array, i, Objects.copyValue(value, context));
 			}
 			setValue(context.initializingObject, array);
 		} else {
@@ -288,22 +286,21 @@ public class ReflectionProperty<T> implements Property<T> {
 			for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 				if (serializedValue.isNull()) {
 					ArrayReflection.set(array, i++, null);
-					continue;
-				}
-
-				Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-				if (Serialization.isSimpleType(resolvedType)) {
-					ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
-				} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-					AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-					ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
-				} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-					ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-					@SuppressWarnings("unchecked")
-					T instance = (T) context.getInstance(objectReference.getId());
-					ArrayReflection.set(array, i++, instance);
 				} else {
-					ArrayReflection.set(array, i++, Objects.deserialize(serializedValue, resolvedType, context));
+					Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+					if (Serialization.isSimpleType(resolvedType)) {
+						ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
+					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
+						ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
+					} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
+						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
+						@SuppressWarnings("unchecked")
+						T instance = (T) context.getInstance(objectReference.getId());
+						ArrayReflection.set(array, i++, instance);
+					} else {
+						ArrayReflection.set(array, i++, Objects.deserialize(serializedValue, resolvedType, context));
+					}
 				}
 			}
 
@@ -326,7 +323,7 @@ public class ReflectionProperty<T> implements Property<T> {
 				return;
 			}
 
-			setValue(initializingObject, field.isFinal() ? value : copyValue(value, context));
+			setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
 		} else {
 			if (serializedValue.isNull()) {
 				setValue(initializingObject, null);
@@ -349,27 +346,6 @@ public class ReflectionProperty<T> implements Property<T> {
 			} else {
 				setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
 			}
-		}
-	}
-
-	private <V> V copyValue(V value, InitializationContext<?> context) {
-		if (value == null) {
-			return null;
-		}
-
-		Class<?> valueType = value.getClass();
-		if (value == null || Serialization.isSimpleType(valueType)) {
-			return value;
-		} else if (Assets.isAssetType(valueType)) {
-			context.assetRegistry.inreaseRef(value);
-			return value;
-		} else if (value instanceof ManagedObject) {
-			ManagedObject object = (ManagedObject) value;
-			@SuppressWarnings("unchecked")
-			V instance = (V) context.getInstance(object);
-			return instance;
-		} else {
-			return Objects.duplicate(value, context);
 		}
 	}
 
@@ -396,13 +372,9 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public T getValue(Object object) {
 		if (getter == null) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) ReflectionUtils.getFieldValue(field, object);
-			return casted;
+			return ReflectionUtils.getFieldValue(field, object);
 		} else {
-			@SuppressWarnings("unchecked")
-			T casted = (T) ReflectionUtils.invokeMethod(getter, object);
-			return casted;
+			return ReflectionUtils.invokeMethod(getter, object);
 		}
 	}
 

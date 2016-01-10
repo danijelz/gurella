@@ -28,9 +28,9 @@ public class ResourceService {
 	public static <T> void loadResource(String fileName) {
 
 	}
-	
+
 	public static boolean isResourceLoaded(String fileName) {
-		
+
 	}
 
 	public static <T> void loadResource(String fileName, Class<T> assetType, AsyncCallback<T> callback) {
@@ -51,5 +51,15 @@ public class ResourceService {
 
 	public static <T> Array<T> findResources(Class<T> resourceType, Array<T> out) {
 		return out;
+	}
+
+	public static <T> String getResourceFileName(T resource) {
+		synchronized (assetManager) {
+			return assetManager.getAssetFileName(resource);
+		}
+	}
+
+	public static boolean isResource(Object obj) {
+		return getResourceFileName(obj) != null;
 	}
 }

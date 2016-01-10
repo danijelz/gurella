@@ -100,11 +100,11 @@ public class Archive implements Poolable {
 	}
 
 	private static <T> PropertyDeserializer<T> obtainPropertyDeserializer(Archive archive, Property<T> property,
-			JsonValue serializedObject) {
+			JsonValue serializedProperty) {
 		@SuppressWarnings("unchecked")
 		PropertyDeserializer<T> deserializer = SynchronizedPools.obtain(PropertyDeserializer.class);
 		deserializer.property = property;
-		deserializer.serializedProperty = serializedObject.get(property.getName());
+		deserializer.serializedProperty = serializedProperty;
 		deserializer.init(archive);
 		return deserializer;
 	}
@@ -175,7 +175,11 @@ public class Archive implements Poolable {
 			ImmutableArray<Property<?>> modelProperties = model.getProperties();
 			for (int i = 0; i < modelProperties.size(); i++) {
 				Property<?> property = modelProperties.get(i);
-				properties.add(obtainPropertyDeserializer(archive, property, serializedObject));
+				JsonValue serializedProperty = serializedObject.get(property.getName());
+				if (serializedProperty != null && !Serialization
+						.isSimpleType(Serialization.resolveObjectType(property.getType(), serializedProperty))) {
+					properties.add(obtainPropertyDeserializer(archive, property, serializedProperty));
+				}
 			}
 		}
 
@@ -205,7 +209,8 @@ public class Archive implements Poolable {
 
 		void init(Archive archive) {
 			Class<T> knownType = property.getType();
-			if (Assets.isAssetType(knownType)) {
+			Class<T> resolvedType = Serialization.resolveObjectType(knownType, serializedProperty);
+			if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 				AssetReference reference = archive.json.readValue(AssetReference.class, serializedProperty);
 				String fileName = reference.getFileName();
 				if (!archive.externalDependencies.containsKey(fileName)) {
@@ -215,7 +220,7 @@ public class Archive implements Poolable {
 					dependency.knownType = knownType;
 					archive.externalDependencies.put(fileName, dependency);
 				}
-			} else if (ClassReflection.isAssignableFrom(ManagedObject.class, knownType)) {
+			} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
 				ObjectReference reference = archive.json.readValue(ObjectReference.class, serializedProperty);
 				String fileName = reference.getFileName();
 				if (ValueUtils.isNotEmpty(fileName) && !archive.externalDependencies.containsKey(fileName)) {

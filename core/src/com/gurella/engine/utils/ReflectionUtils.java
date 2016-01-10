@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 public class ReflectionUtils {
 	private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
 	private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>, Constructor>();
-	
+
 	private ReflectionUtils() {
 	}
 
@@ -175,17 +175,21 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Object getFieldValue(Field field, Object object) {
+	public static <T> T getFieldValue(Field field, Object object) {
 		try {
-			return field.get(object);
+			@SuppressWarnings("unchecked")
+			T casted = (T) field.get(object);
+			return casted;
 		} catch (ReflectionException e) {
 			throw new GdxRuntimeException(e);
 		}
 	}
 
-	public static Object invokeMethod(Method method, Object object, Object... args) {
+	public static <T> T invokeMethod(Method method, Object object, Object... args) {
 		try {
-			return method.invoke(object, args);
+			@SuppressWarnings("unchecked")
+			T casted = (T) method.invoke(object, args);
+			return casted;
 		} catch (ReflectionException e) {
 			throw new GdxRuntimeException(e);
 		}
