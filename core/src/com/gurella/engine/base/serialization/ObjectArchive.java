@@ -63,13 +63,17 @@ public class ObjectArchive<T> {
 				} else if (Serialization.isSimpleType(property.getType())) {
 
 				} else if (value instanceof ManagedObject) {
-
+					slicedObjects.add((ManagedObject) value);
 				} else if (ResourceService.isResource(value)) {
-
+					
 				} else {
 
 				}
 			}
+		}
+		
+		if(slicedObjects.size > 0) {
+			slice(slicedObjects.removeIndex(0));
 		}
 	}
 }
