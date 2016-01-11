@@ -327,7 +327,7 @@ public class ReflectionModel<T> implements Model<T> {
 				&& factoryMethod.isStatic()) {
 			try {
 				return (Property<?>) factoryMethod.invoke(null);
-			} catch (ReflectionException e) {
+			} catch (@SuppressWarnings("unused") ReflectionException e) {
 				return null;
 			}
 		} else {
