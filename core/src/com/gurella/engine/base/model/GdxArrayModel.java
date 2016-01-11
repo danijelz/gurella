@@ -178,11 +178,11 @@ public class GdxArrayModel implements Model<Array<?>> {
 		}
 
 		@Override
-		public void serialize(Array<?> object, ObjectArchive archive) {
+		public void serialize(Object object, ObjectArchive archive) {
+			Array<?> array = (Array<?>) object;
 			archive.writeArrayStart("items");
-			for(int i = 0; i < object.size; i++) {
-				Object item = object.get(i);
-				archive.writeValue(item, Object.class);
+			for(int i = 0; i < array.size; i++) {
+				archive.writeValue(array.get(i), Object.class);
 			}
 			archive.writeArrayEnd();
 		}

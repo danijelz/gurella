@@ -25,5 +25,5 @@ public interface Property<T> {
 
 	void setValue(Object object, T value);
 	
-	void serialize(T object, ObjectArchive archive);
+	void serialize(Object object, ObjectArchive archive);
 }

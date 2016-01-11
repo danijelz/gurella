@@ -1,11 +1,14 @@
 package com.gurella.engine.base.serialization;
 
+import java.io.IOException;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
@@ -42,55 +45,11 @@ public class ObjectArchive {
 	public <T> void serialize(T rootObject, Class<T> knownType) {
 		this.rootObject = rootObject;
 		this.knownType = knownType;
-		slice(rootObject);
 		serialize();
 	}
 
 	private void serialize() {
 		// TODO Auto-generated method stub
-	}
-
-	private <O> void slice(O obj) {
-		Model<O> model = Models.getModel(obj);
-
-		if (model.getType().isArray()) {
-			int length = ArrayReflection.getLength(obj);
-			for (int i = 0; i < length; i++) {
-				Object item = ArrayReflection.get(obj, i);
-				slice(item);
-			}
-		} else {
-			ImmutableArray<Property<?>> properties = model.getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				Property<?> property = properties.get(i);
-				Object value = property.getValue(obj);
-				slice(property, value);
-			}
-		}
-
-		if (slicedObjects.size > 0) {
-			slice(slicedObjects.removeIndex(0));
-		}
-	}
-
-	private <O> void slice(Property<?> property, O value) {
-		if (value == null) {
-			return;
-		} else if (value instanceof ManagedObject) {
-			ManagedObject managedObject = (ManagedObject) value;
-			String objectFileName = getObjectArchiveFileName(managedObject);
-			if (fileName.equals(objectFileName)) {
-				slicedObjects.add(managedObject);
-			} else {
-				ObjectReference reference = new ObjectReference(managedObject.getId(), objectFileName);
-				dependentObjects.add(reference);
-			}
-		} else if (ResourceService.isResource(value)) {
-			AssetReference reference = new AssetReference(fileName, value.getClass());
-			dependentAssets.add(reference);
-		} else if (!Serialization.isSimpleType(property.getType())) {
-			slice(value);
-		}
 	}
 	
 	public void writeObjectStart(Object value, Class<?> knownType) {
@@ -99,10 +58,6 @@ public class ObjectArchive {
 		if (knownType != actualType) {
 			json.writeType(actualType);
 		}
-	}
-
-	public void writeObjectStart(String name) {
-		json.writeObjectStart(name);
 	}
 
 	public void writeObjectEnd() {
@@ -133,6 +88,11 @@ public class ObjectArchive {
 			}
 		} else {
 			Model<Object> model = Models.getModel(value);
+			try {
+				json.getWriter().name(name);
+			} catch (IOException ex) {
+				throw new SerializationException(ex);
+			}
 			model.serialize(value, knownType, this);
 		}
 	}

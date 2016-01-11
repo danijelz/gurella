@@ -15,6 +15,7 @@ import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
+import com.gurella.engine.base.serialization.ObjectArchive;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
@@ -246,69 +247,6 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void init(InitializationContext<?> context) {
-		if (type.isArray()) {
-			initArrayProperty(context);
-		} else {
-			initProperty(context);
-		}
-	}
-
-	private void initArrayProperty(InitializationContext<?> context) {
-		Object initializingObject = context.initializingObject;
-		JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
-
-		if (serializedValue == null) {
-			T template = getValue(context.template);
-			if (template == null) {
-				setValue(initializingObject, null);
-				return;
-			}
-
-			int length = ArrayReflection.getLength(template);
-			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(type, length);
-			for (int i = 0; i < length; i++) {
-				Object value = ArrayReflection.get(template, i);
-				ArrayReflection.set(array, i, Objects.copyValue(value, context));
-			}
-			setValue(context.initializingObject, array);
-		} else {
-			if (serializedValue.isNull()) {
-				setValue(initializingObject, null);
-				return;
-			}
-
-			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(type, serializedValue.size);
-			Class<?> componentType = type.getComponentType();
-
-			int i = 0;
-			for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-				if (serializedValue.isNull()) {
-					ArrayReflection.set(array, i++, null);
-				} else {
-					Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-					if (Serialization.isSimpleType(resolvedType)) {
-						ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
-					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-						ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
-					} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-						@SuppressWarnings("unchecked")
-						T instance = (T) context.getInstance(objectReference.getId());
-						ArrayReflection.set(array, i++, instance);
-					} else {
-						ArrayReflection.set(array, i++, Objects.deserialize(serializedValue, resolvedType, context));
-					}
-				}
-			}
-
-			setValue(context.initializingObject, array);
-		}
-	}
-
-	private void initProperty(InitializationContext<?> context) {
 		Object initializingObject = context.initializingObject;
 		JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
 
@@ -323,7 +261,20 @@ public class ReflectionProperty<T> implements Property<T> {
 				return;
 			}
 
-			setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
+			if (value == null) {
+				setValue(initializingObject, null);
+			} else if (value.getClass().isArray()) {
+				int length = ArrayReflection.getLength(template);
+				@SuppressWarnings("unchecked")
+				T array = (T) ArrayReflection.newInstance(type, length);
+				for (int i = 0; i < length; i++) {
+					Object item = ArrayReflection.get(template, i);
+					ArrayReflection.set(array, i, Objects.copyValue(item, context));
+				}
+				setValue(context.initializingObject, array);
+			} else {
+				setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
+			}
 		} else {
 			if (serializedValue.isNull()) {
 				setValue(initializingObject, null);
@@ -331,20 +282,52 @@ public class ReflectionProperty<T> implements Property<T> {
 			}
 
 			Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
-			if (Serialization.isSimpleType(resolvedType)) {
-				setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
-			} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-				AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
-				setValue(initializingObject, context.<T> getAsset(assetReference));
-			} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-				ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, serializedValue);
+			if (resolvedType.isArray()) {
 				@SuppressWarnings("unchecked")
-				T instance = (T) context.getInstance(objectReference.getId());
-				setValue(initializingObject, instance);
-			} else if (field.isFinal()) {
-				Objects.initProperties(getValue(initializingObject), serializedValue, context);
+				T array = (T) ArrayReflection.newInstance(type, serializedValue.size);
+				Class<?> componentType = resolvedType.getComponentType();
+
+				int i = 0;
+				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
+					if (serializedValue.isNull()) {
+						ArrayReflection.set(array, i++, null);
+					} else {
+						Class<?> resolvedItemType = Serialization.resolveObjectType(componentType, item);
+						if (Serialization.isSimpleType(resolvedItemType)) {
+							ArrayReflection.set(array, i++, context.json.readValue(resolvedItemType, null, item));
+						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedItemType)) {
+							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
+							ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
+						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedItemType)) {
+							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
+							@SuppressWarnings("unchecked")
+							T instance = (T) context.getInstance(objectReference.getId());
+							ArrayReflection.set(array, i++, instance);
+						} else {
+							ArrayReflection.set(array, i++,
+									Objects.deserialize(serializedValue, resolvedItemType, context));
+						}
+					}
+				}
+
+				setValue(context.initializingObject, array);
 			} else {
-				setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
+				if (Serialization.isSimpleType(resolvedType)) {
+					setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
+				} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+					AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
+					setValue(initializingObject, context.<T> getAsset(assetReference));
+				} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
+					ObjectReference objectReference = context.json.readValue(ObjectReference.class, null,
+							serializedValue);
+					@SuppressWarnings("unchecked")
+					T instance = (T) context.getInstance(objectReference.getId());
+					setValue(initializingObject, instance);
+				} else if (field.isFinal()) {
+					Objects.initProperties(getValue(initializingObject), serializedValue, context);
+				} else {
+					setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
+				}
 			}
 		}
 	}
@@ -388,5 +371,10 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else {
 			ReflectionUtils.setFieldValue(field, object, value);
 		}
+	}
+
+	@Override
+	public void serialize(Object object, ObjectArchive archive) {
+		archive.writeValue(name, getValue(object), type);
 	}
 }

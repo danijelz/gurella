@@ -12,6 +12,7 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
+import com.gurella.engine.base.serialization.ObjectArchive;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -173,6 +174,27 @@ public class ReflectionModel<T> implements Model<T> {
 			for (int i = 0; i < properties.size(); i++) {
 				properties.get(i).init(context);
 			}
+		}
+	}
+	
+	@Override
+	public void serialize(T object, Class<?> knownType, ObjectArchive archive) {
+		if (type.isArray()) {
+			archive.writeArrayStart("items");
+			Class<?> componentType = type.getComponentType();
+			int length = ArrayReflection.getLength(object);
+			for(int i = 0; i < length; i++) {
+				Object item = ArrayReflection.get(object, i);
+				archive.writeValue(item, componentType);
+			}
+			archive.writeArrayEnd();
+		} else {
+			archive.writeObjectStart(object, knownType);
+			ImmutableArray<Property<?>> properties = getProperties();
+			for (int i = 0; i < properties.size(); i++) {
+				properties.get(i).serialize(object, archive);
+			}
+			archive.writeObjectEnd();
 		}
 	}
 
