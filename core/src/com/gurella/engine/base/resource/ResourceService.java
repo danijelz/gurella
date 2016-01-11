@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
-import com.gurella.engine.base.registry.AsyncCallback;
 
 public class ResourceService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
@@ -24,7 +23,7 @@ public class ResourceService {
 
 	}
 
-	public static <T> void loadResource(String fileName, AsyncCallback<T> callback) {
+	public static <T> void loadResourceAsync(String fileName, AsyncCallback<T> callback) {
 
 	}
 

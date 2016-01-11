@@ -37,7 +37,7 @@ public class Objects {
 
 	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType,
 			InitializationContext<?> parentContext) {
-		Model<T> model = (Model<T>) Models.getModel(objectType);
+		Model<T> model = Models.getModel(objectType);
 		@SuppressWarnings("unchecked")
 		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.json = parentContext.json;

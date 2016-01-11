@@ -12,7 +12,8 @@ import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.registry.AsyncCallback.SimpleAsyncCallback;
+import com.gurella.engine.base.resource.AsyncCallback;
+import com.gurella.engine.base.resource.AsyncCallback.SimpleAsyncCallback;
 import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO unused

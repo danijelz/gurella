@@ -19,7 +19,7 @@ public class Assets {
 	}
 
 	public static boolean isAsset(Object obj) {
-		return isAssetType(obj.getClass());
+		return obj != null && isAssetType(obj.getClass());
 	}
 
 	public static boolean isAssetType(Class<?> type) {

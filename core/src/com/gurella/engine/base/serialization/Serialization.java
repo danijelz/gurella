@@ -20,6 +20,10 @@ public class Serialization {
 			return ReflectionUtils.<T> forName(explicitTypeName);
 		}
 	}
+	
+	public static boolean isSimpleType(Object obj) {
+		return isSimpleType(obj.getClass());
+	}
 
 	public static boolean isSimpleType(Class<?> type) {
 		return type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type || Short.class == type
