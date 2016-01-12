@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectArchive;
+import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -80,7 +80,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	@Override
-	public void serialize(Array<?> object, Class<?> knownType, ObjectArchive archive) {
+	public void serialize(Array<?> object, Class<?> knownType, Archive archive) {
 		archive.writeObjectStart(object, knownType);
 		((ArrayItemsProperty) properties.get(0)).serialize(object, archive);
 		archive.writeObjectEnd();
@@ -165,7 +165,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 					}
 
 					Class<?> resolvedType = Serialization.resolveObjectType(Object.class, item);
-					if (Serialization.isSimpleTypeOrPrimitive(resolvedType)) {
+					if (Serialization.isSimpleType(resolvedType)) {
 						array.add(context.json.readValue(resolvedType, null, item));
 					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
@@ -194,7 +194,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 		}
 
 		@Override
-		public void serialize(Object object, ObjectArchive archive) {
+		public void serialize(Object object, Archive archive) {
 			Array<?> array = (Array<?>) object;
 			archive.writeArrayStart("items");
 			for (int i = 0; i < array.size; i++) {

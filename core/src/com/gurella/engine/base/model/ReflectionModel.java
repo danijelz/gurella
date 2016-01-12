@@ -10,8 +10,8 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
+import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectArchive;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -24,7 +24,6 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private Class<T> type;
 	private String name;
-	private T defaultValue;
 	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
@@ -47,52 +46,6 @@ public class ReflectionModel<T> implements Model<T> {
 		resolveDefaultValue();
 	}
 
-	private void resolveDefaultValue() {
-		if (type.isArray() || Serialization.isSimpleType(type)) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) ArrayReflection.newInstance(type.getComponentType(), 0);
-			defaultValue = casted;
-		} else if (int.class == type || Integer.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Integer.valueOf(0);
-			defaultValue = casted;
-		} else if (long.class == type || Long.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Long.valueOf(0);
-			defaultValue = casted;
-		} else if (short.class == type || Short.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Short.valueOf((short) 0);
-			defaultValue = casted;
-		} else if (byte.class == type || Byte.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Byte.valueOf((byte) 0);
-			defaultValue = casted;
-		} else if (char.class == type || Character.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Character.valueOf(Character.MIN_VALUE);
-			defaultValue = casted;
-		} else if (boolean.class == type || Boolean.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Boolean.FALSE;
-			defaultValue = casted;
-		} else if (double.class == type || Double.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Double.valueOf(0);
-			defaultValue = casted;
-		} else if (float.class == type || Float.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) Float.valueOf(0);
-			defaultValue = casted;
-		} else if (String.class == type) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) "";
-			defaultValue = casted;
-		} else {
-			defaultValue = ReflectionUtils.newInstanceSilently(type);
-		}
-	}
-
 	private void resolveName() {
 		ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
 		if (resourceAnnotation == null) {
@@ -100,6 +53,16 @@ public class ReflectionModel<T> implements Model<T> {
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
 			name = ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
+		}
+	}
+
+	private void resolveDefaultValue() {
+		if (type.isArray()) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) ArrayReflection.newInstance(type.getComponentType(), 0);
+			defaultValue = casted;
+		} else {
+			defaultValue = ReflectionUtils.newInstanceSilently(type);
 		}
 	}
 
@@ -122,11 +85,6 @@ public class ReflectionModel<T> implements Model<T> {
 	@SuppressWarnings("unchecked")
 	public <P> Property<P> getProperty(String name) {
 		return (Property<P>) propertiesByName.get(name);
-	}
-
-	@Override
-	public T getDefaultValue() {
-		return defaultValue;
 	}
 
 	@Override
@@ -198,7 +156,7 @@ public class ReflectionModel<T> implements Model<T> {
 						ArrayReflection.set(array, i++, null);
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-						if (Serialization.isSimpleTypeOrPrimitive(resolvedType)) {
+						if (Serialization.isSimpleType(resolvedType)) {
 							ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
 						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
@@ -224,7 +182,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public void serialize(T object, Class<?> knownType, ObjectArchive archive) {
+	public void serialize(T object, Class<?> knownType, Archive archive) {
 		if (object == null) {
 			archive.writeValue(null, null);
 		} else if (object.getClass().isArray()) {
@@ -279,7 +237,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		Class<?> fieldType = field.getType();
-		if (Serialization.isSimpleTypeOrPrimitive(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
+		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
 				|| ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
 			return true;
 		}

@@ -1,6 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -15,7 +16,7 @@ import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectArchive;
+import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
@@ -23,6 +24,8 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionProperty<T> implements Property<T> {
+	private static final ObjectMap<Class<?>, Object> defaultModelInstances = new ObjectMap<Class<?>, Object>();
+
 	private String name;
 	private String descriptiveName;
 	private String description;
@@ -75,9 +78,18 @@ public class ReflectionProperty<T> implements Property<T> {
 			group = propertyDescriptor.group();
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 		}
-		
+
 		range = extractRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
-		defaultValue = getValue(model.getDefaultValue());
+		defaultValue = getValue(getDefaultModelInstance());
+	}
+
+	private Object getDefaultModelInstance() {
+		if (defaultModelInstances.containsKey(type)) {
+			return defaultModelInstances.get(type);
+		}
+		Object defaultValue = ReflectionUtils.newInstanceSilently(model.getType());
+		defaultModelInstances.put(type, defaultValue);
+		return defaultValue;
 	}
 
 	private boolean isDefaultNullable() {
@@ -161,12 +173,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	public String getGroup() {
 		return group;
 	}
-	
-	@Override
-	public T getDefaultValue() {
-		return defaultValue;
-	}
-	
+
 	@Override
 	public Property<T> copy(Model<?> newModel) {
 		return new ReflectionProperty<T>(field, getter, setter, newModel);
@@ -220,7 +227,7 @@ public class ReflectionProperty<T> implements Property<T> {
 						ArrayReflection.set(array, i++, null);
 					} else {
 						Class<?> resolvedItemType = Serialization.resolveObjectType(componentType, item);
-						if (Serialization.isSimpleTypeOrPrimitive(resolvedItemType)) {
+						if (Serialization.isSimpleType(resolvedItemType)) {
 							ArrayReflection.set(array, i++, context.json.readValue(resolvedItemType, null, item));
 						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedItemType)) {
 							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
@@ -239,7 +246,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 				setValue(context.initializingObject, array);
 			} else {
-				if (Serialization.isSimpleTypeOrPrimitive(resolvedType)) {
+				if (Serialization.isSimpleType(resolvedType)) {
 					setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
 				} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 					AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
@@ -283,7 +290,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public void serialize(Object object, ObjectArchive archive) {
+	public void serialize(Object object, Archive archive) {
 		T value = getValue(object);
 		if (!ValueUtils.isEqual(value, defaultValue)) {
 			archive.writeValue(name, value, type);

@@ -2,6 +2,7 @@ package com.gurella.engine.base.serialization;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Serialization {
@@ -26,16 +27,8 @@ public class Serialization {
 	}
 
 	public static boolean isSimpleType(Class<?> type) {
-		return type.isEnum() || Integer.class == type || Long.class == type || Short.class == type || Byte.class == type
-				|| Character.class == type || Boolean.class == type || Double.class == type || Float.class == type
-				|| String.class == type;
-	}
-
-	public static boolean isSimpleTypeOrPrimitive(Object obj) {
-		return isSimpleTypeOrPrimitive(obj.getClass());
-	}
-
-	public static boolean isSimpleTypeOrPrimitive(Class<?> type) {
-		return type.isPrimitive() || isSimpleType(type);
+		return type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type || Short.class == type
+				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type
+				|| Float.class == type || String.class == type || ClassReflection.isAssignableFrom(Number.class, type);
 	}
 }

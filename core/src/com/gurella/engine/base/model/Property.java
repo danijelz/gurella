@@ -1,7 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.ObjectArchive;
+import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.utils.Range;
 
 public interface Property<T> {
@@ -29,7 +29,5 @@ public interface Property<T> {
 
 	void setValue(Object object, T value);
 
-	T getDefaultValue();
-
-	void serialize(Object object, ObjectArchive archive);
+	void serialize(Object object, Archive archive);
 }
