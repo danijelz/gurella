@@ -1,6 +1,5 @@
 package com.gurella.engine.base.model;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
@@ -21,12 +20,11 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionModel<T> implements Model<T> {
-	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> declaredPropertiesByType = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
 	private Class<T> type;
 	private String name;
-	private ArrayExt<Property<?>> properties;
+	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> resourceType) {
@@ -43,21 +41,17 @@ public class ReflectionModel<T> implements Model<T> {
 	public ReflectionModel(Class<T> type) {
 		this.type = type;
 		modelsByType.put(type, this);
-		name = resolveName();
-		properties = findProperties();
-		for (int i = 0; i < properties.size; i++) {
-			Property<?> property = properties.get(i);
-			propertiesByName.put(property.getName(), property);
-		}
+		resolveName();
+		resolveProperties();
 	}
 
-	private String resolveName() {
+	private void resolveName() {
 		ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
 		if (resourceAnnotation == null) {
-			return type.getSimpleName();
+			name = type.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			return ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
+			name = ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
 		}
 	}
 
@@ -199,87 +193,45 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-	private ArrayExt<Property<?>> findProperties() {
-		ArrayExt<Property<?>> cachedProperties = new ArrayExt<Property<?>>();
-		Array<Class<?>> classHierarchy = getClassHierarchy();
-		
-		for (Class<?> clazz : classHierarchy) {
-			appendProperties(clazz, cachedProperties);
+	private void resolveProperties() {
+		Class<? super T> supertype = type.getSuperclass();
+		if (supertype != null && supertype != Object.class) {
+			Model<? super T> model = Models.getModel(supertype);
+			ImmutableArray<Property<?>> supertypeProperties = model.getProperties();
+			for (int i = 0; i < supertypeProperties.size(); i++) {
+				Property<?> property = supertypeProperties.get(i).copy(this);
+				properties.add(property);
+				propertiesByName.put(property.getName(), property);
+			}
 		}
 
-		PropertyOverrides overrides = ReflectionUtils.getDeclaredAnnotation(type, PropertyOverrides.class);
-		if (overrides != null) {
-			boolean updateResourceOnInit = overrides.updateResourceOnInit();
-			PropertyValue[] values = overrides.values();
-			for (int i = 0; i < values.length; i++) {
-				PropertyValue propertyValue = values[i];
-				Property<?> property = findProperty(propertyValue.name(), cachedProperties);
-				if (property instanceof ReflectionProperty) {
-					ReflectionProperty<?> reflectionProperty = (ReflectionProperty<?>) property;
-					if (!isDeclaredProperty(property)) {
-						int index = cachedProperties.indexOf(reflectionProperty, true);
-						cachedProperties.set(index,
-								reflectionProperty.copy(propertyValue, updateResourceOnInit, this));
-					}
+		for (Field field : ClassReflection.getDeclaredFields(type)) {
+			if (!isIgnoredField(field)) {
+				Property<?> property = createProperty(field);
+				if (property != null) {
+					properties.add(property);
+					propertiesByName.put(property.getName(), property);
 				}
 			}
 		}
-		
-		return cachedProperties;
 	}
 
-	private Array<Class<?>> getClassHierarchy() {
-		// TODO garbage
-		Array<Class<?>> classHierarchy = new Array<Class<?>>();
-		Class<?> tempClass = type;
-		while (!tempClass.isInterface() && tempClass != Object.class) {
-			classHierarchy.add(tempClass);
-			tempClass = tempClass.getSuperclass();
+	private boolean isIgnoredField(Field field) {
+		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null) {
+			return true;
 		}
-		classHierarchy.reverse();
-		return classHierarchy;
-	}
 
-	private void appendProperties(Class<?> resourceType, ArrayExt<Property<?>> properties) {
-		synchronized (declaredPropertiesByType) {
-			ArrayExt<Property<?>> declaredProperties = declaredPropertiesByType.get(resourceType);
-			if (declaredProperties == null) {
-				declaredProperties = new ArrayExt<Property<?>>();
-				declaredPropertiesByType.put(resourceType, declaredProperties);
-
-				for (Field field : ClassReflection.getDeclaredFields(resourceType)) {
-					if (!isIgnoredField(resourceType, field)) {
-						Property<?> property = getModelProperty(field);
-						if (property != null) {
-							declaredProperties.add(property);
-						}
-					}
-				}
-			}
-			properties.addAll(declaredProperties);
-		}
-	}
-
-	private static boolean isIgnoredField(Class<?> resourceType, Field field) {
-		return field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null
-				|| isIgnoredFinalField(resourceType, field);
-	}
-
-	private static boolean isIgnoredFinalField(Class<?> resourceType, Field field) {
 		if (!field.isFinal()) {
 			return false;
 		}
 
 		Class<?> fieldType = field.getType();
-		if (fieldType.isPrimitive() || fieldType.isArray() || Assets.isAssetType(fieldType)) {
+		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
+				|| ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
 			return true;
 		}
 
-		if (ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
-			return true;
-		}
-
-		if (resourceType.equals(fieldType)) {
+		if (type.equals(fieldType)) {
 			return false;
 		}
 
@@ -287,22 +239,7 @@ public class ReflectionModel<T> implements Model<T> {
 		return modelProperties == null ? false : modelProperties.size() == 0;
 	}
 
-	private boolean isDeclaredProperty(Property<?> property) {
-		ArrayExt<Property<?>> cachedProperties = declaredPropertiesByType.get(type);
-		return cachedProperties != null && cachedProperties.contains(property, true);
-	}
-
-	private static Property<?> findProperty(String propertyName, ArrayExt<Property<?>> cachedProperties) {
-		for (int i = 0; i < cachedProperties.size; i++) {
-			Property<?> property = cachedProperties.get(i);
-			if (propertyName.equals(property.getName())) {
-				return property;
-			}
-		}
-		return null;
-	}
-
-	private Property<?> getModelProperty(Field field) {
+	private Property<?> createProperty(Field field) {
 		PropertyDescriptor propertyDescriptor = ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class);
 		if (propertyDescriptor == null) {
 			return createReflectionProperty(field, false);

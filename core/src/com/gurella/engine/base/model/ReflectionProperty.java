@@ -30,7 +30,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Class<T> type;
 	private Range<?> range;
 	private boolean nullable;
-	private boolean applyDefaultValueOnInit;
 	private T defaultValue;
 
 	private Field field;
@@ -61,18 +60,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			this.setter.setAccessible(true);
 		}
 
-		init();
-	}
-
-	private void init() {
-		init(ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class));
-		range = initRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
-		@SuppressWarnings("unchecked")
-		T casted = (T) initDefaultValue(ReflectionUtils.getDeclaredAnnotation(field, DefaultValue.class));
-		defaultValue = casted;
-	}
-
-	private void init(PropertyDescriptor propertyDescriptor) {
+		PropertyDescriptor propertyDescriptor = ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class);
 		if (propertyDescriptor == null) {
 			descriptiveName = name;
 			description = "";
@@ -87,6 +75,9 @@ public class ReflectionProperty<T> implements Property<T> {
 			group = propertyDescriptor.group();
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 		}
+		
+		range = initRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
+		defaultValue = getValue(Models.getDefaultValue(model.getType()));
 	}
 
 	private boolean isDefaultNullable() {
@@ -131,83 +122,6 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
-	private Object initDefaultValue(DefaultValue defaultValue) {
-		if (defaultValue == null) {
-			return getValue(Models.getDefaultValue(model.getType()));
-		}
-
-		applyDefaultValueOnInit = defaultValue.applyOnInit();
-
-		if (Integer.class == type || int.class == type) {
-			return Integer.valueOf(defaultValue.integerValue());
-		} else if (Boolean.class == type || boolean.class == type) {
-			return Boolean.valueOf(defaultValue.booleanValue());
-		} else if (Float.class == type || float.class == type) {
-			return Float.valueOf(defaultValue.floatValue());
-		} else if (Long.class == type || long.class == type) {
-			return Long.valueOf(defaultValue.longValue());
-		} else if (Double.class == type || double.class == type) {
-			return Double.valueOf(defaultValue.doubleValue());
-		} else if (Short.class == type || short.class == type) {
-			return Short.valueOf(defaultValue.shortValue());
-		} else if (Byte.class == type || byte.class == type) {
-			return Byte.valueOf(defaultValue.byteValue());
-		} else if (Character.class == type || char.class == type) {
-			return Character.valueOf(defaultValue.charValue());
-		} else if (String.class == type) {
-			return defaultValue.stringValue();
-		} else if (type.isEnum()) {
-			return type.getEnumConstants()[defaultValue.enumOrdinal()];
-		} else {
-			return createCompositeDefaultValue(defaultValue);
-		}
-	}
-
-	private Object createCompositeDefaultValue(DefaultValue defaultValue) {
-		Model<T> model = Models.getModel(type);
-		// TODO newInstance(context)
-		T resolvedDefaultValue = model.newInstance(null);
-		PropertyValue[] values = defaultValue.compositeValues();
-
-		if (ValueUtils.isNotEmpty(values)) {
-			for (int i = 0; i < values.length; i++) {
-				PropertyValue propertyValue = values[i];
-				String propertyName = propertyValue.name();
-				Property<Object> resourceProperty = model.getProperty(propertyName);
-				Object value = getDefaultValue(propertyValue, resourceProperty.getType());
-				resourceProperty.setValue(resolvedDefaultValue, value);
-			}
-		}
-
-		return resolvedDefaultValue;
-	}
-
-	private static Object getDefaultValue(PropertyValue propertyValue, Class<?> valueType) {
-		if (Integer.class == valueType || int.class == valueType) {
-			return Integer.valueOf(propertyValue.integerValue());
-		} else if (Boolean.class == valueType || boolean.class == valueType) {
-			return Boolean.valueOf(propertyValue.booleanValue());
-		} else if (Float.class == valueType || float.class == valueType) {
-			return Float.valueOf(propertyValue.floatValue());
-		} else if (Long.class == valueType || long.class == valueType) {
-			return Long.valueOf(propertyValue.longValue());
-		} else if (Double.class == valueType || double.class == valueType) {
-			return Double.valueOf(propertyValue.doubleValue());
-		} else if (Short.class == valueType || short.class == valueType) {
-			return Short.valueOf(propertyValue.shortValue());
-		} else if (Byte.class == valueType || byte.class == valueType) {
-			return Byte.valueOf(propertyValue.byteValue());
-		} else if (Character.class == valueType || char.class == valueType) {
-			return Character.valueOf(propertyValue.charValue());
-		} else if (String.class == valueType) {
-			return propertyValue.stringValue();
-		} else if (valueType.isEnum()) {
-			return valueType.getEnumConstants()[propertyValue.enumOrdinal()];
-		} else {
-			return null;
-		}
-	}
-
 	@Override
 	public String getName() {
 		return name;
@@ -247,9 +161,10 @@ public class ReflectionProperty<T> implements Property<T> {
 	public String getGroup() {
 		return group;
 	}
-
-	public boolean isApplyDefaultValueOnInit() {
-		return applyDefaultValueOnInit;
+	
+	@Override
+	public Property<T> copy(Model<?> newModel) {
+		return new ReflectionProperty<T>(field, getter, setter, newModel);
 	}
 
 	@Override
@@ -259,12 +174,12 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		if (serializedValue == null) {
 			Object template = context.template;
-			T value;
-			if (template != null) {
-				value = getValue(template);
-			} else if (applyDefaultValueOnInit) {
-				value = defaultValue;
-			} else {
+			if (template == null) {
+				return;
+			}
+
+			T value = getValue(template);
+			if (ValueUtils.isEqual(value, defaultValue)) {
 				return;
 			}
 
@@ -336,26 +251,6 @@ public class ReflectionProperty<T> implements Property<T> {
 					setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
 				}
 			}
-		}
-	}
-
-	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit, Model<?> model) {
-		@SuppressWarnings("unchecked")
-		T overridenValue = (T) getDefaultValue(propertyValue, type);
-		if (ValueUtils.isEqual(defaultValue, overridenValue)) {
-			return this;
-		} else {
-			ReflectionProperty<T> copy = new ReflectionProperty<T>(field, getter, setter, model);
-			copy.name = name;
-			copy.descriptiveName = descriptiveName;
-			copy.description = description;
-			copy.group = group;
-			copy.type = type;
-			copy.range = range;
-			copy.nullable = nullable;
-			copy.applyDefaultValueOnInit = applyDefaultValueOnInit;
-			copy.defaultValue = overridenValue;
-			return copy;
 		}
 	}
 

@@ -20,6 +20,8 @@ public interface Property<T> {
 	String getDescription();
 
 	String getGroup();
+	
+	Property<T> copy(Model<?> model);
 
 	void init(InitializationContext<?> context);
 

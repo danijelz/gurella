@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
@@ -39,10 +38,10 @@ public class ObjectArchive {
 		System.out.print(json.prettyPrint(buffer.toString()));
 		json.fromJson(Test.class, json.toJson(rootObject));
 	}
-	
+
 	public static void main(String[] args) {
-		Object[][] f = new Object[][]{{"1", "11"}, {"2"}};
-		Object[][] s = new Object[][]{{"1"}, {"2"}};
+		Object[][] f = new Object[][] { { "1", "11" }, { "2" } };
+		Object[][] s = new Object[][] { { "1" }, { "2" } };
 		Object[][] t = new Object[1][];
 		long[][] ll1 = null;
 		long[][] ll2 = null;
@@ -51,19 +50,15 @@ public class ObjectArchive {
 		Test obj = new Test();
 		obj.i = 8;
 		obj.s = "sss";
-		obj.a = new String[]{"bbb", "eee"};
+		obj.a = new String[] { "bbb", "eee" };
 		new ObjectArchive().serialize(new Test(), Test.class);
 		new ObjectArchive().serialize(obj, Test.class);
 	}
-	
+
 	private static class Test {
 		public int i = 2;
 		public String s = "ddd";
-		public Object[] a = new String[]{"sss"};
-	}
-
-	private void serialize() {
-		// TODO Auto-generated method stub
+		public Object[] a = new String[] { "sss" };
 	}
 
 	public void writeObjectStart(Object value, Class<?> knownType) {
