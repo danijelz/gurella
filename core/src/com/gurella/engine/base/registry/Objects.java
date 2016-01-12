@@ -95,7 +95,7 @@ public class Objects {
 		}
 
 		Class<?> valueType = value.getClass();
-		if (Serialization.isSimpleType(valueType)) {
+		if (Serialization.isSimpleTypeOrPrimitive(valueType)) {
 			return value;
 		} else if (Assets.isAssetType(valueType)) {
 			context.assetRegistry.inreaseRef(value);

@@ -8,7 +8,7 @@ public interface Property<T> {
 	String getName();
 
 	Class<T> getType();
-	
+
 	Model<?> getModel();
 
 	Range<?> getRange();
@@ -20,7 +20,7 @@ public interface Property<T> {
 	String getDescription();
 
 	String getGroup();
-	
+
 	Property<T> copy(Model<?> model);
 
 	void init(InitializationContext<?> context);
@@ -28,6 +28,8 @@ public interface Property<T> {
 	T getValue(Object object);
 
 	void setValue(Object object, T value);
-	
+
+	T getDefaultValue();
+
 	void serialize(Object object, ObjectArchive archive);
 }

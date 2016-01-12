@@ -87,9 +87,9 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	private static class ArrayItemsProperty implements Property<Array<?>> {
-		private GdxArrayModel model;
+		private Model<?> model;
 
-		public ArrayItemsProperty(GdxArrayModel model) {
+		public ArrayItemsProperty(Model<?> model) {
 			this.model = model;
 		}
 
@@ -108,6 +108,11 @@ public class GdxArrayModel implements Model<Array<?>> {
 		@Override
 		public Model<?> getModel() {
 			return model;
+		}
+		
+		@Override
+		public Property<Array<?>> copy(Model<?> model) {
+			return new ArrayItemsProperty(model);
 		}
 
 		@Override
@@ -160,7 +165,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 					}
 
 					Class<?> resolvedType = Serialization.resolveObjectType(Object.class, item);
-					if (Serialization.isSimpleType(resolvedType)) {
+					if (Serialization.isSimpleTypeOrPrimitive(resolvedType)) {
 						array.add(context.json.readValue(resolvedType, null, item));
 					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);

@@ -76,15 +76,15 @@ public class ReflectionProperty<T> implements Property<T> {
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 		}
 		
-		range = initRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
-		defaultValue = getValue(Models.getDefaultValue(model.getType()));
+		range = extractRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
+		defaultValue = getValue(model.getDefaultValue());
 	}
 
 	private boolean isDefaultNullable() {
 		return !(type.isPrimitive() || (field != null && field.isFinal()));
 	}
 
-	private Range<?> initRange(ValueRange valueRange) {
+	private Range<?> extractRange(ValueRange valueRange) {
 		if (valueRange == null) {
 			return null;
 		}
@@ -163,6 +163,11 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 	
 	@Override
+	public T getDefaultValue() {
+		return defaultValue;
+	}
+	
+	@Override
 	public Property<T> copy(Model<?> newModel) {
 		return new ReflectionProperty<T>(field, getter, setter, newModel);
 	}
@@ -215,7 +220,7 @@ public class ReflectionProperty<T> implements Property<T> {
 						ArrayReflection.set(array, i++, null);
 					} else {
 						Class<?> resolvedItemType = Serialization.resolveObjectType(componentType, item);
-						if (Serialization.isSimpleType(resolvedItemType)) {
+						if (Serialization.isSimpleTypeOrPrimitive(resolvedItemType)) {
 							ArrayReflection.set(array, i++, context.json.readValue(resolvedItemType, null, item));
 						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedItemType)) {
 							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
@@ -234,7 +239,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 				setValue(context.initializingObject, array);
 			} else {
-				if (Serialization.isSimpleType(resolvedType)) {
+				if (Serialization.isSimpleTypeOrPrimitive(resolvedType)) {
 					setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
 				} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 					AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);

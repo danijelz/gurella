@@ -8,6 +8,8 @@ public interface Model<T> {
 	Class<T> getType();
 
 	String getName();
+	
+	T getDefaultValue();
 
 	T newInstance(InitializationContext<T> context);
 

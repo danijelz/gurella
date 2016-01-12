@@ -86,7 +86,7 @@ public class ObjectArchive {
 	}
 
 	public void writeValue(String name, Object value, Class<?> knownType) {
-		if (value == null || Serialization.isSimpleType(value)) {
+		if (value == null || Serialization.isSimpleTypeOrPrimitive(value)) {
 			json.writeValue(name, value, knownType);
 		} else if (value instanceof ManagedObject) {
 
@@ -107,7 +107,7 @@ public class ObjectArchive {
 	}
 
 	public void writeValue(Object value, Class<?> knownType) {
-		if (value == null || Serialization.isSimpleType(value)) {
+		if (value == null || Serialization.isSimpleTypeOrPrimitive(value)) {
 			json.writeValue(value, knownType);
 		} else if (value instanceof ManagedObject) {
 

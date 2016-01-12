@@ -177,7 +177,7 @@ public class Archive implements Poolable {
 				Property<?> property = modelProperties.get(i);
 				JsonValue serializedProperty = serializedObject.get(property.getName());
 				if (serializedProperty != null && !Serialization
-						.isSimpleType(Serialization.resolveObjectType(property.getType(), serializedProperty))) {
+						.isSimpleTypeOrPrimitive(Serialization.resolveObjectType(property.getType(), serializedProperty))) {
 					properties.add(obtainPropertyDeserializer(archive, property, serializedProperty));
 				}
 			}

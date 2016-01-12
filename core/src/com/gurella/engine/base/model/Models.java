@@ -10,32 +10,12 @@ public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	// TODO handle with ModelResolvers...
 	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
-	private static final ObjectMap<Class<?>, Object> defaultValues = new ObjectMap<Class<?>, Object>();
 
 	static {
 		customModels.put(Array.class, GdxArrayModel.getInstance());
 	}
 
 	private Models() {
-	}
-
-	public static <T> T getDefaultValue(T obj) {
-		@SuppressWarnings("unchecked")
-		Class<T> type = (Class<T>) obj.getClass();
-		return getDefaultValue(type);
-	}
-
-	public static <T> T getDefaultValue(Class<T> type) {
-		synchronized (defaultValues) {
-			if (defaultValues.containsKey(type)) {
-				@SuppressWarnings("unchecked")
-				T defaultValue = (T) defaultValues.get(type);
-				return defaultValue;
-			}
-			T defaultValue = ReflectionUtils.newInstanceSilently(type);
-			defaultValues.put(type, defaultValue);
-			return defaultValue;
-		}
 	}
 
 	public static <T> Model<T> getModel(T object) {
@@ -47,12 +27,12 @@ public class Models {
 	public static <T> Model<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
-			Model<T> resourceModel = (Model<T>) resolvedModels.get(type);
-			if (resourceModel == null) {
-				resourceModel = resolveModel(type);
-				resolvedModels.put(type, resourceModel);
+			Model<T> model = (Model<T>) resolvedModels.get(type);
+			if (model == null) {
+				model = resolveModel(type);
+				resolvedModels.put(type, model);
 			}
-			return resourceModel;
+			return model;
 		}
 	}
 

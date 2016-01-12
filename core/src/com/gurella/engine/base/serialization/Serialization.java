@@ -20,14 +20,22 @@ public class Serialization {
 			return ReflectionUtils.<T> forName(explicitTypeName);
 		}
 	}
-	
+
 	public static boolean isSimpleType(Object obj) {
 		return isSimpleType(obj.getClass());
 	}
 
 	public static boolean isSimpleType(Class<?> type) {
-		return type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type || Short.class == type
-				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type
-				|| Float.class == type || String.class == type;
+		return type.isEnum() || Integer.class == type || Long.class == type || Short.class == type || Byte.class == type
+				|| Character.class == type || Boolean.class == type || Double.class == type || Float.class == type
+				|| String.class == type;
+	}
+
+	public static boolean isSimpleTypeOrPrimitive(Object obj) {
+		return isSimpleTypeOrPrimitive(obj.getClass());
+	}
+
+	public static boolean isSimpleTypeOrPrimitive(Class<?> type) {
+		return type.isPrimitive() || isSimpleType(type);
 	}
 }

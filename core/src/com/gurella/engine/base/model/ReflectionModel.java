@@ -24,6 +24,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private Class<T> type;
 	private String name;
+	private T defaultValue;
 	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
@@ -43,6 +44,53 @@ public class ReflectionModel<T> implements Model<T> {
 		modelsByType.put(type, this);
 		resolveName();
 		resolveProperties();
+		resolveDefaultValue();
+	}
+
+	private void resolveDefaultValue() {
+		if (type.isArray() || Serialization.isSimpleType(type)) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) ArrayReflection.newInstance(type.getComponentType(), 0);
+			defaultValue = casted;
+		} else if (int.class == type || Integer.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Integer.valueOf(0);
+			defaultValue = casted;
+		} else if (long.class == type || Long.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Long.valueOf(0);
+			defaultValue = casted;
+		} else if (short.class == type || Short.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Short.valueOf((short) 0);
+			defaultValue = casted;
+		} else if (byte.class == type || Byte.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Byte.valueOf((byte) 0);
+			defaultValue = casted;
+		} else if (char.class == type || Character.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Character.valueOf(Character.MIN_VALUE);
+			defaultValue = casted;
+		} else if (boolean.class == type || Boolean.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Boolean.FALSE;
+			defaultValue = casted;
+		} else if (double.class == type || Double.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Double.valueOf(0);
+			defaultValue = casted;
+		} else if (float.class == type || Float.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) Float.valueOf(0);
+			defaultValue = casted;
+		} else if (String.class == type) {
+			@SuppressWarnings("unchecked")
+			T casted = (T) "";
+			defaultValue = casted;
+		} else {
+			defaultValue = ReflectionUtils.newInstanceSilently(type);
+		}
 	}
 
 	private void resolveName() {
@@ -74,6 +122,11 @@ public class ReflectionModel<T> implements Model<T> {
 	@SuppressWarnings("unchecked")
 	public <P> Property<P> getProperty(String name) {
 		return (Property<P>) propertiesByName.get(name);
+	}
+
+	@Override
+	public T getDefaultValue() {
+		return defaultValue;
 	}
 
 	@Override
@@ -145,7 +198,7 @@ public class ReflectionModel<T> implements Model<T> {
 						ArrayReflection.set(array, i++, null);
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-						if (Serialization.isSimpleType(resolvedType)) {
+						if (Serialization.isSimpleTypeOrPrimitive(resolvedType)) {
 							ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
 						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
@@ -226,7 +279,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		Class<?> fieldType = field.getType();
-		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
+		if (Serialization.isSimpleTypeOrPrimitive(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
 				|| ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
 			return true;
 		}
