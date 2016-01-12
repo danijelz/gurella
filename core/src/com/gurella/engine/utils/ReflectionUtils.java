@@ -39,8 +39,13 @@ public class ReflectionUtils {
 	}
 
 	public static <T> T newInstance(Class<T> type) {
+		Constructor constructor;
 		try {
-			return ClassReflection.newInstance(type);
+			constructor = ClassReflection.getDeclaredConstructor(type);
+			constructor.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			T instance = (T) constructor.newInstance();
+			return instance;
 		} catch (ReflectionException e) {
 			throw new GdxRuntimeException(e);
 		}
@@ -48,23 +53,19 @@ public class ReflectionUtils {
 
 	public static <T> T newInstanceSilently(Class<T> type) {
 		try {
-			return ClassReflection.newInstance(type);
+			return newInstance(type);
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
 	public static <T> T newInstance(String className) {
-		try {
-			return ClassReflection.newInstance(ReflectionUtils.<T> forName(className));
-		} catch (ReflectionException e) {
-			throw new GdxRuntimeException(e);
-		}
+		return newInstance(ReflectionUtils.<T> forName(className));
 	}
 
 	public static <T> T newInstanceSilently(String className) {
 		try {
-			return ClassReflection.newInstance(ReflectionUtils.<T> forName(className));
+			return newInstance(ReflectionUtils.<T> forName(className));
 		} catch (Exception e) {
 			return null;
 		}

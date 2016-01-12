@@ -21,9 +21,8 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionModel<T> implements Model<T> {
-	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> declaredPropertiesByClass = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
-	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> propertiesByClass = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
-	private static final ObjectMap<Class<?>, ReflectionModel<?>> instancesByClass = new ObjectMap<Class<?>, ReflectionModel<?>>();
+	private static final ObjectMap<Class<?>, ArrayExt<Property<?>>> declaredPropertiesByType = new ObjectMap<Class<?>, ArrayExt<Property<?>>>();
+	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
 	private Class<T> type;
 	private String name;
@@ -31,9 +30,9 @@ public class ReflectionModel<T> implements Model<T> {
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> resourceType) {
-		synchronized (instancesByClass) {
+		synchronized (modelsByType) {
 			@SuppressWarnings("unchecked")
-			ReflectionModel<T> instance = (ReflectionModel<T>) instancesByClass.get(resourceType);
+			ReflectionModel<T> instance = (ReflectionModel<T>) modelsByType.get(resourceType);
 			if (instance == null) {
 				instance = new ReflectionModel<T>(resourceType);
 			}
@@ -43,7 +42,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	public ReflectionModel(Class<T> type) {
 		this.type = type;
-		instancesByClass.put(type, this);
+		modelsByType.put(type, this);
 		name = resolveName();
 		properties = findProperties();
 		for (int i = 0; i < properties.size; i++) {
@@ -85,51 +84,51 @@ public class ReflectionModel<T> implements Model<T> {
 
 	@Override
 	public T newInstance(InitializationContext<T> context) {
-		if (type.isArray()) {
-			JsonValue serializedValue = context.serializedValue;
-			if (serializedValue == null) {
-				T template = context.template;
-				if (template == null) {
-					return null;
-				}
+		if (context == null) {
+			if (type.isArray()) {
+				return null;
+			} else {
+				return ReflectionUtils.newInstance(type);
+			}
+		}
+
+		JsonValue serializedValue = context.serializedValue;
+		if (serializedValue == null) {
+			T template = context.template;
+			if (template == null) {
+				return null;
+			}
+
+			if (template.getClass().isArray()) {
 				int length = ArrayReflection.getLength(template);
 				@SuppressWarnings("unchecked")
 				T array = (T) ArrayReflection.newInstance(type, length);
 				return array;
 			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-				int length = serializedValue.size;
-				@SuppressWarnings("unchecked")
-				T array = (T) ArrayReflection.newInstance(type, length);
-				return array;
-			}
-		} else {
-			JsonValue serializedValue = context.serializedValue;
-			if (serializedValue == null) {
-				T template = context.template;
-				if (template == null) {
-					return null;
-				}
-
 				@SuppressWarnings("unchecked")
 				T instance = (T) ReflectionUtils.newInstance(template.getClass());
 				return instance;
-			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-				String explicitTypeName = serializedValue.getString("class", null);
-				Class<T> resolvedType = explicitTypeName == null ? type : ReflectionUtils.<T> forName(explicitTypeName);
-				return ReflectionUtils.newInstance(resolvedType);
 			}
+		} else if (serializedValue.isNull()) {
+			return null;
+		} else if (serializedValue.isArray()) {
+			int length = serializedValue.size;
+			@SuppressWarnings("unchecked")
+			T array = (T) ArrayReflection.newInstance(getArrayComponentType(serializedValue), length);
+			return array;
+		} else {
+			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
 		}
+	}
+
+	private Class<?> getArrayComponentType(JsonValue serializedValue) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public void initInstance(InitializationContext<T> context) {
-		if (context.initializingObject == null) {
+		if (context == null || context.initializingObject == null) {
 			return;
 		}
 
@@ -176,14 +175,16 @@ public class ReflectionModel<T> implements Model<T> {
 			}
 		}
 	}
-	
+
 	@Override
 	public void serialize(T object, Class<?> knownType, ObjectArchive archive) {
-		if (type.isArray()) {
-			archive.writeArrayStart("items");
-			Class<?> componentType = type.getComponentType();
+		if (object == null) {
+			archive.writeValue(null, null);
+		} else if (object.getClass().isArray()) {
+			archive.writeArrayStart();
+			Class<?> componentType = object.getClass().getComponentType();
 			int length = ArrayReflection.getLength(object);
-			for(int i = 0; i < length; i++) {
+			for (int i = 0; i < length; i++) {
 				Object item = ArrayReflection.get(object, i);
 				archive.writeValue(item, componentType);
 			}
@@ -199,33 +200,31 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private ArrayExt<Property<?>> findProperties() {
-		ArrayExt<Property<?>> cachedProperties = propertiesByClass.get(type);
-		if (cachedProperties == null) {
-			cachedProperties = new ArrayExt<Property<?>>();
-			propertiesByClass.put(type, cachedProperties);
+		ArrayExt<Property<?>> cachedProperties = new ArrayExt<Property<?>>();
+		Array<Class<?>> classHierarchy = getClassHierarchy();
+		
+		for (Class<?> clazz : classHierarchy) {
+			appendProperties(clazz, cachedProperties);
+		}
 
-			Array<Class<?>> classHierarchy = getClassHierarchy();
-			for (Class<?> clazz : classHierarchy) {
-				appendProperties(clazz, cachedProperties);
-			}
-
-			PropertyOverrides overrides = ReflectionUtils.getDeclaredAnnotation(type, PropertyOverrides.class);
-			if (overrides != null) {
-				boolean updateResourceOnInit = overrides.updateResourceOnInit();
-				PropertyValue[] values = overrides.values();
-				for (int i = 0; i < values.length; i++) {
-					PropertyValue propertyValue = values[i];
-					Property<?> property = findProperty(propertyValue.name(), cachedProperties);
-					if (property instanceof ReflectionProperty) {
-						ReflectionProperty<?> reflectionProperty = (ReflectionProperty<?>) property;
-						if (!isDeclaredProperty(property)) {
-							int index = cachedProperties.indexOf(reflectionProperty, true);
-							cachedProperties.set(index, reflectionProperty.copy(propertyValue, updateResourceOnInit));
-						}
+		PropertyOverrides overrides = ReflectionUtils.getDeclaredAnnotation(type, PropertyOverrides.class);
+		if (overrides != null) {
+			boolean updateResourceOnInit = overrides.updateResourceOnInit();
+			PropertyValue[] values = overrides.values();
+			for (int i = 0; i < values.length; i++) {
+				PropertyValue propertyValue = values[i];
+				Property<?> property = findProperty(propertyValue.name(), cachedProperties);
+				if (property instanceof ReflectionProperty) {
+					ReflectionProperty<?> reflectionProperty = (ReflectionProperty<?>) property;
+					if (!isDeclaredProperty(property)) {
+						int index = cachedProperties.indexOf(reflectionProperty, true);
+						cachedProperties.set(index,
+								reflectionProperty.copy(propertyValue, updateResourceOnInit, this));
 					}
 				}
 			}
 		}
+		
 		return cachedProperties;
 	}
 
@@ -241,12 +240,12 @@ public class ReflectionModel<T> implements Model<T> {
 		return classHierarchy;
 	}
 
-	private static void appendProperties(Class<?> resourceType, ArrayExt<Property<?>> properties) {
-		synchronized (declaredPropertiesByClass) {
-			ArrayExt<Property<?>> declaredProperties = declaredPropertiesByClass.get(resourceType);
+	private void appendProperties(Class<?> resourceType, ArrayExt<Property<?>> properties) {
+		synchronized (declaredPropertiesByType) {
+			ArrayExt<Property<?>> declaredProperties = declaredPropertiesByType.get(resourceType);
 			if (declaredProperties == null) {
 				declaredProperties = new ArrayExt<Property<?>>();
-				declaredPropertiesByClass.put(resourceType, declaredProperties);
+				declaredPropertiesByType.put(resourceType, declaredProperties);
 
 				for (Field field : ClassReflection.getDeclaredFields(resourceType)) {
 					if (!isIgnoredField(resourceType, field)) {
@@ -289,7 +288,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private boolean isDeclaredProperty(Property<?> property) {
-		ArrayExt<Property<?>> cachedProperties = declaredPropertiesByClass.get(type);
+		ArrayExt<Property<?>> cachedProperties = declaredPropertiesByType.get(type);
 		return cachedProperties != null && cachedProperties.contains(property, true);
 	}
 
@@ -303,7 +302,7 @@ public class ReflectionModel<T> implements Model<T> {
 		return null;
 	}
 
-	private static Property<?> getModelProperty(Field field) {
+	private Property<?> getModelProperty(Field field) {
 		PropertyDescriptor propertyDescriptor = ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class);
 		if (propertyDescriptor == null) {
 			return createReflectionProperty(field, false);
@@ -335,18 +334,18 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-	private static ReflectionProperty<?> createReflectionProperty(Field field, boolean forced) {
+	private ReflectionProperty<?> createReflectionProperty(Field field, boolean forced) {
 		ReflectionProperty<?> propertyModel = createBeanPropertyModel(field, forced);
 		if (propertyModel != null) {
 			return propertyModel;
 		} else if (forced || field.isPublic()) {
-			return new ReflectionProperty<Object>(field);
+			return new ReflectionProperty<Object>(field, this);
 		} else {
 			return null;
 		}
 	}
 
-	private static ReflectionProperty<?> createBeanPropertyModel(Field field, boolean forced) {
+	private ReflectionProperty<?> createBeanPropertyModel(Field field, boolean forced) {
 		String name = field.getName();
 		String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
 		Class<?> fieldType = field.getType();
@@ -362,7 +361,7 @@ public class ReflectionModel<T> implements Model<T> {
 			return null;
 		}
 
-		return new ReflectionProperty<Object>(field, getter, setter);
+		return new ReflectionProperty<Object>(field, getter, setter, this);
 	}
 
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,

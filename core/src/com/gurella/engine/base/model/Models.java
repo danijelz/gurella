@@ -10,12 +10,32 @@ public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	// TODO handle with ModelResolvers...
 	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
+	private static final ObjectMap<Class<?>, Object> defaultValues = new ObjectMap<Class<?>, Object>();
 
 	static {
 		customModels.put(Array.class, GdxArrayModel.getInstance());
 	}
 
 	private Models() {
+	}
+
+	public static <T> T getDefaultValue(T obj) {
+		@SuppressWarnings("unchecked")
+		Class<T> type = (Class<T>) obj.getClass();
+		return getDefaultValue(type);
+	}
+
+	public static <T> T getDefaultValue(Class<T> type) {
+		synchronized (defaultValues) {
+			if (defaultValues.containsKey(type)) {
+				@SuppressWarnings("unchecked")
+				T defaultValue = (T) defaultValues.get(type);
+				return defaultValue;
+			}
+			T defaultValue = ReflectionUtils.newInstanceSilently(type);
+			defaultValues.put(type, defaultValue);
+			return defaultValue;
+		}
 	}
 
 	public static <T> Model<T> getModel(T object) {
@@ -74,7 +94,7 @@ public class Models {
 				@SuppressWarnings("unchecked")
 				Model<T> casted = (Model<T>) factoryMethod.invoke(null);
 				return casted;
-			} catch (ReflectionException e) {
+			} catch (@SuppressWarnings("unused") ReflectionException e) {
 				return null;
 			}
 		}
@@ -86,7 +106,7 @@ public class Models {
 				@SuppressWarnings("unchecked")
 				Model<T> casted = (Model<T>) factoryMethod.invoke(modelType);
 				return casted;
-			} catch (ReflectionException e) {
+			} catch (@SuppressWarnings("unused") ReflectionException e) {
 				return null;
 			}
 		}

@@ -8,6 +8,8 @@ public interface Property<T> {
 	String getName();
 
 	Class<T> getType();
+	
+	Model<?> getModel();
 
 	Range<?> getRange();
 

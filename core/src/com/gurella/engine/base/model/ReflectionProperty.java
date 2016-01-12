@@ -36,14 +36,16 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Field field;
 	private Method getter;
 	private Method setter;
+	private Model<?> model;
 
-	public ReflectionProperty(Field field) {
-		this(field, null, null);
+	public ReflectionProperty(Field field, Model<?> model) {
+		this(field, null, null, model);
 	}
 
-	public ReflectionProperty(Field field, Method getter, Method setter) {
+	public ReflectionProperty(Field field, Method getter, Method setter, Model<?> model) {
 		this.name = field.getName();
 		this.field = field;
+		this.model = model;
 		this.field.setAccessible(true);
 		@SuppressWarnings("unchecked")
 		Class<T> castedType = field.getType();
@@ -131,7 +133,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	private Object initDefaultValue(DefaultValue defaultValue) {
 		if (defaultValue == null) {
-			return null;
+			return getValue(Models.getDefaultValue(model.getType()));
 		}
 
 		applyDefaultValueOnInit = defaultValue.applyOnInit();
@@ -214,6 +216,11 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public Class<T> getType() {
 		return type;
+	}
+
+	@Override
+	public Model<?> getModel() {
+		return model;
 	}
 
 	@Override
@@ -332,13 +339,13 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
-	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit) {
+	public Property<T> copy(PropertyValue propertyValue, boolean applyDefaultValueOnInit, Model<?> model) {
 		@SuppressWarnings("unchecked")
 		T overridenValue = (T) getDefaultValue(propertyValue, type);
 		if (ValueUtils.isEqual(defaultValue, overridenValue)) {
 			return this;
 		} else {
-			ReflectionProperty<T> copy = new ReflectionProperty<T>(field, getter, setter);
+			ReflectionProperty<T> copy = new ReflectionProperty<T>(field, getter, setter, model);
 			copy.name = name;
 			copy.descriptiveName = descriptiveName;
 			copy.description = description;
@@ -354,7 +361,9 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public T getValue(Object object) {
-		if (getter == null) {
+		if (object == null) {
+			return null;
+		} else if (getter == null) {
 			return ReflectionUtils.getFieldValue(field, object);
 		} else {
 			return ReflectionUtils.invokeMethod(getter, object);
@@ -375,6 +384,9 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public void serialize(Object object, ObjectArchive archive) {
-		archive.writeValue(name, getValue(object), type);
+		T value = getValue(object);
+		if (!ValueUtils.isEqual(value, defaultValue)) {
+			archive.writeValue(name, value, type);
+		}
 	}
 }

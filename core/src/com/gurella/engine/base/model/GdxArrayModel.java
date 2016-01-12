@@ -26,7 +26,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 
 	private GdxArrayModel() {
 		properties = new ArrayExt<Property<?>>();
-		properties.add(new ArrayItemsProperty());
+		properties.add(new ArrayItemsProperty(this));
 	}
 
 	@Override
@@ -78,15 +78,21 @@ public class GdxArrayModel implements Model<Array<?>> {
 	public <P> Property<P> getProperty(String name) {
 		return (Property<P>) ("items".equals(name) ? properties.get(0) : null);
 	}
-	
+
 	@Override
 	public void serialize(Array<?> object, Class<?> knownType, ObjectArchive archive) {
 		archive.writeObjectStart(object, knownType);
-		((ArrayItemsProperty)properties.get(0)).serialize(object, archive);
+		((ArrayItemsProperty) properties.get(0)).serialize(object, archive);
 		archive.writeObjectEnd();
 	}
 
 	private static class ArrayItemsProperty implements Property<Array<?>> {
+		private GdxArrayModel model;
+
+		public ArrayItemsProperty(GdxArrayModel model) {
+			this.model = model;
+		}
+
 		@Override
 		public String getName() {
 			return "items";
@@ -97,6 +103,11 @@ public class GdxArrayModel implements Model<Array<?>> {
 		public Class<Array<?>> getType() {
 			Class<?> raw = Array.class;
 			return (Class<Array<?>>) raw;
+		}
+
+		@Override
+		public Model<?> getModel() {
+			return model;
 		}
 
 		@Override
@@ -181,7 +192,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 		public void serialize(Object object, ObjectArchive archive) {
 			Array<?> array = (Array<?>) object;
 			archive.writeArrayStart("items");
-			for(int i = 0; i < array.size; i++) {
+			for (int i = 0; i < array.size; i++) {
 				archive.writeValue(array.get(i), Object.class);
 			}
 			archive.writeArrayEnd();
