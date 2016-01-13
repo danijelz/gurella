@@ -293,7 +293,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void serialize(Object object, Archive archive) {
 		T value = getValue(object);
-		if (!ValueUtils.isEqual(value, defaultValue)) {
+		if (!Objects.isEqual(value, defaultValue)) {
 			archive.writeValue(name, value, type);
 		}
 	}

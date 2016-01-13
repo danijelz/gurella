@@ -239,7 +239,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		ImmutableArray<Property<?>> modelProperties = Models.getModel(fieldType).getProperties();
-		return modelProperties == null ? false : modelProperties.size() == 0;
+		return modelProperties != null && modelProperties.size() > 0;
 	}
 
 	private Property<?> createProperty(Field field) {

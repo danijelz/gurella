@@ -140,6 +140,7 @@ public class Archive {
 		obj.i = 8;
 		obj.s = "sss";
 		obj.a = new String[] { "bbb", "eee" };
+		obj.t1.i1 = 5;
 		new Archive().serialize(new Test(), Test.class);
 		new Archive().serialize(obj, Test.class);
 	}
