@@ -15,6 +15,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
+import com.gurella.engine.utils.ArrayExt;
 
 public class Archive {
 	AsyncCallback<Object> callback;
@@ -48,7 +49,7 @@ public class Archive {
 		}
 
 		System.out.println(json.prettyPrint(buffer.toString()));
-		System.out.println(json.prettyPrint(json.toJson(rootObject)));
+		//System.out.println(json.prettyPrint(json.toJson(rootObject)));
 	}
 
 	public void writeObjectStart(Object value, Class<?> knownType) {
@@ -127,7 +128,7 @@ public class Archive {
 		String typeName;
 		String fileName;
 	}
-	
+
 	public static void main(String[] args) {
 		Object[][] f = new Object[][] { { "1", "11" }, { "2" } };
 		Object[][] s = new Object[][] { { "1" }, { "2" } };
@@ -141,6 +142,7 @@ public class Archive {
 		obj.s = "sss";
 		obj.a = new String[] { "bbb", "eee" };
 		obj.t1.i1 = 5;
+		obj.arr.add("ddd");
 		new Archive().serialize(new Test(), Test.class);
 		new Archive().serialize(obj, Test.class);
 	}
@@ -150,8 +152,14 @@ public class Archive {
 		public String s = "ddd";
 		public Object[] a = new String[] { "sss" };
 		public Test1 t1 = new Test1();
+		public ArrayExt<String> arr;
+
+		public Test() {
+			arr = new ArrayExt<String>(String.class);
+			arr.add("value");
+		}
 	}
-	
+
 	private static class Test1 {
 		public int i1 = 2;
 		public String s1 = "ddd";

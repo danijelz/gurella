@@ -71,6 +71,22 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static Constructor getDeclaredConstructor(Class<?> c, Class<?>... parameterTypes) {
+		try {
+			return ClassReflection.getDeclaredConstructor(c, parameterTypes);
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	public static Constructor getDeclaredConstructorSilently(Class<?> c, Class<?>... parameterTypes) {
+		try {
+			return getDeclaredConstructor(c, parameterTypes);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public static Method getDeclaredMethod(Class<?> c, String name, Class<?>... parameterTypes) {
 		try {
 			return ClassReflection.getDeclaredMethod(c, name, parameterTypes);

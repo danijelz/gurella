@@ -23,7 +23,6 @@ public abstract class ObjectRegistry implements Serializable {
 
 	private final IntMap<ManagedObject> templates = new IntMap<ManagedObject>();
 	private final IntMap<ManagedObject> objects = new IntMap<ManagedObject>();
-	private final IntMap<ManagedObject> prefabs = new IntMap<ManagedObject>();
 
 	protected abstract void clear();
 

@@ -1,6 +1,6 @@
 package com.gurella.engine.base.serialization;
 
-public class ObjectReference implements Reference {
+public class ObjectReference {
 	private int id;
 	private String fileName;
 
@@ -16,7 +16,6 @@ public class ObjectReference implements Reference {
 		return id;
 	}
 
-	@Override
 	public String getFileName() {
 		return fileName;
 	}

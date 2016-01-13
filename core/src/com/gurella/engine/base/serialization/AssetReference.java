@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class AssetReference implements Serializable, Reference {
+public class AssetReference implements Serializable {
 	private static final String FILE_NAME_TAG = "fileName";
 
 	private String fileName;
@@ -27,7 +27,6 @@ public class AssetReference implements Serializable, Reference {
 		this.assetTypeName = assetType.getName();
 	}
 
-	@Override
 	public String getFileName() {
 		return fileName;
 	}

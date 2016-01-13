@@ -1,13 +1,17 @@
 package com.gurella.engine.base.model;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Constructor;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -26,6 +30,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 
 	private GdxArrayModel() {
 		properties = new ArrayExt<Property<?>>();
+		properties.add(new ArrayOrderedProperty(this));
 		properties.add(new ArrayItemsProperty(this));
 	}
 
@@ -50,13 +55,41 @@ public class GdxArrayModel implements Model<Array<?>> {
 				return null;
 			}
 
+			Class<?> componentType = template.items.getClass().getComponentType();
+			if (Object.class != componentType) {
+				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(template.getClass(),
+						Class.class);
+				if (constructor != null) {
+					try {
+						return (Array<?>) constructor.newInstance(componentType);
+					} catch (ReflectionException e) {
+						throw new GdxRuntimeException(e);
+					}
+				}
+			}
+
 			return ReflectionUtils.newInstance(template.getClass());
 		} else {
 			if (serializedValue.isNull()) {
 				return null;
 			}
 
-			return ReflectionUtils.newInstance(Serialization.resolveObjectType(Array.class, serializedValue));
+			@SuppressWarnings("rawtypes")
+			Class<Array> resolvedType = Serialization.resolveObjectType(Array.class, serializedValue);
+			JsonValue componentTypeValue = serializedValue.get("componentType");
+			if (componentTypeValue != null) {
+				Class<?> componentType = ReflectionUtils.forNameSilently(componentTypeValue.asString());
+				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(resolvedType, Class.class);
+				if (constructor != null) {
+					try {
+						return (Array<?>) constructor.newInstance(componentType);
+					} catch (ReflectionException e) {
+						throw new GdxRuntimeException(e);
+					}
+				}
+			}
+
+			return ReflectionUtils.newInstance(resolvedType);
 		}
 	}
 
@@ -65,6 +98,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 		Array<?> initializingObject = context.initializingObject;
 		if (initializingObject != null) {
 			properties.get(0).init(context);
+			properties.get(1).init(context);
 		}
 	}
 
@@ -81,12 +115,116 @@ public class GdxArrayModel implements Model<Array<?>> {
 
 	@Override
 	public void serialize(Array<?> object, Class<?> knownType, Archive archive) {
-		archive.writeObjectStart(object, knownType);
-		((ArrayItemsProperty) properties.get(0)).serialize(object, archive);
-		archive.writeObjectEnd();
+		if (object == null) {
+			archive.writeValue(null, null);
+		} else {
+			archive.writeObjectStart(object, knownType);
+
+			Class<?> componentType = object.items.getClass().getComponentType();
+			if (Object.class != componentType) {
+				archive.writeValue("componentType", componentType.getName(), String.class);
+			}
+
+			properties.get(0).serialize(object, archive);
+			properties.get(1).serialize(object, archive);
+			archive.writeObjectEnd();
+		}
 	}
 
-	private static class ArrayItemsProperty implements Property<Array<?>> {
+	private static class ArrayOrderedProperty implements Property<Boolean> {
+		private static final String name = "ordered";
+
+		private Model<?> model;
+
+		public ArrayOrderedProperty(Model<?> model) {
+			this.model = model;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public Class<Boolean> getType() {
+			return boolean.class;
+		}
+
+		@Override
+		public Model<?> getModel() {
+			return model;
+		}
+
+		@Override
+		public Range<?> getRange() {
+			return null;
+		}
+
+		@Override
+		public boolean isNullable() {
+			return false;
+		}
+
+		@Override
+		public String getDescriptiveName() {
+			return name;
+		}
+
+		@Override
+		public String getDescription() {
+			return name;
+		}
+
+		@Override
+		public String getGroup() {
+			return null;
+		}
+
+		@Override
+		public Property<Boolean> copy(Model<?> newModel) {
+			return new ArrayOrderedProperty(newModel);
+		}
+
+		@Override
+		public void init(InitializationContext<?> context) {
+			Array<?> array = (Array<?>) context.initializingObject;
+			if (array == null) {
+				return;
+			}
+
+			JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
+			if (serializedValue == null) {
+				Array<?> template = (Array<?>) context.template;
+				if (template == null) {
+					return;
+				}
+				array.ordered = template.ordered;
+			} else {
+				array.ordered = serializedValue.asBoolean();
+			}
+		}
+
+		@Override
+		public Boolean getValue(Object object) {
+			return Boolean.valueOf(((Array<?>) object).ordered);
+		}
+
+		@Override
+		public void setValue(Object object, Boolean value) {
+			((Array<?>) object).ordered = Boolean.TRUE.equals(value);
+		}
+
+		@Override
+		public void serialize(Object object, Archive archive) {
+			if (!((Array<?>) object).ordered) {
+				archive.writeValue(name, Boolean.FALSE, boolean.class);
+			}
+		}
+	}
+
+	private static class ArrayItemsProperty implements Property<Object[]> {
+		private static final String name = "items";
+
 		private Model<?> model;
 
 		public ArrayItemsProperty(Model<?> model) {
@@ -95,23 +233,22 @@ public class GdxArrayModel implements Model<Array<?>> {
 
 		@Override
 		public String getName() {
-			return "items";
+			return name;
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public Class<Array<?>> getType() {
-			Class<?> raw = Array.class;
-			return (Class<Array<?>>) raw;
+		public Class<Object[]> getType() {
+			return Object[].class;
 		}
 
 		@Override
 		public Model<?> getModel() {
 			return model;
 		}
-		
+
 		@Override
-		public Property<Array<?>> copy(Model<?> model) {
+		public Property<Object[]> copy(Model<?> model) {
 			return new ArrayItemsProperty(model);
 		}
 
@@ -127,12 +264,12 @@ public class GdxArrayModel implements Model<Array<?>> {
 
 		@Override
 		public String getDescriptiveName() {
-			return getName();
+			return name;
 		}
 
 		@Override
 		public String getDescription() {
-			return "";
+			return name;
 		}
 
 		@Override
@@ -148,14 +285,17 @@ public class GdxArrayModel implements Model<Array<?>> {
 				return;
 			}
 
-			JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get("items");
+			JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
 
 			if (serializedValue == null) {
 				@SuppressWarnings("unchecked")
 				Array<Object> template = (Array<Object>) context.template;
+				if (template == null) {
+					return;
+				}
+
 				for (int i = 0; i < template.size; i++) {
-					Object value = ArrayReflection.get(template, i);
-					array.add(Objects.copyValue(value, context));
+					array.add(Objects.copyValue(template.get(i), context));
 				}
 			} else {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
@@ -181,12 +321,13 @@ public class GdxArrayModel implements Model<Array<?>> {
 		}
 
 		@Override
-		public Array<?> getValue(Object object) {
-			return (Array<?>) object;
+		public Object[] getValue(Object object) {
+			Array<?> array = (Array<?>) object;
+			return Arrays.copyOf(array.items, array.size);
 		}
 
 		@Override
-		public void setValue(Object object, Array<?> value) {
+		public void setValue(Object object, Object[] value) {
 			@SuppressWarnings("unchecked")
 			Array<Object> array = (Array<Object>) object;
 			array.clear();
@@ -196,9 +337,14 @@ public class GdxArrayModel implements Model<Array<?>> {
 		@Override
 		public void serialize(Object object, Archive archive) {
 			Array<?> array = (Array<?>) object;
-			archive.writeArrayStart("items");
+			if (array.size == 0) {
+				return;
+			}
+
+			Class<?> componentType = array.items.getClass().getComponentType();
+			archive.writeArrayStart(name);
 			for (int i = 0; i < array.size; i++) {
-				archive.writeValue(array.get(i), Object.class);
+				archive.writeValue(array.get(i), componentType);
 			}
 			archive.writeArrayEnd();
 		}

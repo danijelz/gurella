@@ -1,17 +1,12 @@
 package com.gurella.engine.base.registry;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetRegistry;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.Reference;
-import com.gurella.engine.base.serialization.ReferenceProperty;
-import com.gurella.engine.utils.SynchronizedPools;
 
 public class InitializationContext<T> implements Poolable {
 	public ObjectRegistry objectRegistry;
@@ -25,7 +20,6 @@ public class InitializationContext<T> implements Poolable {
 	public InitializationContext<?> parentContext;
 
 	private final IntMap<ManagedObject> instances = new IntMap<ManagedObject>();
-	private final Array<ReferenceProperty<?>> referenceProperties = new Array<ReferenceProperty<?>>();
 
 	public <MO extends ManagedObject> MO getInstance(MO object) {
 		return getInstance(object.id);
@@ -61,22 +55,6 @@ public class InitializationContext<T> implements Poolable {
 		return instance;
 	}
 
-	public <P> void addReferenceProperty(Property<P> property, Reference reference) {
-		@SuppressWarnings("unchecked")
-		ReferenceProperty<P> referenceProperty = SynchronizedPools.obtain(ReferenceProperty.class);
-		referenceProperty.property = property;
-		referenceProperty.reference = reference;
-		addReferenceProperty(referenceProperty);
-	}
-
-	private <P> void addReferenceProperty(ReferenceProperty<P> referenceProperty) {
-		if (parentContext == null) {
-			referenceProperties.add(referenceProperty);
-		} else {
-			parentContext.addReferenceProperty(referenceProperty);
-		}
-	}
-
 	public boolean fromTemplate() {
 		return serializedValue == null && template != null;
 	}
@@ -98,6 +76,5 @@ public class InitializationContext<T> implements Poolable {
 		duplicate = false;
 		parentContext = null;
 		instances.clear();
-		referenceProperties.clear();
 	}
 }
