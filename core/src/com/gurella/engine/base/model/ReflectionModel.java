@@ -11,6 +11,7 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.ArrayType;
 import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
@@ -96,31 +97,38 @@ public class ReflectionModel<T> implements Model<T> {
 				return null;
 			}
 
-			if (template.getClass().isArray()) {
+			Class<? extends Object> templateType = template.getClass();
+			if (templateType.isArray()) {
 				int length = ArrayReflection.getLength(template);
 				@SuppressWarnings("unchecked")
-				T array = (T) ArrayReflection.newInstance(type, length);
+				T array = (T) ArrayReflection.newInstance(templateType.getComponentType(), length);
 				return array;
 			} else {
 				@SuppressWarnings("unchecked")
-				T instance = (T) ReflectionUtils.newInstance(template.getClass());
+				T instance = (T) ReflectionUtils.newInstance(templateType);
 				return instance;
 			}
 		} else if (serializedValue.isNull()) {
 			return null;
 		} else if (serializedValue.isArray()) {
 			int length = serializedValue.size;
+			if (length > 0) {
+				JsonValue itemValue = serializedValue.get(0);
+				Class<?> resolvedType = Serialization.resolveObjectType(Object.class, itemValue);
+				if (resolvedType == ArrayType.class) {
+					Class<?> componentType = ReflectionUtils.forName(itemValue.getString("typeName"))
+							.getComponentType();
+					@SuppressWarnings("unchecked")
+					T array = (T) ArrayReflection.newInstance(componentType, length - 1);
+					return array;
+				}
+			}
 			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(getArrayComponentType(serializedValue), length);
+			T array = (T) ArrayReflection.newInstance(type.getComponentType(), length);
 			return array;
 		} else {
 			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
 		}
-	}
-
-	private Class<?> getArrayComponentType(JsonValue serializedValue) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -143,8 +151,18 @@ public class ReflectionModel<T> implements Model<T> {
 			} else {
 				Class<?> componentType = type.getComponentType();
 				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					if (serializedValue.isNull()) {
+				int length = serializedValue.size;
+				if (length > 0) {
+					JsonValue itemValue = serializedValue.get(0);
+					Class<?> resolvedType = Serialization.resolveObjectType(Object.class, itemValue);
+					if (resolvedType == ArrayType.class) {
+						i = 1;
+					}
+				}
+
+				for (; i < length; i++) {
+					JsonValue item = serializedValue.get(i);
+					if (item.isNull()) {
 						ArrayReflection.set(array, i++, null);
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
@@ -159,8 +177,7 @@ public class ReflectionModel<T> implements Model<T> {
 							T instance = (T) context.getInstance(objectReference.getId());
 							ArrayReflection.set(array, i++, instance);
 						} else {
-							ArrayReflection.set(array, i++,
-									Objects.deserialize(serializedValue, resolvedType, context));
+							ArrayReflection.set(array, i++, Objects.deserialize(item, resolvedType, context));
 						}
 					}
 				}
@@ -177,22 +194,32 @@ public class ReflectionModel<T> implements Model<T> {
 	public void serialize(T object, Class<?> knownType, Archive archive) {
 		if (object == null) {
 			archive.writeValue(null, null);
-		} else if (object.getClass().isArray()) {
-			archive.writeArrayStart();
-			Class<?> componentType = object.getClass().getComponentType();
-			int length = ArrayReflection.getLength(object);
-			for (int i = 0; i < length; i++) {
-				Object item = ArrayReflection.get(object, i);
-				archive.writeValue(item, componentType);
-			}
-			archive.writeArrayEnd();
 		} else {
-			archive.writeObjectStart(object, knownType);
-			ImmutableArray<Property<?>> properties = getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				properties.get(i).serialize(object, archive);
+			Class<? extends Object> actualType = object.getClass();
+			if (actualType.isArray()) {
+				archive.writeArrayStart();
+
+				if (actualType != knownType) {
+					ArrayType arrayType = new ArrayType();
+					arrayType.typeName = actualType.getName();
+					archive.writeValue(arrayType, null);
+				}
+
+				Class<?> componentType = actualType.getComponentType();
+				int length = ArrayReflection.getLength(object);
+				for (int i = 0; i < length; i++) {
+					Object item = ArrayReflection.get(object, i);
+					archive.writeValue(item, componentType);
+				}
+				archive.writeArrayEnd();
+			} else {
+				archive.writeObjectStart(object, knownType);
+				ImmutableArray<Property<?>> properties = getProperties();
+				for (int i = 0; i < properties.size(); i++) {
+					properties.get(i).serialize(object, archive);
+				}
+				archive.writeObjectEnd();
 			}
-			archive.writeObjectEnd();
 		}
 	}
 
