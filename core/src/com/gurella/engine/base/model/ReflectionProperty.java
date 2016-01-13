@@ -15,8 +15,8 @@ import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
@@ -84,11 +84,12 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	private Object getDefaultModelInstance() {
-		if (defaultModelInstances.containsKey(type)) {
-			return defaultModelInstances.get(type);
+		Class<?> modelType = model.getType();
+		if (defaultModelInstances.containsKey(modelType)) {
+			return defaultModelInstances.get(modelType);
 		}
-		Object defaultValue = ReflectionUtils.newInstanceSilently(model.getType());
-		defaultModelInstances.put(type, defaultValue);
+		Object defaultValue = ReflectionUtils.newInstanceSilently(modelType);
+		defaultModelInstances.put(modelType, defaultValue);
 		return defaultValue;
 	}
 
@@ -101,31 +102,31 @@ public class ReflectionProperty<T> implements Property<T> {
 			return null;
 		}
 
-		if (Integer.class == type || int.class == type) {
+		if (Integer.class == type || int.class == type || Integer[].class == type || int[].class == type) {
 			IntegerRange integerRange = valueRange.integerRange();
 			return integerRange == null ? null
 					: new Range<Integer>(Integer.valueOf(integerRange.min()), Integer.valueOf(integerRange.max()));
-		} else if (Float.class == type || float.class == type) {
+		} else if (Float.class == type || float.class == type || Float[].class == type || float[].class == type) {
 			FloatRange floatRange = valueRange.floatRange();
 			return floatRange == null ? null
 					: new Range<Float>(Float.valueOf(floatRange.min()), Float.valueOf(floatRange.max()));
-		} else if (Long.class == type || long.class == type) {
+		} else if (Long.class == type || long.class == type || Long[].class == type || long[].class == type) {
 			LongRange longRange = valueRange.longRange();
 			return longRange == null ? null
 					: new Range<Long>(Long.valueOf(longRange.min()), Long.valueOf(longRange.max()));
-		} else if (Double.class == type || double.class == type) {
+		} else if (Double.class == type || double.class == type || Double[].class == type || double[].class == type) {
 			DoubleRange doubleRange = valueRange.doubleRange();
 			return doubleRange == null ? null
 					: new Range<Double>(Double.valueOf(doubleRange.min()), Double.valueOf(doubleRange.max()));
-		} else if (Short.class == type || short.class == type) {
+		} else if (Short.class == type || short.class == type || Short[].class == type || short[].class == type) {
 			ShortRange shortRange = valueRange.shortRange();
 			return shortRange == null ? null
 					: new Range<Short>(Short.valueOf(shortRange.min()), Short.valueOf(shortRange.max()));
-		} else if (Byte.class == type || byte.class == type) {
+		} else if (Byte.class == type || byte.class == type || Byte[].class == type || byte[].class == type) {
 			ByteRange byteRange = valueRange.byteRange();
 			return byteRange == null ? null
 					: new Range<Byte>(Byte.valueOf(byteRange.min()), Byte.valueOf(byteRange.max()));
-		} else if (Character.class == type || char.class == type) {
+		} else if (Character.class == type || char.class == type || Character[].class == type || char[].class == type) {
 			CharRange charRange = valueRange.charRange();
 			return charRange == null ? null
 					: new Range<Character>(Character.valueOf(charRange.min()), Character.valueOf(charRange.max()));

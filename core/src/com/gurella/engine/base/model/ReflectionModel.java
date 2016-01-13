@@ -20,6 +20,9 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionModel<T> implements Model<T> {
+	private static final String getPrefix = "get";
+	private static final String setPrefix = "set";
+	private static final String isPrefix = "is";
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
 	private Class<T> type;
@@ -43,7 +46,6 @@ public class ReflectionModel<T> implements Model<T> {
 		modelsByType.put(type, this);
 		resolveName();
 		resolveProperties();
-		resolveDefaultValue();
 	}
 
 	private void resolveName() {
@@ -53,16 +55,6 @@ public class ReflectionModel<T> implements Model<T> {
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
 			name = ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
-		}
-	}
-
-	private void resolveDefaultValue() {
-		if (type.isArray()) {
-			@SuppressWarnings("unchecked")
-			T casted = (T) ArrayReflection.newInstance(type.getComponentType(), 0);
-			defaultValue = casted;
-		} else {
-			defaultValue = ReflectionUtils.newInstanceSilently(type);
 		}
 	}
 
@@ -314,7 +306,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
-		String prefix = Boolean.TYPE.equals(fieldType) ? "is" : "get";
+		String prefix = Boolean.TYPE.equals(fieldType) ? isPrefix : getPrefix;
 		Method getter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
 		if (getter == null || (!forced && !getter.isPublic())) {
 			return null;
@@ -325,7 +317,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private static Method getPropertySetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
-		Method setter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, "set" + upperCaseName, fieldType);
+		Method setter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, setPrefix + upperCaseName, fieldType);
 		if (setter == null || (!forced && !setter.isPublic())) {
 			return null;
 		} else {
