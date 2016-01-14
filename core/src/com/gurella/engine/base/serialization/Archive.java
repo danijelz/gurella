@@ -25,8 +25,6 @@ public class Archive implements Poolable {
 
 	private Array<String> externalFileNames = new Array<String>();
 	private Array<ExternalDependency> externalDependencies = new Array<ExternalDependency>();
-	private Array<ManagedObject> objects = new Array<ManagedObject>();
-	private Array<ManagedObject> serializingObjects = new Array<ManagedObject>();
 
 	private int currentId;
 	private IdentityObjectIntMap<Object> internalIds = new IdentityObjectIntMap<Object>();
@@ -38,8 +36,6 @@ public class Archive implements Poolable {
 
 		externalFileNames.clear();
 		externalDependencies.clear();
-		objects.clear();
-		serializingObjects.clear();
 
 		currentId = 0;
 		internalIds.clear();
