@@ -2,11 +2,11 @@ package com.gurella.engine.base.serialization;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.Assets;
@@ -16,6 +16,7 @@ import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.IdentityObjectIntMap;
 
 public class Archive {
 	AsyncCallback<Object> callback;
@@ -28,28 +29,72 @@ public class Archive {
 
 	private Array<String> externalFileNames = new Array<String>();
 	private Array<ExternalDependency> externalDependencies = new Array<ExternalDependency>();
-	private Array<ManagedObject> objects = new Array<ManagedObject>();
-	private Array<ManagedObject> serializingObjects = new Array<ManagedObject>();
+	private Array<Object> objects = new Array<Object>();
+
+	private int currentId;
+	private IdentityObjectIntMap<Object> internalIds = new IdentityObjectIntMap<Object>();
+
+	private Array<Object> serializingObjects = new Array<Object>();
+
+	public <T> void serialize2(T rootObject) {
+		StringWriter buffer = new StringWriter();
+		JsonWriter jsonWriter = new JsonWriter(buffer);
+		json.setWriter(jsonWriter);
+		
+		json.writeObjectStart();
+		json.writeArrayStart("objects");
+
+		addObject(rootObject);
+		while (serializingObjects.size > 0) {
+			Object object = serializingObjects.removeIndex(0);
+			Model<Object> objectModel = Models.getModel(object);
+			objectModel.serialize(object, null, this);
+			if(serializingObjects.size > 0) {
+				write(',');
+			}
+		}
+		json.writeArrayEnd();
+		
+		json.writeObjectEnd();
+
+		System.out.println(json.prettyPrint(buffer.toString()));
+		// System.out.println(json.prettyPrint(json.toJson(rootObject)));
+	}
+
+	private int addObject(Object object) {
+		int internalId = internalIds.get(object, -1);
+		if(internalId < 0) {
+			internalIds.put(object, currentId);
+			serializingObjects.add(rootObject);
+			return currentId++;
+		} else {
+			return internalId;
+		}
+	}
+
+	private void serializeObject() {
+
+	}
 
 	public <T> void serialize(T rootObject, Class<T> knownType) {
 		StringWriter buffer = new StringWriter();
 		json.setWriter(buffer);
 
 		if (rootObject instanceof ManagedObject) {
-			objects.add((ManagedObject) rootObject);
+			objects.add(rootObject);
 		}
 
 		Model<T> model = Models.getModel(rootObject);
 		model.serialize(rootObject, knownType, this);
 
 		while (serializingObjects.size > 0) {
-			ManagedObject managedObject = serializingObjects.removeIndex(0);
+			ManagedObject managedObject = (ManagedObject) serializingObjects.removeIndex(0);
 			Model<ManagedObject> objectModel = Models.getModel(managedObject);
 			objectModel.serialize(managedObject, null, this);
 		}
 
 		System.out.println(json.prettyPrint(buffer.toString()));
-		//System.out.println(json.prettyPrint(json.toJson(rootObject)));
+		// System.out.println(json.prettyPrint(json.toJson(rootObject)));
 	}
 
 	public void writeObjectStart(Object value, Class<?> knownType) {
@@ -84,6 +129,14 @@ public class Archive {
 	private void writeName(String name) {
 		try {
 			json.getWriter().name(name);
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+	
+	private void write(char c) {
+		try {
+			json.getWriter().write(c);
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}

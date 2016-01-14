@@ -247,7 +247,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		if (!field.isFinal()) {
-			return false;
+			return !field.isPrivate() || ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) != null;
 		}
 
 		field.setAccessible(true);
