@@ -49,7 +49,7 @@ public class Archive implements Poolable {
 		externalFileNames.clear();
 	}
 
-	public <T> void serialize1(T rootObject, Class<?> knownType) {
+	public <T> void serialize(T rootObject, Class<?> knownType) {
 		StringWriter buffer = new StringWriter();
 		JsonWriter jsonWriter = new JsonWriter(buffer);
 		json.setWriter(jsonWriter);
@@ -59,28 +59,8 @@ public class Archive implements Poolable {
 		objectModel.serialize(rootObject, knownType, this);
 
 		System.out.println(json.prettyPrint(buffer.toString()));
-		reset();
-	}
-
-	public <T> void serialize(T rootObject, Class<T> knownType) {
-		StringWriter buffer = new StringWriter();
-		json.setWriter(buffer);
-
-		if (rootObject instanceof ManagedObject) {
-			objects.add((ManagedObject) rootObject);
-		}
-
-		Model<T> model = Models.getModel(rootObject);
-		model.serialize(rootObject, knownType, this);
-
-		while (serializingObjects.size > 0) {
-			ManagedObject managedObject = serializingObjects.removeIndex(0);
-			Model<ManagedObject> objectModel = Models.getModel(managedObject);
-			objectModel.serialize(managedObject, null, this);
-		}
-
-		System.out.println(json.prettyPrint(buffer.toString()));
 		// System.out.println(json.prettyPrint(json.toJson(rootObject)));
+		reset();
 	}
 
 	public void writeObjectStart(Object value, Class<?> knownType) {
@@ -117,41 +97,6 @@ public class Archive implements Poolable {
 			json.getWriter().name(name);
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
-		}
-	}
-
-	public void writeValue1(Object value, Class<?> knownType) {
-		if (value == null || Serialization.isSimpleType(value)) {
-			json.writeValue(value, knownType);
-		} else if (value instanceof ManagedObject) {
-			ManagedObject managedObject = (ManagedObject) value;
-			String resourceFileName = ResourceService.getResourceFileName(managedObject);
-			boolean isLocalObject = fileName.equals(resourceFileName);
-
-			if (isLocalObject && !objects.contains(managedObject, true)) {
-				objects.add(managedObject);
-				serializingObjects.add(managedObject);
-			} else if (!isLocalObject && !externalFileNames.contains(resourceFileName, false)) {
-				ExternalDependency dependency = new ExternalDependency();
-				dependency.typeName = ManagedObject.class.getName();
-				dependency.fileName = resourceFileName;
-				externalDependencies.add(dependency);
-				externalFileNames.add(resourceFileName);
-			}
-
-			String referenceFileName = isLocalObject ? null : resourceFileName;
-			ObjectReference objectReference = new ObjectReference(managedObject.getId(), referenceFileName);
-			Class<ObjectReference> valueType = ClassReflection.isAssignableFrom(ManagedObject.class, knownType)
-					? ObjectReference.class : null;
-			json.writeValue(objectReference, valueType);
-		} else if (Assets.isAsset(value)) {
-			AssetReference reference = new AssetReference(ResourceService.getResourceFileName(value), value.getClass());
-			if (Assets.isAssetType(knownType)) {
-
-			}
-		} else {
-			Model<Object> model = Models.getModel(value);
-			model.serialize(value, knownType, this);
 		}
 	}
 	
@@ -203,8 +148,8 @@ public class Archive implements Poolable {
 		obj.a = new String[] { "bbb", "eee" };
 		obj.t1.i1 = 5;
 		obj.arr.add("ddd");
-		//new Archive().serialize1(new Test(), Test.class);
-		new Archive().serialize1(obj, Test.class);
+		new Archive().serialize(new Test(), Test.class);
+		new Archive().serialize(obj, Test.class);
 	}
 
 	private static class Test {
