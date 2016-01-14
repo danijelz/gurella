@@ -42,7 +42,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		name = jsonData.getString("name");
 	}
 
-	void init(InitializationContext<ManagedObject> context) {
+	void init(InitializationContext context) {
 		Model<ManagedObject> model = Models.getModel(this);
 		model.initInstance(context);
 		initialized = true;

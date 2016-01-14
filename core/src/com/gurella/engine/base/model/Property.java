@@ -23,7 +23,7 @@ public interface Property<T> {
 
 	Property<T> copy(Model<?> model);
 
-	void init(InitializationContext<?> context);
+	void init(InitializationContext context);
 
 	T getValue(Object object);
 

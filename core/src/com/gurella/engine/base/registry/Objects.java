@@ -2,7 +2,6 @@ package com.gurella.engine.base.registry;
 
 import java.util.Arrays;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
@@ -20,77 +19,41 @@ public class Objects {
 		return duplicate(original, null);
 	}
 
-	public static <T> T duplicate(T original, InitializationContext<?> parentContext) {
+	public static <T> T duplicate(T original, InitializationContext context) {
 		if (original == null) {
 			return null;
 		}
 
+		boolean ownsContext = context == null;
+		if (ownsContext) {
+			context = SynchronizedPools.obtain(InitializationContext.class);
+		}
+
+		boolean oldDuplicate = context.duplicate;
 		Model<T> model = Models.getModel(original);
-		@SuppressWarnings("unchecked")
-		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
-		context.template = original;
-		context.parentContext = parentContext;
-		context.duplicate = true;
 		T duplicate = model.createInstance(context);
-		context.initializingObject = duplicate;
+		context.push(duplicate, original, null);
 		model.initInstance(context);
-		SynchronizedPools.free(context);
+
+		if (ownsContext) {
+			SynchronizedPools.free(context);
+		} else {
+			context.duplicate = oldDuplicate;
+			context.pop();
+		}
+
 		return duplicate;
 	}
 
-	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType,
-			InitializationContext<?> parentContext) {
+	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType, InitializationContext context) {
 		Model<T> model = Models.getModel(objectType);
-		@SuppressWarnings("unchecked")
-		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
-		context.json = parentContext.json;
-		context.serializedValue = serializedObject;
-		context.parentContext = parentContext;
 		T instance = model.createInstance(context);
-		context.initializingObject = instance;
+		context.push(instance, null, serializedObject);
 		model.initInstance(context);
-		SynchronizedPools.free(context);
 		return instance;
 	}
 
-	public static <T> void copyProperties(T source, T target) {
-		if (source == null || target == null) {
-			return;
-		}
-
-		Model<T> model = Models.getModel(source);
-		@SuppressWarnings("unchecked")
-		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
-		context.template = source;
-		context.initializingObject = target;
-		model.initInstance(context);
-		SynchronizedPools.free(context);
-	}
-
-	public static <T> void initProperties(T target, JsonValue serializedValue, InitializationContext<?> parentContext) {
-		if (target == null || serializedValue == null || serializedValue.isNull()) {
-			return;
-		}
-
-		Class<? extends Object> targetType = target.getClass();
-		if (targetType != Serialization.resolveObjectType(targetType, serializedValue)) {
-			throw new GdxRuntimeException("Unequal types.");
-		}
-
-		Model<T> model = Models.getModel(target);
-		@SuppressWarnings("unchecked")
-		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
-		context.objectRegistry = parentContext.objectRegistry;
-		context.json = parentContext.json;
-		context.parentContext = parentContext;
-		context.initializingObject = target;
-		context.serializedValue = serializedValue;
-
-		model.initInstance(context);
-		SynchronizedPools.free(context);
-	}
-
-	public static <V> V copyValue(V value, InitializationContext<?> context) {
+	public static <V> V copyValue(V value, InitializationContext context) {
 		if (value == null) {
 			return null;
 		}

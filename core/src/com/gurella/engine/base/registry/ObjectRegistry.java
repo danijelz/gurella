@@ -123,8 +123,7 @@ public abstract class ObjectRegistry implements Serializable {
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
-		@SuppressWarnings("unchecked")
-		InitializationContext<ManagedObject> context = SynchronizedPools.obtain(InitializationContext.class);
+		InitializationContext context = SynchronizedPools.obtain(InitializationContext.class);
 		context.json = json;
 		context.objectRegistry = this;
 
@@ -138,9 +137,9 @@ public abstract class ObjectRegistry implements Serializable {
 			for (JsonValue value : values) {
 				int id = value.getInt("id");
 				ManagedObject template = templates.get(id);
-				context.initializingObject = template;
-				context.serializedValue = value;
+				context.push(template, null, value);
 				template.init(context);
+				context.pop();
 			}
 		}
 
@@ -153,11 +152,10 @@ public abstract class ObjectRegistry implements Serializable {
 
 			for (JsonValue value : values) {
 				int id = value.getInt("id");
-				ManagedObject object = templates.get(id);
-				context.initializingObject = object;
-				context.serializedValue = value;
-				context.template = templates.get(templateMappings.get(id, -1));
+				ManagedObject object = objects.get(id);
+				context.push(object, templates.get(templateMappings.get(id, -1)), value);
 				object.init(context);
+				context.pop();
 			}
 		}
 

@@ -81,7 +81,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public T createInstance(InitializationContext<T> context) {
+	public T createInstance(InitializationContext context) {
 		if (context == null) {
 			if (type.isArray()) {
 				return null;
@@ -90,9 +90,9 @@ public class ReflectionModel<T> implements Model<T> {
 			}
 		}
 
-		JsonValue serializedValue = context.serializedValue;
+		JsonValue serializedValue = context.serializedValue();
 		if (serializedValue == null) {
-			T template = context.template;
+			T template = context.template();
 			if (template == null) {
 				return null;
 			}
@@ -131,17 +131,21 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public void initInstance(InitializationContext<T> context) {
-		if (context == null || context.initializingObject == null) {
+	public void initInstance(InitializationContext context) {
+		if (context == null) {
+			return;
+		}
+		
+		T array = context.initializingObject();
+		if (array == null) {
 			return;
 		}
 
 		if (type.isArray()) {
-			T array = context.initializingObject;
-			JsonValue serializedValue = context.serializedValue;
+			JsonValue serializedValue = context.serializedValue();
 
 			if (serializedValue == null) {
-				T template = context.template;
+				T template = context.template();
 				int length = ArrayReflection.getLength(template);
 				for (int i = 0; i < length; i++) {
 					Object value = ArrayReflection.get(template, i);

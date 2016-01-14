@@ -47,10 +47,10 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	@Override
-	public Array<?> createInstance(InitializationContext<Array<?>> context) {
-		JsonValue serializedValue = context.serializedValue;
+	public Array<?> createInstance(InitializationContext context) {
+		JsonValue serializedValue = context.serializedValue();
 		if (serializedValue == null) {
-			Array<?> template = context.template;
+			Array<?> template = context.template();
 			if (template == null) {
 				return null;
 			}
@@ -94,8 +94,8 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	@Override
-	public void initInstance(InitializationContext<Array<?>> context) {
-		Array<?> initializingObject = context.initializingObject;
+	public void initInstance(InitializationContext context) {
+		Array<?> initializingObject = context.initializingObject();
 		if (initializingObject != null) {
 			properties.get(0).init(context);
 			properties.get(1).init(context);
@@ -186,15 +186,16 @@ public class GdxArrayModel implements Model<Array<?>> {
 		}
 
 		@Override
-		public void init(InitializationContext<?> context) {
-			Array<?> array = (Array<?>) context.initializingObject;
+		public void init(InitializationContext context) {
+			Array<?> array = (Array<?>) context.initializingObject();
 			if (array == null) {
 				return;
 			}
 
-			JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
+			JsonValue serializedObject = context.serializedValue();
+			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
 			if (serializedValue == null) {
-				Array<?> template = (Array<?>) context.template;
+				Array<?> template = (Array<?>) context.template();
 				if (template == null) {
 					return;
 				}
@@ -277,18 +278,18 @@ public class GdxArrayModel implements Model<Array<?>> {
 		}
 
 		@Override
-		public void init(InitializationContext<?> context) {
+		public void init(InitializationContext context) {
 			@SuppressWarnings("unchecked")
-			Array<Object> array = (Array<Object>) context.initializingObject;
+			Array<Object> array = (Array<Object>) context.initializingObject();
 			if (array == null) {
 				return;
 			}
 
-			JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
-
+			JsonValue serializedObject = context.serializedValue();
+			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
 			if (serializedValue == null) {
 				@SuppressWarnings("unchecked")
-				Array<Object> template = (Array<Object>) context.template;
+				Array<Object> template = (Array<Object>) context.template();
 				if (template == null) {
 					return;
 				}

@@ -9,9 +9,9 @@ public interface Model<T> {
 
 	String getName();
 
-	T createInstance(InitializationContext<T> context);
+	T createInstance(InitializationContext context);
 
-	void initInstance(InitializationContext<T> context);
+	void initInstance(InitializationContext context);
 
 	ImmutableArray<Property<?>> getProperties();
 

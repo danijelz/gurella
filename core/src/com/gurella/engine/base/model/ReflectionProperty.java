@@ -1,5 +1,6 @@
 package com.gurella.engine.base.model;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -21,6 +22,7 @@ import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionProperty<T> implements Property<T> {
@@ -169,8 +171,9 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public void init(InitializationContext<?> context) {
-		JsonValue serializedValue = context.serializedValue == null ? null : context.serializedValue.get(name);
+	public void init(InitializationContext context) {
+		JsonValue serializedObject = context.serializedValue();
+		JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
 		if (serializedValue == null) {
 			initFromTemplate(context);
 		} else {
@@ -178,8 +181,8 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
-	private void initFromTemplate(InitializationContext<?> context) {
-		Object template = context.template;
+	private void initFromTemplate(InitializationContext context) {
+		Object template = context.template();
 		if (template == null) {
 			return;
 		}
@@ -189,7 +192,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			return;
 		}
 
-		Object initializingObject = context.initializingObject;
+		Object initializingObject = context.initializingObject();
 		if (value == null) {
 			setValue(initializingObject, null);
 		} else if (value.getClass().isArray()) {
@@ -200,14 +203,14 @@ public class ReflectionProperty<T> implements Property<T> {
 				Object item = ArrayReflection.get(template, i);
 				ArrayReflection.set(array, i, Objects.copyValue(item, context));
 			}
-			setValue(context.initializingObject, array);
+			setValue(initializingObject, array);
 		} else {
 			setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
 		}
 	}
 
-	private void initFromSerializedValue(InitializationContext<?> context, JsonValue serializedValue) {
-		Object initializingObject = context.initializingObject;
+	private void initFromSerializedValue(InitializationContext context, JsonValue serializedValue) {
+		Object initializingObject = context.initializingObject();
 		if (serializedValue.isNull()) {
 			setValue(initializingObject, null);
 			return;
@@ -221,7 +224,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 			int i = 0;
 			for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-				if (serializedValue.isNull()) {
+				if (item.isNull()) {
 					ArrayReflection.set(array, i++, null);
 				} else {
 					Class<?> resolvedItemType = Serialization.resolveObjectType(componentType, item);
@@ -236,13 +239,12 @@ public class ReflectionProperty<T> implements Property<T> {
 						T instance = (T) context.getInstance(objectReference.getId());
 						ArrayReflection.set(array, i++, instance);
 					} else {
-						ArrayReflection.set(array, i++,
-								Objects.deserialize(serializedValue, resolvedItemType, context));
+						ArrayReflection.set(array, i++, Objects.deserialize(item, resolvedItemType, context));
 					}
 				}
 			}
 
-			setValue(context.initializingObject, array);
+			setValue(initializingObject, array);
 		} else {
 			if (Serialization.isSimpleType(resolvedType)) {
 				setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
@@ -255,11 +257,28 @@ public class ReflectionProperty<T> implements Property<T> {
 				T instance = (T) context.getInstance(objectReference.getId());
 				setValue(initializingObject, instance);
 			} else if (field.isFinal()) {
-				Objects.initProperties(getValue(initializingObject), serializedValue, context);
+				initProperties(getValue(initializingObject), serializedValue, context);
 			} else {
 				setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
 			}
 		}
+	}
+
+	private void initProperties(T target, JsonValue serializedValue, InitializationContext context) {
+		if (target == null || serializedValue.isNull()) {
+			return;
+		}
+
+		Class<? extends Object> targetType = target.getClass();
+		Class<? extends Object> resolvedType = Serialization.resolveObjectType(targetType, serializedValue);
+		if (targetType != resolvedType) {
+			throw new GdxRuntimeException("Unequal types.");
+		}
+
+		Model<T> model = Models.getModel(target);
+		context.push(target, null, serializedValue);
+		model.initInstance(context);
+		context.pop();
 	}
 
 	@Override
@@ -279,10 +298,22 @@ public class ReflectionProperty<T> implements Property<T> {
 			ReflectionUtils.invokeMethod(setter, object, value);
 		} else if (field.isFinal()) {
 			Object fieldValue = ReflectionUtils.getFieldValue(field, object);
-			Objects.copyProperties(value, fieldValue);
+			copyProperties(value, fieldValue);
 		} else {
 			ReflectionUtils.setFieldValue(field, object, value);
 		}
+	}
+
+	public static <T> void copyProperties(T source, T target) {
+		if (source == null || target == null) {
+			return;
+		}
+
+		Model<T> model = Models.getModel(source);
+		InitializationContext context = SynchronizedPools.obtain(InitializationContext.class);
+		context.push(target, source, null);
+		model.initInstance(context);
+		SynchronizedPools.free(context);
 	}
 
 	@Override
