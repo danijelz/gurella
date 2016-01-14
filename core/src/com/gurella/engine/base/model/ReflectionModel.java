@@ -23,6 +23,7 @@ public class ReflectionModel<T> implements Model<T> {
 	private static final String getPrefix = "get";
 	private static final String setPrefix = "set";
 	private static final String isPrefix = "is";
+
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
 	private Class<T> type;
@@ -241,12 +242,19 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private boolean isIgnoredField(Field field) {
-		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null) {
+		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null
+				|| (field.isPrivate()
+						&& ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null)) {
 			return true;
 		}
 
 		if (!field.isFinal()) {
-			return field.isPrivate() && ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null;
+			return false;
+		}
+
+		Class<?> fieldType = field.getType();
+		if (fieldType.isPrimitive() || fieldType.isArray()) {
+			return true;
 		}
 
 		field.setAccessible(true);
@@ -256,9 +264,8 @@ public class ReflectionModel<T> implements Model<T> {
 			return true;
 		}
 
-		Class<?> fieldType = fieldValue.getClass();
-		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
-				|| ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
+		fieldType = fieldValue.getClass();
+		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)) {
 			return true;
 		}
 
