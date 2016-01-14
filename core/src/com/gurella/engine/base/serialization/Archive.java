@@ -5,11 +5,9 @@ import java.io.StringWriter;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -33,17 +31,16 @@ public class Archive implements Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> internalIds = new IdentityObjectIntMap<Object>();
 
-	
 	@Override
 	public void reset() {
 		callback = null;
 		fileName = null;
-		
+
 		externalFileNames.clear();
 		externalDependencies.clear();
 		objects.clear();
 		serializingObjects.clear();
-		
+
 		currentId = 0;
 		internalIds.clear();
 		externalFileNames.clear();
@@ -53,7 +50,7 @@ public class Archive implements Poolable {
 		StringWriter buffer = new StringWriter();
 		JsonWriter jsonWriter = new JsonWriter(buffer);
 		json.setWriter(jsonWriter);
-		
+
 		internalIds.put(rootObject, currentId++);
 		Model<T> objectModel = Models.getModel(rootObject);
 		objectModel.serialize(rootObject, knownType, this);
@@ -99,7 +96,7 @@ public class Archive implements Poolable {
 			throw new SerializationException(ex);
 		}
 	}
-	
+
 	public void writeValue(Object value, Class<?> knownType) {
 		if (value == null || Serialization.isSimpleType(value)) {
 			json.writeValue(value, knownType);
@@ -107,8 +104,8 @@ public class Archive implements Poolable {
 			ManagedObject managedObject = (ManagedObject) value;
 			String resourceFileName = ResourceService.getResourceFileName(managedObject);
 			boolean isLocalObject = fileName.equals(resourceFileName);
-			if(isLocalObject) {
-				if(internalIds.get(value, -1) > 0) {
+			if (isLocalObject) {
+				if (internalIds.get(value, -1) > 0) {
 					ObjectReference objectReference = new ObjectReference(managedObject.getId(), null);
 					json.writeValue(objectReference, ObjectReference.class);
 				} else {
@@ -121,7 +118,7 @@ public class Archive implements Poolable {
 				dependency.fileName = resourceFileName;
 				externalDependencies.add(dependency);
 				externalFileNames.add(resourceFileName);
-				
+
 				ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
 				json.writeValue(objectReference, ObjectReference.class);
 			}
@@ -152,7 +149,7 @@ public class Archive implements Poolable {
 		new Archive().serialize(obj, Test.class);
 	}
 
-	private static class Test {
+	public static class Test {
 		public int i = 2;
 		public String s = "ddd";
 		public Object[] a = new String[] { "sss" };
@@ -165,7 +162,7 @@ public class Archive implements Poolable {
 		}
 	}
 
-	private static class Test1 {
+	public static class Test1 {
 		public int i1 = 2;
 		public String s1 = "ddd";
 	}
