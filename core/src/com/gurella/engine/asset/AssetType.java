@@ -24,7 +24,6 @@ public enum AssetType {
 	json(JsonValue.class, "json"),
 	pixmap(Pixmap.class),
 	polygonRegion(PolygonRegion.class),
-	text(String.class, "txt"),
 	renderProgram(null),
 	material(null),
 	spritter(null),

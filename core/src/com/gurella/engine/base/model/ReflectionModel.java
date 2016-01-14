@@ -81,7 +81,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public T newInstance(InitializationContext<T> context) {
+	public T createInstance(InitializationContext<T> context) {
 		if (context == null) {
 			if (type.isArray()) {
 				return null;
@@ -113,13 +113,12 @@ public class ReflectionModel<T> implements Model<T> {
 		} else if (serializedValue.isArray()) {
 			int length = serializedValue.size;
 			if (length > 0) {
-				JsonValue itemValue = serializedValue.get(0);
-				Class<?> resolvedType = Serialization.resolveObjectType(Object.class, itemValue);
-				if (resolvedType == ArrayType.class) {
-					Class<?> componentType = ReflectionUtils.forName(itemValue.getString("typeName"))
-							.getComponentType();
+				JsonValue itemValue = serializedValue.child;
+				Class<?> itemType = Serialization.resolveObjectType(Object.class, itemValue);
+				if (itemType == ArrayType.class) {
+					Class<?> arrayType = ReflectionUtils.forName(itemValue.getString("typeName"));
 					@SuppressWarnings("unchecked")
-					T array = (T) ArrayReflection.newInstance(componentType, length - 1);
+					T array = (T) ArrayReflection.newInstance(arrayType.getComponentType(), length - 1);
 					return array;
 				}
 			}
@@ -149,19 +148,15 @@ public class ReflectionModel<T> implements Model<T> {
 					ArrayReflection.set(array, i, Objects.copyValue(value, context));
 				}
 			} else {
-				Class<?> componentType = type.getComponentType();
-				int i = 0;
-				int length = serializedValue.size;
-				if (length > 0) {
-					JsonValue itemValue = serializedValue.get(0);
-					Class<?> resolvedType = Serialization.resolveObjectType(Object.class, itemValue);
-					if (resolvedType == ArrayType.class) {
-						i = 1;
-					}
+				Class<?> componentType = array.getClass().getComponentType();
+				JsonValue item = serializedValue.child;
+				Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
+				if (itemType == ArrayType.class) {
+					item = item.next;
 				}
 
-				for (; i < length; i++) {
-					JsonValue item = serializedValue.get(i);
+				int i = 0;
+				for (; item != null; item = item.next) {
 					if (item.isNull()) {
 						ArrayReflection.set(array, i++, null);
 					} else {
@@ -255,7 +250,14 @@ public class ReflectionModel<T> implements Model<T> {
 			return false;
 		}
 
-		Class<?> fieldType = field.getType();
+		field.setAccessible(true);
+		T defaultInstance = Defaults.getDefault(type);
+		Object fieldValue = ReflectionUtils.getFieldValue(field, defaultInstance);
+		if (fieldValue == null) {
+			return true;
+		}
+
+		Class<?> fieldType = fieldValue.getClass();
 		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)
 				|| ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null) {
 			return true;

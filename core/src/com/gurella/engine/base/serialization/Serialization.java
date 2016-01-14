@@ -10,16 +10,30 @@ public class Serialization {
 	}
 
 	public static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
-		String explicitTypeName = serializedObject.getString("class", null);
-		if (explicitTypeName == null) {
-			if (knownType == null) {
-				throw new GdxRuntimeException("Can't resolve serialized object type.");
+		if (serializedObject.isArray()) {
+			if (serializedObject.size > 0) {
+				JsonValue itemValue = serializedObject.get(0);
+				Class<?> itemType = resolveObjectType(Object.class, itemValue);
+				if (itemType == ArrayType.class) {
+					return ReflectionUtils.forName(itemValue.getString("typeName"));
+				} else if (knownType == null || !knownType.isArray()) {
+					throw new GdxRuntimeException("Can't resolve serialized object type.");
+				} else {
+					return knownType;
+				}
 			}
-
-			return knownType;
-		} else {
-			return ReflectionUtils.<T> forName(explicitTypeName);
+		} else if (serializedObject.isObject()) {
+			String explicitTypeName = serializedObject.getString("class", null);
+			if (explicitTypeName != null) {
+				return ReflectionUtils.<T> forName(explicitTypeName);
+			}
 		}
+
+		if (knownType == null) {
+			throw new GdxRuntimeException("Can't resolve serialized object type.");
+		}
+
+		return knownType;
 	}
 
 	public static boolean isSimpleType(Object obj) {

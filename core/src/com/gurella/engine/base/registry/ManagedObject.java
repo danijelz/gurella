@@ -43,8 +43,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	}
 
 	void init(InitializationContext<ManagedObject> context) {
-		@SuppressWarnings("unchecked")
-		Model<ManagedObject> model = (Model<ManagedObject>) Models.getModel(getClass());
+		Model<ManagedObject> model = Models.getModel(this);
 		model.initInstance(context);
 		initialized = true;
 		init();
@@ -56,7 +55,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 	public boolean isInitialized() {
 		return initialized;
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -75,7 +74,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		if (getClass() != other.getClass())
 			return false;
 
-		Model<? extends ManagedObject> model = Models.getModel(getClass());
+		Model<? extends ManagedObject> model = Models.getModel(this);
 		ImmutableArray<Property<?>> properties = model.getProperties();
 
 		for (int i = 0; i < properties.size(); i++) {

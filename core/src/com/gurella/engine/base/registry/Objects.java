@@ -25,14 +25,13 @@ public class Objects {
 			return null;
 		}
 
-		@SuppressWarnings("unchecked")
-		Model<T> model = (Model<T>) Models.getModel(original.getClass());
+		Model<T> model = Models.getModel(original);
 		@SuppressWarnings("unchecked")
 		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.template = original;
 		context.parentContext = parentContext;
 		context.duplicate = true;
-		T duplicate = model.newInstance(context);
+		T duplicate = model.createInstance(context);
 		context.initializingObject = duplicate;
 		model.initInstance(context);
 		SynchronizedPools.free(context);
@@ -47,7 +46,7 @@ public class Objects {
 		context.json = parentContext.json;
 		context.serializedValue = serializedObject;
 		context.parentContext = parentContext;
-		T instance = model.newInstance(context);
+		T instance = model.createInstance(context);
 		context.initializingObject = instance;
 		model.initInstance(context);
 		SynchronizedPools.free(context);
@@ -59,8 +58,7 @@ public class Objects {
 			return;
 		}
 
-		@SuppressWarnings("unchecked")
-		Model<T> model = (Model<T>) Models.getModel(source.getClass());
+		Model<T> model = Models.getModel(source);
 		@SuppressWarnings("unchecked")
 		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.template = source;
@@ -79,8 +77,7 @@ public class Objects {
 			throw new GdxRuntimeException("Unequal types.");
 		}
 
-		@SuppressWarnings("unchecked")
-		Model<T> model = (Model<T>) Models.getModel(targetType);
+		Model<T> model = Models.getModel(target);
 		@SuppressWarnings("unchecked")
 		InitializationContext<T> context = SynchronizedPools.obtain(InitializationContext.class);
 		context.objectRegistry = parentContext.objectRegistry;
@@ -160,7 +157,7 @@ public class Objects {
 		} else if (Serialization.isSimpleType(firstType)) {
 			return first.equals(second);
 		} else {
-			Model<?> model = Models.getModel(first.getClass());
+			Model<?> model = Models.getModel(first);
 			ImmutableArray<Property<?>> properties = model.getProperties();
 
 			for (int i = 0; i < properties.size(); i++) {

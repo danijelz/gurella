@@ -47,7 +47,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	@Override
-	public Array<?> newInstance(InitializationContext<Array<?>> context) {
+	public Array<?> createInstance(InitializationContext<Array<?>> context) {
 		JsonValue serializedValue = context.serializedValue;
 		if (serializedValue == null) {
 			Array<?> template = context.template;
@@ -237,7 +237,6 @@ public class GdxArrayModel implements Model<Array<?>> {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public Class<Object[]> getType() {
 			return Object[].class;
 		}
@@ -269,7 +268,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 
 		@Override
 		public String getDescription() {
-			return name;
+			return null;
 		}
 
 		@Override
@@ -294,17 +293,21 @@ public class GdxArrayModel implements Model<Array<?>> {
 					return;
 				}
 
+				array.ensureCapacity(template.size - array.items.length);
 				for (int i = 0; i < template.size; i++) {
 					array.add(Objects.copyValue(template.get(i), context));
 				}
 			} else {
+				Class<?> componentType = array.items.getClass().getComponentType();
+				array.ensureCapacity(serializedValue.size - array.items.length);
+
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					if (serializedValue.isNull()) {
+					if (item.isNull()) {
 						array.add(null);
 						continue;
 					}
 
-					Class<?> resolvedType = Serialization.resolveObjectType(Object.class, item);
+					Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
 					if (Serialization.isSimpleType(resolvedType)) {
 						array.add(context.json.readValue(resolvedType, null, item));
 					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
@@ -314,7 +317,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
 						array.add(context.getInstance(objectReference.getId()));
 					} else {
-						array.add(Objects.deserialize(serializedValue, resolvedType, context));
+						array.add(Objects.deserialize(item, resolvedType, context));
 					}
 				}
 			}

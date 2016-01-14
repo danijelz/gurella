@@ -19,7 +19,7 @@ public abstract class AbstractModel<T> implements Model<T> {
 	}
 
 	@Override
-	public T newInstance(InitializationContext<T> context) {
+	public T createInstance(InitializationContext<T> context) {
 		JsonValue serializedValue = context.serializedValue;
 		if (serializedValue == null) {
 			T template = context.template;

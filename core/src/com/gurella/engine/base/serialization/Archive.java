@@ -130,13 +130,6 @@ public class Archive {
 	}
 
 	public static void main(String[] args) {
-		Object[][] f = new Object[][] { { "1", "11" }, { "2" } };
-		Object[][] s = new Object[][] { { "1" }, { "2" } };
-		Object[][] t = new Object[1][];
-		long[][] ll1 = null;
-		long[][] ll2 = null;
-		Arrays.equals(ll1, ll2);
-		boolean b = f == s;
 		Test obj = new Test();
 		obj.i = 8;
 		obj.s = "sss";
