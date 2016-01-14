@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
@@ -291,20 +290,16 @@ public class ReflectionModel<T> implements Model<T> {
 	private static Property<?> getPropertyFromFactoryMethod(Class<? extends Property<?>> propertyType) {
 		// TODO should be annotation based @FactoryMethod
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(propertyType, "getInstance");
-		if (factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == propertyType
-				&& factoryMethod.isStatic()) {
-			try {
-				return (Property<?>) factoryMethod.invoke(null);
-			} catch (@SuppressWarnings("unused") ReflectionException e) {
-				return null;
-			}
+		if (factoryMethod != null && factoryMethod.isPublic() && factoryMethod.isStatic()
+				&& ClassReflection.isAssignableFrom(Property.class, factoryMethod.getReturnType())) {
+			return ReflectionUtils.invokeMethodSilently(factoryMethod, null);
 		} else {
 			return null;
 		}
 	}
 
 	private ReflectionProperty<?> createReflectionProperty(Field field, boolean forced) {
-		ReflectionProperty<?> propertyModel = createBeanPropertyModel(field, forced);
+		ReflectionProperty<?> propertyModel = createBeanProperty(field, forced);
 		if (propertyModel != null) {
 			return propertyModel;
 		} else if (forced || field.isPublic()) {
@@ -314,7 +309,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-	private ReflectionProperty<?> createBeanPropertyModel(Field field, boolean forced) {
+	private ReflectionProperty<?> createBeanProperty(Field field, boolean forced) {
 		String name = field.getName();
 		String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
 		Class<?> fieldType = field.getType();

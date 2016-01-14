@@ -211,4 +211,12 @@ public class ReflectionUtils {
 			throw new GdxRuntimeException(e);
 		}
 	}
+	
+	public static <T> T invokeMethodSilently(Method method, Object object, Object... args) {
+		try {
+			return invokeMethod(method, object, args);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }
