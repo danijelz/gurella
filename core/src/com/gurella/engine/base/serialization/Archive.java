@@ -129,6 +129,72 @@ public class Archive implements Poolable {
 		}
 	}
 
+	private Array<Object> objects = new Array<Object>();
+
+	public void writeValue1(Object value, Class<?> knownType) {
+		if (value == null || Serialization.isSimpleType(value)) {
+			json.writeValue(value, knownType);
+		} else if (value instanceof ManagedObject) {
+			ManagedObject managedObject = (ManagedObject) value;
+			String resourceFileName = ResourceService.getResourceFileName(managedObject);
+			boolean isLocalObject = fileName.equals(resourceFileName);
+			if (isLocalObject) {
+				if (internalIds.get(value, -1) > 0) {
+					ObjectReference objectReference = new ObjectReference(managedObject.getId(), null);
+					json.writeValue(objectReference, ObjectReference.class);
+				} else {
+					Model<Object> model = Models.getModel(value);
+					model.serialize(value, knownType, this);
+				}
+			} else {
+				ExternalDependency dependency = new ExternalDependency();
+				dependency.typeName = ManagedObject.class.getName();
+				dependency.fileName = resourceFileName;
+				externalDependencies.add(dependency);
+				externalFileNames.add(resourceFileName);
+
+				ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
+				json.writeValue(objectReference, ObjectReference.class);
+			}
+		} else if (Assets.isAsset(value)) {
+			AssetReference reference = new AssetReference(ResourceService.getResourceFileName(value), value.getClass());
+			if (Assets.isAssetType(knownType)) {
+
+			}
+		} else {
+			int internalId = internalIds.get(value, -1);
+			if (internalId > 0) {
+				json.writeValue(Integer.valueOf(internalId), int.class);
+			} else {
+				if (value instanceof ManagedObject) {
+					ManagedObject managedObject = (ManagedObject) value;
+					String resourceFileName = ResourceService.getResourceFileName(managedObject);
+					boolean isLocalObject = fileName.equals(resourceFileName);
+					if (isLocalObject) {
+						internalIds.put(value, currentId);
+						json.writeValue(Integer.valueOf(currentId), int.class);
+						currentId++;
+						objects.add(value);
+					} else {
+						ExternalDependency dependency = new ExternalDependency();
+						dependency.typeName = ManagedObject.class.getName();
+						dependency.fileName = resourceFileName;
+						externalDependencies.add(dependency);
+						externalFileNames.add(resourceFileName);
+
+						ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
+						json.writeValue(objectReference, ObjectReference.class);
+					}
+				} else {
+					internalIds.put(value, currentId);
+					json.writeValue(Integer.valueOf(currentId), int.class);
+					currentId++;
+					objects.add(value);
+				}
+			}
+		}
+	}
+
 	private static class ExternalDependency {
 		String typeName;
 		String fileName;

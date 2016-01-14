@@ -29,13 +29,9 @@ public class InitializationContext implements Poolable {
 	}
 
 	public void pop() {
-		if (initializingObjectStack.size > 0) {
-			initializingObjectStack.pop();
-			templateStack.pop();
-			serializedValueStack.pop();
-		} else {
-			throw new GdxRuntimeException("Empty stack.");
-		}
+		initializingObjectStack.pop();
+		templateStack.pop();
+		serializedValueStack.pop();
 	}
 
 	public <MO extends ManagedObject> MO getInstance(MO object) {
