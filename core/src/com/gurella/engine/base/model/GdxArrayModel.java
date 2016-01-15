@@ -3,11 +3,9 @@ package com.gurella.engine.base.model;
 import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
-import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
@@ -19,16 +17,12 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class GdxArrayModel implements Model<Array<?>> {
-	private static final GdxArrayModel instance = new GdxArrayModel();
-
+public class GdxArrayModel<T extends Array<?>> implements Model<T> {
+	private Class<T> type;
 	private ArrayExt<Property<?>> properties;
 
-	public static GdxArrayModel getInstance() {
-		return instance;
-	}
-
-	private GdxArrayModel() {
+	public GdxArrayModel(Class<T> type) {
+		this.type = type;
 		properties = new ArrayExt<Property<?>>();
 		properties.add(new ArrayOrderedProperty(this));
 		properties.add(new ArrayItemsProperty(this));
@@ -40,14 +34,12 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Class<Array<?>> getType() {
-		Class<?> type = Array.class;
-		return (Class<Array<?>>) type;
+	public Class<T> getType() {
+		return type;
 	}
 
 	@Override
-	public Array<?> createInstance(InitializationContext context) {
+	public T createInstance(InitializationContext context) {
 		JsonValue serializedValue = context.serializedValue();
 		if (serializedValue == null) {
 			Array<?> template = context.template();
@@ -60,32 +52,25 @@ public class GdxArrayModel implements Model<Array<?>> {
 				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(template.getClass(),
 						Class.class);
 				if (constructor != null) {
-					try {
-						return (Array<?>) constructor.newInstance(componentType);
-					} catch (ReflectionException e) {
-						throw new GdxRuntimeException(e);
-					}
+					return ReflectionUtils.invokeConstructor(constructor, componentType);
 				}
 			}
 
-			return ReflectionUtils.newInstance(template.getClass());
+			@SuppressWarnings("unchecked")
+			T instance = (T) ReflectionUtils.newInstance(template.getClass());
+			return instance;
 		} else {
 			if (serializedValue.isNull()) {
 				return null;
 			}
 
-			@SuppressWarnings("rawtypes")
-			Class<Array> resolvedType = Serialization.resolveObjectType(Array.class, serializedValue);
+			Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
 			JsonValue componentTypeValue = serializedValue.get("componentType");
 			if (componentTypeValue != null) {
 				Class<?> componentType = ReflectionUtils.forNameSilently(componentTypeValue.asString());
 				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(resolvedType, Class.class);
 				if (constructor != null) {
-					try {
-						return (Array<?>) constructor.newInstance(componentType);
-					} catch (ReflectionException e) {
-						throw new GdxRuntimeException(e);
-					}
+					return ReflectionUtils.invokeConstructor(constructor, componentType);
 				}
 			}
 
@@ -114,7 +99,7 @@ public class GdxArrayModel implements Model<Array<?>> {
 	}
 
 	@Override
-	public void serialize(Array<?> object, Class<?> knownType, Archive archive) {
+	public void serialize(T object, Class<?> knownType, Archive archive) {
 		if (object == null) {
 			archive.writeValue(null, null);
 		} else {

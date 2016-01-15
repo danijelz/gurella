@@ -8,11 +8,10 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
-	// TODO handle with ModelResolvers...
-	private static final ObjectMap<Class<?>, Model<?>> customModels = new ObjectMap<Class<?>, Model<?>>();
+	private static final Array<ModelResolver> modelResolvers = new Array<ModelResolver>();
 
 	static {
-		customModels.put(Array.class, GdxArrayModel.getInstance());
+		modelResolvers.add(GdxArrayModelResolver.instance);
 	}
 
 	private Models() {
@@ -99,16 +98,12 @@ public class Models {
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> Model<T> resolveCustomModel(Class<? extends T> type) {
-		Class<?> temp = type;
-		while (!temp.isInterface() && !Object.class.equals(temp)) {
-			@SuppressWarnings("unchecked")
-			Model<T> model = (Model<T>) customModels.get(temp);
+	private static <T> Model<T> resolveCustomModel(Class<T> type) {
+		for (int i = 0; i < modelResolvers.size; i++) {
+			Model<T> model = modelResolvers.get(i).resolve(type);
 			if (model != null) {
 				return model;
 			}
-
-			temp = temp.getSuperclass();
 		}
 
 		return null;

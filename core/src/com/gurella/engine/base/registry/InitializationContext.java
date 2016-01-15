@@ -82,7 +82,7 @@ public class InitializationContext implements Poolable {
 	public <T> T initializingObject() {
 		return (T) initializingObjectStack.peek();
 	}
-	
+
 	public void setInitializingObject(Object obj) {
 		initializingObjectStack.set(initializingObjectStack.size - 1, obj);
 	}

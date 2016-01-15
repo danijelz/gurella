@@ -211,10 +211,28 @@ public class ReflectionUtils {
 			throw new GdxRuntimeException(e);
 		}
 	}
-	
+
 	public static <T> T invokeMethodSilently(Method method, Object object, Object... args) {
 		try {
 			return invokeMethod(method, object, args);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static <T> T invokeConstructor(Constructor constructor, Object... args) {
+		try {
+			@SuppressWarnings("unchecked")
+			T casted = (T) constructor.newInstance(args);
+			return casted;
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	public static <T> T invokeConstructorSilently(Constructor constructor, Object... args) {
+		try {
+			return invokeConstructor(constructor, args);
 		} catch (Exception e) {
 			return null;
 		}

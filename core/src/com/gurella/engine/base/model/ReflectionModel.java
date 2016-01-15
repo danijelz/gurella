@@ -31,12 +31,12 @@ public class ReflectionModel<T> implements Model<T> {
 	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
 
-	public static <T> ReflectionModel<T> getInstance(Class<T> resourceType) {
+	public static <T> ReflectionModel<T> getInstance(Class<T> type) {
 		synchronized (modelsByType) {
 			@SuppressWarnings("unchecked")
-			ReflectionModel<T> instance = (ReflectionModel<T>) modelsByType.get(resourceType);
+			ReflectionModel<T> instance = (ReflectionModel<T>) modelsByType.get(type);
 			if (instance == null) {
-				instance = new ReflectionModel<T>(resourceType);
+				instance = new ReflectionModel<T>(type);
 			}
 			return instance;
 		}
