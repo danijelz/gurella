@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
+import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -291,6 +293,55 @@ public class Archive implements Poolable {
 				"	]\n" + 
 				"	count: 16\n" + 
 				"}\n" + 
+				"is: {\n" + 
+				"	size: 1\n" + 
+				"	keyTable: [ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\n" + 
+				"}\n" + 
+				"am: {\n" + 
+				"	keys: [\n" + 
+				"		{\n" + 
+				"			class: java.lang.String\n" + 
+				"			value: a\n" + 
+				"		}\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"	]\n" + 
+				"	values: [\n" + 
+				"		{\n" + 
+				"			class: java.lang.String\n" + 
+				"			value: a\n" + 
+				"		}\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"	]\n" + 
+				"	size: 1\n" + 
+				"}\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -302,8 +353,10 @@ public class Archive implements Poolable {
 		obj.map.put("a", "a");
 		obj.ba.add(true);
 		obj.sb.append("dddddddddddddddd");
+		obj.is.add(1);
+		obj.am.put("a", "a");
 		
-		Model<StringBuilder> sbModel = Models.getModel(StringBuilder.class);
+		Model<IntSet> sbModel = Models.getModel(IntSet.class);
 		sbModel.getProperties();
 
 		JsonValue value = new JsonReader().parse(str);
@@ -329,6 +382,8 @@ public class Archive implements Poolable {
 		public Map<String, String> map = new HashMap<String, String>();
 		public BooleanArray ba = new BooleanArray();
 		public StringBuilder sb = new StringBuilder();
+		public IntSet is = new IntSet();
+		public ArrayMap<String, String> am = new ArrayMap<String, String>(); 
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);

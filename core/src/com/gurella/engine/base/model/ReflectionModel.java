@@ -1,7 +1,18 @@
 package com.gurella.engine.base.model;
 
+import java.util.Arrays;
+
+import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.IntFloatMap;
+import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.LongMap;
+import com.badlogic.gdx.utils.ObjectFloatMap;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -15,7 +26,9 @@ import com.gurella.engine.base.serialization.AssetReference;
 import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
@@ -26,24 +39,63 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
-	private Class<T> type;
-	private String name;
-	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
-	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
+	static {
+		String[] mapProps = new String[] { "loadFactor", "hashShift", "mask", "threshold", "stashCapacity",
+				"pushIterations" };
 
-	public static <T> ReflectionModel<T> getInstance(Class<T> type) {
+		getInstance(IntSet.class, mapProps);
+		getInstance(ObjectSet.class, mapProps);
+		getInstance(ObjectMap.class, mapProps);
+		getInstance(IdentityMap.class, mapProps);
+		getInstance(ObjectIntMap.class, mapProps);
+		getInstance(ObjectFloatMap.class, mapProps);
+		getInstance(LongMap.class, mapProps);
+		getInstance(IntMap.class, mapProps);
+		getInstance(IntIntMap.class, mapProps);
+		getInstance(IntFloatMap.class, mapProps);
+		getInstance(IntLongMap.class, mapProps);
+		getInstance(IdentityObjectIntMap.class, mapProps);
+	}
+
+	public static <T> ReflectionModel<T> getInstance(Class<T> type, String... forcedProperties) {
 		synchronized (modelsByType) {
 			@SuppressWarnings("unchecked")
 			ReflectionModel<T> instance = (ReflectionModel<T>) modelsByType.get(type);
 			if (instance == null) {
-				instance = new ReflectionModel<T>(type);
+				instance = new ReflectionModel<T>(type, forcedProperties);
 			}
 			return instance;
 		}
 	}
 
+	private Class<T> type;
+	private String name;
+
+	private String[] ignoredProperties;
+	private String[] forcedProperties;
+
+	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
+	private ObjectMap<String, Property<?>> propertiesByName = new ObjectMap<String, Property<?>>();
+
 	public ReflectionModel(Class<T> type) {
+		this(type, (String[]) null);
+	}
+
+	public ReflectionModel(Class<T> type, String... forcedProperties) {
+		this(type, (String[]) null, forcedProperties);
+	}
+
+	public ReflectionModel(Class<T> type, String[] ignoredProperties, String[] forcedProperties) {
 		this.type = type;
+		if (ignoredProperties != null) {
+			Arrays.sort(ignoredProperties);
+			this.ignoredProperties = ignoredProperties;
+		}
+		if (forcedProperties != null) {
+			Arrays.sort(forcedProperties);
+			this.forcedProperties = forcedProperties;
+		}
+
 		modelsByType.put(type, this);
 		resolveName();
 		resolveProperties();
@@ -248,9 +300,15 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private boolean isIgnoredField(Field field) {
+		String fieldName = field.getName();
+		if (ignoredProperties != null && Arrays.binarySearch(ignoredProperties, fieldName) >= 0) {
+			return true;
+		}
+
 		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null
 				|| (field.isPrivate()
-						&& ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null)) {
+						&& ((forcedProperties == null || Arrays.binarySearch(forcedProperties, fieldName) < 0)
+								&& ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null))) {
 			return true;
 		}
 
