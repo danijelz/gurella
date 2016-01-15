@@ -1,25 +1,26 @@
 package com.gurella.engine.base.model;
 
-import com.badlogic.gdx.utils.Array;
+import java.util.Collection;
+
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 
-public class GdxArrayModelResolver implements ModelResolver {
-	public static final GdxArrayModelResolver instance = new GdxArrayModelResolver();
+public class CollectionModelResolver implements ModelResolver {
+	public static final CollectionModelResolver instance = new CollectionModelResolver();
 
-	private static final ObjectMap<Class<?>, GdxArrayModel<?>> modelsByType = new ObjectMap<Class<?>, GdxArrayModel<?>>();
+	private static final ObjectMap<Class<?>, CollectionModel<?>> modelsByType = new ObjectMap<Class<?>, CollectionModel<?>>();
 
-	private GdxArrayModelResolver() {
+	private CollectionModelResolver() {
 	}
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
 		synchronized (modelsByType) {
-			GdxArrayModel<?> instance = modelsByType.get(type);
+			CollectionModel<?> instance = modelsByType.get(type);
 			if (instance == null) {
-				if (ClassReflection.isAssignableFrom(Array.class, type)) {
+				if (ClassReflection.isAssignableFrom(Collection.class, type)) {
 					@SuppressWarnings({ "rawtypes", "unchecked" })
-					GdxArrayModel<?> raw = new GdxArrayModel(type);
+					CollectionModel<?> raw = new CollectionModel(type);
 					instance = raw;
 					modelsByType.put(type, instance);
 				} else {
