@@ -13,7 +13,7 @@ public class InitializationContext implements Poolable {
 	public ObjectRegistry objectRegistry;
 	public AssetRegistry assetRegistry;
 
-	public Json json;
+	public Json json = new Json();
 	public boolean duplicate;
 
 	private Array<Object> initializingObjectStack = new Array<Object>();
@@ -81,6 +81,10 @@ public class InitializationContext implements Poolable {
 	@SuppressWarnings("unchecked")
 	public <T> T initializingObject() {
 		return (T) initializingObjectStack.peek();
+	}
+	
+	public void setInitializingObject(Object obj) {
+		initializingObjectStack.set(initializingObjectStack.size - 1, obj);
 	}
 
 	@SuppressWarnings("unchecked")

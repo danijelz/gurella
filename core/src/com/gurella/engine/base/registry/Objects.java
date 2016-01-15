@@ -47,9 +47,11 @@ public class Objects {
 
 	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType, InitializationContext context) {
 		Model<T> model = Models.getModel(objectType);
+		context.push(null, null, serializedObject);
 		T instance = model.createInstance(context);
-		context.push(instance, null, serializedObject);
+		context.setInitializingObject(instance);
 		model.initInstance(context);
+		context.pop();
 		return instance;
 	}
 

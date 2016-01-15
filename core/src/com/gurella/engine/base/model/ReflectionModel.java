@@ -136,8 +136,8 @@ public class ReflectionModel<T> implements Model<T> {
 			return;
 		}
 		
-		T array = context.initializingObject();
-		if (array == null) {
+		T initializingObject = context.initializingObject();
+		if (initializingObject == null) {
 			return;
 		}
 
@@ -149,10 +149,10 @@ public class ReflectionModel<T> implements Model<T> {
 				int length = ArrayReflection.getLength(template);
 				for (int i = 0; i < length; i++) {
 					Object value = ArrayReflection.get(template, i);
-					ArrayReflection.set(array, i, Objects.copyValue(value, context));
+					ArrayReflection.set(initializingObject, i, Objects.copyValue(value, context));
 				}
 			} else {
-				Class<?> componentType = array.getClass().getComponentType();
+				Class<?> componentType = initializingObject.getClass().getComponentType();
 				JsonValue item = serializedValue.child;
 				Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
 				if (itemType == ArrayType.class) {
@@ -162,21 +162,21 @@ public class ReflectionModel<T> implements Model<T> {
 				int i = 0;
 				for (; item != null; item = item.next) {
 					if (item.isNull()) {
-						ArrayReflection.set(array, i++, null);
+						ArrayReflection.set(initializingObject, i++, null);
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
 						if (Serialization.isSimpleType(resolvedType)) {
-							ArrayReflection.set(array, i++, context.json.readValue(resolvedType, null, item));
+							ArrayReflection.set(initializingObject, i++, context.json.readValue(resolvedType, null, item));
 						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-							ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
+							ArrayReflection.set(initializingObject, i++, context.<T> getAsset(assetReference));
 						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
 							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
 							@SuppressWarnings("unchecked")
 							T instance = (T) context.getInstance(objectReference.getId());
-							ArrayReflection.set(array, i++, instance);
+							ArrayReflection.set(initializingObject, i++, instance);
 						} else {
-							ArrayReflection.set(array, i++, Objects.deserialize(item, resolvedType, context));
+							ArrayReflection.set(initializingObject, i++, Objects.deserialize(item, resolvedType, context));
 						}
 					}
 				}

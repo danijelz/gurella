@@ -218,12 +218,20 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
 		if (resolvedType.isArray()) {
-			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(type, serializedValue.size);
+			int size = serializedValue.size;
 			Class<?> componentType = resolvedType.getComponentType();
+			JsonValue item = serializedValue.child;
+			Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
+			if (itemType == ArrayType.class) {
+				item = item.next;
+				size--;
+			}
+			
+			@SuppressWarnings("unchecked")
+			T array = (T) ArrayReflection.newInstance(componentType, size);
 
 			int i = 0;
-			for (JsonValue item = serializedValue.child; item != null; item = item.next) {
+			for (; item != null; item = item.next) {
 				if (item.isNull()) {
 					ArrayReflection.set(array, i++, null);
 				} else {
