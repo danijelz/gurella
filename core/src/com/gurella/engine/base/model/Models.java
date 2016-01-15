@@ -13,6 +13,7 @@ public class Models {
 	static {
 		modelResolvers.add(GdxArrayModelResolver.instance);
 		modelResolvers.add(CollectionModelResolver.instance);
+		modelResolvers.add(MapModelResolver.instance);
 	}
 
 	private Models() {

@@ -3,8 +3,11 @@ package com.gurella.engine.base.serialization;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -210,11 +213,85 @@ public class Archive implements Poolable {
 	}
 
 	public static void main(String[] args) {
-		String str = "{\n" + "i: 8\n" + "s: sss\n" + "a: [\n" + "	{\n"
-				+ "		class: com.gurella.engine.base.serialization.ArrayType\n"
-				+ "		typeName: \"[Ljava.lang.String;\"\n" + "	}\n" + "	bbb\n" + "	eee\n" + "]\n" + "t1: {\n"
-				+ "	i1: 5\n" + "}\n" + "arr: {\n" + "	componentType: java.lang.String\n" + "	items: [\n"
-				+ "		value\n" + "		ddd\n" + "	]\n" + "}\n" + "}\n";
+		String str = "{\n" + 
+				"i: 8\n" + 
+				"s: sss\n" + 
+				"a: [\n" + 
+				"	{\n" + 
+				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
+				"		typeName: \"[Ljava.lang.String;\"\n" + 
+				"	}\n" + 
+				"	bbb\n" + 
+				"	eee\n" + 
+				"]\n" + 
+				"t1: {\n" + 
+				"	i1: 5\n" + 
+				"}\n" + 
+				"arr: {\n" + 
+				"	componentType: java.lang.String\n" + 
+				"	items: [\n" + 
+				"		value\n" + 
+				"		ddd\n" + 
+				"	]\n" + 
+				"}\n" + 
+				"map: {\n" + 
+				"	class: java.util.HashMap\n" + 
+				"	entries: [\n" + 
+				"		[\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"		]\n" + 
+				"	]\n" + 
+				"}\n" + 
+				"ba: {\n" + 
+				"	items: [\n" + 
+				"		true\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"		false\n" + 
+				"	]\n" + 
+				"	size: 1\n" + 
+				"}\n" + 
+				"sb: {\n" + 
+				"	value: [\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"		\0\n" + 
+				"	]\n" + 
+				"	count: 3\n" + 
+				"}\n" + 
+				"}";
 
 		Test obj = new Test();
 		obj.i = 8;
@@ -222,6 +299,12 @@ public class Archive implements Poolable {
 		obj.a = new String[] { "bbb", "eee" };
 		obj.t1.i1 = 5;
 		obj.arr.add("ddd");
+		obj.map.put("a", "a");
+		obj.ba.add(true);
+		obj.sb.append("ddd");
+		
+		Model<StringBuilder> sbModel = Models.getModel(StringBuilder.class);
+		sbModel.getProperties();
 
 		JsonValue value = new JsonReader().parse(str);
 		InitializationContext context = new InitializationContext();
@@ -243,6 +326,9 @@ public class Archive implements Poolable {
 		public Object[] a = new String[] { "sss" };
 		public Test1 t1 = new Test1();
 		public ArrayExt<String> arr;
+		public Map<String, String> map = new HashMap<String, String>();
+		public BooleanArray ba = new BooleanArray();
+		public StringBuilder sb = new StringBuilder();
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);

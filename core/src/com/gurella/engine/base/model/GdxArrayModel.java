@@ -30,7 +30,7 @@ public class GdxArrayModel<T extends Array<?>> implements Model<T> {
 
 	@Override
 	public String getName() {
-		return Array.class.getName();
+		return type.getName();
 	}
 
 	@Override
@@ -296,20 +296,19 @@ public class GdxArrayModel<T extends Array<?>> implements Model<T> {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					if (item.isNull()) {
 						array.add(null);
-						continue;
-					}
-
-					Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-					if (Serialization.isSimpleType(resolvedType)) {
-						array.add(context.json.readValue(resolvedType, null, item));
-					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-						array.add(context.getAsset(assetReference));
-					} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-						array.add(context.getInstance(objectReference.getId()));
 					} else {
-						array.add(Objects.deserialize(item, resolvedType, context));
+						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+						if (Serialization.isSimpleType(resolvedType)) {
+							array.add(context.json.readValue(resolvedType, null, item));
+						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
+							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
+							array.add(context.getAsset(assetReference));
+						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
+							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
+							array.add(context.getInstance(objectReference.getId()));
+						} else {
+							array.add(Objects.deserialize(item, resolvedType, context));
+						}
 					}
 				}
 			}

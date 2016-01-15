@@ -16,15 +16,11 @@ public class GdxArrayModelResolver implements ModelResolver {
 	public <T> Model<T> resolve(Class<T> type) {
 		synchronized (modelsByType) {
 			GdxArrayModel<?> instance = modelsByType.get(type);
-			if (instance == null) {
-				if (ClassReflection.isAssignableFrom(Array.class, type)) {
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					GdxArrayModel<?> raw = new GdxArrayModel(type);
-					instance = raw;
-					modelsByType.put(type, instance);
-				} else {
-					modelsByType.put(type, null);
-				}
+			if (instance == null && ClassReflection.isAssignableFrom(Array.class, type)) {
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				GdxArrayModel<?> raw = new GdxArrayModel(type);
+				instance = raw;
+				modelsByType.put(type, instance);
 			}
 			@SuppressWarnings("unchecked")
 			Model<T> casted = (Model<T>) instance;

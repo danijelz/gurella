@@ -135,7 +135,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (context == null) {
 			return;
 		}
-		
+
 		T initializingObject = context.initializingObject();
 		if (initializingObject == null) {
 			return;
@@ -166,7 +166,8 @@ public class ReflectionModel<T> implements Model<T> {
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
 						if (Serialization.isSimpleType(resolvedType)) {
-							ArrayReflection.set(initializingObject, i++, context.json.readValue(resolvedType, null, item));
+							ArrayReflection.set(initializingObject, i++,
+									context.json.readValue(resolvedType, null, item));
 						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
 							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
 							ArrayReflection.set(initializingObject, i++, context.<T> getAsset(assetReference));
@@ -176,7 +177,8 @@ public class ReflectionModel<T> implements Model<T> {
 							T instance = (T) context.getInstance(objectReference.getId());
 							ArrayReflection.set(initializingObject, i++, instance);
 						} else {
-							ArrayReflection.set(initializingObject, i++, Objects.deserialize(item, resolvedType, context));
+							ArrayReflection.set(initializingObject, i++,
+									Objects.deserialize(item, resolvedType, context));
 						}
 					}
 				}
@@ -263,7 +265,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 		field.setAccessible(true);
 		T defaultInstance = Defaults.getDefault(type);
-		Object fieldValue = ReflectionUtils.getFieldValue(field, defaultInstance);
+		Object fieldValue = defaultInstance == null ? null : ReflectionUtils.getFieldValue(field, defaultInstance);
 		if (fieldValue == null) {
 			return true;
 		}
@@ -313,10 +315,8 @@ public class ReflectionModel<T> implements Model<T> {
 		ReflectionProperty<?> propertyModel = createBeanProperty(field, forced);
 		if (propertyModel != null) {
 			return propertyModel;
-		} else if (forced || field.isPublic()) {
-			return new ReflectionProperty<Object>(field, this);
 		} else {
-			return null;
+			return new ReflectionProperty<Object>(field, this);
 		}
 	}
 

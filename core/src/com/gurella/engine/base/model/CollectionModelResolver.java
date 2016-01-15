@@ -17,15 +17,11 @@ public class CollectionModelResolver implements ModelResolver {
 	public <T> Model<T> resolve(Class<T> type) {
 		synchronized (modelsByType) {
 			CollectionModel<?> instance = modelsByType.get(type);
-			if (instance == null) {
-				if (ClassReflection.isAssignableFrom(Collection.class, type)) {
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					CollectionModel<?> raw = new CollectionModel(type);
-					instance = raw;
-					modelsByType.put(type, instance);
-				} else {
-					modelsByType.put(type, null);
-				}
+			if (instance == null && ClassReflection.isAssignableFrom(Collection.class, type)) {
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				CollectionModel<?> raw = new CollectionModel(type);
+				instance = raw;
+				modelsByType.put(type, instance);
 			}
 			@SuppressWarnings("unchecked")
 			Model<T> casted = (Model<T>) instance;

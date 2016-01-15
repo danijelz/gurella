@@ -1,28 +1,27 @@
 package com.gurella.engine.base.model;
 
-import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
-import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class CollectionModel<T extends Collection<?>> implements Model<T> {
+public class MapModel<T extends Map<?, ?>> implements Model<T> {
 	private Class<T> type;
 	private ArrayExt<Property<?>> properties;
 
-	public CollectionModel(Class<T> type) {
+	public MapModel(Class<T> type) {
 		this.type = type;
 		properties = new ArrayExt<Property<?>>();
-		properties.add(new CollectionItemsProperty(this));
+		properties.add(new MapEntriesProperty(this));
 	}
 
 	@Override
@@ -59,7 +58,7 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 
 	@Override
 	public void initInstance(InitializationContext context) {
-		T initializingObject = context.initializingObject();
+		Map<?, ?> initializingObject = context.initializingObject();
 		if (initializingObject != null) {
 			properties.get(0).init(context);
 		}
@@ -73,7 +72,7 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <P> Property<P> getProperty(String name) {
-		if (CollectionItemsProperty.name.equals(name)) {
+		if (MapEntriesProperty.name.equals(name)) {
 			return (Property<P>) properties.get(0);
 		} else {
 			return null;
@@ -91,12 +90,12 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 		}
 	}
 
-	private static class CollectionItemsProperty implements Property<Object[]> {
-		private static final String name = "items";
+	private static class MapEntriesProperty implements Property<Set<Entry<?, ?>>> {
+		private static final String name = "entries";
 
 		private Model<?> model;
 
-		public CollectionItemsProperty(Model<?> model) {
+		public MapEntriesProperty(Model<?> model) {
 			this.model = model;
 		}
 
@@ -106,8 +105,9 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 		}
 
 		@Override
-		public Class<Object[]> getType() {
-			return Object[].class;
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		public Class<Set<Entry<?, ?>>> getType() {
+			return (Class) Set.class;
 		}
 
 		@Override
@@ -116,8 +116,8 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 		}
 
 		@Override
-		public Property<Object[]> copy(Model<?> model) {
-			return new CollectionItemsProperty(model);
+		public Property<Set<Entry<?, ?>>> copy(Model<?> model) {
+			return new MapEntriesProperty(model);
 		}
 
 		@Override
@@ -148,8 +148,8 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 		@Override
 		public void init(InitializationContext context) {
 			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) context.initializingObject();
-			if (collection == null) {
+			Map<Object, Object> map = (Map<Object, Object>) context.initializingObject();
+			if (map == null) {
 				return;
 			}
 
@@ -157,69 +157,54 @@ public class CollectionModel<T extends Collection<?>> implements Model<T> {
 			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
 			if (serializedValue == null) {
 				@SuppressWarnings("unchecked")
-				Collection<Object> template = (Collection<Object>) context.template();
+				Map<Object, Object> template = (Map<Object, Object>) context.template();
 				if (template == null) {
 					return;
 				}
 
-				for (Object item : collection) {
-					collection.add(Objects.copyValue(item, context));
+				for (Entry<Object, Object> entry : template.entrySet()) {
+					map.put(Objects.copyValue(entry.getKey(), context), Objects.copyValue(entry.getValue(), context));
 				}
 			} else {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					if (item.isNull()) {
-						collection.add(null);
-					} else {
-						Class<?> resolvedType = Serialization.resolveObjectType(Object.class, item);
-						if (Serialization.isSimpleType(resolvedType)) {
-							collection.add(context.json.readValue(resolvedType, null, item));
-						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-							collection.add(context.getAsset(assetReference));
-						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-							collection.add(context.getInstance(objectReference.getId()));
-						} else {
-							collection.add(Objects.deserialize(item, resolvedType, context));
-						}
-					}
+					JsonValue keyValue = item.child;
+					Object key = Objects.deserialize(keyValue, Object.class, context);
+					Object value = Objects.deserialize(keyValue.next, Object.class, context);
+					map.put(key, value);
 				}
 			}
 		}
 
 		@Override
-		public Object[] getValue(Object object) {
-			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) object;
-			Object[] value = new Object[collection.size()];
-			int i = 0;
-			for (Object item : collection) {
-				value[i] = item;
-			}
-			return value;
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public Set<Entry<?, ?>> getValue(Object object) {
+			return ((Map) object).entrySet();
 		}
 
 		@Override
-		public void setValue(Object object, Object[] values) {
+		public void setValue(Object object, Set<Entry<?, ?>> value) {
 			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) object;
-			collection.clear();
-			for (int i = 0; i < values.length; i++) {
-				collection.add(values[i]);
+			Map<Object, Object> map = (Map<Object, Object>) object;
+			map.clear();
+			for (Entry<?, ?> entry : value) {
+				map.put(entry.getKey(), entry.getValue());
 			}
 		}
 
 		@Override
 		public void serialize(Object object, Archive archive) {
 			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) object;
-			if (collection.isEmpty()) {
+			Map<Object, Object> map = (Map<Object, Object>) object;
+			if (map.isEmpty()) {
 				return;
 			}
 
 			archive.writeArrayStart(name);
-			for (Object item : collection) {
-				archive.writeValue(item, Object.class);
+			for (Entry<?, ?> entry : map.entrySet()) {
+				archive.writeArrayStart();
+				archive.writeValue(entry.getKey(), Object.class);
+				archive.writeValue(entry.getValue(), Object.class);
+				archive.writeArrayEnd();
 			}
 			archive.writeArrayEnd();
 		}
