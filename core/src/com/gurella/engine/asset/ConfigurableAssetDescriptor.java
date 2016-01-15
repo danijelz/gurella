@@ -6,8 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.Application;
 
 public class ConfigurableAssetDescriptor<T> {
-	private static final AssetRegistry assetRegistry = Application.DISPOSABLES_SERVICE
-			.add(new AssetRegistry());
+	private static final AssetRegistry assetRegistry = Application.DISPOSABLES_SERVICE.add(new AssetRegistry());
 
 	AssetType assetType;
 	String fileName;
@@ -32,27 +31,14 @@ public class ConfigurableAssetDescriptor<T> {
 	}
 
 	private AssetDescriptor<T> createAssetDescriptor() {
-		String resolvedFileName = null;
-		AssetLoaderParameters<T> resolvedParameters = null;
-
 		for (int i = 0; i < selectors.size; i++) {
 			AssetSelector<T> selector = selectors.get(i);
 			if (selector.predicate.evaluate(null)) {
-				resolvedFileName = selector.fileName;
-				resolvedParameters = selector.parameters;
-				break;
+				return new AssetDescriptor<T>(selector.fileName, getAssetType(), selector.parameters);
 			}
 		}
 
-		if (resolvedFileName == null) {
-			resolvedFileName = fileName;
-		}
-
-		if (resolvedParameters == null) {
-			resolvedParameters = parameters;
-		}
-
-		return new AssetDescriptor<T>(resolvedFileName, getAssetType(), resolvedParameters);
+		return new AssetDescriptor<T>(fileName, getAssetType(), parameters);
 	}
 
 	public String getFileName() {
