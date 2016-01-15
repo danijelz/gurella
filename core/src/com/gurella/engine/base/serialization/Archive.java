@@ -275,21 +275,21 @@ public class Archive implements Poolable {
 				"		d\n" + 
 				"		d\n" + 
 				"		d\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
-				"		\0\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
+				"		d\n" + 
 				"	]\n" + 
-				"	count: 3\n" + 
+				"	count: 16\n" + 
 				"}\n" + 
 				"}";
 
@@ -301,7 +301,7 @@ public class Archive implements Poolable {
 		obj.arr.add("ddd");
 		obj.map.put("a", "a");
 		obj.ba.add(true);
-		obj.sb.append("ddd");
+		obj.sb.append("dddddddddddddddd");
 		
 		Model<StringBuilder> sbModel = Models.getModel(StringBuilder.class);
 		sbModel.getProperties();

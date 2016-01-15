@@ -46,6 +46,10 @@ public class Objects {
 	}
 
 	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType, InitializationContext context) {
+		Class<T> resolvedType = Serialization.resolveObjectType(objectType, serializedObject);
+		if(Serialization.isSimpleType(resolvedType)) {
+			return context.json.readValue(resolvedType, null, serializedObject);
+		}
 		Model<T> model = Models.getModel(objectType);
 		context.push(null, null, serializedObject);
 		T instance = model.createInstance(context);
