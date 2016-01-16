@@ -135,10 +135,10 @@ public class ReflectionModel<T> implements Model<T> {
 	@Override
 	public T createInstance(InitializationContext context) {
 		if (context == null) {
-			if (type.isArray() || Serialization.isSimpleType(type)) {
-				return null;
-			} else if (type.isPrimitive()) {
+			if (type.isPrimitive()) {
 				return createDefaultPrimitive();
+			} else if (type.isArray() || Serialization.isSimpleType(type)) {
+				return null;
 			} else {
 				return ReflectionUtils.newInstance(type);
 			}
