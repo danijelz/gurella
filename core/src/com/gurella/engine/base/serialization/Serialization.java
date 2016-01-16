@@ -12,13 +12,11 @@ public class Serialization {
 	public static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
 		if (serializedObject.isArray()) {
 			if (serializedObject.size > 0) {
-				JsonValue itemValue = serializedObject.get(0);
+				JsonValue itemValue = serializedObject.child;
 				Class<?> itemType = resolveObjectType(Object.class, itemValue);
 				if (itemType == ArrayType.class) {
-					return ReflectionUtils.forName(itemValue.getString("typeName"));
-				} else if (knownType == null || !knownType.isArray()) {
-					throw new GdxRuntimeException("Can't resolve serialized object type.");
-				} else {
+					return ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
+				} else if (knownType != null && knownType.isArray()) {
 					return knownType;
 				}
 			}
@@ -43,8 +41,6 @@ public class Serialization {
 	public static boolean isSimpleType(Class<?> type) {
 		return type.isPrimitive() || type.isEnum() || Integer.class == type || Long.class == type || Short.class == type
 				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type
-				|| Float.class == type || String.class == type || ArrayType.class == type
-				|| AssetReference.class == type || ObjectReference.class == type
-				|| ClassReflection.isAssignableFrom(Number.class, type);
+				|| Float.class == type || String.class == type || ClassReflection.isAssignableFrom(Number.class, type);
 	}
 }

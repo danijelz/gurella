@@ -17,5 +17,5 @@ public interface Model<T> {
 
 	<P> Property<P> getProperty(String name);
 
-	void serialize(T object, Class<?> knownType, Archive archive);
+	void serialize(T value, Class<?> knownType, Archive archive);
 }

@@ -2,6 +2,7 @@ package com.gurella.engine.base.model;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -40,8 +41,7 @@ public class ReflectionModel<T> implements Model<T> {
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
 	static {
-		String[] mapProps = new String[] { "loadFactor", "hashShift", "mask", "threshold", "stashCapacity",
-				"pushIterations" };
+		String[] mapProps = { "loadFactor", "hashShift", "mask", "threshold", "stashCapacity", "pushIterations" };
 
 		getInstance(IntSet.class, mapProps);
 		getInstance(ObjectSet.class, mapProps);
@@ -135,8 +135,10 @@ public class ReflectionModel<T> implements Model<T> {
 	@Override
 	public T createInstance(InitializationContext context) {
 		if (context == null) {
-			if (type.isArray()) {
+			if (type.isArray() || Serialization.isSimpleType(type)) {
 				return null;
+			} else if (type.isPrimitive()) {
+				return createDefaultPrimitive();
 			} else {
 				return ReflectionUtils.newInstance(type);
 			}
@@ -150,7 +152,9 @@ public class ReflectionModel<T> implements Model<T> {
 			}
 
 			Class<? extends Object> templateType = template.getClass();
-			if (templateType.isArray()) {
+			if (type.isPrimitive()) {
+				return template;
+			} else if (templateType.isArray()) {
 				int length = ArrayReflection.getLength(template);
 				@SuppressWarnings("unchecked")
 				T array = (T) ArrayReflection.newInstance(templateType.getComponentType(), length);
@@ -161,14 +165,14 @@ public class ReflectionModel<T> implements Model<T> {
 				return instance;
 			}
 		} else if (serializedValue.isNull()) {
-			return null;
+			return type.isPrimitive() ? createDefaultPrimitive() : null;
 		} else if (serializedValue.isArray()) {
 			int length = serializedValue.size;
 			if (length > 0) {
 				JsonValue itemValue = serializedValue.child;
 				Class<?> itemType = Serialization.resolveObjectType(Object.class, itemValue);
 				if (itemType == ArrayType.class) {
-					Class<?> arrayType = ReflectionUtils.forName(itemValue.getString("typeName"));
+					Class<?> arrayType = ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
 					@SuppressWarnings("unchecked")
 					T array = (T) ArrayReflection.newInstance(arrayType.getComponentType(), length - 1);
 					return array;
@@ -179,6 +183,29 @@ public class ReflectionModel<T> implements Model<T> {
 			return array;
 		} else {
 			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private T createDefaultPrimitive() {
+		if (int.class == type) {
+			return (T) Integer.valueOf(0);
+		} else if (long.class == type) {
+			return (T) Long.valueOf(0);
+		} else if (short.class == type) {
+			return (T) Short.valueOf((short) 0);
+		} else if (byte.class == type) {
+			return (T) Byte.valueOf((byte) 0);
+		} else if (char.class == type) {
+			return (T) Character.valueOf((char) 0);
+		} else if (boolean.class == type) {
+			return (T) Boolean.valueOf(false);
+		} else if (double.class == type) {
+			return (T) Double.valueOf(0);
+		} else if (float.class == type) {
+			return (T) Float.valueOf(0);
+		} else {
+			throw new GdxRuntimeException("");
 		}
 	}
 
@@ -277,6 +304,10 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private void resolveProperties() {
+		if (Serialization.isSimpleType(type)) {
+			return;
+		}
+
 		Class<? super T> supertype = type.getSuperclass();
 		if (supertype != null && supertype != Object.class) {
 			Model<? super T> model = Models.getModel(supertype);
@@ -305,10 +336,13 @@ public class ReflectionModel<T> implements Model<T> {
 			return true;
 		}
 
-		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null
-				|| (field.isPrivate()
-						&& ((forcedProperties == null || Arrays.binarySearch(forcedProperties, fieldName) < 0)
-								&& ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null))) {
+		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null) {
+			return true;
+		}
+
+		if (field.isPrivate() && (forcedProperties == null || Arrays.binarySearch(forcedProperties, fieldName) < 0)
+				&& ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null
+				&& !isBeanProperty(field)) {
 			return true;
 		}
 
@@ -339,6 +373,20 @@ public class ReflectionModel<T> implements Model<T> {
 
 		ImmutableArray<Property<?>> modelProperties = Models.getModel(fieldType).getProperties();
 		return modelProperties != null && modelProperties.size() > 0;
+	}
+
+	private boolean isBeanProperty(Field field) {
+		String name = field.getName();
+		String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
+		Class<?> fieldType = field.getType();
+
+		Method getter = getPropertyGetter(type, upperCaseName, fieldType, false);
+		if (getter == null) {
+			return false;
+		}
+
+		Method setter = getPropertySetter(type, upperCaseName, fieldType, false);
+		return setter != null;
 	}
 
 	private Property<?> createProperty(Field field) {
@@ -401,7 +449,7 @@ public class ReflectionModel<T> implements Model<T> {
 			boolean forced) {
 		String prefix = Boolean.TYPE.equals(fieldType) ? isPrefix : getPrefix;
 		Method getter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
-		if (getter == null || (!forced && !getter.isPublic())) {
+		if (getter == null || (!forced && getter.isPrivate())) {
 			return null;
 		} else {
 			return fieldType.equals(getter.getReturnType()) ? getter : null;
@@ -411,7 +459,7 @@ public class ReflectionModel<T> implements Model<T> {
 	private static Method getPropertySetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
 		Method setter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, setPrefix + upperCaseName, fieldType);
-		if (setter == null || (!forced && !setter.isPublic())) {
+		if (setter == null || (!forced && setter.isPrivate())) {
 			return null;
 		} else {
 			return Void.TYPE.equals(setter.getReturnType()) ? setter : null;

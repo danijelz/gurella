@@ -38,10 +38,7 @@ public class Archive implements Poolable {
 
 	private int currentId;
 	private IdentityObjectIntMap<Object> internalIds = new IdentityObjectIntMap<Object>();
-
-	private Array<Object> serializedObjectStack = new Array<Object>();
-	private Array<Object> templateStack = new Array<Object>();
-	private Array<JsonValue> serializedValueStack = new Array<JsonValue>();
+	private Array<Reference> references = new Array<Reference>();
 
 	@Override
 	public void reset() {
@@ -212,6 +209,12 @@ public class Archive implements Poolable {
 	private static class ExternalDependency {
 		String typeName;
 		String fileName;
+	}
+	
+	private static class Reference {
+		Object object;
+		Object template;
+		Class<?> knownType;
 	}
 
 	public static void main(String[] args) {
