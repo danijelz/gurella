@@ -218,133 +218,136 @@ public class Archive implements Poolable {
 	}
 
 	public static void main(String[] args) {
-		String str = "{\n" + 
-				"i: 8\n" + 
-				"s: sss\n" + 
-				"a: [\n" + 
-				"	{\n" + 
-				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
-				"		typeName: \"[Ljava.lang.String;\"\n" + 
-				"	}\n" + 
-				"	bbb\n" + 
-				"	eee\n" + 
-				"]\n" + 
-				"t1: {\n" + 
-				"	i1: 5\n" + 
-				"}\n" + 
-				"arr: {\n" + 
-				"	componentType: java.lang.String\n" + 
-				"	items: [\n" + 
-				"		value\n" + 
-				"		ddd\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"map: {\n" + 
-				"	class: java.util.HashMap\n" + 
-				"	entries: [\n" + 
-				"		[\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"		]\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"ba: {\n" + 
-				"	items: [\n" + 
-				"		true\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"	]\n" + 
-				"	size: 1\n" + 
-				"}\n" + 
-				"sb: {\n" + 
-				"	value: [\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"	]\n" + 
-				"	count: 16\n" + 
-				"}\n" + 
-				"is: {\n" + 
-				"	size: 1\n" + 
-				"	keyTable: [ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\n" + 
-				"}\n" + 
-				"am: {\n" + 
-				"	keys: [\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	values: [\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	size: 1\n" + 
-				"}\n" + 
+		String str = "{\r\n" + 
+				"i: 8\r\n" + 
+				"s: sss\r\n" + 
+				"a: [\r\n" + 
+				"	{\r\n" + 
+				"		class: com.gurella.engine.base.serialization.ArrayType\r\n" + 
+				"		typeName: \"[Ljava.lang.String;\"\r\n" + 
+				"	}\r\n" + 
+				"	bbb\r\n" + 
+				"	eee\r\n" + 
+				"]\r\n" + 
+				"t1: {\r\n" + 
+				"	i1: 5\r\n" + 
+				"}\r\n" + 
+				"arr: {\r\n" + 
+				"	componentType: java.lang.String\r\n" + 
+				"	items: [\r\n" + 
+				"		value\r\n" + 
+				"		ddd\r\n" + 
+				"	]\r\n" + 
+				"}\r\n" + 
+				"map: {\r\n" + 
+				"	class: java.util.HashMap\r\n" + 
+				"	entries: [\r\n" + 
+				"		[\r\n" + 
+				"			{\r\n" + 
+				"				class: java.lang.String\r\n" + 
+				"				value: a\r\n" + 
+				"			}\r\n" + 
+				"			{\r\n" + 
+				"				class: java.lang.String\r\n" + 
+				"				value: a\r\n" + 
+				"			}\r\n" + 
+				"		]\r\n" + 
+				"	]\r\n" + 
+				"}\r\n" + 
+				"ba: {\r\n" + 
+				"	items: [\r\n" + 
+				"		true\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"		false\r\n" + 
+				"	]\r\n" + 
+				"	size: 1\r\n" + 
+				"}\r\n" + 
+				"sb: {\r\n" + 
+				"	value: [\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"		d\r\n" + 
+				"	]\r\n" + 
+				"	count: 16\r\n" + 
+				"}\r\n" + 
+				"is: {\r\n" + 
+				"	size: 1\r\n" + 
+				"	keyTable: [ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\r\n" + 
+				"}\r\n" + 
+				"am: {\r\n" + 
+				"	keys: [\r\n" + 
+				"		{\r\n" + 
+				"			class: java.lang.String\r\n" + 
+				"			value: a\r\n" + 
+				"		}\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"	]\r\n" + 
+				"	values: [\r\n" + 
+				"		{\r\n" + 
+				"			class: java.lang.String\r\n" + 
+				"			value: a\r\n" + 
+				"		}\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"		null\r\n" + 
+				"	]\r\n" + 
+				"	size: 1\r\n" + 
+				"}\r\n" + 
+				"cls: {\r\n" + 
+				"	typeName: java.lang.String\r\n" + 
+				"}\r\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -358,6 +361,7 @@ public class Archive implements Poolable {
 		obj.sb.append("dddddddddddddddd");
 		obj.is.add(1);
 		obj.am.put("a", "a");
+		obj.cls = String.class;
 		
 		Model<IntSet> sbModel = Models.getModel(IntSet.class);
 		sbModel.getProperties();
@@ -386,7 +390,8 @@ public class Archive implements Poolable {
 		public BooleanArray ba = new BooleanArray();
 		public StringBuilder sb = new StringBuilder();
 		public IntSet is = new IntSet();
-		public ArrayMap<String, String> am = new ArrayMap<String, String>(); 
+		public ArrayMap<String, String> am = new ArrayMap<String, String>();
+		public Class<?> cls;
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);

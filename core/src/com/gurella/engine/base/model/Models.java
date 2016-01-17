@@ -4,6 +4,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import com.gurella.engine.base.model.PrimitiveModel.BooleanModel;
+import com.gurella.engine.base.model.PrimitiveModel.ByteModel;
+import com.gurella.engine.base.model.PrimitiveModel.CharModel;
+import com.gurella.engine.base.model.PrimitiveModel.DoubleModel;
+import com.gurella.engine.base.model.PrimitiveModel.FloatModel;
+import com.gurella.engine.base.model.PrimitiveModel.IntegerModel;
+import com.gurella.engine.base.model.PrimitiveModel.LongModel;
+import com.gurella.engine.base.model.PrimitiveModel.ShortModel;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
@@ -11,6 +19,16 @@ public class Models {
 	private static final Array<ModelResolver> modelResolvers = new Array<ModelResolver>();
 
 	static {
+		resolvedModels.put(Class.class, new ClassModel());
+		resolvedModels.put(int.class, new IntegerModel());
+		resolvedModels.put(long.class, new LongModel());
+		resolvedModels.put(short.class, new ShortModel());
+		resolvedModels.put(byte.class, new ByteModel());
+		resolvedModels.put(char.class, new CharModel());
+		resolvedModels.put(boolean.class, new BooleanModel());
+		resolvedModels.put(double.class, new DoubleModel());
+		resolvedModels.put(float.class, new FloatModel());
+
 		modelResolvers.add(GdxArrayModelResolver.instance);
 		modelResolvers.add(CollectionModelResolver.instance);
 		modelResolvers.add(MapModelResolver.instance);

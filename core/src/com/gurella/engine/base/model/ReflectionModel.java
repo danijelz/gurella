@@ -148,7 +148,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (serializedValue == null) {
 			T template = context.template();
 			if (template == null) {
-				return null;
+				return type.isPrimitive() ? createDefaultPrimitive() : null;
 			}
 
 			Class<? extends Object> templateType = template.getClass();

@@ -1,12 +1,14 @@
 package com.gurella.engine.base.model;
 
+import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ReflectionUtils;
 
-//TODO unused
 public class ClassModel implements Model<Class<?>> {
-	private static final String name = "class";
+	private static final String name = "Class";
+	private static final String typeNameProperty = "typeName";
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -21,8 +23,19 @@ public class ClassModel implements Model<Class<?>> {
 
 	@Override
 	public Class<?> createInstance(InitializationContext context) {
-		// TODO Auto-generated method stub
-		return null;
+		if (context == null) {
+			return null;
+		}
+
+		JsonValue serializedValue = context.serializedValue();
+		if (serializedValue == null) {
+			return context.template();
+		} else if (serializedValue.isNull()) {
+			return null;
+		} else {
+			JsonValue typeValue = serializedValue.child;
+			return ReflectionUtils.forName(typeValue.asString());
+		}
 	}
 
 	@Override
@@ -41,7 +54,12 @@ public class ClassModel implements Model<Class<?>> {
 
 	@Override
 	public void serialize(Class<?> object, Class<?> knownType, Archive archive) {
-		// TODO Auto-generated method stub
-
+		if (object == null) {
+			archive.writeValue(null, null);
+		} else {
+			archive.writeObjectStart(object, knownType);
+			archive.writeValue(typeNameProperty, object.getName(), String.class);
+			archive.writeObjectEnd();
+		}
 	}
 }

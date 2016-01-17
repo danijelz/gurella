@@ -47,7 +47,7 @@ public class Objects {
 
 	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType, InitializationContext context) {
 		Class<T> resolvedType = Serialization.resolveObjectType(objectType, serializedObject);
-		if(Serialization.isSimpleType(resolvedType)) {
+		if (Serialization.isSimpleType(resolvedType)) {
 			return context.json.readValue(resolvedType, null, serializedObject);
 		}
 		Model<T> model = Models.getModel(objectType);
@@ -128,12 +128,15 @@ public class Objects {
 		} else {
 			Model<?> model = Models.getModel(first);
 			ImmutableArray<Property<?>> properties = model.getProperties();
-
-			for (int i = 0; i < properties.size(); i++) {
-				Property<?> property = properties.get(i);
-				if (!isEqual(property.getValue(first), property.getValue(second))) {
-					return false;
+			if (properties.size() > 0) {
+				for (int i = 0; i < properties.size(); i++) {
+					Property<?> property = properties.get(i);
+					if (!isEqual(property.getValue(first), property.getValue(second))) {
+						return false;
+					}
 				}
+			} else {
+				return first.equals(second);
 			}
 		}
 
