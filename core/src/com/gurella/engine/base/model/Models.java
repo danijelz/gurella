@@ -1,17 +1,31 @@
 package com.gurella.engine.base.model;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.base.model.PrimitiveModel.BooleanModel;
-import com.gurella.engine.base.model.PrimitiveModel.ByteModel;
-import com.gurella.engine.base.model.PrimitiveModel.CharModel;
-import com.gurella.engine.base.model.PrimitiveModel.DoubleModel;
-import com.gurella.engine.base.model.PrimitiveModel.FloatModel;
-import com.gurella.engine.base.model.PrimitiveModel.IntegerModel;
-import com.gurella.engine.base.model.PrimitiveModel.LongModel;
-import com.gurella.engine.base.model.PrimitiveModel.ShortModel;
+import com.gurella.engine.base.model.SimpleModel.BigDecimalModel;
+import com.gurella.engine.base.model.SimpleModel.BigIntegerModel;
+import com.gurella.engine.base.model.SimpleModel.BooleanModel;
+import com.gurella.engine.base.model.SimpleModel.BooleanPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.ByteModel;
+import com.gurella.engine.base.model.SimpleModel.BytePrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.CharModel;
+import com.gurella.engine.base.model.SimpleModel.CharPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.DoubleModel;
+import com.gurella.engine.base.model.SimpleModel.DoublePrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.FloatModel;
+import com.gurella.engine.base.model.SimpleModel.FloatPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.IntegerModel;
+import com.gurella.engine.base.model.SimpleModel.IntegerPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.LongModel;
+import com.gurella.engine.base.model.SimpleModel.LongPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.ShortModel;
+import com.gurella.engine.base.model.SimpleModel.ShortPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.StringModel;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
@@ -19,15 +33,28 @@ public class Models {
 	private static final Array<ModelResolver> modelResolvers = new Array<ModelResolver>();
 
 	static {
+		resolvedModels.put(int.class, new IntegerPrimitiveModel());
+		resolvedModels.put(long.class, new LongPrimitiveModel());
+		resolvedModels.put(short.class, new ShortPrimitiveModel());
+		resolvedModels.put(byte.class, new BytePrimitiveModel());
+		resolvedModels.put(char.class, new CharPrimitiveModel());
+		resolvedModels.put(boolean.class, new BooleanPrimitiveModel());
+		resolvedModels.put(double.class, new DoublePrimitiveModel());
+		resolvedModels.put(float.class, new FloatPrimitiveModel());
+
 		resolvedModels.put(Class.class, new ClassModel());
-		resolvedModels.put(int.class, new IntegerModel());
-		resolvedModels.put(long.class, new LongModel());
-		resolvedModels.put(short.class, new ShortModel());
-		resolvedModels.put(byte.class, new ByteModel());
-		resolvedModels.put(char.class, new CharModel());
-		resolvedModels.put(boolean.class, new BooleanModel());
-		resolvedModels.put(double.class, new DoubleModel());
-		resolvedModels.put(float.class, new FloatModel());
+
+		resolvedModels.put(Integer.class, new IntegerModel());
+		resolvedModels.put(Long.class, new LongModel());
+		resolvedModels.put(Short.class, new ShortModel());
+		resolvedModels.put(Byte.class, new ByteModel());
+		resolvedModels.put(Character.class, new CharModel());
+		resolvedModels.put(Boolean.class, new BooleanModel());
+		resolvedModels.put(Double.class, new DoubleModel());
+		resolvedModels.put(Float.class, new FloatModel());
+		resolvedModels.put(String.class, new StringModel());
+		resolvedModels.put(BigInteger.class, new BigIntegerModel());
+		resolvedModels.put(BigDecimal.class, new BigDecimalModel());
 
 		modelResolvers.add(GdxArrayModelResolver.instance);
 		modelResolvers.add(CollectionModelResolver.instance);
