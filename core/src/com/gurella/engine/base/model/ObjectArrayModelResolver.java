@@ -1,7 +1,6 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
@@ -13,7 +12,6 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class ObjectArrayModelResolver implements ModelResolver {
 	public static final ObjectArrayModelResolver instance = new ObjectArrayModelResolver();
-	private static final ObjectMap<Class<?>, ObjectArrayModel<?>> modelsByType = new ObjectMap<Class<?>, ObjectArrayModel<?>>();
 
 	private ObjectArrayModelResolver() {
 	}
@@ -21,18 +19,11 @@ public class ObjectArrayModelResolver implements ModelResolver {
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
 		if (type.isArray()) {
-			synchronized (modelsByType) {
-				ObjectArrayModel<?> instance = modelsByType.get(type);
-				if (instance == null) {
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					ObjectArrayModel<?> raw = new ObjectArrayModel(type);
-					instance = raw;
-					modelsByType.put(type, instance);
-				}
-				@SuppressWarnings("unchecked")
-				Model<T> casted = (Model<T>) instance;
-				return casted;
-			}
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			ObjectArrayModel raw = new ObjectArrayModel(type);
+			@SuppressWarnings("unchecked")
+			Model<T> casted = raw;
+			return casted;
 		} else {
 			return null;
 		}

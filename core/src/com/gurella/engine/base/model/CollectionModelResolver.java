@@ -3,7 +3,6 @@ package com.gurella.engine.base.model;
 import java.util.Collection;
 
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
@@ -18,24 +17,20 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class CollectionModelResolver implements ModelResolver {
 	public static final CollectionModelResolver instance = new CollectionModelResolver();
-	private static final ObjectMap<Class<?>, CollectionModel<?>> modelsByType = new ObjectMap<Class<?>, CollectionModel<?>>();
 
 	private CollectionModelResolver() {
 	}
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		synchronized (modelsByType) {
-			CollectionModel<?> instance = modelsByType.get(type);
-			if (instance == null && ClassReflection.isAssignableFrom(Collection.class, type)) {
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				CollectionModel<?> raw = new CollectionModel(type);
-				instance = raw;
-				modelsByType.put(type, instance);
-			}
+		if (ClassReflection.isAssignableFrom(Collection.class, type)) {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			CollectionModel raw = new CollectionModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) instance;
+			Model<T> casted = raw;
 			return casted;
+		} else {
+			return null;
 		}
 	}
 

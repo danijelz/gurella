@@ -2,30 +2,24 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.base.model.DefaultModels.SimpleObjectModel;
 
 public class EnumModelResolver implements ModelResolver {
 	public static final EnumModelResolver instance = new EnumModelResolver();
-
-	private static final ObjectMap<Class<?>, EnumModel<?>> modelsByType = new ObjectMap<Class<?>, EnumModel<?>>();
 
 	private EnumModelResolver() {
 	}
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		synchronized (modelsByType) {
-			EnumModel<?> instance = modelsByType.get(type);
-			if (instance == null && type.isEnum()) {
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				EnumModel<?> raw = new EnumModel(type);
-				instance = raw;
-				modelsByType.put(type, instance);
-			}
+		if (type.isEnum()) {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			EnumModel raw = new EnumModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) instance;
+			Model<T> casted = raw;
 			return casted;
+		} else {
+			return null;
 		}
 	}
 

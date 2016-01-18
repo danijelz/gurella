@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.base.registry.InitializationContext;
@@ -21,24 +20,19 @@ import com.gurella.engine.utils.ReflectionUtils;
 public class GdxArrayModelResolver implements ModelResolver {
 	public static final GdxArrayModelResolver instance = new GdxArrayModelResolver();
 
-	private static final ObjectMap<Class<?>, GdxArrayModel<?>> modelsByType = new ObjectMap<Class<?>, GdxArrayModel<?>>();
-
 	private GdxArrayModelResolver() {
 	}
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		synchronized (modelsByType) {
-			GdxArrayModel<?> instance = modelsByType.get(type);
-			if (instance == null && ClassReflection.isAssignableFrom(Array.class, type)) {
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				GdxArrayModel<?> raw = new GdxArrayModel(type);
-				instance = raw;
-				modelsByType.put(type, instance);
-			}
+		if (ClassReflection.isAssignableFrom(Array.class, type)) {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			GdxArrayModel raw = new GdxArrayModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) instance;
+			Model<T> casted = raw;
 			return casted;
+		} else {
+			return null;
 		}
 	}
 

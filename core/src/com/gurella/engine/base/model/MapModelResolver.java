@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
@@ -19,24 +18,19 @@ import com.gurella.engine.utils.ReflectionUtils;
 public class MapModelResolver implements ModelResolver {
 	public static final MapModelResolver instance = new MapModelResolver();
 
-	private static final ObjectMap<Class<?>, MapModel<?>> modelsByType = new ObjectMap<Class<?>, MapModel<?>>();
-
 	private MapModelResolver() {
 	}
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		synchronized (modelsByType) {
-			MapModel<?> instance = modelsByType.get(type);
-			if (instance == null && ClassReflection.isAssignableFrom(Map.class, type)) {
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				MapModel<?> raw = new MapModel(type);
-				instance = raw;
-				modelsByType.put(type, instance);
-			}
+		if (ClassReflection.isAssignableFrom(Map.class, type)) {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			MapModel raw = new MapModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) instance;
+			Model<T> casted = raw;
 			return casted;
+		} else {
+			return null;
 		}
 	}
 
