@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.Assets;
@@ -457,6 +458,62 @@ public class Archive implements Poolable {
 				"		]\n" + 
 				"	}\n" + 
 				"}\n" + 
+				"os: {\n" + 
+				"	size: 1\n" + 
+				"	keyTable: [\n" + 
+				"		null\n" + 
+				"		{\n" + 
+				"			class: java.lang.String\n" + 
+				"			value: a\n" + 
+				"		}\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"	]\n" + 
+				"	items: {\n" + 
+				"		items: [\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"		]\n" + 
+				"	}\n" + 
+				"}\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -475,6 +532,7 @@ public class Archive implements Poolable {
 		obj.tes = EnumSet.of(TestEnum.b);
 		obj.lo = Locale.CANADA;
 		obj.om.put("a", "a");
+		obj.os.add("a");
 		
 		Model<IntSet> sbModel = Models.getModel(IntSet.class);
 		sbModel.getProperties();
@@ -509,6 +567,7 @@ public class Archive implements Poolable {
 		public EnumSet<TestEnum> tes;
 		public Locale lo;
 		public OrderedMap<String, String> om = new OrderedMap<String, String>();
+		public OrderedSet<String> os = new OrderedSet<String>();
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);

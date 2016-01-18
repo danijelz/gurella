@@ -55,18 +55,21 @@ public class ReflectionModel<T> implements Model<T> {
 		getInstance(IntFloatMap.class, mapProps);
 		getInstance(IntLongMap.class, mapProps);
 		getInstance(IdentityObjectIntMap.class, mapProps);
-		
-		String[] orderedMapProps = Arrays.copyOf(mapProps, mapProps.length + 1);
-		orderedMapProps[orderedMapProps.length - 1] = "keys";
-		getInstance(OrderedMap.class, orderedMapProps);
+		getInstance(OrderedMap.class, mapProps);
+		getInstance(OrderedMap.class, new String[] { "iterator1", "iterator2" }, mapProps);
 	}
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> type, String... forcedProperties) {
+		return getInstance(type, null, forcedProperties);
+	}
+
+	public static <T> ReflectionModel<T> getInstance(Class<T> type, String[] ignoredProperties,
+			String... forcedProperties) {
 		synchronized (modelsByType) {
 			@SuppressWarnings("unchecked")
 			ReflectionModel<T> instance = (ReflectionModel<T>) modelsByType.get(type);
 			if (instance == null) {
-				instance = new ReflectionModel<T>(type, forcedProperties);
+				instance = new ReflectionModel<T>(type, ignoredProperties, forcedProperties);
 			}
 			return instance;
 		}
