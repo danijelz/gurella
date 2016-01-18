@@ -6,65 +6,68 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public abstract class SimpleModel<T> implements Model<T> {
-	private Class<T> type;
-
-	public SimpleModel(Class<T> type) {
-		this.type = type;
+public class DefaultModels {
+	private DefaultModels() {
 	}
 
-	@Override
-	public Class<T> getType() {
-		return type;
-	}
+	public static abstract class SimpleModel<T> implements Model<T> {
+		private Class<T> type;
 
-	@Override
-	public String getName() {
-		return type.getName();
-	}
-
-	@Override
-	public void initInstance(InitializationContext context) {
-	}
-
-	@Override
-	public ImmutableArray<Property<?>> getProperties() {
-		return ImmutableArray.empty();
-	}
-
-	@Override
-	public <P> Property<P> getProperty(String name) {
-		return null;
-	}
-
-	@Override
-	public T createInstance(InitializationContext context) {
-		if (context == null) {
-			return createDefaultValue();
+		public SimpleModel(Class<T> type) {
+			this.type = type;
 		}
 
-		JsonValue serializedValue = context.serializedValue();
-		if (serializedValue == null) {
-			T template = context.template();
-			return template == null ? createDefaultValue() : template;
-		} else if (serializedValue.isNull()) {
-			return createDefaultValue();
-		} else {
-			return deserializeValue(serializedValue);
+		@Override
+		public Class<T> getType() {
+			return type;
 		}
+
+		@Override
+		public String getName() {
+			return type.getName();
+		}
+
+		@Override
+		public ImmutableArray<Property<?>> getProperties() {
+			return ImmutableArray.empty();
+		}
+
+		@Override
+		public <P> Property<P> getProperty(String name) {
+			return null;
+		}
+
+		@Override
+		public T createInstance(InitializationContext context) {
+			if (context == null) {
+				return createDefaultValue();
+			}
+
+			JsonValue serializedValue = context.serializedValue();
+			if (serializedValue == null) {
+				T template = context.template();
+				return template == null ? createDefaultValue() : template;
+			} else if (serializedValue.isNull()) {
+				return createDefaultValue();
+			} else {
+				return deserializeValue(serializedValue);
+			}
+		}
+
+		@Override
+		public void initInstance(InitializationContext context) {
+		}
+
+		protected abstract T createDefaultValue();
+
+		protected abstract T deserializeValue(JsonValue serializedValue);
 	}
-
-	protected abstract T createDefaultValue();
-
-	protected abstract T deserializeValue(JsonValue serializedValue);
 
 	public static abstract class PrimitiveModel<T> extends SimpleModel<T> {
 		public PrimitiveModel(Class<T> type) {
@@ -707,61 +710,6 @@ public abstract class SimpleModel<T> implements Model<T> {
 		@Override
 		protected TimeZone deserializeSimpleValue(JsonValue serializedValue) {
 			return TimeZone.getTimeZone(serializedValue.asString());
-		}
-	}
-
-	public static final class EnumModelResolver implements ModelResolver {
-		public static final EnumModelResolver instance = new EnumModelResolver();
-
-		private static final ObjectMap<Class<?>, EnumModel<?>> modelsByType = new ObjectMap<Class<?>, EnumModel<?>>();
-
-		private EnumModelResolver() {
-		}
-
-		@Override
-		public <T> Model<T> resolve(Class<T> type) {
-			synchronized (modelsByType) {
-				EnumModel<?> instance = modelsByType.get(type);
-				if (instance == null && type.isEnum()) {
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					EnumModel<?> raw = new EnumModel(type);
-					instance = raw;
-					modelsByType.put(type, instance);
-				}
-				@SuppressWarnings("unchecked")
-				Model<T> casted = (Model<T>) instance;
-				return casted;
-			}
-		}
-
-	}
-
-	public static final class EnumModel<T extends Enum<T>> extends SimpleObjectModel<T> {
-		private EnumModel(Class<T> type) {
-			super(type);
-		}
-
-		@Override
-		protected Class<?> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
-		protected Object extractSimpleValue(T value) {
-			return value.name();
-		}
-
-		@Override
-		protected T deserializeSimpleValue(JsonValue serializedValue) {
-			String enumName = serializedValue.asString();
-			T[] constants = getType().getEnumConstants();
-			for (int i = 0; i < constants.length; i++) {
-				T constant = constants[i];
-				if (enumName.equals(constant.name())) {
-					return constant;
-				}
-			}
-			throw new GdxRuntimeException("Invalid enum name: " + enumName);
 		}
 	}
 }
