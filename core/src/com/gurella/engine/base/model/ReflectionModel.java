@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.OrderedMap;
+import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -56,7 +57,7 @@ public class ReflectionModel<T> implements Model<T> {
 		getInstance(IntLongMap.class, mapProps);
 		getInstance(IdentityObjectIntMap.class, mapProps);
 		getInstance(OrderedMap.class, mapProps);
-		getInstance(OrderedMap.class, new String[] { "iterator1", "iterator2" }, mapProps);
+		getInstance(OrderedSet.class, new String[] { "iterator1", "iterator2" }, mapProps);
 	}
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> type, String... forcedProperties) {

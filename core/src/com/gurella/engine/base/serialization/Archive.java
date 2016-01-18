@@ -3,8 +3,10 @@ package com.gurella.engine.base.serialization;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -514,6 +516,9 @@ public class Archive implements Poolable {
 				"		]\n" + 
 				"	}\n" + 
 				"}\n" + 
+				"el: {\n" + 
+				"	class: java.util.Collections$EmptyList\n" + 
+				"}\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -533,6 +538,8 @@ public class Archive implements Poolable {
 		obj.lo = Locale.CANADA;
 		obj.om.put("a", "a");
 		obj.os.add("a");
+		obj.os.iterator();
+		obj.el = Collections.emptyList();
 		
 		Model<IntSet> sbModel = Models.getModel(IntSet.class);
 		sbModel.getProperties();
@@ -568,6 +575,7 @@ public class Archive implements Poolable {
 		public Locale lo;
 		public OrderedMap<String, String> om = new OrderedMap<String, String>();
 		public OrderedSet<String> os = new OrderedSet<String>();
+		public List<String> el;
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);
