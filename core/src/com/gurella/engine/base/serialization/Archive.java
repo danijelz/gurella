@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import com.badlogic.gdx.utils.Array;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.Assets;
@@ -349,6 +351,112 @@ public class Archive implements Poolable {
 				"		b\n" + 
 				"	]\n" + 
 				"}\n" + 
+				"lo: {\n" + 
+				"	language: en\n" + 
+				"	country: CA\n" + 
+				"	variant: \"\"\n" + 
+				"}\n" + 
+				"om: {\n" + 
+				"	size: 1\n" + 
+				"	keyTable: [\n" + 
+				"		null\n" + 
+				"		{\n" + 
+				"			class: java.lang.String\n" + 
+				"			value: a\n" + 
+				"		}\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"	]\n" + 
+				"	valueTable: [\n" + 
+				"		null\n" + 
+				"		{\n" + 
+				"			class: java.lang.String\n" + 
+				"			value: a\n" + 
+				"		}\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"		null\n" + 
+				"	]\n" + 
+				"	keys: {\n" + 
+				"		items: [\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"		]\n" + 
+				"	}\n" + 
+				"}\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -365,6 +473,8 @@ public class Archive implements Poolable {
 		obj.cls = String.class;
 		obj.te = TestEnum.a;
 		obj.tes = EnumSet.of(TestEnum.b);
+		obj.lo = Locale.CANADA;
+		obj.om.put("a", "a");
 		
 		Model<IntSet> sbModel = Models.getModel(IntSet.class);
 		sbModel.getProperties();
@@ -397,6 +507,8 @@ public class Archive implements Poolable {
 		public Class<?> cls;
 		public TestEnum te;
 		public EnumSet<TestEnum> tes;
+		public Locale lo;
+		public OrderedMap<String, String> om = new OrderedMap<String, String>();
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);

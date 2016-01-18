@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ObjectFloatMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -42,7 +43,6 @@ public class ReflectionModel<T> implements Model<T> {
 
 	static {
 		String[] mapProps = { "loadFactor", "hashShift", "mask", "threshold", "stashCapacity", "pushIterations" };
-
 		getInstance(IntSet.class, mapProps);
 		getInstance(ObjectSet.class, mapProps);
 		getInstance(ObjectMap.class, mapProps);
@@ -55,6 +55,10 @@ public class ReflectionModel<T> implements Model<T> {
 		getInstance(IntFloatMap.class, mapProps);
 		getInstance(IntLongMap.class, mapProps);
 		getInstance(IdentityObjectIntMap.class, mapProps);
+		
+		String[] orderedMapProps = Arrays.copyOf(mapProps, mapProps.length + 1);
+		orderedMapProps[orderedMapProps.length - 1] = "keys";
+		getInstance(OrderedMap.class, orderedMapProps);
 	}
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> type, String... forcedProperties) {
@@ -372,7 +376,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		ImmutableArray<Property<?>> modelProperties = Models.getModel(fieldType).getProperties();
-		return modelProperties != null && modelProperties.size() > 0;
+		return modelProperties == null || modelProperties.size() == 0;
 	}
 
 	private boolean isBeanProperty(Field field) {

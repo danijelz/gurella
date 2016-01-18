@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Currency;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import com.badlogic.gdx.utils.Array;
@@ -67,6 +68,7 @@ public class Models {
 		resolvedModels.put(Date.class, DateModel.instance);
 		resolvedModels.put(Currency.class, CurrencyModel.instance);
 		resolvedModels.put(TimeZone.class, TimeZoneModel.instance);
+		resolvedModels.put(Locale.class, LocaleModel.instance);
 
 		modelResolvers.add(EnumModelResolver.instance);
 		modelResolvers.add(EnumSetModelResolver.instance);
