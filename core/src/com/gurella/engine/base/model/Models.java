@@ -2,6 +2,9 @@ package com.gurella.engine.base.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Currency;
+import java.util.Date;
+import java.util.TimeZone;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -15,8 +18,12 @@ import com.gurella.engine.base.model.SimpleModel.ByteModel;
 import com.gurella.engine.base.model.SimpleModel.BytePrimitiveModel;
 import com.gurella.engine.base.model.SimpleModel.CharModel;
 import com.gurella.engine.base.model.SimpleModel.CharPrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.ClassModel;
+import com.gurella.engine.base.model.SimpleModel.CurrencyModel;
+import com.gurella.engine.base.model.SimpleModel.DateModel;
 import com.gurella.engine.base.model.SimpleModel.DoubleModel;
 import com.gurella.engine.base.model.SimpleModel.DoublePrimitiveModel;
+import com.gurella.engine.base.model.SimpleModel.EnumModelResolver;
 import com.gurella.engine.base.model.SimpleModel.FloatModel;
 import com.gurella.engine.base.model.SimpleModel.FloatPrimitiveModel;
 import com.gurella.engine.base.model.SimpleModel.IntegerModel;
@@ -26,6 +33,8 @@ import com.gurella.engine.base.model.SimpleModel.LongPrimitiveModel;
 import com.gurella.engine.base.model.SimpleModel.ShortModel;
 import com.gurella.engine.base.model.SimpleModel.ShortPrimitiveModel;
 import com.gurella.engine.base.model.SimpleModel.StringModel;
+import com.gurella.engine.base.model.SimpleModel.TimeZoneModel;
+import com.gurella.engine.base.model.SimpleModel.VoidModel;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
@@ -33,29 +42,34 @@ public class Models {
 	private static final Array<ModelResolver> modelResolvers = new Array<ModelResolver>();
 
 	static {
-		resolvedModels.put(int.class, new IntegerPrimitiveModel());
-		resolvedModels.put(long.class, new LongPrimitiveModel());
-		resolvedModels.put(short.class, new ShortPrimitiveModel());
-		resolvedModels.put(byte.class, new BytePrimitiveModel());
-		resolvedModels.put(char.class, new CharPrimitiveModel());
-		resolvedModels.put(boolean.class, new BooleanPrimitiveModel());
-		resolvedModels.put(double.class, new DoublePrimitiveModel());
-		resolvedModels.put(float.class, new FloatPrimitiveModel());
+		resolvedModels.put(int.class, IntegerPrimitiveModel.instance);
+		resolvedModels.put(long.class, LongPrimitiveModel.instance);
+		resolvedModels.put(short.class, ShortPrimitiveModel.instance);
+		resolvedModels.put(byte.class, BytePrimitiveModel.instance);
+		resolvedModels.put(char.class, CharPrimitiveModel.instance);
+		resolvedModels.put(boolean.class, BooleanPrimitiveModel.instance);
+		resolvedModels.put(double.class, DoublePrimitiveModel.instance);
+		resolvedModels.put(float.class, FloatPrimitiveModel.instance);
+		resolvedModels.put(void.class, VoidModel.instance);
+		resolvedModels.put(Void.class, VoidModel.instance);
+		resolvedModels.put(Integer.class, IntegerModel.instance);
+		resolvedModels.put(Long.class, LongModel.instance);
+		resolvedModels.put(Short.class, ShortModel.instance);
+		resolvedModels.put(Byte.class, ByteModel.instance);
+		resolvedModels.put(Character.class, CharModel.instance);
+		resolvedModels.put(Boolean.class, BooleanModel.instance);
+		resolvedModels.put(Double.class, DoubleModel.instance);
+		resolvedModels.put(Float.class, FloatModel.instance);
+		resolvedModels.put(String.class, StringModel.instance);
+		resolvedModels.put(BigInteger.class, BigIntegerModel.instance);
+		resolvedModels.put(BigDecimal.class, BigDecimalModel.instance);
+		resolvedModels.put(Class.class, ClassModel.instance);
+		resolvedModels.put(Date.class, DateModel.instance);
+		resolvedModels.put(Currency.class, CurrencyModel.instance);
+		resolvedModels.put(TimeZone.class, TimeZoneModel.instance);
 
-		resolvedModels.put(Class.class, new ClassModel());
-
-		resolvedModels.put(Integer.class, new IntegerModel());
-		resolvedModels.put(Long.class, new LongModel());
-		resolvedModels.put(Short.class, new ShortModel());
-		resolvedModels.put(Byte.class, new ByteModel());
-		resolvedModels.put(Character.class, new CharModel());
-		resolvedModels.put(Boolean.class, new BooleanModel());
-		resolvedModels.put(Double.class, new DoubleModel());
-		resolvedModels.put(Float.class, new FloatModel());
-		resolvedModels.put(String.class, new StringModel());
-		resolvedModels.put(BigInteger.class, new BigIntegerModel());
-		resolvedModels.put(BigDecimal.class, new BigDecimalModel());
-
+		modelResolvers.add(EnumModelResolver.instance);
+		modelResolvers.add(EnumSetModelResolver.instance);
 		modelResolvers.add(GdxArrayModelResolver.instance);
 		modelResolvers.add(CollectionModelResolver.instance);
 		modelResolvers.add(MapModelResolver.instance);
