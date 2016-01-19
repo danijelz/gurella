@@ -143,6 +143,29 @@ public class ReflectionModel<T> implements Model<T> {
 	@Override
 	public T createInstance(InitializationContext context) {
 		if (context == null) {
+			return null;
+		}
+
+		JsonValue serializedValue = context.serializedValue();
+		if (serializedValue == null) {
+			T template = context.template();
+			if (template == null) {
+				return null;
+			} else {
+				Class<? extends Object> templateType = template.getClass();
+				@SuppressWarnings("unchecked")
+				T instance = (T) ReflectionUtils.newInstance(templateType);
+				return instance;
+			}
+		} else if (serializedValue.isNull()) {
+			return null;
+		} else {
+			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
+		}
+	}
+	
+	public T createInstance1(InitializationContext context) {
+		if (context == null) {
 			if (type.isPrimitive()) {
 				return createDefaultPrimitive();
 			} else if (type.isArray() || Serialization.isSimpleType(type)) {
@@ -219,6 +242,13 @@ public class ReflectionModel<T> implements Model<T> {
 
 	@Override
 	public void initInstance(InitializationContext context) {
+		ImmutableArray<Property<?>> properties = getProperties();
+		for (int i = 0; i < properties.size(); i++) {
+			properties.get(i).init(context);
+		}
+	}
+	
+	public void initInstance1(InitializationContext context) {
 		if (context == null) {
 			return;
 		}

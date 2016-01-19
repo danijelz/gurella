@@ -193,6 +193,25 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 
 		Object initializingObject = context.initializingObject();
+		if (value == null || type.isPrimitive()) {
+			setValue(initializingObject, value);
+		} else {
+			setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
+		}
+	}
+
+	private void initFromTemplate1(InitializationContext context) {
+		Object template = context.template();
+		if (template == null) {
+			return;
+		}
+
+		T value = getValue(template);
+		if (ValueUtils.isEqual(value, defaultValue)) {
+			return;
+		}
+
+		Object initializingObject = context.initializingObject();
 		if (value == null) {
 			setValue(initializingObject, null);
 		} else if (value.getClass().isArray()) {
@@ -212,6 +231,41 @@ public class ReflectionProperty<T> implements Property<T> {
 	private void initFromSerializedValue(InitializationContext context, JsonValue serializedValue) {
 		Object initializingObject = context.initializingObject();
 		if (serializedValue.isNull()) {
+			if (!field.isFinal()) {
+				setValue(initializingObject, null);
+			}
+			return;
+		}
+
+		Class<T> resolvedType = type.isPrimitive() ? type : Serialization.resolveObjectType(type, serializedValue);
+		Model<T> model = Models.getModel(resolvedType);
+		if (field.isFinal()) {
+			T value = getValue(initializingObject);
+			if (value == null) {
+				return;
+			}
+
+			Class<? extends Object> targetType = value.getClass();
+			if (!type.isPrimitive() && targetType != resolvedType) {
+				throw new GdxRuntimeException("Unequal types.");
+			}
+
+			context.push(value, null, serializedValue);
+			model.initInstance(context);
+			context.pop();
+		} else {
+			context.push(null, null, serializedValue);
+			T value = model.createInstance(context);
+			context.setInitializingObject(value);
+			model.initInstance(context);
+			context.pop();
+			setValue(initializingObject, value);
+		}
+	}
+
+	private void initFromSerializedValue1(InitializationContext context, JsonValue serializedValue) {
+		Object initializingObject = context.initializingObject();
+		if (serializedValue.isNull()) {
 			setValue(initializingObject, null);
 			return;
 		}
@@ -226,7 +280,7 @@ public class ReflectionProperty<T> implements Property<T> {
 				item = item.next;
 				size--;
 			}
-			
+
 			@SuppressWarnings("unchecked")
 			T array = (T) ArrayReflection.newInstance(componentType, size);
 

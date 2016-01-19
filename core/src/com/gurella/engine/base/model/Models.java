@@ -19,7 +19,6 @@ import com.gurella.engine.base.model.DefaultArrayModels.FloatArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.IntArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.LongArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.ShortArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.StringArrayModel;
 import com.gurella.engine.base.model.DefaultModels.BigDecimalModel;
 import com.gurella.engine.base.model.DefaultModels.BigIntegerModel;
 import com.gurella.engine.base.model.DefaultModels.BooleanModel;
@@ -85,7 +84,6 @@ public class Models {
 		resolvedModels.put(boolean[].class, BooleanArrayModel.instance);
 		resolvedModels.put(double[].class, DoubleArrayModel.instance);
 		resolvedModels.put(float[].class, FloatArrayModel.instance);
-		resolvedModels.put(String[].class, StringArrayModel.instance);
 
 		modelResolvers.add(ObjectArrayModelResolver.instance);
 		modelResolvers.add(EnumModelResolver.instance);

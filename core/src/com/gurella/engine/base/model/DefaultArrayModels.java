@@ -65,11 +65,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					int deserialized;
 					try {
-						deserialized = serializedValue.asInt();
+						deserialized = item.asInt();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Integer.parseInt(serializedValue.asString());
+					deserialized = Integer.parseInt(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -156,11 +156,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					long deserialized;
 					try {
-						deserialized = serializedValue.asLong();
+						deserialized = item.asLong();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Long.parseLong(serializedValue.asString());
+					deserialized = Long.parseLong(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -247,11 +247,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					short deserialized;
 					try {
-						deserialized = serializedValue.asShort();
+						deserialized = item.asShort();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Short.parseShort(serializedValue.asString());
+					deserialized = Short.parseShort(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -338,11 +338,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					byte deserialized;
 					try {
-						deserialized = serializedValue.asByte();
+						deserialized = item.asByte();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Byte.parseByte(serializedValue.asString());
+					deserialized = Byte.parseByte(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -429,11 +429,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					char deserialized;
 					try {
-						deserialized = serializedValue.asChar();
+						deserialized = item.asChar();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = serializedValue.asString().charAt(0);
+					deserialized = item.asString().charAt(0);
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -520,11 +520,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					boolean deserialized;
 					try {
-						deserialized = serializedValue.asBoolean();
+						deserialized = item.asBoolean();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Boolean.parseBoolean(serializedValue.asString());
+					deserialized = Boolean.parseBoolean(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -611,11 +611,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					double deserialized;
 					try {
-						deserialized = serializedValue.asDouble();
+						deserialized = item.asDouble();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Double.parseDouble(serializedValue.asString());
+					deserialized = Double.parseDouble(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -702,11 +702,11 @@ public class DefaultArrayModels {
 				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
 					float deserialized;
 					try {
-						deserialized = serializedValue.asFloat();
+						deserialized = item.asFloat();
 					} catch (NumberFormatException ignored) {
 					}
 
-					deserialized = Float.parseFloat(serializedValue.asString());
+					deserialized = Float.parseFloat(item.asString());
 					initializingObject[i++] = deserialized;
 				}
 			}
@@ -731,90 +731,6 @@ public class DefaultArrayModels {
 				int length = value.length;
 				for (int i = 0; i < length; i++) {
 					archive.writeValue(Float.valueOf(value[i]), float.class);
-				}
-				archive.writeArrayEnd();
-			}
-		}
-	}
-
-	public static final class StringArrayModel implements Model<String[]> {
-		public static final StringArrayModel instance = new StringArrayModel();
-
-		private StringArrayModel() {
-		}
-
-		@Override
-		public Class<String[]> getType() {
-			return String[].class;
-		}
-
-		@Override
-		public String getName() {
-			return String.class.getName() + "[]";
-		}
-
-		@Override
-		public String[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				String[] template = context.template();
-				return template == null ? null : new String[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new String[serializedValue.size];
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			String[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				String[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
-				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					initializingObject[i++] = serializedValue.asString();
-				}
-			}
-		}
-
-		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(String[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(value[i], String.class);
 				}
 				archive.writeArrayEnd();
 			}
