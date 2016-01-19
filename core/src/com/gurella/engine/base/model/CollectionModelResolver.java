@@ -394,7 +394,7 @@ public class CollectionModelResolver implements ModelResolver {
 				if (value.isEmpty()) {
 					EnumSet<?> complement = EnumSet.complementOf(value);
 					if (complement.isEmpty()) {
-						throw new GdxRuntimeException("An EnumSet must have a defined Enum to be serialized.");
+						throw new GdxRuntimeException("An EnumSet must have a defined element to be serialized.");
 					}
 					Enum<?> e = complement.iterator().next();
 					archive.writeValue("type", e.getClass().getName(), String.class);

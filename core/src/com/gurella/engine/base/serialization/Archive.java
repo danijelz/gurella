@@ -83,6 +83,11 @@ public class Archive implements Poolable {
 			json.writeType(actualType);
 		}
 	}
+	
+	public void writeObjectStart(Class<?> type) {
+		json.writeObjectStart();
+		json.writeType(type);
+	}
 
 	public void writeObjectEnd() {
 		json.writeObjectEnd();
