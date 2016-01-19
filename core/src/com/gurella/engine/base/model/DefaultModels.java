@@ -301,6 +301,8 @@ public class DefaultModels {
 		public void serialize(T value, Class<?> knownType, Archive archive) {
 			if (value == null) {
 				archive.writeValue(null, null);
+			} else if (value.getClass() == knownType) {
+				archive.writeValue(extractSimpleValue(value), simpleValueType);
 			} else {
 				archive.writeObjectStart(value, knownType);
 				archive.writeValue("value", extractSimpleValue(value), simpleValueType);
@@ -314,8 +316,10 @@ public class DefaultModels {
 		protected T deserializeValue(JsonValue serializedValue) {
 			if (serializedValue.isNull()) {
 				return null;
-			} else {
+			} else if (serializedValue.isObject()) {
 				return deserializeSimpleValue(serializedValue.get("value"));
+			} else {
+				return deserializeSimpleValue(serializedValue);
 			}
 		}
 
