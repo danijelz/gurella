@@ -1,11 +1,16 @@
 package com.gurella.engine.base.model;
 
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
@@ -23,7 +28,15 @@ public class MapModelResolver implements ModelResolver {
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		if (ClassReflection.isAssignableFrom(Map.class, type)) {
+		if (ClassReflection.isAssignableFrom(EnumMap.class, type)) {
+			@SuppressWarnings("unchecked")
+			Model<T> casted = (Model<T>) EnumMapModel.modelInstance;
+			return casted;
+		} else if (ClassReflection.isAssignableFrom(TreeMap.class, type)) {
+			@SuppressWarnings("unchecked")
+			Model<T> casted = (Model<T>) TreeMapModel.modelInstance;
+			return casted;
+		} else if (ClassReflection.isAssignableFrom(Map.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			MapModel raw = new MapModel(type);
 			@SuppressWarnings("unchecked")
@@ -66,11 +79,9 @@ public class MapModelResolver implements ModelResolver {
 				@SuppressWarnings("unchecked")
 				T instance = (T) ReflectionUtils.newInstance(template.getClass());
 				return instance;
+			} else if (serializedValue.isNull()) {
+				return null;
 			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-
 				Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
 				return ReflectionUtils.newInstance(resolvedType);
 			}
@@ -228,6 +239,137 @@ public class MapModelResolver implements ModelResolver {
 				archive.writeArrayEnd();
 			}
 			archive.writeArrayEnd();
+		}
+	}
+
+	public static final class TreeMapModel extends MapModel<TreeMap<?, ?>> {
+		public static final TreeMapModel modelInstance = new TreeMapModel();
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		private TreeMapModel() {
+			super((Class) TreeMap.class);
+		}
+
+		@Override
+		public TreeMap<?, ?> createInstance(InitializationContext context) {
+			JsonValue serializedValue = context.serializedValue();
+			if (serializedValue == null) {
+				TreeMap<?, ?> template = context.template();
+				if (template == null) {
+					return null;
+				}
+
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				TreeMap<?, ?> casted = new TreeMap(template.comparator());
+				return casted;
+			} else {
+				if (serializedValue.isNull()) {
+					return null;
+				}
+
+				JsonValue serializedComparator = serializedValue.get("comparator");
+				if (serializedComparator == null || serializedComparator.isNull()) {
+					@SuppressWarnings("rawtypes")
+					TreeMap<?, ?> casted = new TreeMap();
+					return casted;
+				}
+
+				Comparator<?> comparator = Objects.deserialize(serializedComparator, Comparator.class, context);
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				TreeMap<?, ?> casted = new TreeMap(comparator);
+				return casted;
+			}
+		}
+
+		@Override
+		public void serialize(TreeMap<?, ?> value, Class<?> knownType, Archive archive) {
+			if (value == null) {
+				archive.writeValue(null, null);
+			} else {
+				archive.writeObjectStart(value, knownType);
+				Comparator<?> comparator = value.comparator();
+				archive.writeValue("comparator", comparator, Comparator.class);
+				getProperties().get(0).serialize(value, archive);
+				archive.writeObjectEnd();
+			}
+		}
+	}
+
+	public static class EnumMapModel extends MapModel<EnumMap<?, ?>> {
+		private static final String keyTypeFieldName = "keyType";
+		public static final EnumMapModel modelInstance = new EnumMapModel();
+
+		private static final Field keyTypeField;
+
+		static {
+			keyTypeField = ReflectionUtils.getDeclaredFieldSilently(EnumMap.class, keyTypeFieldName);
+			if (keyTypeField != null) {
+				keyTypeField.setAccessible(true);
+			}
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public EnumMapModel() {
+			super((Class) EnumMap.class);
+		}
+
+		@Override
+		public EnumMap<?, ?> createInstance(InitializationContext context) {
+			JsonValue serializedValue = context.serializedValue();
+			if (serializedValue == null) {
+				EnumMap<?, ?> template = context.template();
+				if (template == null) {
+					return null;
+				} else {
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					EnumMap<?, ?> casted = new EnumMap(getKeyType(template));
+					return casted;
+				}
+			} else if (serializedValue.isNull()) {
+				return null;
+			} else {
+				Class<Enum<?>> keyType = ReflectionUtils.forName(serializedValue.getString(keyTypeFieldName));
+				if (keyType.getEnumConstants() == null) {
+					@SuppressWarnings({ "unchecked" })
+					Class<Enum<?>> casted = (Class<Enum<?>>) keyType.getSuperclass();
+					keyType = casted;
+				}
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				EnumMap<?, ?> casted = new EnumMap(keyType);
+				return casted;
+			}
+		}
+
+		@Override
+		public void serialize(EnumMap<?, ?> object, Class<?> knownType, Archive archive) {
+			if (object == null) {
+				archive.writeValue(null, null);
+			} else {
+				archive.writeObjectStart(object, knownType);
+				archive.writeValue(keyTypeFieldName, getKeyType(object).getName(), String.class);
+				getProperties().get(0).serialize(object, archive);
+				archive.writeObjectEnd();
+			}
+		}
+
+		private static Class<? extends Enum<?>> getKeyType(EnumMap<?, ?> map) {
+			if (map.isEmpty()) {
+				if (keyTypeField == null) {
+					throw new GdxRuntimeException("Can't resolve EnumMap key type");
+				} else {
+					return ReflectionUtils.getFieldValue(keyTypeField, map);
+				}
+			} else {
+				Enum<?> key = map.keySet().iterator().next();
+				@SuppressWarnings("unchecked")
+				Class<? extends Enum<?>> keyType = (Class<? extends Enum<?>>) key.getClass();
+				if (keyType.getEnumConstants() == null) {
+					@SuppressWarnings("unchecked")
+					Class<? extends Enum<?>> casted = (Class<? extends Enum<?>>) keyType.getSuperclass();
+					keyType = casted;
+				}
+				return keyType;
+			}
 		}
 	}
 }

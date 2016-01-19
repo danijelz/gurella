@@ -41,8 +41,6 @@ public interface Output {
 
 	void write(String[] value);
 	
-	void write(CharSequence[] value);
-	
 	void write(Object[] value);
 	
 	void writeName(String name);

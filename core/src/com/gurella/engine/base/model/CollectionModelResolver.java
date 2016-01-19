@@ -1,7 +1,11 @@
 package com.gurella.engine.base.model;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.TreeSet;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
@@ -23,7 +27,15 @@ public class CollectionModelResolver implements ModelResolver {
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		if (ClassReflection.isAssignableFrom(Collection.class, type)) {
+		if (ClassReflection.isAssignableFrom(EnumSet.class, type)) {
+			@SuppressWarnings("unchecked")
+			Model<T> casted = (Model<T>) EnumSetModel.modelInstance;
+			return casted;
+		} else if (TreeSet.class == type) {
+			@SuppressWarnings("unchecked")
+			Model<T> casted = (Model<T>) TreeSetModel.modelInstance;
+			return casted;
+		} else if (ClassReflection.isAssignableFrom(Collection.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			CollectionModel raw = new CollectionModel(type);
 			@SuppressWarnings("unchecked")
@@ -111,8 +123,8 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 	}
 
-	private static class CollectionItemsProperty implements Property<Object[]> {
-		private static final String name = "items";
+	public static class CollectionItemsProperty implements Property<Object[]> {
+		public static final String name = "items";
 
 		private Model<?> model;
 
@@ -242,6 +254,162 @@ public class CollectionModelResolver implements ModelResolver {
 				archive.writeValue(item, Object.class);
 			}
 			archive.writeArrayEnd();
+		}
+	}
+
+	public static class TreeSetModel extends CollectionModel<TreeSet<?>> {
+		private static final TreeSetModel modelInstance = new TreeSetModel();
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		private TreeSetModel() {
+			super((Class) TreeSet.class);
+		}
+
+		@Override
+		public TreeSet<?> createInstance(InitializationContext context) {
+			JsonValue serializedValue = context.serializedValue();
+			if (serializedValue == null) {
+				TreeSet<?> template = context.template();
+				if (template == null) {
+					return null;
+				}
+
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				TreeSet casted = new TreeSet(template.comparator());
+				return casted;
+			} else {
+				if (serializedValue.isNull()) {
+					return null;
+				}
+
+				JsonValue serializedComparator = serializedValue.get("comparator");
+				if (serializedComparator == null || serializedComparator.isNull()) {
+					@SuppressWarnings("rawtypes")
+					TreeSet<?> casted = new TreeSet();
+					return casted;
+				}
+
+				Comparator<?> comparator = Objects.deserialize(serializedComparator, Comparator.class, context);
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				TreeSet casted = new TreeSet(comparator);
+				return casted;
+			}
+		}
+
+		@Override
+		public void serialize(TreeSet<?> value, Class<?> knownType, Archive archive) {
+			if (value == null) {
+				archive.writeValue(null, null);
+			} else {
+				archive.writeObjectStart(value, knownType);
+				Comparator<?> comparator = value.comparator();
+				archive.writeValue("comparator", comparator, Comparator.class);
+				getProperties().get(0).serialize(value, archive);
+				archive.writeObjectEnd();
+			}
+		}
+	}
+
+	public static class EnumSetModel implements Model<EnumSet<?>> {
+		public static final EnumSetModel modelInstance = new EnumSetModel();
+
+		private EnumSetModel() {
+		}
+
+		@Override
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		public Class<EnumSet<?>> getType() {
+			return (Class) EnumSet.class;
+		}
+
+		@Override
+		public String getName() {
+			return EnumSet.class.getName();
+		}
+
+		@Override
+		public EnumSet<?> createInstance(InitializationContext context) {
+			if (context == null) {
+				return null;
+			}
+
+			JsonValue serializedValue = context.serializedValue();
+			if (serializedValue == null) {
+				EnumSet<?> template = context.template();
+				return template == null ? null : template.clone();
+			} else if (serializedValue.isNull()) {
+				return null;
+			} else {
+				@SuppressWarnings("rawtypes")
+				Class<Enum> enumType = ReflectionUtils.forName(serializedValue.getString("type"));
+				if (enumType.getEnumConstants() == null) {
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					Class<Enum> casted =(Class<Enum>) enumType.getSuperclass();
+					enumType = casted;
+				}
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				EnumSet enumSet = EnumSet.noneOf(enumType);
+
+				Enum<?>[] constants = enumType.getEnumConstants();
+				JsonValue values = serializedValue.get("values");
+				for (JsonValue value = values.child; value != null; value = value.next) {
+					enumSet.add(find(constants, value.asString()));
+				}
+
+				return enumSet;
+			}
+		}
+
+		private static Enum<?> find(Enum<?>[] constants, String name) {
+			for (int i = 0; i < constants.length; i++) {
+				Enum<?> constant = constants[i];
+				if (name.equals(constant.name())) {
+					return constant;
+				}
+			}
+
+			throw new GdxRuntimeException("Invalid enum name: " + name);
+		}
+
+		@Override
+		public void initInstance(InitializationContext context) {
+		}
+
+		@Override
+		public ImmutableArray<Property<?>> getProperties() {
+			return ImmutableArray.empty();
+		}
+
+		@Override
+		public <P> Property<P> getProperty(String name) {
+			return null;
+		}
+
+		@Override
+		public void serialize(EnumSet<?> value, Class<?> knownType, Archive archive) {
+			if (value == null) {
+				archive.writeValue(null, null);
+			} else {
+				archive.writeObjectStart(value, value.getClass());
+				if (value.isEmpty()) {
+					EnumSet<?> complement = EnumSet.complementOf(value);
+					if (complement.isEmpty()) {
+						throw new GdxRuntimeException("An EnumSet must have a defined Enum to be serialized.");
+					}
+					Enum<?> e = complement.iterator().next();
+					archive.writeValue("type", e.getClass().getName(), String.class);
+				} else {
+					Enum<?> e = value.iterator().next();
+					archive.writeValue("type", e.getClass().getName(), String.class);
+				}
+				archive.writeArrayStart("values");
+				for (@SuppressWarnings("rawtypes")
+				Enum e : value) {
+					archive.writeValue(e.name(), String.class);
+				}
+				archive.writeArrayEnd();
+				archive.writeObjectEnd();
+			}
 		}
 	}
 }

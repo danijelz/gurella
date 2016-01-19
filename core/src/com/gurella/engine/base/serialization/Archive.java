@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -347,9 +351,12 @@ public class Archive implements Poolable {
 				"cls: {\n" + 
 				"	value: java.lang.String\n" + 
 				"}\n" + 
-				"te: a\n" + 
+				"te: {\n" + 
+				"	class: com.gurella.engine.base.serialization.Archive$TestEnum$1\n" + 
+				"	value: a\n" + 
+				"}\n" + 
 				"tes: {\n" + 
-				"	type: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
+				"	type: com.gurella.engine.base.serialization.Archive$TestEnum$2\n" + 
 				"	values: [\n" + 
 				"		b\n" + 
 				"	]\n" + 
@@ -519,6 +526,49 @@ public class Archive implements Poolable {
 				"el: {\n" + 
 				"	class: java.util.Collections$EmptyList\n" + 
 				"}\n" + 
+				"em: {\n" + 
+				"	keyType: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
+				"	entries: [\n" + 
+				"		[\n" + 
+				"			{\n" + 
+				"				class: com.gurella.engine.base.serialization.Archive$TestEnum$1\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"		]\n" + 
+				"	]\n" + 
+				"}\n" + 
+				"ts: {\n" + 
+				"	comparator: {\n" + 
+				"		class: com.gurella.engine.base.serialization.Archive$1\n" + 
+				"	}\n" + 
+				"	items: [\n" + 
+				"		{\n" + 
+				"			class: java.lang.String\n" + 
+				"			value: a\n" + 
+				"		}\n" + 
+				"	]\n" + 
+				"}\n" + 
+				"tm: {\n" + 
+				"	comparator: {\n" + 
+				"		class: com.gurella.engine.base.serialization.Archive$2\n" + 
+				"	}\n" + 
+				"	entries: [\n" + 
+				"		[\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"			{\n" + 
+				"				class: java.lang.String\n" + 
+				"				value: a\n" + 
+				"			}\n" + 
+				"		]\n" + 
+				"	]\n" + 
+				"}\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -540,8 +590,29 @@ public class Archive implements Poolable {
 		obj.os.add("a");
 		obj.os.iterator();
 		obj.el = Collections.emptyList();
+		obj.em = new EnumMap<TestEnum, String>(TestEnum.class);
+		obj.em.put(TestEnum.a, "a");
+		obj.ts = new TreeSet<String>(new Comparator<String>() {
+
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		obj.ts.add("a");
+		obj.tm = new TreeMap<String, String>(new Comparator<String>() {
+
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		obj.tm.put("a", "a");
 		
-		Model<IntSet> sbModel = Models.getModel(IntSet.class);
+		new Archive().serialize(new Test(), Test.class);
+		new Archive().serialize(obj, Test.class);
+		
+		Model<TestEnum> sbModel = Models.getModel(TestEnum.a);
 		sbModel.getProperties();
 
 		JsonValue value = new JsonReader().parse(str);
@@ -553,9 +624,6 @@ public class Archive implements Poolable {
 		model.initInstance(context);
 
 		System.out.println(Objects.isEqual(obj, instance));
-
-		new Archive().serialize(new Test(), Test.class);
-		new Archive().serialize(obj, Test.class);
 	}
 
 	public static class Test {
@@ -576,6 +644,9 @@ public class Archive implements Poolable {
 		public OrderedMap<String, String> om = new OrderedMap<String, String>();
 		public OrderedSet<String> os = new OrderedSet<String>();
 		public List<String> el;
+		public EnumMap<TestEnum, String> em;
+		public TreeSet<String> ts;
+		public TreeMap<String, String> tm;
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);
@@ -598,7 +669,40 @@ public class Archive implements Poolable {
 		}
 	}
 	
-	public static enum TestEnum {
-		a, b, c, d, e;
+	public interface TestInterface {
+		String getStr();
+	}
+	
+	public static enum TestEnum implements TestInterface {
+		a {
+			@Override
+			public String getStr() {
+				return "a";
+			}
+		},
+		b {
+			@Override
+			public String getStr() {
+				return "b";
+			}
+		},
+		c {
+			@Override
+			public String getStr() {
+				return "c";
+			}
+		},
+		d {
+			@Override
+			public String getStr() {
+				return "d";
+			}
+		},
+		e {
+			@Override
+			public String getStr() {
+				return "e";
+			}
+		};
 	}
 }

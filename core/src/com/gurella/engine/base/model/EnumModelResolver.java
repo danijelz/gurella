@@ -2,7 +2,9 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.DefaultModels.SimpleObjectModel;
+import com.gurella.engine.base.serialization.Archive;
 
 public class EnumModelResolver implements ModelResolver {
 	public static final EnumModelResolver instance = new EnumModelResolver();
@@ -12,7 +14,7 @@ public class EnumModelResolver implements ModelResolver {
 
 	@Override
 	public <T> Model<T> resolve(Class<T> type) {
-		if (type.isEnum()) {
+		if (ClassReflection.isAssignableFrom(Enum.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			EnumModel raw = new EnumModel(type);
 			@SuppressWarnings("unchecked")
@@ -42,6 +44,11 @@ public class EnumModelResolver implements ModelResolver {
 		protected T deserializeSimpleValue(JsonValue serializedValue) {
 			String enumName = serializedValue.asString();
 			T[] constants = getType().getEnumConstants();
+			if (constants == null) {
+				@SuppressWarnings("unchecked")
+				T[] casted = (T[]) getType().getSuperclass().getEnumConstants();
+				constants = casted;
+			}
 			for (int i = 0; i < constants.length; i++) {
 				T constant = constants[i];
 				if (enumName.equals(constant.name())) {
@@ -49,6 +56,11 @@ public class EnumModelResolver implements ModelResolver {
 				}
 			}
 			throw new GdxRuntimeException("Invalid enum name: " + enumName);
+		}
+
+		@Override
+		public void serialize(T value, Class<?> knownType, Archive archive) {
+			super.serialize(value, knownType, archive);
 		}
 	}
 }

@@ -89,7 +89,6 @@ public class Models {
 
 		modelResolvers.add(ObjectArrayModelResolver.instance);
 		modelResolvers.add(EnumModelResolver.instance);
-		modelResolvers.add(EnumSetModelResolver.instance);
 		modelResolvers.add(GdxArrayModelResolver.instance);
 		modelResolvers.add(CollectionModelResolver.instance);
 		modelResolvers.add(MapModelResolver.instance);

@@ -50,7 +50,7 @@ public class Objects {
 		if (Serialization.isSimpleType(resolvedType)) {
 			return context.json.readValue(resolvedType, null, serializedObject);
 		}
-		Model<T> model = Models.getModel(objectType);
+		Model<T> model = Models.getModel(resolvedType);
 		context.push(null, null, serializedObject);
 		T instance = model.createInstance(context);
 		context.setInitializingObject(instance);

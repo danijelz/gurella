@@ -473,4 +473,13 @@ public class ReflectionModel<T> implements Model<T> {
 			return Void.TYPE.equals(setter.getReturnType()) ? setter : null;
 		}
 	}
+	
+	private static class ConstructorArguments {
+		String[] argumentNames;
+	}
+	
+	private static class FactoryMethodArguments {
+		String name;
+		String[] argumentNames;
+	}
 }
