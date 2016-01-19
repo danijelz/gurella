@@ -356,14 +356,14 @@ public class Archive implements Poolable {
 				"cls: {\n" + 
 				"	value: java.lang.String\n" + 
 				"}\n" + 
-				"te: {\n" + 
-				"	class: com.gurella.engine.base.serialization.Archive$TestEnum$1\n" + 
-				"	value: a\n" + 
-				"}\n" + 
+				"te: a\n" + 
 				"tes: {\n" + 
-				"	type: com.gurella.engine.base.serialization.Archive$TestEnum$2\n" + 
-				"	values: [\n" + 
-				"		b\n" + 
+				"	type: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
+				"	items: [\n" + 
+				"		{\n" + 
+				"			class: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
+				"			value: b\n" + 
+				"		}\n" + 
 				"	]\n" + 
 				"}\n" + 
 				"lo: {\n" + 
@@ -536,7 +536,7 @@ public class Archive implements Poolable {
 				"	entries: [\n" + 
 				"		[\n" + 
 				"			{\n" + 
-				"				class: com.gurella.engine.base.serialization.Archive$TestEnum$1\n" + 
+				"				class: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
 				"				value: a\n" + 
 				"			}\n" + 
 				"			{\n" + 

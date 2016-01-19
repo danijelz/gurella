@@ -310,21 +310,12 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 	}
 
-	public static class EnumSetModel implements Model<EnumSet<?>> {
+	public static class EnumSetModel extends CollectionModel<EnumSet<?>> {
 		public static final EnumSetModel modelInstance = new EnumSetModel();
 
-		private EnumSetModel() {
-		}
-
-		@Override
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public Class<EnumSet<?>> getType() {
-			return (Class) EnumSet.class;
-		}
-
-		@Override
-		public String getName() {
-			return EnumSet.class.getName();
+		private EnumSetModel() {
+			super((Class) EnumSet.class);
 		}
 
 		@Override
@@ -336,53 +327,22 @@ public class CollectionModelResolver implements ModelResolver {
 			JsonValue serializedValue = context.serializedValue();
 			if (serializedValue == null) {
 				EnumSet<?> template = context.template();
-				return template == null ? null : template.clone();
+				if (template == null) {
+					return null;
+				} else {
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					EnumSet enumSet = EnumSet.noneOf((Class) getEnumType(template));
+					return enumSet;
+				}
 			} else if (serializedValue.isNull()) {
 				return null;
 			} else {
 				@SuppressWarnings("rawtypes")
 				Class<Enum> enumType = ReflectionUtils.forName(serializedValue.getString("type"));
-				if (enumType.getEnumConstants() == null) {
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					Class<Enum> casted =(Class<Enum>) enumType.getSuperclass();
-					enumType = casted;
-				}
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				EnumSet enumSet = EnumSet.noneOf(enumType);
-
-				Enum<?>[] constants = enumType.getEnumConstants();
-				JsonValue values = serializedValue.get("values");
-				for (JsonValue value = values.child; value != null; value = value.next) {
-					enumSet.add(find(constants, value.asString()));
-				}
-
 				return enumSet;
 			}
-		}
-
-		private static Enum<?> find(Enum<?>[] constants, String name) {
-			for (int i = 0; i < constants.length; i++) {
-				Enum<?> constant = constants[i];
-				if (name.equals(constant.name())) {
-					return constant;
-				}
-			}
-
-			throw new GdxRuntimeException("Invalid enum name: " + name);
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-		}
-
-		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
 		}
 
 		@Override
@@ -391,24 +351,36 @@ public class CollectionModelResolver implements ModelResolver {
 				archive.writeValue(null, null);
 			} else {
 				archive.writeObjectStart(value, value.getClass());
-				if (value.isEmpty()) {
-					EnumSet<?> complement = EnumSet.complementOf(value);
-					if (complement.isEmpty()) {
-						throw new GdxRuntimeException("An EnumSet must have a defined element to be serialized.");
-					}
-					Enum<?> e = complement.iterator().next();
-					archive.writeValue("type", e.getClass().getName(), String.class);
-				} else {
-					Enum<?> e = value.iterator().next();
-					archive.writeValue("type", e.getClass().getName(), String.class);
-				}
-				archive.writeArrayStart("values");
-				for (@SuppressWarnings("rawtypes")
-				Enum e : value) {
-					archive.writeValue(e.name(), String.class);
-				}
-				archive.writeArrayEnd();
+				archive.writeValue("type", getEnumType(value).getName(), String.class);
+				getProperties().get(0).serialize(value, archive);
 				archive.writeObjectEnd();
+			}
+		}
+
+		private static Class<Enum<?>> getEnumType(EnumSet<?> set) {
+			Class<Enum<?>> baseEnumType = getBaseEnumType(set);
+			if (baseEnumType.getEnumConstants() == null) {
+				@SuppressWarnings({ "unchecked" })
+				Class<Enum<?>> casted = (Class<Enum<?>>) baseEnumType.getSuperclass();
+				return casted;
+			} else {
+				return baseEnumType;
+			}
+		}
+
+		private static Class<Enum<?>> getBaseEnumType(EnumSet<?> set) {
+			if (set.isEmpty()) {
+				EnumSet<?> complement = EnumSet.complementOf(set);
+				if (complement.isEmpty()) {
+					throw new GdxRuntimeException("An EnumSet must have a defined element to be serialized.");
+				}
+				@SuppressWarnings("unchecked")
+				Class<Enum<?>> casted = (Class<Enum<?>>) complement.iterator().next().getClass();
+				return casted;
+			} else {
+				@SuppressWarnings("unchecked")
+				Class<Enum<?>> casted = (Class<Enum<?>>) set.iterator().next().getClass();
+				return casted;
 			}
 		}
 	}
