@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
@@ -638,6 +639,8 @@ public class Archive implements Poolable {
 		model.initInstance(context);
 
 		System.out.println(Objects.isEqual(obj, instance));
+		
+		Models.getModel(Color.class).getProperties();
 	}
 
 	public static class Test {
