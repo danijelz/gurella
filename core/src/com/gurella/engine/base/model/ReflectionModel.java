@@ -163,7 +163,7 @@ public class ReflectionModel<T> implements Model<T> {
 			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
 		}
 	}
-	
+
 	public T createInstance1(InitializationContext context) {
 		if (context == null) {
 			if (type.isPrimitive()) {
@@ -247,7 +247,7 @@ public class ReflectionModel<T> implements Model<T> {
 			properties.get(i).init(context);
 		}
 	}
-	
+
 	public void initInstance1(InitializationContext context) {
 		if (context == null) {
 			return;
@@ -310,6 +310,19 @@ public class ReflectionModel<T> implements Model<T> {
 
 	@Override
 	public void serialize(T object, Class<?> knownType, Archive archive) {
+		if (object == null) {
+			archive.writeValue(null, null);
+		} else {
+			archive.writeObjectStart(object, knownType);
+			ImmutableArray<Property<?>> properties = getProperties();
+			for (int i = 0; i < properties.size(); i++) {
+				properties.get(i).serialize(object, archive);
+			}
+			archive.writeObjectEnd();
+		}
+	}
+
+	public void serialize1(T object, Class<?> knownType, Archive archive) {
 		if (object == null) {
 			archive.writeValue(null, null);
 		} else {
@@ -389,14 +402,14 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		Class<?> fieldType = field.getType();
-		if (fieldType.isPrimitive() || fieldType.isArray()) {
+		if (fieldType.isPrimitive()) {
 			return true;
 		}
 
 		field.setAccessible(true);
 		T defaultInstance = Defaults.getDefault(type);
 		Object fieldValue = defaultInstance == null ? null : ReflectionUtils.getFieldValue(field, defaultInstance);
-		if (fieldValue == null) {
+		if (fieldValue == null || (fieldType.isArray() && ArrayReflection.getLength(defaultInstance) == 0)) {
 			return true;
 		}
 
@@ -503,11 +516,11 @@ public class ReflectionModel<T> implements Model<T> {
 			return Void.TYPE.equals(setter.getReturnType()) ? setter : null;
 		}
 	}
-	
+
 	private static class ConstructorArguments {
 		String[] argumentNames;
 	}
-	
+
 	private static class FactoryMethodArguments {
 		String name;
 		String[] argumentNames;

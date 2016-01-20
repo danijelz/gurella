@@ -3,736 +3,500 @@ package com.gurella.engine.base.model;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.ArrayType;
+import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class DefaultArrayModels {
 	private DefaultArrayModels() {
 	}
 
-	public static final class IntArrayModel implements Model<int[]> {
+	private static abstract class PrimitiveArrayModel<T> implements Model<T> {
+		private Class<T> type;
+
+		private PrimitiveArrayModel(Class<T> type) {
+			this.type = type;
+		}
+
+		@Override
+		public Class<T> getType() {
+			return type;
+		}
+
+		@Override
+		public String getName() {
+			return type.getComponentType().getName() + "[]";
+		}
+
+		@Override
+		public T createInstance(InitializationContext context) {
+			if (context == null) {
+				return null;
+			}
+
+			JsonValue serializedValue = context.serializedValue();
+			if (serializedValue == null) {
+				T template = context.template();
+				return template == null ? null : createFromTemplate(template);
+			} else if (serializedValue.isNull()) {
+				return null;
+			} else {
+				int length = serializedValue.size;
+				if (length > 0) {
+					JsonValue itemValue = serializedValue.child;
+					Class<?> itemType = Serialization.resolveObjectType(Object.class, itemValue);
+					if (itemType == ArrayType.class) {
+						length--;
+					}
+				}
+				return createInstance(length);
+			}
+		}
+
+		protected abstract T createFromTemplate(T template);
+
+		protected abstract T createInstance(int length);
+
+		@Override
+		public void initInstance(InitializationContext context) {
+			if (context == null) {
+				return;
+			}
+
+			T initializingObject = context.initializingObject();
+			if (initializingObject == null) {
+				return;
+			}
+
+			JsonValue serializedValue = context.serializedValue();
+
+			if (serializedValue == null) {
+				initFromTemplate(initializingObject, context.<T> template());
+			} else {
+				JsonValue item = serializedValue.child;
+				Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
+				if (itemType == ArrayType.class) {
+					item = item.next;
+				}
+
+				initFromSerializedValue(initializingObject, item);
+			}
+		}
+
+		protected abstract void initFromTemplate(T initializingObject, T template);
+
+		protected abstract void initFromSerializedValue(T initializingObject, JsonValue firstItem);
+
+		@Override
+		public ImmutableArray<Property<?>> getProperties() {
+			return ImmutableArray.empty();
+		}
+
+		@Override
+		public <P> Property<P> getProperty(String name) {
+			return null;
+		}
+
+		@Override
+		public void serialize(T value, Class<?> knownType, Archive archive) {
+			if (value == null) {
+				archive.writeValue(null, null);
+			} else {
+				archive.writeArrayStart();
+				if (type != knownType) {
+					archive.writeObjectStart(ArrayType.class);
+					archive.writeValue(type.getName(), String.class);
+					archive.writeObjectEnd();
+				}
+
+				writeValues(value, archive);
+				archive.writeArrayEnd();
+			}
+		}
+
+		protected abstract void writeValues(T value, Archive archive);
+	}
+
+	public static final class IntArrayModel extends PrimitiveArrayModel<int[]> {
 		public static final IntArrayModel instance = new IntArrayModel();
 
 		private IntArrayModel() {
+			super(int[].class);
 		}
 
 		@Override
-		public Class<int[]> getType() {
-			return int[].class;
+		protected int[] createFromTemplate(int[] template) {
+			return new int[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return int.class.getName() + "[]";
+		protected int[] createInstance(int length) {
+			return new int[length];
 		}
 
 		@Override
-		public int[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				int[] template = context.template();
-				return template == null ? null : new int[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new int[serializedValue.size];
+		protected void initFromTemplate(int[] initializingObject, int[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			int[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				int[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(int[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				int deserialized;
+				try {
+					deserialized = item.asInt();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					int deserialized;
-					try {
-						deserialized = item.asInt();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Integer.parseInt(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Integer.parseInt(item.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(int[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Integer.valueOf(value[i]), int.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(int[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Integer.valueOf(value[i]), int.class);
 			}
 		}
 	}
 
-	public static final class LongArrayModel implements Model<long[]> {
+	public static final class LongArrayModel extends PrimitiveArrayModel<long[]> {
 		public static final LongArrayModel instance = new LongArrayModel();
 
 		private LongArrayModel() {
+			super(long[].class);
 		}
 
 		@Override
-		public Class<long[]> getType() {
-			return long[].class;
+		protected long[] createFromTemplate(long[] template) {
+			return new long[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return long.class.getName() + "[]";
+		protected long[] createInstance(int length) {
+			return new long[length];
 		}
 
 		@Override
-		public long[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				long[] template = context.template();
-				return template == null ? null : new long[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new long[serializedValue.size];
+		protected void initFromTemplate(long[] initializingObject, long[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			long[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				long[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(long[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				long deserialized;
+				try {
+					deserialized = item.asLong();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					long deserialized;
-					try {
-						deserialized = item.asLong();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Long.parseLong(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Long.parseLong(item.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(long[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Long.valueOf(value[i]), long.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(long[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Long.valueOf(value[i]), long.class);
 			}
 		}
 	}
 
-	public static final class ShortArrayModel implements Model<short[]> {
+	public static final class ShortArrayModel extends PrimitiveArrayModel<short[]> {
 		public static final ShortArrayModel instance = new ShortArrayModel();
 
 		private ShortArrayModel() {
+			super(short[].class);
 		}
 
 		@Override
-		public Class<short[]> getType() {
-			return short[].class;
+		protected short[] createFromTemplate(short[] template) {
+			return new short[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return short.class.getName() + "[]";
+		protected short[] createInstance(int length) {
+			return new short[length];
 		}
 
 		@Override
-		public short[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				short[] template = context.template();
-				return template == null ? null : new short[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new short[serializedValue.size];
+		protected void initFromTemplate(short[] initializingObject, short[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			short[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				short[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(short[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				short deserialized;
+				try {
+					deserialized = item.asShort();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					short deserialized;
-					try {
-						deserialized = item.asShort();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Short.parseShort(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Short.parseShort(item.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(short[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Short.valueOf(value[i]), short.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(short[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Short.valueOf(value[i]), short.class);
 			}
 		}
 	}
 
-	public static final class ByteArrayModel implements Model<byte[]> {
+	public static final class ByteArrayModel extends PrimitiveArrayModel<byte[]> {
 		public static final ByteArrayModel instance = new ByteArrayModel();
 
 		private ByteArrayModel() {
+			super(byte[].class);
 		}
 
 		@Override
-		public Class<byte[]> getType() {
-			return byte[].class;
+		protected byte[] createFromTemplate(byte[] template) {
+			return new byte[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return byte.class.getName() + "[]";
+		protected byte[] createInstance(int length) {
+			return new byte[length];
 		}
 
 		@Override
-		public byte[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				byte[] template = context.template();
-				return template == null ? null : new byte[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new byte[serializedValue.size];
+		protected void initFromTemplate(byte[] initializingObject, byte[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			byte[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				byte[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(byte[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				byte deserialized;
+				try {
+					deserialized = item.asByte();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					byte deserialized;
-					try {
-						deserialized = item.asByte();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Byte.parseByte(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Byte.parseByte(item.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(byte[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Byte.valueOf(value[i]), byte.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(byte[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Byte.valueOf(value[i]), byte.class);
 			}
 		}
 	}
 
-	public static final class CharArrayModel implements Model<char[]> {
+	public static final class CharArrayModel extends PrimitiveArrayModel<char[]> {
 		public static final CharArrayModel instance = new CharArrayModel();
 
 		private CharArrayModel() {
+			super(char[].class);
 		}
 
 		@Override
-		public Class<char[]> getType() {
-			return char[].class;
+		protected char[] createFromTemplate(char[] template) {
+			return new char[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return char.class.getName() + "[]";
+		protected char[] createInstance(int length) {
+			return new char[length];
 		}
 
 		@Override
-		public char[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				char[] template = context.template();
-				return template == null ? null : new char[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new char[serializedValue.size];
+		protected void initFromTemplate(char[] initializingObject, char[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			char[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				char[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(char[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				char deserialized;
+				try {
+					deserialized = item.asChar();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					char deserialized;
-					try {
-						deserialized = item.asChar();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = item.asString().charAt(0);
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = item.asString().charAt(0);
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(char[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Character.valueOf(value[i]), char.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(char[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Character.valueOf(value[i]), char.class);
 			}
 		}
 	}
 
-	public static final class BooleanArrayModel implements Model<boolean[]> {
+	public static final class BooleanArrayModel extends PrimitiveArrayModel<boolean[]> {
 		public static final BooleanArrayModel instance = new BooleanArrayModel();
 
 		private BooleanArrayModel() {
+			super(boolean[].class);
 		}
 
 		@Override
-		public Class<boolean[]> getType() {
-			return boolean[].class;
+		protected boolean[] createFromTemplate(boolean[] template) {
+			return new boolean[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return boolean.class.getName() + "[]";
+		protected boolean[] createInstance(int length) {
+			return new boolean[length];
 		}
 
 		@Override
-		public boolean[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				boolean[] template = context.template();
-				return template == null ? null : new boolean[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new boolean[serializedValue.size];
+		protected void initFromTemplate(boolean[] initializingObject, boolean[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			boolean[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				boolean[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(boolean[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				boolean deserialized;
+				try {
+					deserialized = item.asBoolean();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					boolean deserialized;
-					try {
-						deserialized = item.asBoolean();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Boolean.parseBoolean(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Boolean.parseBoolean(item.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(boolean[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Boolean.valueOf(value[i]), boolean.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(boolean[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Boolean.valueOf(value[i]), boolean.class);
 			}
 		}
 	}
 
-	public static final class DoubleArrayModel implements Model<double[]> {
+	public static final class DoubleArrayModel extends PrimitiveArrayModel<double[]> {
 		public static final DoubleArrayModel instance = new DoubleArrayModel();
 
 		private DoubleArrayModel() {
+			super(double[].class);
 		}
 
 		@Override
-		public Class<double[]> getType() {
-			return double[].class;
+		protected double[] createFromTemplate(double[] template) {
+			return new double[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return double.class.getName() + "[]";
+		protected double[] createInstance(int length) {
+			return new double[length];
 		}
 
 		@Override
-		public double[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				double[] template = context.template();
-				return template == null ? null : new double[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new double[serializedValue.size];
+		protected void initFromTemplate(double[] initializingObject, double[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			double[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				double[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(double[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				double deserialized;
+				try {
+					deserialized = item.asDouble();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					double deserialized;
-					try {
-						deserialized = item.asDouble();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Double.parseDouble(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Double.parseDouble(item.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(double[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Double.valueOf(value[i]), double.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(double[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Double.valueOf(value[i]), double.class);
 			}
 		}
 	}
 
-	public static final class FloatArrayModel implements Model<float[]> {
+	public static final class FloatArrayModel extends PrimitiveArrayModel<float[]> {
 		public static final FloatArrayModel instance = new FloatArrayModel();
 
 		private FloatArrayModel() {
+			super(float[].class);
 		}
 
 		@Override
-		public Class<float[]> getType() {
-			return float[].class;
+		protected float[] createFromTemplate(float[] template) {
+			return new float[template.length];
 		}
 
 		@Override
-		public String getName() {
-			return float.class.getName() + "[]";
+		protected float[] createInstance(int length) {
+			return new float[length];
 		}
 
 		@Override
-		public float[] createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				float[] template = context.template();
-				return template == null ? null : new float[template.length];
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				return new float[serializedValue.size];
+		protected void initFromTemplate(float[] initializingObject, float[] template) {
+			for (int i = 0; i < initializingObject.length; i++) {
+				initializingObject[i] = template[i];
 			}
 		}
 
 		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			float[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				float[] template = context.template();
-				for (int i = 0; i < initializingObject.length; i++) {
-					initializingObject[i] = template[i];
+		protected void initFromSerializedValue(float[] initializingObject, JsonValue firstItem) {
+			int i = 0;
+			for (JsonValue item = firstItem; item != null; item = item.next) {
+				float deserialized;
+				try {
+					deserialized = firstItem.asFloat();
+				} catch (NumberFormatException ignored) {
 				}
-			} else {
-				int i = 0;
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					float deserialized;
-					try {
-						deserialized = item.asFloat();
-					} catch (NumberFormatException ignored) {
-					}
 
-					deserialized = Float.parseFloat(item.asString());
-					initializingObject[i++] = deserialized;
-				}
+				deserialized = Float.parseFloat(firstItem.asString());
+				initializingObject[i++] = deserialized;
 			}
 		}
 
 		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
-		}
-
-		@Override
-		public void serialize(float[] value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				int length = value.length;
-				for (int i = 0; i < length; i++) {
-					archive.writeValue(Float.valueOf(value[i]), float.class);
-				}
-				archive.writeArrayEnd();
+		protected void writeValues(float[] value, Archive archive) {
+			int length = value.length;
+			for (int i = 0; i < length; i++) {
+				archive.writeValue(Float.valueOf(value[i]), float.class);
 			}
 		}
 	}
