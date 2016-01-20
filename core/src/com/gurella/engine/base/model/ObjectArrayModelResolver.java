@@ -145,7 +145,7 @@ public class ObjectArrayModelResolver implements ModelResolver {
 
 				if (actualType != knownType) {
 					archive.writeObjectStart(ArrayType.class);
-					archive.writeValue(actualType.getName(), String.class);
+					archive.writeValue(ArrayType.typeNameField, actualType.getName(), String.class);
 					archive.writeObjectEnd();
 				}
 

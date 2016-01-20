@@ -597,6 +597,14 @@ public class Archive implements Poolable {
 				"	[ 1, 1 ]\n" + 
 				"	[ 1, 1 ]\n" + 
 				"]\n" + 
+				"odi: [\n" + 
+				"	{\n" + 
+				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
+				"		typeName: \"[[I\"\n" + 
+				"	}\n" + 
+				"	[ 1, 1 ]\n" + 
+				"	[ 1, 1 ]\n" + 
+				"]\n" + 
 				"}";
 
 		Test obj = new Test();
@@ -622,7 +630,6 @@ public class Archive implements Poolable {
 		obj.em = new EnumMap<TestEnum, String>(TestEnum.class);
 		obj.em.put(TestEnum.a, "a");
 		obj.ts = new TreeSet<String>(new Comparator<String>() {
-
 			@Override
 			public int compare(String o1, String o2) {
 				return o1.compareTo(o2);
@@ -630,7 +637,6 @@ public class Archive implements Poolable {
 		});
 		obj.ts.add("a");
 		obj.tm = new TreeMap<String, String>(new Comparator<String>() {
-
 			@Override
 			public int compare(String o1, String o2) {
 				return o1.compareTo(o2);
@@ -640,11 +646,12 @@ public class Archive implements Poolable {
 		obj.ia = new int[3];
 		obj.oia = new int[3];
 		obj.di = new int[][]{{1, 1}, {1, 1}};
+		obj.odi = new int[][]{{1, 1}, {1, 1}};
 		
 		new Archive().serialize(new Test(), Test.class);
 		new Archive().serialize(obj, Test.class);
 		
-		Model<TestEnum> sbModel = Models.getModel(TestEnum.a);
+		Model<int[][]> sbModel = Models.getModel(int[][].class);
 		sbModel.getProperties();
 
 		JsonValue value = new JsonReader().parse(str);
@@ -656,6 +663,7 @@ public class Archive implements Poolable {
 		model.initInstance(context);
 
 		System.out.println(Objects.isEqual(obj, instance));
+		instance.ts.add("b");
 		
 		Models.getModel(Color.class).getProperties();
 	}

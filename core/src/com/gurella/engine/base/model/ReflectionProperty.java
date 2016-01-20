@@ -2,8 +2,6 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.reflect.ArrayReflection;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
@@ -16,9 +14,6 @@ import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
-import com.gurella.engine.base.serialization.ArrayType;
-import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -200,34 +195,6 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
-	private void initFromTemplate1(InitializationContext context) {
-		Object template = context.template();
-		if (template == null) {
-			return;
-		}
-
-		T value = getValue(template);
-		if (ValueUtils.isEqual(value, defaultValue)) {
-			return;
-		}
-
-		Object initializingObject = context.initializingObject();
-		if (value == null) {
-			setValue(initializingObject, null);
-		} else if (value.getClass().isArray()) {
-			int length = ArrayReflection.getLength(template);
-			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(type, length);
-			for (int i = 0; i < length; i++) {
-				Object item = ArrayReflection.get(template, i);
-				ArrayReflection.set(array, i, Objects.copyValue(item, context));
-			}
-			setValue(initializingObject, array);
-		} else {
-			setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
-		}
-	}
-
 	private void initFromSerializedValue(InitializationContext context, JsonValue serializedValue) {
 		Object initializingObject = context.initializingObject();
 		if (serializedValue.isNull()) {
@@ -261,86 +228,6 @@ public class ReflectionProperty<T> implements Property<T> {
 			context.pop();
 			setValue(initializingObject, value);
 		}
-	}
-
-	private void initFromSerializedValue1(InitializationContext context, JsonValue serializedValue) {
-		Object initializingObject = context.initializingObject();
-		if (serializedValue.isNull()) {
-			setValue(initializingObject, null);
-			return;
-		}
-
-		Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
-		if (resolvedType.isArray()) {
-			int size = serializedValue.size;
-			Class<?> componentType = resolvedType.getComponentType();
-			JsonValue item = serializedValue.child;
-			Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
-			if (itemType == ArrayType.class) {
-				item = item.next;
-				size--;
-			}
-
-			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(componentType, size);
-
-			int i = 0;
-			for (; item != null; item = item.next) {
-				if (item.isNull()) {
-					ArrayReflection.set(array, i++, null);
-				} else {
-					Class<?> resolvedItemType = Serialization.resolveObjectType(componentType, item);
-					if (Serialization.isSimpleType(resolvedItemType)) {
-						ArrayReflection.set(array, i++, context.json.readValue(resolvedItemType, null, item));
-					} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedItemType)) {
-						AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-						ArrayReflection.set(array, i++, context.<T> getAsset(assetReference));
-					} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedItemType)) {
-						ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-						@SuppressWarnings("unchecked")
-						T instance = (T) context.getInstance(objectReference.getId());
-						ArrayReflection.set(array, i++, instance);
-					} else {
-						ArrayReflection.set(array, i++, Objects.deserialize(item, resolvedItemType, context));
-					}
-				}
-			}
-
-			setValue(initializingObject, array);
-		} else {
-			if (Serialization.isSimpleType(resolvedType)) {
-				setValue(initializingObject, context.json.readValue(resolvedType, null, serializedValue));
-			} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-				AssetReference assetReference = context.json.readValue(AssetReference.class, null, serializedValue);
-				setValue(initializingObject, context.<T> getAsset(assetReference));
-			} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-				ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, serializedValue);
-				@SuppressWarnings("unchecked")
-				T instance = (T) context.getInstance(objectReference.getId());
-				setValue(initializingObject, instance);
-			} else if (field.isFinal()) {
-				initProperties(getValue(initializingObject), serializedValue, context);
-			} else {
-				setValue(initializingObject, Objects.deserialize(serializedValue, resolvedType, context));
-			}
-		}
-	}
-
-	private void initProperties(T target, JsonValue serializedValue, InitializationContext context) {
-		if (target == null || serializedValue.isNull()) {
-			return;
-		}
-
-		Class<? extends Object> targetType = target.getClass();
-		Class<? extends Object> resolvedType = Serialization.resolveObjectType(targetType, serializedValue);
-		if (targetType != resolvedType) {
-			throw new GdxRuntimeException("Unequal types.");
-		}
-
-		Model<T> model = Models.getModel(target);
-		context.push(target, null, serializedValue);
-		model.initInstance(context);
-		context.pop();
 	}
 
 	@Override
@@ -381,28 +268,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void serialize(Object object, Archive archive) {
 		T value = getValue(object);
-		if (Objects.isEqual(value, defaultValue)) {
-			return;
-		}
-
-		if (value == null || !value.getClass().isArray()) {
+		if (!Objects.isEqual(value, defaultValue)) {
 			archive.writeValue(name, value, type);
-		} else {
-			archive.writeArrayStart(name);
-			Class<?> actualType = value.getClass();
-			if (actualType != type) {
-				ArrayType arrayType = new ArrayType();
-				arrayType.typeName = actualType.getName();
-				archive.writeValue(arrayType, null);
-			}
-
-			Class<?> componentType = actualType.getComponentType();
-			int length = ArrayReflection.getLength(value);
-			for (int i = 0; i < length; i++) {
-				Object item = ArrayReflection.get(value, i);
-				archive.writeValue(item, componentType);
-			}
-			archive.writeArrayEnd();
 		}
 	}
 }

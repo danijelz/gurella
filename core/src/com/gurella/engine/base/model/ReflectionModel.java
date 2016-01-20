@@ -2,7 +2,6 @@ package com.gurella.engine.base.model;
 
 import java.util.Arrays;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -22,11 +21,7 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
-import com.gurella.engine.base.serialization.ArrayType;
-import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectReference;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
@@ -164,147 +159,11 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-	public T createInstance1(InitializationContext context) {
-		if (context == null) {
-			if (type.isPrimitive()) {
-				return createDefaultPrimitive();
-			} else if (type.isArray() || Serialization.isSimpleType(type)) {
-				return null;
-			} else {
-				return ReflectionUtils.newInstance(type);
-			}
-		}
-
-		JsonValue serializedValue = context.serializedValue();
-		if (serializedValue == null) {
-			T template = context.template();
-			if (template == null) {
-				return type.isPrimitive() ? createDefaultPrimitive() : null;
-			}
-
-			Class<? extends Object> templateType = template.getClass();
-			if (type.isPrimitive()) {
-				return template;
-			} else if (templateType.isArray()) {
-				int length = ArrayReflection.getLength(template);
-				@SuppressWarnings("unchecked")
-				T array = (T) ArrayReflection.newInstance(templateType.getComponentType(), length);
-				return array;
-			} else {
-				@SuppressWarnings("unchecked")
-				T instance = (T) ReflectionUtils.newInstance(templateType);
-				return instance;
-			}
-		} else if (serializedValue.isNull()) {
-			return type.isPrimitive() ? createDefaultPrimitive() : null;
-		} else if (serializedValue.isArray()) {
-			int length = serializedValue.size;
-			if (length > 0) {
-				JsonValue itemValue = serializedValue.child;
-				Class<?> itemType = Serialization.resolveObjectType(Object.class, itemValue);
-				if (itemType == ArrayType.class) {
-					Class<?> arrayType = ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
-					@SuppressWarnings("unchecked")
-					T array = (T) ArrayReflection.newInstance(arrayType.getComponentType(), length - 1);
-					return array;
-				}
-			}
-			@SuppressWarnings("unchecked")
-			T array = (T) ArrayReflection.newInstance(type.getComponentType(), length);
-			return array;
-		} else {
-			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private T createDefaultPrimitive() {
-		if (int.class == type) {
-			return (T) Integer.valueOf(0);
-		} else if (long.class == type) {
-			return (T) Long.valueOf(0);
-		} else if (short.class == type) {
-			return (T) Short.valueOf((short) 0);
-		} else if (byte.class == type) {
-			return (T) Byte.valueOf((byte) 0);
-		} else if (char.class == type) {
-			return (T) Character.valueOf((char) 0);
-		} else if (boolean.class == type) {
-			return (T) Boolean.valueOf(false);
-		} else if (double.class == type) {
-			return (T) Double.valueOf(0);
-		} else if (float.class == type) {
-			return (T) Float.valueOf(0);
-		} else {
-			throw new GdxRuntimeException("");
-		}
-	}
-
 	@Override
 	public void initInstance(InitializationContext context) {
 		ImmutableArray<Property<?>> properties = getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).init(context);
-		}
-	}
-
-	public void initInstance1(InitializationContext context) {
-		if (context == null) {
-			return;
-		}
-
-		T initializingObject = context.initializingObject();
-		if (initializingObject == null) {
-			return;
-		}
-
-		if (type.isArray()) {
-			JsonValue serializedValue = context.serializedValue();
-
-			if (serializedValue == null) {
-				T template = context.template();
-				int length = ArrayReflection.getLength(template);
-				for (int i = 0; i < length; i++) {
-					Object value = ArrayReflection.get(template, i);
-					ArrayReflection.set(initializingObject, i, Objects.copyValue(value, context));
-				}
-			} else {
-				Class<?> componentType = initializingObject.getClass().getComponentType();
-				JsonValue item = serializedValue.child;
-				Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
-				if (itemType == ArrayType.class) {
-					item = item.next;
-				}
-
-				int i = 0;
-				for (; item != null; item = item.next) {
-					if (item.isNull()) {
-						ArrayReflection.set(initializingObject, i++, null);
-					} else {
-						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-						if (Serialization.isSimpleType(resolvedType)) {
-							ArrayReflection.set(initializingObject, i++,
-									context.json.readValue(resolvedType, null, item));
-						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-							ArrayReflection.set(initializingObject, i++, context.<T> getAsset(assetReference));
-						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-							@SuppressWarnings("unchecked")
-							T instance = (T) context.getInstance(objectReference.getId());
-							ArrayReflection.set(initializingObject, i++, instance);
-						} else {
-							ArrayReflection.set(initializingObject, i++,
-									Objects.deserialize(item, resolvedType, context));
-						}
-					}
-				}
-			}
-		} else {
-			ImmutableArray<Property<?>> properties = getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				properties.get(i).init(context);
-			}
 		}
 	}
 
@@ -316,41 +175,10 @@ public class ReflectionModel<T> implements Model<T> {
 			archive.writeObjectStart(object, knownType);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
-				properties.get(i).serialize(object, archive);
+				Property<?> property = properties.get(i);
+				property.serialize(object, archive);
 			}
 			archive.writeObjectEnd();
-		}
-	}
-
-	public void serialize1(T object, Class<?> knownType, Archive archive) {
-		if (object == null) {
-			archive.writeValue(null, null);
-		} else {
-			Class<? extends Object> actualType = object.getClass();
-			if (actualType.isArray()) {
-				archive.writeArrayStart();
-
-				if (actualType != knownType) {
-					ArrayType arrayType = new ArrayType();
-					arrayType.typeName = actualType.getName();
-					archive.writeValue(arrayType, null);
-				}
-
-				Class<?> componentType = actualType.getComponentType();
-				int length = ArrayReflection.getLength(object);
-				for (int i = 0; i < length; i++) {
-					Object item = ArrayReflection.get(object, i);
-					archive.writeValue(item, componentType);
-				}
-				archive.writeArrayEnd();
-			} else {
-				archive.writeObjectStart(object, knownType);
-				ImmutableArray<Property<?>> properties = getProperties();
-				for (int i = 0; i < properties.size(); i++) {
-					properties.get(i).serialize(object, archive);
-				}
-				archive.writeObjectEnd();
-			}
 		}
 	}
 

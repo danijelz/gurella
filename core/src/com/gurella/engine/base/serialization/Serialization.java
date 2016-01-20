@@ -16,8 +16,6 @@ public class Serialization {
 				Class<?> itemType = resolveObjectType(Object.class, itemValue);
 				if (itemType == ArrayType.class) {
 					return ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
-				} else if (knownType != null && knownType.isArray()) {
-					return knownType;
 				}
 			}
 		} else if (serializedObject.isObject()) {

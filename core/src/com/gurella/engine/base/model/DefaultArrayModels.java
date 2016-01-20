@@ -105,7 +105,7 @@ public class DefaultArrayModels {
 				archive.writeArrayStart();
 				if (type != knownType) {
 					archive.writeObjectStart(ArrayType.class);
-					archive.writeValue(type.getName(), String.class);
+					archive.writeValue(ArrayType.typeNameField, type.getName(), String.class);
 					archive.writeObjectEnd();
 				}
 
