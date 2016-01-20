@@ -282,15 +282,15 @@ public class DefaultModels {
 		}
 	}
 
-	public static abstract class SimpleObjectModel<T> extends SimpleModel<T> {
-		private Class<?> simpleValueType;
+	public static abstract class SimpleObjectModel<T, V> extends SimpleModel<T> {
+		private Class<V> simpleValueType;
 
 		public SimpleObjectModel(Class<T> type) {
 			super(type);
 			simpleValueType = getSimpleValueType();
 		}
 
-		protected abstract Class<?> getSimpleValueType();
+		protected abstract Class<V> getSimpleValueType();
 
 		@Override
 		protected T createDefaultValue() {
@@ -310,7 +310,7 @@ public class DefaultModels {
 			}
 		}
 
-		protected abstract Object extractSimpleValue(T value);
+		protected abstract V extractSimpleValue(T value);
 
 		@Override
 		protected T deserializeValue(JsonValue serializedValue) {
@@ -326,7 +326,7 @@ public class DefaultModels {
 		protected abstract T deserializeSimpleValue(JsonValue jsonValue);
 	}
 
-	public static final class IntegerModel extends SimpleObjectModel<Integer> {
+	public static final class IntegerModel extends SimpleObjectModel<Integer, Integer> {
 		public static final IntegerModel instance = new IntegerModel();
 
 		private IntegerModel() {
@@ -334,12 +334,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Integer> getSimpleValueType() {
 			return int.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Integer value) {
+		protected Integer extractSimpleValue(Integer value) {
 			return value;
 		}
 
@@ -354,7 +354,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class LongModel extends SimpleObjectModel<Long> {
+	public static final class LongModel extends SimpleObjectModel<Long, Long> {
 		public static final LongModel instance = new LongModel();
 
 		private LongModel() {
@@ -362,12 +362,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Long> getSimpleValueType() {
 			return long.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Long value) {
+		protected Long extractSimpleValue(Long value) {
 			return value;
 		}
 
@@ -382,7 +382,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ShortModel extends SimpleObjectModel<Short> {
+	public static final class ShortModel extends SimpleObjectModel<Short, Short> {
 		public static final ShortModel instance = new ShortModel();
 
 		private ShortModel() {
@@ -390,12 +390,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Short> getSimpleValueType() {
 			return short.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Short value) {
+		protected Short extractSimpleValue(Short value) {
 			return value;
 		}
 
@@ -410,7 +410,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ByteModel extends SimpleObjectModel<Byte> {
+	public static final class ByteModel extends SimpleObjectModel<Byte, Byte> {
 		public static final ByteModel instance = new ByteModel();
 
 		private ByteModel() {
@@ -418,12 +418,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Byte> getSimpleValueType() {
 			return byte.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Byte value) {
+		protected Byte extractSimpleValue(Byte value) {
 			return value;
 		}
 
@@ -438,7 +438,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class CharModel extends SimpleObjectModel<Character> {
+	public static final class CharModel extends SimpleObjectModel<Character, Character> {
 		public static final CharModel instance = new CharModel();
 
 		private CharModel() {
@@ -446,12 +446,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Character> getSimpleValueType() {
 			return char.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Character value) {
+		protected Character extractSimpleValue(Character value) {
 			return value;
 		}
 
@@ -466,7 +466,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BooleanModel extends SimpleObjectModel<Boolean> {
+	public static final class BooleanModel extends SimpleObjectModel<Boolean, Boolean> {
 		public static final BooleanModel instance = new BooleanModel();
 
 		private BooleanModel() {
@@ -474,12 +474,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Object extractSimpleValue(Boolean value) {
+		protected Boolean extractSimpleValue(Boolean value) {
 			return value;
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Boolean> getSimpleValueType() {
 			return boolean.class;
 		}
 
@@ -494,7 +494,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class DoubleModel extends SimpleObjectModel<Double> {
+	public static final class DoubleModel extends SimpleObjectModel<Double, Double> {
 		public static final DoubleModel instance = new DoubleModel();
 
 		private DoubleModel() {
@@ -502,12 +502,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Double> getSimpleValueType() {
 			return double.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Double value) {
+		protected Double extractSimpleValue(Double value) {
 			return value;
 		}
 
@@ -522,7 +522,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class FloatModel extends SimpleObjectModel<Float> {
+	public static final class FloatModel extends SimpleObjectModel<Float, Float> {
 		public static final FloatModel instance = new FloatModel();
 
 		private FloatModel() {
@@ -530,12 +530,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Float> getSimpleValueType() {
 			return float.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Float value) {
+		protected Float extractSimpleValue(Float value) {
 			return value;
 		}
 
@@ -550,7 +550,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class StringModel extends SimpleObjectModel<String> {
+	public static final class StringModel extends SimpleObjectModel<String, String> {
 		public static final StringModel instance = new StringModel();
 
 		private StringModel() {
@@ -558,12 +558,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<String> getSimpleValueType() {
 			return String.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(String value) {
+		protected String extractSimpleValue(String value) {
 			return value;
 		}
 
@@ -573,7 +573,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BigIntegerModel extends SimpleObjectModel<BigInteger> {
+	public static final class BigIntegerModel extends SimpleObjectModel<BigInteger, String> {
 		public static final BigIntegerModel instance = new BigIntegerModel();
 
 		private BigIntegerModel() {
@@ -581,12 +581,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<String> getSimpleValueType() {
 			return String.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(BigInteger value) {
+		protected String extractSimpleValue(BigInteger value) {
 			return value.toString();
 		}
 
@@ -596,7 +596,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BigDecimalModel extends SimpleObjectModel<BigDecimal> {
+	public static final class BigDecimalModel extends SimpleObjectModel<BigDecimal, String> {
 		public static final BigDecimalModel instance = new BigDecimalModel();
 
 		private BigDecimalModel() {
@@ -604,12 +604,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<String> getSimpleValueType() {
 			return String.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(BigDecimal value) {
+		protected String extractSimpleValue(BigDecimal value) {
 			return value.toString();
 		}
 
@@ -619,7 +619,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ClassModel extends SimpleObjectModel<Class<?>> {
+	public static final class ClassModel extends SimpleObjectModel<Class<?>, String> {
 		public static final ClassModel instance = new ClassModel();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -628,12 +628,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<String> getSimpleValueType() {
 			return String.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Class<?> value) {
+		protected String extractSimpleValue(Class<?> value) {
 			return value.getName();
 		}
 
@@ -643,7 +643,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class DateModel extends SimpleObjectModel<Date> {
+	public static final class DateModel extends SimpleObjectModel<Date, Long> {
 		public static final DateModel instance = new DateModel();
 
 		private DateModel() {
@@ -651,12 +651,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<Long> getSimpleValueType() {
 			return long.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Date value) {
+		protected Long extractSimpleValue(Date value) {
 			return Long.valueOf(value.getTime());
 		}
 
@@ -671,7 +671,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class CurrencyModel extends SimpleObjectModel<Currency> {
+	public static final class CurrencyModel extends SimpleObjectModel<Currency, String> {
 		public static final CurrencyModel instance = new CurrencyModel();
 
 		private CurrencyModel() {
@@ -679,12 +679,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<String> getSimpleValueType() {
 			return String.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(Currency value) {
+		protected String extractSimpleValue(Currency value) {
 			return value.getCurrencyCode();
 		}
 
@@ -694,7 +694,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class TimeZoneModel extends SimpleObjectModel<TimeZone> {
+	public static final class TimeZoneModel extends SimpleObjectModel<TimeZone, String> {
 		public static final TimeZoneModel instance = new TimeZoneModel();
 
 		private TimeZoneModel() {
@@ -702,12 +702,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<?> getSimpleValueType() {
+		protected Class<String> getSimpleValueType() {
 			return String.class;
 		}
 
 		@Override
-		protected Object extractSimpleValue(TimeZone value) {
+		protected String extractSimpleValue(TimeZone value) {
 			return value.getID();
 		}
 

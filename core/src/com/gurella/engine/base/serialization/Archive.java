@@ -43,6 +43,7 @@ public class Archive implements Poolable {
 	String fileName;
 
 	Json json = new Json();
+	JsonWriter writer;
 
 	private Array<String> externalFileNames = new Array<String>();
 	private Array<ExternalDependency> externalDependencies = new Array<ExternalDependency>();
@@ -55,6 +56,8 @@ public class Archive implements Poolable {
 		callback = null;
 		fileName = null;
 
+		writer = null;
+
 		externalFileNames.clear();
 		externalDependencies.clear();
 
@@ -64,6 +67,138 @@ public class Archive implements Poolable {
 	}
 
 	public <T> void serialize(T rootObject, Class<?> knownType) {
+		StringWriter buffer = new StringWriter();
+		writer = new JsonWriter(buffer);
+
+		internalIds.put(rootObject, currentId++);
+		Model<T> objectModel = Models.getModel(rootObject);
+		objectModel.serialize(rootObject, knownType, this);
+
+		System.out.println(json.prettyPrint(buffer.toString()));
+		// System.out.println(json.prettyPrint(json.toJson(rootObject)));
+		reset();
+	}
+
+	public void writeObjectStart(Object value, Class<?> knownType) {
+		object();
+		Class<? extends Object> actualType = value.getClass();
+		if (knownType != actualType) {
+			writeType(actualType);
+		}
+	}
+
+	private void object() {
+		try {
+			writer.object();
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+
+	private void writeType(Class<?> type) {
+		try {
+			writer.set("class", type.getName());
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+
+	public void writeObjectStart(Class<?> type) {
+		object();
+		writeType(type);
+	}
+
+	public void writeObjectEnd() {
+		pop();
+	}
+
+	private void pop() {
+		try {
+			writer.pop();
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+
+	public void writeArrayStart() {
+		array();
+	}
+
+	private void array() {
+		try {
+			writer.array();
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+
+	public void writeArrayStart(String name) {
+		name(name);
+		array();
+	}
+
+	public void writeArrayEnd() {
+		pop();
+	}
+
+	public void writeValue(String name, Object value, Class<?> knownType) {
+		name(name);
+		writeValue(value, knownType);
+	}
+
+	private void name(String name) {
+		try {
+			writer.name(name);
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+
+	public void writeValue(Object value, Class<?> knownType) {
+		if (value == null || knownType.isPrimitive() || String.class == knownType) {
+			value(value);
+		} else if (value instanceof ManagedObject) {
+			// ManagedObject managedObject = (ManagedObject) value;
+			// String resourceFileName = ResourceService.getResourceFileName(managedObject);
+			// boolean isLocalObject = fileName.equals(resourceFileName);
+			// if (isLocalObject) {
+			// if (internalIds.get(value, -1) > 0) {
+			// ObjectReference objectReference = new ObjectReference(managedObject.getId(), null);
+			// json1.writeValue(objectReference, ObjectReference.class);
+			// } else {
+			// Model<Object> model = Models.getModel(value);
+			// model.serialize(value, knownType, this);
+			// }
+			// } else {
+			// ExternalDependency dependency = new ExternalDependency();
+			// dependency.typeName = ManagedObject.class.getName();
+			// dependency.fileName = resourceFileName;
+			// externalDependencies.add(dependency);
+			// externalFileNames.add(resourceFileName);
+			//
+			// ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
+			// json1.writeValue(objectReference, ObjectReference.class);
+			// }
+		} else if (Assets.isAsset(value)) {
+			AssetReference reference = new AssetReference(ResourceService.getResourceFileName(value), value.getClass());
+			if (Assets.isAssetType(knownType)) {
+
+			}
+		} else {
+			Model<Object> model = Models.getModel(value);
+			model.serialize(value, knownType, this);
+		}
+	}
+
+	private void value(Object value) {
+		try {
+			writer.value(value);
+		} catch (IOException ex) {
+			throw new SerializationException(ex);
+		}
+	}
+
+	public <T> void serialize1(T rootObject, Class<?> knownType) {
 		StringWriter buffer = new StringWriter();
 		JsonWriter jsonWriter = new JsonWriter(buffer);
 		json.setWriter(jsonWriter);
@@ -77,41 +212,41 @@ public class Archive implements Poolable {
 		reset();
 	}
 
-	public void writeObjectStart(Object value, Class<?> knownType) {
+	public void writeObjectStart1(Object value, Class<?> knownType) {
 		json.writeObjectStart();
 		Class<? extends Object> actualType = value.getClass();
 		if (knownType != actualType) {
 			json.writeType(actualType);
 		}
 	}
-	
-	public void writeObjectStart(Class<?> type) {
+
+	public void writeObjectStart1(Class<?> type) {
 		json.writeObjectStart();
 		json.writeType(type);
 	}
 
-	public void writeObjectEnd() {
+	public void writeObjectEnd1() {
 		json.writeObjectEnd();
 	}
 
-	public void writeArrayStart() {
+	public void writeArrayStart1() {
 		json.writeArrayStart();
 	}
 
-	public void writeArrayStart(String name) {
+	public void writeArrayStart1(String name) {
 		json.writeArrayStart(name);
 	}
 
-	public void writeArrayEnd() {
+	public void writeArrayEnd1() {
 		json.writeArrayEnd();
 	}
 
-	public void writeValue(String name, Object value, Class<?> knownType) {
-		writeName(name);
+	public void writeValue1(String name, Object value, Class<?> knownType) {
+		writeName1(name);
 		writeValue(value, knownType);
 	}
 
-	private void writeName(String name) {
+	private void writeName1(String name) {
 		try {
 			json.getWriter().name(name);
 		} catch (IOException ex) {
@@ -119,7 +254,7 @@ public class Archive implements Poolable {
 		}
 	}
 
-	public void writeValue(Object value, Class<?> knownType) {
+	public void writeValue1(Object value, Class<?> knownType) {
 		if (value == null || Serialization.isSimpleType(value)) {
 			json.writeValue(value, knownType);
 		} else if (value instanceof ManagedObject) {
@@ -155,9 +290,9 @@ public class Archive implements Poolable {
 		}
 	}
 
-	private Array<Object> objects = new Array<Object>();
+	private Array<Object> objectsToSerialize = new Array<Object>();
 
-	public void writeValue1(Object value, Class<?> knownType) {
+	public void writeValue12(Object value, Class<?> knownType) {
 		if (value == null || Serialization.isSimpleType(value)) {
 			json.writeValue(value, knownType);
 		} else if (value instanceof ManagedObject) {
@@ -200,7 +335,7 @@ public class Archive implements Poolable {
 						internalIds.put(value, currentId);
 						json.writeValue(Integer.valueOf(currentId), int.class);
 						currentId++;
-						objects.add(value);
+						objectsToSerialize.add(value);
 					} else {
 						ExternalDependency dependency = new ExternalDependency();
 						dependency.typeName = ManagedObject.class.getName();
@@ -215,7 +350,7 @@ public class Archive implements Poolable {
 					internalIds.put(value, currentId);
 					json.writeValue(Integer.valueOf(currentId), int.class);
 					currentId++;
-					objects.add(value);
+					objectsToSerialize.add(value);
 				}
 			}
 		}
@@ -362,10 +497,7 @@ public class Archive implements Poolable {
 				"	size: 1\n" + 
 				"}\n" + 
 				"cls: java.lang.String\n" + 
-				"te: {\n" + 
-				"	class: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
-				"	value: a\n" + 
-				"}\n" + 
+				"te: a\n" + 
 				"tes: {\n" + 
 				"	type: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
 				"	items: [\n" + 
@@ -645,12 +777,12 @@ public class Archive implements Poolable {
 		obj.tm.put("a", "a");
 		obj.ia = new int[3];
 		obj.oia = new int[3];
-		obj.di = new int[][]{{1, 1}, {1, 1}};
-		obj.odi = new int[][]{{1, 1}, {1, 1}};
-		
+		obj.di = new int[][] { { 1, 1 }, { 1, 1 } };
+		obj.odi = new int[][] { { 1, 1 }, { 1, 1 } };
+
 		new Archive().serialize(new Test(), Test.class);
 		new Archive().serialize(obj, Test.class);
-		
+
 		Model<int[][]> sbModel = Models.getModel(int[][].class);
 		sbModel.getProperties();
 
@@ -664,7 +796,7 @@ public class Archive implements Poolable {
 
 		System.out.println(Objects.isEqual(obj, instance));
 		instance.ts.add("b");
-		
+
 		Models.getModel(Color.class).getProperties();
 	}
 
@@ -715,11 +847,11 @@ public class Archive implements Poolable {
 			return "Test1 [i1=" + i1 + ", s1=" + s1 + "]";
 		}
 	}
-	
+
 	public interface TestInterface {
 		String getStr();
 	}
-	
+
 	public static enum TestEnum implements TestInterface {
 		a {
 			@Override

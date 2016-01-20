@@ -56,6 +56,7 @@ public class LocaleModel implements Model<Locale> {
 		return null;
 	}
 
+	//TODO convert to properties?
 	@Override
 	public void serialize(Locale value, Class<?> knownType, Archive archive) {
 		if (value == null) {

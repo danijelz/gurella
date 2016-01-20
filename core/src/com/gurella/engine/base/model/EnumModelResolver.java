@@ -99,9 +99,7 @@ public class EnumModelResolver implements ModelResolver {
 			if (value == null) {
 				archive.writeValue(null, null);
 			} else {
-				@SuppressWarnings({ "unchecked" })
-				Class<Enum<?>> valueType = (Class<Enum<?>>) value.getClass();
-				if (knownType == valueType) {
+				if (knownType == value.getClass()) {
 					archive.writeValue(value.name(), String.class);
 				} else {
 					@SuppressWarnings("unchecked")
