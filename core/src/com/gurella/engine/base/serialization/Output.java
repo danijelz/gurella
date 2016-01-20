@@ -19,8 +19,6 @@ public interface Output {
 
 	void write(String value);
 	
-	void write(CharSequence value);
-	
 	void write(Object value);
 
 	void write(int[] value);
@@ -43,5 +41,43 @@ public interface Output {
 	
 	void write(Object[] value);
 	
-	void writeName(String name);
+	void write(String name, int value);
+
+	void write(String name, long value);
+
+	void write(String name, short value);
+
+	void write(String name, byte value);
+
+	void write(String name, char value);
+
+	void write(String name, boolean value);
+
+	void write(String name, double value);
+
+	void write(String name, float value);
+
+	void write(String name, String value);
+	
+	void write(String name, Object value);
+
+	void write(String name, int[] value);
+
+	void write(String name, long[] value);
+
+	void write(String name, short[] value);
+
+	void write(String name, byte[] value);
+
+	void write(String name, char[] value);
+
+	void write(String name, boolean[] value);
+
+	void write(String name, double[] value);
+
+	void write(String name, float[] value);
+
+	void write(String name, String[] value);
+	
+	void write(String name, Object[] value);
 }
