@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -102,10 +103,15 @@ public class DefaultModels {
 
 			return Integer.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Integer value, Output output) {
 			output.writeInt(value);
+		}
+
+		@Override
+		public Integer deserialize(Input input) {
+			return Integer.valueOf(input.readInt());
 		}
 	}
 
@@ -130,10 +136,15 @@ public class DefaultModels {
 
 			return Long.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Long value, Output output) {
 			output.writeLong(value);
+		}
+
+		@Override
+		public Long deserialize(Input input) {
+			return Long.valueOf(input.readLong());
 		}
 	}
 
@@ -158,10 +169,15 @@ public class DefaultModels {
 
 			return Short.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Short value, Output output) {
 			output.writeShort(value);
+		}
+
+		@Override
+		public Short deserialize(Input input) {
+			return Short.valueOf(input.readShort());
 		}
 	}
 
@@ -186,10 +202,15 @@ public class DefaultModels {
 
 			return Byte.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Byte value, Output output) {
 			output.writeByte(value);
+		}
+
+		@Override
+		public Byte deserialize(Input input) {
+			return Byte.valueOf(input.readByte());
 		}
 	}
 
@@ -214,10 +235,15 @@ public class DefaultModels {
 
 			return Character.valueOf(serializedValue.asString().charAt(0));
 		}
-		
+
 		@Override
 		public void serialize(Character value, Output output) {
 			output.writeChar(value);
+		}
+
+		@Override
+		public Character deserialize(Input input) {
+			return Character.valueOf(input.readChar());
 		}
 	}
 
@@ -242,10 +268,15 @@ public class DefaultModels {
 
 			return Boolean.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Boolean value, Output output) {
 			output.writeBoolean(value);
+		}
+
+		@Override
+		public Boolean deserialize(Input input) {
+			return Boolean.valueOf(input.readBoolean());
 		}
 	}
 
@@ -270,10 +301,15 @@ public class DefaultModels {
 
 			return Double.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Double value, Output output) {
 			output.writeDouble(value);
+		}
+
+		@Override
+		public Double deserialize(Input input) {
+			return Double.valueOf(input.readDouble());
 		}
 	}
 
@@ -298,10 +334,15 @@ public class DefaultModels {
 
 			return Float.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Float value, Output output) {
 			output.writeFloat(value);
+		}
+
+		@Override
+		public Float deserialize(Input input) {
+			return Float.valueOf(input.readFloat());
 		}
 	}
 
@@ -321,10 +362,15 @@ public class DefaultModels {
 		protected Void deserializeValue(JsonValue serializedValue) {
 			return null;
 		}
-		
+
 		@Override
 		public void serialize(Void value, Output output) {
 			output.writeNull();
+		}
+
+		@Override
+		public Void deserialize(Input input) {
+			return null;
 		}
 	}
 
@@ -398,13 +444,22 @@ public class DefaultModels {
 
 			return Integer.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Integer value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeInt(value);
+			}
+		}
+
+		@Override
+		public Integer deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Integer.valueOf(input.readInt());
 			}
 		}
 	}
@@ -435,13 +490,22 @@ public class DefaultModels {
 
 			return Long.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Long value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeLong(value);
+			}
+		}
+
+		@Override
+		public Long deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Long.valueOf(input.readLong());
 			}
 		}
 	}
@@ -472,13 +536,22 @@ public class DefaultModels {
 
 			return Short.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Short value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeShort(value);
+			}
+		}
+
+		@Override
+		public Short deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Short.valueOf(input.readShort());
 			}
 		}
 	}
@@ -509,13 +582,22 @@ public class DefaultModels {
 
 			return Byte.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Byte value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeByte(value);
+			}
+		}
+
+		@Override
+		public Byte deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Byte.valueOf(input.readByte());
 			}
 		}
 	}
@@ -546,13 +628,22 @@ public class DefaultModels {
 
 			return Character.valueOf(serializedValue.asString().charAt(0));
 		}
-		
+
 		@Override
 		public void serialize(Character value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeChar(value);
+			}
+		}
+
+		@Override
+		public Character deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Character.valueOf(input.readChar());
 			}
 		}
 	}
@@ -583,13 +674,22 @@ public class DefaultModels {
 
 			return Boolean.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Boolean value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeBoolean(value);
+			}
+		}
+
+		@Override
+		public Boolean deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Boolean.valueOf(input.readBoolean());
 			}
 		}
 	}
@@ -620,13 +720,22 @@ public class DefaultModels {
 
 			return Double.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Double value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeDouble(value);
+			}
+		}
+
+		@Override
+		public Double deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Double.valueOf(input.readDouble());
 			}
 		}
 	}
@@ -657,13 +766,22 @@ public class DefaultModels {
 
 			return Float.valueOf(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Float value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeFloat(value);
+			}
+		}
+
+		@Override
+		public Float deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Float.valueOf(input.readFloat());
 			}
 		}
 	}
@@ -689,13 +807,22 @@ public class DefaultModels {
 		protected String deserializeSimpleValue(JsonValue serializedValue) {
 			return serializedValue.asString();
 		}
-		
+
 		@Override
 		public void serialize(String value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value);
+			}
+		}
+
+		@Override
+		public String deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return input.readString();
 			}
 		}
 	}
@@ -721,13 +848,22 @@ public class DefaultModels {
 		protected BigInteger deserializeSimpleValue(JsonValue serializedValue) {
 			return new BigInteger(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(BigInteger value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.toString());
+			}
+		}
+
+		@Override
+		public BigInteger deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return new BigInteger(input.readString());
 			}
 		}
 	}
@@ -753,13 +889,22 @@ public class DefaultModels {
 		protected BigDecimal deserializeSimpleValue(JsonValue serializedValue) {
 			return new BigDecimal(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(BigDecimal value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.toString());
+			}
+		}
+
+		@Override
+		public BigDecimal deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return new BigDecimal(input.readString());
 			}
 		}
 	}
@@ -786,13 +931,22 @@ public class DefaultModels {
 		protected Class<?> deserializeSimpleValue(JsonValue serializedValue) {
 			return ReflectionUtils.forName(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Class<?> value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.getName());
+			}
+		}
+
+		@Override
+		public Class<?> deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return ReflectionUtils.forName(input.readString());
 			}
 		}
 	}
@@ -823,13 +977,22 @@ public class DefaultModels {
 
 			return new Date(Long.valueOf(serializedValue.asString()).longValue());
 		}
-		
+
 		@Override
 		public void serialize(Date value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeLong(value.getTime());
+			}
+		}
+
+		@Override
+		public Date deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return new Date(input.readLong());
 			}
 		}
 	}
@@ -855,13 +1018,22 @@ public class DefaultModels {
 		protected Currency deserializeSimpleValue(JsonValue serializedValue) {
 			return Currency.getInstance(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(Currency value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.getCurrencyCode());
+			}
+		}
+
+		@Override
+		public Currency deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return Currency.getInstance(input.readString());
 			}
 		}
 	}
@@ -887,13 +1059,22 @@ public class DefaultModels {
 		protected TimeZone deserializeSimpleValue(JsonValue serializedValue) {
 			return TimeZone.getTimeZone(serializedValue.asString());
 		}
-		
+
 		@Override
 		public void serialize(TimeZone value, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.getID());
+			}
+		}
+
+		@Override
+		public TimeZone deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return TimeZone.getTimeZone(input.readString());
 			}
 		}
 	}

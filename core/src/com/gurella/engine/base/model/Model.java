@@ -23,5 +23,5 @@ public interface Model<T> {
 
 	void serialize(T value, Output output);
 
-	T deserialize(Input nput);
+	T deserialize(Input input);
 }

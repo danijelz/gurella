@@ -5,6 +5,7 @@ import java.util.Locale;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueUtils;
@@ -87,9 +88,7 @@ public class LocaleModel implements Model<Locale> {
 			output.writeNull();
 		} else {
 			String language = value.getLanguage();
-			if (ValueUtils.isNotEmpty(language)) {
-				output.writeStringProperty("language", language);
-			}
+			output.writeStringProperty("language", language);
 
 			String country = value.getCountry();
 			if (ValueUtils.isNotEmpty(country)) {
@@ -101,5 +100,13 @@ public class LocaleModel implements Model<Locale> {
 				output.writeStringProperty("variant", variant);
 			}
 		}
+	}
+
+	@Override
+	public Locale deserialize(Input input) {
+		String language = input.readStringProperty("language");
+		String country = input.hasProperty("country") ? input.readStringProperty("country") : "";
+		String variant = input.hasProperty("variant") ? input.readStringProperty("variant") : "";
+		return new Locale(language, country, variant);
 	}
 }

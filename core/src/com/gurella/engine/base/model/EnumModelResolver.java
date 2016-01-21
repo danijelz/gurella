@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -29,9 +30,18 @@ public class EnumModelResolver implements ModelResolver {
 
 	public static final class EnumModel<T extends Enum<T>> implements Model<T> {
 		private Class<T> type;
+		private Class<T> enumType;
+		private T[] constants;
 
 		private EnumModel(Class<T> type) {
 			this.type = type;
+			constants = type.getEnumConstants();
+			if (constants == null) {
+				@SuppressWarnings("unchecked")
+				Class<T> casted = (Class<T>) type.getSuperclass();
+				enumType = casted;
+				constants = enumType.getEnumConstants();
+			}
 		}
 
 		@Override
@@ -67,12 +77,6 @@ public class EnumModelResolver implements ModelResolver {
 				return null;
 			} else {
 				String enumName = getEnumName(serializedValue);
-				T[] constants = type.getEnumConstants();
-				if (constants == null) {
-					@SuppressWarnings("unchecked")
-					T[] casted = (T[]) type.getSuperclass().getEnumConstants();
-					constants = casted;
-				}
 				for (int i = 0; i < constants.length; i++) {
 					T constant = constants[i];
 					if (enumName.equals(constant.name())) {
@@ -103,14 +107,6 @@ public class EnumModelResolver implements ModelResolver {
 				if (knownType == value.getClass()) {
 					archive.writeValue(value.name(), String.class);
 				} else {
-					@SuppressWarnings("unchecked")
-					Class<Enum<?>> enumType = (Class<Enum<?>>) value.getClass();
-					if (enumType.getEnumConstants() == null) {
-						@SuppressWarnings({ "unchecked" })
-						Class<Enum<?>> casted = (Class<Enum<?>>) enumType.getSuperclass();
-						enumType = casted;
-					}
-
 					if (knownType == enumType) {
 						archive.writeValue(value.name(), String.class);
 					} else {
@@ -129,6 +125,18 @@ public class EnumModelResolver implements ModelResolver {
 			} else {
 				output.writeString(value.name());
 			}
+		}
+
+		@Override
+		public T deserialize(Input input) {
+			String enumName = input.readString();
+			for (int i = 0; i < constants.length; i++) {
+				T constant = constants[i];
+				if (enumName.equals(constant.name())) {
+					return constant;
+				}
+			}
+			throw new GdxRuntimeException("Invalid enum name: " + enumName);
 		}
 	}
 }

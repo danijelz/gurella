@@ -2,6 +2,7 @@ package com.gurella.engine.base.model;
 
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;
 
@@ -33,4 +34,6 @@ public interface Property<T> {
 	void serialize(Object object, Archive archive);
 
 	void serialize(Object object, Output output);
+	
+	void deserialize(Object object, Input input);
 }

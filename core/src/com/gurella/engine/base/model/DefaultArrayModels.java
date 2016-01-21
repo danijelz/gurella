@@ -4,10 +4,12 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ArrayType;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ImmutableArray;
 
+//TODO remove if (input.isNull())
 public class DefaultArrayModels {
 	private DefaultArrayModels() {
 	}
@@ -176,6 +178,20 @@ public class DefaultArrayModels {
 				}
 			}
 		}
+
+		@Override
+		public int[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				int[] value = new int[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readInt();
+				}
+				return value;
+			}
+		}
 	}
 
 	public static final class LongArrayModel extends PrimitiveArrayModel<long[]> {
@@ -234,6 +250,20 @@ public class DefaultArrayModels {
 				for (int i = 0; i < value.length; i++) {
 					output.writeLong(value[i]);
 				}
+			}
+		}
+
+		@Override
+		public long[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				long[] value = new long[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readLong();
+				}
+				return value;
 			}
 		}
 	}
@@ -296,6 +326,20 @@ public class DefaultArrayModels {
 				}
 			}
 		}
+
+		@Override
+		public short[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				short[] value = new short[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readShort();
+				}
+				return value;
+			}
+		}
 	}
 
 	public static final class ByteArrayModel extends PrimitiveArrayModel<byte[]> {
@@ -354,6 +398,20 @@ public class DefaultArrayModels {
 				for (int i = 0; i < value.length; i++) {
 					output.writeByte(value[i]);
 				}
+			}
+		}
+
+		@Override
+		public byte[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				byte[] value = new byte[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readByte();
+				}
+				return value;
 			}
 		}
 	}
@@ -416,6 +474,20 @@ public class DefaultArrayModels {
 				}
 			}
 		}
+
+		@Override
+		public char[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				char[] value = new char[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readChar();
+				}
+				return value;
+			}
+		}
 	}
 
 	public static final class BooleanArrayModel extends PrimitiveArrayModel<boolean[]> {
@@ -474,6 +546,20 @@ public class DefaultArrayModels {
 				for (int i = 0; i < value.length; i++) {
 					output.writeBoolean(value[i]);
 				}
+			}
+		}
+
+		@Override
+		public boolean[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				boolean[] value = new boolean[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readBoolean();
+				}
+				return value;
 			}
 		}
 	}
@@ -536,6 +622,20 @@ public class DefaultArrayModels {
 				}
 			}
 		}
+
+		@Override
+		public double[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				double[] value = new double[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readDouble();
+				}
+				return value;
+			}
+		}
 	}
 
 	public static final class FloatArrayModel extends PrimitiveArrayModel<float[]> {
@@ -594,6 +694,20 @@ public class DefaultArrayModels {
 				for (int i = 0; i < value.length; i++) {
 					output.writeFloat(value[i]);
 				}
+			}
+		}
+
+		@Override
+		public float[] deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				float[] value = new float[length];
+				for (int i = 0; i < length; i++) {
+					value[i] = input.readFloat();
+				}
+				return value;
 			}
 		}
 	}

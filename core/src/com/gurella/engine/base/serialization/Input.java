@@ -21,6 +21,8 @@ public interface Input {
 
 	<T> T readObject(Class<T> expectedType);
 	
+	boolean isNull();
+	
 	boolean hasProperty(String name);
 
 	int readIntProperty(String name);

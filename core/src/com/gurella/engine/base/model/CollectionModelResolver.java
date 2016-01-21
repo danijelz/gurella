@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -128,6 +129,13 @@ public class CollectionModelResolver implements ModelResolver {
 			} else {
 				properties.get(0).serialize(value, output);
 			}
+		}
+
+		@Override
+		public T deserialize(Input input) {
+			T instance = ReflectionUtils.newInstance(type);
+			properties.get(0).deserialize(instance, input);
+			return instance;
 		}
 	}
 
@@ -269,9 +277,19 @@ public class CollectionModelResolver implements ModelResolver {
 
 			output.writeObjectProperty(name, Object[].class, array);
 		}
+
+		@Override
+		public void deserialize(Object object, Input input) {
+			@SuppressWarnings("unchecked")
+			Collection<Object> collection = (Collection<Object>) object;
+			Object[] array = input.readObjectProperty(name, Object[].class);
+			for (int i = 0; i < array.length; i++) {
+				collection.add(array[i]);
+			}
+		}
 	}
 
-	//TODO serialize(Object object, Output output)
+	// TODO serialize(Object object, Output output)
 	public static class TreeSetModel extends CollectionModel<TreeSet<?>> {
 		private static final TreeSetModel modelInstance = new TreeSetModel();
 
@@ -325,7 +343,7 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 	}
 
-	//TODO serialize(Object object, Output output)
+	// TODO serialize(Object object, Output output)
 	public static class EnumSetModel extends CollectionModel<EnumSet<?>> {
 		public static final EnumSetModel modelInstance = new EnumSetModel();
 

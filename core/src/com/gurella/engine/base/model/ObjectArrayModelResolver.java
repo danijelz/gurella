@@ -6,6 +6,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ArrayType;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ImmutableArray;
@@ -164,12 +165,27 @@ public class ObjectArrayModelResolver implements ModelResolver {
 				output.writeNull();
 			} else {
 				Object[] array = (Object[]) value;
-				Class<?> componentType = value.getClass().getComponentType();
+				Class<?> componentType = type.getComponentType();
 				output.writeInt(array.length);
 				for (int i = 0; i < array.length; i++) {
 					output.writeObject(componentType, array[i]);
 				}
 			}
+		}
+
+		@Override
+		public T deserialize(Input input) {
+			Class<?> componentType = type.getComponentType();
+			int length = input.readInt();
+
+			Object[] value = (Object[]) ArrayReflection.newInstance(componentType, length);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readObject(componentType);
+			}
+
+			@SuppressWarnings("unchecked")
+			T array = (T) value;
+			return array;
 		}
 	}
 }
