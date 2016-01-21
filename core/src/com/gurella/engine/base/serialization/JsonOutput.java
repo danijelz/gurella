@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -45,16 +46,16 @@ public class JsonOutput implements Output, Poolable {
 		}
 
 		pop();
-		
+
 		System.out.println(new JsonReader().parse(buffer.toString()).prettyPrint(OutputType.minimal, 120));
 	}
 
 	private void writeReference(Class<?> expectedType, Object object) {
 		int ordinal = internalIds.get(object, -1);
 		if (ordinal < 0) {
-			writeValue(addReference(expectedType, object));
+			writeInt(addReference(expectedType, object));
 		} else {
-			writeValue(ordinal);
+			writeInt(ordinal);
 		}
 	}
 
@@ -71,7 +72,7 @@ public class JsonOutput implements Output, Poolable {
 			if (actualType != expectedType) {
 				object();
 				type(ArrayType.class);
-				writeProperty(ArrayType.typeNameField, actualType.getName());
+				writeStringProperty(ArrayType.typeNameField, actualType.getName());
 				pop();
 			}
 
@@ -91,108 +92,107 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeNullValue() {
+	public void writeNull() {
 		value(null);
 	}
 
 	@Override
-	public void writeValue(int value) {
+	public void writeInt(int value) {
 		value(Integer.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(long value) {
+	public void writeLong(long value) {
 		value(Long.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(short value) {
+	public void writeShort(short value) {
 		value(Short.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(byte value) {
+	public void writeByte(byte value) {
 		value(Byte.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(char value) {
+	public void writeChar(char value) {
 		value(Character.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(boolean value) {
+	public void writeBoolean(boolean value) {
 		value(Boolean.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(double value) {
+	public void writeDouble(double value) {
 		value(Double.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(float value) {
+	public void writeFloat(float value) {
 		value(Float.valueOf(value));
 	}
 
 	@Override
-	public void writeValue(Integer value) {
+	public void writeInt(Integer value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Long value) {
+	public void writeLong(Long value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Short value) {
+	public void writeShort(Short value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Byte value) {
+	public void writeByte(Byte value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Character value) {
+	public void writeChar(Character value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Boolean value) {
+	public void writeBoolean(Boolean value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Double value) {
+	public void writeDouble(Double value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Float value) {
+	public void writeFloat(Float value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(String value) {
+	public void writeString(String value) {
 		value(value);
 	}
 
 	@Override
-	public void writeValue(Class<?> expectedType, Object value) {
+	public void writeObject(Class<?> expectedType, Object value) {
 		if (value == null) {
-			writeNullValue();
+			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
 			@SuppressWarnings("unchecked")
 			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
 			model.serialize(value, this);
-		} else if (expectedType != null && Serialization.isSimpleType(expectedType)) {
-			@SuppressWarnings("unchecked")
-			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
-			Class<? extends Object> actualType = value.getClass();
-			if(expectedType == actualType) {
+		} else if (Serialization.isSimpleType(value)) {
+			Model<Object> model = Models.getModel(value);
+			Class<?> actualType = value.getClass();
+			if (equalType(expectedType, actualType)) {
 				model.serialize(value, this);
 			} else {
 				object();
@@ -206,6 +206,18 @@ public class JsonOutput implements Output, Poolable {
 		}
 	}
 
+	private static boolean equalType(Class<?> expectedType, Class<?> actualType) {
+		if (expectedType == actualType) {
+			return true;
+		} else if (expectedType == null || actualType == null) {
+			return false;
+		} else if (expectedType.isEnum() && actualType.getEnumConstants() == null) {
+			return expectedType == actualType.getSuperclass();
+		} else {
+			return false;
+		}
+	}
+
 	@Override
 	public void writeNullProperty(String name) {
 		name(name);
@@ -213,63 +225,111 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeProperty(String name, int value) {
+	public void writeIntProperty(String name, int value) {
 		name(name);
 		value(Integer.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, long value) {
+	public void writeLongProperty(String name, long value) {
 		name(name);
 		value(Long.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, short value) {
+	public void writeShortProperty(String name, short value) {
 		name(name);
 		value(Short.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, byte value) {
+	public void writeByteProperty(String name, byte value) {
 		name(name);
 		value(Byte.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, char value) {
+	public void writeCharProperty(String name, char value) {
 		name(name);
 		value(Character.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, boolean value) {
+	public void writeBooleanProperty(String name, boolean value) {
 		name(name);
 		value(Boolean.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, double value) {
+	public void writeDoubleProperty(String name, double value) {
 		name(name);
 		value(Double.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, float value) {
+	public void writeFloatProperty(String name, float value) {
 		name(name);
 		value(Float.valueOf(value));
 	}
 
 	@Override
-	public void writeProperty(String name, String value) {
+	public void writeIntProperty(String name, Integer value) {
 		name(name);
 		value(value);
 	}
 
 	@Override
-	public void writeProperty(String name, Class<?> expectedType, Object value) {
+	public void writeLongProperty(String name, Long value) {
 		name(name);
-		writeValue(expectedType, value);
+		value(value);
+	}
+
+	@Override
+	public void writeShortProperty(String name, Short value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeByteProperty(String name, Byte value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeCharProperty(String name, Character value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeBooleanProperty(String name, Boolean value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeDoubleProperty(String name, Double value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeFloatProperty(String name, Float value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeStringProperty(String name, String value) {
+		name(name);
+		value(value);
+	}
+
+	@Override
+	public void writeObjectProperty(String name, Class<?> expectedType, Object value) {
+		name(name);
+		writeObject(expectedType, value);
 	}
 
 	private void value(Object value) {
@@ -290,7 +350,9 @@ public class JsonOutput implements Output, Poolable {
 
 	private void type(Class<?> type) {
 		try {
-			writer.set("class", type.getName());
+			Class<?> resolvedType = (ClassReflection.isAssignableFrom(Enum.class, type)
+					&& type.getEnumConstants() == null) ? type.getSuperclass() : type;
+			writer.set("class", resolvedType.getName());
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}

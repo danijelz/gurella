@@ -143,11 +143,11 @@ public class GdxArrayModelResolver implements ModelResolver {
 		@Override
 		public void serialize(T value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				Class<?> componentType = value.items.getClass().getComponentType();
 				if (Object.class != componentType) {
-					output.writeProperty("componentType", componentType.getName());
+					output.writeStringProperty("componentType", componentType.getName());
 				}
 
 				properties.get(0).serialize(value, output);
@@ -250,7 +250,7 @@ public class GdxArrayModelResolver implements ModelResolver {
 		@Override
 		public void serialize(Object object, Output output) {
 			if (!((Array<?>) object).ordered) {
-				output.writeProperty(name, false);
+				output.writeBooleanProperty(name, false);
 			}
 		}
 	}
@@ -381,7 +381,7 @@ public class GdxArrayModelResolver implements ModelResolver {
 				return;
 			}
 			
-			output.writeProperty(name, array.items.getClass(), Arrays.copyOf(array.items, array.size));
+			output.writeObjectProperty(name, array.items.getClass(), Arrays.copyOf(array.items, array.size));
 		}
 	}
 }

@@ -186,7 +186,7 @@ public class ReflectionModel<T> implements Model<T> {
 	@Override
 	public void serialize(T value, Output output) {
 		if (value == null) {
-			output.writeNullValue();
+			output.writeNull();
 		} else {
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {

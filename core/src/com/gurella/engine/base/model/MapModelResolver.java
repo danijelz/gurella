@@ -125,7 +125,7 @@ public class MapModelResolver implements ModelResolver {
 		@Override
 		public void serialize(T value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				properties.get(0).serialize(value, output);
 			}
@@ -266,7 +266,7 @@ public class MapModelResolver implements ModelResolver {
 				entries[i][1] = entry.getValue();
 			}
 
-			output.writeProperty(name, Object[][].class, entries);
+			output.writeObjectProperty(name, Object[][].class, entries);
 		}
 	}
 

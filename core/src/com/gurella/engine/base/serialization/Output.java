@@ -1,63 +1,79 @@
 package com.gurella.engine.base.serialization;
 
 public interface Output {
-	void writeNullValue();
+	void writeNull();
 	
-	void writeValue(int value);
+	void writeInt(int value);
 
-	void writeValue(long value);
+	void writeLong(long value);
 
-	void writeValue(short value);
+	void writeShort(short value);
 
-	void writeValue(byte value);
+	void writeByte(byte value);
 
-	void writeValue(char value);
+	void writeChar(char value);
 
-	void writeValue(boolean value);
+	void writeBoolean(boolean value);
 
-	void writeValue(double value);
+	void writeDouble(double value);
 
-	void writeValue(float value);
+	void writeFloat(float value);
 	
-	void writeValue(Integer value);
+	void writeInt(Integer value);
 
-	void writeValue(Long value);
+	void writeLong(Long value);
 
-	void writeValue(Short value);
+	void writeShort(Short value);
 
-	void writeValue(Byte value);
+	void writeByte(Byte value);
 
-	void writeValue(Character value);
+	void writeChar(Character value);
 
-	void writeValue(Boolean value);
+	void writeBoolean(Boolean value);
 
-	void writeValue(Double value);
+	void writeDouble(Double value);
 
-	void writeValue(Float value);
+	void writeFloat(Float value);
 
-	void writeValue(String value);
+	void writeString(String value);
 	
-	void writeValue(Class<?> expectedType, Object value);
+	void writeObject(Class<?> expectedType, Object value);
 	
 	void writeNullProperty(String name);
 	
-	void writeProperty(String name, int value);
+	void writeIntProperty(String name, int value);
 
-	void writeProperty(String name, long value);
+	void writeLongProperty(String name, long value);
 
-	void writeProperty(String name, short value);
+	void writeShortProperty(String name, short value);
 
-	void writeProperty(String name, byte value);
+	void writeByteProperty(String name, byte value);
 
-	void writeProperty(String name, char value);
+	void writeCharProperty(String name, char value);
 
-	void writeProperty(String name, boolean value);
+	void writeBooleanProperty(String name, boolean value);
 
-	void writeProperty(String name, double value);
+	void writeDoubleProperty(String name, double value);
 
-	void writeProperty(String name, float value);
-
-	void writeProperty(String name, String value);
+	void writeFloatProperty(String name, float value);
 	
-	void writeProperty(String name, Class<?> expectedType, Object value);
+	void writeIntProperty(String name, Integer value);
+
+	void writeLongProperty(String name, Long value);
+
+	void writeShortProperty(String name, Short value);
+
+	void writeByteProperty(String name, Byte value);
+
+	void writeCharProperty(String name, Character value);
+
+	void writeBooleanProperty(String name, Boolean value);
+
+	void writeDoubleProperty(String name, Double value);
+
+	void writeFloatProperty(String name, Float value);
+
+	void writeStringProperty(String name, String value);
+	
+	void writeObjectProperty(String name, Class<?> expectedType, Object value);
 }

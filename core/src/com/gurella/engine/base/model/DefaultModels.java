@@ -105,7 +105,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Integer value, Output output) {
-			output.writeValue(value);
+			output.writeInt(value);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Long value, Output output) {
-			output.writeValue(value);
+			output.writeLong(value);
 		}
 	}
 
@@ -161,7 +161,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Short value, Output output) {
-			output.writeValue(value);
+			output.writeShort(value);
 		}
 	}
 
@@ -189,7 +189,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Byte value, Output output) {
-			output.writeValue(value);
+			output.writeByte(value);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Character value, Output output) {
-			output.writeValue(value);
+			output.writeChar(value);
 		}
 	}
 
@@ -245,7 +245,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Boolean value, Output output) {
-			output.writeValue(value);
+			output.writeBoolean(value);
 		}
 	}
 
@@ -273,7 +273,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Double value, Output output) {
-			output.writeValue(value);
+			output.writeDouble(value);
 		}
 	}
 
@@ -301,7 +301,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Float value, Output output) {
-			output.writeValue(value);
+			output.writeFloat(value);
 		}
 	}
 
@@ -324,7 +324,7 @@ public class DefaultModels {
 		
 		@Override
 		public void serialize(Void value, Output output) {
-			output.writeNullValue();
+			output.writeNull();
 		}
 	}
 
@@ -402,9 +402,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Integer value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeInt(value);
 			}
 		}
 	}
@@ -439,9 +439,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Long value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeLong(value);
 			}
 		}
 	}
@@ -476,9 +476,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Short value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeShort(value);
 			}
 		}
 	}
@@ -513,9 +513,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Byte value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeByte(value);
 			}
 		}
 	}
@@ -550,9 +550,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Character value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeChar(value);
 			}
 		}
 	}
@@ -587,9 +587,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Boolean value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeBoolean(value);
 			}
 		}
 	}
@@ -624,9 +624,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Double value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeDouble(value);
 			}
 		}
 	}
@@ -661,9 +661,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Float value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeFloat(value);
 			}
 		}
 	}
@@ -693,9 +693,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(String value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value);
+				output.writeString(value);
 			}
 		}
 	}
@@ -725,9 +725,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(BigInteger value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.toString());
+				output.writeString(value.toString());
 			}
 		}
 	}
@@ -757,9 +757,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(BigDecimal value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.toString());
+				output.writeString(value.toString());
 			}
 		}
 	}
@@ -790,9 +790,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Class<?> value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.getName());
+				output.writeString(value.getName());
 			}
 		}
 	}
@@ -827,9 +827,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Date value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.getTime());
+				output.writeLong(value.getTime());
 			}
 		}
 	}
@@ -859,9 +859,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(Currency value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.getCurrencyCode());
+				output.writeString(value.getCurrencyCode());
 			}
 		}
 	}
@@ -891,9 +891,9 @@ public class DefaultModels {
 		@Override
 		public void serialize(TimeZone value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.getID());
+				output.writeString(value.getID());
 			}
 		}
 	}

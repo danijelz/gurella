@@ -168,10 +168,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(int[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeInt(value[i]);
 				}
 			}
 		}
@@ -227,10 +227,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(long[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeLong(value[i]);
 				}
 			}
 		}
@@ -286,10 +286,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(short[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeShort(value[i]);
 				}
 			}
 		}
@@ -345,10 +345,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(byte[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeByte(value[i]);
 				}
 			}
 		}
@@ -404,10 +404,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(char[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeChar(value[i]);
 				}
 			}
 		}
@@ -463,10 +463,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(boolean[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeBoolean(value[i]);
 				}
 			}
 		}
@@ -522,10 +522,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(double[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeDouble(value[i]);
 				}
 			}
 		}
@@ -581,10 +581,10 @@ public class DefaultArrayModels {
 		@Override
 		public void serialize(float[] value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				for (int i = 0; i < value.length; i++) {
-					output.writeValue(value[i]);
+					output.writeFloat(value[i]);
 				}
 			}
 		}

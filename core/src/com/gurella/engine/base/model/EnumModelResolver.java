@@ -125,9 +125,9 @@ public class EnumModelResolver implements ModelResolver {
 		@Override
 		public void serialize(T value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(value.name());
+				output.writeString(value.name());
 			}
 		}
 	}

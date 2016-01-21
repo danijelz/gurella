@@ -161,9 +161,13 @@ public class ObjectArrayModelResolver implements ModelResolver {
 		@Override
 		public void serialize(T value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
-				output.writeValue(type, value);
+				Object[] array = (Object[]) value;
+				Class<?> componentType = value.getClass().getComponentType();
+				for (int i = 0; i < array.length; i++) {
+					output.writeObject(componentType, array[i]);
+				}
 			}
 		}
 	}

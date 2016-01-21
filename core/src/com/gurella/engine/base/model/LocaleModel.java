@@ -84,21 +84,21 @@ public class LocaleModel implements Model<Locale> {
 	@Override
 	public void serialize(Locale value, Output output) {
 		if (value == null) {
-			output.writeNullValue();
+			output.writeNull();
 		} else {
 			String language = value.getLanguage();
 			if (ValueUtils.isNotEmpty(language)) {
-				output.writeProperty("language", language);
+				output.writeStringProperty("language", language);
 			}
 
 			String country = value.getCountry();
 			if (ValueUtils.isNotEmpty(country)) {
-				output.writeProperty("country", country);
+				output.writeStringProperty("country", country);
 			}
 
 			String variant = value.getVariant();
 			if (ValueUtils.isNotEmpty(language)) {
-				output.writeProperty("variant", variant);
+				output.writeStringProperty("variant", variant);
 			}
 		}
 	}

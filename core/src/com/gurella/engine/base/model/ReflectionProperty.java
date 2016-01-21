@@ -281,7 +281,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {
-				output.writeProperty(name, type, value);
+				output.writeObjectProperty(name, type, value);
 			}
 		}
 	}

@@ -124,7 +124,7 @@ public class CollectionModelResolver implements ModelResolver {
 		@Override
 		public void serialize(T value, Output output) {
 			if (value == null) {
-				output.writeNullValue();
+				output.writeNull();
 			} else {
 				properties.get(0).serialize(value, output);
 			}
@@ -267,7 +267,7 @@ public class CollectionModelResolver implements ModelResolver {
 				array[i++] = item;
 			}
 
-			output.writeProperty(name, Object[].class, array);
+			output.writeObjectProperty(name, Object[].class, array);
 		}
 	}
 
