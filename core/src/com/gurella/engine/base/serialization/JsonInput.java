@@ -135,6 +135,9 @@ public class JsonInput implements Input, Poolable {
 		T result;
 		if (value.isNull()) {
 			result = null;
+		} else if (expectedType != null
+				&& (expectedType.isPrimitive() || (Serialization.isSimpleType(expectedType) && !value.isObject()))) {
+			result = Models.getModel(expectedType).deserialize(this);
 		} else if (value.isObject()) {
 			result = deserializeObject(value, expectedType);
 		} else if (value.isArray()) {
