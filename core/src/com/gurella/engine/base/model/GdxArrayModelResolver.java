@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -154,6 +155,19 @@ public class GdxArrayModelResolver implements ModelResolver {
 				properties.get(1).serialize(value, output);
 			}
 		}
+
+		@Override
+		public T deserialize(Input input) {
+			if (input.hasProperty("componentType")) {
+				Class<?> componentType = ReflectionUtils.forNameSilently(input.readStringProperty("componentType"));
+				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
+				if (constructor != null) {
+					return ReflectionUtils.invokeConstructor(constructor, componentType);
+				}
+			}
+
+			return ReflectionUtils.newInstance(type);
+		}
 	}
 
 	private static class ArrayOrderedProperty implements Property<Boolean> {
@@ -251,6 +265,13 @@ public class GdxArrayModelResolver implements ModelResolver {
 		public void serialize(Object object, Output output) {
 			if (!((Array<?>) object).ordered) {
 				output.writeBooleanProperty(name, false);
+			}
+		}
+
+		@Override
+		public void deserialize(Object object, Input input) {
+			if (input.hasProperty(name)) {
+				((Array<?>) object).ordered = input.readBooleanProperty(name);
 			}
 		}
 	}
@@ -380,8 +401,17 @@ public class GdxArrayModelResolver implements ModelResolver {
 			if (array.size == 0) {
 				return;
 			}
-			
+
 			output.writeObjectProperty(name, array.items.getClass(), Arrays.copyOf(array.items, array.size));
+		}
+
+		@Override
+		public void deserialize(Object object, Input input) {
+			if (input.hasProperty(name)) {
+				@SuppressWarnings("unchecked")
+				Array<Object> array = (Array<Object>) object;
+				array.addAll(input.readObjectProperty(name, array.items.getClass()));
+			}
 		}
 	}
 }

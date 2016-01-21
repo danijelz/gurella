@@ -48,6 +48,9 @@ public class JsonOutput implements Output, Poolable {
 
 		System.out.println(new JsonReader().parse(buffer.toString()).prettyPrint(OutputType.minimal, 120));
 		reset();
+		
+		JsonInput input = new JsonInput();
+		input.deserialize(expectedType, buffer.toString());
 	}
 
 	private void writeReference(Class<?> expectedType, Object object) {

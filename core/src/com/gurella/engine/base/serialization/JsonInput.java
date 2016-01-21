@@ -15,35 +15,17 @@ public class JsonInput implements Input, Poolable {
 
 	private JsonValue value;
 	private Array<JsonValue> valueStack = new Array<JsonValue>();
-	/*
-	 * private Class<?> expectedType; private Array<Class<?>> expectedTypeStack
-	 * = new Array<Class<?>>();
-	 */
-	private Object object;
-	private Array<Object> objectStack = new Array<Object>();
 
 	private IntMap<Object> internalIds = new IntMap<Object>();
 
-	private void push(JsonValue value, Class<?> expectedType) {
+	private void push(JsonValue value) {
 		this.value = value;
 		valueStack.add(value);
-		/*
-		 * this.expectedType = expectedType;
-		 * expectedTypeStack.add(expectedType);
-		 */
-		this.object = object;
-		objectStack.add(object);
 	}
 
 	private void pop() {
 		valueStack.pop();
 		value = valueStack.size > 0 ? valueStack.peek() : null;
-		/*
-		 * expectedTypeStack.pop(); expectedType = expectedTypeStack.size > 0 ?
-		 * expectedTypeStack.peek() : null;
-		 */
-		objectStack.pop();
-		object = objectStack.size > 0 ? objectStack.peek() : null;
 	}
 
 	@Override
@@ -51,8 +33,6 @@ public class JsonInput implements Input, Poolable {
 		rootValue = null;
 		value = null;
 		valueStack.clear();
-		object = null;
-		objectStack.clear();
 		internalIds.clear();
 	}
 
@@ -67,7 +47,7 @@ public class JsonInput implements Input, Poolable {
 		Class<T> resolvedType = Serialization.resolveObjectType(expectedType, jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
 
-		push(jsonValue, expectedType);
+		push(jsonValue);
 		T object = model.deserialize(this);
 		pop();
 
@@ -75,7 +55,7 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType) {
-		push(jsonValue, resolvedType);
+		push(jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
 		T object = model.deserialize(this);
 		pop();
@@ -183,7 +163,7 @@ public class JsonInput implements Input, Poolable {
 		next();
 		return result;
 	}
-	
+
 	@Override
 	public boolean isNull() {
 		return value.isNull();
@@ -241,32 +221,9 @@ public class JsonInput implements Input, Poolable {
 
 	@Override
 	public <T> T readObjectProperty(String name, Class<T> expectedType) {
-		push(value.get(name), expectedType);
-		if (value.isNull()) {
-			return null;
-		} else if (value.isObject()) {
-			return deserializeObject(value, expectedType);
-		} else if (value.isArray()) {
-			JsonValue firstItem = value.child;
-			Class<?> itemType = Serialization.resolveObjectType(Object.class, firstItem);
-			if (itemType == ArrayType.class) {
-				Class<?> arrayType = ReflectionUtils.forName(firstItem.getString(ArrayType.typeNameField));
-				@SuppressWarnings("unchecked")
-				T array = (T) deserializeObjectResolved(firstItem.next, arrayType);
-				return array;
-			} else {
-				return deserializeObjectResolved(firstItem, expectedType);
-			}
-		} else {
-			int id = value.asInt();
-			@SuppressWarnings("unchecked")
-			T referencedObject = (T) internalIds.get(id);
-			if (referencedObject == null) {
-				JsonValue referenceValue = rootValue.get(id);
-				referencedObject = deserializeObject(referenceValue, expectedType);
-				internalIds.put(id, referencedObject);
-			}
-			return referencedObject;
-		}
+		push(value.get(name));
+		T object = readObject(expectedType);
+		pop();
+		return object;
 	}
 }

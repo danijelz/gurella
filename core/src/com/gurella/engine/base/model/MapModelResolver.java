@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
@@ -129,6 +130,14 @@ public class MapModelResolver implements ModelResolver {
 			} else {
 				properties.get(0).serialize(value, output);
 			}
+		}
+
+		@Override
+		public T deserialize(Input input) {
+			@SuppressWarnings("unchecked")
+			T instance = (T) ReflectionUtils.newInstance(type);
+			properties.get(0).deserialize(instance, input);
+			return instance;
 		}
 	}
 
@@ -267,6 +276,20 @@ public class MapModelResolver implements ModelResolver {
 			}
 
 			output.writeObjectProperty(name, Object[][].class, entries);
+		}
+
+		@Override
+		public void deserialize(Object object, Input input) {
+			if (input.hasProperty(name)) {
+				@SuppressWarnings("unchecked")
+				Map<Object, Object> map = (Map<Object, Object>) object;
+				Object[][] entries = input.readObjectProperty(name, Object[][].class);
+
+				for (int i = 0; i < entries.length; i++) {
+					Object[] entry = entries[i];
+					map.put(entry[0], entry[1]);
+				}
+			}
 		}
 	}
 
