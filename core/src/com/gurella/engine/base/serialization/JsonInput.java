@@ -42,9 +42,10 @@ public class JsonInput implements Input, Poolable {
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
 		rootValue = reader.parse(json);
-		push(rootValue, expectedType, null);
-		// TODO Auto-generated constructor stub
-		return null;
+		push(rootValue.get(0), expectedType, null);
+		T result = deserialize();
+		reset();
+		return result;
 	}
 	
 	private <T> T deserialize() {
@@ -201,11 +202,12 @@ public class JsonInput implements Input, Poolable {
 		} else {
 			JsonValue referenceValue = rootValue.get(propertyValue.asInt());
 			push(referenceValue, expectedType, null);
-			
+			Object value = deserialize();
+			pop();
+			return value;
 		}
 		
 		// TODO Auto-generated method stub
-
 		return null;
 	}
 }
