@@ -157,7 +157,9 @@ public class JsonInput implements Input, Poolable {
 			T referencedObject = (T) internalIds.get(id);
 			if (referencedObject == null) {
 				JsonValue referenceValue = rootValue.get(id);
-				referencedObject = deserializeObject(referenceValue, expectedType);
+				push(referenceValue);
+				referencedObject = readObject(expectedType);
+				pop();
 				internalIds.put(id, referencedObject);
 			}
 			result = referencedObject;
