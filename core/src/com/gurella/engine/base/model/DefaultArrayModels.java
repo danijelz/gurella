@@ -170,6 +170,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeInt(value[i]);
 				}
@@ -229,6 +230,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeLong(value[i]);
 				}
@@ -288,6 +290,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeShort(value[i]);
 				}
@@ -347,6 +350,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeByte(value[i]);
 				}
@@ -406,6 +410,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeChar(value[i]);
 				}
@@ -465,6 +470,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeBoolean(value[i]);
 				}
@@ -524,6 +530,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeDouble(value[i]);
 				}
@@ -583,6 +590,7 @@ public class DefaultArrayModels {
 			if (value == null) {
 				output.writeNull();
 			} else {
+				output.writeInt(value.length);
 				for (int i = 0; i < value.length; i++) {
 					output.writeFloat(value[i]);
 				}

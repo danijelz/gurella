@@ -165,6 +165,7 @@ public class ObjectArrayModelResolver implements ModelResolver {
 			} else {
 				Object[] array = (Object[]) value;
 				Class<?> componentType = value.getClass().getComponentType();
+				output.writeInt(array.length);
 				for (int i = 0; i < array.length; i++) {
 					output.writeObject(componentType, array[i]);
 				}

@@ -4,6 +4,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.reflect.ArrayReflection;
+import com.gurella.engine.base.model.Model;
+import com.gurella.engine.base.model.Models;
+import com.gurella.engine.utils.ReflectionUtils;
 
 public class JsonInput implements Input, Poolable {
 	private JsonReader reader = new JsonReader();
@@ -42,103 +46,102 @@ public class JsonInput implements Input, Poolable {
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
 		rootValue = reader.parse(json);
-		push(rootValue.get(0), expectedType, null);
-		T result = deserialize();
+		T result = deserializeObject(rootValue.get(0), expectedType);
 		reset();
 		return result;
 	}
-	
-	private <T> T deserialize() {
-		
+
+	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType) {
+		push(jsonValue, expectedType, null);
+		Class<T> resolvedType = Serialization.resolveObjectType(expectedType, jsonValue);
+		Model<T> model = Models.getModel(resolvedType);
+		T object = model.deserialize(this);
+		pop();
+		return object;
 	}
 
 	@Override
 	public int readInt() {
 		int result = value.asInt();
+		next();
+		return result;
+	}
+
+	private void next() {
 		value = value.next;
 		valueStack.set(valueStack.size - 1, value);
-		return result;
 	}
 
 	@Override
 	public long readLong() {
 		long result = value.asLong();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public short readShort() {
 		short result = value.asShort();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public byte readByte() {
 		byte result = value.asByte();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public char readChar() {
 		char result = value.asChar();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public boolean readBoolean() {
 		boolean result = value.asBoolean();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public double readDouble() {
 		double result = value.asDouble();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public float readFloat() {
 		float result = value.asFloat();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
 	public String readString() {
 		String result = value.asString();
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+		next();
 		return result;
 	}
 
 	@Override
-	public Object readObject(Class<?> expectedType) {
-		Object result;
-		if(value.isNull()) {
-			return null;
-		} else if(value.isObject()) {
-			
-		} else if(value.isArray()) {
-			
+	public <T> T readObject(Class<T> expectedType) {
+		T result;
+		if (value.isNull()) {
+			result = null;
+		} else if (value.isObject()) {
+
+		} else if (value.isArray()) {
+
 		} else {
-			
+
 		}
-		
-		value = value.next;
-		valueStack.set(valueStack.size - 1, value);
+
+		next();
 		return result;
 	}
 
@@ -193,21 +196,26 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public Object readObjectProperty(String name, Class<?> expectedType) {
+	public <T> T readObjectProperty(String name, Class<T> expectedType) {
 		JsonValue propertyValue = value.get(name);
-		if(propertyValue.isNull()) {
+		if (propertyValue.isNull()) {
 			return null;
-		} else if(propertyValue.isObject()) {
+		} else if (propertyValue.isObject()) {
+			return deserializeObject(propertyValue, expectedType);
+		} else if (propertyValue.isArray()) {
+			JsonValue firstItem = propertyValue.child;
+			Class<?> itemType = Serialization.resolveObjectType(Object.class, firstItem);
+			if (itemType == ArrayType.class) {
+				Class<?> arrayType = ReflectionUtils.forName(firstItem.getString(ArrayType.typeNameField));
+				@SuppressWarnings("unchecked")
+				T array = (T) ArrayReflection.newInstance(arrayType.getComponentType(), length - 1);
+				return array;
+			}
 			
+			return deserializeObject(propertyValue, expectedType);
 		} else {
 			JsonValue referenceValue = rootValue.get(propertyValue.asInt());
-			push(referenceValue, expectedType, null);
-			Object value = deserialize();
-			pop();
-			return value;
+			return deserializeObject(referenceValue, expectedType);
 		}
-		
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

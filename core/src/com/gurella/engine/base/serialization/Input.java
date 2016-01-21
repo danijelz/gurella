@@ -19,7 +19,7 @@ public interface Input {
 
 	String readString();
 
-	Object readObject(Class<?> expectedType);
+	<T> T readObject(Class<T> expectedType);
 	
 	boolean hasProperty(String name);
 
@@ -41,5 +41,5 @@ public interface Input {
 
 	String readStringProperty(String name);
 
-	Object readObjectProperty(String name, Class<?> expectedType);
+	<T> T  readObjectProperty(String name, Class<T> expectedType);
 }
