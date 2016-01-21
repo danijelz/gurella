@@ -46,6 +46,10 @@ public class JsonInput implements Input, Poolable {
 		// TODO Auto-generated constructor stub
 		return null;
 	}
+	
+	private <T> T deserialize() {
+		
+	}
 
 	@Override
 	public int readInt() {
@@ -122,7 +126,9 @@ public class JsonInput implements Input, Poolable {
 	@Override
 	public Object readObject(Class<?> expectedType) {
 		Object result;
-		if(value.isObject()) {
+		if(value.isNull()) {
+			return null;
+		} else if(value.isObject()) {
 			
 		} else if(value.isArray()) {
 			
@@ -186,8 +192,20 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public void readObjectProperty(String name, Class<?> expectedType) {
+	public Object readObjectProperty(String name, Class<?> expectedType) {
+		JsonValue propertyValue = value.get(name);
+		if(propertyValue.isNull()) {
+			return null;
+		} else if(propertyValue.isObject()) {
+			
+		} else {
+			JsonValue referenceValue = rootValue.get(propertyValue.asInt());
+			push(referenceValue, expectedType, null);
+			
+		}
+		
 		// TODO Auto-generated method stub
 
+		return null;
 	}
 }

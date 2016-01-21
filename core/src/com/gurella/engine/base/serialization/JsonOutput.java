@@ -33,7 +33,6 @@ public class JsonOutput implements Output, Poolable {
 	public <T> void serialize(Class<T> expectedType, T rootObject) {
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);
-		internalIds.put(rootObject, currentId++);
 
 		object();
 		addReference(expectedType, rootObject);

@@ -41,5 +41,5 @@ public interface Input {
 
 	String readStringProperty(String name);
 
-	void readObjectProperty(String name, Class<?> expectedType);
+	Object readObjectProperty(String name, Class<?> expectedType);
 }
