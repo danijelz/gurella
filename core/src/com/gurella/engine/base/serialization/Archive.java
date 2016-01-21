@@ -198,20 +198,6 @@ public class Archive implements Poolable {
 		}
 	}
 
-	public <T> void serialize1(T rootObject, Class<?> knownType) {
-		StringWriter buffer = new StringWriter();
-		JsonWriter jsonWriter = new JsonWriter(buffer);
-		json.setWriter(jsonWriter);
-
-		internalIds.put(rootObject, currentId++);
-		Model<T> objectModel = Models.getModel(rootObject);
-		objectModel.serialize(rootObject, knownType, this);
-
-		System.out.println(json.prettyPrint(buffer.toString()));
-		// System.out.println(json.prettyPrint(json.toJson(rootObject)));
-		reset();
-	}
-
 	private Array<Object> objectsToSerialize = new Array<Object>();
 
 	public void writeValue12(Object value, Class<?> knownType) {
@@ -719,7 +705,8 @@ public class Archive implements Poolable {
 		System.out.println(Objects.isEqual(obj, instance));
 		instance.ts.add("b");
 
-		Models.getModel(Color.class).getProperties();
+		System.out.println("\n\n\n\n\n\n\n");
+		new JsonOutput().serialize(Test.class, obj);
 	}
 
 	public static class Test {

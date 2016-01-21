@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ArrayType;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -163,6 +164,17 @@ public class DefaultArrayModels {
 				archive.writeValue(Integer.valueOf(value[i]), int.class);
 			}
 		}
+
+		@Override
+		public void serialize(int[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
+			}
+		}
 	}
 
 	public static final class LongArrayModel extends PrimitiveArrayModel<long[]> {
@@ -209,6 +221,17 @@ public class DefaultArrayModels {
 			int length = value.length;
 			for (int i = 0; i < length; i++) {
 				archive.writeValue(Long.valueOf(value[i]), long.class);
+			}
+		}
+
+		@Override
+		public void serialize(long[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
 			}
 		}
 	}
@@ -259,6 +282,17 @@ public class DefaultArrayModels {
 				archive.writeValue(Short.valueOf(value[i]), short.class);
 			}
 		}
+
+		@Override
+		public void serialize(short[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
+			}
+		}
 	}
 
 	public static final class ByteArrayModel extends PrimitiveArrayModel<byte[]> {
@@ -305,6 +339,17 @@ public class DefaultArrayModels {
 			int length = value.length;
 			for (int i = 0; i < length; i++) {
 				archive.writeValue(Byte.valueOf(value[i]), byte.class);
+			}
+		}
+
+		@Override
+		public void serialize(byte[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
 			}
 		}
 	}
@@ -355,6 +400,17 @@ public class DefaultArrayModels {
 				archive.writeValue(Character.valueOf(value[i]), char.class);
 			}
 		}
+
+		@Override
+		public void serialize(char[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
+			}
+		}
 	}
 
 	public static final class BooleanArrayModel extends PrimitiveArrayModel<boolean[]> {
@@ -401,6 +457,17 @@ public class DefaultArrayModels {
 			int length = value.length;
 			for (int i = 0; i < length; i++) {
 				archive.writeValue(Boolean.valueOf(value[i]), boolean.class);
+			}
+		}
+
+		@Override
+		public void serialize(boolean[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
 			}
 		}
 	}
@@ -451,6 +518,17 @@ public class DefaultArrayModels {
 				archive.writeValue(Double.valueOf(value[i]), double.class);
 			}
 		}
+
+		@Override
+		public void serialize(double[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
+			}
+		}
 	}
 
 	public static final class FloatArrayModel extends PrimitiveArrayModel<float[]> {
@@ -497,6 +575,17 @@ public class DefaultArrayModels {
 			int length = value.length;
 			for (int i = 0; i < length; i++) {
 				archive.writeValue(Float.valueOf(value[i]), float.class);
+			}
+		}
+
+		@Override
+		public void serialize(float[] value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				for (int i = 0; i < value.length; i++) {
+					output.writeValue(value[i]);
+				}
 			}
 		}
 	}

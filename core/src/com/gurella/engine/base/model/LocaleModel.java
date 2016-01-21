@@ -5,6 +5,7 @@ import java.util.Locale;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueUtils;
 
@@ -56,7 +57,6 @@ public class LocaleModel implements Model<Locale> {
 		return null;
 	}
 
-	//TODO convert to properties?
 	@Override
 	public void serialize(Locale value, Class<?> knownType, Archive archive) {
 		if (value == null) {
@@ -78,6 +78,28 @@ public class LocaleModel implements Model<Locale> {
 				archive.writeValue("variant", variant, String.class);
 			}
 			archive.writeObjectEnd();
+		}
+	}
+
+	@Override
+	public void serialize(Locale value, Output output) {
+		if (value == null) {
+			output.writeNullValue();
+		} else {
+			String language = value.getLanguage();
+			if (ValueUtils.isNotEmpty(language)) {
+				output.writeProperty("language", language);
+			}
+
+			String country = value.getCountry();
+			if (ValueUtils.isNotEmpty(country)) {
+				output.writeProperty("country", country);
+			}
+
+			String variant = value.getVariant();
+			if (ValueUtils.isNotEmpty(language)) {
+				output.writeProperty("variant", variant);
+			}
 		}
 	}
 }

@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
@@ -101,6 +102,11 @@ public class DefaultModels {
 
 			return Integer.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Integer value, Output output) {
+			output.writeValue(value);
+		}
 	}
 
 	public static final class LongPrimitiveModel extends PrimitiveModel<Long> {
@@ -123,6 +129,11 @@ public class DefaultModels {
 			}
 
 			return Long.valueOf(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Long value, Output output) {
+			output.writeValue(value);
 		}
 	}
 
@@ -147,6 +158,11 @@ public class DefaultModels {
 
 			return Short.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Short value, Output output) {
+			output.writeValue(value);
+		}
 	}
 
 	public static final class BytePrimitiveModel extends PrimitiveModel<Byte> {
@@ -169,6 +185,11 @@ public class DefaultModels {
 			}
 
 			return Byte.valueOf(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Byte value, Output output) {
+			output.writeValue(value);
 		}
 	}
 
@@ -193,6 +214,11 @@ public class DefaultModels {
 
 			return Character.valueOf(serializedValue.asString().charAt(0));
 		}
+		
+		@Override
+		public void serialize(Character value, Output output) {
+			output.writeValue(value);
+		}
 	}
 
 	public static final class BooleanPrimitiveModel extends PrimitiveModel<Boolean> {
@@ -215,6 +241,11 @@ public class DefaultModels {
 			}
 
 			return Boolean.valueOf(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Boolean value, Output output) {
+			output.writeValue(value);
 		}
 	}
 
@@ -239,6 +270,11 @@ public class DefaultModels {
 
 			return Double.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Double value, Output output) {
+			output.writeValue(value);
+		}
 	}
 
 	public static final class FloatPrimitiveModel extends PrimitiveModel<Float> {
@@ -262,6 +298,11 @@ public class DefaultModels {
 
 			return Float.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Float value, Output output) {
+			output.writeValue(value);
+		}
 	}
 
 	public static final class VoidModel extends PrimitiveModel<Void> {
@@ -279,6 +320,11 @@ public class DefaultModels {
 		@Override
 		protected Void deserializeValue(JsonValue serializedValue) {
 			return null;
+		}
+		
+		@Override
+		public void serialize(Void value, Output output) {
+			output.writeNullValue();
 		}
 	}
 
@@ -352,6 +398,15 @@ public class DefaultModels {
 
 			return Integer.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Integer value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
+		}
 	}
 
 	public static final class LongModel extends SimpleObjectModel<Long, Long> {
@@ -379,6 +434,15 @@ public class DefaultModels {
 			}
 
 			return Long.valueOf(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Long value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
 		}
 	}
 
@@ -408,6 +472,15 @@ public class DefaultModels {
 
 			return Short.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Short value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
+		}
 	}
 
 	public static final class ByteModel extends SimpleObjectModel<Byte, Byte> {
@@ -435,6 +508,15 @@ public class DefaultModels {
 			}
 
 			return Byte.valueOf(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Byte value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
 		}
 	}
 
@@ -464,6 +546,15 @@ public class DefaultModels {
 
 			return Character.valueOf(serializedValue.asString().charAt(0));
 		}
+		
+		@Override
+		public void serialize(Character value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
+		}
 	}
 
 	public static final class BooleanModel extends SimpleObjectModel<Boolean, Boolean> {
@@ -491,6 +582,15 @@ public class DefaultModels {
 			}
 
 			return Boolean.valueOf(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Boolean value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
 		}
 	}
 
@@ -520,6 +620,15 @@ public class DefaultModels {
 
 			return Double.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Double value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
+		}
 	}
 
 	public static final class FloatModel extends SimpleObjectModel<Float, Float> {
@@ -548,6 +657,15 @@ public class DefaultModels {
 
 			return Float.valueOf(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Float value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
+		}
 	}
 
 	public static final class StringModel extends SimpleObjectModel<String, String> {
@@ -570,6 +688,15 @@ public class DefaultModels {
 		@Override
 		protected String deserializeSimpleValue(JsonValue serializedValue) {
 			return serializedValue.asString();
+		}
+		
+		@Override
+		public void serialize(String value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value);
+			}
 		}
 	}
 
@@ -594,6 +721,15 @@ public class DefaultModels {
 		protected BigInteger deserializeSimpleValue(JsonValue serializedValue) {
 			return new BigInteger(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(BigInteger value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.toString());
+			}
+		}
 	}
 
 	public static final class BigDecimalModel extends SimpleObjectModel<BigDecimal, String> {
@@ -616,6 +752,15 @@ public class DefaultModels {
 		@Override
 		protected BigDecimal deserializeSimpleValue(JsonValue serializedValue) {
 			return new BigDecimal(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(BigDecimal value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.toString());
+			}
 		}
 	}
 
@@ -640,6 +785,15 @@ public class DefaultModels {
 		@Override
 		protected Class<?> deserializeSimpleValue(JsonValue serializedValue) {
 			return ReflectionUtils.forName(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(Class<?> value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.getName());
+			}
 		}
 	}
 
@@ -669,6 +823,15 @@ public class DefaultModels {
 
 			return new Date(Long.valueOf(serializedValue.asString()).longValue());
 		}
+		
+		@Override
+		public void serialize(Date value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.getTime());
+			}
+		}
 	}
 
 	public static final class CurrencyModel extends SimpleObjectModel<Currency, String> {
@@ -692,6 +855,15 @@ public class DefaultModels {
 		protected Currency deserializeSimpleValue(JsonValue serializedValue) {
 			return Currency.getInstance(serializedValue.asString());
 		}
+		
+		@Override
+		public void serialize(Currency value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.getCurrencyCode());
+			}
+		}
 	}
 
 	public static final class TimeZoneModel extends SimpleObjectModel<TimeZone, String> {
@@ -714,6 +886,15 @@ public class DefaultModels {
 		@Override
 		protected TimeZone deserializeSimpleValue(JsonValue serializedValue) {
 			return TimeZone.getTimeZone(serializedValue.asString());
+		}
+		
+		@Override
+		public void serialize(TimeZone value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.getID());
+			}
 		}
 	}
 }

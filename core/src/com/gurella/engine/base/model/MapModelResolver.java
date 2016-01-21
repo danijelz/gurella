@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -118,6 +119,15 @@ public class MapModelResolver implements ModelResolver {
 				archive.writeObjectStart(object, knownType);
 				properties.get(0).serialize(object, archive);
 				archive.writeObjectEnd();
+			}
+		}
+
+		@Override
+		public void serialize(T value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				properties.get(0).serialize(value, output);
 			}
 		}
 	}
@@ -240,8 +250,27 @@ public class MapModelResolver implements ModelResolver {
 			}
 			archive.writeArrayEnd();
 		}
+
+		@Override
+		public void serialize(Object object, Output output) {
+			@SuppressWarnings("unchecked")
+			Map<Object, Object> map = (Map<Object, Object>) object;
+			if (map.isEmpty()) {
+				return;
+			}
+
+			Object[][] entries = new Object[map.size()][2];
+			int i = 0;
+			for (Entry<?, ?> entry : map.entrySet()) {
+				entries[i][0] = entry.getKey();
+				entries[i][1] = entry.getValue();
+			}
+
+			output.writeProperty(name, Object[][].class, entries);
+		}
 	}
 
+	// TODO serialize(Object object, Output output)
 	public static final class TreeMapModel extends MapModel<TreeMap<?, ?>> {
 		public static final TreeMapModel modelInstance = new TreeMapModel();
 
@@ -295,6 +324,7 @@ public class MapModelResolver implements ModelResolver {
 		}
 	}
 
+	// TODO serialize(Object object, Output output)
 	public static class EnumMapModel extends MapModel<EnumMap<?, ?>> {
 		private static final String keyTypeFieldName = "keyType";
 		public static final EnumMapModel modelInstance = new EnumMapModel();

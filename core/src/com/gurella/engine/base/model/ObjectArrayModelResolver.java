@@ -6,6 +6,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ArrayType;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -154,6 +155,15 @@ public class ObjectArrayModelResolver implements ModelResolver {
 					archive.writeValue(array[i], componentType);
 				}
 				archive.writeArrayEnd();
+			}
+		}
+
+		@Override
+		public void serialize(T value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(type, value);
 			}
 		}
 	}

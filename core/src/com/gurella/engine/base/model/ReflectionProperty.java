@@ -14,6 +14,7 @@ import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -270,6 +271,18 @@ public class ReflectionProperty<T> implements Property<T> {
 		T value = getValue(object);
 		if (!Objects.isEqual(value, defaultValue)) {
 			archive.writeValue(name, value, type);
+		}
+	}
+
+	@Override
+	public void serialize(Object object, Output output) {
+		T value = getValue(object);
+		if (!Objects.isEqual(value, defaultValue)) {
+			if (value == null) {
+				output.writeNullProperty(name);
+			} else {
+				output.writeProperty(name, type, value);
+			}
 		}
 	}
 }

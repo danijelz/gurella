@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class EnumModelResolver implements ModelResolver {
@@ -118,6 +119,15 @@ public class EnumModelResolver implements ModelResolver {
 						archive.writeObjectEnd();
 					}
 				}
+			}
+		}
+
+		@Override
+		public void serialize(T value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				output.writeValue(value.name());
 			}
 		}
 	}

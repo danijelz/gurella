@@ -9,8 +9,7 @@ import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
-import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectReference;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -140,6 +139,21 @@ public class GdxArrayModelResolver implements ModelResolver {
 				archive.writeObjectEnd();
 			}
 		}
+
+		@Override
+		public void serialize(T value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				Class<?> componentType = value.items.getClass().getComponentType();
+				if (Object.class != componentType) {
+					output.writeProperty("componentType", componentType.getName());
+				}
+
+				properties.get(0).serialize(value, output);
+				properties.get(1).serialize(value, output);
+			}
+		}
 	}
 
 	private static class ArrayOrderedProperty implements Property<Boolean> {
@@ -232,6 +246,13 @@ public class GdxArrayModelResolver implements ModelResolver {
 				archive.writeValue(name, Boolean.FALSE, boolean.class);
 			}
 		}
+
+		@Override
+		public void serialize(Object object, Output output) {
+			if (!((Array<?>) object).ordered) {
+				output.writeProperty(name, false);
+			}
+		}
 	}
 
 	private static class ArrayItemsProperty implements Property<Object[]> {
@@ -318,17 +339,7 @@ public class GdxArrayModelResolver implements ModelResolver {
 						array.add(null);
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
-						if (Serialization.isSimpleType(resolvedType)) {
-							array.add(context.json.readValue(resolvedType, null, item));
-						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-							array.add(context.getAsset(assetReference));
-						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-							array.add(context.getInstance(objectReference.getId()));
-						} else {
-							array.add(Objects.deserialize(item, resolvedType, context));
-						}
+						array.add(Objects.deserialize(item, resolvedType, context));
 					}
 				}
 			}
@@ -361,6 +372,16 @@ public class GdxArrayModelResolver implements ModelResolver {
 				archive.writeValue(array.get(i), componentType);
 			}
 			archive.writeArrayEnd();
+		}
+
+		@Override
+		public void serialize(Object object, Output output) {
+			Array<?> array = (Array<?>) object;
+			if (array.size == 0) {
+				return;
+			}
+			
+			output.writeProperty(name, array.items.getClass(), Arrays.copyOf(array.items, array.size));
 		}
 	}
 }

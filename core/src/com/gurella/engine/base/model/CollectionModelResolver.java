@@ -11,8 +11,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
-import com.gurella.engine.base.serialization.AssetReference;
-import com.gurella.engine.base.serialization.ObjectReference;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -121,6 +120,15 @@ public class CollectionModelResolver implements ModelResolver {
 				archive.writeObjectEnd();
 			}
 		}
+
+		@Override
+		public void serialize(T value, Output output) {
+			if (value == null) {
+				output.writeNullValue();
+			} else {
+				properties.get(0).serialize(value, output);
+			}
+		}
 	}
 
 	public static class CollectionItemsProperty implements Property<Object[]> {
@@ -203,17 +211,7 @@ public class CollectionModelResolver implements ModelResolver {
 						collection.add(null);
 					} else {
 						Class<?> resolvedType = Serialization.resolveObjectType(Object.class, item);
-						if (Serialization.isSimpleType(resolvedType)) {
-							collection.add(context.json.readValue(resolvedType, null, item));
-						} else if (ClassReflection.isAssignableFrom(AssetReference.class, resolvedType)) {
-							AssetReference assetReference = context.json.readValue(AssetReference.class, null, item);
-							collection.add(context.getAsset(assetReference));
-						} else if (ClassReflection.isAssignableFrom(ObjectReference.class, resolvedType)) {
-							ObjectReference objectReference = context.json.readValue(ObjectReference.class, null, item);
-							collection.add(context.getInstance(objectReference.getId()));
-						} else {
-							collection.add(Objects.deserialize(item, resolvedType, context));
-						}
+						collection.add(Objects.deserialize(item, resolvedType, context));
 					}
 				}
 			}
@@ -255,8 +253,25 @@ public class CollectionModelResolver implements ModelResolver {
 			}
 			archive.writeArrayEnd();
 		}
+
+		@Override
+		public void serialize(Object object, Output output) {
+			@SuppressWarnings("unchecked")
+			Collection<Object> collection = (Collection<Object>) object;
+			if (collection.isEmpty()) {
+				return;
+			}
+			Object[] array = new Object[collection.size()];
+			int i = 0;
+			for (Object item : collection) {
+				array[i++] = item;
+			}
+
+			output.writeProperty(name, Object[].class, array);
+		}
 	}
 
+	//TODO serialize(Object object, Output output)
 	public static class TreeSetModel extends CollectionModel<TreeSet<?>> {
 		private static final TreeSetModel modelInstance = new TreeSetModel();
 
@@ -310,6 +325,7 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 	}
 
+	//TODO serialize(Object object, Output output)
 	public static class EnumSetModel extends CollectionModel<EnumSet<?>> {
 		public static final EnumSetModel modelInstance = new EnumSetModel();
 
