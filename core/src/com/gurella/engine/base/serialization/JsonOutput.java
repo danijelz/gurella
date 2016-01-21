@@ -30,7 +30,7 @@ public class JsonOutput implements Output, Poolable {
 		objectsToSerialize.clear();
 	}
 
-	public <T> void serialize(Class<?> expectedType, T rootObject) {
+	public <T> void serialize(Class<T> expectedType, T rootObject) {
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);
 		internalIds.put(rootObject, currentId++);
@@ -48,6 +48,7 @@ public class JsonOutput implements Output, Poolable {
 		pop();
 
 		System.out.println(new JsonReader().parse(buffer.toString()).prettyPrint(OutputType.minimal, 120));
+		reset();
 	}
 
 	private void writeReference(Class<?> expectedType, Object object) {

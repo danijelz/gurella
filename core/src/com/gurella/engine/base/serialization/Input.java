@@ -3,25 +3,25 @@ package com.gurella.engine.base.serialization;
 public interface Input {
 	int readInt();
 
-	long readLong(long value);
+	long readLong();
 
-	short readShort(short value);
+	short readShort();
 
-	byte readByte(byte value);
+	byte readByte();
 
-	char readChar(char value);
+	char readChar();
 
-	boolean readBoolean(boolean value);
+	boolean readBoolean();
 
-	double readDouble(double value);
+	double readDouble();
 
-	float readFloat(float value);
+	float readFloat();
 
-	String readString(String value);
+	String readString();
 
-	Object readObject(Class<?> expectedType, Object value);
+	Object readObject(Class<?> expectedType);
 	
-	boolean hasProperty();
+	boolean hasProperty(String name);
 
 	int readIntProperty(String name);
 
