@@ -39,9 +39,8 @@ public class ReflectionUtils {
 	}
 
 	public static <T> T newInstance(Class<T> type) {
-		Constructor constructor;
 		try {
-			constructor = ClassReflection.getDeclaredConstructor(type);
+			Constructor constructor = ClassReflection.getDeclaredConstructor(type);
 			constructor.setAccessible(true);
 			@SuppressWarnings("unchecked")
 			T instance = (T) constructor.newInstance();
@@ -57,6 +56,34 @@ public class ReflectionUtils {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	public static boolean isInnerClass(Class<?> type) {
+		return ClassReflection.isMemberClass(type) && ClassReflection.isStaticClass(type);
+	}
+
+	public static <T> T newInnerClassInstance(Class<T> type, Object enclosingInstance) {
+		try {
+			Constructor constructor = findInnerClassDeclaredConstructor(type, enclosingInstance);
+			constructor.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			T instance = (T) constructor.newInstance(enclosingInstance);
+			return instance;
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	private static Constructor findInnerClassDeclaredConstructor(Class<?> type, Object enclosingInstance) {
+		Class<?> enclosingInstanceType = enclosingInstance.getClass();
+		while(enclosingInstanceType != Object.class) {
+			Constructor constructor = getInnerClassDeclaredConstructorSilently(type, enclosingInstanceType);
+			if(constructor != null) {
+				return constructor;
+			}
+			enclosingInstanceType = enclosingInstanceType.getSuperclass();
+		}
+		return null;
 	}
 
 	public static <T> T newInstance(String className) {
@@ -84,6 +111,33 @@ public class ReflectionUtils {
 			return getDeclaredConstructor(c, parameterTypes);
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	public static Constructor getInnerClassDeclaredConstructor(Class<?> c, Class<?> enclosingClass,
+			Class<?>... parameterTypes) {
+		try {
+			if (parameterTypes == null) {
+				return ClassReflection.getDeclaredConstructor(c, enclosingClass);
+			} else {
+				int length = parameterTypes.length;
+				@SuppressWarnings("rawtypes")
+				Class[] allParameterTypes = new Class[length + 1];
+				allParameterTypes[0] = enclosingClass;
+				System.arraycopy(parameterTypes, 0, allParameterTypes, 1, length);
+				return ClassReflection.getDeclaredConstructor(c, allParameterTypes);
+			}
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		}
+	}
+
+	public static Constructor getInnerClassDeclaredConstructorSilently(Class<?> c, Class<?> enclosingClass,
+			Class<?>... parameterTypes) {
+		try {
+			return getInnerClassDeclaredConstructor(c, enclosingClass, parameterTypes);
+		} catch (Exception e) {
+			throw new GdxRuntimeException(e);
 		}
 	}
 

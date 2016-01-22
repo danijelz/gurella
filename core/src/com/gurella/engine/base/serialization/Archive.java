@@ -34,8 +34,10 @@ import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
+import com.gurella.engine.base.serialization.Archive.Test.Test2;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
+import com.gurella.engine.utils.ReflectionUtils;
 
 public class Archive implements Poolable {
 	AsyncCallback<Object> callback;

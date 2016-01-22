@@ -2,9 +2,7 @@ package com.gurella.engine.base.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Currency;
 import java.util.Date;
-import java.util.TimeZone;
 
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
@@ -993,88 +991,6 @@ public class DefaultModels {
 				return null;
 			} else {
 				return new Date(input.readLong());
-			}
-		}
-	}
-
-	public static final class CurrencyModel extends SimpleObjectModel<Currency, String> {
-		public static final CurrencyModel instance = new CurrencyModel();
-
-		private CurrencyModel() {
-			super(Currency.class);
-		}
-
-		@Override
-		protected Class<String> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
-		protected String extractSimpleValue(Currency value) {
-			return value.getCurrencyCode();
-		}
-
-		@Override
-		protected Currency deserializeSimpleValue(JsonValue serializedValue) {
-			return Currency.getInstance(serializedValue.asString());
-		}
-
-		@Override
-		public void serialize(Currency value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeString(value.getCurrencyCode());
-			}
-		}
-
-		@Override
-		public Currency deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Currency.getInstance(input.readString());
-			}
-		}
-	}
-
-	public static final class TimeZoneModel extends SimpleObjectModel<TimeZone, String> {
-		public static final TimeZoneModel instance = new TimeZoneModel();
-
-		private TimeZoneModel() {
-			super(TimeZone.class);
-		}
-
-		@Override
-		protected Class<String> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
-		protected String extractSimpleValue(TimeZone value) {
-			return value.getID();
-		}
-
-		@Override
-		protected TimeZone deserializeSimpleValue(JsonValue serializedValue) {
-			return TimeZone.getTimeZone(serializedValue.asString());
-		}
-
-		@Override
-		public void serialize(TimeZone value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeString(value.getID());
-			}
-		}
-
-		@Override
-		public TimeZone deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return TimeZone.getTimeZone(input.readString());
 			}
 		}
 	}

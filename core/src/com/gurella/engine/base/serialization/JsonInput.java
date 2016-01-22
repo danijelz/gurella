@@ -240,6 +240,5 @@ public class JsonInput implements Input, Poolable {
 	@Override
 	public void reference(Object object) {
 		// TODO Auto-generated method stub
-
 	}
 }

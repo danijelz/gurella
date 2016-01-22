@@ -2,10 +2,8 @@ package com.gurella.engine.base.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -28,7 +26,6 @@ import com.gurella.engine.base.model.DefaultModels.BytePrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.CharModel;
 import com.gurella.engine.base.model.DefaultModels.CharPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.ClassModel;
-import com.gurella.engine.base.model.DefaultModels.CurrencyModel;
 import com.gurella.engine.base.model.DefaultModels.DateModel;
 import com.gurella.engine.base.model.DefaultModels.DoubleModel;
 import com.gurella.engine.base.model.DefaultModels.DoublePrimitiveModel;
@@ -41,7 +38,6 @@ import com.gurella.engine.base.model.DefaultModels.LongPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.ShortModel;
 import com.gurella.engine.base.model.DefaultModels.ShortPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.StringModel;
-import com.gurella.engine.base.model.DefaultModels.TimeZoneModel;
 import com.gurella.engine.base.model.DefaultModels.VoidModel;
 import com.gurella.engine.utils.ReflectionUtils;
 
@@ -73,8 +69,6 @@ public class Models {
 		resolvedModels.put(BigDecimal.class, BigDecimalModel.instance);
 		resolvedModels.put(Class.class, ClassModel.instance);
 		resolvedModels.put(Date.class, DateModel.instance);
-		resolvedModels.put(Currency.class, CurrencyModel.instance);
-		resolvedModels.put(TimeZone.class, TimeZoneModel.instance);
 		resolvedModels.put(Locale.class, LocaleModel.instance);
 		resolvedModels.put(int[].class, IntArrayModel.instance);
 		resolvedModels.put(long[].class, LongArrayModel.instance);

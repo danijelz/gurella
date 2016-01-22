@@ -74,6 +74,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private Class<T> type;
+	private boolean innerClass;
 	private String name;
 
 	private String[] ignoredProperties;
@@ -92,6 +93,8 @@ public class ReflectionModel<T> implements Model<T> {
 
 	public ReflectionModel(Class<T> type, String[] ignoredProperties, String[] forcedProperties) {
 		this.type = type;
+		innerClass = ReflectionUtils.isInnerClass(type);
+
 		if (ignoredProperties != null) {
 			Arrays.sort(ignoredProperties);
 			this.ignoredProperties = ignoredProperties;
@@ -202,13 +205,21 @@ public class ReflectionModel<T> implements Model<T> {
 		if (input.isNull()) {
 			return null;
 		} else {
-			T instance = ReflectionUtils.newInstance(type);
+			T instance = create(input);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
 				property.deserialize(instance, input);
 			}
 			return instance;
+		}
+	}
+
+	protected T create(Input input) {
+		if (innerClass) {
+			return ReflectionUtils.newInnerClassInstance(type);
+		} else {
+			return ReflectionUtils.newInstance(type);
 		}
 	}
 
