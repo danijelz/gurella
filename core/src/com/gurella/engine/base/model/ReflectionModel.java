@@ -2,6 +2,7 @@ package com.gurella.engine.base.model;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -17,8 +18,10 @@ import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
@@ -76,6 +79,7 @@ public class ReflectionModel<T> implements Model<T> {
 	private Class<T> type;
 	private boolean innerClass;
 	private String name;
+	private Constructor constructor;
 
 	private String[] ignoredProperties;
 	private String[] forcedProperties;
@@ -206,21 +210,45 @@ public class ReflectionModel<T> implements Model<T> {
 			return null;
 		} else {
 			T instance = create(input);
+			input.pushObject(instance);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
 				property.deserialize(instance, input);
 			}
+			input.popObject();
 			return instance;
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected T create(Input input) {
-		if (innerClass) {
-			return ReflectionUtils.newInnerClassInstance(type);
-		} else {
-			return ReflectionUtils.newInstance(type);
+		try {
+			if (innerClass) {
+				Object enclosingInstance = input.getObjectStack().peek();
+				return (T) getConstructor(enclosingInstance).newInstance(enclosingInstance);
+			} else {
+				return (T) getConstructor(null).newInstance();
+
+			}
+		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
 		}
+	}
+
+	private Constructor getConstructor(Object enclosingInstance) {
+		if (constructor != null) {
+			return constructor;
+		}
+
+		if (innerClass) {
+			constructor = ReflectionUtils.findInnerClassDeclaredConstructor(type, enclosingInstance);
+		} else {
+			constructor = ReflectionUtils.getDeclaredConstructor(type);
+		}
+
+		constructor.setAccessible(true);
+		return constructor;
 	}
 
 	private void resolveProperties() {

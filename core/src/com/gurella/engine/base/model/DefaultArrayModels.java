@@ -118,6 +118,28 @@ public class DefaultArrayModels {
 		}
 
 		protected abstract void writeValues(T value, Archive archive);
+
+		@Override
+		public void serialize(T value, Output output) {
+			if (value == null) {
+				output.writeNull();
+			} else {
+				writeValues(value, output);
+			}
+		}
+
+		protected abstract void writeValues(T value, Output output);
+
+		@Override
+		public T deserialize(Input input) {
+			if (input.isNull()) {
+				return null;
+			} else {
+				return readValues(input);
+			}
+		}
+
+		protected abstract T readValues(Input input);
 	}
 
 	public static final class IntArrayModel extends PrimitiveArrayModel<int[]> {
@@ -168,29 +190,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(int[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeInt(value[i]);
-				}
+		protected void writeValues(int[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeInt(value[i]);
 			}
 		}
 
 		@Override
-		public int[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				int[] value = new int[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readInt();
-				}
-				return value;
+		protected int[] readValues(Input input) {
+			int length = input.readInt();
+			int[] value = new int[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readInt();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -242,29 +258,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(long[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeLong(value[i]);
-				}
+		protected void writeValues(long[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeLong(value[i]);
 			}
 		}
 
 		@Override
-		public long[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				long[] value = new long[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readLong();
-				}
-				return value;
+		protected long[] readValues(Input input) {
+			int length = input.readInt();
+			long[] value = new long[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readLong();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -316,29 +326,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(short[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeShort(value[i]);
-				}
+		protected void writeValues(short[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeShort(value[i]);
 			}
 		}
 
 		@Override
-		public short[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				short[] value = new short[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readShort();
-				}
-				return value;
+		protected short[] readValues(Input input) {
+			int length = input.readInt();
+			short[] value = new short[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readShort();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -390,29 +394,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(byte[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeByte(value[i]);
-				}
+		protected void writeValues(byte[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeByte(value[i]);
 			}
 		}
 
 		@Override
-		public byte[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				byte[] value = new byte[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readByte();
-				}
-				return value;
+		protected byte[] readValues(Input input) {
+			int length = input.readInt();
+			byte[] value = new byte[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readByte();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -464,29 +462,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(char[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeChar(value[i]);
-				}
+		protected void writeValues(char[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeChar(value[i]);
 			}
 		}
 
 		@Override
-		public char[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				char[] value = new char[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readChar();
-				}
-				return value;
+		protected char[] readValues(Input input) {
+			int length = input.readInt();
+			char[] value = new char[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readChar();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -538,29 +530,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(boolean[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeBoolean(value[i]);
-				}
+		protected void writeValues(boolean[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeBoolean(value[i]);
 			}
 		}
 
 		@Override
-		public boolean[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				boolean[] value = new boolean[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readBoolean();
-				}
-				return value;
+		protected boolean[] readValues(Input input) {
+			int length = input.readInt();
+			boolean[] value = new boolean[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readBoolean();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -612,29 +598,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(double[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeDouble(value[i]);
-				}
+		protected void writeValues(double[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeDouble(value[i]);
 			}
 		}
 
 		@Override
-		public double[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				double[] value = new double[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readDouble();
-				}
-				return value;
+		protected double[] readValues(Input input) {
+			int length = input.readInt();
+			double[] value = new double[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readDouble();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 
@@ -686,29 +666,23 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(float[] value, Output output) {
-			if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value.length);
-				for (int i = 0; i < value.length; i++) {
-					output.writeFloat(value[i]);
-				}
+		protected void writeValues(float[] value, Output output) {
+			output.writeInt(value.length);
+			for (int i = 0; i < value.length; i++) {
+				output.writeFloat(value[i]);
 			}
 		}
 
 		@Override
-		public float[] deserialize(Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				int length = input.readInt();
-				float[] value = new float[length];
-				for (int i = 0; i < length; i++) {
-					value[i] = input.readFloat();
-				}
-				return value;
+		protected float[] readValues(Input input) {
+			int length = input.readInt();
+			float[] value = new float[length];
+			input.pushObject(value);
+			for (int i = 0; i < length; i++) {
+				value[i] = input.readFloat();
 			}
+			input.popObject();
+			return value;
 		}
 	}
 }

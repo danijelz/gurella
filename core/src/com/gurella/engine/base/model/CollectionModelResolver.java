@@ -134,7 +134,9 @@ public class CollectionModelResolver implements ModelResolver {
 		@Override
 		public T deserialize(Input input) {
 			T instance = ReflectionUtils.newInstance(type);
+			input.pushObject(instance);
 			properties.get(0).deserialize(instance, input);
+			input.popObject();
 			return instance;
 		}
 	}
@@ -368,7 +370,9 @@ public class CollectionModelResolver implements ModelResolver {
 				instance = new TreeSet<Object>();
 			}
 
+			input.pushObject(instance);
 			getProperties().get(0).deserialize(instance, input);
+			input.popObject();
 			return instance;
 		}
 	}
@@ -463,7 +467,9 @@ public class CollectionModelResolver implements ModelResolver {
 			Class<Enum> enumType = ReflectionUtils.forName(input.readStringProperty("type"));
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			EnumSet enumSet = EnumSet.noneOf(enumType);
+			input.pushObject(enumSet);
 			getProperties().get(0).deserialize(enumSet, input);
+			input.popObject();
 			return enumSet;
 		}
 	}

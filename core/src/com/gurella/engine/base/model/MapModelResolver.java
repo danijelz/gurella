@@ -135,7 +135,9 @@ public class MapModelResolver implements ModelResolver {
 		@Override
 		public T deserialize(Input input) {
 			T instance = ReflectionUtils.newInstance(type);
+			input.pushObject(instance);
 			properties.get(0).deserialize(instance, input);
+			input.popObject();
 			return instance;
 		}
 	}
@@ -369,7 +371,9 @@ public class MapModelResolver implements ModelResolver {
 				instance = new TreeMap<Object, Object>();
 			}
 
+			input.pushObject(instance);
 			getProperties().get(0).deserialize(instance, input);
+			input.popObject();
 			return instance;
 		}
 	}
@@ -466,7 +470,9 @@ public class MapModelResolver implements ModelResolver {
 			Class<Enum<?>> keyType = ReflectionUtils.forName(input.readStringProperty(keyTypeFieldName));
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			EnumMap<?, ?> instance = new EnumMap(keyType);
+			input.pushObject(instance);
 			getProperties().get(0).deserialize(instance, input);
+			input.popObject();
 			return instance;
 		}
 	}

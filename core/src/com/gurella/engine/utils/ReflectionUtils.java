@@ -57,9 +57,9 @@ public class ReflectionUtils {
 			return null;
 		}
 	}
-	
+
 	public static boolean isInnerClass(Class<?> type) {
-		return ClassReflection.isMemberClass(type) && ClassReflection.isStaticClass(type);
+		return ClassReflection.isMemberClass(type) && !ClassReflection.isStaticClass(type);
 	}
 
 	public static <T> T newInnerClassInstance(Class<T> type, Object enclosingInstance) {
@@ -74,11 +74,11 @@ public class ReflectionUtils {
 		}
 	}
 
-	private static Constructor findInnerClassDeclaredConstructor(Class<?> type, Object enclosingInstance) {
+	public static Constructor findInnerClassDeclaredConstructor(Class<?> type, Object enclosingInstance) {
 		Class<?> enclosingInstanceType = enclosingInstance.getClass();
-		while(enclosingInstanceType != Object.class) {
+		while (enclosingInstanceType != Object.class) {
 			Constructor constructor = getInnerClassDeclaredConstructorSilently(type, enclosingInstanceType);
-			if(constructor != null) {
+			if (constructor != null) {
 				return constructor;
 			}
 			enclosingInstanceType = enclosingInstanceType.getSuperclass();

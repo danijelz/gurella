@@ -1,5 +1,7 @@
 package com.gurella.engine.base.serialization;
 
+import java.util.Date;
+
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -36,11 +38,13 @@ public class Serialization {
 		return isSimpleType(obj.getClass());
 	}
 
+	//TODO isAssignableFrom is slow 
 	public static boolean isSimpleType(Class<?> type) {
 		return type.isPrimitive() || Integer.class == type || Long.class == type || Short.class == type
 				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type
 				|| Float.class == type || String.class == type || Class.class == type
 				|| ClassReflection.isAssignableFrom(Number.class, type)
+				|| ClassReflection.isAssignableFrom(Date.class, type)
 				|| ClassReflection.isAssignableFrom(Enum.class, type);
 	}
 }

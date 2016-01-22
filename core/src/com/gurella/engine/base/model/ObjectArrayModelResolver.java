@@ -179,9 +179,11 @@ public class ObjectArrayModelResolver implements ModelResolver {
 			int length = input.readInt();
 
 			Object[] value = (Object[]) ArrayReflection.newInstance(componentType, length);
+			input.pushObject(value);
 			for (int i = 0; i < length; i++) {
 				value[i] = input.readObject(componentType);
 			}
+			input.popObject();
 
 			@SuppressWarnings("unchecked")
 			T array = (T) value;

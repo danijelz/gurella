@@ -1,12 +1,16 @@
 package com.gurella.engine.base.serialization;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class JsonInput implements Input, Poolable {
@@ -16,7 +20,11 @@ public class JsonInput implements Input, Poolable {
 	private JsonValue value;
 	private Array<JsonValue> valueStack = new Array<JsonValue>();
 
-	private IntMap<Object> internalIds = new IntMap<Object>();
+	private Object object;
+	private ArrayExt<Object> objectStack = new ArrayExt<Object>();
+
+	private IntMap<Object> references = new IntMap<Object>();
+	private ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
 
 	private void push(JsonValue value) {
 		this.value = value;
@@ -33,7 +41,9 @@ public class JsonInput implements Input, Poolable {
 		rootValue = null;
 		value = null;
 		valueStack.clear();
-		internalIds.clear();
+		object = null;
+		objectStack.clear();
+		references.clear();
 	}
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
@@ -159,13 +169,17 @@ public class JsonInput implements Input, Poolable {
 		} else {
 			int id = value.asInt();
 			@SuppressWarnings("unchecked")
-			T referencedObject = (T) internalIds.get(id);
+			T referencedObject = (T) references.get(id);
 			if (referencedObject == null) {
 				JsonValue referenceValue = rootValue.get(id);
+				if (referenceValues.containsKey(referenceValue)) {
+					throw new GdxRuntimeException("Circular reference detected. Add reference to input.");
+				}
+				referenceValues.put(referenceValue, id);
 				push(referenceValue);
 				referencedObject = readObject(expectedType);
 				pop();
-				internalIds.put(id, referencedObject);
+				references.put(id, referencedObject);
 			}
 			result = referencedObject;
 		}
@@ -238,7 +252,21 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public void reference(Object object) {
-		// TODO Auto-generated method stub
+	public void pushObject(Object object) {
+		int id = referenceValues.get(value, -1);
+		if (id >= 0) {
+			references.put(id, object);
+		}
+		objectStack.add(object);
+	}
+
+	@Override
+	public void popObject() {
+		objectStack.pop();
+	}
+
+	@Override
+	public ImmutableArray<Object> getObjectStack() {
+		return objectStack.immutable();
 	}
 }

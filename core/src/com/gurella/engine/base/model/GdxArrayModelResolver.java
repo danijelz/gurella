@@ -159,8 +159,10 @@ public class GdxArrayModelResolver implements ModelResolver {
 		@Override
 		public T deserialize(Input input) {
 			T array = createArray(input);
+			input.pushObject(array);
 			properties.get(0).deserialize(array, input);
 			properties.get(1).deserialize(array, input);
+			input.popObject();
 			return array;
 		}
 

@@ -1,5 +1,7 @@
 package com.gurella.engine.base.serialization;
 
+import com.gurella.engine.utils.ImmutableArray;
+
 public interface Input {
 	int readInt();
 
@@ -20,9 +22,9 @@ public interface Input {
 	String readString();
 
 	<T> T readObject(Class<T> expectedType);
-	
+
 	boolean isNull();
-	
+
 	boolean hasProperty(String name);
 
 	int readIntProperty(String name);
@@ -43,7 +45,11 @@ public interface Input {
 
 	String readStringProperty(String name);
 
-	<T> T  readObjectProperty(String name, Class<T> expectedType);
+	<T> T readObjectProperty(String name, Class<T> expectedType);
+
+	void pushObject(Object object);
+
+	void popObject();
 	
-	void reference(Object object);
+	ImmutableArray<Object> getObjectStack();
 }
