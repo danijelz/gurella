@@ -686,6 +686,7 @@ public class Archive implements Poolable {
 		obj.oia = new int[3];
 		obj.di = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.odi = new int[][] { { 1, 1 }, { 1, 1 } };
+		obj.test2.iiiiiiiiiiiiiiii1 = 0;
 
 		new Archive().serialize(new Test(), Test.class);
 		new Archive().serialize(obj, Test.class);
@@ -709,6 +710,7 @@ public class Archive implements Poolable {
 	}
 
 	public static class Test {
+		public Test2 test2 = new Test2();
 		public int i = 2;
 		public String s = "ddd";
 		public Object[] a = new String[] { "sss" };
@@ -743,6 +745,16 @@ public class Archive implements Poolable {
 		@Override
 		public String toString() {
 			return "Test [i=" + i + ", s=" + s + ", a=" + Arrays.toString(a) + ", t1=" + t1 + ", arr=" + arr + "]";
+		}
+		
+		public class Test2 {
+			public int iiiiiiiiiiiiiiii1 = 2;
+			public String s1 = "ddd";
+
+			@Override
+			public String toString() {
+				return "Test1 [i1=" + iiiiiiiiiiiiiiii1 + ", s1=" + s1 + "]";
+			}
 		}
 	}
 

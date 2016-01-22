@@ -158,6 +158,13 @@ public class GdxArrayModelResolver implements ModelResolver {
 
 		@Override
 		public T deserialize(Input input) {
+			T array = createArray(input);
+			properties.get(0).deserialize(array, input);
+			properties.get(1).deserialize(array, input);
+			return array;
+		}
+
+		private T createArray(Input input) {
 			if (input.hasProperty("componentType")) {
 				Class<?> componentType = ReflectionUtils.forNameSilently(input.readStringProperty("componentType"));
 				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
@@ -410,7 +417,10 @@ public class GdxArrayModelResolver implements ModelResolver {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;
-				array.addAll(input.readObjectProperty(name, array.items.getClass()));
+				
+				Object[] property = input.readObjectProperty(name, array.items.getClass());
+				array.ensureCapacity(property.length - array.size);
+				array.addAll(property);
 			}
 		}
 	}

@@ -280,16 +280,17 @@ public class CollectionModelResolver implements ModelResolver {
 
 		@Override
 		public void deserialize(Object object, Input input) {
-			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) object;
-			Object[] array = input.readObjectProperty(name, Object[].class);
-			for (int i = 0; i < array.length; i++) {
-				collection.add(array[i]);
+			if (input.hasProperty(name)) {
+				@SuppressWarnings("unchecked")
+				Collection<Object> collection = (Collection<Object>) object;
+				Object[] array = input.readObjectProperty(name, Object[].class);
+				for (int i = 0; i < array.length; i++) {
+					collection.add(array[i]);
+				}
 			}
 		}
 	}
 
-	// TODO serialize(Object object, Output output)
 	public static class TreeSetModel extends CollectionModel<TreeSet<?>> {
 		private static final TreeSetModel modelInstance = new TreeSetModel();
 
@@ -341,9 +342,37 @@ public class CollectionModelResolver implements ModelResolver {
 				archive.writeObjectEnd();
 			}
 		}
+
+		@Override
+		public void serialize(TreeSet<?> value, Output output) {
+			if (value == null) {
+				output.writeNull();
+			} else {
+				Comparator<?> comparator = value.comparator();
+				if (comparator != null) {
+					output.writeObjectProperty("comparator", Comparator.class, comparator);
+				}
+				getProperties().get(0).serialize(value, output);
+			}
+		}
+
+		@Override
+		public TreeSet<?> deserialize(Input input) {
+			TreeSet<?> instance;
+			if (input.hasProperty("comparator")) {
+				Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class);
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				TreeSet<?> casted = new TreeSet(comparator);
+				instance = casted;
+			} else {
+				instance = new TreeSet<Object>();
+			}
+
+			getProperties().get(0).deserialize(instance, input);
+			return instance;
+		}
 	}
 
-	// TODO serialize(Object object, Output output)
 	public static class EnumSetModel extends CollectionModel<EnumSet<?>> {
 		public static final EnumSetModel modelInstance = new EnumSetModel();
 
@@ -416,6 +445,26 @@ public class CollectionModelResolver implements ModelResolver {
 				Class<Enum<?>> casted = (Class<Enum<?>>) set.iterator().next().getClass();
 				return casted;
 			}
+		}
+
+		@Override
+		public void serialize(EnumSet<?> value, Output output) {
+			if (value == null) {
+				output.writeNull();
+			} else {
+				output.writeStringProperty("type", getEnumType(value).getName());
+				getProperties().get(0).serialize(value, output);
+			}
+		}
+
+		@Override
+		public EnumSet<?> deserialize(Input input) {
+			@SuppressWarnings("rawtypes")
+			Class<Enum> enumType = ReflectionUtils.forName(input.readStringProperty("type"));
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			EnumSet enumSet = EnumSet.noneOf(enumType);
+			getProperties().get(0).deserialize(enumSet, input);
+			return enumSet;
 		}
 	}
 }

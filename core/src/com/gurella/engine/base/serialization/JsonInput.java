@@ -47,7 +47,7 @@ public class JsonInput implements Input, Poolable {
 		Class<T> resolvedType = Serialization.resolveObjectType(expectedType, jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
 
-		push(jsonValue);
+		push(Serialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
 		T object = model.deserialize(this);
 		pop();
 
@@ -135,9 +135,14 @@ public class JsonInput implements Input, Poolable {
 		T result;
 		if (value.isNull()) {
 			result = null;
-		} else if (expectedType != null
-				&& (expectedType.isPrimitive() || (Serialization.isSimpleType(expectedType) && !value.isObject()))) {
+		} else if (expectedType != null && (expectedType.isPrimitive() || Serialization.isSimpleType(expectedType))) {
+			if (value.isObject()) {
+				push(value.get("value"));
+			} else {
+				push(value);
+			}
 			result = Models.getModel(expectedType).deserialize(this);
+			pop();
 		} else if (value.isObject()) {
 			result = deserializeObject(value, expectedType);
 		} else if (value.isArray()) {
@@ -230,5 +235,11 @@ public class JsonInput implements Input, Poolable {
 		T object = readObject(expectedType);
 		pop();
 		return object;
+	}
+
+	@Override
+	public void reference(Object object) {
+		// TODO Auto-generated method stub
+
 	}
 }

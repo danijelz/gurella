@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
 
@@ -50,7 +51,8 @@ public class JsonOutput implements Output, Poolable {
 		reset();
 		
 		JsonInput input = new JsonInput();
-		input.deserialize(expectedType, buffer.toString());
+		T deserialized = input.deserialize(expectedType, buffer.toString());
+		System.out.println(Objects.isEqual(rootObject, deserialized));
 	}
 
 	private void writeReference(Class<?> expectedType, Object object) {

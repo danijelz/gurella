@@ -134,8 +134,7 @@ public class MapModelResolver implements ModelResolver {
 
 		@Override
 		public T deserialize(Input input) {
-			@SuppressWarnings("unchecked")
-			T instance = (T) ReflectionUtils.newInstance(type);
+			T instance = ReflectionUtils.newInstance(type);
 			properties.get(0).deserialize(instance, input);
 			return instance;
 		}
@@ -293,7 +292,6 @@ public class MapModelResolver implements ModelResolver {
 		}
 	}
 
-	// TODO serialize(Object object, Output output)
 	public static final class TreeMapModel extends MapModel<TreeMap<?, ?>> {
 		public static final TreeMapModel modelInstance = new TreeMapModel();
 
@@ -345,9 +343,37 @@ public class MapModelResolver implements ModelResolver {
 				archive.writeObjectEnd();
 			}
 		}
+
+		@Override
+		public void serialize(TreeMap<?, ?> value, Output output) {
+			if (value == null) {
+				output.writeNull();
+			} else {
+				Comparator<?> comparator = value.comparator();
+				if (comparator != null) {
+					output.writeObjectProperty("comparator", Comparator.class, comparator);
+				}
+				getProperties().get(0).serialize(value, output);
+			}
+		}
+
+		@Override
+		public TreeMap<?, ?> deserialize(Input input) {
+			TreeMap<?, ?> instance;
+			if (input.hasProperty("comparator")) {
+				Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class);
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				TreeMap<?, ?> casted = new TreeMap(comparator);
+				instance = casted;
+			} else {
+				instance = new TreeMap<Object, Object>();
+			}
+
+			getProperties().get(0).deserialize(instance, input);
+			return instance;
+		}
 	}
 
-	// TODO serialize(Object object, Output output)
 	public static class EnumMapModel extends MapModel<EnumMap<?, ?>> {
 		private static final String keyTypeFieldName = "keyType";
 		public static final EnumMapModel modelInstance = new EnumMapModel();
@@ -423,6 +449,25 @@ public class MapModelResolver implements ModelResolver {
 				}
 				return keyType;
 			}
+		}
+
+		@Override
+		public void serialize(EnumMap<?, ?> value, Output output) {
+			if (value == null) {
+				output.writeNull();
+			} else {
+				output.writeStringProperty(keyTypeFieldName, getKeyType(value).getName());
+				getProperties().get(0).serialize(value, output);
+			}
+		}
+
+		@Override
+		public EnumMap<?, ?> deserialize(Input input) {
+			Class<Enum<?>> keyType = ReflectionUtils.forName(input.readStringProperty(keyTypeFieldName));
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			EnumMap<?, ?> instance = new EnumMap(keyType);
+			getProperties().get(0).deserialize(instance, input);
+			return instance;
 		}
 	}
 }

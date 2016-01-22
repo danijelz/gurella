@@ -44,4 +44,6 @@ public interface Input {
 	String readStringProperty(String name);
 
 	<T> T  readObjectProperty(String name, Class<T> expectedType);
+	
+	void reference(Object object);
 }
