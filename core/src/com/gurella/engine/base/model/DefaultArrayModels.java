@@ -1,5 +1,7 @@
 package com.gurella.engine.base.model;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Archive;
@@ -208,6 +210,11 @@ public class DefaultArrayModels {
 			input.popObject();
 			return value;
 		}
+
+		@Override
+		public int[] copy(int[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
+		}
 	}
 
 	public static final class LongArrayModel extends PrimitiveArrayModel<long[]> {
@@ -275,6 +282,11 @@ public class DefaultArrayModels {
 			}
 			input.popObject();
 			return value;
+		}
+
+		@Override
+		public long[] copy(long[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
 		}
 	}
 
@@ -344,6 +356,11 @@ public class DefaultArrayModels {
 			input.popObject();
 			return value;
 		}
+
+		@Override
+		public short[] copy(short[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
+		}
 	}
 
 	public static final class ByteArrayModel extends PrimitiveArrayModel<byte[]> {
@@ -411,6 +428,11 @@ public class DefaultArrayModels {
 			}
 			input.popObject();
 			return value;
+		}
+
+		@Override
+		public byte[] copy(byte[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
 		}
 	}
 
@@ -480,6 +502,11 @@ public class DefaultArrayModels {
 			input.popObject();
 			return value;
 		}
+
+		@Override
+		public char[] copy(char[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
+		}
 	}
 
 	public static final class BooleanArrayModel extends PrimitiveArrayModel<boolean[]> {
@@ -547,6 +574,11 @@ public class DefaultArrayModels {
 			}
 			input.popObject();
 			return value;
+		}
+
+		@Override
+		public boolean[] copy(boolean[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
 		}
 	}
 
@@ -616,6 +648,11 @@ public class DefaultArrayModels {
 			input.popObject();
 			return value;
 		}
+
+		@Override
+		public double[] copy(double[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
+		}
 	}
 
 	public static final class FloatArrayModel extends PrimitiveArrayModel<float[]> {
@@ -683,6 +720,11 @@ public class DefaultArrayModels {
 			}
 			input.popObject();
 			return value;
+		}
+
+		@Override
+		public float[] copy(float[] original, CopyContext context) {
+			return Arrays.copyOf(original, original.length);
 		}
 	}
 }

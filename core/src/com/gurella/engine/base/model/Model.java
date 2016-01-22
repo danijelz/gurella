@@ -24,4 +24,6 @@ public interface Model<T> {
 	void serialize(T value, Output output);
 
 	T deserialize(Input input);
+	
+	T copy(T original, CopyContext context);
 }

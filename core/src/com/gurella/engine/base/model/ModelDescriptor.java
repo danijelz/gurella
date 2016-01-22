@@ -10,13 +10,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.TYPE })
 public @interface ModelDescriptor {
-	//TODO rename
+	// TODO rename
 	@SuppressWarnings("rawtypes")
 	Class<? extends Model> model() default ReflectionModel.class;
 
 	String descriptiveName() default "";
 
 	String description() default "";
-
-	String group() default "";
 }

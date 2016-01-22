@@ -689,8 +689,9 @@ public class Archive implements Poolable {
 		obj.di = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.odi = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.test2.iiiiiiiiiiiiiiii1 = 0;
+		//obj.child = obj;
 
-		new Archive().serialize(new Test(), Test.class);
+		/*new Archive().serialize(new Test(), Test.class);
 		new Archive().serialize(obj, Test.class);
 
 		Model<int[][]> sbModel = Models.getModel(int[][].class);
@@ -705,7 +706,7 @@ public class Archive implements Poolable {
 		model.initInstance(context);
 
 		System.out.println(Objects.isEqual(obj, instance));
-		instance.ts.add("b");
+		instance.ts.add("b");*/
 
 		System.out.println("\n\n\n\n\n\n\n");
 		new JsonOutput().serialize(Test.class, obj);
@@ -738,6 +739,7 @@ public class Archive implements Poolable {
 		public Object oia;
 		public int[][] di;
 		public Object odi;
+		public Test child; 
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);

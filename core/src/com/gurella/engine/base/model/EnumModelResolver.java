@@ -138,5 +138,10 @@ public class EnumModelResolver implements ModelResolver {
 			}
 			throw new GdxRuntimeException("Invalid enum name: " + enumName);
 		}
+
+		@Override
+		public T copy(T original, CopyContext context) {
+			return original;
+		}
 	}
 }

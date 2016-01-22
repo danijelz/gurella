@@ -33,9 +33,11 @@ public class ObjectArrayModelResolver implements ModelResolver {
 
 	public static class ObjectArrayModel<T> implements Model<T> {
 		private Class<T> type;
+		private Class<?> componentType;
 
 		public ObjectArrayModel(Class<T> type) {
 			this.type = type;
+			componentType = type.getComponentType();
 		}
 
 		@Override
@@ -151,7 +153,6 @@ public class ObjectArrayModelResolver implements ModelResolver {
 					archive.writeObjectEnd();
 				}
 
-				Class<?> componentType = actualType.getComponentType();
 				for (int i = 0; i < array.length; i++) {
 					archive.writeValue(array[i], componentType);
 				}
@@ -165,7 +166,6 @@ public class ObjectArrayModelResolver implements ModelResolver {
 				output.writeNull();
 			} else {
 				Object[] array = (Object[]) value;
-				Class<?> componentType = type.getComponentType();
 				output.writeInt(array.length);
 				for (int i = 0; i < array.length; i++) {
 					output.writeObject(componentType, array[i]);
@@ -175,7 +175,6 @@ public class ObjectArrayModelResolver implements ModelResolver {
 
 		@Override
 		public T deserialize(Input input) {
-			Class<?> componentType = type.getComponentType();
 			int length = input.readInt();
 
 			Object[] value = (Object[]) ArrayReflection.newInstance(componentType, length);
@@ -188,6 +187,21 @@ public class ObjectArrayModelResolver implements ModelResolver {
 			@SuppressWarnings("unchecked")
 			T array = (T) value;
 			return array;
+		}
+
+		@Override
+		public T copy(T original, CopyContext context) {
+			Object[] originalArray = (Object[]) original;
+			int length = originalArray.length;
+			Object[] duplicate = (Object[]) ArrayReflection.newInstance(componentType, length);
+			context.pushObject(duplicate);
+			for (int i = 0; i < length; i++) {
+				duplicate[i] = context.copy(originalArray[i]);
+			}
+			context.popObject();
+			@SuppressWarnings("unchecked")
+			T casted = (T) duplicate;
+			return casted;
 		}
 	}
 }

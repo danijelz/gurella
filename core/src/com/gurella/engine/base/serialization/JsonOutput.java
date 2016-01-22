@@ -20,14 +20,14 @@ public class JsonOutput implements Output, Poolable {
 	private JsonWriter writer;
 
 	private int currentId;
-	private IdentityObjectIntMap<Object> internalIds = new IdentityObjectIntMap<Object>();
+	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
 
 	@Override
 	public void reset() {
 		writer = null;
 		currentId = 0;
-		internalIds.clear();
+		references.clear();
 		objectsToSerialize.clear();
 	}
 
@@ -56,7 +56,7 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	private void writeReference(Class<?> expectedType, Object object) {
-		int ordinal = internalIds.get(object, -1);
+		int ordinal = references.get(object, -1);
 		if (ordinal < 0) {
 			writeInt(addReference(expectedType, object));
 		} else {
@@ -65,7 +65,7 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	private int addReference(Class<?> expectedType, Object object) {
-		internalIds.put(object, currentId);
+		references.put(object, currentId);
 		objectsToSerialize.add(SynchronizedPools.obtain(ObjectInfo.class).set(currentId, expectedType, object));
 		return currentId++;
 	}

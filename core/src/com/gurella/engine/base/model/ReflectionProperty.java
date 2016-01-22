@@ -293,4 +293,9 @@ public class ReflectionProperty<T> implements Property<T> {
 			setValue(object, input.readObjectProperty(name, type));
 		}
 	}
+
+	@Override
+	public void copy(Object original, Object duplicate, CopyContext context) {
+		setValue(duplicate, context.copy(getValue(original)));
+	}
 }

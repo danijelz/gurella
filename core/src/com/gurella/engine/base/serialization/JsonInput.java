@@ -20,7 +20,6 @@ public class JsonInput implements Input, Poolable {
 	private JsonValue value;
 	private Array<JsonValue> valueStack = new Array<JsonValue>();
 
-	private Object object;
 	private ArrayExt<Object> objectStack = new ArrayExt<Object>();
 
 	private IntMap<Object> references = new IntMap<Object>();
@@ -41,14 +40,15 @@ public class JsonInput implements Input, Poolable {
 		rootValue = null;
 		value = null;
 		valueStack.clear();
-		object = null;
 		objectStack.clear();
 		references.clear();
 	}
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
 		rootValue = reader.parse(json);
-		T result = deserializeObject(rootValue.get(0), expectedType);
+		JsonValue referenceValue = rootValue.get(0);
+		referenceValues.put(referenceValue, 0);
+		T result = deserializeObject(referenceValue, expectedType);
 		reset();
 		return result;
 	}

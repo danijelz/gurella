@@ -36,4 +36,6 @@ public interface Property<T> {
 	void serialize(Object object, Output output);
 	
 	void deserialize(Object object, Input input);
+
+	void copy(Object original, Object duplicate, CopyContext context);
 }

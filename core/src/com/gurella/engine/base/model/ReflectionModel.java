@@ -209,7 +209,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (input.isNull()) {
 			return null;
 		} else {
-			T instance = create(input);
+			T instance = create(innerClass ? input.getObjectStack().peek() : null);
 			input.pushObject(instance);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
@@ -222,10 +222,9 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected T create(Input input) {
+	protected T create(Object enclosingInstance) {
 		try {
 			if (innerClass) {
-				Object enclosingInstance = input.getObjectStack().peek();
 				return (T) getConstructor(enclosingInstance).newInstance(enclosingInstance);
 			} else {
 				return (T) getConstructor(null).newInstance();
@@ -233,6 +232,23 @@ public class ReflectionModel<T> implements Model<T> {
 			}
 		} catch (ReflectionException e) {
 			throw new GdxRuntimeException(e);
+		}
+	}
+
+	@Override
+	public T copy(T original, CopyContext context) {
+		if (original == null) {
+			return null;
+		} else {
+			T instance = create(innerClass ? context.getObjectStack().peek() : null);
+			context.pushObject(instance);
+			ImmutableArray<Property<?>> properties = getProperties();
+			for (int i = 0; i < properties.size(); i++) {
+				Property<?> property = properties.get(i);
+				property.copy(original, instance, context);
+			}
+			context.popObject();
+			return instance;
 		}
 	}
 

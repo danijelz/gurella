@@ -67,6 +67,11 @@ public class DefaultModels {
 		protected abstract T createDefaultValue();
 
 		protected abstract T deserializeValue(JsonValue serializedValue);
+
+		@Override
+		public T copy(T original, CopyContext context) {
+			return original;
+		}
 	}
 
 	public static abstract class PrimitiveModel<T> extends SimpleModel<T> {
@@ -993,6 +998,11 @@ public class DefaultModels {
 			} else {
 				return new Date(input.readLong());
 			}
+		}
+
+		@Override
+		public Date copy(Date original, CopyContext context) {
+			return new Date(original.getTime());
 		}
 	}
 }

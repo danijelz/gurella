@@ -109,4 +109,9 @@ public class LocaleModel implements Model<Locale> {
 		String variant = input.hasProperty("variant") ? input.readStringProperty("variant") : "";
 		return new Locale(language, country, variant);
 	}
+	
+	@Override
+	public Locale copy(Locale original, CopyContext context) {
+		return original;
+	}
 }
