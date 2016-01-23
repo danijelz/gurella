@@ -140,6 +140,15 @@ public class MapModelResolver implements ModelResolver {
 			input.popObject();
 			return instance;
 		}
+
+		@Override
+		public T copy(T original, CopyContext context) {
+			T instance = ReflectionUtils.newInstance(type);
+			context.pushObject(instance);
+			properties.get(0).copy(original, instance, context);
+			context.popObject();
+			return instance;
+		}
 	}
 
 	private static class MapEntriesProperty implements Property<Set<Entry<?, ?>>> {
@@ -292,6 +301,17 @@ public class MapModelResolver implements ModelResolver {
 				}
 			}
 		}
+
+		@Override
+		public void copy(Object original, Object duplicate, CopyContext context) {
+			@SuppressWarnings("unchecked")
+			Map<Object, Object> originalMap = (Map<Object, Object>) original;
+			@SuppressWarnings("unchecked")
+			Map<Object, Object> duplicateMap = (Map<Object, Object>) duplicate;
+			for (Entry<Object, Object> entry : originalMap.entrySet()) {
+				duplicateMap.put(context.copy(entry.getKey()), context.copy(entry.getValue()));
+			}
+		}
 	}
 
 	public static final class TreeMapModel extends MapModel<TreeMap<?, ?>> {
@@ -375,6 +395,16 @@ public class MapModelResolver implements ModelResolver {
 			getProperties().get(0).deserialize(instance, input);
 			input.popObject();
 			return instance;
+		}
+
+		@Override
+		public TreeMap<?, ?> copy(TreeMap<?, ?> original, CopyContext context) {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			TreeMap<?, ?> duplicate = new TreeMap(original.comparator());
+			context.pushObject(duplicate);
+			getProperties().get(0).copy(original, duplicate, context);
+			context.popObject();
+			return duplicate;
 		}
 	}
 
@@ -474,6 +504,17 @@ public class MapModelResolver implements ModelResolver {
 			getProperties().get(0).deserialize(instance, input);
 			input.popObject();
 			return instance;
+		}
+
+		@Override
+		public EnumMap<?, ?> copy(EnumMap<?, ?> original, CopyContext context) {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			EnumMap<?, ?> duplicate = new EnumMap(original);
+			duplicate.clear();
+			context.pushObject(duplicate);
+			getProperties().get(0).copy(original, duplicate, context);
+			context.popObject();
+			return duplicate;
 		}
 	}
 }

@@ -177,6 +177,24 @@ public class GdxArrayModelResolver implements ModelResolver {
 
 			return ReflectionUtils.newInstance(type);
 		}
+
+		@Override
+		public T copy(T original, CopyContext context) {
+			Class<?> componentType = original.items.getClass().getComponentType();
+			Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
+			T array;
+			if (constructor != null) {
+				array = ReflectionUtils.invokeConstructor(constructor, componentType);
+			} else {
+				array = ReflectionUtils.newInstance(type);
+			}
+
+			context.pushObject(array);
+			properties.get(0).copy(original, array, context);
+			properties.get(1).copy(original, array, context);
+			context.popObject();
+			return array;
+		}
 	}
 
 	private static class ArrayOrderedProperty implements Property<Boolean> {
@@ -282,6 +300,11 @@ public class GdxArrayModelResolver implements ModelResolver {
 			if (input.hasProperty(name)) {
 				((Array<?>) object).ordered = input.readBooleanProperty(name);
 			}
+		}
+
+		@Override
+		public void copy(Object original, Object duplicate, CopyContext context) {
+			((Array<?>) duplicate).ordered = ((Array<?>) original).ordered;
 		}
 	}
 
@@ -419,10 +442,22 @@ public class GdxArrayModelResolver implements ModelResolver {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;
-				
+
 				Object[] property = input.readObjectProperty(name, array.items.getClass());
 				array.ensureCapacity(property.length - array.size);
 				array.addAll(property);
+			}
+		}
+
+		@Override
+		public void copy(Object original, Object duplicate, CopyContext context) {
+			Array<?> originalArray = (Array<?>) original;
+			@SuppressWarnings("unchecked")
+			Array<Object> duplicateArray = (Array<Object>) duplicate;
+			int size = originalArray.size;
+			duplicateArray.ensureCapacity(size - duplicateArray.size);
+			for (int i = 0; i < originalArray.size; i++) {
+				duplicateArray.add(context.copy(originalArray.get(i)));
 			}
 		}
 	}

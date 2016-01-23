@@ -139,6 +139,15 @@ public class CollectionModelResolver implements ModelResolver {
 			input.popObject();
 			return instance;
 		}
+
+		@Override
+		public T copy(T original, CopyContext context) {
+			T instance = ReflectionUtils.newInstance(type);
+			context.pushObject(instance);
+			properties.get(0).copy(original, instance, context);
+			context.popObject();
+			return instance;
+		}
 	}
 
 	public static class CollectionItemsProperty implements Property<Object[]> {
@@ -291,6 +300,17 @@ public class CollectionModelResolver implements ModelResolver {
 				}
 			}
 		}
+
+		@Override
+		public void copy(Object original, Object duplicate, CopyContext context) {
+			@SuppressWarnings("unchecked")
+			Collection<Object> originalCollection = (Collection<Object>) original;
+			@SuppressWarnings("unchecked")
+			Collection<Object> duplicateCollection = (Collection<Object>) duplicate;
+			for (Object object : originalCollection) {
+				duplicateCollection.add(context.copy(object));
+			}
+		}
 	}
 
 	public static class TreeSetModel extends CollectionModel<TreeSet<?>> {
@@ -374,6 +394,16 @@ public class CollectionModelResolver implements ModelResolver {
 			getProperties().get(0).deserialize(instance, input);
 			input.popObject();
 			return instance;
+		}
+
+		@Override
+		public TreeSet<?> copy(TreeSet<?> original, CopyContext context) {
+			@SuppressWarnings("unchecked")
+			TreeSet<Object> duplicate = new TreeSet<Object>((Comparator<Object>) original.comparator());
+			context.pushObject(duplicate);
+			getProperties().get(0).copy(original, duplicate, context);
+			context.popObject();
+			return duplicate;
 		}
 	}
 
@@ -471,6 +501,11 @@ public class CollectionModelResolver implements ModelResolver {
 			getProperties().get(0).deserialize(enumSet, input);
 			input.popObject();
 			return enumSet;
+		}
+
+		@Override
+		public EnumSet<?> copy(EnumSet<?> original, CopyContext context) {
+			return original.clone();
 		}
 	}
 }

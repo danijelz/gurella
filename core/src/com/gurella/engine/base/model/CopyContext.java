@@ -35,6 +35,9 @@ public class CopyContext implements Poolable {
 	}
 
 	public <T> T copy(T original) {
+		if(original == null) {
+			return null;
+		}
 		@SuppressWarnings("unchecked")
 		T duplicate = (T) copiedObjects.get(original);
 		if(duplicate != null) {
