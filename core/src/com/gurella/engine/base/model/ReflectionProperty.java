@@ -12,6 +12,7 @@ import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
+import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -162,7 +163,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Property<T> copy(Model<?> newModel) {
+	public Property<T> newInstance(Model<?> newModel) {
 		return new ReflectionProperty<T>(field, getter, setter, newModel);
 	}
 
@@ -207,6 +208,8 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		Class<T> resolvedType = type.isPrimitive() ? type : Serialization.resolveObjectType(type, serializedValue);
 		Model<T> model = Models.getModel(resolvedType);
+		Object template = context.template();
+		T templateValue = template == null ? null : getValue(template);
 		if (field.isFinal()) {
 			T value = getValue(initializingObject);
 			if (value == null) {
@@ -218,11 +221,11 @@ public class ReflectionProperty<T> implements Property<T> {
 				throw new GdxRuntimeException("Unequal types.");
 			}
 
-			context.push(value, null, serializedValue);
+			context.push(value, templateValue, serializedValue);
 			model.initInstance(context);
 			context.pop();
 		} else {
-			context.push(null, null, serializedValue);
+			context.push(null, templateValue, serializedValue);
 			T value = model.createInstance(context);
 			context.setInitializingObject(value);
 			model.initInstance(context);
@@ -248,33 +251,32 @@ public class ReflectionProperty<T> implements Property<T> {
 			ReflectionUtils.invokeMethod(setter, object, value);
 		} else if (field.isFinal()) {
 			Object fieldValue = ReflectionUtils.getFieldValue(field, object);
-			copyProperties(value, fieldValue);
+			CopyContext context = SynchronizedPools.obtain(CopyContext.class);
+			context.copyProperties(value, fieldValue);
+			SynchronizedPools.free(context);
 		} else {
 			ReflectionUtils.setFieldValue(field, object, value);
 		}
 	}
 
-	public static <T> void copyProperties(T source, T target) {
-		if (source == null || target == null) {
-			return;
-		}
-
-		Model<T> model = Models.getModel(source);
-		InitializationContext context = SynchronizedPools.obtain(InitializationContext.class);
-		context.push(target, source, null);
-		model.initInstance(context);
-		SynchronizedPools.free(context);
-	}
-
 	@Override
 	public void serialize(Object object, Output output) {
 		T value = getValue(object);
-		if (!Objects.isEqual(value, defaultValue)) {
+		if (!Objects.isEqual(value, getTemplateValue(object))) {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {
 				output.writeObjectProperty(name, type, value);
 			}
+		}
+	}
+
+	private T getTemplateValue(Object object) {
+		if (object instanceof ManagedObject) {
+			Object template = ((ManagedObject) object).getTemplate();
+			return getValue(template);
+		} else {
+			return defaultValue;
 		}
 	}
 

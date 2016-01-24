@@ -163,7 +163,7 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public Property<Object[]> copy(Model<?> model) {
+		public Property<Object[]> newInstance(Model<?> model) {
 			return new CollectionItemsProperty(model);
 		}
 

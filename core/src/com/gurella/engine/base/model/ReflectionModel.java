@@ -193,7 +193,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (input.isNull()) {
 			return null;
 		} else {
-			T instance = create(innerClass ? input.getObjectStack().peek() : null);
+			T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
 			input.pushObject(instance);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
@@ -206,7 +206,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected T create(Object enclosingInstance) {
+	protected T createInstance(Object enclosingInstance) {
 		try {
 			if (innerClass) {
 				return (T) getConstructor(enclosingInstance).newInstance(enclosingInstance);
@@ -224,7 +224,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (original == null) {
 			return null;
 		} else {
-			T instance = create(innerClass ? context.getObjectStack().peek() : null);
+			T instance = createInstance(innerClass ? context.getObjectStack().peek() : null);
 			context.pushObject(instance);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
@@ -234,6 +234,12 @@ public class ReflectionModel<T> implements Model<T> {
 			context.popObject();
 			return instance;
 		}
+	}
+
+	@Override
+	public T create(CreationContext context) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private Constructor getConstructor(Object enclosingInstance) {
@@ -252,16 +258,12 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private void resolveProperties() {
-		if (Serialization.isSimpleType(type)) {
-			return;
-		}
-
 		Class<? super T> supertype = type.getSuperclass();
 		if (supertype != null && supertype != Object.class) {
 			Model<? super T> model = Models.getModel(supertype);
 			ImmutableArray<Property<?>> supertypeProperties = model.getProperties();
 			for (int i = 0; i < supertypeProperties.size(); i++) {
-				Property<?> property = supertypeProperties.get(i).copy(this);
+				Property<?> property = supertypeProperties.get(i).newInstance(this);
 				properties.add(property);
 				propertiesByName.put(property.getName(), property);
 			}
@@ -284,7 +286,8 @@ public class ReflectionModel<T> implements Model<T> {
 			return true;
 		}
 
-		if (field.isStatic() || field.isTransient() || field.getDeclaredAnnotation(TransientProperty.class) != null) {
+		if (field.isStatic() || field.isTransient() || field.isSynthetic()
+				|| field.getDeclaredAnnotation(TransientProperty.class) != null) {
 			return true;
 		}
 
@@ -305,18 +308,24 @@ public class ReflectionModel<T> implements Model<T> {
 
 		field.setAccessible(true);
 		T defaultInstance = Defaults.getDefault(type);
-		Object fieldValue = defaultInstance == null ? null : ReflectionUtils.getFieldValue(field, defaultInstance);
-		if (fieldValue == null || (fieldType.isArray() && ArrayReflection.getLength(defaultInstance) == 0)) {
-			return true;
+		if (defaultInstance != null) {
+			Object fieldValue = ReflectionUtils.getFieldValue(field, defaultInstance);
+			if (fieldValue == null) {
+				return true;
+			}
+
+			fieldType = fieldValue.getClass();
+			if (fieldType.isArray()) {
+				return ArrayReflection.getLength(fieldValue) == 0;
+			}
 		}
 
-		fieldType = fieldValue.getClass();
-		if (Serialization.isSimpleType(fieldType) || fieldType.isArray() || Assets.isAssetType(fieldType)) {
-			return true;
-		}
-
-		if (type.equals(fieldType)) {
+		if (ClassReflection.isAssignableFrom(type, fieldType)) {
 			return false;
+		}
+
+		if (Assets.isAssetType(fieldType)) {
+			return true;
 		}
 
 		ImmutableArray<Property<?>> modelProperties = Models.getModel(fieldType).getProperties();

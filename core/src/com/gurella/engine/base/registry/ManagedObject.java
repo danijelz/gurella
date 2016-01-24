@@ -23,6 +23,10 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		instanceId = indexer++;
 		id = instanceId;
 	}
+	
+	public ManagedObject getTemplate() {
+		return null;
+	}
 
 	@Override
 	public void write(Json json) {

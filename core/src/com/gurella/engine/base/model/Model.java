@@ -23,4 +23,6 @@ public interface Model<T> {
 	T deserialize(Input input);
 
 	T copy(T original, CopyContext context);
+	
+	T create(CreationContext context);
 }

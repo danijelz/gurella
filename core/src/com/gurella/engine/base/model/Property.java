@@ -22,7 +22,7 @@ public interface Property<T> {
 
 	String getGroup();
 
-	Property<T> copy(Model<?> model);
+	Property<T> newInstance(Model<?> model);
 
 	void init(InitializationContext context);
 

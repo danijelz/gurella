@@ -165,7 +165,7 @@ public class MapModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public Property<Set<Entry<?, ?>>> copy(Model<?> model) {
+		public Property<Set<Entry<?, ?>>> newInstance(Model<?> model) {
 			return new MapEntriesProperty(model);
 		}
 

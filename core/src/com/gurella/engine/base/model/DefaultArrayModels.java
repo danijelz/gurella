@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.ArrayType;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO remove if (input.isNull())

@@ -1,4 +1,4 @@
-package com.gurella.engine.base.serialization;
+package com.gurella.engine.base.serialization.json;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.serialization.Input;
+import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;

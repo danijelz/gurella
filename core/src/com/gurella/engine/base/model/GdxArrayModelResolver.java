@@ -228,7 +228,7 @@ public class GdxArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public Property<Boolean> copy(Model<?> newModel) {
+		public Property<Boolean> newInstance(Model<?> newModel) {
 			return new ArrayOrderedProperty(newModel);
 		}
 
@@ -307,7 +307,7 @@ public class GdxArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public Property<Object[]> copy(Model<?> model) {
+		public Property<Object[]> newInstance(Model<?> model) {
 			return new ArrayItemsProperty(model);
 		}
 

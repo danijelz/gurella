@@ -1,4 +1,4 @@
-package com.gurella.engine.base.serialization;
+package com.gurella.engine.base.serialization.json;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -14,6 +14,9 @@ import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.registry.Objects;
+import com.gurella.engine.base.serialization.Archive;
+import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
 
@@ -57,6 +60,9 @@ public class JsonOutput implements Output, Poolable {
 		
 		T duplicate = new CopyContext().copy(rootObject);
 		System.out.println(Objects.isEqual(rootObject, duplicate));
+		
+		Object copied = new CopyContext().copyProperties(rootObject, new Archive.Test());
+		System.out.println(Objects.isEqual(rootObject, copied));
 	}
 
 	private void writeReference(Class<?> expectedType, Object object) {

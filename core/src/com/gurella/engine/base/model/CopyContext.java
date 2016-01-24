@@ -18,9 +18,9 @@ public class CopyContext implements Poolable {
 
 	public void pushObject(Object duplicate) {
 		objectStack.add(duplicate);
-		if(copiedObjectStack.size > 0) {
+		if (copiedObjectStack.size > 0) {
 			Object original = copiedObjectStack.peek();
-			if(original.getClass() == duplicate.getClass()) {
+			if (original.getClass() == duplicate.getClass()) {
 				copiedObjects.put(original, duplicate);
 			}
 		}
@@ -35,15 +35,15 @@ public class CopyContext implements Poolable {
 	}
 
 	public <T> T copy(T original) {
-		if(original == null) {
+		if (original == null) {
 			return null;
 		}
 		@SuppressWarnings("unchecked")
 		T duplicate = (T) copiedObjects.get(original);
-		if(duplicate != null) {
+		if (duplicate != null) {
 			return duplicate;
 		}
-		
+
 		copiedObjectStack.add(original);
 		copiedObjects.put(original, null);
 		Model<T> model = Models.getModel(original);
@@ -51,5 +51,23 @@ public class CopyContext implements Poolable {
 		copiedObjects.put(original, duplicate);
 		copiedObjectStack.pop();
 		return duplicate;
+	}
+
+	public <T> T copyProperties(T source, T target) {
+		if (source == null || target == null) {
+			return null;
+		}
+
+		copiedObjectStack.add(source);
+		copiedObjects.put(source, target);
+		objectStack.add(target);
+		Model<T> model = Models.getModel(source);
+		ImmutableArray<Property<?>> properties = model.getProperties();
+		for (int i = 0; i < properties.size(); i++) {
+			properties.get(i).copy(source, target, this);
+		}
+		copiedObjectStack.pop();
+		objectStack.pop();
+		return target;
 	}
 }
