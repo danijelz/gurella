@@ -35,7 +35,7 @@ public class Archive implements Poolable {
 		externalFileNames.clear();
 	}
 
-	private static class ExternalDependency {
+	static class ExternalDependency {
 		String typeName;
 		String fileName;
 	}
