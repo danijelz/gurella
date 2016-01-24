@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
@@ -120,24 +119,6 @@ public class GdxArrayModelResolver implements ModelResolver {
 				return (Property<P>) properties.get(1);
 			} else {
 				return null;
-			}
-		}
-
-		@Override
-		public void serialize(T object, Class<?> knownType, Archive archive) {
-			if (object == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(object, knownType);
-
-				Class<?> componentType = object.items.getClass().getComponentType();
-				if (Object.class != componentType) {
-					archive.writeValue("componentType", componentType.getName(), String.class);
-				}
-
-				properties.get(0).serialize(object, archive);
-				properties.get(1).serialize(object, archive);
-				archive.writeObjectEnd();
 			}
 		}
 
@@ -282,13 +263,6 @@ public class GdxArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Archive archive) {
-			if (!((Array<?>) object).ordered) {
-				archive.writeValue(name, Boolean.FALSE, boolean.class);
-			}
-		}
-
-		@Override
 		public void serialize(Object object, Output output) {
 			if (!((Array<?>) object).ordered) {
 				output.writeBooleanProperty(name, false);
@@ -410,21 +384,6 @@ public class GdxArrayModelResolver implements ModelResolver {
 			Array<Object> array = (Array<Object>) object;
 			array.clear();
 			array.addAll(value);
-		}
-
-		@Override
-		public void serialize(Object object, Archive archive) {
-			Array<?> array = (Array<?>) object;
-			if (array.size == 0) {
-				return;
-			}
-
-			Class<?> componentType = array.items.getClass().getComponentType();
-			archive.writeArrayStart(name);
-			for (int i = 0; i < array.size; i++) {
-				archive.writeValue(array.get(i), componentType);
-			}
-			archive.writeArrayEnd();
 		}
 
 		@Override

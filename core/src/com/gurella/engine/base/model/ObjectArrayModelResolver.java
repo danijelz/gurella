@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ArrayType;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -136,28 +135,6 @@ public class ObjectArrayModelResolver implements ModelResolver {
 		@Override
 		public <P> Property<P> getProperty(String name) {
 			return null;
-		}
-
-		@Override
-		public void serialize(T value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				Object[] array = (Object[]) value;
-				Class<? extends Object> actualType = value.getClass();
-				archive.writeArrayStart();
-
-				if (actualType != knownType) {
-					archive.writeObjectStart(ArrayType.class);
-					archive.writeValue(ArrayType.typeNameField, actualType.getName(), String.class);
-					archive.writeObjectEnd();
-				}
-
-				for (int i = 0; i < array.length; i++) {
-					archive.writeValue(array[i], componentType);
-				}
-				archive.writeArrayEnd();
-			}
 		}
 
 		@Override

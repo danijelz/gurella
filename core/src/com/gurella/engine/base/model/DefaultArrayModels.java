@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.ArrayType;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -103,25 +102,6 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(T value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeArrayStart();
-				if (type != knownType) {
-					archive.writeObjectStart(ArrayType.class);
-					archive.writeValue(ArrayType.typeNameField, type.getName(), String.class);
-					archive.writeObjectEnd();
-				}
-
-				writeValues(value, archive);
-				archive.writeArrayEnd();
-			}
-		}
-
-		protected abstract void writeValues(T value, Archive archive);
-
-		@Override
 		public void serialize(T value, Output output) {
 			if (value == null) {
 				output.writeNull();
@@ -180,14 +160,6 @@ public class DefaultArrayModels {
 
 				deserialized = Integer.parseInt(item.asString());
 				initializingObject[i++] = deserialized;
-			}
-		}
-
-		@Override
-		protected void writeValues(int[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Integer.valueOf(value[i]), int.class);
 			}
 		}
 
@@ -257,14 +229,6 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		protected void writeValues(long[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Long.valueOf(value[i]), long.class);
-			}
-		}
-
-		@Override
 		protected void writeValues(long[] value, Output output) {
 			output.writeInt(value.length);
 			for (int i = 0; i < value.length; i++) {
@@ -326,14 +290,6 @@ public class DefaultArrayModels {
 
 				deserialized = Short.parseShort(item.asString());
 				initializingObject[i++] = deserialized;
-			}
-		}
-
-		@Override
-		protected void writeValues(short[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Short.valueOf(value[i]), short.class);
 			}
 		}
 
@@ -403,14 +359,6 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		protected void writeValues(byte[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Byte.valueOf(value[i]), byte.class);
-			}
-		}
-
-		@Override
 		protected void writeValues(byte[] value, Output output) {
 			output.writeInt(value.length);
 			for (int i = 0; i < value.length; i++) {
@@ -472,14 +420,6 @@ public class DefaultArrayModels {
 
 				deserialized = item.asString().charAt(0);
 				initializingObject[i++] = deserialized;
-			}
-		}
-
-		@Override
-		protected void writeValues(char[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Character.valueOf(value[i]), char.class);
 			}
 		}
 
@@ -549,14 +489,6 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		protected void writeValues(boolean[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Boolean.valueOf(value[i]), boolean.class);
-			}
-		}
-
-		@Override
 		protected void writeValues(boolean[] value, Output output) {
 			output.writeInt(value.length);
 			for (int i = 0; i < value.length; i++) {
@@ -622,14 +554,6 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		protected void writeValues(double[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Double.valueOf(value[i]), double.class);
-			}
-		}
-
-		@Override
 		protected void writeValues(double[] value, Output output) {
 			output.writeInt(value.length);
 			for (int i = 0; i < value.length; i++) {
@@ -691,14 +615,6 @@ public class DefaultArrayModels {
 
 				deserialized = Float.parseFloat(firstItem.asString());
 				initializingObject[i++] = deserialized;
-			}
-		}
-
-		@Override
-		protected void writeValues(float[] value, Archive archive) {
-			int length = value.length;
-			for (int i = 0; i < length; i++) {
-				archive.writeValue(Float.valueOf(value[i]), float.class);
 			}
 		}
 

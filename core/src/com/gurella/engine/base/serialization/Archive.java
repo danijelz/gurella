@@ -1,7 +1,6 @@
 package com.gurella.engine.base.serialization;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,25 +18,14 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
-import com.gurella.engine.asset.Assets;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.ManagedObject;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.resource.AsyncCallback;
-import com.gurella.engine.base.resource.ResourceService;
-import com.gurella.engine.base.serialization.Archive.Test.Test2;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
-import com.gurella.engine.utils.ReflectionUtils;
 
 public class Archive implements Poolable {
 	AsyncCallback<Object> callback;
@@ -65,19 +53,6 @@ public class Archive implements Poolable {
 		currentId = 0;
 		internalIds.clear();
 		externalFileNames.clear();
-	}
-
-	public <T> void serialize(T rootObject, Class<?> knownType) {
-		StringWriter buffer = new StringWriter();
-		writer = new JsonWriter(buffer);
-
-		internalIds.put(rootObject, currentId++);
-		Model<T> objectModel = Models.getModel(rootObject);
-		objectModel.serialize(rootObject, knownType, this);
-
-		System.out.println(json.prettyPrint(buffer.toString()));
-		// System.out.println(json.prettyPrint(json.toJson(rootObject)));
-		reset();
 	}
 
 	public void writeObjectStart(Object value, Class<?> knownType) {
@@ -142,126 +117,11 @@ public class Archive implements Poolable {
 		pop();
 	}
 
-	public void writeValue(String name, Object value, Class<?> knownType) {
-		name(name);
-		writeValue(value, knownType);
-	}
-
 	private void name(String name) {
 		try {
 			writer.name(name);
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
-		}
-	}
-
-	public void writeValue(Object value, Class<?> knownType) {
-		if (value == null || knownType.isPrimitive() || String.class == knownType) {
-			value(value);
-		} else if (value instanceof ManagedObject) {
-			// ManagedObject managedObject = (ManagedObject) value;
-			// String resourceFileName = ResourceService.getResourceFileName(managedObject);
-			// boolean isLocalObject = fileName.equals(resourceFileName);
-			// if (isLocalObject) {
-			// if (internalIds.get(value, -1) > 0) {
-			// ObjectReference objectReference = new ObjectReference(managedObject.getId(), null);
-			// json1.writeValue(objectReference, ObjectReference.class);
-			// } else {
-			// Model<Object> model = Models.getModel(value);
-			// model.serialize(value, knownType, this);
-			// }
-			// } else {
-			// ExternalDependency dependency = new ExternalDependency();
-			// dependency.typeName = ManagedObject.class.getName();
-			// dependency.fileName = resourceFileName;
-			// externalDependencies.add(dependency);
-			// externalFileNames.add(resourceFileName);
-			//
-			// ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
-			// json1.writeValue(objectReference, ObjectReference.class);
-			// }
-		} else if (Assets.isAsset(value)) {
-			AssetReference reference = new AssetReference(ResourceService.getResourceFileName(value), value.getClass());
-			if (Assets.isAssetType(knownType)) {
-
-			}
-		} else {
-			Model<Object> model = Models.getModel(value);
-			model.serialize(value, knownType, this);
-		}
-	}
-
-	private void value(Object value) {
-		try {
-			writer.value(value);
-		} catch (IOException ex) {
-			throw new SerializationException(ex);
-		}
-	}
-
-	private Array<Object> objectsToSerialize = new Array<Object>();
-
-	public void writeValue12(Object value, Class<?> knownType) {
-		if (value == null || Serialization.isSimpleType(value)) {
-			json.writeValue(value, knownType);
-		} else if (value instanceof ManagedObject) {
-			ManagedObject managedObject = (ManagedObject) value;
-			String resourceFileName = ResourceService.getResourceFileName(managedObject);
-			boolean isLocalObject = fileName.equals(resourceFileName);
-			if (isLocalObject) {
-				if (internalIds.get(value, -1) > 0) {
-					ObjectReference objectReference = new ObjectReference(managedObject.getId(), null);
-					json.writeValue(objectReference, ObjectReference.class);
-				} else {
-					Model<Object> model = Models.getModel(value);
-					model.serialize(value, knownType, this);
-				}
-			} else {
-				ExternalDependency dependency = new ExternalDependency();
-				dependency.typeName = ManagedObject.class.getName();
-				dependency.fileName = resourceFileName;
-				externalDependencies.add(dependency);
-				externalFileNames.add(resourceFileName);
-
-				ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
-				json.writeValue(objectReference, ObjectReference.class);
-			}
-		} else if (Assets.isAsset(value)) {
-			AssetReference reference = new AssetReference(ResourceService.getResourceFileName(value), value.getClass());
-			if (Assets.isAssetType(knownType)) {
-
-			}
-		} else {
-			int internalId = internalIds.get(value, -1);
-			if (internalId > 0) {
-				json.writeValue(Integer.valueOf(internalId), int.class);
-			} else {
-				if (value instanceof ManagedObject) {
-					ManagedObject managedObject = (ManagedObject) value;
-					String resourceFileName = ResourceService.getResourceFileName(managedObject);
-					boolean isLocalObject = fileName.equals(resourceFileName);
-					if (isLocalObject) {
-						internalIds.put(value, currentId);
-						json.writeValue(Integer.valueOf(currentId), int.class);
-						currentId++;
-						objectsToSerialize.add(value);
-					} else {
-						ExternalDependency dependency = new ExternalDependency();
-						dependency.typeName = ManagedObject.class.getName();
-						dependency.fileName = resourceFileName;
-						externalDependencies.add(dependency);
-						externalFileNames.add(resourceFileName);
-
-						ObjectReference objectReference = new ObjectReference(managedObject.getId(), resourceFileName);
-						json.writeValue(objectReference, ObjectReference.class);
-					}
-				} else {
-					internalIds.put(value, currentId);
-					json.writeValue(Integer.valueOf(currentId), int.class);
-					currentId++;
-					objectsToSerialize.add(value);
-				}
-			}
 		}
 	}
 
@@ -271,382 +131,83 @@ public class Archive implements Poolable {
 	}
 
 	public static void main(String[] args) {
-		String str = "{\n" + 
-				"i: 8\n" + 
-				"s: sss\n" + 
-				"a: [\n" + 
-				"	{\n" + 
-				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
-				"		typeName: \"[Ljava.lang.String;\"\n" + 
-				"	}\n" + 
-				"	bbb\n" + 
-				"	eee\n" + 
-				"]\n" + 
-				"b: [\n" + 
-				"	{\n" + 
-				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
-				"		typeName: \"[Ljava.lang.String;\"\n" + 
-				"	}\n" + 
-				"	sss\n" + 
-				"]\n" + 
-				"t1: {\n" + 
-				"	i1: 5\n" + 
-				"}\n" + 
-				"arr: {\n" + 
-				"	componentType: java.lang.String\n" + 
-				"	items: [\n" + 
-				"		value\n" + 
-				"		ddd\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"map: {\n" + 
-				"	class: java.util.HashMap\n" + 
-				"	entries: [\n" + 
-				"		[\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"		]\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"ba: {\n" + 
-				"	items: [\n" + 
-				"		true\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"		false\n" + 
-				"	]\n" + 
-				"	size: 1\n" + 
-				"}\n" + 
-				"sb: {\n" + 
-				"	value: [\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"		d\n" + 
-				"	]\n" + 
-				"	count: 16\n" + 
-				"}\n" + 
-				"is: {\n" + 
-				"	size: 1\n" + 
-				"	keyTable: [ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\n" + 
-				"}\n" + 
-				"am: {\n" + 
-				"	keys: [\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	values: [\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	size: 1\n" + 
-				"}\n" + 
-				"cls: java.lang.String\n" + 
-				"te: a\n" + 
-				"tes: {\n" + 
-				"	type: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
-				"	items: [\n" + 
-				"		{\n" + 
-				"			class: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
-				"			value: b\n" + 
-				"		}\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"lo: {\n" + 
-				"	language: en\n" + 
-				"	country: CA\n" + 
-				"	variant: \"\"\n" + 
-				"}\n" + 
-				"om: {\n" + 
-				"	size: 1\n" + 
-				"	keyTable: [\n" + 
-				"		null\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	valueTable: [\n" + 
-				"		null\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	keys: {\n" + 
-				"		items: [\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"		]\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"os: {\n" + 
-				"	size: 1\n" + 
-				"	keyTable: [\n" + 
-				"		null\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"		null\n" + 
-				"	]\n" + 
-				"	items: {\n" + 
-				"		items: [\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"		]\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"el: {\n" + 
-				"	class: java.util.Collections$EmptyList\n" + 
-				"}\n" + 
-				"em: {\n" + 
-				"	keyType: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
-				"	entries: [\n" + 
-				"		[\n" + 
-				"			{\n" + 
-				"				class: com.gurella.engine.base.serialization.Archive$TestEnum\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"		]\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"ts: {\n" + 
-				"	comparator: {\n" + 
-				"		class: com.gurella.engine.base.serialization.Archive$1\n" + 
-				"	}\n" + 
-				"	items: [\n" + 
-				"		{\n" + 
-				"			class: java.lang.String\n" + 
-				"			value: a\n" + 
-				"		}\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"tm: {\n" + 
-				"	comparator: {\n" + 
-				"		class: com.gurella.engine.base.serialization.Archive$2\n" + 
-				"	}\n" + 
-				"	entries: [\n" + 
-				"		[\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"			{\n" + 
-				"				class: java.lang.String\n" + 
-				"				value: a\n" + 
-				"			}\n" + 
-				"		]\n" + 
-				"	]\n" + 
-				"}\n" + 
-				"ia: [ 0, 0, 0 ]\n" + 
-				"oia: [\n" + 
-				"	{\n" + 
-				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
-				"		typeName: \"[I\"\n" + 
-				"	}\n" + 
-				"	0\n" + 
-				"	0\n" + 
-				"	0\n" + 
-				"]\n" + 
-				"di: [\n" + 
-				"	[ 1, 1 ]\n" + 
-				"	[ 1, 1 ]\n" + 
-				"]\n" + 
-				"odi: [\n" + 
-				"	{\n" + 
-				"		class: com.gurella.engine.base.serialization.ArrayType\n" + 
-				"		typeName: \"[[I\"\n" + 
-				"	}\n" + 
-				"	[ 1, 1 ]\n" + 
-				"	[ 1, 1 ]\n" + 
-				"]\n" + 
-				"}";
+		String str = "{\n" + "i: 8\n" + "s: sss\n" + "a: [\n" + "	{\n"
+				+ "		class: com.gurella.engine.base.serialization.ArrayType\n"
+				+ "		typeName: \"[Ljava.lang.String;\"\n" + "	}\n" + "	bbb\n" + "	eee\n" + "]\n" + "b: [\n"
+				+ "	{\n" + "		class: com.gurella.engine.base.serialization.ArrayType\n"
+				+ "		typeName: \"[Ljava.lang.String;\"\n" + "	}\n" + "	sss\n" + "]\n" + "t1: {\n" + "	i1: 5\n"
+				+ "}\n" + "arr: {\n" + "	componentType: java.lang.String\n" + "	items: [\n" + "		value\n"
+				+ "		ddd\n" + "	]\n" + "}\n" + "map: {\n" + "	class: java.util.HashMap\n" + "	entries: [\n"
+				+ "		[\n" + "			{\n" + "				class: java.lang.String\n"
+				+ "				value: a\n" + "			}\n" + "			{\n"
+				+ "				class: java.lang.String\n" + "				value: a\n" + "			}\n" + "		]\n"
+				+ "	]\n" + "}\n" + "ba: {\n" + "	items: [\n" + "		true\n" + "		false\n" + "		false\n"
+				+ "		false\n" + "		false\n" + "		false\n" + "		false\n" + "		false\n"
+				+ "		false\n" + "		false\n" + "		false\n" + "		false\n" + "		false\n"
+				+ "		false\n" + "		false\n" + "		false\n" + "	]\n" + "	size: 1\n" + "}\n"
+				+ "sb: {\n" + "	value: [\n" + "		d\n" + "		d\n" + "		d\n" + "		d\n" + "		d\n"
+				+ "		d\n" + "		d\n" + "		d\n" + "		d\n" + "		d\n" + "		d\n"
+				+ "		d\n" + "		d\n" + "		d\n" + "		d\n" + "		d\n" + "	]\n"
+				+ "	count: 16\n" + "}\n" + "is: {\n" + "	size: 1\n"
+				+ "	keyTable: [ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\n"
+				+ "}\n" + "am: {\n" + "	keys: [\n" + "		{\n" + "			class: java.lang.String\n"
+				+ "			value: a\n" + "		}\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "	]\n"
+				+ "	values: [\n" + "		{\n" + "			class: java.lang.String\n" + "			value: a\n"
+				+ "		}\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "	]\n" + "	size: 1\n" + "}\n"
+				+ "cls: java.lang.String\n" + "te: a\n" + "tes: {\n"
+				+ "	type: com.gurella.engine.base.serialization.Archive$TestEnum\n" + "	items: [\n" + "		{\n"
+				+ "			class: com.gurella.engine.base.serialization.Archive$TestEnum\n" + "			value: b\n"
+				+ "		}\n" + "	]\n" + "}\n" + "lo: {\n" + "	language: en\n" + "	country: CA\n"
+				+ "	variant: \"\"\n" + "}\n" + "om: {\n" + "	size: 1\n" + "	keyTable: [\n" + "		null\n"
+				+ "		{\n" + "			class: java.lang.String\n" + "			value: a\n" + "		}\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "	]\n" + "	valueTable: [\n" + "		null\n" + "		{\n"
+				+ "			class: java.lang.String\n" + "			value: a\n" + "		}\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "	]\n" + "	keys: {\n" + "		items: [\n" + "			{\n"
+				+ "				class: java.lang.String\n" + "				value: a\n" + "			}\n" + "		]\n"
+				+ "	}\n" + "}\n" + "os: {\n" + "	size: 1\n" + "	keyTable: [\n" + "		null\n" + "		{\n"
+				+ "			class: java.lang.String\n" + "			value: a\n" + "		}\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n" + "		null\n"
+				+ "		null\n" + "	]\n" + "	items: {\n" + "		items: [\n" + "			{\n"
+				+ "				class: java.lang.String\n" + "				value: a\n" + "			}\n" + "		]\n"
+				+ "	}\n" + "}\n" + "el: {\n" + "	class: java.util.Collections$EmptyList\n" + "}\n" + "em: {\n"
+				+ "	keyType: com.gurella.engine.base.serialization.Archive$TestEnum\n" + "	entries: [\n" + "		[\n"
+				+ "			{\n" + "				class: com.gurella.engine.base.serialization.Archive$TestEnum\n"
+				+ "				value: a\n" + "			}\n" + "			{\n"
+				+ "				class: java.lang.String\n" + "				value: a\n" + "			}\n" + "		]\n"
+				+ "	]\n" + "}\n" + "ts: {\n" + "	comparator: {\n"
+				+ "		class: com.gurella.engine.base.serialization.Archive$1\n" + "	}\n" + "	items: [\n"
+				+ "		{\n" + "			class: java.lang.String\n" + "			value: a\n" + "		}\n" + "	]\n"
+				+ "}\n" + "tm: {\n" + "	comparator: {\n"
+				+ "		class: com.gurella.engine.base.serialization.Archive$2\n" + "	}\n" + "	entries: [\n"
+				+ "		[\n" + "			{\n" + "				class: java.lang.String\n"
+				+ "				value: a\n" + "			}\n" + "			{\n"
+				+ "				class: java.lang.String\n" + "				value: a\n" + "			}\n" + "		]\n"
+				+ "	]\n" + "}\n" + "ia: [ 0, 0, 0 ]\n" + "oia: [\n" + "	{\n"
+				+ "		class: com.gurella.engine.base.serialization.ArrayType\n" + "		typeName: \"[I\"\n" + "	}\n"
+				+ "	0\n" + "	0\n" + "	0\n" + "]\n" + "di: [\n" + "	[ 1, 1 ]\n" + "	[ 1, 1 ]\n" + "]\n"
+				+ "odi: [\n" + "	{\n" + "		class: com.gurella.engine.base.serialization.ArrayType\n"
+				+ "		typeName: \"[[I\"\n" + "	}\n" + "	[ 1, 1 ]\n" + "	[ 1, 1 ]\n" + "]\n" + "}";
 
 		Test obj = new Test();
 		obj.i = 8;
@@ -689,24 +250,24 @@ public class Archive implements Poolable {
 		obj.di = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.odi = new int[][] { { 1, 1 }, { 1, 1 } };
 		obj.test2.iiiiiiiiiiiiiiii1 = 0;
-		//obj.child = obj;
+		// obj.child = obj;
 
-		/*new Archive().serialize(new Test(), Test.class);
-		new Archive().serialize(obj, Test.class);
-
-		Model<int[][]> sbModel = Models.getModel(int[][].class);
-		sbModel.getProperties();
-
-		JsonValue value = new JsonReader().parse(str);
-		InitializationContext context = new InitializationContext();
-		Model<Test> model = Models.getModel(Test.class);
-		context.push(null, null, value);
-		Test instance = model.createInstance(context);
-		context.setInitializingObject(instance);
-		model.initInstance(context);
-
-		System.out.println(Objects.isEqual(obj, instance));
-		instance.ts.add("b");*/
+		/*
+		 * new Archive().serialize(new Test(), Test.class); new
+		 * Archive().serialize(obj, Test.class);
+		 * 
+		 * Model<int[][]> sbModel = Models.getModel(int[][].class);
+		 * sbModel.getProperties();
+		 * 
+		 * JsonValue value = new JsonReader().parse(str); InitializationContext
+		 * context = new InitializationContext(); Model<Test> model =
+		 * Models.getModel(Test.class); context.push(null, null, value); Test
+		 * instance = model.createInstance(context);
+		 * context.setInitializingObject(instance); model.initInstance(context);
+		 * 
+		 * System.out.println(Objects.isEqual(obj, instance));
+		 * instance.ts.add("b");
+		 */
 
 		System.out.println("\n\n\n\n\n\n\n");
 		new JsonOutput().serialize(Test.class, obj);
@@ -739,7 +300,7 @@ public class Archive implements Poolable {
 		public Object oia;
 		public int[][] di;
 		public Object odi;
-		public Test child; 
+		public Test child;
 
 		public Test() {
 			arr = new ArrayExt<String>(String.class);
@@ -750,7 +311,7 @@ public class Archive implements Poolable {
 		public String toString() {
 			return "Test [i=" + i + ", s=" + s + ", a=" + Arrays.toString(a) + ", t1=" + t1 + ", arr=" + arr + "]";
 		}
-		
+
 		public class Test2 {
 			public int iiiiiiiiiiiiiiii1 = 2;
 			public String s1 = "ddd";

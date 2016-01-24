@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -96,25 +95,6 @@ public class EnumModelResolver implements ModelResolver {
 				return serializedValue.getString("value");
 			} else {
 				return serializedValue.asString();
-			}
-		}
-
-		@Override
-		public void serialize(T value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				if (knownType == value.getClass()) {
-					archive.writeValue(value.name(), String.class);
-				} else {
-					if (knownType == enumType) {
-						archive.writeValue(value.name(), String.class);
-					} else {
-						archive.writeObjectStart(enumType);
-						archive.writeValue("value", value.name(), String.class);
-						archive.writeObjectEnd();
-					}
-				}
 			}
 		}
 

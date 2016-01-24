@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
@@ -109,17 +108,6 @@ public class MapModelResolver implements ModelResolver {
 				return (Property<P>) properties.get(0);
 			} else {
 				return null;
-			}
-		}
-
-		@Override
-		public void serialize(T object, Class<?> knownType, Archive archive) {
-			if (object == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(object, knownType);
-				properties.get(0).serialize(object, archive);
-				archive.writeObjectEnd();
 			}
 		}
 
@@ -253,24 +241,6 @@ public class MapModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Archive archive) {
-			@SuppressWarnings("unchecked")
-			Map<Object, Object> map = (Map<Object, Object>) object;
-			if (map.isEmpty()) {
-				return;
-			}
-
-			archive.writeArrayStart(name);
-			for (Entry<?, ?> entry : map.entrySet()) {
-				archive.writeArrayStart();
-				archive.writeValue(entry.getKey(), Object.class);
-				archive.writeValue(entry.getValue(), Object.class);
-				archive.writeArrayEnd();
-			}
-			archive.writeArrayEnd();
-		}
-
-		@Override
 		public void serialize(Object object, Output output) {
 			@SuppressWarnings("unchecked")
 			Map<Object, Object> map = (Map<Object, Object>) object;
@@ -350,19 +320,6 @@ public class MapModelResolver implements ModelResolver {
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				TreeMap<?, ?> casted = new TreeMap(comparator);
 				return casted;
-			}
-		}
-
-		@Override
-		public void serialize(TreeMap<?, ?> value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(value, knownType);
-				Comparator<?> comparator = value.comparator();
-				archive.writeValue("comparator", comparator, Comparator.class);
-				getProperties().get(0).serialize(value, archive);
-				archive.writeObjectEnd();
 			}
 		}
 
@@ -450,18 +407,6 @@ public class MapModelResolver implements ModelResolver {
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				EnumMap<?, ?> casted = new EnumMap(keyType);
 				return casted;
-			}
-		}
-
-		@Override
-		public void serialize(EnumMap<?, ?> object, Class<?> knownType, Archive archive) {
-			if (object == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(object, knownType);
-				archive.writeValue(keyTypeFieldName, getKeyType(object).getName(), String.class);
-				getProperties().get(0).serialize(object, archive);
-				archive.writeObjectEnd();
 			}
 		}
 

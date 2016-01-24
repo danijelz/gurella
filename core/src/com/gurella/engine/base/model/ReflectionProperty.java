@@ -13,7 +13,6 @@ import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
@@ -265,14 +264,6 @@ public class ReflectionProperty<T> implements Property<T> {
 		context.push(target, source, null);
 		model.initInstance(context);
 		SynchronizedPools.free(context);
-	}
-
-	@Override
-	public void serialize(Object object, Archive archive) {
-		T value = getValue(object);
-		if (!Objects.isEqual(value, defaultValue)) {
-			archive.writeValue(name, value, type);
-		}
 	}
 
 	@Override

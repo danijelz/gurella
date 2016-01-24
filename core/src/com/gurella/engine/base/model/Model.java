@@ -1,7 +1,6 @@
 package com.gurella.engine.base.model;
 
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -19,11 +18,9 @@ public interface Model<T> {
 
 	<P> Property<P> getProperty(String name);
 
-	void serialize(T value, Class<?> knownType, Archive archive);
-
 	void serialize(T value, Output output);
 
 	T deserialize(Input input);
-	
+
 	T copy(T original, CopyContext context);
 }

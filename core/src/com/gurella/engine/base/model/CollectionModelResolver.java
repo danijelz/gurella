@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
@@ -108,17 +107,6 @@ public class CollectionModelResolver implements ModelResolver {
 				return (Property<P>) properties.get(0);
 			} else {
 				return null;
-			}
-		}
-
-		@Override
-		public void serialize(T object, Class<?> knownType, Archive archive) {
-			if (object == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(object, knownType);
-				properties.get(0).serialize(object, archive);
-				archive.writeObjectEnd();
 			}
 		}
 
@@ -259,21 +247,6 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Archive archive) {
-			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) object;
-			if (collection.isEmpty()) {
-				return;
-			}
-
-			archive.writeArrayStart(name);
-			for (Object item : collection) {
-				archive.writeValue(item, Object.class);
-			}
-			archive.writeArrayEnd();
-		}
-
-		@Override
 		public void serialize(Object object, Output output) {
 			@SuppressWarnings("unchecked")
 			Collection<Object> collection = (Collection<Object>) object;
@@ -353,19 +326,6 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(TreeSet<?> value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(value, knownType);
-				Comparator<?> comparator = value.comparator();
-				archive.writeValue("comparator", comparator, Comparator.class);
-				getProperties().get(0).serialize(value, archive);
-				archive.writeObjectEnd();
-			}
-		}
-
-		@Override
 		public void serialize(TreeSet<?> value, Output output) {
 			if (value == null) {
 				output.writeNull();
@@ -439,18 +399,6 @@ public class CollectionModelResolver implements ModelResolver {
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				EnumSet enumSet = EnumSet.noneOf(enumType);
 				return enumSet;
-			}
-		}
-
-		@Override
-		public void serialize(EnumSet<?> value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else {
-				archive.writeObjectStart(value, value.getClass());
-				archive.writeValue("type", getEnumType(value).getName(), String.class);
-				getProperties().get(0).serialize(value, archive);
-				archive.writeObjectEnd();
 			}
 		}
 

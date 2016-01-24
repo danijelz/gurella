@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
@@ -173,21 +172,6 @@ public class ReflectionModel<T> implements Model<T> {
 		ImmutableArray<Property<?>> properties = getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).init(context);
-		}
-	}
-
-	@Override
-	public void serialize(T object, Class<?> knownType, Archive archive) {
-		if (object == null) {
-			archive.writeValue(null, null);
-		} else {
-			archive.writeObjectStart(object, knownType);
-			ImmutableArray<Property<?>> properties = getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				Property<?> property = properties.get(i);
-				property.serialize(object, archive);
-			}
-			archive.writeObjectEnd();
 		}
 	}
 

@@ -6,7 +6,6 @@ import java.util.Date;
 
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -77,11 +76,6 @@ public class DefaultModels {
 	public static abstract class PrimitiveModel<T> extends SimpleModel<T> {
 		public PrimitiveModel(Class<T> type) {
 			super(type);
-		}
-
-		@Override
-		public void serialize(T value, Class<?> knownType, Archive archive) {
-			archive.writeValue(value, knownType);
 		}
 	}
 
@@ -390,19 +384,6 @@ public class DefaultModels {
 		@Override
 		protected T createDefaultValue() {
 			return null;
-		}
-
-		@Override
-		public void serialize(T value, Class<?> knownType, Archive archive) {
-			if (value == null) {
-				archive.writeValue(null, null);
-			} else if (value.getClass() == knownType) {
-				archive.writeValue(extractSimpleValue(value), simpleValueType);
-			} else {
-				archive.writeObjectStart(value, knownType);
-				archive.writeValue("value", extractSimpleValue(value), simpleValueType);
-				archive.writeObjectEnd();
-			}
 		}
 
 		protected abstract V extractSimpleValue(T value);
