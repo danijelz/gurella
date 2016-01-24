@@ -2,7 +2,6 @@ package com.gurella.engine.base.registry;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
@@ -153,7 +152,7 @@ public abstract class ObjectRegistry implements Serializable {
 			for (JsonValue value : values) {
 				int id = value.getInt("id");
 				ManagedObject object = objects.get(id);
-				context.push(object, templates.get(templateMappings.get(id, -1)), value);
+				//context.push(object, templates.get(templateMappings.get(id, -1)), value);
 				object.init(context);
 				context.pop();
 			}
@@ -182,7 +181,7 @@ public abstract class ObjectRegistry implements Serializable {
 			Model<? extends ManagedObject> model = Models.getModel(object.getClass());
 
 			// TODO find dependencies and notify progress
-			model.initInstance(context);
+			//model.initInstance(context);
 			callback.onProgress(1);
 			SynchronizedPools.free(this);
 			return null;

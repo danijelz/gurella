@@ -219,6 +219,21 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
+	private Constructor getConstructor(Object enclosingInstance) {
+		if (constructor != null) {
+			return constructor;
+		}
+
+		if (innerClass) {
+			constructor = ReflectionUtils.findInnerClassDeclaredConstructor(type, enclosingInstance);
+		} else {
+			constructor = ReflectionUtils.getDeclaredConstructor(type);
+		}
+
+		constructor.setAccessible(true);
+		return constructor;
+	}
+
 	@Override
 	public T copy(T original, CopyContext context) {
 		if (original == null) {
@@ -236,26 +251,10 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-	@Override
-	public T create(CreationContext context) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private Constructor getConstructor(Object enclosingInstance) {
-		if (constructor != null) {
-			return constructor;
-		}
-
-		if (innerClass) {
-			constructor = ReflectionUtils.findInnerClassDeclaredConstructor(type, enclosingInstance);
-		} else {
-			constructor = ReflectionUtils.getDeclaredConstructor(type);
-		}
-
-		constructor.setAccessible(true);
-		return constructor;
-	}
+//	@Override
+//	public T create(CreationContext context) {
+//		return createInstance(innerClass ? context.getObjectStack().peek() : null);
+//	}
 
 	private void resolveProperties() {
 		Class<? super T> supertype = type.getSuperclass();

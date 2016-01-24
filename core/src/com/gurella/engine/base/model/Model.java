@@ -24,5 +24,5 @@ public interface Model<T> {
 
 	T copy(T original, CopyContext context);
 	
-	T create(CreationContext context);
+	//T create(CreationContext context);
 }

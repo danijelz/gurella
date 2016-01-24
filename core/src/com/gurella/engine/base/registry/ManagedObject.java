@@ -23,7 +23,7 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 		instanceId = indexer++;
 		id = instanceId;
 	}
-	
+
 	public ManagedObject getTemplate() {
 		return null;
 	}
@@ -58,10 +58,6 @@ public class ManagedObject implements Comparable<ManagedObject>, Serializable {
 
 	public boolean isInitialized() {
 		return initialized;
-	}
-
-	public int getId() {
-		return id;
 	}
 
 	@Override

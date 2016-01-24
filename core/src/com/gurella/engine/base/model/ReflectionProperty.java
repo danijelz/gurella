@@ -262,7 +262,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void serialize(Object object, Output output) {
 		T value = getValue(object);
-		if (!Objects.isEqual(value, getTemplateValue(object))) {
+		if (!Objects.isEqual(value, defaultValue)) {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {
@@ -271,6 +271,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
+	//TODO
 	private T getTemplateValue(Object object) {
 		if (object instanceof ManagedObject) {
 			Object template = ((ManagedObject) object).getTemplate();
