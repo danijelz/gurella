@@ -15,7 +15,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.SynchronizedPools;
@@ -205,7 +205,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			return;
 		}
 
-		Class<T> resolvedType = type.isPrimitive() ? type : Serialization.resolveObjectType(type, serializedValue);
+		Class<T> resolvedType = type.isPrimitive() ? type : JsonSerialization.resolveObjectType(type, serializedValue);
 		Model<T> model = Models.getModel(resolvedType);
 		Object template = context.template();
 		T templateValue = template == null ? null : getValue(template);

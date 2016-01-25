@@ -6,7 +6,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -73,7 +73,7 @@ public class ObjectArrayModelFactory implements ModelFactory {
 				int length = serializedValue.size;
 				if (length > 0) {
 					JsonValue itemValue = serializedValue.child;
-					Class<?> itemType = Serialization.resolveObjectType(Object.class, itemValue);
+					Class<?> itemType = JsonSerialization.resolveObjectType(Object.class, itemValue);
 					if (itemType == ArrayType.class) {
 						Class<?> arrayType = ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
 						@SuppressWarnings("unchecked")
@@ -111,7 +111,7 @@ public class ObjectArrayModelFactory implements ModelFactory {
 			} else {
 				Class<?> componentType = initializingObject.getClass().getComponentType();
 				JsonValue item = serializedValue.child;
-				Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
+				Class<?> itemType = JsonSerialization.resolveObjectType(Object.class, item);
 				if (itemType == ArrayType.class) {
 					item = item.next;
 				}
@@ -121,7 +121,7 @@ public class ObjectArrayModelFactory implements ModelFactory {
 					if (item.isNull()) {
 						initializingObject[i++] = null;
 					} else {
-						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+						Class<?> resolvedType = JsonSerialization.resolveObjectType(componentType, item);
 						initializingObject[i++] = Objects.deserialize(item, resolvedType, context);
 					}
 				}

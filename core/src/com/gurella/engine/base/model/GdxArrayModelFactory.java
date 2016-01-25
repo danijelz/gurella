@@ -10,7 +10,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
@@ -83,7 +83,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 					return null;
 				}
 
-				Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
+				Class<T> resolvedType = JsonSerialization.resolveObjectType(type, serializedValue);
 				JsonValue componentTypeValue = serializedValue.get("componentType");
 				if (componentTypeValue != null) {
 					Class<?> componentType = ReflectionUtils.forNameSilently(componentTypeValue.asString());
@@ -382,7 +382,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 					if (item.isNull()) {
 						array.add(null);
 					} else {
-						Class<?> resolvedType = Serialization.resolveObjectType(componentType, item);
+						Class<?> resolvedType = JsonSerialization.resolveObjectType(componentType, item);
 						array.add(Objects.deserialize(item, resolvedType, context));
 					}
 				}

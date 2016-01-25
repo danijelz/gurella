@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -56,10 +56,10 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType) {
-		Class<T> resolvedType = Serialization.resolveObjectType(expectedType, jsonValue);
+		Class<T> resolvedType = JsonSerialization.resolveObjectType(expectedType, jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
 
-		push(Serialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
+		push(JsonSerialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
 		T object = model.deserialize(this);
 		pop();
 
@@ -147,7 +147,7 @@ public class JsonInput implements Input, Poolable {
 		T result;
 		if (value.isNull()) {
 			result = null;
-		} else if (expectedType != null && (expectedType.isPrimitive() || Serialization.isSimpleType(expectedType))) {
+		} else if (expectedType != null && (expectedType.isPrimitive() || JsonSerialization.isSimpleType(expectedType))) {
 			if (value.isObject()) {
 				push(value.get("value"));
 			} else {
@@ -159,8 +159,8 @@ public class JsonInput implements Input, Poolable {
 			result = deserializeObject(value, expectedType);
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
-			Class<?> itemType = Serialization.resolveObjectType(Object.class, firstItem);
-			if (itemType == ArrayType.class) {
+			String itemTypeName = firstItem.getString("class", null);
+			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
 				Class<?> arrayType = ReflectionUtils.forName(firstItem.getString(ArrayType.typeNameField));
 				@SuppressWarnings("unchecked")
 				T array = (T) deserializeObjectResolved(firstItem.next, arrayType);

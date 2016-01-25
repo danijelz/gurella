@@ -7,7 +7,7 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SynchronizedPools;
 
@@ -46,8 +46,8 @@ public class Objects {
 	}
 
 	public static <T> T deserialize(JsonValue serializedObject, Class<T> objectType, InitializationContext context) {
-		Class<T> resolvedType = Serialization.resolveObjectType(objectType, serializedObject);
-		if (Serialization.isSimpleType(resolvedType)) {
+		Class<T> resolvedType = JsonSerialization.resolveObjectType(objectType, serializedObject);
+		if (JsonSerialization.isSimpleType(resolvedType)) {
 			return context.json.readValue(resolvedType, null, serializedObject);
 		}
 		Model<T> model = Models.getModel(resolvedType);
@@ -65,7 +65,7 @@ public class Objects {
 		}
 
 		Class<?> valueType = value.getClass();
-		if (Serialization.isSimpleType(valueType)) {
+		if (JsonSerialization.isSimpleType(valueType)) {
 			return value;
 		} else if (Assets.isAssetType(valueType)) {
 			context.assetRegistry.inreaseRef(value);
@@ -123,8 +123,6 @@ public class Objects {
 
 				return true;
 			}
-		} else if (Serialization.isSimpleType(firstType)) {
-			return first.equals(second);
 		} else {
 			Model<?> model = Models.getModel(first);
 			ImmutableArray<Property<?>> properties = model.getProperties();

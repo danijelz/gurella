@@ -15,7 +15,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
@@ -84,7 +84,7 @@ public class MapModelFactory implements ModelFactory {
 			} else if (serializedValue.isNull()) {
 				return null;
 			} else {
-				Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
+				Class<T> resolvedType = JsonSerialization.resolveObjectType(type, serializedValue);
 				return ReflectionUtils.newInstance(resolvedType);
 			}
 		}
@@ -263,7 +263,7 @@ public class MapModelFactory implements ModelFactory {
 			Object[][] templateEntries = null;
 			if (template != null) {
 				@SuppressWarnings("unchecked")
-				Map<Object, Object> templateMap = (Map<Object, Object>) object;
+				Map<Object, Object> templateMap = (Map<Object, Object>) template;
 				templateEntries = new Object[templateMap.size()][2];
 				for (Entry<?, ?> entry : templateMap.entrySet()) {
 					templateEntries[i][0] = entry.getKey();

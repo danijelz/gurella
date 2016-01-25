@@ -16,7 +16,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Archive;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
 
@@ -92,7 +92,7 @@ public class JsonOutput implements Output, Poolable {
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
 				object();
-				type(ArrayType.class);
+				writeStringProperty("class", ArrayType.class.getSimpleName());
 				writeStringProperty(ArrayType.typeNameField, actualType.getName());
 				pop();
 			}
@@ -210,7 +210,7 @@ public class JsonOutput implements Output, Poolable {
 			@SuppressWarnings("unchecked")
 			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
 			model.serialize(value, null, this);
-		} else if (Serialization.isSimpleType(value)) {
+		} else if (JsonSerialization.isSimpleType(value)) {
 			Model<Object> model = Models.getModel(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {

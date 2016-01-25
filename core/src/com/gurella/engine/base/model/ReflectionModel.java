@@ -27,7 +27,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
@@ -164,7 +164,7 @@ public class ReflectionModel<T> implements Model<T> {
 		} else if (serializedValue.isNull()) {
 			return null;
 		} else {
-			return ReflectionUtils.newInstance(Serialization.resolveObjectType(type, serializedValue));
+			return ReflectionUtils.newInstance(JsonSerialization.resolveObjectType(type, serializedValue));
 		}
 	}
 

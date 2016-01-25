@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueUtils;
@@ -49,7 +49,7 @@ public class DefaultArrayModels {
 				int length = serializedValue.size;
 				if (length > 0) {
 					JsonValue itemValue = serializedValue.child;
-					Class<?> itemType = Serialization.resolveObjectType(Object.class, itemValue);
+					Class<?> itemType = JsonSerialization.resolveObjectType(Object.class, itemValue);
 					if (itemType == ArrayType.class) {
 						length--;
 					}
@@ -79,7 +79,7 @@ public class DefaultArrayModels {
 				initFromTemplate(initializingObject, context.<T> template());
 			} else {
 				JsonValue item = serializedValue.child;
-				Class<?> itemType = Serialization.resolveObjectType(Object.class, item);
+				Class<?> itemType = JsonSerialization.resolveObjectType(Object.class, item);
 				if (itemType == ArrayType.class) {
 					item = item.next;
 				}

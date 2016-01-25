@@ -12,7 +12,7 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.Serialization;
+import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
@@ -83,7 +83,7 @@ public class CollectionModelFactory implements ModelFactory {
 					return null;
 				}
 
-				Class<T> resolvedType = Serialization.resolveObjectType(type, serializedValue);
+				Class<T> resolvedType = JsonSerialization.resolveObjectType(type, serializedValue);
 				return ReflectionUtils.newInstance(resolvedType);
 			}
 		}
@@ -222,7 +222,7 @@ public class CollectionModelFactory implements ModelFactory {
 					if (item.isNull()) {
 						collection.add(null);
 					} else {
-						Class<?> resolvedType = Serialization.resolveObjectType(Object.class, item);
+						Class<?> resolvedType = JsonSerialization.resolveObjectType(Object.class, item);
 						collection.add(Objects.deserialize(item, resolvedType, context));
 					}
 				}

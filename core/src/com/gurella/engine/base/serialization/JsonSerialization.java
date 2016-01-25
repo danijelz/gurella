@@ -8,17 +8,16 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ReflectionUtils;
 
-//TODO rename to JsonSerialization
-public class Serialization {
-	private Serialization() {
+public class JsonSerialization {
+	private JsonSerialization() {
 	}
 
 	public static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
 		if (serializedObject.isArray()) {
 			if (serializedObject.size > 0) {
 				JsonValue itemValue = serializedObject.child;
-				Class<?> itemType = resolveObjectType(Object.class, itemValue);
-				if (itemType == ArrayType.class) {
+				String itemTypeName = itemValue.getString("class", null);
+				if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
 					return ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
 				}
 			}
