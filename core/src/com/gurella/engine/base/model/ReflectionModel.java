@@ -177,42 +177,59 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public void serialize(T value, Object template, Output output) {
-		if (ValueUtils.isEqual(template, value)) {
+	public void serialize(T instance, Object template, Output output) {
+		if (ValueUtils.isEqual(template, instance)) {
 			return;
-		} else if (value == null) {
+		} else if (instance == null) {
 			output.writeNull();
 		} else {
-			Object resolvedTemplate = resolveTemplate(value, template);
+			Object resolvedTemplate = resolveTemplate(instance, template);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
-				property.serialize(value, resolvedTemplate, output);
+				property.serialize(instance, resolvedTemplate, output);
 			}
 		}
 	}
 
-	private Object resolveTemplate(T value, Object template) {
-		if (template != null && template.getClass() == value.getClass()) {
+	private Object resolveTemplate(T instance, Object template) {
+		if (template != null && template.getClass() == instance.getClass()) {
 			return template;
-		} else if (value instanceof ManagedObject) {
-			return ((ManagedObject) value).getTemplate();
+		} else if (instance instanceof ManagedObject) {
+			return ((ManagedObject) instance).getTemplate();
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	public T deserialize(Input input) {
-		if (input.isNull()) {
+	public T deserialize(Object template, Input input) {
+		if (!input.isValid()) {
+			if (template == null) {
+				return null;
+			} else {
+				T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
+				input.pushObject(instance);
+				ImmutableArray<Property<?>> properties = getProperties();
+				for (int i = 0; i < properties.size(); i++) {
+					Property<?> property = properties.get(i);
+					property.deserialize(instance, template, input);
+				}
+				input.popObject();
+				return instance;
+			}
+		} else if (input.isNull()) {
 			return null;
 		} else {
 			T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
+			// TODO extract template from input if ManagedObject
+			// Object resolvedTemplate = resolveTemplate(instance, template, input)
+			Object resolvedTemplate = resolveTemplate(instance, template);
 			input.pushObject(instance);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
-				property.deserialize(instance, input);
+				property.deserialize(instance, resolvedTemplate, input);
 			}
 			input.popObject();
 			return instance;

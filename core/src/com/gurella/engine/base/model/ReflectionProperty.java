@@ -273,7 +273,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public void deserialize(Object object, Input input) {
+	public void deserialize(Object object, Object template, Input input) {
 		if (input.hasProperty(name)) {
 			setValue(object, input.readObjectProperty(name, type));
 		}

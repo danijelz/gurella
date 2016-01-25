@@ -32,7 +32,7 @@ public interface Property<T> {
 
 	void serialize(Object object, Object template, Output output);
 
-	void deserialize(Object object, Input input);
+	void deserialize(Object object, Object template, Input input);
 
 	void copy(Object original, Object duplicate, CopyContext context);
 }

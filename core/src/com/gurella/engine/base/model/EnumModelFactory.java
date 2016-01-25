@@ -111,7 +111,7 @@ public class EnumModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T deserialize(Input input) {
+		public T deserialize(Object template, Input input) {
 			String enumName = input.readString();
 			for (int i = 0; i < constants.length; i++) {
 				T constant = constants[i];

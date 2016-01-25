@@ -80,7 +80,7 @@ public class LocaleModel implements Model<Locale> {
 	}
 
 	@Override
-	public Locale deserialize(Input input) {
+	public Locale deserialize(Object template, Input input) {
 		String language = input.readStringProperty("language");
 		String country = input.hasProperty("country") ? input.readStringProperty("country") : "";
 		String variant = input.hasProperty("variant") ? input.readStringProperty("variant") : "";

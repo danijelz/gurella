@@ -161,7 +161,7 @@ public class ObjectArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T deserialize(Input input) {
+		public T deserialize(Object template, Input input) {
 			int length = input.readInt();
 
 			Object[] value = (Object[]) ArrayReflection.newInstance(componentType, length);

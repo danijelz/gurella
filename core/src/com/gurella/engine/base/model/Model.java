@@ -18,9 +18,9 @@ public interface Model<T> {
 
 	<P> Property<P> getProperty(String name);
 
-	void serialize(T value, Object template, Output output);
+	void serialize(T instance, Object template, Output output);
 
-	T deserialize(Input input);
+	T deserialize(Object template, Input input);
 
 	T copy(T original, CopyContext context);
 }

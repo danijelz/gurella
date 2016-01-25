@@ -116,7 +116,7 @@ public class DefaultArrayModels {
 		protected abstract void writeValues(T value, Output output);
 
 		@Override
-		public T deserialize(Input input) {
+		public T deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {

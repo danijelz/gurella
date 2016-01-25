@@ -60,7 +60,7 @@ public class JsonInput implements Input, Poolable {
 		Model<T> model = Models.getModel(resolvedType);
 
 		push(JsonSerialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
-		T object = model.deserialize(this);
+		T object = model.deserialize(dddd, this);
 		pop();
 
 		return object;
@@ -69,7 +69,7 @@ public class JsonInput implements Input, Poolable {
 	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType) {
 		push(jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
-		T object = model.deserialize(this);
+		T object = model.deserialize(dddd, this);
 		pop();
 		return object;
 	}
@@ -153,7 +153,7 @@ public class JsonInput implements Input, Poolable {
 			} else {
 				push(value);
 			}
-			result = Models.getModel(expectedType).deserialize(this);
+			result = Models.getModel(expectedType).deserialize(dddd, this);
 			pop();
 		} else if (value.isObject()) {
 			result = deserializeObject(value, expectedType);

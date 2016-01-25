@@ -108,7 +108,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Integer deserialize(Input input) {
+		public Integer deserialize(Object template, Input input) {
 			return Integer.valueOf(input.readInt());
 		}
 	}
@@ -141,7 +141,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Long deserialize(Input input) {
+		public Long deserialize(Object template, Input input) {
 			return Long.valueOf(input.readLong());
 		}
 	}
@@ -174,7 +174,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Short deserialize(Input input) {
+		public Short deserialize(Object template, Input input) {
 			return Short.valueOf(input.readShort());
 		}
 	}
@@ -207,7 +207,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Byte deserialize(Input input) {
+		public Byte deserialize(Object template, Input input) {
 			return Byte.valueOf(input.readByte());
 		}
 	}
@@ -240,7 +240,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Character deserialize(Input input) {
+		public Character deserialize(Object template, Input input) {
 			return Character.valueOf(input.readChar());
 		}
 	}
@@ -273,7 +273,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Boolean deserialize(Input input) {
+		public Boolean deserialize(Object template, Input input) {
 			return Boolean.valueOf(input.readBoolean());
 		}
 	}
@@ -306,7 +306,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Double deserialize(Input input) {
+		public Double deserialize(Object template, Input input) {
 			return Double.valueOf(input.readDouble());
 		}
 	}
@@ -339,7 +339,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Float deserialize(Input input) {
+		public Float deserialize(Object template, Input input) {
 			return Float.valueOf(input.readFloat());
 		}
 	}
@@ -367,7 +367,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Void deserialize(Input input) {
+		public Void deserialize(Object template, Input input) {
 			return null;
 		}
 	}
@@ -433,7 +433,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Integer deserialize(Input input) {
+		public Integer deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -476,7 +476,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Long deserialize(Input input) {
+		public Long deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -519,7 +519,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Short deserialize(Input input) {
+		public Short deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -562,7 +562,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Byte deserialize(Input input) {
+		public Byte deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -605,7 +605,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Character deserialize(Input input) {
+		public Character deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -648,7 +648,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Boolean deserialize(Input input) {
+		public Boolean deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -691,7 +691,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Double deserialize(Input input) {
+		public Double deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -734,7 +734,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Float deserialize(Input input) {
+		public Float deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -772,7 +772,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public String deserialize(Input input) {
+		public String deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -810,7 +810,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public BigInteger deserialize(Input input) {
+		public BigInteger deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -848,7 +848,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public BigDecimal deserialize(Input input) {
+		public BigDecimal deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -887,7 +887,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Class<?> deserialize(Input input) {
+		public Class<?> deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {
@@ -931,7 +931,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Date deserialize(Input input) {
+		public Date deserialize(Object template, Input input) {
 			if (input.isNull()) {
 				return null;
 			} else {

@@ -153,11 +153,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T deserialize(Input input) {
+		public T deserialize(Object template, Input input) {
 			T array = createArray(input);
 			input.pushObject(array);
-			properties.get(0).deserialize(array, input);
-			properties.get(1).deserialize(array, input);
+			properties.get(0).deserialize(array, dddd, input);
+			properties.get(1).deserialize(array, dddd, input);
 			input.popObject();
 			return array;
 		}
@@ -287,7 +287,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void deserialize(Object object, Input input) {
+		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
 				((Array<?>) object).ordered = input.readBooleanProperty(name);
 			}
@@ -418,7 +418,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void deserialize(Object object, Input input) {
+		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;

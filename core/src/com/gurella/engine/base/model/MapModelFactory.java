@@ -126,10 +126,10 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T deserialize(Input input) {
+		public T deserialize(Object template, Input input) {
 			T instance = ReflectionUtils.newInstance(type);
 			input.pushObject(instance);
-			properties.get(0).deserialize(instance, input);
+			properties.get(0).deserialize(instance, dddd, input);
 			input.popObject();
 			return instance;
 		}
@@ -275,7 +275,7 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void deserialize(Object object, Input input) {
+		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Map<Object, Object> map = (Map<Object, Object>) object;
@@ -359,7 +359,7 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public TreeMap<?, ?> deserialize(Input input) {
+		public TreeMap<?, ?> deserialize(Object template, Input input) {
 			TreeMap<?, ?> instance;
 			if (input.hasProperty("comparator")) {
 				Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class);
@@ -371,7 +371,7 @@ public class MapModelFactory implements ModelFactory {
 			}
 
 			input.pushObject(instance);
-			getProperties().get(0).deserialize(instance, input);
+			getProperties().get(0).deserialize(instance, dddd, input);
 			input.popObject();
 			return instance;
 		}
@@ -470,12 +470,12 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public EnumMap<?, ?> deserialize(Input input) {
+		public EnumMap<?, ?> deserialize(Object template, Input input) {
 			Class<Enum<?>> keyType = ReflectionUtils.forName(input.readStringProperty(keyTypeFieldName));
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			EnumMap<?, ?> instance = new EnumMap(keyType);
 			input.pushObject(instance);
-			getProperties().get(0).deserialize(instance, input);
+			getProperties().get(0).deserialize(instance, dddd, input);
 			input.popObject();
 			return instance;
 		}

@@ -125,10 +125,10 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T deserialize(Input input) {
+		public T deserialize(Object template, Input input) {
 			T instance = ReflectionUtils.newInstance(type);
 			input.pushObject(instance);
-			properties.get(0).deserialize(instance, input);
+			properties.get(0).deserialize(instance, dddd, input);
 			input.popObject();
 			return instance;
 		}
@@ -279,7 +279,7 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void deserialize(Object object, Input input) {
+		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Collection<Object> collection = (Collection<Object>) object;
@@ -362,7 +362,7 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public TreeSet<?> deserialize(Input input) {
+		public TreeSet<?> deserialize(Object template, Input input) {
 			TreeSet<?> instance;
 			if (input.hasProperty("comparator")) {
 				Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class);
@@ -374,7 +374,7 @@ public class CollectionModelFactory implements ModelFactory {
 			}
 
 			input.pushObject(instance);
-			getProperties().get(0).deserialize(instance, input);
+			getProperties().get(0).deserialize(instance, dddd, input);
 			input.popObject();
 			return instance;
 		}
@@ -470,13 +470,13 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public EnumSet<?> deserialize(Input input) {
+		public EnumSet<?> deserialize(Object template, Input input) {
 			@SuppressWarnings("rawtypes")
 			Class<Enum> enumType = ReflectionUtils.forName(input.readStringProperty("type"));
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			EnumSet enumSet = EnumSet.noneOf(enumType);
 			input.pushObject(enumSet);
-			getProperties().get(0).deserialize(enumSet, input);
+			getProperties().get(0).deserialize(enumSet, dddd, input);
 			input.popObject();
 			return enumSet;
 		}
