@@ -17,15 +17,16 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.ValueUtils;
 
-public class CollectionModelResolver implements ModelResolver {
-	public static final CollectionModelResolver instance = new CollectionModelResolver();
+public class CollectionModelFactory implements ModelFactory {
+	public static final CollectionModelFactory instance = new CollectionModelFactory();
 
-	private CollectionModelResolver() {
+	private CollectionModelFactory() {
 	}
 
 	@Override
-	public <T> Model<T> resolve(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumSet.class, type)) {
 			@SuppressWarnings("unchecked")
 			Model<T> casted = (Model<T>) EnumSetModel.modelInstance;
@@ -111,11 +112,15 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(T value, Output output) {
-			if (value == null) {
+		public void serialize(T value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
-				properties.get(0).serialize(value, output);
+				@SuppressWarnings("unchecked")
+				T resolvedTemplate = template != null && value.getClass() == template.getClass() ? (T) template : null;
+				properties.get(0).serialize(value, resolvedTemplate, output);
 			}
 		}
 
@@ -247,7 +252,7 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Output output) {
+		public void serialize(Object object, Object template, Output output) {
 			@SuppressWarnings("unchecked")
 			Collection<Object> collection = (Collection<Object>) object;
 			if (collection.isEmpty()) {
@@ -259,7 +264,17 @@ public class CollectionModelResolver implements ModelResolver {
 				array[i++] = item;
 			}
 
-			output.writeObjectProperty(name, Object[].class, array);
+			Object[] templateArray = null;
+			if (template != null && template.getClass() == object.getClass()) {
+				@SuppressWarnings("unchecked")
+				Collection<Object> templateCollection = (Collection<Object>) object;
+				templateArray = new Object[templateCollection.size()];
+				for (Object item : templateCollection) {
+					templateArray[i++] = item;
+				}
+			}
+
+			output.writeObjectProperty(name, Object[].class, templateArray, array);
 		}
 
 		@Override
@@ -326,15 +341,17 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(TreeSet<?> value, Output output) {
-			if (value == null) {
+		public void serialize(TreeSet<?> value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				Comparator<?> comparator = value.comparator();
 				if (comparator != null) {
 					output.writeObjectProperty("comparator", Comparator.class, comparator);
 				}
-				getProperties().get(0).serialize(value, output);
+				getProperties().get(0).serialize(value, template, output);
 			}
 		}
 
@@ -430,12 +447,14 @@ public class CollectionModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(EnumSet<?> value, Output output) {
-			if (value == null) {
+		public void serialize(EnumSet<?> value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeStringProperty("type", getEnumType(value).getName());
-				getProperties().get(0).serialize(value, output);
+				getProperties().get(0).serialize(value, template, output);
 			}
 		}
 

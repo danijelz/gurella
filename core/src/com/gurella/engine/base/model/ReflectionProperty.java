@@ -12,7 +12,6 @@ import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -260,24 +259,16 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public void serialize(Object object, Output output) {
+	public void serialize(Object object, Object template, Output output) {
 		T value = getValue(object);
+		Object templateValue = template == null ? defaultValue : getValue(template);
+
 		if (!Objects.isEqual(value, defaultValue)) {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {
-				output.writeObjectProperty(name, type, value);
+				output.writeObjectProperty(name, type, templateValue, value);
 			}
-		}
-	}
-
-	//TODO
-	private T getTemplateValue(Object object) {
-		if (object instanceof ManagedObject) {
-			Object template = ((ManagedObject) object).getTemplate();
-			return getValue(template);
-		} else {
-			return defaultValue;
 		}
 	}
 

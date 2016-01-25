@@ -37,7 +37,7 @@ public interface Output {
 
 	void writeString(String value);
 	
-	void writeObject(Class<?> expectedType, Object value);
+	void writeObject(Class<?> expectedType, Object template, Object value);
 	
 	void writeNullProperty(String name);
 	
@@ -75,5 +75,5 @@ public interface Output {
 
 	void writeStringProperty(String name, String value);
 	
-	void writeObjectProperty(String name, Class<?> expectedType, Object value);
+	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value);
 }

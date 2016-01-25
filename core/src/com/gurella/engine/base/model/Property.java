@@ -30,7 +30,7 @@ public interface Property<T> {
 
 	void setValue(Object object, T value);
 
-	void serialize(Object object, Output output);
+	void serialize(Object object, Object template, Output output);
 
 	void deserialize(Object object, Input input);
 

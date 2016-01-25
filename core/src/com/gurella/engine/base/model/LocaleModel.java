@@ -58,8 +58,10 @@ public class LocaleModel implements Model<Locale> {
 	}
 
 	@Override
-	public void serialize(Locale value, Output output) {
-		if (value == null) {
+	public void serialize(Locale value, Object template, Output output) {
+		if (ValueUtils.isEqual(value, template)) {
+			return;
+		} else if (value == null) {
 			output.writeNull();
 		} else {
 			String language = value.getLanguage();

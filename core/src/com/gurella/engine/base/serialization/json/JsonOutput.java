@@ -6,10 +6,10 @@ import java.io.StringWriter;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -36,52 +36,58 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	public <T> void serialize(Class<T> expectedType, T rootObject) {
+		serialize(expectedType, null, rootObject);
+	}
+
+	public <T> void serialize(Class<T> expectedType, Object template, T rootObject) {
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);
 
 		object();
-		addReference(expectedType, rootObject);
+		addReference(expectedType, template, rootObject);
 
 		while (objectsToSerialize.size > 0) {
 			ObjectInfo objectInfo = objectsToSerialize.removeIndex(0);
 			name(Integer.toString(objectInfo.ordinal));
-			serializeObject(objectInfo.expectedType, objectInfo.object);
-			SynchronizedPools.free(objectInfo);
+			serializeObject(objectInfo.expectedType, objectInfo.template, objectInfo.object);
+			objectInfo.free();
 		}
 
 		pop();
 
 		System.out.println(new JsonReader().parse(buffer.toString()).prettyPrint(OutputType.minimal, 120));
 		reset();
-		
+
 		JsonInput input = new JsonInput();
 		T deserialized = input.deserialize(expectedType, buffer.toString());
 		System.out.println(Objects.isEqual(rootObject, deserialized));
-		
+
 		T duplicate = new CopyContext().copy(rootObject);
 		System.out.println(Objects.isEqual(rootObject, duplicate));
-		
+
 		Object copied = new CopyContext().copyProperties(rootObject, new Archive.Test());
 		System.out.println(Objects.isEqual(rootObject, copied));
 	}
 
-	private void writeReference(Class<?> expectedType, Object object) {
+	private void writeReference(Class<?> expectedType, Object template, Object object) {
 		int ordinal = references.get(object, -1);
 		if (ordinal < 0) {
-			writeInt(addReference(expectedType, object));
+			writeInt(addReference(expectedType, template, object));
 		} else {
 			writeInt(ordinal);
 		}
 	}
 
-	private int addReference(Class<?> expectedType, Object object) {
+	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		objectsToSerialize.add(SynchronizedPools.obtain(ObjectInfo.class).set(currentId, expectedType, object));
+		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
 	}
 
-	private void serializeObject(Class<?> expectedType, Object object) {
-		if (object.getClass().isArray()) {
+	private void serializeObject(Class<?> expectedType, Object template, Object object) {
+		if (object == null) {
+			writeNull();
+		} else if (object.getClass().isArray()) {
 			array();
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
@@ -92,7 +98,7 @@ public class JsonOutput implements Output, Poolable {
 			}
 
 			Model<Object> model = Models.getModel(object);
-			model.serialize(object, this);
+			model.serialize(object, template, this);
 			pop();
 		} else {
 			object();
@@ -101,7 +107,7 @@ public class JsonOutput implements Output, Poolable {
 				type(actualType);
 			}
 			Model<Object> model = Models.getModel(object);
-			model.serialize(object, this);
+			model.serialize(object, template, this);
 			pop();
 		}
 	}
@@ -197,27 +203,27 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeObject(Class<?> expectedType, Object value) {
+	public void writeObject(Class<?> expectedType, Object template, Object value) {
 		if (value == null) {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
 			@SuppressWarnings("unchecked")
 			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
-			model.serialize(value, this);
+			model.serialize(value, null, this);
 		} else if (Serialization.isSimpleType(value)) {
 			Model<Object> model = Models.getModel(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
-				model.serialize(value, this);
+				model.serialize(value, null, this);
 			} else {
 				object();
 				type(actualType);
 				name("value");
-				model.serialize(value, this);
+				model.serialize(value, null, this);
 				pop();
 			}
 		} else {
-			writeReference(expectedType, value);
+			writeReference(expectedType, template, value);
 		}
 	}
 
@@ -342,9 +348,9 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	@Override
-	public void writeObjectProperty(String name, Class<?> expectedType, Object value) {
+	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value) {
 		name(name);
-		writeObject(expectedType, value);
+		writeObject(expectedType, template, value);
 	}
 
 	private void value(Object value) {
@@ -401,18 +407,26 @@ public class JsonOutput implements Output, Poolable {
 		int ordinal;
 		Class<?> expectedType;
 		Object object;
+		Object template;
 
-		public ObjectInfo set(int ordinal, Class<?> expectedType, Object object) {
-			this.ordinal = ordinal;
-			this.expectedType = expectedType;
-			this.object = object;
-			return this;
+		public static ObjectInfo obtain(int ordinal, Class<?> expectedType, Object template, Object object) {
+			ObjectInfo objectInfo = SynchronizedPools.obtain(ObjectInfo.class);
+			objectInfo.ordinal = ordinal;
+			objectInfo.expectedType = expectedType;
+			objectInfo.template = template;
+			objectInfo.object = object;
+			return objectInfo;
+		}
+
+		public void free() {
+			SynchronizedPools.free(this);
 		}
 
 		@Override
 		public void reset() {
 			ordinal = 0;
 			expectedType = null;
+			template = null;
 			object = null;
 		}
 	}

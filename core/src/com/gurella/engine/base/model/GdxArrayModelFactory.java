@@ -15,15 +15,16 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.ValueUtils;
 
-public class GdxArrayModelResolver implements ModelResolver {
-	public static final GdxArrayModelResolver instance = new GdxArrayModelResolver();
+public class GdxArrayModelFactory implements ModelFactory {
+	public static final GdxArrayModelFactory instance = new GdxArrayModelFactory();
 
-	private GdxArrayModelResolver() {
+	private GdxArrayModelFactory() {
 	}
 
 	@Override
-	public <T> Model<T> resolve(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Array.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			GdxArrayModel raw = new GdxArrayModel(type);
@@ -123,8 +124,10 @@ public class GdxArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(T value, Output output) {
-			if (value == null) {
+		public void serialize(T value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				Class<?> componentType = value.items.getClass().getComponentType();
@@ -132,9 +135,21 @@ public class GdxArrayModelResolver implements ModelResolver {
 					output.writeStringProperty("componentType", componentType.getName());
 				}
 
-				properties.get(0).serialize(value, output);
-				properties.get(1).serialize(value, output);
+				T templateArray = resolveTemplate(value, template);
+				properties.get(0).serialize(value, templateArray, output);
+				properties.get(1).serialize(value, templateArray, output);
 			}
+		}
+
+		private T resolveTemplate(T value, Object template) {
+			if (template == null || template.getClass() != value.getClass()) {
+				return null;
+			}
+
+			@SuppressWarnings("unchecked")
+			T templateArray = (T) template;
+			return value.ordered == templateArray.ordered && value.items.getClass() == templateArray.items.getClass()
+					? templateArray : null;
 		}
 
 		@Override
@@ -263,8 +278,11 @@ public class GdxArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Output output) {
-			if (!((Array<?>) object).ordered) {
+		public void serialize(Object object, Object template, Output output) {
+			Array<?> array = (Array<?>) object;
+			Array<?> templateArray = (Array<?>) template;
+			boolean orderedDiffers = templateArray == null ? !array.ordered : array.ordered != templateArray.ordered;
+			if (orderedDiffers) {
 				output.writeBooleanProperty(name, false);
 			}
 		}
@@ -387,13 +405,17 @@ public class GdxArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Output output) {
+		public void serialize(Object object, Object template, Output output) {
 			Array<?> array = (Array<?>) object;
-			if (array.size == 0) {
+			Array<?> templateArray = (Array<?>) template;
+			if ((templateArray == null && array.size == 0) || array.equals(templateArray)) {
 				return;
 			}
 
-			output.writeObjectProperty(name, array.items.getClass(), Arrays.copyOf(array.items, array.size));
+			Object templateItems = templateArray == null ? null
+					: Arrays.copyOf(templateArray.items, templateArray.size);
+			output.writeObjectProperty(name, array.items.getClass(), templateItems,
+					Arrays.copyOf(array.items, array.size));
 		}
 
 		@Override

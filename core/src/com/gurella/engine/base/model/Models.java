@@ -43,7 +43,7 @@ import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
-	private static final Array<ModelResolver> modelResolvers = new Array<ModelResolver>();
+	private static final Array<ModelFactory> modelFactories = new Array<ModelFactory>();
 
 	static {
 		resolvedModels.put(int.class, IntegerPrimitiveModel.instance);
@@ -79,11 +79,11 @@ public class Models {
 		resolvedModels.put(double[].class, DoubleArrayModel.instance);
 		resolvedModels.put(float[].class, FloatArrayModel.instance);
 
-		modelResolvers.add(ObjectArrayModelResolver.instance);
-		modelResolvers.add(EnumModelResolver.instance);
-		modelResolvers.add(GdxArrayModelResolver.instance);
-		modelResolvers.add(CollectionModelResolver.instance);
-		modelResolvers.add(MapModelResolver.instance);
+		modelFactories.add(ObjectArrayModelFactory.instance);
+		modelFactories.add(EnumModelFactory.instance);
+		modelFactories.add(GdxArrayModelFactory.instance);
+		modelFactories.add(CollectionModelFactory.instance);
+		modelFactories.add(MapModelFactory.instance);
 	}
 
 	private Models() {
@@ -171,8 +171,8 @@ public class Models {
 	}
 
 	private static <T> Model<T> resolveCustomModel(Class<T> type) {
-		for (int i = 0; i < modelResolvers.size; i++) {
-			Model<T> model = modelResolvers.get(i).resolve(type);
+		for (int i = 0; i < modelFactories.size; i++) {
+			Model<T> model = modelFactories.get(i).create(type);
 			if (model != null) {
 				return model;
 			}

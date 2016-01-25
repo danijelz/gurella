@@ -10,6 +10,7 @@ import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.ValueUtils;
 
 public class DefaultModels {
 	private DefaultModels() {
@@ -102,7 +103,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Integer value, Output output) {
+		public void serialize(Integer value, Object template, Output output) {
 			output.writeInt(value);
 		}
 
@@ -135,7 +136,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Long value, Output output) {
+		public void serialize(Long value, Object template, Output output) {
 			output.writeLong(value);
 		}
 
@@ -168,7 +169,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Short value, Output output) {
+		public void serialize(Short value, Object template, Output output) {
 			output.writeShort(value);
 		}
 
@@ -201,7 +202,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Byte value, Output output) {
+		public void serialize(Byte value, Object template, Output output) {
 			output.writeByte(value);
 		}
 
@@ -234,7 +235,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Character value, Output output) {
+		public void serialize(Character value, Object template, Output output) {
 			output.writeChar(value);
 		}
 
@@ -267,7 +268,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Boolean value, Output output) {
+		public void serialize(Boolean value, Object template, Output output) {
 			output.writeBoolean(value);
 		}
 
@@ -300,7 +301,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Double value, Output output) {
+		public void serialize(Double value, Object template, Output output) {
 			output.writeDouble(value);
 		}
 
@@ -333,7 +334,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Float value, Output output) {
+		public void serialize(Float value, Object template, Output output) {
 			output.writeFloat(value);
 		}
 
@@ -361,7 +362,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Void value, Output output) {
+		public void serialize(Void value, Object template, Output output) {
 			output.writeNull();
 		}
 
@@ -372,14 +373,10 @@ public class DefaultModels {
 	}
 
 	public static abstract class SimpleObjectModel<T, V> extends SimpleModel<T> {
-		private Class<V> simpleValueType;
 
 		public SimpleObjectModel(Class<T> type) {
 			super(type);
-			simpleValueType = getSimpleValueType();
 		}
-
-		protected abstract Class<V> getSimpleValueType();
 
 		@Override
 		protected T createDefaultValue() {
@@ -410,11 +407,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Integer> getSimpleValueType() {
-			return int.class;
-		}
-
-		@Override
 		protected Integer extractSimpleValue(Integer value) {
 			return value;
 		}
@@ -430,8 +422,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Integer value, Output output) {
-			if (value == null) {
+		public void serialize(Integer value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeInt(value);
@@ -456,11 +450,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Long> getSimpleValueType() {
-			return long.class;
-		}
-
-		@Override
 		protected Long extractSimpleValue(Long value) {
 			return value;
 		}
@@ -476,8 +465,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Long value, Output output) {
-			if (value == null) {
+		public void serialize(Long value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeLong(value);
@@ -502,11 +493,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Short> getSimpleValueType() {
-			return short.class;
-		}
-
-		@Override
 		protected Short extractSimpleValue(Short value) {
 			return value;
 		}
@@ -522,8 +508,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Short value, Output output) {
-			if (value == null) {
+		public void serialize(Short value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeShort(value);
@@ -548,11 +536,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Byte> getSimpleValueType() {
-			return byte.class;
-		}
-
-		@Override
 		protected Byte extractSimpleValue(Byte value) {
 			return value;
 		}
@@ -568,8 +551,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Byte value, Output output) {
-			if (value == null) {
+		public void serialize(Byte value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeByte(value);
@@ -594,11 +579,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Character> getSimpleValueType() {
-			return char.class;
-		}
-
-		@Override
 		protected Character extractSimpleValue(Character value) {
 			return value;
 		}
@@ -614,8 +594,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Character value, Output output) {
-			if (value == null) {
+		public void serialize(Character value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeChar(value);
@@ -645,11 +627,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Boolean> getSimpleValueType() {
-			return boolean.class;
-		}
-
-		@Override
 		protected Boolean deserializeSimpleValue(JsonValue serializedValue) {
 			try {
 				return Boolean.valueOf(serializedValue.asBoolean());
@@ -660,8 +637,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Boolean value, Output output) {
-			if (value == null) {
+		public void serialize(Boolean value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeBoolean(value);
@@ -686,11 +665,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Double> getSimpleValueType() {
-			return double.class;
-		}
-
-		@Override
 		protected Double extractSimpleValue(Double value) {
 			return value;
 		}
@@ -706,8 +680,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Double value, Output output) {
-			if (value == null) {
+		public void serialize(Double value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeDouble(value);
@@ -732,11 +708,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Float> getSimpleValueType() {
-			return float.class;
-		}
-
-		@Override
 		protected Float extractSimpleValue(Float value) {
 			return value;
 		}
@@ -752,8 +723,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Float value, Output output) {
-			if (value == null) {
+		public void serialize(Float value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeFloat(value);
@@ -778,11 +751,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<String> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
 		protected String extractSimpleValue(String value) {
 			return value;
 		}
@@ -793,8 +761,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(String value, Output output) {
-			if (value == null) {
+		public void serialize(String value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value);
@@ -819,11 +789,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<String> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
 		protected String extractSimpleValue(BigInteger value) {
 			return value.toString();
 		}
@@ -834,8 +799,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(BigInteger value, Output output) {
-			if (value == null) {
+		public void serialize(BigInteger value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.toString());
@@ -860,11 +827,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<String> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
 		protected String extractSimpleValue(BigDecimal value) {
 			return value.toString();
 		}
@@ -875,8 +837,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(BigDecimal value, Output output) {
-			if (value == null) {
+		public void serialize(BigDecimal value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.toString());
@@ -902,11 +866,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<String> getSimpleValueType() {
-			return String.class;
-		}
-
-		@Override
 		protected String extractSimpleValue(Class<?> value) {
 			return value.getName();
 		}
@@ -917,8 +876,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Class<?> value, Output output) {
-			if (value == null) {
+		public void serialize(Class<?> value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.getName());
@@ -944,11 +905,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Class<Long> getSimpleValueType() {
-			return long.class;
-		}
-
-		@Override
 		protected Long extractSimpleValue(Date value) {
 			return Long.valueOf(value.getTime());
 		}
@@ -964,8 +920,10 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Date value, Output output) {
-			if (value == null) {
+		public void serialize(Date value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeLong(value.getTime());

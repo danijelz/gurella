@@ -10,15 +10,16 @@ import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.ValueUtils;
 
-public class ObjectArrayModelResolver implements ModelResolver {
-	public static final ObjectArrayModelResolver instance = new ObjectArrayModelResolver();
+public class ObjectArrayModelFactory implements ModelFactory {
+	public static final ObjectArrayModelFactory instance = new ObjectArrayModelFactory();
 
-	private ObjectArrayModelResolver() {
+	private ObjectArrayModelFactory() {
 	}
 
 	@Override
-	public <T> Model<T> resolve(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (type.isArray()) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			ObjectArrayModel raw = new ObjectArrayModel(type);
@@ -138,14 +139,21 @@ public class ObjectArrayModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(T value, Output output) {
-			if (value == null) {
+		public void serialize(T value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				Object[] array = (Object[]) value;
 				output.writeInt(array.length);
+				Object[] resolvedTemplate = template != null && value.getClass() == template.getClass()
+						? (Object[]) template : null;
+				int templateLength = resolvedTemplate == null ? 0 : resolvedTemplate.length;
+
 				for (int i = 0; i < array.length; i++) {
-					output.writeObject(componentType, array[i]);
+					Object itemTemplate = templateLength > 1 ? resolvedTemplate[i] : null;
+					output.writeObject(componentType, itemTemplate, array[i]);
 				}
 			}
 		}

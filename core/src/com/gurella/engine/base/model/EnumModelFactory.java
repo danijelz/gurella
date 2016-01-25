@@ -7,15 +7,16 @@ import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ValueUtils;
 
-public class EnumModelResolver implements ModelResolver {
-	public static final EnumModelResolver instance = new EnumModelResolver();
+public class EnumModelFactory implements ModelFactory {
+	public static final EnumModelFactory instance = new EnumModelFactory();
 
-	private EnumModelResolver() {
+	private EnumModelFactory() {
 	}
 
 	@Override
-	public <T> Model<T> resolve(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Enum.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			EnumModel raw = new EnumModel(type);
@@ -99,8 +100,10 @@ public class EnumModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(T value, Output output) {
-			if (value == null) {
+		public void serialize(T value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeString(value.name());

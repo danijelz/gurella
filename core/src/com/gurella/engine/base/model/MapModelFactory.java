@@ -21,14 +21,14 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class MapModelResolver implements ModelResolver {
-	public static final MapModelResolver instance = new MapModelResolver();
+public class MapModelFactory implements ModelFactory {
+	public static final MapModelFactory instance = new MapModelFactory();
 
-	private MapModelResolver() {
+	private MapModelFactory() {
 	}
 
 	@Override
-	public <T> Model<T> resolve(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumMap.class, type)) {
 			@SuppressWarnings("unchecked")
 			Model<T> casted = (Model<T>) EnumMapModel.modelInstance;
@@ -112,11 +112,11 @@ public class MapModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(T value, Output output) {
+		public void serialize(T value, Object template, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
-				properties.get(0).serialize(value, output);
+				properties.get(0).serialize(value, template, output);
 			}
 		}
 
@@ -241,7 +241,7 @@ public class MapModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(Object object, Output output) {
+		public void serialize(Object object, Object template, Output output) {
 			@SuppressWarnings("unchecked")
 			Map<Object, Object> map = (Map<Object, Object>) object;
 			if (map.isEmpty()) {
@@ -324,7 +324,7 @@ public class MapModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(TreeMap<?, ?> value, Output output) {
+		public void serialize(TreeMap<?, ?> value, Object template, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
@@ -332,7 +332,7 @@ public class MapModelResolver implements ModelResolver {
 				if (comparator != null) {
 					output.writeObjectProperty("comparator", Comparator.class, comparator);
 				}
-				getProperties().get(0).serialize(value, output);
+				getProperties().get(0).serialize(value, template, output);
 			}
 		}
 
@@ -431,12 +431,12 @@ public class MapModelResolver implements ModelResolver {
 		}
 
 		@Override
-		public void serialize(EnumMap<?, ?> value, Output output) {
+		public void serialize(EnumMap<?, ?> value, Object template, Output output) {
 			if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeStringProperty(keyTypeFieldName, getKeyType(value).getName());
-				getProperties().get(0).serialize(value, output);
+				getProperties().get(0).serialize(value, template, output);
 			}
 		}
 

@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
+import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
@@ -176,15 +177,28 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public void serialize(T value, Output output) {
-		if (value == null) {
+	public void serialize(T value, Object template, Output output) {
+		if (ValueUtils.isEqual(template, value)) {
+			return;
+		} else if (value == null) {
 			output.writeNull();
 		} else {
+			Object resolvedTemplate = resolveTemplate(value, template);
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
-				property.serialize(value, output);
+				property.serialize(value, resolvedTemplate, output);
 			}
+		}
+	}
+
+	private Object resolveTemplate(T value, Object template) {
+		if (template != null && template.getClass() == value.getClass()) {
+			return template;
+		} else if (value instanceof ManagedObject) {
+			return ((ManagedObject) value).getTemplate();
+		} else {
+			return null;
 		}
 	}
 
@@ -251,10 +265,10 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-//	@Override
-//	public T create(CreationContext context) {
-//		return createInstance(innerClass ? context.getObjectStack().peek() : null);
-//	}
+	// @Override
+	// public T create(CreationContext context) {
+	// return createInstance(innerClass ? context.getObjectStack().peek() : null);
+	// }
 
 	private void resolveProperties() {
 		Class<? super T> supertype = type.getSuperclass();

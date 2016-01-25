@@ -9,6 +9,7 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serialization;
 import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ValueUtils;
 
 //TODO remove if (input.isNull())
 public class DefaultArrayModels {
@@ -102,8 +103,10 @@ public class DefaultArrayModels {
 		}
 
 		@Override
-		public void serialize(T value, Output output) {
-			if (value == null) {
+		public void serialize(T value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				writeValues(value, output);
