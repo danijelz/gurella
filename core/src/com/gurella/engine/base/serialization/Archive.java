@@ -84,8 +84,8 @@ public class Archive implements Poolable {
 		obj.test2.iiiiiiiiiiiiiiii1 = 0;
 		// obj.child = obj;
 
-		System.out.println("\n\n\n\n\n\n\n");
-		new JsonOutput().serialize(Test.class, obj);
+		JsonOutput output = new JsonOutput();
+		output.serialize(Test.class, obj);
 	}
 
 	public static class Test {

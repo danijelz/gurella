@@ -39,7 +39,7 @@ public class JsonSerialization {
 		return isSimpleType(obj.getClass());
 	}
 
-	//TODO isAssignableFrom is slow 
+	//TODO isAssignableFrom is slow use instanceof on type model
 	public static boolean isSimpleType(Class<?> type) {
 		return type.isPrimitive() || Integer.class == type || Long.class == type || Short.class == type
 				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type

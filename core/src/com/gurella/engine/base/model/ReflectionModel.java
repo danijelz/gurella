@@ -26,8 +26,8 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.JsonSerialization;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
@@ -264,11 +264,6 @@ public class ReflectionModel<T> implements Model<T> {
 			return instance;
 		}
 	}
-
-	// @Override
-	// public T create(CreationContext context) {
-	// return createInstance(innerClass ? context.getObjectStack().peek() : null);
-	// }
 
 	private void resolveProperties() {
 		Class<? super T> supertype = type.getSuperclass();
