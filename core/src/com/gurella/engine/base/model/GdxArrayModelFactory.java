@@ -281,8 +281,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public void serialize(Object object, Object template, Output output) {
 			Array<?> array = (Array<?>) object;
 			Array<?> templateArray = (Array<?>) template;
-			boolean orderedDiffers = templateArray == null ? !array.ordered : array.ordered != templateArray.ordered;
-			if (orderedDiffers) {
+			if (templateArray == null ? !array.ordered : array.ordered != templateArray.ordered) {
 				output.writeBooleanProperty(name, false);
 			}
 		}

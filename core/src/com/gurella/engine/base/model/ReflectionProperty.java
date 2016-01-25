@@ -263,7 +263,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		T value = getValue(object);
 		Object templateValue = template == null ? defaultValue : getValue(template);
 
-		if (!Objects.isEqual(value, defaultValue)) {
+		if (!ValueUtils.isEqual(value, templateValue)) {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {

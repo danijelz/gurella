@@ -255,9 +255,10 @@ public class CollectionModelFactory implements ModelFactory {
 		public void serialize(Object object, Object template, Output output) {
 			@SuppressWarnings("unchecked")
 			Collection<Object> collection = (Collection<Object>) object;
-			if (collection.isEmpty()) {
+			if (template == null && collection.isEmpty()) {
 				return;
 			}
+
 			Object[] array = new Object[collection.size()];
 			int i = 0;
 			for (Object item : collection) {
@@ -347,10 +348,15 @@ public class CollectionModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
+				TreeSet<?> resolvedTemplate = template != null && value.getClass() == template.getClass()
+						? (TreeSet<?>) template : null;
 				Comparator<?> comparator = value.comparator();
-				if (comparator != null) {
-					output.writeObjectProperty("comparator", Comparator.class, comparator);
+				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
+				if ((resolvedTemplate == null && comparator != null)
+						|| (resolvedTemplate != null && !ValueUtils.isEqual(templateComparator, comparator))) {
+					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
+
 				getProperties().get(0).serialize(value, template, output);
 			}
 		}
@@ -453,7 +459,13 @@ public class CollectionModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
-				output.writeStringProperty("type", getEnumType(value).getName());
+				@SuppressWarnings("unchecked")
+				EnumSet<?> resolvedTemplate = template != null && value.getClass() == template.getClass()
+						? (EnumSet<?>) template : null;
+				if (resolvedTemplate == null || !getEnumType(value).equals(getEnumType(resolvedTemplate))) {
+					output.writeStringProperty("type", getEnumType(value).getName());
+				}
+
 				getProperties().get(0).serialize(value, template, output);
 			}
 		}

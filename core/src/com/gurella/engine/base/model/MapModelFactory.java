@@ -20,6 +20,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.ValueUtils;
 
 public class MapModelFactory implements ModelFactory {
 	public static final MapModelFactory instance = new MapModelFactory();
@@ -113,10 +114,14 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(T value, Object template, Output output) {
-			if (value == null) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
-				properties.get(0).serialize(value, template, output);
+				@SuppressWarnings("unchecked")
+				T resolvedTemplate = template != null && value.getClass() == template.getClass() ? (T) template : null;
+				properties.get(0).serialize(value, resolvedTemplate, output);
 			}
 		}
 
@@ -325,7 +330,9 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(TreeMap<?, ?> value, Object template, Output output) {
-			if (value == null) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				Comparator<?> comparator = value.comparator();
@@ -432,7 +439,9 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(EnumMap<?, ?> value, Object template, Output output) {
-			if (value == null) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
 				output.writeNull();
 			} else {
 				output.writeStringProperty(keyTypeFieldName, getKeyType(value).getName());
