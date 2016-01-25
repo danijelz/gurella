@@ -146,12 +146,14 @@ public class ObjectArrayModelFactory implements ModelFactory {
 				output.writeNull();
 			} else {
 				Object[] array = (Object[]) value;
-				output.writeInt(array.length);
+				int length = array.length;
+
 				Object[] resolvedTemplate = template != null && value.getClass() == template.getClass()
 						? (Object[]) template : null;
 				int templateLength = resolvedTemplate == null ? 0 : resolvedTemplate.length;
 
-				for (int i = 0; i < array.length; i++) {
+				output.writeInt(length);
+				for (int i = 0; i < length; i++) {
 					Object itemTemplate = templateLength > 1 ? resolvedTemplate[i] : null;
 					output.writeObject(componentType, itemTemplate, array[i]);
 				}

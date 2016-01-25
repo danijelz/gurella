@@ -21,13 +21,35 @@ public class ValueUtils {
 		} else if (value instanceof Iterable) {
 			return !((Iterable<?>) value).iterator().hasNext();
 		} else if (value.getClass().isArray()) {
-			return ((Object[]) value).length <= 0;
+			if (value instanceof long[]) {
+				return ((long[]) value).length <= 0;
+			} else if (value instanceof int[]) {
+				return ((int[]) value).length <= 0;
+			} else if (value instanceof short[]) {
+				return ((short[]) value).length <= 0;
+			} else if (value instanceof char[]) {
+				return ((char[]) value).length <= 0;
+			} else if (value instanceof byte[]) {
+				return ((byte[]) value).length <= 0;
+			} else if (value instanceof double[]) {
+				return ((double[]) value).length <= 0;
+			} else if (value instanceof float[]) {
+				return ((float[]) value).length <= 0;
+			} else if (value instanceof boolean[]) {
+				return ((boolean[]) value).length <= 0;
+			} else {
+				return ((Object[]) value).length <= 0;
+			}
 		} else {
 			return false;
 		}
 	}
 
 	public static boolean isEqual(Object first, Object second) {
+		return isEqual(first, second, true);
+	}
+
+	public static boolean isEqual(Object first, Object second, boolean mustEqualClass) {
 		if (first == second) {
 			return true;
 		} else if (first == null || second == null) {
@@ -36,9 +58,11 @@ public class ValueUtils {
 
 		Class<?> firstType = first.getClass();
 		Class<?> secondType = second.getClass();
-		if (firstType != secondType) {
+		boolean array = firstType.isArray();
+
+		if ((mustEqualClass && firstType != secondType) || (array != secondType.isArray())) {
 			return false;
-		} else if (firstType.isArray()) {
+		} else if (array) {
 			if (first instanceof long[]) {
 				return Arrays.equals((long[]) first, (long[]) second);
 			} else if (first instanceof int[]) {

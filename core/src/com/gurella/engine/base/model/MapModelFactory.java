@@ -249,7 +249,7 @@ public class MapModelFactory implements ModelFactory {
 		public void serialize(Object object, Object template, Output output) {
 			@SuppressWarnings("unchecked")
 			Map<Object, Object> map = (Map<Object, Object>) object;
-			if (map.isEmpty()) {
+			if (template == null && map.isEmpty()) {
 				return;
 			}
 
@@ -260,7 +260,18 @@ public class MapModelFactory implements ModelFactory {
 				entries[i][1] = entry.getValue();
 			}
 
-			output.writeObjectProperty(name, Object[][].class, entries);
+			Object[][] templateEntries = null;
+			if (template != null) {
+				@SuppressWarnings("unchecked")
+				Map<Object, Object> templateMap = (Map<Object, Object>) object;
+				templateEntries = new Object[templateMap.size()][2];
+				for (Entry<?, ?> entry : templateMap.entrySet()) {
+					templateEntries[i][0] = entry.getKey();
+					templateEntries[i][1] = entry.getValue();
+				}
+			}
+
+			output.writeObjectProperty(name, Object[][].class, templateEntries, entries);
 		}
 
 		@Override
@@ -335,9 +346,13 @@ public class MapModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
+				TreeMap<?, ?> resolvedTemplate = template != null && value.getClass() == template.getClass()
+						? (TreeMap<?, ?>) template : null;
 				Comparator<?> comparator = value.comparator();
-				if (comparator != null) {
-					output.writeObjectProperty("comparator", Comparator.class, comparator);
+				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
+				if (resolvedTemplate == null ? comparator != null
+						: !ValueUtils.isEqual(templateComparator, comparator)) {
+					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
 				getProperties().get(0).serialize(value, template, output);
 			}
@@ -417,6 +432,23 @@ public class MapModelFactory implements ModelFactory {
 			}
 		}
 
+		@Override
+		public void serialize(EnumMap<?, ?> value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
+				output.writeNull();
+			} else {
+				EnumMap<?, ?> resolvedTemplate = template != null && value.getClass() == template.getClass()
+						? (EnumMap<?, ?>) template : null;
+				Class<? extends Enum<?>> keyType = getKeyType(value);
+				if (resolvedTemplate == null || keyType != getKeyType(resolvedTemplate)) {
+					output.writeStringProperty(keyTypeFieldName, getKeyType(value).getName());
+				}
+				getProperties().get(0).serialize(value, template, output);
+			}
+		}
+
 		private static Class<? extends Enum<?>> getKeyType(EnumMap<?, ?> map) {
 			if (map.isEmpty()) {
 				if (keyTypeField == null) {
@@ -434,18 +466,6 @@ public class MapModelFactory implements ModelFactory {
 					keyType = casted;
 				}
 				return keyType;
-			}
-		}
-
-		@Override
-		public void serialize(EnumMap<?, ?> value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeStringProperty(keyTypeFieldName, getKeyType(value).getName());
-				getProperties().get(0).serialize(value, template, output);
 			}
 		}
 

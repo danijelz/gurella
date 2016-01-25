@@ -282,7 +282,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 			Array<?> array = (Array<?>) object;
 			Array<?> templateArray = (Array<?>) template;
 			if (templateArray == null ? !array.ordered : array.ordered != templateArray.ordered) {
-				output.writeBooleanProperty(name, false);
+				output.writeBooleanProperty(name, array.ordered);
 			}
 		}
 
@@ -413,8 +413,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 			Object templateItems = templateArray == null ? null
 					: Arrays.copyOf(templateArray.items, templateArray.size);
-			output.writeObjectProperty(name, array.items.getClass(), templateItems,
-					Arrays.copyOf(array.items, array.size));
+			Object[] items = Arrays.copyOf(array.items, array.size);
+			output.writeObjectProperty(name, array.items.getClass(), templateItems, items);
 		}
 
 		@Override

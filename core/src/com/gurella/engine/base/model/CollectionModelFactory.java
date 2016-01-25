@@ -266,7 +266,7 @@ public class CollectionModelFactory implements ModelFactory {
 			}
 
 			Object[] templateArray = null;
-			if (template != null && template.getClass() == object.getClass()) {
+			if (template != null) {
 				@SuppressWarnings("unchecked")
 				Collection<Object> templateCollection = (Collection<Object>) object;
 				templateArray = new Object[templateCollection.size()];
@@ -352,8 +352,8 @@ public class CollectionModelFactory implements ModelFactory {
 						? (TreeSet<?>) template : null;
 				Comparator<?> comparator = value.comparator();
 				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
-				if ((resolvedTemplate == null && comparator != null)
-						|| (resolvedTemplate != null && !ValueUtils.isEqual(templateComparator, comparator))) {
+				if (resolvedTemplate == null ? comparator != null
+						: !ValueUtils.isEqual(templateComparator, comparator)) {
 					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
 
@@ -459,7 +459,6 @@ public class CollectionModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
-				@SuppressWarnings("unchecked")
 				EnumSet<?> resolvedTemplate = template != null && value.getClass() == template.getClass()
 						? (EnumSet<?>) template : null;
 				if (resolvedTemplate == null || !getEnumType(value).equals(getEnumType(resolvedTemplate))) {
