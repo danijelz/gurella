@@ -1,11 +1,10 @@
-package com.gurella.engine.base.serialization;
+package com.gurella.engine.base.serialization.json;
 
 import java.util.Date;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class JsonSerialization {
