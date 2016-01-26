@@ -7,12 +7,12 @@ import com.gurella.engine.scene.layer.Layer;
 @BaseSceneElementType
 public class UiComponent extends BehaviourComponent {
 	public Layer layer;
-	private int x;
-	private int y;
-	private int w;
-	private int h;
-	private boolean visible;
-	private boolean blocked;
+	public int x;
+	public int y;
+	public int w;
+	public int h;
+	public boolean visible;
+	public boolean blocked;
 	
 	//TODO
 	public void requestFocus() {

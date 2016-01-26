@@ -4,17 +4,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.gurella.engine.scene.Scene;
 
 public class SceneTransition {
 	private Scene sourceScene;
 	private Scene destinationScene;
 
-	private Texture background;
-	private Sprite sprite;
+	//private Texture background;
+	//private Sprite sprite;
 
 	public SceneTransition() {
 		//TODO
@@ -86,10 +83,10 @@ public class SceneTransition {
 		System.out.println(sw.toString());
 	}
 
-	private void fillRectangle() {
-		Gdx.gl20.glEnable(GL20.GL_BLEND);
-		Application.SPRITE_BATCH.begin();
-		sprite.draw(Application.SPRITE_BATCH);
-		Application.SPRITE_BATCH.end();
-	}
+//	private void fillRectangle() {
+//		Gdx.gl20.glEnable(GL20.GL_BLEND);
+//		Application.SPRITE_BATCH.begin();
+//		sprite.draw(Application.SPRITE_BATCH);
+//		Application.SPRITE_BATCH.end();
+//	}
 }

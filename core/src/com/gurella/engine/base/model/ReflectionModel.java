@@ -407,12 +407,13 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 	}
 
-	private static class ConstructorArguments {
-		String[] argumentNames;
-	}
-
-	private static class FactoryMethodArguments {
-		String name;
-		String[] argumentNames;
-	}
+	// TODO dynamic type construction
+	// private static class ConstructorArguments {
+	// String[] argumentNames;
+	// }
+	//
+	// private static class FactoryMethodArguments {
+	// String name;
+	// String[] argumentNames;
+	// }
 }

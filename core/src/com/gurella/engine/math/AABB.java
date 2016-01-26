@@ -1,8 +1,8 @@
 package com.gurella.engine.math;
 
 import com.badlogic.gdx.math.Vector;
-import com.badlogic.gdx.math.Vector3;
 
+//TODO unused
 public abstract class AABB<T extends Vector<T>> {
 	/*public final T min = new Vector3();
 	public final T max = new Vector3();

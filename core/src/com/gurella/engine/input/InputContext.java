@@ -244,7 +244,7 @@ public class InputContext implements Comparable<InputContext> {
 		} else {
 			Listener1<Integer> defaultActionListener = getDefaultActionListener(buttonTrigger);
 			if (defaultActionListener != null) {
-				defaultActionListener.handle(buttonTrigger.getButton());
+				defaultActionListener.handle(Integer.valueOf(buttonTrigger.getButton()));
 			}
 		}
 
@@ -258,13 +258,13 @@ public class InputContext implements Comparable<InputContext> {
 		} else {
 			Listener2<ButtonState, Integer> defaultStateListener = getDefaultStateListener(buttonTrigger);
 			if (defaultStateListener != null) {
-				defaultStateListener.handle(buttonState, buttonTrigger.getButton());
+				defaultStateListener.handle(buttonState, Integer.valueOf(buttonTrigger.getButton()));
 			}
 		}
 
 		Listener1<Float> rangeListener = rangeBindings.get(buttonTrigger);
 		if (rangeListener != null) {
-			rangeListener.handle(ButtonState.RELEASED == buttonState ? 0f : 1f);
+			rangeListener.handle(Float.valueOf(ButtonState.RELEASED == buttonState ? 0f : 1f));
 			handled = true;
 		}
 

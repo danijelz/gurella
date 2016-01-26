@@ -20,7 +20,7 @@ public class ResourceService {
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
-
+		return null;
 	}
 
 	public static <T> void loadResourceAsync(String fileName, AsyncCallback<T> callback) {
@@ -32,7 +32,7 @@ public class ResourceService {
 	}
 
 	public static boolean isResourceLoaded(String fileName) {
-
+		return false;
 	}
 
 	public static <T> void loadResource(String fileName, Class<T> assetType, AsyncCallback<T> callback) {
