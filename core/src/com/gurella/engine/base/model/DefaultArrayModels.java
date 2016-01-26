@@ -53,7 +53,15 @@ public class DefaultArrayModels {
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			if (input.isNull()) {
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					@SuppressWarnings("unchecked")
+					T instance = (T) CopyContext.copyObject(template);
+					return instance;
+				}
+			} if (input.isNull()) {
 				return null;
 			} else {
 				return readValues(input);

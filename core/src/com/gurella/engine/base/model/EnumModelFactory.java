@@ -26,6 +26,7 @@ public class EnumModelFactory implements ModelFactory {
 		}
 	}
 
+	//TODO convert to SimpleModel
 	public static final class EnumModel<T extends Enum<T>> implements Model<T> {
 		private Class<T> type;
 		private Class<T> enumType;
@@ -34,6 +35,7 @@ public class EnumModelFactory implements ModelFactory {
 		private EnumModel(Class<T> type) {
 			this.type = type;
 			constants = type.getEnumConstants();
+			enumType = type;
 			if (constants == null) {
 				@SuppressWarnings("unchecked")
 				Class<T> casted = (Class<T>) type.getSuperclass();

@@ -45,12 +45,53 @@ public class DefaultModels {
 		public T copy(T original, CopyContext context) {
 			return original;
 		}
+
+		// TODO
+		// @Override
+		// public T deserialize(Object template, Input input) {
+		// if (!input.isValid()) {
+		// if (template == null) {
+		// return null;
+		// } else {
+		// @SuppressWarnings("unchecked")
+		// T instance = (T) CopyContext.copyObject(template);
+		// return instance;
+		// }
+		// } if (input.isNull()) {
+		// return null;
+		// } else {
+		// return readValues(input);
+		// }
+		// }
+		//
+		// protected abstract T readValues(Input input);
 	}
 
 	public static abstract class PrimitiveModel<T> extends SimpleModel<T> {
 		public PrimitiveModel(Class<T> type) {
 			super(type);
 		}
+
+		@Override
+		public T deserialize(Object template, Input input) {
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					@SuppressWarnings("unchecked")
+					T instance = (T) CopyContext.copyObject(template);
+					return instance;
+				}
+			} else {
+				return readValues(input);
+			}
+			// TODO
+			// else if (input.isNull()) {
+			// return null;
+			// }
+		}
+
+		protected abstract T readValues(Input input);
 	}
 
 	public static final class IntegerPrimitiveModel extends PrimitiveModel<Integer> {
@@ -66,7 +107,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Integer deserialize(Object template, Input input) {
+		public Integer readValues(Input input) {
 			return Integer.valueOf(input.readInt());
 		}
 	}
@@ -84,7 +125,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Long deserialize(Object template, Input input) {
+		public Long readValues(Input input) {
 			return Long.valueOf(input.readLong());
 		}
 	}
@@ -102,7 +143,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Short deserialize(Object template, Input input) {
+		public Short readValues(Input input) {
 			return Short.valueOf(input.readShort());
 		}
 	}
@@ -120,7 +161,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Byte deserialize(Object template, Input input) {
+		public Byte readValues(Input input) {
 			return Byte.valueOf(input.readByte());
 		}
 	}
@@ -138,7 +179,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Character deserialize(Object template, Input input) {
+		public Character readValues(Input input) {
 			return Character.valueOf(input.readChar());
 		}
 	}
@@ -156,7 +197,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Boolean deserialize(Object template, Input input) {
+		public Boolean readValues(Input input) {
 			return Boolean.valueOf(input.readBoolean());
 		}
 	}
@@ -174,7 +215,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Double deserialize(Object template, Input input) {
+		public Double readValues(Input input) {
 			return Double.valueOf(input.readDouble());
 		}
 	}
@@ -192,7 +233,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Float deserialize(Object template, Input input) {
+		public Float readValues(Input input) {
 			return Float.valueOf(input.readFloat());
 		}
 	}
@@ -210,7 +251,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Void deserialize(Object template, Input input) {
+		public Void readValues(Input input) {
 			return null;
 		}
 	}
