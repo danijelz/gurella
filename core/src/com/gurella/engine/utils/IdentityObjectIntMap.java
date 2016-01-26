@@ -831,6 +831,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			return array;
 		}
 
+		@Override
 		public void remove() {
 			super.remove();
 		}

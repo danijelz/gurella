@@ -4,19 +4,14 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.registry.Objects;
-import com.gurella.engine.base.serialization.Archive;
-import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.JsonSerialization;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
 

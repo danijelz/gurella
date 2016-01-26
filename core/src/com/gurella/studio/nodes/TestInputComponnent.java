@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.event.EventSubscriptionCallback;
 import com.gurella.engine.scene.event.EventCallbackIdentifier;
+import com.gurella.engine.scene.event.EventSubscriptionCallback;
 import com.gurella.engine.scene.input.DragSource;
 import com.gurella.engine.scene.input.DragStartCondition;
 import com.gurella.engine.scene.input.DropTarget;
@@ -285,25 +285,22 @@ public class TestInputComponnent extends BehaviourComponent implements TestEvent
 	public DropTarget getDropTarget(Array<DragSource> dragSources) {
 		return new DropTarget() {
 			@Override
-			public void drop(float screenX, float screenY, @SuppressWarnings("hiding") Array<DragSource> dragSources) {
+			public void drop(float screenX, float screenY, Array<DragSource> dragSources) {
 				System.out.println("drop");
 			}
 
 			@Override
-			public void dragOut(float screenX, float screenY,
-					@SuppressWarnings("hiding") Array<DragSource> dragSources) {
+			public void dragOut(float screenX, float screenY, Array<DragSource> dragSources) {
 				System.out.println("dragOut");
 			}
 
 			@Override
-			public void dragMove(float screenX, float screenY,
-					@SuppressWarnings("hiding") Array<DragSource> dragSources) {
+			public void dragMove(float screenX, float screenY, Array<DragSource> dragSources) {
 				System.out.println("dragMove2");
 			}
 
 			@Override
-			public void dragIn(float screenX, float screenY,
-					@SuppressWarnings("hiding") Array<DragSource> dragSources) {
+			public void dragIn(float screenX, float screenY, Array<DragSource> dragSources) {
 				System.out.println("dragIn");
 			}
 		};

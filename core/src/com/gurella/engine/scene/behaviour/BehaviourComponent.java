@@ -511,15 +511,18 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	// TODO animation events
 
 	// TODO tag events
+	@SuppressWarnings("unused")
 	@EventSubscriptionCallback(marker = true)
 	public void onNodeTagged(SceneNode node, Tag tag) {
 	}
 
+	@SuppressWarnings("unused")
 	@EventSubscriptionCallback(marker = true)
 	public void onNodeUntagged(SceneNode node, Tag tag) {
 	}
 
 	// TODO layer events
+	@SuppressWarnings("unused")
 	@EventSubscriptionCallback(marker = true)
 	public void onNodeLayerChanged(SceneNode node, Layer oldLayer, Layer newLayer) {
 	}

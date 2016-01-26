@@ -67,6 +67,7 @@ public class InfCodes {
 		tree = null;
 	}
 
+	@SuppressWarnings("fallthrough")
 	int proc(int r) {
 		int j; // temporary storage
 		int tindex; // temporary pointer

@@ -140,6 +140,7 @@ public class Inflate {
 		return Z_OK;
 	}
 
+	@SuppressWarnings("fallthrough")
 	int inflate(int f) {
 		int r;
 		int b;

@@ -57,7 +57,6 @@ public class SceneRenderableComponent extends RenderableComponent {
 	}
 
 	public void add(ResourceReference<? extends SceneNodeComponent> componentReference) {
-
 		if (renderablesByReference.containsKey(componentReference)) {
 			return;
 		}
@@ -67,6 +66,7 @@ public class SceneRenderableComponent extends RenderableComponent {
 				.getResourceFactory();
 
 		AssetId texture = resourceFactory.getPropertyValue("texture");
+		@SuppressWarnings("unchecked")
 		AssetDescriptor<Texture> descriptor = new AssetDescriptor<Texture>(texture.getFileName(),
 				(Class<Texture>) texture.getAssetType());
 		assetRegistry.load(descriptor);
@@ -92,6 +92,7 @@ public class SceneRenderableComponent extends RenderableComponent {
 				return;
 			}
 
+			@SuppressWarnings("unchecked")
 			AssetDescriptor<Texture> descriptor = new AssetDescriptor<Texture>(texture.getFileName(),
 					(Class<Texture>) texture.getAssetType());
 			assetRegistry.load(descriptor);

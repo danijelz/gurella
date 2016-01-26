@@ -87,6 +87,7 @@ public class InfBlocks {
 		}
 	}
 
+	@SuppressWarnings("fallthrough")
 	int proc(int r) {
 		int t; // temporary storage
 		int b; // bit buffer

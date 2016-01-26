@@ -167,7 +167,7 @@ public class Unzip {
 		return 0;
 	}
 
-	private int createTree(HufNode[] currentTree, int numval, int[] lengths, boolean show) {
+	private int createTree(HufNode[] currentTree, int numval, int[] lengths) {
 		int i;
 
 		Places = currentTree;
@@ -318,7 +318,7 @@ public class Unzip {
 					distanceTree[i] = new HufNode();
 				}
 
-				if (createTree(distanceTree, 19, ll, false) != 0) {
+				if (createTree(distanceTree, 19, ll) != 0) {
 					flushBuffer();
 					return 1;
 				}
@@ -372,7 +372,7 @@ public class Unzip {
 					literalTree[i] = new HufNode();
 				}
 
-				if (createTree(literalTree, literalCodes, ll, false) != 0) {
+				if (createTree(literalTree, literalCodes, ll) != 0) {
 					flushBuffer();
 					return 1;
 				}
@@ -389,7 +389,7 @@ public class Unzip {
 					ll2[i - literalCodes] = ll[i];
 				}
 
-				if (createTree(distanceTree, distCodes, ll2, false) != 0) {
+				if (createTree(distanceTree, distCodes, ll2) != 0) {
 					flushBuffer();
 					return 1;
 				}

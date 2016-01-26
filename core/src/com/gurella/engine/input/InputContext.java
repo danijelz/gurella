@@ -1,5 +1,6 @@
 package com.gurella.engine.input;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
@@ -42,7 +43,7 @@ public class InputContext implements Comparable<InputContext> {
 
 	boolean handleKeyTyped(char character) {
 		if (keyTypedListener != null) {
-			keyTypedListener.handle(character);
+			keyTypedListener.handle(Character.valueOf(character));
 			return true;
 		} else {
 			return false;
@@ -263,9 +264,7 @@ public class InputContext implements Comparable<InputContext> {
 
 		Listener1<Float> rangeListener = rangeBindings.get(buttonTrigger);
 		if (rangeListener != null) {
-			rangeListener.handle(ButtonState.RELEASED == buttonState
-					? 0f
-					: 1f);
+			rangeListener.handle(ButtonState.RELEASED == buttonState ? 0f : 1f);
 			handled = true;
 		}
 
@@ -282,6 +281,8 @@ public class InputContext implements Comparable<InputContext> {
 				return defaultKeyPressedActionListener;
 			case RELEASED:
 				return defaultKeyReleasedActionListener;
+			default:
+				throw new GdxRuntimeException("Invalid button state: " + buttonTrigger.buttonState);
 			}
 		case MOUSE:
 			switch (buttonTrigger.buttonState) {
@@ -289,9 +290,11 @@ public class InputContext implements Comparable<InputContext> {
 				return defaultButtonPressedActionListener;
 			case RELEASED:
 				return defaultButtonReleasedActionListener;
+			default:
+				throw new GdxRuntimeException("Invalid button state: " + buttonTrigger.buttonState);
 			}
 		default:
-			throw new IllegalArgumentException();
+			throw new GdxRuntimeException("Invalid button type: " + buttonTrigger.buttonType);
 		}
 	}
 
