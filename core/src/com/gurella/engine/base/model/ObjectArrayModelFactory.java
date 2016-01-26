@@ -5,8 +5,8 @@ import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.JsonSerialization;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -148,32 +148,55 @@ public class ObjectArrayModelFactory implements ModelFactory {
 				Object[] array = (Object[]) value;
 				int length = array.length;
 
-				Object[] resolvedTemplate = template != null && value.getClass() == template.getClass()
-						? (Object[]) template : null;
-				int templateLength = resolvedTemplate == null ? 0 : resolvedTemplate.length;
+				Object[] templateArray = template != null && type == template.getClass() ? (Object[]) template : null;
+				int templateLength = templateArray == null ? 0 : templateArray.length;
 
 				output.writeInt(length);
 				for (int i = 0; i < length; i++) {
-					Object itemTemplate = templateLength > 1 ? resolvedTemplate[i] : null;
-					output.writeObject(componentType, itemTemplate, array[i]);
+					Object templateItem = templateLength > 1 ? templateArray[i] : null;
+					output.writeObject(componentType, templateItem, array[i]);
 				}
 			}
 		}
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			int length = input.readInt();
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					Object[] templateArray = (Object[]) template;
+					int length = templateArray.length;
+					Object[] array = (Object[]) ArrayReflection.newInstance(componentType, length);
+					input.pushObject(array);
+					for (int i = 0; i < length; i++) {
+						array[i] = CopyContext.copyObject(templateArray[i]);
+					}
+					input.popObject();
 
-			Object[] value = (Object[]) ArrayReflection.newInstance(componentType, length);
-			input.pushObject(value);
-			for (int i = 0; i < length; i++) {
-				value[i] = input.readObject(componentType);
+					@SuppressWarnings("unchecked")
+					T value = (T) array;
+					return value;
+				}
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				int length = input.readInt();
+				Object[] array = (Object[]) ArrayReflection.newInstance(componentType, length);
+				Object[] templateArray = template != null && type == template.getClass() ? (Object[]) template : null;
+				int templateLength = templateArray == null ? 0 : templateArray.length;
+
+				input.pushObject(array);
+				for (int i = 0; i < length; i++) {
+					Object templateItem = templateLength > 1 ? templateArray[i] : null;
+					array[i] = input.readObject(componentType, templateItem);
+				}
+				input.popObject();
+
+				@SuppressWarnings("unchecked")
+				T value = (T) array;
+				return value;
 			}
-			input.popObject();
-
-			@SuppressWarnings("unchecked")
-			T array = (T) value;
-			return array;
 		}
 
 		@Override

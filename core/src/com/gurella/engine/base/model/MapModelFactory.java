@@ -120,18 +120,38 @@ public class MapModelFactory implements ModelFactory {
 				output.writeNull();
 			} else {
 				@SuppressWarnings("unchecked")
-				T resolvedTemplate = template != null && value.getClass() == template.getClass() ? (T) template : null;
-				properties.get(0).serialize(value, resolvedTemplate, output);
+				T templateMap = template != null && type == template.getClass() ? (T) template : null;
+				properties.get(0).serialize(value, templateMap, output);
 			}
 		}
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			T instance = ReflectionUtils.newInstance(type);
-			input.pushObject(instance);
-			properties.get(0).deserialize(instance, dddd, input);
-			input.popObject();
-			return instance;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
+					input.pushObject(instance);
+					ImmutableArray<Property<?>> properties = getProperties();
+					for (int i = 0; i < properties.size(); i++) {
+						Property<?> property = properties.get(i);
+						property.deserialize(instance, template, input);
+					}
+					input.popObject();
+					return instance;
+				}
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				@SuppressWarnings("unchecked")
+				T templateMap = template != null && type == template.getClass() ? (T) template : null;
+				T instance = ReflectionUtils.newInstance(type);
+				input.pushObject(instance);
+				properties.get(0).deserialize(instance, templateMap, input);
+				input.popObject();
+				return instance;
+			}
 		}
 
 		@Override

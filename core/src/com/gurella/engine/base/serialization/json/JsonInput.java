@@ -47,31 +47,40 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
+		return deserialize(expectedType, json, null);
+	}
+
+	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
 		rootValue = reader.parse(json);
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
-		T result = deserializeObject(referenceValue, expectedType);
+		T result = deserializeObject(referenceValue, expectedType, template);
 		reset();
 		return result;
 	}
 
-	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType) {
+	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType, Object template) {
 		Class<T> resolvedType = JsonSerialization.resolveObjectType(expectedType, jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
 
 		push(JsonSerialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
-		T object = model.deserialize(dddd, this);
+		T object = model.deserialize(template, this);
 		pop();
 
 		return object;
 	}
 
-	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType) {
+	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType, Object template) {
 		push(jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
-		T object = model.deserialize(dddd, this);
+		T object = model.deserialize(template, this);
 		pop();
 		return object;
+	}
+
+	@Override
+	public boolean isValid() {
+		return value != null;
 	}
 
 	@Override
@@ -143,30 +152,31 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public <T> T readObject(Class<T> expectedType) {
+	public <T> T readObject(Class<T> expectedType, Object template) {
 		T result;
 		if (value.isNull()) {
 			result = null;
-		} else if (expectedType != null && (expectedType.isPrimitive() || JsonSerialization.isSimpleType(expectedType))) {
+		} else if (expectedType != null
+				&& (expectedType.isPrimitive() || JsonSerialization.isSimpleType(expectedType))) {
 			if (value.isObject()) {
 				push(value.get("value"));
 			} else {
 				push(value);
 			}
-			result = Models.getModel(expectedType).deserialize(dddd, this);
+			result = Models.getModel(expectedType).deserialize(template, this);
 			pop();
 		} else if (value.isObject()) {
-			result = deserializeObject(value, expectedType);
+			result = deserializeObject(value, expectedType, template);
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
 			String itemTypeName = firstItem.getString("class", null);
 			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
 				Class<?> arrayType = ReflectionUtils.forName(firstItem.getString(ArrayType.typeNameField));
 				@SuppressWarnings("unchecked")
-				T array = (T) deserializeObjectResolved(firstItem.next, arrayType);
+				T array = (T) deserializeObjectResolved(firstItem.next, arrayType, template);
 				result = array;
 			} else {
-				result = deserializeObjectResolved(firstItem, expectedType);
+				result = deserializeObjectResolved(firstItem, expectedType, template);
 			}
 		} else {
 			int id = value.asInt();
@@ -179,7 +189,7 @@ public class JsonInput implements Input, Poolable {
 				}
 				referenceValues.put(referenceValue, id);
 				push(referenceValue);
-				referencedObject = readObject(expectedType);
+				referencedObject = readObject(expectedType, template);
 				pop();
 				references.put(id, referencedObject);
 			}
@@ -197,7 +207,7 @@ public class JsonInput implements Input, Poolable {
 
 	@Override
 	public boolean hasProperty(String name) {
-		return value.has(name);
+		return value == null ? false : value.has(name);
 	}
 
 	@Override
@@ -246,9 +256,9 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public <T> T readObjectProperty(String name, Class<T> expectedType) {
+	public <T> T readObjectProperty(String name, Class<T> expectedType, Object template) {
 		push(value.get(name));
-		T object = readObject(expectedType);
+		T object = readObject(expectedType, template);
 		pop();
 		return object;
 	}

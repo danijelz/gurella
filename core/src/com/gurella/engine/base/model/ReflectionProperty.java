@@ -14,8 +14,8 @@ import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.JsonSerialization;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.SynchronizedPools;
@@ -275,7 +275,15 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
 		if (input.hasProperty(name)) {
-			setValue(object, input.readObjectProperty(name, type));
+			Object templateValue = template == null ? null : getValue(template);
+			setValue(object, input.readObjectProperty(name, type, templateValue));
+		} else if (template != null) {
+			T value = getValue(object);
+			T templateValue = getValue(template);
+			if (ValueUtils.isEqual(value, templateValue)) {
+				return;
+			}
+			setValue(object, field.isFinal() ? templateValue : CopyContext.copyObject(templateValue));
 		}
 	}
 

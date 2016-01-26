@@ -8,11 +8,13 @@ import java.util.TreeSet;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Constructor;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.JsonSerialization;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
@@ -50,15 +52,31 @@ public class CollectionModelFactory implements ModelFactory {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
+		private boolean innerClass;
+		private String name;
+		private Constructor constructor;
+
 		public CollectionModel(Class<T> type) {
 			this.type = type;
+			innerClass = ReflectionUtils.isInnerClass(type);
+			resolveName();
 			properties = new ArrayExt<Property<?>>();
 			properties.add(new CollectionItemsProperty(this));
 		}
 
+		private void resolveName() {
+			ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
+			if (resourceAnnotation == null) {
+				name = type.getSimpleName();
+			} else {
+				String descriptiveName = resourceAnnotation.descriptiveName();
+				name = ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
+			}
+		}
+
 		@Override
 		public String getName() {
-			return type.getName();
+			return name;
 		}
 
 		@Override
@@ -119,27 +137,72 @@ public class CollectionModelFactory implements ModelFactory {
 				output.writeNull();
 			} else {
 				@SuppressWarnings("unchecked")
-				T resolvedTemplate = template != null && value.getClass() == template.getClass() ? (T) template : null;
+				T resolvedTemplate = template != null && type == template.getClass() ? (T) template : null;
 				properties.get(0).serialize(value, resolvedTemplate, output);
 			}
 		}
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			T instance = ReflectionUtils.newInstance(type);
-			input.pushObject(instance);
-			properties.get(0).deserialize(instance, dddd, input);
-			input.popObject();
-			return instance;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
+					input.pushObject(instance);
+					properties.get(0).deserialize(instance, template, input);
+					input.popObject();
+					return instance;
+				}
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
+				@SuppressWarnings("unchecked")
+				T resolvedTemplate = template != null && type == template.getClass() ? (T) template : null;
+				input.pushObject(instance);
+				properties.get(0).deserialize(instance, resolvedTemplate, input);
+				input.popObject();
+				return instance;
+			}
 		}
 
 		@Override
 		public T copy(T original, CopyContext context) {
-			T instance = ReflectionUtils.newInstance(type);
+			T instance = createInstance(innerClass ? context.getObjectStack().peek() : null);
 			context.pushObject(instance);
 			properties.get(0).copy(original, instance, context);
 			context.popObject();
 			return instance;
+		}
+
+		@SuppressWarnings("unchecked")
+		protected T createInstance(Object enclosingInstance) {
+			try {
+				if (innerClass) {
+					return (T) getConstructor(enclosingInstance).newInstance(enclosingInstance);
+				} else {
+					return (T) getConstructor(null).newInstance();
+
+				}
+			} catch (ReflectionException e) {
+				throw new GdxRuntimeException(e);
+			}
+		}
+
+		private Constructor getConstructor(Object enclosingInstance) {
+			if (constructor != null) {
+				return constructor;
+			}
+
+			if (innerClass) {
+				constructor = ReflectionUtils.findInnerClassDeclaredConstructor(type, enclosingInstance);
+			} else {
+				constructor = ReflectionUtils.getDeclaredConstructor(type);
+			}
+
+			constructor.setAccessible(true);
+			return constructor;
 		}
 	}
 
@@ -267,6 +330,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 			Object[] templateArray = null;
 			if (template != null) {
+				i = 0;
 				@SuppressWarnings("unchecked")
 				Collection<Object> templateCollection = (Collection<Object>) object;
 				templateArray = new Object[templateCollection.size()];
@@ -281,11 +345,31 @@ public class CollectionModelFactory implements ModelFactory {
 		@Override
 		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
+				Object[] templateArray = null;
+				if (template != null) {
+					int i = 0;
+					@SuppressWarnings("unchecked")
+					Collection<Object> templateCollection = (Collection<Object>) object;
+					templateArray = new Object[templateCollection.size()];
+					for (Object item : templateCollection) {
+						templateArray[i++] = item;
+					}
+				}
+
 				@SuppressWarnings("unchecked")
 				Collection<Object> collection = (Collection<Object>) object;
-				Object[] array = input.readObjectProperty(name, Object[].class);
+				Object[] array = input.readObjectProperty(name, Object[].class, templateArray);
+
 				for (int i = 0; i < array.length; i++) {
 					collection.add(array[i]);
+				}
+			} else if (template != null) {
+				@SuppressWarnings("unchecked")
+				Collection<Object> collection = (Collection<Object>) object;
+				@SuppressWarnings("unchecked")
+				Collection<Object> templateCollection = (Collection<Object>) object;
+				for (Object templateItem : templateCollection) {
+					collection.add(CopyContext.copyObject(templateItem));
 				}
 			}
 		}
@@ -363,20 +447,43 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public TreeSet<?> deserialize(Object template, Input input) {
-			TreeSet<?> instance;
-			if (input.hasProperty("comparator")) {
-				Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class);
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				TreeSet<?> casted = new TreeSet(comparator);
-				instance = casted;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					TreeSet<?> templateSet = (TreeSet<?>) template;
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					TreeSet<?> set = new TreeSet(templateSet.comparator());
+					input.pushObject(set);
+					getProperties().get(0).deserialize(set, template, input);
+					input.popObject();
+					return set;
+				}
+			} else if (input.isNull()) {
+				return null;
 			} else {
-				instance = new TreeSet<Object>();
-			}
+				TreeSet<?> templateSet = template != null && getType() == template.getClass() ? (TreeSet<?>) template
+						: null;
+				Comparator<?> templateComparator = templateSet == null ? null : templateSet.comparator();
 
-			input.pushObject(instance);
-			getProperties().get(0).deserialize(instance, dddd, input);
-			input.popObject();
-			return instance;
+				TreeSet<?> instance;
+				if (input.hasProperty("comparator")) {
+					Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class,
+							templateComparator);
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					TreeSet<?> casted = new TreeSet(comparator);
+					instance = casted;
+				} else {
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					TreeSet<?> casted = new TreeSet(templateComparator);
+					instance = casted;
+				}
+
+				input.pushObject(instance);
+				getProperties().get(0).deserialize(instance, templateSet, input);
+				input.popObject();
+				return instance;
+			}
 		}
 
 		@Override
@@ -459,7 +566,7 @@ public class CollectionModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
-				EnumSet<?> resolvedTemplate = template != null && value.getClass() == template.getClass()
+				EnumSet<?> resolvedTemplate = template != null && getType() == template.getClass()
 						? (EnumSet<?>) template : null;
 				if (resolvedTemplate == null || !getEnumType(value).equals(getEnumType(resolvedTemplate))) {
 					output.writeStringProperty("type", getEnumType(value).getName());
@@ -471,14 +578,28 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public EnumSet<?> deserialize(Object template, Input input) {
-			@SuppressWarnings("rawtypes")
-			Class<Enum> enumType = ReflectionUtils.forName(input.readStringProperty("type"));
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			EnumSet enumSet = EnumSet.noneOf(enumType);
-			input.pushObject(enumSet);
-			getProperties().get(0).deserialize(enumSet, dddd, input);
-			input.popObject();
-			return enumSet;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					return ((EnumSet<?>) template).clone();
+				}
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				@SuppressWarnings("rawtypes")
+				Class<Enum> enumType = ReflectionUtils.forName(input.readStringProperty("type"));
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				EnumSet enumSet = EnumSet.noneOf(enumType);
+
+				EnumSet<?> resolvedTemplate = template != null && getType() == template.getClass()
+						? (EnumSet<?>) template : null;
+
+				input.pushObject(enumSet);
+				getProperties().get(0).deserialize(enumSet, resolvedTemplate, input);
+				input.popObject();
+				return enumSet;
+			}
 		}
 
 		@Override

@@ -193,7 +193,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private Object resolveTemplate(T instance, Object template) {
-		if (template != null && template.getClass() == instance.getClass()) {
+		if (template != null && type == template.getClass()) {
 			return template;
 		} else if (instance instanceof ManagedObject) {
 			return ((ManagedObject) instance).getTemplate();

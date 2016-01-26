@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.JsonSerialization;
+import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
@@ -135,43 +135,59 @@ public class GdxArrayModelFactory implements ModelFactory {
 					output.writeStringProperty("componentType", componentType.getName());
 				}
 
-				T templateArray = resolveTemplate(value, template);
+				@SuppressWarnings("unchecked")
+				T templateArray = template != null && template.getClass() == type ? (T) template : null;
 				properties.get(0).serialize(value, templateArray, output);
 				properties.get(1).serialize(value, templateArray, output);
 			}
 		}
 
-		private T resolveTemplate(T value, Object template) {
-			if (template == null || template.getClass() != value.getClass()) {
-				return null;
-			}
-
-			@SuppressWarnings("unchecked")
-			T templateArray = (T) template;
-			return value.ordered == templateArray.ordered && value.items.getClass() == templateArray.items.getClass()
-					? templateArray : null;
-		}
-
 		@Override
 		public T deserialize(Object template, Input input) {
-			T array = createArray(input);
-			input.pushObject(array);
-			properties.get(0).deserialize(array, dddd, input);
-			properties.get(1).deserialize(array, dddd, input);
-			input.popObject();
-			return array;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					@SuppressWarnings("unchecked")
+					T templateArray = (T) template;
+					T array = createArray(templateArray.items.getClass());
+					input.pushObject(array);
+					properties.get(0).deserialize(array, templateArray, input);
+					properties.get(1).deserialize(array, templateArray, input);
+					input.popObject();
+					return array;
+				}
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				@SuppressWarnings("unchecked")
+				T templateArray = template != null && template.getClass() == type ? (T) template : null;
+
+				Class<?> componentType;
+				if (input.hasProperty("componentType")) {
+					componentType = ReflectionUtils.forNameSilently(input.readStringProperty("componentType"));
+				} else if (templateArray != null) {
+					componentType = templateArray.items.getClass();
+				} else {
+					componentType = Object.class;
+				}
+
+				T array = createArray(componentType);
+				input.pushObject(array);
+				properties.get(0).deserialize(array, templateArray, input);
+				properties.get(1).deserialize(array, templateArray, input);
+				input.popObject();
+				return array;
+			}
 		}
 
-		private T createArray(Input input) {
-			if (input.hasProperty("componentType")) {
-				Class<?> componentType = ReflectionUtils.forNameSilently(input.readStringProperty("componentType"));
-				Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
-				if (constructor != null) {
-					return ReflectionUtils.invokeConstructor(constructor, componentType);
-				}
+		private T createArray(Class<?> componentType) {
+			Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
+			if (constructor != null) {
+				return ReflectionUtils.invokeConstructor(constructor, componentType);
+			} else {
+				return ReflectionUtils.newInstance(type);
 			}
-
-			return ReflectionUtils.newInstance(type);
 		}
 
 		@Override
@@ -290,6 +306,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
 				((Array<?>) object).ordered = input.readBooleanProperty(name);
+			} else if(template != null) {
+				((Array<?>) object).ordered = ((Array<?>) template).ordered;
 			}
 		}
 
@@ -414,6 +432,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 			Object templateItems = templateArray == null ? null
 					: Arrays.copyOf(templateArray.items, templateArray.size);
 			Object[] items = Arrays.copyOf(array.items, array.size);
+
 			output.writeObjectProperty(name, array.items.getClass(), templateItems, items);
 		}
 
@@ -422,10 +441,19 @@ public class GdxArrayModelFactory implements ModelFactory {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;
-
-				Object[] property = input.readObjectProperty(name, array.items.getClass());
-				array.ensureCapacity(property.length - array.size);
-				array.addAll(property);
+				Object templateValue = template == null ? null : getValue(template);
+				Object[] value = input.readObjectProperty(name, array.items.getClass(), templateValue);
+				array.ensureCapacity(value.length - array.size);
+				array.addAll(value);
+			} else if (template != null) {
+				@SuppressWarnings("unchecked")
+				Array<Object> array = (Array<Object>) object;
+				Object[] value = getValue(template);
+				int length = value.length;
+				array.ensureCapacity(length - array.size);
+				for (int i = 0; i < length; i++) {
+					array.add(CopyContext.copyObject(value[i]));
+				}
 			}
 		}
 
