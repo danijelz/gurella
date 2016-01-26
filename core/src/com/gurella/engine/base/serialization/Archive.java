@@ -17,9 +17,14 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.OrderedSet;
+import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.CopyContext;
+import com.gurella.engine.base.registry.Objects;
+import com.gurella.engine.base.serialization.json.JsonInput;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.utils.ArrayExt;
 
@@ -85,7 +90,26 @@ public class Archive implements Poolable {
 		// obj.child = obj;
 
 		JsonOutput output = new JsonOutput();
-		output.serialize(Test.class, obj);
+		String string = output.serialize(Test.class, obj);
+		
+		System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
+
+		JsonInput input = new JsonInput();
+		Test deserialized = input.deserialize(Test.class, string);
+		System.out.println(Objects.isEqual(obj, deserialized));
+		
+		Test duplicate = new CopyContext().copy(obj);
+		System.out.println(Objects.isEqual(obj, duplicate));
+		
+		Object copied = new CopyContext().copyProperties(obj, new Archive.Test());
+		System.out.println(Objects.isEqual(obj, copied));
+		
+		System.out.println("\n\n\n\n");
+		
+		String string1 = output.serialize(Test.class, obj, duplicate);
+		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
+		Test deserialized1 = input.deserialize(Test.class, string1, obj);
+		System.out.println(Objects.isEqual(obj, deserialized1));
 	}
 
 	public static class Test {

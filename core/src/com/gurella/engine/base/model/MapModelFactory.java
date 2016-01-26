@@ -99,15 +99,9 @@ public class MapModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
-					input.pushObject(instance);
-					ImmutableArray<Property<?>> properties = getProperties();
-					for (int i = 0; i < properties.size(); i++) {
-						Property<?> property = properties.get(i);
-						property.deserialize(instance, template, input);
-					}
-					input.popObject();
-					return instance;
+					@SuppressWarnings("unchecked")
+					T map = (T) CopyContext.copyObject(template);
+					return map;
 				}
 			} else if (input.isNull()) {
 				return null;
@@ -220,6 +214,7 @@ public class MapModelFactory implements ModelFactory {
 
 			Object[][] templateEntries = null;
 			if (template != null) {
+				i = 0;
 				@SuppressWarnings("unchecked")
 				Map<Object, Object> templateMap = (Map<Object, Object>) template;
 				templateEntries = new Object[templateMap.size()][2];
@@ -237,11 +232,31 @@ public class MapModelFactory implements ModelFactory {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Map<Object, Object> map = (Map<Object, Object>) object;
-				Object[][] entries = input.readObjectProperty(name, Object[][].class);
 
+				Object[][] templateEntries = null;
+				if (template != null) {
+					int i = 0;
+					@SuppressWarnings("unchecked")
+					Map<Object, Object> templateMap = (Map<Object, Object>) template;
+					templateEntries = new Object[templateMap.size()][2];
+					for (Entry<?, ?> entry : templateMap.entrySet()) {
+						templateEntries[i][0] = entry.getKey();
+						templateEntries[i][1] = entry.getValue();
+					}
+				}
+
+				Object[][] entries = input.readObjectProperty(name, Object[][].class, templateEntries);
 				for (int i = 0; i < entries.length; i++) {
 					Object[] entry = entries[i];
 					map.put(entry[0], entry[1]);
+				}
+			} else if (template != null) {
+				@SuppressWarnings("unchecked")
+				Map<Object, Object> map = (Map<Object, Object>) object;
+				@SuppressWarnings("unchecked")
+				Map<Object, Object> templateMap = (Map<Object, Object>) template;
+				for (Entry<Object, Object> entry : templateMap.entrySet()) {
+					map.put(CopyContext.copyObject(entry.getKey()), CopyContext.copyObject(entry.getValue()));
 				}
 			}
 		}
@@ -273,12 +288,11 @@ public class MapModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
-				TreeMap<?, ?> resolvedTemplate = template != null && value.getClass() == template.getClass()
+				TreeMap<?, ?> templateMap = template != null && getType() == template.getClass()
 						? (TreeMap<?, ?>) template : null;
 				Comparator<?> comparator = value.comparator();
-				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
-				if (resolvedTemplate == null ? comparator != null
-						: !ValueUtils.isEqual(templateComparator, comparator)) {
+				Comparator<?> templateComparator = templateMap == null ? null : templateMap.comparator();
+				if (templateMap == null ? comparator != null : !ValueUtils.isEqual(templateComparator, comparator)) {
 					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
 				getProperties().get(0).serialize(value, template, output);
@@ -287,20 +301,37 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public TreeMap<?, ?> deserialize(Object template, Input input) {
-			TreeMap<?, ?> instance;
-			if (input.hasProperty("comparator")) {
-				Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class);
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				TreeMap<?, ?> casted = new TreeMap(comparator);
-				instance = casted;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					return (TreeMap<?, ?>) CopyContext.copyObject(template);
+				}
+			} else if (input.isNull()) {
+				return null;
 			} else {
-				instance = new TreeMap<Object, Object>();
-			}
+				TreeMap<?, ?> templateMap = template != null && getType() == template.getClass()
+						? (TreeMap<?, ?>) template : null;
+				Comparator<?> templateComparator = templateMap == null ? null : templateMap.comparator();
 
-			input.pushObject(instance);
-			getProperties().get(0).deserialize(instance, dddd, input);
-			input.popObject();
-			return instance;
+				TreeMap<?, ?> instance;
+				if (input.hasProperty("comparator")) {
+					Comparator<?> comparator = input.readObjectProperty("comparator", Comparator.class,
+							templateComparator);
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					TreeMap<?, ?> casted = new TreeMap(comparator);
+					instance = casted;
+				} else {
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					TreeMap<?, ?> casted = new TreeMap(templateComparator);
+					instance = casted;
+				}
+
+				input.pushObject(instance);
+				getProperties().get(0).deserialize(instance, templateMap, input);
+				input.popObject();
+				return instance;
+			}
 		}
 
 		@Override
@@ -339,11 +370,13 @@ public class MapModelFactory implements ModelFactory {
 			} else if (value == null) {
 				output.writeNull();
 			} else {
-				EnumMap<?, ?> resolvedTemplate = template != null && value.getClass() == template.getClass()
-						? (EnumMap<?, ?>) template : null;
 				Class<? extends Enum<?>> keyType = getKeyType(value);
-				if (resolvedTemplate == null || keyType != getKeyType(resolvedTemplate)) {
-					output.writeStringProperty(keyTypeFieldName, getKeyType(value).getName());
+				EnumMap<?, ?> templateMap = template != null && getType() == template.getClass()
+						? (EnumMap<?, ?>) template : null;
+				@SuppressWarnings("unchecked")
+				Class<Enum<?>> templateKeyType = templateMap == null ? null : (Class<Enum<?>>) getKeyType(templateMap);
+				if (keyType != templateKeyType) {
+					output.writeStringProperty(keyTypeFieldName, keyType.getName());
 				}
 				getProperties().get(0).serialize(value, template, output);
 			}
@@ -371,13 +404,33 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public EnumMap<?, ?> deserialize(Object template, Input input) {
-			Class<Enum<?>> keyType = ReflectionUtils.forName(input.readStringProperty(keyTypeFieldName));
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			EnumMap<?, ?> instance = new EnumMap(keyType);
-			input.pushObject(instance);
-			getProperties().get(0).deserialize(instance, dddd, input);
-			input.popObject();
-			return instance;
+			if (!input.isValid()) {
+				if (template == null) {
+					return null;
+				} else {
+					return (EnumMap<?, ?>) CopyContext.copyObject(template);
+				}
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				EnumMap<?, ?> templateMap = template != null && getType() == template.getClass()
+						? (EnumMap<?, ?>) template : null;
+				@SuppressWarnings("unchecked")
+				Class<Enum<?>> templateKeyType = templateMap == null ? null : (Class<Enum<?>>) getKeyType(templateMap);
+				Class<Enum<?>> keyType;
+				if (input.hasProperty(keyTypeFieldName)) {
+					keyType = ReflectionUtils.forName(input.readStringProperty(keyTypeFieldName));
+				} else {
+					keyType = templateKeyType;
+				}
+
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				EnumMap<?, ?> instance = new EnumMap(keyType);
+				input.pushObject(instance);
+				getProperties().get(0).deserialize(instance, templateMap, input);
+				input.popObject();
+				return instance;
+			}
 		}
 
 		@Override

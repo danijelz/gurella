@@ -35,19 +35,11 @@ public class JsonOutput implements Output, Poolable {
 		objectsToSerialize.clear();
 	}
 
-	public <T> void serialize(Class<T> expectedType, T rootObject) {
-		serialize(expectedType, null, rootObject);
-		
-		T duplicate = new CopyContext().copy(rootObject);
-		System.out.println(Objects.isEqual(rootObject, duplicate));
-		
-		Object copied = new CopyContext().copyProperties(rootObject, new Archive.Test());
-		System.out.println(Objects.isEqual(rootObject, copied));
-		
-		serialize(expectedType, rootObject, duplicate);
+	public <T> String serialize(Class<T> expectedType, T rootObject) {
+		return serialize(expectedType, null, rootObject);
 	}
 
-	public <T> void serialize(Class<T> expectedType, Object template, T rootObject) {
+	public <T> String serialize(Class<T> expectedType, Object template, T rootObject) {
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);
 
@@ -63,12 +55,9 @@ public class JsonOutput implements Output, Poolable {
 
 		pop();
 
-		System.out.println(new JsonReader().parse(buffer.toString()).prettyPrint(OutputType.minimal, 120));
+		String string = buffer.toString();
 		reset();
-
-		JsonInput input = new JsonInput();
-		T deserialized = input.deserialize(expectedType, buffer.toString());
-		System.out.println(Objects.isEqual(rootObject, deserialized));
+		return string;
 	}
 
 	private void writeReference(Class<?> expectedType, Object template, Object object) {
