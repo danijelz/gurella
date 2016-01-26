@@ -61,7 +61,7 @@ public class DefaultArrayModels {
 					T instance = (T) input.copyObject(template);
 					return instance;
 				}
-			} if (input.isNull()) {
+			} else if (input.isNull()) {
 				return null;
 			} else {
 				return readValues(input);

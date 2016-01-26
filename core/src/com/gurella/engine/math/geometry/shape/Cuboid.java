@@ -4,7 +4,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 public class Cuboid extends Shape {
-	public final Vector3 center = new Vector3();
+	public float centerX;
+	public float centeryY;
+	public float centerZ;
 	public float width;
 	public float height;
 	public float depth;
@@ -12,30 +14,32 @@ public class Cuboid extends Shape {
 	public float halfHeigth;
 	public float halfDepth;
 
-	public Cuboid(Vector3 center, float width, float height, float depth) {
-		this(center.x, center.y, center.z, width, height, depth);
-	}
-
-	public Cuboid(float x, float y, float z, float width, float height, float depth) {
-		this.center.set(x, y, z);
+	public Cuboid(float centerX, float centeryY, float centerZ, float width, float height, float depth) {
+		this.centerX = centerX;
+		this.centeryY = centeryY;
+		this.centerZ = centerZ;
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
 		halfWidth = width / 2;
 		halfHeigth = height / 2;
 		halfDepth = depth / 2;
-		bounds.min.set(center.x - halfWidth, center.y - halfHeigth, center.z - halfDepth);
-		bounds.max.set(center.x + halfWidth, center.y + halfHeigth, center.z + halfDepth);
+		bounds.min.set(centerX - halfWidth, centeryY - halfHeigth, centerZ - halfDepth);
+		bounds.max.set(centerX + halfWidth, centeryY + halfHeigth, centerZ + halfDepth);
 	}
 
 	public Cuboid(BoundingBox bounds) {
 		this.bounds.set(bounds);
-		this.width = bounds.max.x - bounds.min.x;
-		this.height = bounds.max.y - bounds.min.y;
-		this.depth = bounds.max.z - bounds.min.z;
+		Vector3 min = bounds.min;
+		Vector3 max = bounds.max;
+		this.width = max.x - min.x;
+		this.height = max.y - min.y;
+		this.depth = max.z - min.z;
 		halfWidth = width / 2;
 		halfHeigth = height / 2;
 		halfDepth = depth / 2;
-		bounds.getCenter(center);
+		this.centerX = (min.x + max.x) * 0.5f;
+		this.centeryY = (min.y + max.y) * 0.5f;
+		this.centerZ = (min.z + max.z) * 0.5f;
 	}
 }

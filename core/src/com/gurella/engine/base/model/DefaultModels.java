@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -45,26 +46,6 @@ public class DefaultModels {
 		public T copy(T original, CopyContext context) {
 			return original;
 		}
-
-		// TODO
-		// @Override
-		// public T deserialize(Object template, Input input) {
-		// if (!input.isValid()) {
-		// if (template == null) {
-		// return null;
-		// } else {
-		// @SuppressWarnings("unchecked")
-		// T instance = (T) input.copyObject(template);
-		// return instance;
-		// }
-		// } if (input.isNull()) {
-		// return null;
-		// } else {
-		// return readValues(input);
-		// }
-		// }
-		//
-		// protected abstract T readValues(Input input);
 	}
 
 	public static abstract class PrimitiveModel<T> extends SimpleModel<T> {
@@ -76,22 +57,20 @@ public class DefaultModels {
 		public T deserialize(Object template, Input input) {
 			if (!input.isValid()) {
 				if (template == null) {
-					return null;
+					throw new GdxRuntimeException("Can't deserialize null primitive.");
 				} else {
 					@SuppressWarnings("unchecked")
-					T instance = (T) input.copyObject(template);
+					T instance = (T) template;
 					return instance;
 				}
+			} else if (input.isNull()) {
+				throw new GdxRuntimeException("Can't deserialize null primitive.");
 			} else {
-				return readValues(input);
+				return readValue(input);
 			}
-			// TODO
-			// else if (input.isNull()) {
-			// return null;
-			// }
 		}
 
-		protected abstract T readValues(Input input);
+		protected abstract T readValue(Input input);
 	}
 
 	public static final class IntegerPrimitiveModel extends PrimitiveModel<Integer> {
@@ -107,7 +86,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Integer readValues(Input input) {
+		public Integer readValue(Input input) {
 			return Integer.valueOf(input.readInt());
 		}
 	}
@@ -125,7 +104,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Long readValues(Input input) {
+		public Long readValue(Input input) {
 			return Long.valueOf(input.readLong());
 		}
 	}
@@ -143,7 +122,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Short readValues(Input input) {
+		public Short readValue(Input input) {
 			return Short.valueOf(input.readShort());
 		}
 	}
@@ -161,7 +140,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Byte readValues(Input input) {
+		public Byte readValue(Input input) {
 			return Byte.valueOf(input.readByte());
 		}
 	}
@@ -179,7 +158,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Character readValues(Input input) {
+		public Character readValue(Input input) {
 			return Character.valueOf(input.readChar());
 		}
 	}
@@ -197,7 +176,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Boolean readValues(Input input) {
+		public Boolean readValue(Input input) {
 			return Boolean.valueOf(input.readBoolean());
 		}
 	}
@@ -215,7 +194,7 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Double readValues(Input input) {
+		public Double readValue(Input input) {
 			return Double.valueOf(input.readDouble());
 		}
 	}
@@ -233,16 +212,50 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Float readValues(Input input) {
+		public Float readValue(Input input) {
 			return Float.valueOf(input.readFloat());
 		}
 	}
 
-	public static final class VoidModel extends PrimitiveModel<Void> {
+	public static abstract class SimpleObjectModel<T> extends SimpleModel<T> {
+		public SimpleObjectModel(Class<T> type) {
+			super(type);
+		}
+
+		@Override
+		public void serialize(T value, Object template, Output output) {
+			if (ValueUtils.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
+				output.writeNull();
+			} else {
+				writeValue(value, output);
+			}
+		}
+
+		protected abstract void writeValue(T value, Output output);
+
+		@Override
+		public T deserialize(Object template, Input input) {
+			if (!input.isValid()) {
+				@SuppressWarnings("unchecked")
+				T instance = template == null ? null : (T) input.copyObject(template);
+				return instance;
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				return readValue(input);
+			}
+		}
+
+		protected abstract T readValue(Input input);
+	}
+
+	public static final class VoidModel extends SimpleModel<Void> {
 		public static final VoidModel instance = new VoidModel();
 
 		private VoidModel() {
-			super(void.class);
+			super(Void.class);
 		}
 
 		@Override
@@ -251,12 +264,12 @@ public class DefaultModels {
 		}
 
 		@Override
-		public Void readValues(Input input) {
+		public Void deserialize(Object template, Input input) {
 			return null;
 		}
 	}
 
-	public static final class IntegerModel extends SimpleModel<Integer> {
+	public static final class IntegerModel extends SimpleObjectModel<Integer> {
 		public static final IntegerModel instance = new IntegerModel();
 
 		private IntegerModel() {
@@ -264,27 +277,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Integer value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(value);
-			}
+		public void writeValue(Integer value, Output output) {
+			output.writeInt(value);
 		}
 
 		@Override
-		public Integer deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Integer.valueOf(input.readInt());
-			}
+		public Integer readValue(Input input) {
+			return Integer.valueOf(input.readInt());
 		}
 	}
 
-	public static final class LongModel extends SimpleModel<Long> {
+	public static final class LongModel extends SimpleObjectModel<Long> {
 		public static final LongModel instance = new LongModel();
 
 		private LongModel() {
@@ -292,27 +295,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Long value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeLong(value);
-			}
+		public void writeValue(Long value, Output output) {
+			output.writeLong(value);
 		}
 
 		@Override
-		public Long deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Long.valueOf(input.readLong());
-			}
+		public Long readValue(Input input) {
+			return Long.valueOf(input.readLong());
 		}
 	}
 
-	public static final class ShortModel extends SimpleModel<Short> {
+	public static final class ShortModel extends SimpleObjectModel<Short> {
 		public static final ShortModel instance = new ShortModel();
 
 		private ShortModel() {
@@ -320,27 +313,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Short value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeShort(value);
-			}
+		public void writeValue(Short value, Output output) {
+			output.writeShort(value);
 		}
 
 		@Override
-		public Short deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Short.valueOf(input.readShort());
-			}
+		public Short readValue(Input input) {
+			return Short.valueOf(input.readShort());
 		}
 	}
 
-	public static final class ByteModel extends SimpleModel<Byte> {
+	public static final class ByteModel extends SimpleObjectModel<Byte> {
 		public static final ByteModel instance = new ByteModel();
 
 		private ByteModel() {
@@ -348,27 +331,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Byte value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeByte(value);
-			}
+		public void writeValue(Byte value, Output output) {
+			output.writeByte(value);
 		}
 
 		@Override
-		public Byte deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Byte.valueOf(input.readByte());
-			}
+		public Byte readValue(Input input) {
+			return Byte.valueOf(input.readByte());
 		}
 	}
 
-	public static final class CharModel extends SimpleModel<Character> {
+	public static final class CharModel extends SimpleObjectModel<Character> {
 		public static final CharModel instance = new CharModel();
 
 		private CharModel() {
@@ -376,27 +349,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Character value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeChar(value);
-			}
+		public void writeValue(Character value, Output output) {
+			output.writeChar(value);
 		}
 
 		@Override
-		public Character deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Character.valueOf(input.readChar());
-			}
+		public Character readValue(Input input) {
+			return Character.valueOf(input.readChar());
 		}
 	}
 
-	public static final class BooleanModel extends SimpleModel<Boolean> {
+	public static final class BooleanModel extends SimpleObjectModel<Boolean> {
 		public static final BooleanModel instance = new BooleanModel();
 
 		private BooleanModel() {
@@ -404,27 +367,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Boolean value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeBoolean(value);
-			}
+		public void writeValue(Boolean value, Output output) {
+			output.writeBoolean(value);
 		}
 
 		@Override
-		public Boolean deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Boolean.valueOf(input.readBoolean());
-			}
+		public Boolean readValue(Input input) {
+			return Boolean.valueOf(input.readBoolean());
 		}
 	}
 
-	public static final class DoubleModel extends SimpleModel<Double> {
+	public static final class DoubleModel extends SimpleObjectModel<Double> {
 		public static final DoubleModel instance = new DoubleModel();
 
 		private DoubleModel() {
@@ -432,27 +385,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Double value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeDouble(value);
-			}
+		public void writeValue(Double value, Output output) {
+			output.writeDouble(value);
 		}
 
 		@Override
-		public Double deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Double.valueOf(input.readDouble());
-			}
+		public Double readValue(Input input) {
+			return Double.valueOf(input.readDouble());
 		}
 	}
 
-	public static final class FloatModel extends SimpleModel<Float> {
+	public static final class FloatModel extends SimpleObjectModel<Float> {
 		public static final FloatModel instance = new FloatModel();
 
 		private FloatModel() {
@@ -460,27 +403,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Float value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeFloat(value);
-			}
+		public void writeValue(Float value, Output output) {
+			output.writeFloat(value);
 		}
 
 		@Override
-		public Float deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return Float.valueOf(input.readFloat());
-			}
+		public Float readValue(Input input) {
+			return Float.valueOf(input.readFloat());
 		}
 	}
 
-	public static final class StringModel extends SimpleModel<String> {
+	public static final class StringModel extends SimpleObjectModel<String> {
 		public static final StringModel instance = new StringModel();
 
 		private StringModel() {
@@ -488,27 +421,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(String value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeString(value);
-			}
+		public void writeValue(String value, Output output) {
+			output.writeString(value);
 		}
 
 		@Override
-		public String deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return input.readString();
-			}
+		public String readValue(Input input) {
+			return input.readString();
 		}
 	}
 
-	public static final class BigIntegerModel extends SimpleModel<BigInteger> {
+	public static final class BigIntegerModel extends SimpleObjectModel<BigInteger> {
 		public static final BigIntegerModel instance = new BigIntegerModel();
 
 		private BigIntegerModel() {
@@ -516,27 +439,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(BigInteger value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeString(value.toString());
-			}
+		public void writeValue(BigInteger value, Output output) {
+			output.writeString(value.toString());
 		}
 
 		@Override
-		public BigInteger deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return new BigInteger(input.readString());
-			}
+		public BigInteger readValue(Input input) {
+			return new BigInteger(input.readString());
 		}
 	}
 
-	public static final class BigDecimalModel extends SimpleModel<BigDecimal> {
+	public static final class BigDecimalModel extends SimpleObjectModel<BigDecimal> {
 		public static final BigDecimalModel instance = new BigDecimalModel();
 
 		private BigDecimalModel() {
@@ -544,27 +457,17 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(BigDecimal value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeString(value.toString());
-			}
+		public void writeValue(BigDecimal value, Output output) {
+			output.writeString(value.toString());
 		}
 
 		@Override
-		public BigDecimal deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return new BigDecimal(input.readString());
-			}
+		public BigDecimal readValue(Input input) {
+			return new BigDecimal(input.readString());
 		}
 	}
 
-	public static final class ClassModel extends SimpleModel<Class<?>> {
+	public static final class ClassModel extends SimpleObjectModel<Class<?>> {
 		public static final ClassModel instance = new ClassModel();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -573,28 +476,18 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Class<?> value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeString(value.getName());
-			}
+		public void writeValue(Class<?> value, Output output) {
+			output.writeString(value.getName());
 		}
 
 		@Override
-		public Class<?> deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return ReflectionUtils.forName(input.readString());
-			}
+		public Class<?> readValue(Input input) {
+			return ReflectionUtils.forName(input.readString());
 		}
 	}
 
 	// TODO change to resolver
-	public static final class DateModel extends SimpleModel<Date> {
+	public static final class DateModel extends SimpleObjectModel<Date> {
 		public static final DateModel instance = new DateModel();
 
 		private DateModel() {
@@ -602,23 +495,13 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void serialize(Date value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeLong(value.getTime());
-			}
+		public void writeValue(Date value, Output output) {
+			output.writeLong(value.getTime());
 		}
 
 		@Override
-		public Date deserialize(Object template, Input input) {
-			if (input.isNull()) {
-				return null;
-			} else {
-				return new Date(input.readLong());
-			}
+		public Date readValue(Input input) {
+			return new Date(input.readLong());
 		}
 
 		@Override
