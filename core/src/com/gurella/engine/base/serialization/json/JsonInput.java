@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Input;
@@ -25,6 +26,8 @@ public class JsonInput implements Input, Poolable {
 
 	private IntMap<Object> references = new IntMap<Object>();
 	private ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
+	
+	private CopyContext copyContext = new CopyContext();
 
 	private void push(JsonValue value) {
 		this.value = value;
@@ -43,6 +46,7 @@ public class JsonInput implements Input, Poolable {
 		valueStack.clear();
 		objectStack.clear();
 		references.clear();
+		copyContext.reset();
 	}
 
 	public <T> T deserialize(Class<T> expectedType, String json) {
@@ -279,5 +283,10 @@ public class JsonInput implements Input, Poolable {
 	@Override
 	public ImmutableArray<Object> getObjectStack() {
 		return objectStack.immutable();
+	}
+	
+	@Override
+	public <T> T copyObject(T original) {
+		return copyContext.copy(original);
 	}
 }

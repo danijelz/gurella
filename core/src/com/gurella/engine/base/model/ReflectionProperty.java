@@ -211,7 +211,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			if (ValueUtils.isEqual(value, templateValue)) {
 				return;
 			}
-			setValue(object, field.isFinal() ? templateValue : CopyContext.copyObject(templateValue));
+			setValue(object, field.isFinal() ? templateValue : input.copyObject(templateValue));
 		}
 	}
 

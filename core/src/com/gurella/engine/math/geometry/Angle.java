@@ -1,4 +1,4 @@
-package com.gurella.engine.geometry;
+package com.gurella.engine.math.geometry;
 
 import com.badlogic.gdx.math.MathUtils;
 

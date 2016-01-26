@@ -4,8 +4,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private static int indexer = 0;
 
 	int id;
-	int templateId;
-	transient boolean initialized;
+	String templateId;
 
 	String name;
 	public transient final int instanceId;
@@ -20,10 +19,6 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void init() {
-	}
-
-	public boolean isInitialized() {
-		return initialized;
 	}
 
 	@Override

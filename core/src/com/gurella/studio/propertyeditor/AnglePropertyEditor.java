@@ -1,6 +1,6 @@
 package com.gurella.studio.propertyeditor;
 
-import com.gurella.engine.geometry.Angle;
+import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.studio.common.CompositeInputValidator;

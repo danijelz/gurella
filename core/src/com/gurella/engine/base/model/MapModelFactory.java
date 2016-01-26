@@ -100,7 +100,7 @@ public class MapModelFactory implements ModelFactory {
 					return null;
 				} else {
 					@SuppressWarnings("unchecked")
-					T map = (T) CopyContext.copyObject(template);
+					T map = (T) input.copyObject(template);
 					return map;
 				}
 			} else if (input.isNull()) {
@@ -256,7 +256,7 @@ public class MapModelFactory implements ModelFactory {
 				@SuppressWarnings("unchecked")
 				Map<Object, Object> templateMap = (Map<Object, Object>) template;
 				for (Entry<Object, Object> entry : templateMap.entrySet()) {
-					map.put(CopyContext.copyObject(entry.getKey()), CopyContext.copyObject(entry.getValue()));
+					map.put(input.copyObject(entry.getKey()), input.copyObject(entry.getValue()));
 				}
 			}
 		}
@@ -305,7 +305,7 @@ public class MapModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					return (TreeMap<?, ?>) CopyContext.copyObject(template);
+					return (TreeMap<?, ?>) input.copyObject(template);
 				}
 			} else if (input.isNull()) {
 				return null;
@@ -408,7 +408,7 @@ public class MapModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					return (EnumMap<?, ?>) CopyContext.copyObject(template);
+					return (EnumMap<?, ?>) input.copyObject(template);
 				}
 			} else if (input.isNull()) {
 				return null;

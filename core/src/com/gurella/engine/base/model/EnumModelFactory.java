@@ -2,9 +2,9 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueUtils;
 
 public class EnumModelFactory implements ModelFactory {
@@ -26,14 +26,12 @@ public class EnumModelFactory implements ModelFactory {
 		}
 	}
 
-	//TODO convert to SimpleModel
-	public static final class EnumModel<T extends Enum<T>> implements Model<T> {
-		private Class<T> type;
+	public static final class EnumModel<T extends Enum<T>> extends SimpleModel<T> {
 		private Class<T> enumType;
 		private T[] constants;
 
 		private EnumModel(Class<T> type) {
-			this.type = type;
+			super(type);
 			constants = type.getEnumConstants();
 			enumType = type;
 			if (constants == null) {
@@ -42,26 +40,6 @@ public class EnumModelFactory implements ModelFactory {
 				enumType = casted;
 				constants = enumType.getEnumConstants();
 			}
-		}
-
-		@Override
-		public Class<T> getType() {
-			return type;
-		}
-
-		@Override
-		public String getName() {
-			return type.getName();
-		}
-
-		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return ImmutableArray.empty();
-		}
-
-		@Override
-		public <P> Property<P> getProperty(String name) {
-			return null;
 		}
 
 		@Override
@@ -77,20 +55,22 @@ public class EnumModelFactory implements ModelFactory {
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			// TODO input.isValid()
-			String enumName = input.readString();
-			for (int i = 0; i < constants.length; i++) {
-				T constant = constants[i];
-				if (enumName.equals(constant.name())) {
-					return constant;
+			if (!input.isValid()) {
+				@SuppressWarnings("unchecked")
+				T instance = (T) template;
+				return instance;
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				String enumName = input.readString();
+				for (int i = 0; i < constants.length; i++) {
+					T constant = constants[i];
+					if (enumName.equals(constant.name())) {
+						return constant;
+					}
 				}
+				throw new GdxRuntimeException("Invalid enum name: " + enumName);
 			}
-			throw new GdxRuntimeException("Invalid enum name: " + enumName);
-		}
-
-		@Override
-		public T copy(T original, CopyContext context) {
-			return original;
 		}
 	}
 }

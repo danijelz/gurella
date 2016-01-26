@@ -1,10 +1,9 @@
 package com.gurella.engine.base.serialization.json;
 
-import java.util.Date;
-
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.base.model.DefaultModels.SimpleModel;
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class JsonSerialization {
@@ -38,15 +37,7 @@ public class JsonSerialization {
 		return isSimpleType(obj.getClass());
 	}
 
-	// TODO isAssignableFrom is slow use instanceof on type model
 	static boolean isSimpleType(Class<?> type) {
-		// return type.isPrimitive() || ClassReflection.isAssignableFrom(Enum.class, type) || Models.getModel(type)
-		// instanceof SimpleModel;
-		return type.isPrimitive() || Integer.class == type || Long.class == type || Short.class == type
-				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type
-				|| Float.class == type || String.class == type || Class.class == type
-				|| ClassReflection.isAssignableFrom(Number.class, type)
-				|| ClassReflection.isAssignableFrom(Date.class, type)
-				|| ClassReflection.isAssignableFrom(Enum.class, type);
+		return type.isPrimitive() || Models.getModel(type) instanceof SimpleModel;
 	}
 }

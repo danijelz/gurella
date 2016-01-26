@@ -115,7 +115,7 @@ public class CollectionModelFactory implements ModelFactory {
 					return null;
 				} else {
 					@SuppressWarnings("unchecked")
-					T instance = (T) CopyContext.copyObject(template);
+					T instance = (T) input.copyObject(template);
 					return instance;
 				}
 			} else if (input.isNull()) {
@@ -301,7 +301,7 @@ public class CollectionModelFactory implements ModelFactory {
 				@SuppressWarnings("unchecked")
 				Collection<Object> templateCollection = (Collection<Object>) object;
 				for (Object templateItem : templateCollection) {
-					collection.add(CopyContext.copyObject(templateItem));
+					collection.add(input.copyObject(templateItem));
 				}
 			}
 		}
@@ -352,7 +352,7 @@ public class CollectionModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					TreeSet<?> instance = (TreeSet<?>) CopyContext.copyObject(template);
+					TreeSet<?> instance = (TreeSet<?>) input.copyObject(template);
 					return instance;
 				}
 			} else if (input.isNull()) {

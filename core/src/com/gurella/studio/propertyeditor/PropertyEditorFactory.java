@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
-import com.gurella.engine.geometry.Angle;
+import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 

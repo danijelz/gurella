@@ -96,7 +96,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 					return null;
 				} else {
 					@SuppressWarnings("unchecked")
-					T array = (T) CopyContext.copyObject(template);
+					T array = (T) input.copyObject(template);
 					return array;
 				}
 			} else if (input.isNull()) {
@@ -331,7 +331,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 				int length = value.length;
 				array.ensureCapacity(length - array.size);
 				for (int i = 0; i < length; i++) {
-					array.add(CopyContext.copyObject(value[i]));
+					array.add(input.copyObject(value[i]));
 				}
 			}
 		}

@@ -174,7 +174,7 @@ public class ReflectionModel<T> implements Model<T> {
 				return null;
 			} else {
 				@SuppressWarnings("unchecked")
-				T instance = (T) CopyContext.copyObject(template);
+				T instance = (T) input.copyObject(template);
 				return instance;
 			}
 		} else if (input.isNull()) {

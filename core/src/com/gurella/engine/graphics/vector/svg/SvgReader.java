@@ -70,7 +70,7 @@ class SvgReader {
 		}
 	}
 
-	@SuppressWarnings("fallthrough")
+	@SuppressWarnings({ "fallthrough", "incomplete-switch" })
 	public Svg parse(char[] data, int offset, int length) {
 		svg = new Svg();
 		int cs, p = offset, pe = length;

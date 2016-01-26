@@ -8,7 +8,7 @@ import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.geometry.Angle;
+import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;

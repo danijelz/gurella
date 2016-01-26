@@ -1,6 +1,6 @@
 package com.gurella.engine.scene.renderable;
 
-import com.gurella.engine.geometry.solid.Solid;
+import com.gurella.engine.math.geometry.shape.shape3d.Solid;
 
 public class SolidComponent extends RenderableComponent3d {
 	public Solid solid;

@@ -87,7 +87,7 @@ public class InfBlocks {
 		}
 	}
 
-	@SuppressWarnings("fallthrough")
+	@SuppressWarnings({ "fallthrough", "incomplete-switch" })
 	int proc(int r) {
 		int t; // temporary storage
 		int b; // bit buffer

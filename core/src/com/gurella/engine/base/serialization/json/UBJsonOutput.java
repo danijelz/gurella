@@ -1,13 +1,12 @@
 package com.gurella.engine.base.serialization.json;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.UBJsonWriter;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -15,7 +14,7 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
 
-public class UBJsonOutput  implements Output, Poolable {
+public class UBJsonOutput implements Output, Poolable {
 	private UBJsonWriter writer;
 
 	private int currentId;
@@ -30,13 +29,14 @@ public class UBJsonOutput  implements Output, Poolable {
 		objectsToSerialize.clear();
 	}
 
-	public <T> String serialize(Class<T> expectedType, T rootObject) {
+	public <T> byte[] serialize(Class<T> expectedType, T rootObject) {
 		return serialize(expectedType, null, rootObject);
 	}
 
-	public <T> String serialize(Class<T> expectedType, Object template, T rootObject) {
-		writer = new UBJsonWriter(buffer);
-		
+	public <T> byte[] serialize(Class<T> expectedType, Object template, T rootObject) {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		writer = new UBJsonWriter(stream);
+
 		object();
 		addReference(expectedType, template, rootObject);
 
@@ -49,9 +49,9 @@ public class UBJsonOutput  implements Output, Poolable {
 
 		pop();
 
-		String string = buffer.toString();
+		byte[] result = stream.toByteArray();
 		reset();
-		return string;
+		return result;
 	}
 
 	private void writeReference(Class<?> expectedType, Object template, Object object) {

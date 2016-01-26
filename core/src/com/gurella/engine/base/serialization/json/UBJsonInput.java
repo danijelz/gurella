@@ -1,15 +1,15 @@
 package com.gurella.engine.base.serialization.json;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.UBJsonReader;
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Input;
@@ -17,7 +17,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class UBJsonInput  implements Input, Poolable {
+public class UBJsonInput implements Input, Poolable {
 	private UBJsonReader reader = new UBJsonReader();
 	private JsonValue rootValue;
 
@@ -28,6 +28,8 @@ public class UBJsonInput  implements Input, Poolable {
 
 	private IntMap<Object> references = new IntMap<Object>();
 	private ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
+
+	private CopyContext copyContext = new CopyContext();
 
 	private void push(JsonValue value) {
 		this.value = value;
@@ -46,14 +48,16 @@ public class UBJsonInput  implements Input, Poolable {
 		valueStack.clear();
 		objectStack.clear();
 		references.clear();
+		copyContext.reset();
 	}
 
-	public <T> T deserialize(Class<T> expectedType, String json) {
+	public <T> T deserialize(Class<T> expectedType, byte[] json) {
 		return deserialize(expectedType, json, null);
 	}
 
-	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
-		rootValue = reader.parse(new StringReader(json));
+	public <T> T deserialize(Class<T> expectedType, byte[] json, Object template) {
+		ByteArrayInputStream stream = new ByteArrayInputStream(json);
+		rootValue = reader.parse(stream);
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
 		T result = deserializeObject(referenceValue, expectedType, template);
@@ -282,5 +286,10 @@ public class UBJsonInput  implements Input, Poolable {
 	@Override
 	public ImmutableArray<Object> getObjectStack() {
 		return objectStack.immutable();
+	}
+
+	@Override
+	public <T> T copyObject(T original) {
+		return copyContext.copy(original);
 	}
 }

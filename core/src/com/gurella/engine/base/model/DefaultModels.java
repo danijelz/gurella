@@ -54,7 +54,7 @@ public class DefaultModels {
 		// return null;
 		// } else {
 		// @SuppressWarnings("unchecked")
-		// T instance = (T) CopyContext.copyObject(template);
+		// T instance = (T) input.copyObject(template);
 		// return instance;
 		// }
 		// } if (input.isNull()) {
@@ -79,7 +79,7 @@ public class DefaultModels {
 					return null;
 				} else {
 					@SuppressWarnings("unchecked")
-					T instance = (T) CopyContext.copyObject(template);
+					T instance = (T) input.copyObject(template);
 					return instance;
 				}
 			} else {

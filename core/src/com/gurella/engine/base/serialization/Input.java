@@ -54,4 +54,6 @@ public interface Input {
 	void popObject();
 
 	ImmutableArray<Object> getObjectStack();
+
+	<T> T copyObject(T original);
 }
