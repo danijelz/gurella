@@ -8,14 +8,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
-import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
@@ -67,34 +63,6 @@ public class MapModelFactory implements ModelFactory {
 		@Override
 		public Class<T> getType() {
 			return type;
-		}
-
-		@Override
-		public T createInstance(InitializationContext context) {
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				T template = context.template();
-				if (template == null) {
-					return null;
-				}
-
-				@SuppressWarnings("unchecked")
-				T instance = (T) ReflectionUtils.newInstance(template.getClass());
-				return instance;
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				Class<T> resolvedType = JsonSerialization.resolveObjectType(type, serializedValue);
-				return ReflectionUtils.newInstance(resolvedType);
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-			Map<?, ?> initializingObject = context.initializingObject();
-			if (initializingObject != null) {
-				properties.get(0).init(context);
-			}
 		}
 
 		@Override
@@ -220,36 +188,6 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void init(InitializationContext context) {
-			@SuppressWarnings("unchecked")
-			Map<Object, Object> map = (Map<Object, Object>) context.initializingObject();
-			if (map == null) {
-				return;
-			}
-
-			JsonValue serializedObject = context.serializedValue();
-			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
-			if (serializedValue == null) {
-				@SuppressWarnings("unchecked")
-				Map<Object, Object> template = (Map<Object, Object>) context.template();
-				if (template == null) {
-					return;
-				}
-
-				for (Entry<Object, Object> entry : template.entrySet()) {
-					map.put(Objects.copyValue(entry.getKey(), context), Objects.copyValue(entry.getValue(), context));
-				}
-			} else {
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					JsonValue keyValue = item.child;
-					Object key = Objects.deserialize(keyValue, Object.class, context);
-					Object value = Objects.deserialize(keyValue.next, Object.class, context);
-					map.put(key, value);
-				}
-			}
-		}
-
-		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Set<Entry<?, ?>> getValue(Object object) {
 			return ((Map) object).entrySet();
@@ -329,37 +267,6 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public TreeMap<?, ?> createInstance(InitializationContext context) {
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				TreeMap<?, ?> template = context.template();
-				if (template == null) {
-					return null;
-				}
-
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				TreeMap<?, ?> casted = new TreeMap(template.comparator());
-				return casted;
-			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-
-				JsonValue serializedComparator = serializedValue.get("comparator");
-				if (serializedComparator == null || serializedComparator.isNull()) {
-					@SuppressWarnings("rawtypes")
-					TreeMap<?, ?> casted = new TreeMap();
-					return casted;
-				}
-
-				Comparator<?> comparator = Objects.deserialize(serializedComparator, Comparator.class, context);
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				TreeMap<?, ?> casted = new TreeMap(comparator);
-				return casted;
-			}
-		}
-
-		@Override
 		public void serialize(TreeMap<?, ?> value, Object template, Output output) {
 			if (ValueUtils.isEqual(template, value)) {
 				return;
@@ -423,33 +330,6 @@ public class MapModelFactory implements ModelFactory {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public EnumMapModel() {
 			super((Class) EnumMap.class);
-		}
-
-		@Override
-		public EnumMap<?, ?> createInstance(InitializationContext context) {
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				EnumMap<?, ?> template = context.template();
-				if (template == null) {
-					return null;
-				} else {
-					@SuppressWarnings({ "unchecked", "rawtypes" })
-					EnumMap<?, ?> casted = new EnumMap(getKeyType(template));
-					return casted;
-				}
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				Class<Enum<?>> keyType = ReflectionUtils.forName(serializedValue.getString(keyTypeFieldName));
-				if (keyType.getEnumConstants() == null) {
-					@SuppressWarnings({ "unchecked" })
-					Class<Enum<?>> casted = (Class<Enum<?>>) keyType.getSuperclass();
-					keyType = casted;
-				}
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				EnumMap<?, ?> casted = new EnumMap(keyType);
-				return casted;
-			}
 		}
 
 		@Override

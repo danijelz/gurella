@@ -6,14 +6,10 @@ import java.util.EnumSet;
 import java.util.TreeSet;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -85,36 +81,6 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T createInstance(InitializationContext context) {
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				T template = context.template();
-				if (template == null) {
-					return null;
-				}
-
-				@SuppressWarnings("unchecked")
-				T instance = (T) ReflectionUtils.newInstance(template.getClass());
-				return instance;
-			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-
-				Class<T> resolvedType = JsonSerialization.resolveObjectType(type, serializedValue);
-				return ReflectionUtils.newInstance(resolvedType);
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-			T initializingObject = context.initializingObject();
-			if (initializingObject != null) {
-				properties.get(0).init(context);
-			}
-		}
-
-		@Override
 		public ImmutableArray<Property<?>> getProperties() {
 			return properties.immutable();
 		}
@@ -148,10 +114,8 @@ public class CollectionModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
-					input.pushObject(instance);
-					properties.get(0).deserialize(instance, template, input);
-					input.popObject();
+					@SuppressWarnings("unchecked")
+					T instance = (T) CopyContext.copyObject(template);
 					return instance;
 				}
 			} else if (input.isNull()) {
@@ -261,38 +225,6 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void init(InitializationContext context) {
-			@SuppressWarnings("unchecked")
-			Collection<Object> collection = (Collection<Object>) context.initializingObject();
-			if (collection == null) {
-				return;
-			}
-
-			JsonValue serializedObject = context.serializedValue();
-			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
-			if (serializedValue == null) {
-				@SuppressWarnings("unchecked")
-				Collection<Object> template = (Collection<Object>) context.template();
-				if (template == null) {
-					return;
-				}
-
-				for (Object item : collection) {
-					collection.add(Objects.copyValue(item, context));
-				}
-			} else {
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					if (item.isNull()) {
-						collection.add(null);
-					} else {
-						Class<?> resolvedType = JsonSerialization.resolveObjectType(Object.class, item);
-						collection.add(Objects.deserialize(item, resolvedType, context));
-					}
-				}
-			}
-		}
-
-		@Override
 		public Object[] getValue(Object object) {
 			@SuppressWarnings("unchecked")
 			Collection<Object> collection = (Collection<Object>) object;
@@ -395,37 +327,6 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public TreeSet<?> createInstance(InitializationContext context) {
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				TreeSet<?> template = context.template();
-				if (template == null) {
-					return null;
-				}
-
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				TreeSet casted = new TreeSet(template.comparator());
-				return casted;
-			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-
-				JsonValue serializedComparator = serializedValue.get("comparator");
-				if (serializedComparator == null || serializedComparator.isNull()) {
-					@SuppressWarnings("rawtypes")
-					TreeSet<?> casted = new TreeSet();
-					return casted;
-				}
-
-				Comparator<?> comparator = Objects.deserialize(serializedComparator, Comparator.class, context);
-				@SuppressWarnings({ "rawtypes", "unchecked" })
-				TreeSet casted = new TreeSet(comparator);
-				return casted;
-			}
-		}
-
-		@Override
 		public void serialize(TreeSet<?> value, Object template, Output output) {
 			if (ValueUtils.isEqual(template, value)) {
 				return;
@@ -451,13 +352,8 @@ public class CollectionModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					TreeSet<?> templateSet = (TreeSet<?>) template;
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					TreeSet<?> set = new TreeSet(templateSet.comparator());
-					input.pushObject(set);
-					getProperties().get(0).deserialize(set, template, input);
-					input.popObject();
-					return set;
+					TreeSet<?> instance = (TreeSet<?>) CopyContext.copyObject(template);
+					return instance;
 				}
 			} else if (input.isNull()) {
 				return null;
@@ -503,33 +399,6 @@ public class CollectionModelFactory implements ModelFactory {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private EnumSetModel() {
 			super((Class) EnumSet.class);
-		}
-
-		@Override
-		public EnumSet<?> createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				EnumSet<?> template = context.template();
-				if (template == null) {
-					return null;
-				} else {
-					@SuppressWarnings({ "unchecked", "rawtypes" })
-					EnumSet enumSet = EnumSet.noneOf((Class) getEnumType(template));
-					return enumSet;
-				}
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				@SuppressWarnings("rawtypes")
-				Class<Enum> enumType = ReflectionUtils.forName(serializedValue.getString("type"));
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				EnumSet enumSet = EnumSet.noneOf(enumType);
-				return enumSet;
-			}
 		}
 
 		private static Class<Enum<?>> getEnumType(EnumSet<?> set) {

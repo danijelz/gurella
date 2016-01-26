@@ -3,13 +3,9 @@ package com.gurella.engine.base.model;
 import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
-import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -58,55 +54,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T createInstance(InitializationContext context) {
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				T template = context.template();
-				if (template == null) {
-					return null;
-				}
-
-				Class<?> componentType = template.items.getClass().getComponentType();
-				if (Object.class != componentType) {
-					Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(template.getClass(),
-							Class.class);
-					if (constructor != null) {
-						return ReflectionUtils.invokeConstructor(constructor, componentType);
-					}
-				}
-
-				@SuppressWarnings("unchecked")
-				T instance = (T) ReflectionUtils.newInstance(template.getClass());
-				return instance;
-			} else {
-				if (serializedValue.isNull()) {
-					return null;
-				}
-
-				Class<T> resolvedType = JsonSerialization.resolveObjectType(type, serializedValue);
-				JsonValue componentTypeValue = serializedValue.get("componentType");
-				if (componentTypeValue != null) {
-					Class<?> componentType = ReflectionUtils.forNameSilently(componentTypeValue.asString());
-					Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(resolvedType, Class.class);
-					if (constructor != null) {
-						return ReflectionUtils.invokeConstructor(constructor, componentType);
-					}
-				}
-
-				return ReflectionUtils.newInstance(resolvedType);
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-			Array<?> initializingObject = context.initializingObject();
-			if (initializingObject != null) {
-				properties.get(0).init(context);
-				properties.get(1).init(context);
-			}
-		}
-
-		@Override
 		public ImmutableArray<Property<?>> getProperties() {
 			return properties.immutable();
 		}
@@ -149,12 +96,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 					return null;
 				} else {
 					@SuppressWarnings("unchecked")
-					T templateArray = (T) template;
-					T array = createArray(templateArray.items.getClass());
-					input.pushObject(array);
-					properties.get(0).deserialize(array, templateArray, input);
-					properties.get(1).deserialize(array, templateArray, input);
-					input.popObject();
+					T array = (T) CopyContext.copyObject(template);
 					return array;
 				}
 			} else if (input.isNull()) {
@@ -193,14 +135,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		@Override
 		public T copy(T original, CopyContext context) {
 			Class<?> componentType = original.items.getClass().getComponentType();
-			Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
-			T array;
-			if (constructor != null) {
-				array = ReflectionUtils.invokeConstructor(constructor, componentType);
-			} else {
-				array = ReflectionUtils.newInstance(type);
-			}
-
+			T array = createArray(componentType);
 			context.pushObject(array);
 			properties.get(0).copy(original, array, context);
 			properties.get(1).copy(original, array, context);
@@ -264,26 +199,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public void init(InitializationContext context) {
-			Array<?> array = (Array<?>) context.initializingObject();
-			if (array == null) {
-				return;
-			}
-
-			JsonValue serializedObject = context.serializedValue();
-			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
-			if (serializedValue == null) {
-				Array<?> template = (Array<?>) context.template();
-				if (template == null) {
-					return;
-				}
-				array.ordered = template.ordered;
-			} else {
-				array.ordered = serializedValue.asBoolean();
-			}
-		}
-
-		@Override
 		public Boolean getValue(Object object) {
 			return Boolean.valueOf(((Array<?>) object).ordered);
 		}
@@ -306,7 +221,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public void deserialize(Object object, Object template, Input input) {
 			if (input.hasProperty(name)) {
 				((Array<?>) object).ordered = input.readBooleanProperty(name);
-			} else if(template != null) {
+			} else if (template != null) {
 				((Array<?>) object).ordered = ((Array<?>) template).ordered;
 			}
 		}
@@ -369,42 +284,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		@Override
 		public String getGroup() {
 			return null;
-		}
-
-		@Override
-		public void init(InitializationContext context) {
-			@SuppressWarnings("unchecked")
-			Array<Object> array = (Array<Object>) context.initializingObject();
-			if (array == null) {
-				return;
-			}
-
-			JsonValue serializedObject = context.serializedValue();
-			JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
-			if (serializedValue == null) {
-				@SuppressWarnings("unchecked")
-				Array<Object> template = (Array<Object>) context.template();
-				if (template == null) {
-					return;
-				}
-
-				array.ensureCapacity(template.size - array.items.length);
-				for (int i = 0; i < template.size; i++) {
-					array.add(Objects.copyValue(template.get(i), context));
-				}
-			} else {
-				Class<?> componentType = array.items.getClass().getComponentType();
-				array.ensureCapacity(serializedValue.size - array.items.length);
-
-				for (JsonValue item = serializedValue.child; item != null; item = item.next) {
-					if (item.isNull()) {
-						array.add(null);
-					} else {
-						Class<?> resolvedType = JsonSerialization.resolveObjectType(componentType, item);
-						array.add(Objects.deserialize(item, resolvedType, context));
-					}
-				}
-			}
 		}
 
 		@Override

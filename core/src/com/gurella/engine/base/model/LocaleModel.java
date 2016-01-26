@@ -2,8 +2,6 @@ package com.gurella.engine.base.model;
 
 import java.util.Locale;
 
-import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -23,28 +21,6 @@ public class LocaleModel implements Model<Locale> {
 	@Override
 	public String getName() {
 		return Locale.class.getName();
-	}
-
-	@Override
-	public Locale createInstance(InitializationContext context) {
-		if (context == null) {
-			return null;
-		}
-
-		JsonValue serializedValue = context.serializedValue();
-		if (serializedValue == null) {
-			Locale template = context.template();
-			return template == null ? null : (Locale) template.clone();
-		} else if (serializedValue.isNull()) {
-			return null;
-		} else {
-			return new Locale(serializedValue.getString("language", ""), serializedValue.getString("country", ""),
-					serializedValue.getString("variant", ""));
-		}
-	}
-
-	@Override
-	public void initInstance(InitializationContext context) {
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntSet;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.LongMap;
 import com.badlogic.gdx.utils.ObjectFloatMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
@@ -23,10 +22,8 @@ import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
-import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.registry.ManagedObject;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
@@ -145,38 +142,6 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	@Override
-	public T createInstance(InitializationContext context) {
-		if (context == null) {
-			return null;
-		}
-
-		JsonValue serializedValue = context.serializedValue();
-		if (serializedValue == null) {
-			T template = context.template();
-			if (template == null) {
-				return null;
-			} else {
-				Class<? extends Object> templateType = template.getClass();
-				@SuppressWarnings("unchecked")
-				T instance = (T) ReflectionUtils.newInstance(templateType);
-				return instance;
-			}
-		} else if (serializedValue.isNull()) {
-			return null;
-		} else {
-			return ReflectionUtils.newInstance(JsonSerialization.resolveObjectType(type, serializedValue));
-		}
-	}
-
-	@Override
-	public void initInstance(InitializationContext context) {
-		ImmutableArray<Property<?>> properties = getProperties();
-		for (int i = 0; i < properties.size(); i++) {
-			properties.get(i).init(context);
-		}
-	}
-
-	@Override
 	public void serialize(T instance, Object template, Output output) {
 		if (ValueUtils.isEqual(template, instance)) {
 			return;
@@ -208,14 +173,8 @@ public class ReflectionModel<T> implements Model<T> {
 			if (template == null) {
 				return null;
 			} else {
-				T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
-				input.pushObject(instance);
-				ImmutableArray<Property<?>> properties = getProperties();
-				for (int i = 0; i < properties.size(); i++) {
-					Property<?> property = properties.get(i);
-					property.deserialize(instance, template, input);
-				}
-				input.popObject();
+				@SuppressWarnings("unchecked")
+				T instance = (T) CopyContext.copyObject(template);
 				return instance;
 			}
 		} else if (input.isNull()) {

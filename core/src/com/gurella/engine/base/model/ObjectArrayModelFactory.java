@@ -1,15 +1,9 @@
 package com.gurella.engine.base.model;
 
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
-import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.base.serialization.json.ArrayType;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ObjectArrayModelFactory implements ModelFactory {
@@ -51,84 +45,6 @@ public class ObjectArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				Object[] template = context.template();
-				if (template == null) {
-					return null;
-				}
-
-				Class<? extends Object> templateType = template.getClass();
-				@SuppressWarnings("unchecked")
-				T array = (T) ArrayReflection.newInstance(templateType.getComponentType(), template.length);
-				return array;
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				int length = serializedValue.size;
-				if (length > 0) {
-					JsonValue itemValue = serializedValue.child;
-					Class<?> itemType = JsonSerialization.resolveObjectType(Object.class, itemValue);
-					if (itemType == ArrayType.class) {
-						Class<?> arrayType = ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
-						@SuppressWarnings("unchecked")
-						T array = (T) ArrayReflection.newInstance(arrayType.getComponentType(), length - 1);
-						return array;
-					}
-				}
-				@SuppressWarnings("unchecked")
-				T array = (T) ArrayReflection.newInstance(type.getComponentType(), length);
-				return array;
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-			if (context == null) {
-				return;
-			}
-
-			Object[] initializingObject = context.initializingObject();
-			if (initializingObject == null) {
-				return;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				Object[] template = context.template();
-				if (template == null) {
-					return;
-				}
-
-				for (int i = 0; i < template.length; i++) {
-					initializingObject[i] = Objects.copyValue(template[i], context);
-				}
-			} else {
-				Class<?> componentType = initializingObject.getClass().getComponentType();
-				JsonValue item = serializedValue.child;
-				Class<?> itemType = JsonSerialization.resolveObjectType(Object.class, item);
-				if (itemType == ArrayType.class) {
-					item = item.next;
-				}
-
-				int i = 0;
-				for (; item != null; item = item.next) {
-					if (item.isNull()) {
-						initializingObject[i++] = null;
-					} else {
-						Class<?> resolvedType = JsonSerialization.resolveObjectType(componentType, item);
-						initializingObject[i++] = Objects.deserialize(item, resolvedType, context);
-					}
-				}
-			}
-		}
-
-		@Override
 		public ImmutableArray<Property<?>> getProperties() {
 			return ImmutableArray.empty();
 		}
@@ -165,18 +81,9 @@ public class ObjectArrayModelFactory implements ModelFactory {
 				if (template == null) {
 					return null;
 				} else {
-					Object[] templateArray = (Object[]) template;
-					int length = templateArray.length;
-					Object[] array = (Object[]) ArrayReflection.newInstance(componentType, length);
-					input.pushObject(array);
-					for (int i = 0; i < length; i++) {
-						array[i] = CopyContext.copyObject(templateArray[i]);
-					}
-					input.popObject();
-
 					@SuppressWarnings("unchecked")
-					T value = (T) array;
-					return value;
+					T instance = (T) CopyContext.copyObject(template);
+					return instance;
 				}
 			} else if (input.isNull()) {
 				return null;

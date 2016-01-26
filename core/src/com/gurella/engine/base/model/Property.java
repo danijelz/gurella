@@ -1,6 +1,5 @@
 package com.gurella.engine.base.model;
 
-import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;
@@ -23,8 +22,6 @@ public interface Property<T> {
 	String getGroup();
 
 	Property<T> newInstance(Model<?> model);
-
-	void init(InitializationContext context);
 
 	T getValue(Object object);
 

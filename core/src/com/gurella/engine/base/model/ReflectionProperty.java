@@ -1,7 +1,5 @@
 package com.gurella.engine.base.model;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.base.model.ValueRange.ByteRange;
@@ -11,10 +9,7 @@ import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
-import com.gurella.engine.base.registry.InitializationContext;
-import com.gurella.engine.base.registry.Objects;
 import com.gurella.engine.base.serialization.Input;
-import com.gurella.engine.base.serialization.JsonSerialization;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
@@ -164,73 +159,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public Property<T> newInstance(Model<?> newModel) {
 		return new ReflectionProperty<T>(field, getter, setter, newModel);
-	}
-
-	@Override
-	public void init(InitializationContext context) {
-		JsonValue serializedObject = context.serializedValue();
-		JsonValue serializedValue = serializedObject == null ? null : serializedObject.get(name);
-		if (serializedValue == null) {
-			initFromTemplate(context);
-		} else {
-			initFromSerializedValue(context, serializedValue);
-		}
-	}
-
-	private void initFromTemplate(InitializationContext context) {
-		Object template = context.template();
-		if (template == null) {
-			return;
-		}
-
-		T value = getValue(template);
-		if (ValueUtils.isEqual(value, defaultValue)) {
-			return;
-		}
-
-		Object initializingObject = context.initializingObject();
-		if (value == null || type.isPrimitive()) {
-			setValue(initializingObject, value);
-		} else {
-			setValue(initializingObject, field.isFinal() ? value : Objects.copyValue(value, context));
-		}
-	}
-
-	private void initFromSerializedValue(InitializationContext context, JsonValue serializedValue) {
-		Object initializingObject = context.initializingObject();
-		if (serializedValue.isNull()) {
-			if (!field.isFinal()) {
-				setValue(initializingObject, null);
-			}
-			return;
-		}
-
-		Class<T> resolvedType = type.isPrimitive() ? type : JsonSerialization.resolveObjectType(type, serializedValue);
-		Model<T> model = Models.getModel(resolvedType);
-		Object template = context.template();
-		T templateValue = template == null ? null : getValue(template);
-		if (field.isFinal()) {
-			T value = getValue(initializingObject);
-			if (value == null) {
-				return;
-			}
-
-			Class<? extends Object> targetType = value.getClass();
-			if (!type.isPrimitive() && targetType != resolvedType) {
-				throw new GdxRuntimeException("Unequal types.");
-			}
-
-			context.push(value, templateValue, serializedValue);
-			model.initInstance(context);
-			context.pop();
-		} else {
-			context.push(null, templateValue, serializedValue);
-			T value = model.createInstance(context);
-			context.setInitializingObject(value);
-			model.initInstance(context);
-			context.pop();
-			setValue(initializingObject, value);
-		}
 	}
 
 	@Override

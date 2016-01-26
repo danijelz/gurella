@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
-import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -44,31 +42,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		public T createInstance(InitializationContext context) {
-			if (context == null) {
-				return createDefaultValue();
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				T template = context.template();
-				return template == null ? createDefaultValue() : template;
-			} else if (serializedValue.isNull()) {
-				return createDefaultValue();
-			} else {
-				return deserializeValue(serializedValue);
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-		}
-
-		protected abstract T createDefaultValue();
-
-		protected abstract T deserializeValue(JsonValue serializedValue);
-
-		@Override
 		public T copy(T original, CopyContext context) {
 			return original;
 		}
@@ -85,21 +58,6 @@ public class DefaultModels {
 
 		private IntegerPrimitiveModel() {
 			super(int.class);
-		}
-
-		@Override
-		protected Integer createDefaultValue() {
-			return Integer.valueOf(0);
-		}
-
-		@Override
-		protected Integer deserializeValue(JsonValue serializedValue) {
-			try {
-				return Integer.valueOf(serializedValue.asInt());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Integer.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -121,21 +79,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Long createDefaultValue() {
-			return Long.valueOf(0);
-		}
-
-		@Override
-		protected Long deserializeValue(JsonValue serializedValue) {
-			try {
-				return Long.valueOf(serializedValue.asLong());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Long.valueOf(serializedValue.asString());
-		}
-
-		@Override
 		public void serialize(Long value, Object template, Output output) {
 			output.writeLong(value);
 		}
@@ -151,21 +94,6 @@ public class DefaultModels {
 
 		private ShortPrimitiveModel() {
 			super(short.class);
-		}
-
-		@Override
-		protected Short createDefaultValue() {
-			return Short.valueOf((short) 0);
-		}
-
-		@Override
-		protected Short deserializeValue(JsonValue serializedValue) {
-			try {
-				return Short.valueOf(serializedValue.asShort());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Short.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -187,21 +115,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Byte createDefaultValue() {
-			return Byte.valueOf((byte) 0);
-		}
-
-		@Override
-		protected Byte deserializeValue(JsonValue serializedValue) {
-			try {
-				return Byte.valueOf(serializedValue.asByte());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Byte.valueOf(serializedValue.asString());
-		}
-
-		@Override
 		public void serialize(Byte value, Object template, Output output) {
 			output.writeByte(value);
 		}
@@ -217,21 +130,6 @@ public class DefaultModels {
 
 		private CharPrimitiveModel() {
 			super(char.class);
-		}
-
-		@Override
-		protected Character createDefaultValue() {
-			return Character.valueOf((char) 0);
-		}
-
-		@Override
-		protected Character deserializeValue(JsonValue serializedValue) {
-			try {
-				return Character.valueOf(serializedValue.asChar());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Character.valueOf(serializedValue.asString().charAt(0));
 		}
 
 		@Override
@@ -253,21 +151,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Boolean createDefaultValue() {
-			return Boolean.FALSE;
-		}
-
-		@Override
-		protected Boolean deserializeValue(JsonValue serializedValue) {
-			try {
-				return Boolean.valueOf(serializedValue.asBoolean());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Boolean.valueOf(serializedValue.asString());
-		}
-
-		@Override
 		public void serialize(Boolean value, Object template, Output output) {
 			output.writeBoolean(value);
 		}
@@ -283,21 +166,6 @@ public class DefaultModels {
 
 		private DoublePrimitiveModel() {
 			super(double.class);
-		}
-
-		@Override
-		protected Double createDefaultValue() {
-			return Double.valueOf(0);
-		}
-
-		@Override
-		protected Double deserializeValue(JsonValue serializedValue) {
-			try {
-				return Double.valueOf(serializedValue.asDouble());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Double.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -319,21 +187,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Float createDefaultValue() {
-			return Float.valueOf(0);
-		}
-
-		@Override
-		protected Float deserializeValue(JsonValue serializedValue) {
-			try {
-				return Float.valueOf(serializedValue.asFloat());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Float.valueOf(serializedValue.asString());
-		}
-
-		@Override
 		public void serialize(Float value, Object template, Output output) {
 			output.writeFloat(value);
 		}
@@ -352,16 +205,6 @@ public class DefaultModels {
 		}
 
 		@Override
-		protected Void createDefaultValue() {
-			return null;
-		}
-
-		@Override
-		protected Void deserializeValue(JsonValue serializedValue) {
-			return null;
-		}
-
-		@Override
 		public void serialize(Void value, Object template, Output output) {
 			output.writeNull();
 		}
@@ -372,53 +215,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static abstract class SimpleObjectModel<T, V> extends SimpleModel<T> {
-
-		public SimpleObjectModel(Class<T> type) {
-			super(type);
-		}
-
-		@Override
-		protected T createDefaultValue() {
-			return null;
-		}
-
-		protected abstract V extractSimpleValue(T value);
-
-		@Override
-		protected T deserializeValue(JsonValue serializedValue) {
-			if (serializedValue.isNull()) {
-				return null;
-			} else if (serializedValue.isObject()) {
-				return deserializeSimpleValue(serializedValue.get("value"));
-			} else {
-				return deserializeSimpleValue(serializedValue);
-			}
-		}
-
-		protected abstract T deserializeSimpleValue(JsonValue jsonValue);
-	}
-
-	public static final class IntegerModel extends SimpleObjectModel<Integer, Integer> {
+	public static final class IntegerModel extends SimpleModel<Integer> {
 		public static final IntegerModel instance = new IntegerModel();
 
 		private IntegerModel() {
 			super(Integer.class);
-		}
-
-		@Override
-		protected Integer extractSimpleValue(Integer value) {
-			return value;
-		}
-
-		@Override
-		protected Integer deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Integer.valueOf(serializedValue.asInt());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Integer.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -442,26 +243,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class LongModel extends SimpleObjectModel<Long, Long> {
+	public static final class LongModel extends SimpleModel<Long> {
 		public static final LongModel instance = new LongModel();
 
 		private LongModel() {
 			super(Long.class);
-		}
-
-		@Override
-		protected Long extractSimpleValue(Long value) {
-			return value;
-		}
-
-		@Override
-		protected Long deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Long.valueOf(serializedValue.asLong());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Long.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -485,26 +271,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ShortModel extends SimpleObjectModel<Short, Short> {
+	public static final class ShortModel extends SimpleModel<Short> {
 		public static final ShortModel instance = new ShortModel();
 
 		private ShortModel() {
 			super(Short.class);
-		}
-
-		@Override
-		protected Short extractSimpleValue(Short value) {
-			return value;
-		}
-
-		@Override
-		protected Short deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Short.valueOf(serializedValue.asShort());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Short.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -528,26 +299,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ByteModel extends SimpleObjectModel<Byte, Byte> {
+	public static final class ByteModel extends SimpleModel<Byte> {
 		public static final ByteModel instance = new ByteModel();
 
 		private ByteModel() {
 			super(Byte.class);
-		}
-
-		@Override
-		protected Byte extractSimpleValue(Byte value) {
-			return value;
-		}
-
-		@Override
-		protected Byte deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Byte.valueOf(serializedValue.asByte());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Byte.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -571,26 +327,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class CharModel extends SimpleObjectModel<Character, Character> {
+	public static final class CharModel extends SimpleModel<Character> {
 		public static final CharModel instance = new CharModel();
 
 		private CharModel() {
 			super(Character.class);
-		}
-
-		@Override
-		protected Character extractSimpleValue(Character value) {
-			return value;
-		}
-
-		@Override
-		protected Character deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Character.valueOf(serializedValue.asChar());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Character.valueOf(serializedValue.asString().charAt(0));
 		}
 
 		@Override
@@ -614,26 +355,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BooleanModel extends SimpleObjectModel<Boolean, Boolean> {
+	public static final class BooleanModel extends SimpleModel<Boolean> {
 		public static final BooleanModel instance = new BooleanModel();
 
 		private BooleanModel() {
 			super(Boolean.class);
-		}
-
-		@Override
-		protected Boolean extractSimpleValue(Boolean value) {
-			return value;
-		}
-
-		@Override
-		protected Boolean deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Boolean.valueOf(serializedValue.asBoolean());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Boolean.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -657,26 +383,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class DoubleModel extends SimpleObjectModel<Double, Double> {
+	public static final class DoubleModel extends SimpleModel<Double> {
 		public static final DoubleModel instance = new DoubleModel();
 
 		private DoubleModel() {
 			super(Double.class);
-		}
-
-		@Override
-		protected Double extractSimpleValue(Double value) {
-			return value;
-		}
-
-		@Override
-		protected Double deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Double.valueOf(serializedValue.asDouble());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Double.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -700,26 +411,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class FloatModel extends SimpleObjectModel<Float, Float> {
+	public static final class FloatModel extends SimpleModel<Float> {
 		public static final FloatModel instance = new FloatModel();
 
 		private FloatModel() {
 			super(Float.class);
-		}
-
-		@Override
-		protected Float extractSimpleValue(Float value) {
-			return value;
-		}
-
-		@Override
-		protected Float deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return Float.valueOf(serializedValue.asFloat());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return Float.valueOf(serializedValue.asString());
 		}
 
 		@Override
@@ -743,21 +439,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class StringModel extends SimpleObjectModel<String, String> {
+	public static final class StringModel extends SimpleModel<String> {
 		public static final StringModel instance = new StringModel();
 
 		private StringModel() {
 			super(String.class);
-		}
-
-		@Override
-		protected String extractSimpleValue(String value) {
-			return value;
-		}
-
-		@Override
-		protected String deserializeSimpleValue(JsonValue serializedValue) {
-			return serializedValue.asString();
 		}
 
 		@Override
@@ -781,21 +467,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BigIntegerModel extends SimpleObjectModel<BigInteger, String> {
+	public static final class BigIntegerModel extends SimpleModel<BigInteger> {
 		public static final BigIntegerModel instance = new BigIntegerModel();
 
 		private BigIntegerModel() {
 			super(BigInteger.class);
-		}
-
-		@Override
-		protected String extractSimpleValue(BigInteger value) {
-			return value.toString();
-		}
-
-		@Override
-		protected BigInteger deserializeSimpleValue(JsonValue serializedValue) {
-			return new BigInteger(serializedValue.asString());
 		}
 
 		@Override
@@ -819,21 +495,11 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class BigDecimalModel extends SimpleObjectModel<BigDecimal, String> {
+	public static final class BigDecimalModel extends SimpleModel<BigDecimal> {
 		public static final BigDecimalModel instance = new BigDecimalModel();
 
 		private BigDecimalModel() {
 			super(BigDecimal.class);
-		}
-
-		@Override
-		protected String extractSimpleValue(BigDecimal value) {
-			return value.toString();
-		}
-
-		@Override
-		protected BigDecimal deserializeSimpleValue(JsonValue serializedValue) {
-			return new BigDecimal(serializedValue.asString());
 		}
 
 		@Override
@@ -857,22 +523,12 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ClassModel extends SimpleObjectModel<Class<?>, String> {
+	public static final class ClassModel extends SimpleModel<Class<?>> {
 		public static final ClassModel instance = new ClassModel();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private ClassModel() {
 			super((Class) Class.class);
-		}
-
-		@Override
-		protected String extractSimpleValue(Class<?> value) {
-			return value.getName();
-		}
-
-		@Override
-		protected Class<?> deserializeSimpleValue(JsonValue serializedValue) {
-			return ReflectionUtils.forName(serializedValue.asString());
 		}
 
 		@Override
@@ -897,26 +553,11 @@ public class DefaultModels {
 	}
 
 	// TODO change to resolver
-	public static final class DateModel extends SimpleObjectModel<Date, Long> {
+	public static final class DateModel extends SimpleModel<Date> {
 		public static final DateModel instance = new DateModel();
 
 		private DateModel() {
 			super(Date.class);
-		}
-
-		@Override
-		protected Long extractSimpleValue(Date value) {
-			return Long.valueOf(value.getTime());
-		}
-
-		@Override
-		protected Date deserializeSimpleValue(JsonValue serializedValue) {
-			try {
-				return new Date(serializedValue.asLong());
-			} catch (NumberFormatException ignored) {
-			}
-
-			return new Date(Long.valueOf(serializedValue.asString()).longValue());
 		}
 
 		@Override

@@ -1,9 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.registry.InitializationContext;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
@@ -65,41 +63,6 @@ public class EnumModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public T createInstance(InitializationContext context) {
-			if (context == null) {
-				return null;
-			}
-
-			JsonValue serializedValue = context.serializedValue();
-			if (serializedValue == null) {
-				return context.template();
-			} else if (serializedValue.isNull()) {
-				return null;
-			} else {
-				String enumName = getEnumName(serializedValue);
-				for (int i = 0; i < constants.length; i++) {
-					T constant = constants[i];
-					if (enumName.equals(constant.name())) {
-						return constant;
-					}
-				}
-				throw new GdxRuntimeException("Invalid enum name: " + enumName);
-			}
-		}
-
-		@Override
-		public void initInstance(InitializationContext context) {
-		}
-
-		private static String getEnumName(JsonValue serializedValue) {
-			if (serializedValue.isObject()) {
-				return serializedValue.getString("value");
-			} else {
-				return serializedValue.asString();
-			}
-		}
-
-		@Override
 		public void serialize(T value, Object template, Output output) {
 			if (ValueUtils.isEqual(template, value)) {
 				return;
@@ -112,6 +75,7 @@ public class EnumModelFactory implements ModelFactory {
 
 		@Override
 		public T deserialize(Object template, Input input) {
+			// TODO input.isValid()
 			String enumName = input.readString();
 			for (int i = 0; i < constants.length; i++) {
 				T constant = constants[i];
