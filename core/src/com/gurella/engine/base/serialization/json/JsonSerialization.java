@@ -11,7 +11,7 @@ public class JsonSerialization {
 	private JsonSerialization() {
 	}
 
-	public static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
+	static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
 		if (serializedObject.isArray()) {
 			if (serializedObject.size > 0) {
 				JsonValue itemValue = serializedObject.child;
@@ -34,12 +34,14 @@ public class JsonSerialization {
 		return knownType;
 	}
 
-	public static boolean isSimpleType(Object obj) {
+	static boolean isSimpleType(Object obj) {
 		return isSimpleType(obj.getClass());
 	}
 
-	//TODO isAssignableFrom is slow use instanceof on type model
-	public static boolean isSimpleType(Class<?> type) {
+	// TODO isAssignableFrom is slow use instanceof on type model
+	static boolean isSimpleType(Class<?> type) {
+		// return type.isPrimitive() || ClassReflection.isAssignableFrom(Enum.class, type) || Models.getModel(type)
+		// instanceof SimpleModel;
 		return type.isPrimitive() || Integer.class == type || Long.class == type || Short.class == type
 				|| Byte.class == type || Character.class == type || Boolean.class == type || Double.class == type
 				|| Float.class == type || String.class == type || Class.class == type

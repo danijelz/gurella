@@ -1,4 +1,4 @@
-package com.gurella.engine.base.registry;
+package com.gurella.engine.base.resource;
 
 public class ManagedObject implements Comparable<ManagedObject> {
 	private static int indexer = 0;
