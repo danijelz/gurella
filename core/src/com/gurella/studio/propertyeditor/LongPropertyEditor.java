@@ -31,7 +31,7 @@ public class LongPropertyEditor extends SimpleResourcePropertyEditor<VisValidata
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 		String value = valueComponent.getText();
-		if (ValueUtils.isEmpty(value)) {
+		if (ValueUtils.isBlank(value)) {
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 

@@ -66,7 +66,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Math.max(Math.min(capacity, 8), (int) Math.sqrt(capacity) / 8);
 
-		keyTable = (K[]) new Object[capacity + stashCapacity];
+		@SuppressWarnings("unchecked")
+		K[] casted = (K[]) new Object[capacity + stashCapacity];
+		keyTable = casted;
 		valueTable = new int[keyTable.length];
 	}
 
@@ -88,28 +90,28 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		int hashCode = System.identityHashCode(key);
 		int index1 = hashCode & mask;
 		K key1 = keyTable[index1];
-		if (key.equals(key1)) {
+		if (key == key1) {
 			valueTable[index1] = value;
 			return;
 		}
 
 		int index2 = hash2(hashCode);
 		K key2 = keyTable[index2];
-		if (key.equals(key2)) {
+		if (key == key2) {
 			valueTable[index2] = value;
 			return;
 		}
 
 		int index3 = hash3(hashCode);
 		K key3 = keyTable[index3];
-		if (key.equals(key3)) {
+		if (key == key3) {
 			valueTable[index3] = value;
 			return;
 		}
 
 		// Update key in the stash.
 		for (int i = capacity, n = i + stashSize; i < n; i++) {
-			if (key.equals(keyTable[i])) {
+			if (key == keyTable[i]) {
 				valueTable[i] = value;
 				return;
 			}
@@ -281,11 +283,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public int get(K key, int defaultValue) {
 		int hashCode = System.identityHashCode(key);
 		int index = hashCode & mask;
-		if (!key.equals(keyTable[index])) {
+		if (key != keyTable[index]) {
 			index = hash2(hashCode);
-			if (!key.equals(keyTable[index])) {
+			if (key != keyTable[index]) {
 				index = hash3(hashCode);
-				if (!key.equals(keyTable[index]))
+				if (key != keyTable[index])
 					return getStash(key, defaultValue);
 			}
 		}
@@ -295,7 +297,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	private int getStash(K key, int defaultValue) {
 		K[] keyTable = this.keyTable;
 		for (int i = capacity, n = i + stashSize; i < n; i++)
-			if (key.equals(keyTable[i]))
+			if (key == keyTable[i])
 				return valueTable[i];
 		return defaultValue;
 	}
@@ -307,11 +309,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public int getAndIncrement(K key, int defaultValue, int increment) {
 		int hashCode = System.identityHashCode(key);
 		int index = hashCode & mask;
-		if (!key.equals(keyTable[index])) {
+		if (key !=keyTable[index]) {
 			index = hash2(hashCode);
-			if (!key.equals(keyTable[index])) {
+			if (key != keyTable[index]) {
 				index = hash3(hashCode);
-				if (!key.equals(keyTable[index]))
+				if (key != keyTable[index])
 					return getAndIncrementStash(key, defaultValue, increment);
 			}
 		}
@@ -323,7 +325,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	private int getAndIncrementStash(K key, int defaultValue, int increment) {
 		K[] keyTable = this.keyTable;
 		for (int i = capacity, n = i + stashSize; i < n; i++)
-			if (key.equals(keyTable[i])) {
+			if (key == keyTable[i]) {
 				int value = valueTable[i];
 				valueTable[i] = value + increment;
 				return value;
@@ -335,7 +337,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public int remove(K key, int defaultValue) {
 		int hashCode = System.identityHashCode(key);
 		int index = hashCode & mask;
-		if (key.equals(keyTable[index])) {
+		if (key == keyTable[index]) {
 			keyTable[index] = null;
 			int oldValue = valueTable[index];
 			size--;
@@ -343,7 +345,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		}
 
 		index = hash2(hashCode);
-		if (key.equals(keyTable[index])) {
+		if (key == keyTable[index]) {
 			keyTable[index] = null;
 			int oldValue = valueTable[index];
 			size--;
@@ -351,7 +353,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		}
 
 		index = hash3(hashCode);
-		if (key.equals(keyTable[index])) {
+		if (key == keyTable[index]) {
 			keyTable[index] = null;
 			int oldValue = valueTable[index];
 			size--;
@@ -364,7 +366,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	int removeStash(K key, int defaultValue) {
 		K[] keyTable = this.keyTable;
 		for (int i = capacity, n = i + stashSize; i < n; i++) {
-			if (key.equals(keyTable[i])) {
+			if (key == keyTable[i]) {
 				int oldValue = valueTable[i];
 				removeStashIndex(i);
 				size--;
@@ -437,11 +439,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public boolean containsKey(K key) {
 		int hashCode = System.identityHashCode(key);
 		int index = hashCode & mask;
-		if (!key.equals(keyTable[index])) {
+		if (key != keyTable[index]) {
 			index = hash2(hashCode);
-			if (!key.equals(keyTable[index])) {
+			if (key != keyTable[index]) {
 				index = hash3(hashCode);
-				if (!key.equals(keyTable[index]))
+				if (key != keyTable[index])
 					return containsKeyStash(key);
 			}
 		}
@@ -451,7 +453,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	private boolean containsKeyStash(K key) {
 		K[] keyTable = this.keyTable;
 		for (int i = capacity, n = i + stashSize; i < n; i++)
-			if (key.equals(keyTable[i]))
+			if (key == keyTable[i])
 				return true;
 		return false;
 	}

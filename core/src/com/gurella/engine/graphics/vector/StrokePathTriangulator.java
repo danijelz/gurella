@@ -6,11 +6,11 @@ import com.badlogic.gdx.utils.Array;
 
 class StrokePathTriangulator extends PathTriangulator {
 	private final Vector2 tempPoint = new Vector2();
-	
+
 	StrokePathTriangulator(PathComponent component) {
 		super(component, PT_BEVEL, PT_INNERBEVEL);
 	}
-	
+
 	@Override
 	void triangulate() {
 		float width = component.getStrokeWidth();
@@ -23,7 +23,7 @@ class StrokePathTriangulator extends PathTriangulator {
 
 		int ptsSize = points.size;
 		int ptsSizeMinusOne = ptsSize - 1;
-		
+
 		if (component.closed) {
 			// Looping
 			p0 = points.get(ptsSizeMinusOne);
@@ -41,7 +41,7 @@ class StrokePathTriangulator extends PathTriangulator {
 
 		LineJoin lineJoin = canvas.getStrokeLineJoin();
 		for (int j = start; j < end && j < ptsSize; ++j) {
-			addStrokeVertices(width, ncap, aa, p0, p1, lineJoin);
+			addStrokeVertices(width, ncap, p0, p1, lineJoin);
 			p0 = p1;
 			p1 = j < ptsSizeMinusOne ? points.get(j + 1) : points.get(0);
 		}
@@ -52,7 +52,7 @@ class StrokePathTriangulator extends PathTriangulator {
 	private int calculateNumberOfCapFragments(float strokeWidth) {
 		LineCap lineCap = canvas.getStrokeLineCap();
 		LineJoin lineJoin = canvas.getStrokeLineJoin();
-		if(lineCap != LineCap.round && lineJoin != LineJoin.round) {
+		if (lineCap != LineCap.round && lineJoin != LineJoin.round) {
 			return 0;
 		}
 		float da = (float) (Math.acos(strokeWidth / (strokeWidth + canvas.tesselationTolerance)) * 2.0f);
@@ -63,7 +63,7 @@ class StrokePathTriangulator extends PathTriangulator {
 		CanvasUtils.normalize(tempPoint.set(p1.x - p0.x, p1.y - p0.y));
 		float dx = tempPoint.x;
 		float dy = tempPoint.y;
-		
+
 		LineCap lineCap = canvas.getStrokeLineCap();
 		switch (lineCap) {
 		case butt:
@@ -80,10 +80,10 @@ class StrokePathTriangulator extends PathTriangulator {
 		}
 	}
 
-	private void addStrokeVertices(float width, int ncap, float aa, Point p0, Point p1, LineJoin lineJoin) {
+	private void addStrokeVertices(float width, int ncap, Point p0, Point p1, LineJoin lineJoin) {
 		if ((p1.flags & (ptBevelFlag | prInnerBevelFlag)) != 0) {
 			if (lineJoin == LineJoin.round) {
-				roundJoin(triangleStripVertices, p0, p1, width, width, 0, 1, ncap, aa);
+				roundJoin(triangleStripVertices, p0, p1, width, width, 0, 1, ncap);
 			} else {
 				bevelJoin(triangleStripVertices, p0, p1, width, width, 0, 1);
 			}
@@ -104,7 +104,7 @@ class StrokePathTriangulator extends PathTriangulator {
 	private void loopStrokeEnd() {
 		Vertex dst0 = triangleStripVertices.get(0);
 		Vertex dst1 = triangleStripVertices.get(1);
-		
+
 		newTriangleStripVertex(dst0.x, dst0.y, 0, 1);
 		newTriangleStripVertex(dst1.x, dst1.y, 1, 1);
 	}
@@ -113,7 +113,7 @@ class StrokePathTriangulator extends PathTriangulator {
 		CanvasUtils.normalize(tempPoint.set(p1.x - p0.x, p1.y - p0.y));
 		float dx = tempPoint.x;
 		float dy = tempPoint.y;
-		
+
 		LineCap lineCap = canvas.getStrokeLineCap();
 		switch (lineCap) {
 		case butt:
@@ -129,13 +129,13 @@ class StrokePathTriangulator extends PathTriangulator {
 			throw new IllegalArgumentException();
 		}
 	}
-	
+
 	private void buttCapStart(Point p, float dx, float dy, float w, float d, float aa) {
 		float px = p.x - dx * d;
 		float py = p.y - dy * d;
 		float dlx = dy;
 		float dly = -dx;
-		
+
 		newTriangleStripVertex(px + dlx * w - dx * aa, py + dly * w - dy * aa, 0, 0);
 		newTriangleStripVertex(px - dlx * w - dx * aa, py - dly * w - dy * aa, 1, 0);
 		newTriangleStripVertex(px + dlx * w, py + dly * w, 0, 1);
@@ -147,7 +147,7 @@ class StrokePathTriangulator extends PathTriangulator {
 		float py = p.y + dy * d;
 		float dlx = dy;
 		float dly = -dx;
-		
+
 		newTriangleStripVertex(px + dlx * w, py + dly * w, 0, 1);
 		newTriangleStripVertex(px - dlx * w, py - dly * w, 1, 1);
 		newTriangleStripVertex(px + dlx * w + dx * aa, py + dly * w + dy * aa, 0, 0);
@@ -159,15 +159,15 @@ class StrokePathTriangulator extends PathTriangulator {
 		float py = p.y;
 		float dlx = dy;
 		float dly = -dx;
-		
+
 		for (int i = 0; i < ncap; i++) {
 			float a = i / (float) (ncap - 1) * MathUtils.PI;
 			float ax = MathUtils.cos(a) * w, ay = MathUtils.sin(a) * w;
-			
+
 			newTriangleStripVertex(px - dlx * ax - dx * ay, py - dly * ax - dy * ay, 0, 1);
 			newTriangleStripVertex(px, py, 0.5f, 1);
 		}
-		
+
 		newTriangleStripVertex(px + dlx * w, py + dly * w, 0, 1);
 		newTriangleStripVertex(px - dlx * w, py - dly * w, 1, 1);
 	}
@@ -177,7 +177,7 @@ class StrokePathTriangulator extends PathTriangulator {
 		float py = p.y;
 		float dlx = dy;
 		float dly = -dx;
-		
+
 		newTriangleStripVertex(px + dlx * w, py + dly * w, 0, 1);
 		newTriangleStripVertex(px - dlx * w, py - dly * w, 1, 1);
 

@@ -133,7 +133,7 @@ class EventSubscriptionRegistry {
 
 	private static EventCallbackIdentifier<?> createCallbackIdentifier(Method method, EventSubscriptionCallback callback) {
 		String id = callback == null ? null : callback.id();
-		id = ValueUtils.isEmpty(id) ? method.getName() : id;
+		id = ValueUtils.isBlank(id) ? method.getName() : id;
 		String fullId = method.getDeclaringClass().getName() + id;
 
 		if (callbacksById.containsKey(fullId)) {

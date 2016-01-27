@@ -12,14 +12,17 @@ class PairAdjustmentPositioningFormatSubtable extends SubTable<PairAdjustmentPos
 		return readUnsignedShort(0);
 	}
 	
+	@SuppressWarnings("unused")
 	public int getFirstGlyphValue(int firstGlyphId, int secondGlyphId, ValueFormatType valueFormatType) {
 		return 0;
 	}
 	
+	@SuppressWarnings("unused")
 	public int getSecondGlyphValue(int firstGlyphId, int secondGlyphId, ValueFormatType valueFormatType) {
 		return 0;
 	}
 
+	@SuppressWarnings("unused")
 	public boolean isGlyphPairCovered(int firstGlyphId, int secondGlyphId) {
 		return false;
 	}

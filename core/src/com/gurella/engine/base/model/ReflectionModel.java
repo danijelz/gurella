@@ -116,7 +116,7 @@ public class ReflectionModel<T> implements Model<T> {
 			name = type.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			name = ValueUtils.isEmpty(descriptiveName) ? type.getSimpleName() : descriptiveName;
+			name = ValueUtils.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
 		}
 	}
 

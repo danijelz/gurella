@@ -74,7 +74,7 @@ public abstract class ResourceReference<T> implements Disposable, Serializable {
 		if (initOnStart) {
 			json.writeValue(INIT_ON_START_TAG, Boolean.valueOf(initOnStart));
 		}
-		if (!ValueUtils.isEmpty(name)) {
+		if (!ValueUtils.isBlank(name)) {
 			json.writeValue(NAME_TAG, name);
 		}
 	}

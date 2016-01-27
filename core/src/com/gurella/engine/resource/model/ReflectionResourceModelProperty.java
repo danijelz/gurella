@@ -358,7 +358,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 
 	@Override
 	public String getDescriptiveName() {
-		return ValueUtils.isEmpty(descriptiveName)
+		return ValueUtils.isBlank(descriptiveName)
 				? name
 				: descriptiveName;
 	}

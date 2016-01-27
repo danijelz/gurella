@@ -30,7 +30,7 @@ public class SceneNodeTreeNode extends Node {
 	private ModelResourceFactory<? extends SceneNode> nodeFactory;
 
 	public SceneNodeTreeNode(ResourceReference<? extends SceneNode> reference) {
-		super(new VisLabel(ValueUtils.isEmpty(reference.getName()) ? "Node" : reference.getName()));
+		super(new VisLabel(ValueUtils.isBlank(reference.getName()) ? "Node" : reference.getName()));
 		this.reference = reference;
 		this.nodeFactory = (ModelResourceFactory<? extends SceneNode>) reference.getResourceFactory();
 		// TODO must also be removed

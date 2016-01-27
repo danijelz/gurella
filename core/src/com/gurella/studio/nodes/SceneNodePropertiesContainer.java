@@ -62,7 +62,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 		this.factory = (ModelResourceFactory<? extends SceneNode>) reference.getResourceFactory();
 
 		buildUi();
-		nameField.setText(ValueUtils.isEmpty(reference.getName()) ? "Node" : reference.getName());
+		nameField.setText(ValueUtils.isBlank(reference.getName()) ? "Node" : reference.getName());
 		enabled.setChecked(factory.<Boolean> getPropertyValue("enabled", Boolean.TRUE).booleanValue());
 		setBackground("border");
 		menuButton.addListener(new MenuClickListener());

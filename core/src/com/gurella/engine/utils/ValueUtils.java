@@ -1,6 +1,7 @@
 package com.gurella.engine.utils;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 public class ValueUtils {
@@ -14,10 +15,12 @@ public class ValueUtils {
 	public static boolean isEmpty(Object value) {
 		if (value == null) {
 			return true;
-		} else if (value instanceof String) {
-			return ((String) value).trim().length() <= 0;
+		} else if (value instanceof CharSequence) {
+			return ((CharSequence) value).length() <= 0;
 		} else if (value instanceof Map) {
 			return ((Map<?, ?>) value).isEmpty();
+		} else if (value instanceof Collection) {
+			return ((Collection<?>) value).isEmpty();
 		} else if (value instanceof Iterable) {
 			return !((Iterable<?>) value).iterator().hasNext();
 		} else if (value.getClass().isArray()) {
@@ -43,6 +46,14 @@ public class ValueUtils {
 		} else {
 			return false;
 		}
+	}
+
+	public static boolean isNotBlank(final CharSequence sequence) {
+		return !isBlank(sequence);
+	}
+
+	public static boolean isBlank(final CharSequence sequence) {
+		return sequence == null ? true : sequence.toString().trim().length() > 0 ? false : true;
 	}
 
 	public static boolean isEqual(Object first, Object second) {

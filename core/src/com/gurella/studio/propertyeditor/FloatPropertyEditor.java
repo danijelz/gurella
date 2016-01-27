@@ -27,7 +27,7 @@ public class FloatPropertyEditor extends SimpleResourcePropertyEditor<VisValidat
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 		String value = valueComponent.getText();
-		if (ValueUtils.isEmpty(value)) {
+		if (ValueUtils.isBlank(value)) {
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 

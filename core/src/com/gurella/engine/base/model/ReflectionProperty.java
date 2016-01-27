@@ -62,7 +62,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			nullable = isDefaultNullable();
 		} else {
 			descriptiveName = propertyDescriptor.descriptiveName();
-			if (ValueUtils.isEmpty(descriptiveName)) {
+			if (ValueUtils.isBlank(descriptiveName)) {
 				descriptiveName = name;
 			}
 			description = propertyDescriptor.description();

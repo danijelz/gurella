@@ -41,7 +41,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 			return resourceType.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			return ValueUtils.isEmpty(descriptiveName) ? resourceType.getSimpleName() : descriptiveName;
+			return ValueUtils.isBlank(descriptiveName) ? resourceType.getSimpleName() : descriptiveName;
 		}
 	}
 

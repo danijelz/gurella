@@ -59,7 +59,7 @@ public class ReflectionUtils {
 	}
 
 	public static boolean isInnerClass(Class<?> type) {
-		return ClassReflection.isMemberClass(type) && !ClassReflection.isStaticClass(type);
+		return !type.isPrimitive() && ClassReflection.isMemberClass(type) && !ClassReflection.isStaticClass(type);
 	}
 
 	public static <T> T newInnerClassInstance(Class<T> type, Object enclosingInstance) {

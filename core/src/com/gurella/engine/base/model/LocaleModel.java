@@ -44,12 +44,12 @@ public class LocaleModel implements Model<Locale> {
 			output.writeStringProperty("language", language);
 
 			String country = value.getCountry();
-			if (ValueUtils.isNotEmpty(country)) {
+			if (ValueUtils.isNotBlank(country)) {
 				output.writeStringProperty("country", country);
 			}
 
 			String variant = value.getVariant();
-			if (ValueUtils.isNotEmpty(language)) {
+			if (ValueUtils.isNotBlank(language)) {
 				output.writeStringProperty("variant", variant);
 			}
 		}
@@ -57,10 +57,16 @@ public class LocaleModel implements Model<Locale> {
 
 	@Override
 	public Locale deserialize(Object template, Input input) {
-		String language = input.readStringProperty("language");
-		String country = input.hasProperty("country") ? input.readStringProperty("country") : "";
-		String variant = input.hasProperty("variant") ? input.readStringProperty("variant") : "";
-		return new Locale(language, country, variant);
+		if (!input.isValid()) {
+			return (Locale) template;
+		} else if (input.isNull()) {
+			return null;
+		} else {
+			String language = input.readStringProperty("language");
+			String country = input.hasProperty("country") ? input.readStringProperty("country") : "";
+			String variant = input.hasProperty("variant") ? input.readStringProperty("variant") : "";
+			return new Locale(language, country, variant);
+		}
 	}
 
 	@Override

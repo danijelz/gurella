@@ -47,7 +47,7 @@ public class SceneManager {
 
 	private static String getSceneGroup(Scene scene) {
 		String group = scene.getGroup();
-		group = ValueUtils.isEmpty(group) ? DEFAULT_TRANSITION_GROUP : group;
+		group = ValueUtils.isBlank(group) ? DEFAULT_TRANSITION_GROUP : group;
 		return group;
 	}
 
