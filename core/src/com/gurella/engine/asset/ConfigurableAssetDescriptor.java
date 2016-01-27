@@ -60,7 +60,7 @@ public class ConfigurableAssetDescriptor<T> {
 				synchronized (this) {
 					wait(5);
 				}
-			} catch (@SuppressWarnings("unused") InterruptedException ignored) {
+			} catch (InterruptedException ignored) {
 			}
 		}
 

@@ -194,11 +194,11 @@ public class PathShape extends Shape {
 	}
 
 	public PathShape cubicTo(float controlX1, float controlY1, float controlX2, float controlY2, float x, float y) {
-		return cubicTo(false, controlX1, controlY1, controlX2, controlX2, x, y);
+		return cubicTo(false, controlX1, controlY1, controlX2, controlY2, x, y);
 	}
 	
 	public PathShape cubicToRel(float controlX1, float controlY1, float controlX2, float controlY2, float x, float y) {
-		return cubicTo(true, controlX1, controlY1, controlX2, controlX2, x, y);
+		return cubicTo(true, controlX1, controlY1, controlX2, controlY2, x, y);
 	}
 
 	public PathShape cubicTo(boolean relative, float controlX1, float controlY1, float controlX2, float controlY2, float x, float y) {
@@ -207,7 +207,7 @@ public class PathShape extends Shape {
 		command.controlX1 = controlX1;
 		command.controlY1 = controlY1;
 		command.controlX2 = controlX2;
-		command.controlX2 = controlX2;
+		command.controlY2 = controlY2;
 		command.x = x;
 		command.y = y;
 		commands.add(command);

@@ -210,9 +210,8 @@ public class BvhNode implements Poolable {
 				return; // the benefit is not worth the cost
 			}
 
-			String msg = String
-					.format("BVH swap {0} from {1} to {2}", bestRot.rot.toString(), branchesSAH, bestRot.SAH);
-			Gdx.app.debug("BvhNode", msg);
+			Gdx.app.debug("BvhNode", String.format("BVH swap {0} from {1} to {2}", bestRot.rot.toString(),
+					Float.valueOf(branchesSAH), Float.valueOf(bestRot.SAH)));
 
 			// in order to swap we need to:
 			// 1. swap the node locations
@@ -285,8 +284,8 @@ public class BvhNode implements Poolable {
 				break;
 			default:
 				// unknown...
-				throw new IllegalArgumentException("missing implementation for BVH Rotation .. "
-						+ bestRot.rot.toString());
+				throw new IllegalArgumentException(
+						"missing implementation for BVH Rotation .. " + bestRot.rot.toString());
 			}
 		}
 	}
@@ -310,7 +309,7 @@ public class BvhNode implements Poolable {
 		switch (rot) {
 		case NONE:
 			return new RotationOption(SAH, Rotation.NONE);
-			// child to grandchild rotations
+		// child to grandchild rotations
 		case L_RL:
 			if (right.isLeaf())
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
@@ -336,18 +335,18 @@ public class BvhNode implements Poolable {
 			if (left.isLeaf() || right.isLeaf())
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
 			else
-				return new RotationOption(SAH(boundsOfPair(right.right, left.right))
-						+ SAH(boundsOfPair(right.left, left.left)), rot);
+				return new RotationOption(
+						SAH(boundsOfPair(right.right, left.right)) + SAH(boundsOfPair(right.left, left.left)), rot);
 		case LL_RL:
 			if (left.isLeaf() || right.isLeaf())
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
 			else
-				return new RotationOption(SAH(boundsOfPair(right.left, left.right))
-						+ SAH(boundsOfPair(left.left, right.right)), rot);
+				return new RotationOption(
+						SAH(boundsOfPair(right.left, left.right)) + SAH(boundsOfPair(left.left, right.right)), rot);
 			// unknown...
 		default:
-			throw new IllegalArgumentException("missing implementation for BVH Rotation SAH Computation .. "
-					+ rot.toString());
+			throw new IllegalArgumentException(
+					"missing implementation for BVH Rotation SAH Computation .. " + rot.toString());
 		}
 	}
 
@@ -373,8 +372,9 @@ public class BvhNode implements Poolable {
 		left = new BvhNode(bvh, this,
 				new Array<BvhSpatial>(Arrays.<BvhSpatial> copyOfRange(splitlist.items, 0, center)), this.depth + 1);
 		// Split the Hierarchy to the right
-		right = new BvhNode(bvh, this, new Array<BvhSpatial>(Arrays.<BvhSpatial> copyOfRange(splitlist.items, center,
-				splitlist.size)), this.depth + 1);
+		right = new BvhNode(bvh, this,
+				new Array<BvhSpatial>(Arrays.<BvhSpatial> copyOfRange(splitlist.items, center, splitlist.size)),
+				this.depth + 1);
 	}
 
 	void splitIfNecessary() {
@@ -579,7 +579,7 @@ public class BvhNode implements Poolable {
 	}
 
 	void free() {
-		//TODO must first be obtained
+		// TODO must first be obtained
 		SynchronizedPools.free(this);
 	}
 

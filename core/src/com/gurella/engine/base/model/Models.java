@@ -147,7 +147,7 @@ public class Models {
 				@SuppressWarnings("unchecked")
 				Model<T> casted = (Model<T>) factoryMethod.invoke(null);
 				return casted;
-			} catch (@SuppressWarnings("unused") ReflectionException e) {
+			} catch (ReflectionException e) {
 				return null;
 			}
 		}
@@ -159,7 +159,7 @@ public class Models {
 				@SuppressWarnings("unchecked")
 				Model<T> casted = (Model<T>) factoryMethod.invoke(modelType);
 				return casted;
-			} catch (@SuppressWarnings("unused") ReflectionException e) {
+			} catch (ReflectionException e) {
 				return null;
 			}
 		}
