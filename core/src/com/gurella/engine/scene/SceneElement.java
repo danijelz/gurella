@@ -38,7 +38,7 @@ public abstract class SceneElement implements Poolable, Disposable {
 	@TransientProperty
 	public final Signal0Impl detachedSignal = new Signal0Impl();
 	@TransientProperty
-	public final SceneGraphElementLifecycleSignal lifecycleSignal = new SceneGraphElementLifecycleSignal();
+	public final SceneElementLifecycleSignal lifecycleSignal = new SceneElementLifecycleSignal();
 
 	public SceneElement() {
 		id = INDEXER.getIndex(this);
@@ -160,8 +160,8 @@ public abstract class SceneElement implements Poolable, Disposable {
 		}
 	}
 
-	public class SceneGraphElementLifecycleSignal extends AbstractSignal<SceneGraphElementLifecycleListener> {
-		private SceneGraphElementLifecycleSignal() {
+	public class SceneElementLifecycleSignal extends AbstractSignal<SceneGraphElementLifecycleListener> {
+		private SceneElementLifecycleSignal() {
 		}
 
 		void attached() {

@@ -155,18 +155,21 @@ public class Scene extends SceneElementsResourceContext {
 		active = false;
 		stopSignal.dispatch();
 		sceneEventsSignal.sceneStopped();
-		releaseResources();
 
-		// TODO remove only root nodes
 		for (int i = 0; i < allNodesInternal.size; i++) {
 			SceneNode node = allNodesInternal.get(i);
-			removeNodeSafely(node);
+			if (node.getParent() == null) {
+				removeNode(node);
+			}
 		}
 
 		for (int i = 0; i < allSystemsInternal.size; i++) {
 			SceneSystem system = allSystemsInternal.get(i);
-			removeSystemSafely(system);
+			removeSystem(system);
 		}
+		
+		cleanup();
+		releaseResources();
 
 		eventManager.clear();
 	}

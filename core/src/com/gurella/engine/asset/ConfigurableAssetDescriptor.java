@@ -50,6 +50,7 @@ public class ConfigurableAssetDescriptor<T> {
 		return (Class<T>) assetType.assetType;
 	}
 
+	//TODO unused
 	public T load() {
 		AssetDescriptor<T> resolvedAssetDescriptor = getAssetDescriptor();
 		T asset = assetRegistry.load(resolvedAssetDescriptor);
