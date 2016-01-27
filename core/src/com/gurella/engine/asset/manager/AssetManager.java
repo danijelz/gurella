@@ -306,7 +306,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	 * @return whether the asset is loaded
 	 */
 	@Override
-	public synchronized boolean isLoaded(String fileName, Class type) {
+	public synchronized boolean isLoaded(String fileName, @SuppressWarnings("rawtypes") Class type) {
 		ObjectMap<String, RefCountedContainer> assetsByType = assets.get(type);
 		if (assetsByType == null) {
 			return false;
@@ -330,7 +330,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	 * @return The loader capable of loading the type, or null if none exists
 	 */
 	@Override
-	public <T> AssetLoader getLoader(final Class<T> type) {
+	public <T> AssetLoader<T, ?> getLoader(final Class<T> type) {
 		return getLoader(type, null);
 	}
 
@@ -443,7 +443,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	 *            the {@link AssetDescriptor}
 	 */
 	@Override
-	public synchronized void load(AssetDescriptor desc) {
+	public synchronized void load(@SuppressWarnings("rawtypes") AssetDescriptor desc) {
 		load(desc.fileName, desc.type, desc.params);
 	}
 
