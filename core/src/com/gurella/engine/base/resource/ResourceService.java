@@ -12,7 +12,7 @@ public class ResourceService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 	private static final AssetManager assetManager = new AssetManager();
 	private static final ObjectIntMap<String> managedAssets = new ObjectIntMap<String>();
-	
+
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
 
 	private ResourceService() {
@@ -56,8 +56,14 @@ public class ResourceService {
 	}
 
 	public static <T> String getResourceFileName(T resource) {
-		synchronized (assetManager) {
-			return assetManager.getAssetFileName(resource);
+		if (resource instanceof ManagedObject) {
+			synchronized (objectsByFile) {
+				return objectsByFile.get(((ManagedObject) resource).instanceId);
+			}
+		} else {
+			synchronized (assetManager) {
+				return assetManager.getAssetFileName(resource);
+			}
 		}
 	}
 

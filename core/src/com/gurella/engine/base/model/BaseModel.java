@@ -30,6 +30,7 @@ public abstract class BaseModel<T> implements Model<T> {
 		}
 
 		innerClass = ReflectionUtils.isInnerClass(type);
+		constructor = null;
 		properties = resolveProperties();
 	}
 

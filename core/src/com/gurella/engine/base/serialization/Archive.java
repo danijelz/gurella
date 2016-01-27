@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.IntSet;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.OrderedMap;
@@ -29,15 +28,11 @@ import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.utils.ArrayExt;
 
 public class Archive implements Poolable {
-	Json json = new Json();
-	private Array<String> externalFileNames = new Array<String>();
 	private Array<ExternalDependency> externalDependencies = new Array<ExternalDependency>();
 
 	@Override
 	public void reset() {
-		externalFileNames.clear();
 		externalDependencies.clear();
-		externalFileNames.clear();
 	}
 
 	static class ExternalDependency {
