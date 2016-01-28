@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

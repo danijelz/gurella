@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -47,7 +47,7 @@ public class CopyContext implements Poolable {
 
 		copiedObjectStack.add(original);
 		copiedObjects.put(original, null);
-		Model<T> model = Models.getModel(original);
+		Metamodel<T> model = Models.getModel(original);
 		duplicate = model.copy(original, this);
 		copiedObjects.put(original, duplicate);
 		copiedObjectStack.pop();
@@ -62,7 +62,7 @@ public class CopyContext implements Poolable {
 		copiedObjectStack.add(source);
 		copiedObjects.put(source, target);
 		objectStack.add(target);
-		Model<T> model = Models.getModel(source);
+		Metamodel<T> model = Models.getModel(source);
 		ImmutableArray<Property<?>> properties = model.getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).copy(source, target, this);

@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.util.Locale;
 
@@ -7,7 +7,7 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueUtils;
 
-public class LocaleModel implements Model<Locale> {
+public class LocaleModel implements Metamodel<Locale> {
 	public static final LocaleModel instance = new LocaleModel();
 
 	private LocaleModel() {

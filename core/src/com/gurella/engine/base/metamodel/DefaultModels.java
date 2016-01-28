@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -15,7 +15,7 @@ public class DefaultModels {
 	private DefaultModels() {
 	}
 
-	public static abstract class SimpleModel<T> implements Model<T> {
+	public static abstract class SimpleModel<T> implements Metamodel<T> {
 		private Class<T> type;
 
 		public SimpleModel(Class<T> type) {

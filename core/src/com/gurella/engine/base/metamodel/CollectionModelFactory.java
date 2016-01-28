@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,27 +24,27 @@ public class CollectionModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> Metamodel<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumSet.class, type)) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) EnumSetModel.modelInstance;
+			Metamodel<T> casted = (Metamodel<T>) EnumSetModel.modelInstance;
 			return casted;
 		} else if (TreeSet.class == type) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) TreeSetModel.modelInstance;
+			Metamodel<T> casted = (Metamodel<T>) TreeSetModel.modelInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(Collection.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			CollectionModel raw = new CollectionModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			Metamodel<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class CollectionModel<T extends Collection<?>> implements Model<T> {
+	public static class CollectionModel<T extends Collection<?>> implements Metamodel<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -173,10 +173,10 @@ public class CollectionModelFactory implements ModelFactory {
 	public static class CollectionItemsProperty implements Property<Object[]> {
 		public static final String name = "items";
 
-		private Model<?> model;
+		private Metamodel<?> metamodel;
 
-		public CollectionItemsProperty(Model<?> model) {
-			this.model = model;
+		public CollectionItemsProperty(Metamodel<?> model) {
+			this.metamodel = model;
 		}
 
 		@Override
@@ -190,12 +190,12 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
+		public Metamodel<?> getModel() {
+			return metamodel;
 		}
 
 		@Override
-		public Property<Object[]> newInstance(Model<?> model) {
+		public Property<Object[]> newInstance(Metamodel<?> model) {
 			return new CollectionItemsProperty(model);
 		}
 

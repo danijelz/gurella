@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.util.Arrays;
 
@@ -32,7 +32,7 @@ import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
-public class ReflectionModel<T> implements Model<T> {
+public class ReflectionModel<T> implements Metamodel<T> {
 	private static final String getPrefix = "get";
 	private static final String setPrefix = "set";
 	private static final String isPrefix = "is";
@@ -244,7 +244,7 @@ public class ReflectionModel<T> implements Model<T> {
 	private void resolveProperties() {
 		Class<? super T> supertype = type.getSuperclass();
 		if (supertype != null && supertype != Object.class) {
-			Model<? super T> model = Models.getModel(supertype);
+			Metamodel<? super T> model = Models.getModel(supertype);
 			ImmutableArray<Property<?>> supertypeProperties = model.getProperties();
 			for (int i = 0; i < supertypeProperties.size(); i++) {
 				Property<?> property = supertypeProperties.get(i).newInstance(this);

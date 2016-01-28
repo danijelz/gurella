@@ -2,8 +2,8 @@ package com.gurella.engine.base.serialization.json;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.base.model.DefaultModels.SimpleModel;
-import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.metamodel.Models;
+import com.gurella.engine.base.metamodel.DefaultModels.SimpleModel;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class JsonSerialization {

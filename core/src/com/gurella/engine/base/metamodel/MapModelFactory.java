@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -25,27 +25,27 @@ public class MapModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> Metamodel<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumMap.class, type)) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) EnumMapModel.modelInstance;
+			Metamodel<T> casted = (Metamodel<T>) EnumMapModel.modelInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(TreeMap.class, type)) {
 			@SuppressWarnings("unchecked")
-			Model<T> casted = (Model<T>) TreeMapModel.modelInstance;
+			Metamodel<T> casted = (Metamodel<T>) TreeMapModel.modelInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(Map.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			MapModel raw = new MapModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			Metamodel<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class MapModel<T extends Map<?, ?>> implements Model<T> {
+	public static class MapModel<T extends Map<?, ?>> implements Metamodel<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -129,10 +129,10 @@ public class MapModelFactory implements ModelFactory {
 	private static class MapEntriesProperty implements Property<Set<Entry<?, ?>>> {
 		private static final String name = "entries";
 
-		private Model<?> model;
+		private Metamodel<?> metamodel;
 
-		public MapEntriesProperty(Model<?> model) {
-			this.model = model;
+		public MapEntriesProperty(Metamodel<?> model) {
+			this.metamodel = model;
 		}
 
 		@Override
@@ -147,12 +147,12 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
+		public Metamodel<?> getModel() {
+			return metamodel;
 		}
 
 		@Override
-		public Property<Set<Entry<?, ?>>> newInstance(Model<?> model) {
+		public Property<Set<Entry<?, ?>>> newInstance(Metamodel<?> model) {
 			return new MapEntriesProperty(model);
 		}
 

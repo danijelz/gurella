@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.util.Arrays;
 
@@ -20,19 +20,19 @@ public class GdxArrayModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> Metamodel<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Array.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			GdxArrayModel raw = new GdxArrayModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			Metamodel<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class GdxArrayModel<T extends Array<?>> implements Model<T> {
+	public static class GdxArrayModel<T extends Array<?>> implements Metamodel<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -147,10 +147,10 @@ public class GdxArrayModelFactory implements ModelFactory {
 	private static class ArrayOrderedProperty implements Property<Boolean> {
 		private static final String name = "ordered";
 
-		private Model<?> model;
+		private Metamodel<?> metamodel;
 
-		public ArrayOrderedProperty(Model<?> model) {
-			this.model = model;
+		public ArrayOrderedProperty(Metamodel<?> model) {
+			this.metamodel = model;
 		}
 
 		@Override
@@ -164,8 +164,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
+		public Metamodel<?> getModel() {
+			return metamodel;
 		}
 
 		@Override
@@ -194,7 +194,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Property<Boolean> newInstance(Model<?> newModel) {
+		public Property<Boolean> newInstance(Metamodel<?> newModel) {
 			return new ArrayOrderedProperty(newModel);
 		}
 
@@ -235,10 +235,10 @@ public class GdxArrayModelFactory implements ModelFactory {
 	private static class ArrayItemsProperty implements Property<Object[]> {
 		private static final String name = "items";
 
-		private Model<?> model;
+		private Metamodel<?> metamodel;
 
-		public ArrayItemsProperty(Model<?> model) {
-			this.model = model;
+		public ArrayItemsProperty(Metamodel<?> model) {
+			this.metamodel = model;
 		}
 
 		@Override
@@ -252,12 +252,12 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
+		public Metamodel<?> getModel() {
+			return metamodel;
 		}
 
 		@Override
-		public Property<Object[]> newInstance(Model<?> model) {
+		public Property<Object[]> newInstance(Metamodel<?> model) {
 			return new ArrayItemsProperty(model);
 		}
 

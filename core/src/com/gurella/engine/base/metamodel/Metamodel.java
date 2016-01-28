@@ -1,10 +1,10 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 
-public interface Model<T> {
+public interface Metamodel<T> {
 	Class<T> getType();
 
 	String getName();

@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -9,7 +9,7 @@ public interface Property<T> {
 
 	Class<T> getType();
 
-	Model<?> getModel();
+	Metamodel<?> getModel();
 
 	Range<?> getRange();
 
@@ -21,7 +21,7 @@ public interface Property<T> {
 
 	String getGroup();
 
-	Property<T> newInstance(Model<?> model);
+	Property<T> newInstance(Metamodel<?> model);
 
 	T getValue(Object object);
 

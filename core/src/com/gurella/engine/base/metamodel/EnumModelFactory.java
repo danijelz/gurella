@@ -1,8 +1,8 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.model.DefaultModels.SimpleModel;
+import com.gurella.engine.base.metamodel.DefaultModels.SimpleModel;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ValueUtils;
@@ -14,12 +14,12 @@ public class EnumModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Model<T> create(Class<T> type) {
+	public <T> Metamodel<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Enum.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			EnumModel raw = new EnumModel(type);
 			@SuppressWarnings("unchecked")
-			Model<T> casted = raw;
+			Metamodel<T> casted = raw;
 			return casted;
 		} else {
 			return null;

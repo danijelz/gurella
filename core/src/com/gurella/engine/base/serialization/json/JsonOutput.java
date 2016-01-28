@@ -8,8 +8,8 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.metamodel.Metamodel;
+import com.gurella.engine.base.metamodel.Models;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
@@ -82,7 +82,7 @@ public class JsonOutput implements Output, Poolable {
 				pop();
 			}
 
-			Model<Object> model = Models.getModel(object);
+			Metamodel<Object> model = Models.getModel(object);
 			model.serialize(object, template, this);
 			pop();
 		} else {
@@ -91,7 +91,7 @@ public class JsonOutput implements Output, Poolable {
 			if (expectedType != actualType) {
 				type(actualType);
 			}
-			Model<Object> model = Models.getModel(object);
+			Metamodel<Object> model = Models.getModel(object);
 			model.serialize(object, template, this);
 			pop();
 		}
@@ -193,10 +193,10 @@ public class JsonOutput implements Output, Poolable {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
 			@SuppressWarnings("unchecked")
-			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
+			Metamodel<Object> model = (Metamodel<Object>) Models.getModel(expectedType);
 			model.serialize(value, null, this);
 		} else if (JsonSerialization.isSimpleType(value)) {
-			Model<Object> model = Models.getModel(value);
+			Metamodel<Object> model = Models.getModel(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
 				model.serialize(value, null, this);

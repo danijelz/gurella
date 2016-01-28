@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.ReflectionUtils;

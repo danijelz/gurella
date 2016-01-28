@@ -1,14 +1,14 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.base.model.ValueRange.ByteRange;
-import com.gurella.engine.base.model.ValueRange.CharRange;
-import com.gurella.engine.base.model.ValueRange.DoubleRange;
-import com.gurella.engine.base.model.ValueRange.FloatRange;
-import com.gurella.engine.base.model.ValueRange.IntegerRange;
-import com.gurella.engine.base.model.ValueRange.LongRange;
-import com.gurella.engine.base.model.ValueRange.ShortRange;
+import com.gurella.engine.base.metamodel.ValueRange.ByteRange;
+import com.gurella.engine.base.metamodel.ValueRange.CharRange;
+import com.gurella.engine.base.metamodel.ValueRange.DoubleRange;
+import com.gurella.engine.base.metamodel.ValueRange.FloatRange;
+import com.gurella.engine.base.metamodel.ValueRange.IntegerRange;
+import com.gurella.engine.base.metamodel.ValueRange.LongRange;
+import com.gurella.engine.base.metamodel.ValueRange.ShortRange;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;
@@ -29,16 +29,16 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Field field;
 	private Method getter;
 	private Method setter;
-	private Model<?> model;
+	private Metamodel<?> metamodel;
 
-	public ReflectionProperty(Field field, Model<?> model) {
+	public ReflectionProperty(Field field, Metamodel<?> model) {
 		this(field, null, null, model);
 	}
 
-	public ReflectionProperty(Field field, Method getter, Method setter, Model<?> model) {
+	public ReflectionProperty(Field field, Method getter, Method setter, Metamodel<?> model) {
 		this.name = field.getName();
 		this.field = field;
-		this.model = model;
+		this.metamodel = model;
 		this.field.setAccessible(true);
 		@SuppressWarnings("unchecked")
 		Class<T> castedType = field.getType();
@@ -127,8 +127,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Model<?> getModel() {
-		return model;
+	public Metamodel<?> getModel() {
+		return metamodel;
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Property<T> newInstance(Model<?> newModel) {
+	public Property<T> newInstance(Metamodel<?> newModel) {
 		return new ReflectionProperty<T>(field, getter, setter, newModel);
 	}
 

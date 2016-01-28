@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.util.Arrays;
 
@@ -11,7 +11,7 @@ public class DefaultArrayModels {
 	private DefaultArrayModels() {
 	}
 
-	private static abstract class PrimitiveArrayModel<T> implements Model<T> {
+	private static abstract class PrimitiveArrayModel<T> implements Metamodel<T> {
 		private Class<T> type;
 
 		private PrimitiveArrayModel(Class<T> type) {

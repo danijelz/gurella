@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Constructor;
@@ -8,7 +8,7 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 //TODO unused
-public abstract class BaseModel<T> implements Model<T> {
+public abstract class BaseModel<T> implements Metamodel<T> {
 	private final Class<T> type;
 	private final String name;
 	

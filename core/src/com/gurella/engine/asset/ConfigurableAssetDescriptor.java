@@ -3,11 +3,9 @@ package com.gurella.engine.asset;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.application.Application;
 
 public class ConfigurableAssetDescriptor<T> {
-	private static final AssetRegistry assetRegistry = Application.DISPOSABLES_SERVICE.add(new AssetRegistry());
-
+	boolean sticky;
 	AssetType assetType;
 	String fileName;
 	final Array<AssetSelector<T>> selectors = new Array<AssetSelector<T>>();
@@ -48,23 +46,5 @@ public class ConfigurableAssetDescriptor<T> {
 	@SuppressWarnings("unchecked")
 	public Class<T> getAssetType() {
 		return (Class<T>) assetType.assetType;
-	}
-
-	//TODO unused
-	public T load() {
-		AssetDescriptor<T> resolvedAssetDescriptor = getAssetDescriptor();
-		T asset = assetRegistry.load(resolvedAssetDescriptor);
-
-		while (asset == null) {
-			asset = assetRegistry.get(resolvedAssetDescriptor);
-			try {
-				synchronized (this) {
-					wait(5);
-				}
-			} catch (InterruptedException ignored) {
-			}
-		}
-
-		return asset;
 	}
 }

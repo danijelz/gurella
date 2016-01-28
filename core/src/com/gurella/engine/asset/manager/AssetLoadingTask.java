@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.async.AsyncTask;
 
 class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTask<Void> {
 	AssetManager manager;
-	final AssetDescriptor<T> assetDesc;
+	final CallbackAssetDescriptor<T> assetDesc;
 	final AssetLoader<T, P> loader;
 	final AsyncExecutor executor;
 	final long startTime;
@@ -31,7 +31,7 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 	int ticks = 0;
 	volatile boolean cancel = false;
 
-	public AssetLoadingTask(AssetManager manager, AssetDescriptor<T> assetDesc, AssetLoader<T, P> loader,
+	public AssetLoadingTask(AssetManager manager, CallbackAssetDescriptor<T> assetDesc, AssetLoader<T, P> loader,
 			AsyncExecutor threadPool) {
 		this.manager = manager;
 		this.assetDesc = assetDesc;
@@ -60,6 +60,7 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 		} else {
 			asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
 		}
+
 		return null;
 	}
 
@@ -140,7 +141,7 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 		}
 	}
 
-	private static FileHandle resolve(AssetLoader<?, ?> loader, AssetDescriptor<?> assetDesc) {
+	private static FileHandle resolve(AssetLoader<?, ?> loader, CallbackAssetDescriptor<?> assetDesc) {
 		if (assetDesc.file == null)
 			assetDesc.file = loader.resolve(assetDesc.fileName);
 		return assetDesc.file;

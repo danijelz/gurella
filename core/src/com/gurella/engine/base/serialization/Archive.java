@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.resource.AsyncCallback;
 
+//TODO unused
 public class Archive<T> implements Poolable {
 	private String fileName;
 	private AsyncCallback<T> callback;

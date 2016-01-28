@@ -1,23 +1,20 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.FIELD })
-public @interface PropertyDescriptor {
-	//TODO rename
+@Target(value = { ElementType.TYPE })
+public @interface ModelDescriptor {
+	// TODO rename
 	@SuppressWarnings("rawtypes")
-	Class<? extends Property> property() default ReflectionProperty.class;
-
-	boolean nullable() default true;
+	Class<? extends Metamodel> metamodel() default ReflectionModel.class;
 
 	String descriptiveName() default "";
 
 	String description() default "";
-
-	String group() default "";
 }
-

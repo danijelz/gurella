@@ -1,4 +1,4 @@
-package com.gurella.engine.base.model;
+package com.gurella.engine.base.metamodel;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,41 +10,41 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.base.model.DefaultArrayModels.BooleanArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.ByteArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.CharArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.DoubleArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.FloatArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.IntArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.LongArrayModel;
-import com.gurella.engine.base.model.DefaultArrayModels.ShortArrayModel;
-import com.gurella.engine.base.model.DefaultModels.BigDecimalModel;
-import com.gurella.engine.base.model.DefaultModels.BigIntegerModel;
-import com.gurella.engine.base.model.DefaultModels.BooleanModel;
-import com.gurella.engine.base.model.DefaultModels.BooleanPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.ByteModel;
-import com.gurella.engine.base.model.DefaultModels.BytePrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.CharModel;
-import com.gurella.engine.base.model.DefaultModels.CharPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.ClassModel;
-import com.gurella.engine.base.model.DefaultModels.DateModel;
-import com.gurella.engine.base.model.DefaultModels.DoubleModel;
-import com.gurella.engine.base.model.DefaultModels.DoublePrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.FloatModel;
-import com.gurella.engine.base.model.DefaultModels.FloatPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.IntegerModel;
-import com.gurella.engine.base.model.DefaultModels.IntegerPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.LongModel;
-import com.gurella.engine.base.model.DefaultModels.LongPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.ShortModel;
-import com.gurella.engine.base.model.DefaultModels.ShortPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.StringModel;
-import com.gurella.engine.base.model.DefaultModels.VoidModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.BooleanArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.ByteArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.CharArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.DoubleArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.FloatArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.IntArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.LongArrayModel;
+import com.gurella.engine.base.metamodel.DefaultArrayModels.ShortArrayModel;
+import com.gurella.engine.base.metamodel.DefaultModels.BigDecimalModel;
+import com.gurella.engine.base.metamodel.DefaultModels.BigIntegerModel;
+import com.gurella.engine.base.metamodel.DefaultModels.BooleanModel;
+import com.gurella.engine.base.metamodel.DefaultModels.BooleanPrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.ByteModel;
+import com.gurella.engine.base.metamodel.DefaultModels.BytePrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.CharModel;
+import com.gurella.engine.base.metamodel.DefaultModels.CharPrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.ClassModel;
+import com.gurella.engine.base.metamodel.DefaultModels.DateModel;
+import com.gurella.engine.base.metamodel.DefaultModels.DoubleModel;
+import com.gurella.engine.base.metamodel.DefaultModels.DoublePrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.FloatModel;
+import com.gurella.engine.base.metamodel.DefaultModels.FloatPrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.IntegerModel;
+import com.gurella.engine.base.metamodel.DefaultModels.IntegerPrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.LongModel;
+import com.gurella.engine.base.metamodel.DefaultModels.LongPrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.ShortModel;
+import com.gurella.engine.base.metamodel.DefaultModels.ShortPrimitiveModel;
+import com.gurella.engine.base.metamodel.DefaultModels.StringModel;
+import com.gurella.engine.base.metamodel.DefaultModels.VoidModel;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class Models {
-	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
+	private static final ObjectMap<Class<?>, Metamodel<?>> resolvedModels = new ObjectMap<Class<?>, Metamodel<?>>();
 	private static final Array<ModelFactory> modelFactories = new Array<ModelFactory>();
 
 	static {
@@ -91,16 +91,16 @@ public class Models {
 	private Models() {
 	}
 
-	public static <T> Model<T> getModel(T object) {
+	public static <T> Metamodel<T> getModel(T object) {
 		@SuppressWarnings("unchecked")
 		Class<T> casted = (Class<T>) object.getClass();
 		return getModel(casted);
 	}
 
-	public static <T> Model<T> getModel(Class<T> type) {
+	public static <T> Metamodel<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
-			Model<T> model = (Model<T>) resolvedModels.get(type);
+			Metamodel<T> model = (Metamodel<T>) resolvedModels.get(type);
 			if (model == null) {
 				model = resolveModel(type);
 				resolvedModels.put(type, model);
@@ -109,8 +109,8 @@ public class Models {
 		}
 	}
 
-	private static <T> Model<T> resolveModel(Class<T> type) {
-		Model<T> model = resolveModelByDescriptor(type);
+	private static <T> Metamodel<T> resolveModel(Class<T> type) {
+		Metamodel<T> model = resolveModelByDescriptor(type);
 		if (model != null) {
 			return model;
 		}
@@ -119,14 +119,14 @@ public class Models {
 		return model == null ? ReflectionModel.<T> getInstance(type) : model;
 	}
 
-	private static <T> Model<T> resolveModelByDescriptor(Class<T> type) {
+	private static <T> Metamodel<T> resolveModelByDescriptor(Class<T> type) {
 		ModelDescriptor descriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
 		if (descriptor == null) {
 			return null;
 		}
 
 		@SuppressWarnings("unchecked")
-		Class<Model<T>> modelType = (Class<Model<T>>) descriptor.model();
+		Class<Metamodel<T>> modelType = (Class<Metamodel<T>>) descriptor.metamodel();
 		if (modelType == null) {
 			return null;
 		}
@@ -134,18 +134,18 @@ public class Models {
 		if (ReflectionModel.class.equals(modelType)) {
 			return ReflectionModel.<T> getInstance(type);
 		} else {
-			Model<T> model = instantiateModelByFactoryMethod(modelType);
+			Metamodel<T> model = instantiateModelByFactoryMethod(modelType);
 			return model == null ? ReflectionUtils.newInstance(modelType) : model;
 		}
 	}
 
-	private static <T> Model<T> instantiateModelByFactoryMethod(Class<Model<T>> modelType) {
+	private static <T> Metamodel<T> instantiateModelByFactoryMethod(Class<Metamodel<T>> modelType) {
 		// TODO should be annotation based
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance");
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				Model<T> casted = (Model<T>) factoryMethod.invoke(null);
+				Metamodel<T> casted = (Metamodel<T>) factoryMethod.invoke(null);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -157,7 +157,7 @@ public class Models {
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				Model<T> casted = (Model<T>) factoryMethod.invoke(modelType);
+				Metamodel<T> casted = (Metamodel<T>) factoryMethod.invoke(modelType);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -167,14 +167,14 @@ public class Models {
 		return null;
 	}
 
-	private static <T> boolean isValidFactoryMethod(Class<Model<T>> modelClass, Method factoryMethod) {
+	private static <T> boolean isValidFactoryMethod(Class<Metamodel<T>> modelClass, Method factoryMethod) {
 		return factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == modelClass
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> Model<T> resolveCustomModel(Class<T> type) {
+	private static <T> Metamodel<T> resolveCustomModel(Class<T> type) {
 		for (int i = 0; i < modelFactories.size; i++) {
-			Model<T> model = modelFactories.get(i).create(type);
+			Metamodel<T> model = modelFactories.get(i).create(type);
 			if (model != null) {
 				return model;
 			}
@@ -227,7 +227,7 @@ public class Models {
 				return true;
 			}
 		} else {
-			Model<?> model = Models.getModel(first);
+			Metamodel<?> model = Models.getModel(first);
 			ImmutableArray<Property<?>> properties = model.getProperties();
 			if (properties.size() > 0) {
 				for (int i = 0; i < properties.size(); i++) {
