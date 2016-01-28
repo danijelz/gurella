@@ -9,17 +9,17 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncResult;
 import com.badlogic.gdx.utils.async.AsyncTask;
 
-class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTask<Void> {
+class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
+		implements AsyncTask<Void>, Comparable<AssetLoadingTask<?, ?>>, Poolable {
 	AssetManager manager;
-	final CallbackAssetDescriptor<T> assetDesc;
-	final AssetLoader<T, P> loader;
-	final AsyncExecutor executor;
-	final long startTime;
+	CallbackAssetDescriptor<T> assetDesc;
+	AssetLoader<T, P> loader;
+	long startTime;
 
 	volatile boolean asyncDone = false;
 	volatile boolean dependenciesLoaded = false;
@@ -31,12 +31,10 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 	int ticks = 0;
 	volatile boolean cancel = false;
 
-	public AssetLoadingTask(AssetManager manager, CallbackAssetDescriptor<T> assetDesc, AssetLoader<T, P> loader,
-			AsyncExecutor threadPool) {
+	AssetLoadingTask(AssetManager manager, CallbackAssetDescriptor<T> assetDesc, AssetLoader<T, P> loader) {
 		this.manager = manager;
 		this.assetDesc = assetDesc;
 		this.loader = loader;
-		this.executor = threadPool;
 		startTime = manager.log.getLevel() == Logger.DEBUG ? TimeUtils.nanoTime() : 0;
 	}
 
@@ -47,11 +45,11 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 		@SuppressWarnings("unchecked")
 		P params = (P) assetDesc.params;
 
-		if (dependenciesLoaded == false) {
+		if (!dependenciesLoaded) {
 			dependencies = (Array) asyncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), params);
 			if (dependencies != null) {
-				removeDuplicates(dependencies);
-				manager.injectDependencies(assetDesc.fileName, dependencies);
+				removeDuplicates();
+				manager.injectDependencies(assetDesc.fileName, assetDesc.callback, dependencies);
 			} else {
 				// if we have no dependencies, we load the async part of the task immediately.
 				asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
@@ -73,7 +71,7 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 	 * @return true in case the asset was fully loaded, false otherwise
 	 * @throws GdxRuntimeException
 	 */
-	public boolean update() {
+	boolean update() {
 		ticks++;
 		if (loader instanceof SynchronousAssetLoader) {
 			handleSyncLoader();
@@ -95,8 +93,8 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 				asset = syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
 				return;
 			}
-			removeDuplicates(dependencies);
-			manager.injectDependencies(assetDesc.fileName, dependencies);
+			removeDuplicates();
+			manager.injectDependencies(assetDesc.fileName, assetDesc.callback, dependencies);
 		} else {
 			asset = syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
 		}
@@ -109,7 +107,7 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 
 		if (!dependenciesLoaded) {
 			if (depsFuture == null) {
-				depsFuture = executor.submit(this);
+				depsFuture = manager.executor.submit(this);
 			} else {
 				if (depsFuture.isDone()) {
 					try {
@@ -125,7 +123,7 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 			}
 		} else {
 			if (loadFuture == null && !asyncDone) {
-				loadFuture = executor.submit(this);
+				loadFuture = manager.executor.submit(this);
 			} else {
 				if (asyncDone) {
 					asset = asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
@@ -142,8 +140,9 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 	}
 
 	private static FileHandle resolve(AssetLoader<?, ?> loader, CallbackAssetDescriptor<?> assetDesc) {
-		if (assetDesc.file == null)
+		if (assetDesc.file == null) {
 			assetDesc.file = loader.resolve(assetDesc.fileName);
+		}
 		return assetDesc.file;
 	}
 
@@ -151,18 +150,40 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>> implements AsyncTa
 		return asset;
 	}
 
-	private static void removeDuplicates(Array<AssetDescriptor<?>> array) {
-		boolean ordered = array.ordered;
-		array.ordered = true;
-		for (int i = 0; i < array.size; ++i) {
-			final String fn = array.get(i).fileName;
-			final Class<?> type = array.get(i).type;
-			for (int j = array.size - 1; j > i; --j) {
-				if (type == array.get(j).type && fn.equals(array.get(j).fileName))
-					array.removeIndex(j);
+	private void removeDuplicates() {
+		boolean ordered = dependencies.ordered;
+		dependencies.ordered = true;
+		for (int i = 0; i < dependencies.size; ++i) {
+			final String fn = dependencies.get(i).fileName;
+			final Class<?> type = dependencies.get(i).type;
+			for (int j = dependencies.size - 1; j > i; --j) {
+				if (type == dependencies.get(j).type && fn.equals(dependencies.get(j).fileName))
+					dependencies.removeIndex(j);
 			}
 		}
-		array.ordered = ordered;
+		dependencies.ordered = ordered;
 	}
 
+	@Override
+	public void reset() {
+		manager = null;
+		assetDesc = null;
+		loader = null;
+		startTime = 0;
+
+		asyncDone = false;
+		dependenciesLoaded = false;
+		dependencies = null;
+		depsFuture = null;
+		loadFuture = null;
+		asset = null;
+
+		ticks = 0;
+		cancel = false;
+	}
+
+	@Override
+	public int compareTo(AssetLoadingTask<?, ?> other) {
+		return Integer.compare(assetDesc.priority, other.assetDesc.priority);
+	}
 }

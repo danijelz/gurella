@@ -4,7 +4,7 @@ import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.base.resource.AsyncCallback;
 
-public class CallbackAssetDescriptor<T> implements Comparable<CallbackAssetDescriptor<?>> {
+class CallbackAssetDescriptor<T> implements Comparable<CallbackAssetDescriptor<?>> {
 	public int priority;
 	public AsyncCallback<T> callback;
 
