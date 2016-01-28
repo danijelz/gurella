@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.async.AsyncResult;
 import com.badlogic.gdx.utils.async.AsyncTask;
+import com.gurella.engine.utils.SynchronizedPools;
 
 class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 		implements AsyncTask<Void>, Comparable<AssetLoadingTask<?, ?>>, Poolable {
@@ -31,11 +32,15 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 	int ticks = 0;
 	volatile boolean cancel = false;
 
-	AssetLoadingTask(AssetManager manager, CallbackAssetDescriptor<T> assetDesc, AssetLoader<T, P> loader) {
-		this.manager = manager;
-		this.assetDesc = assetDesc;
-		this.loader = loader;
-		startTime = manager.log.getLevel() == Logger.DEBUG ? TimeUtils.nanoTime() : 0;
+	static <T, P extends AssetLoaderParameters<T>> AssetLoadingTask<T, P> obtain(AssetManager manager,
+			CallbackAssetDescriptor<T> assetDesc, AssetLoader<T, P> loader) {
+		@SuppressWarnings("unchecked")
+		AssetLoadingTask<T, P> task = SynchronizedPools.obtain(AssetLoadingTask.class);
+		task.manager = manager;
+		task.assetDesc = assetDesc;
+		task.loader = loader;
+		task.startTime = manager.log.getLevel() == Logger.DEBUG ? TimeUtils.nanoTime() : 0;
+		return task;
 	}
 
 	/** Loads parts of the asset asynchronously if the loader is an {@link AsynchronousAssetLoader}. */
@@ -164,9 +169,14 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 		dependencies.ordered = ordered;
 	}
 
+	void free() {
+		SynchronizedPools.free(this);
+	}
+
 	@Override
 	public void reset() {
 		manager = null;
+		assetDesc.free();
 		assetDesc = null;
 		loader = null;
 		startTime = 0;
