@@ -1,5 +1,7 @@
 package com.gurella.engine.base.serialization.json;
 
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -26,8 +28,33 @@ public class JsonInput implements Input, Poolable {
 
 	private IntMap<Object> references = new IntMap<Object>();
 	private ObjectIntMap<JsonValue> referenceValues = new ObjectIntMap<JsonValue>();
-	
+
 	private CopyContext copyContext = new CopyContext();
+
+	public void init(FileHandle file) {
+		this.rootValue = reader.parse(file);
+	}
+
+	public <T> T deserialize(Class<T> expectedType) {
+		JsonValue referenceValue = rootValue.get(0);
+		referenceValues.put(referenceValue, 0);
+		T result = deserializeObject(referenceValue, expectedType, null);
+		reset();
+		return result;
+	}
+
+	public <T> T deserialize(Class<T> expectedType, String json) {
+		return deserialize(expectedType, json, null);
+	}
+
+	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
+		rootValue = reader.parse(json);
+		JsonValue referenceValue = rootValue.get(0);
+		referenceValues.put(referenceValue, 0);
+		T result = deserializeObject(referenceValue, expectedType, template);
+		reset();
+		return result;
+	}
 
 	private void push(JsonValue value) {
 		this.value = value;
@@ -47,19 +74,6 @@ public class JsonInput implements Input, Poolable {
 		objectStack.clear();
 		references.clear();
 		copyContext.reset();
-	}
-
-	public <T> T deserialize(Class<T> expectedType, String json) {
-		return deserialize(expectedType, json, null);
-	}
-
-	public <T> T deserialize(Class<T> expectedType, String json, Object template) {
-		rootValue = reader.parse(json);
-		JsonValue referenceValue = rootValue.get(0);
-		referenceValues.put(referenceValue, 0);
-		T result = deserializeObject(referenceValue, expectedType, template);
-		reset();
-		return result;
 	}
 
 	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType, Object template) {
@@ -284,9 +298,14 @@ public class JsonInput implements Input, Poolable {
 	public ImmutableArray<Object> getObjectStack() {
 		return objectStack.immutable();
 	}
-	
+
 	@Override
 	public <T> T copyObject(T original) {
 		return copyContext.copy(original);
+	}
+
+	public Array<AssetDescriptor<?>> getExternalDependencies() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

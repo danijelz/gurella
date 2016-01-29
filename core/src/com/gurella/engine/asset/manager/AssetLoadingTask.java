@@ -13,31 +13,32 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.async.AsyncResult;
 import com.badlogic.gdx.utils.async.AsyncTask;
+import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.utils.SynchronizedPools;
 
 class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 		implements AsyncTask<Void>, Comparable<AssetLoadingTask<?, ?>>, Poolable {
 	AssetManager manager;
-	CallbackAssetDescriptor<T> assetDesc;
+	CallbackDescriptor<T> descriptor;
 	AssetLoader<T, P> loader;
 	long startTime;
 
+	final Array<DependencyCallback<?>> dependencies = new Array<DependencyCallback<?>>();
+
 	volatile boolean asyncDone = false;
 	volatile boolean dependenciesLoaded = false;
-	volatile Array<AssetDescriptor<?>> dependencies;
 	volatile AsyncResult<Void> depsFuture = null;
 	volatile AsyncResult<Void> loadFuture = null;
 	volatile T asset = null;
 
-	int ticks = 0;
 	volatile boolean cancel = false;
 
 	static <T, P extends AssetLoaderParameters<T>> AssetLoadingTask<T, P> obtain(AssetManager manager,
-			CallbackAssetDescriptor<T> assetDesc, AssetLoader<T, P> loader) {
+			CallbackDescriptor<T> descriptor, AssetLoader<T, P> loader) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T, P> task = SynchronizedPools.obtain(AssetLoadingTask.class);
 		task.manager = manager;
-		task.assetDesc = assetDesc;
+		task.descriptor = descriptor;
 		task.loader = loader;
 		task.startTime = manager.log.getLevel() == Logger.DEBUG ? TimeUtils.nanoTime() : 0;
 		return task;
@@ -48,36 +49,38 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 	public Void call() throws Exception {
 		AsynchronousAssetLoader<T, P> asyncLoader = (AsynchronousAssetLoader<T, P>) loader;
 		@SuppressWarnings("unchecked")
-		P params = (P) assetDesc.params;
+		P params = (P) descriptor.params;
+		FileHandle file = resolve(loader, descriptor);
+		String fileName = descriptor.fileName;
 
 		if (!dependenciesLoaded) {
-			dependencies = (Array) asyncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), params);
-			if (dependencies != null) {
-				removeDuplicates();
-				manager.injectDependencies(assetDesc.fileName, assetDesc.callback, dependencies);
-			} else {
-				// if we have no dependencies, we load the async part of the task immediately.
-				asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			Array<AssetDescriptor<?>> descriptors = (Array) asyncLoader.getDependencies(fileName, file, params);
+			if (descriptors == null || descriptors.size == 0) {
+				asyncLoader.loadAsync(manager, fileName, file, params);
 				asyncDone = true;
+
+			} else {
+				removeDuplicates(descriptors);
+				initDependencies(descriptors);
+				manager.injectDependencies(dependencies);
 			}
 		} else {
-			asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
+			asyncLoader.loadAsync(manager, fileName, file, params);
 		}
 
 		return null;
 	}
 
-	/**
-	 * Updates the loading of the asset. In case the asset is loaded with an {@link AsynchronousAssetLoader}, the
-	 * loaders {@link AsynchronousAssetLoader#loadAsync(AssetManager, String, FileHandle, AssetLoaderParameters)} method
-	 * is first called on a worker thread. Once this method returns, the rest of the asset is loaded on the rendering
-	 * thread via {@link AsynchronousAssetLoader#loadSync(AssetManager, String, FileHandle, AssetLoaderParameters)}.
-	 * 
-	 * @return true in case the asset was fully loaded, false otherwise
-	 * @throws GdxRuntimeException
-	 */
+	private void initDependencies(Array<AssetDescriptor<?>> descriptors) {
+		String parentFilename = descriptor.fileName;
+		int priority = descriptor.priority;
+		for (int i = 0; i < descriptors.size; i++) {
+			dependencies.add(DependencyCallback.obtain(this, parentFilename, descriptors.get(i), priority));
+		}
+	}
+
 	boolean update() {
-		ticks++;
 		if (loader instanceof SynchronousAssetLoader) {
 			handleSyncLoader();
 		} else {
@@ -89,111 +92,184 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 	private void handleSyncLoader() {
 		SynchronousAssetLoader<T, P> syncLoader = (SynchronousAssetLoader<T, P>) loader;
 		@SuppressWarnings("unchecked")
-		P params = (P) assetDesc.params;
+		P params = (P) descriptor.params;
+		FileHandle file = resolve(loader, descriptor);
+		String fileName = descriptor.fileName;
 
 		if (!dependenciesLoaded) {
 			dependenciesLoaded = true;
-			dependencies = (Array) syncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), params);
-			if (dependencies == null) {
-				asset = syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
-				return;
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Array<AssetDescriptor<?>> descriptors = (Array) syncLoader.getDependencies(fileName, file, params);
+			if (descriptors == null || descriptors.size == 0) {
+				asset = syncLoader.load(manager, fileName, file, params);
+			} else {
+				removeDuplicates(descriptors);
+				initDependencies(descriptors);
+				manager.injectDependencies(dependencies);
 			}
-			removeDuplicates();
-			manager.injectDependencies(assetDesc.fileName, assetDesc.callback, dependencies);
 		} else {
-			asset = syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
+			asset = syncLoader.load(manager, fileName, file, params);
 		}
 	}
 
 	private void handleAsyncLoader() {
 		AsynchronousAssetLoader<T, P> asyncLoader = (AsynchronousAssetLoader<T, P>) loader;
 		@SuppressWarnings("unchecked")
-		P params = (P) assetDesc.params;
+		P params = (P) descriptor.params;
+		String fileName = descriptor.fileName;
 
 		if (!dependenciesLoaded) {
 			if (depsFuture == null) {
 				depsFuture = manager.executor.submit(this);
-			} else {
-				if (depsFuture.isDone()) {
-					try {
-						depsFuture.get();
-					} catch (Exception e) {
-						throw new GdxRuntimeException("Couldn't load dependencies of asset: " + assetDesc.fileName, e);
-					}
-					dependenciesLoaded = true;
-					if (asyncDone) {
-						asset = asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
-					}
+			} else if (depsFuture.isDone()) {
+				try {
+					depsFuture.get();
+				} catch (Exception e) {
+					throw new GdxRuntimeException("Couldn't load dependencies of asset: " + fileName, e);
+				}
+				dependenciesLoaded = true;
+				FileHandle file = resolve(loader, descriptor);
+				if (asyncDone) {
+					asset = asyncLoader.loadSync(manager, fileName, file, params);
 				}
 			}
 		} else {
 			if (loadFuture == null && !asyncDone) {
 				loadFuture = manager.executor.submit(this);
-			} else {
-				if (asyncDone) {
-					asset = asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
-				} else if (loadFuture.isDone()) {
-					try {
-						loadFuture.get();
-					} catch (Exception e) {
-						throw new GdxRuntimeException("Couldn't load asset: " + assetDesc.fileName, e);
-					}
-					asset = asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), params);
+			} else if (asyncDone) {
+				FileHandle file = resolve(loader, descriptor);
+				asset = asyncLoader.loadSync(manager, fileName, file, params);
+			} else if (loadFuture.isDone()) {
+				try {
+					loadFuture.get();
+				} catch (Exception e) {
+					throw new GdxRuntimeException("Couldn't load asset: " + fileName, e);
 				}
+
+				FileHandle file = resolve(loader, descriptor);
+				asset = asyncLoader.loadSync(manager, fileName, file, params);
 			}
 		}
 	}
 
-	private static FileHandle resolve(AssetLoader<?, ?> loader, CallbackAssetDescriptor<?> assetDesc) {
-		if (assetDesc.file == null) {
-			assetDesc.file = loader.resolve(assetDesc.fileName);
+	private static FileHandle resolve(AssetLoader<?, ?> loader, CallbackDescriptor<?> descriptor) {
+		if (descriptor.file == null) {
+			descriptor.file = loader.resolve(descriptor.fileName);
 		}
-		return assetDesc.file;
+		return descriptor.file;
 	}
 
 	public T getAsset() {
 		return asset;
 	}
 
-	private void removeDuplicates() {
-		boolean ordered = dependencies.ordered;
-		dependencies.ordered = true;
-		for (int i = 0; i < dependencies.size; ++i) {
-			final String fn = dependencies.get(i).fileName;
-			final Class<?> type = dependencies.get(i).type;
-			for (int j = dependencies.size - 1; j > i; --j) {
-				if (type == dependencies.get(j).type && fn.equals(dependencies.get(j).fileName))
-					dependencies.removeIndex(j);
+	private static void removeDuplicates(Array<AssetDescriptor<?>> descriptors) {
+		boolean ordered = descriptors.ordered;
+		descriptors.ordered = true;
+
+		for (int i = 0; i < descriptors.size; ++i) {
+			AssetDescriptor<?> dependency = descriptors.get(i);
+			final String fileName = dependency.fileName;
+			final Class<?> type = dependency.type;
+
+			for (int j = descriptors.size - 1; j > i; --j) {
+				AssetDescriptor<?> otherDependency = descriptors.get(j);
+				if (type == otherDependency.type && fileName.equals(otherDependency.fileName)) {
+					descriptors.removeIndex(j);
+				}
 			}
 		}
-		dependencies.ordered = ordered;
+
+		descriptors.ordered = ordered;
 	}
 
 	void free() {
 		SynchronizedPools.free(this);
 	}
 
+	public void updateProgress() {
+		if (!dependenciesLoaded) {
+			descriptor.onProgress(0);
+			return;
+		}
+		float progres = 0;
+		int size = dependencies.size;
+		float sizeInverted = 1.0f / size;
+
+		for (int i = 0; i < size; i++) {
+			DependencyCallback<?> dependency = dependencies.get(i);
+			progres += dependency.progress * sizeInverted;
+		}
+
+		descriptor.onProgress(0.1f + (0.9f * progres));
+	}
+
 	@Override
 	public void reset() {
 		manager = null;
-		assetDesc.free();
-		assetDesc = null;
+		descriptor.free();
+		descriptor = null;
 		loader = null;
 		startTime = 0;
-
 		asyncDone = false;
 		dependenciesLoaded = false;
-		dependencies = null;
 		depsFuture = null;
 		loadFuture = null;
 		asset = null;
-
-		ticks = 0;
 		cancel = false;
+		SynchronizedPools.freeAll(dependencies);
+		dependencies.clear();
 	}
 
 	@Override
 	public int compareTo(AssetLoadingTask<?, ?> other) {
-		return Integer.compare(assetDesc.priority, other.assetDesc.priority);
+		return Integer.compare(descriptor.priority, other.descriptor.priority);
+	}
+
+	static class DependencyCallback<T> implements AsyncCallback<T>, Poolable {
+		private AssetLoadingTask<?, ?> task;
+		private float progress;
+
+		String parentFilename;
+		AssetDescriptor<T> descriptor;
+		int priority;
+
+		static <T> DependencyCallback<T> obtain(AssetLoadingTask<?, ?> task, String parentFilename,
+				AssetDescriptor<T> descriptor, int priority) {
+			@SuppressWarnings("unchecked")
+			DependencyCallback<T> callback = SynchronizedPools.obtain(DependencyCallback.class);
+			callback.task = task;
+			callback.parentFilename = parentFilename;
+			callback.descriptor = descriptor;
+			callback.priority = priority;
+			return callback;
+		}
+
+		@Override
+		public void onSuccess(T value) {
+			progress = 1;
+			task.updateProgress();
+		}
+
+		@Override
+		public void onException(Throwable exception) {
+			progress = 1;
+			task.descriptor.onException(exception);
+		}
+
+		@Override
+		public void onProgress(float progress) {
+			this.progress = 1;
+			task.updateProgress();
+		}
+
+		@Override
+		public void reset() {
+			task = null;
+			progress = 0;
+			descriptor = null;
+			parentFilename = null;
+			priority = 0;
+		}
 	}
 }

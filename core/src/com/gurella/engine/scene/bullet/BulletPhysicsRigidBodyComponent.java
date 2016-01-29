@@ -8,9 +8,9 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Bits;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.utils.DisposablesService;
 
 public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent {
 	private TransformComponent transformComponent;
@@ -46,7 +46,7 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent {
 		transformComponent = getNode().getComponent(TransformComponent.class);
 		if (rigidBody == null) {
 			constructionInfo.setMotionState(new MotionState());
-			rigidBody = Application.DISPOSABLES_SERVICE.add(new btRigidBody(constructionInfo));
+			rigidBody = DisposablesService.add(new btRigidBody(constructionInfo));
 			rigidBody.userData = this;
 			rigidBody.setFriction(0.4f);
 			rigidBody.setRestitution(0.2f);

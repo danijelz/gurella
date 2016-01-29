@@ -5,19 +5,18 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
+import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.ResourceContext;
 import com.gurella.engine.resource.ResourceFactory;
-import com.gurella.engine.resource.DependencyMap;
+import com.gurella.engine.utils.DisposablesService;
 import com.gurella.engine.utils.ReflectionUtils;
 
 public class AssetResourceFactory<T> implements ResourceFactory<T> {
-	private static final AssetRegistry assetRegistry = Application.DISPOSABLES_SERVICE
-			.add(new AssetRegistry());
+	private static final AssetRegistry assetRegistry = DisposablesService.add(new AssetRegistry());
 
 	static {
 		EventService.addListener(UpdateEvent.class, assetRegistry);

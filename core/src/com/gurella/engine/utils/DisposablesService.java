@@ -4,9 +4,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 public class DisposablesService {
-	private Array<Disposable> disposables = new Array<Disposable>();
+	private static final Array<Disposable> disposables = new Array<Disposable>();
 
-	public void dispose() {
+	private DisposablesService() {
+	}
+
+	public static void disposeAll() {
 		for (int i = disposables.size - 1; i >= 0; i--) {
 			Disposable disposable = disposables.get(i);
 			disposable.dispose();
@@ -14,14 +17,15 @@ public class DisposablesService {
 		disposables.clear();
 	}
 
-	public <T extends Disposable> T add(T disposable) {
-		disposables.add(disposable);
+	public static <T extends Disposable> T add(T disposable) {
+		if (!disposables.contains(disposable, true)) {
+			disposables.add(disposable);
+		}
 		return disposable;
 	}
-	
-	public void dispose(Disposable disposable) {
-		if(disposables.removeValue(disposable, true)) {
-			disposable.dispose();
-		}
+
+	public static void dispose(Disposable disposable) {
+		disposables.removeValue(disposable, true);
+		disposable.dispose();
 	}
 }

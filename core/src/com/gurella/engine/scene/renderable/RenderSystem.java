@@ -3,7 +3,6 @@ package com.gurella.engine.scene.renderable;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.graphics.GenericBatch;
@@ -14,10 +13,11 @@ import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.engine.utils.DisposablesService;
 
 //TODO attach listeners on activate
 public class RenderSystem extends SceneSystem implements SceneListener, UpdateListener {
-	private final GenericBatch batch = Application.DISPOSABLES_SERVICE.add(new GenericBatch());
+	private final GenericBatch batch = DisposablesService.add(new GenericBatch());
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 

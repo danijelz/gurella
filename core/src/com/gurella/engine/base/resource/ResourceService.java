@@ -1,12 +1,12 @@
 package com.gurella.engine.base.resource;
 
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
+import com.gurella.engine.asset.manager.AssetManager;
 
 public class ResourceService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
@@ -23,7 +23,11 @@ public class ResourceService {
 		return null;
 	}
 
-	public static <T> void loadResourceAsync(String fileName, AsyncCallback<T> callback) {
+	public static <T> void loadResourceAsync(String fileName, AsyncCallback<T> callback, int priority) {
+
+	}
+
+	public static <T> void loadResourceAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority) {
 
 	}
 
@@ -31,27 +35,23 @@ public class ResourceService {
 
 	}
 
+	public static <T> void loadResource(String fileName, Class<T> type) {
+
+	}
+
 	public static boolean isResourceLoaded(String fileName) {
 		return false;
-	}
-
-	public static <T> void loadResource(String fileName, Class<T> assetType, AsyncCallback<T> callback) {
-
-	}
-
-	public static <T> void loadResource(String fileName, Class<T> assetType) {
-
 	}
 
 	public static <T> void unloadResource(T resource) {
 
 	}
 
-	public static <T> void unloadUnusedResources() {
+	public static void unloadUnusedResources() {
 
 	}
 
-	public static <T> Array<T> findResources(Class<T> resourceType, Array<T> out) {
+	public static <T> Array<T> findResources(Class<T> type, Array<T> out) {
 		return out;
 	}
 

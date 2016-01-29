@@ -17,7 +17,6 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.application.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.scene.Scene;
@@ -26,6 +25,7 @@ import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.event.EventManager;
+import com.gurella.engine.utils.DisposablesService;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners on activate
@@ -43,16 +43,16 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, U
 	private EventManager eventManager;
 
 	public BulletPhysicsSystem() {
-		collisionConfig = Application.DISPOSABLES_SERVICE.add(new btDefaultCollisionConfiguration());
-		dispatcher = Application.DISPOSABLES_SERVICE.add(new btCollisionDispatcher(collisionConfig));
-		broadphase = Application.DISPOSABLES_SERVICE.add(new btDbvtBroadphase());
-		constraintSolver = Application.DISPOSABLES_SERVICE.add(new btSequentialImpulseConstraintSolver());
+		collisionConfig = DisposablesService.add(new btDefaultCollisionConfiguration());
+		dispatcher = DisposablesService.add(new btCollisionDispatcher(collisionConfig));
+		broadphase = DisposablesService.add(new btDbvtBroadphase());
+		constraintSolver = DisposablesService.add(new btSequentialImpulseConstraintSolver());
 
-		dynamicsWorld = Application.DISPOSABLES_SERVICE
+		dynamicsWorld = DisposablesService
 				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
-		tickCallback = Application.DISPOSABLES_SERVICE.add(new CollisionTrackingInternalTickCallback());
+		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback());
 		tickCallback.attach(dynamicsWorld, false);
 	}
 

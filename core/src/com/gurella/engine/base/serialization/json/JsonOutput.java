@@ -5,11 +5,13 @@ import java.io.StringWriter;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.metamodel.Metamodel;
 import com.gurella.engine.base.metamodel.Models;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.SynchronizedPools;
@@ -20,6 +22,8 @@ public class JsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
+	
+	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
 
 	@Override
 	public void reset() {
@@ -65,6 +69,11 @@ public class JsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
+		String resourceFileName = ResourceService.getResourceFileName(object);
+		if(resourceFileName != null) {
+			//TODO
+		}
+		
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
 	}

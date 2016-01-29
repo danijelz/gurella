@@ -28,8 +28,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	private static final String BACKGROUND_COLOR_TAG = "backgroundColor";
 
 	// TODO make not static
-	public static final DisposablesService DISPOSABLES_SERVICE = new DisposablesService();
-	public static final AsyncExecutor ASYNC_EXECUTOR = DISPOSABLES_SERVICE.add(new AsyncExecutor(4));
+	public static final AsyncExecutor ASYNC_EXECUTOR = DisposablesService.add(new AsyncExecutor(4));
 	private static final InputService INPUT_SERVICE = new InputService();
 
 	public static SpriteBatch SPRITE_BATCH;
@@ -78,7 +77,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		Gdx.input.setInputProcessor(INPUT_SERVICE);
 		INPUT_SERVICE.addInputProcessor(InputMapper.INSTANCE);// TODO beautify
-		SPRITE_BATCH = DISPOSABLES_SERVICE.add(new SpriteBatch());
+		SPRITE_BATCH = DisposablesService.add(new SpriteBatch());
 		// TODO Auto-generated method stub
 		initializer.init(this);
 		// TODO add init scripts to initializer 
@@ -142,7 +141,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	public void dispose() {
 		// TODO Auto-generated method stub
 		//TODO sceneManager.stop();
-		DISPOSABLES_SERVICE.dispose();
+		DisposablesService.disposeAll();
 	}
 
 	@Override
