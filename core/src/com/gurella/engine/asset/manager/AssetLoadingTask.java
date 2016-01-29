@@ -102,6 +102,8 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 			Array<AssetDescriptor<?>> descriptors = (Array) syncLoader.getDependencies(fileName, file, params);
 			if (descriptors == null || descriptors.size == 0) {
 				asset = syncLoader.load(manager, fileName, file, params);
+				descriptor.onProgress(1);
+				descriptor.onSuccess(asset);
 			} else {
 				removeDuplicates(descriptors);
 				initDependencies(descriptors);
@@ -109,6 +111,8 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 			}
 		} else {
 			asset = syncLoader.load(manager, fileName, file, params);
+			descriptor.onProgress(1);
+			descriptor.onSuccess(asset);
 		}
 	}
 
@@ -131,6 +135,8 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 				FileHandle file = resolve(loader, descriptor);
 				if (asyncDone) {
 					asset = asyncLoader.loadSync(manager, fileName, file, params);
+					descriptor.onProgress(1);
+					descriptor.onSuccess(asset);
 				}
 			}
 		} else {
@@ -139,6 +145,8 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 			} else if (asyncDone) {
 				FileHandle file = resolve(loader, descriptor);
 				asset = asyncLoader.loadSync(manager, fileName, file, params);
+				descriptor.onProgress(1);
+				descriptor.onSuccess(asset);
 			} else if (loadFuture.isDone()) {
 				try {
 					loadFuture.get();
@@ -148,6 +156,8 @@ class AssetLoadingTask<T, P extends AssetLoaderParameters<T>>
 
 				FileHandle file = resolve(loader, descriptor);
 				asset = asyncLoader.loadSync(manager, fileName, file, params);
+				descriptor.onProgress(1);
+				descriptor.onSuccess(asset);
 			}
 		}
 	}

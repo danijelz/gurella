@@ -560,7 +560,6 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 			complete = task.cancel || task.update();
 		} catch (RuntimeException ex) {
 			task.cancel = true;
-
 			if (task.descriptor.delegate == null) {
 				throw ex;
 			} else {
@@ -571,8 +570,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 
 		// if the task has been cancelled or has finished loading
 		if (complete) {
-			// increase the number of loaded assets and pop the task from the
-			// stack
+			// increase the number of loaded assets and pop the task from the stack
 			if (tasks.size == 1) {
 				loaded++;
 			}
