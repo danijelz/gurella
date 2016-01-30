@@ -8,7 +8,6 @@ import com.badlogic.gdx.assets.loaders.SynchronousAssetLoader;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.async.AsyncResult;
@@ -25,7 +24,6 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	Class<T> type;
 	AssetLoaderParameters<T> params;
 	int priority;
-
 	long startTime;
 
 	final Array<DependencyCallback<?>> dependencies = new Array<DependencyCallback<?>>();
@@ -37,6 +35,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	volatile T asset = null;
 
 	volatile boolean cancel = false;
+	
+	volatile LoadigState loadigState = LoadigState.ready;
 
 	static <T> AssetLoadingTask<T> obtain(AssetManager manager, AssetLoader<T, AssetLoaderParameters<T>> loader,
 			AsyncCallback<T> callback, String fileName, Class<T> type, AssetLoaderParameters<T> params, int priority) {
@@ -49,8 +49,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.params = params;
 		task.priority = priority;
 		task.callback = callback;
-
-		task.startTime = manager.log.getLevel() == Logger.DEBUG ? TimeUtils.nanoTime() : 0;
+		task.startTime = TimeUtils.nanoTime();
 		return task;
 	}
 
@@ -65,8 +64,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.params = dependency.descriptor.params;
 		task.priority = dependency.task.priority;
 		task.callback = dependency;
-
-		task.startTime = manager.log.getLevel() == Logger.DEBUG ? TimeUtils.nanoTime() : 0;
+		task.startTime = TimeUtils.nanoTime();
 		return task;
 	}
 
@@ -267,6 +265,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		cancel = false;
 		SynchronizedPools.freeAll(dependencies);
 		dependencies.clear();
+		loadigState = LoadigState.ready;
 	}
 
 	void free() {
@@ -284,7 +283,11 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	static class DependencyCallback<T> implements AsyncCallback<T>, Poolable {
 		AssetLoadingTask<?> task;
+		
+		private AssetLoadingTask<T> dependencyTask;
 		private float progress;
+		private boolean finished;
+		
 
 		AssetDescriptor<T> descriptor;
 
@@ -299,6 +302,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		@Override
 		public void onSuccess(T value) {
 			progress = 1;
+			finished = true;
 			task.updateProgress();
 		}
 
@@ -319,6 +323,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			task = null;
 			progress = 0;
 			descriptor = null;
+			finished = false;
 		}
 
 		@Override
@@ -329,5 +334,9 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			buffer.append(descriptor.type.getName());
 			return buffer.toString();
 		}
+	}
+	
+	enum LoadigState {
+		ready, waitingForDependencies, readyForSyncLoading, readyForAsyncLoading, finished;
 	}
 }

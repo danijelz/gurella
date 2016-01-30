@@ -1,5 +1,6 @@
 package com.gurella.engine.base.resource;
 
+import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
@@ -17,6 +18,7 @@ public class ResourceService {
 
 	private ResourceService() {
 		Texture.setAssetManager(assetManager);
+		Cubemap.setAssetManager(assetManager);
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
