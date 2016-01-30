@@ -82,7 +82,6 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			if (descriptors == null || descriptors.size == 0) {
 				asyncLoader.loadAsync(manager, fileName, file, params);
 				asyncDone = true;
-
 			} else {
 				removeDuplicates(descriptors);
 				initDependencies(descriptors);
@@ -146,6 +145,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 				} catch (Exception e) {
 					throw new GdxRuntimeException("Couldn't load dependencies of asset: " + fileName, e);
 				}
+
 				dependenciesLoaded = true;
 				if (asyncDone) {
 					asset = asyncLoader.loadSync(manager, fileName, getFile(), params);

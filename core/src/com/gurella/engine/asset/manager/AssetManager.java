@@ -410,7 +410,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 								+ type.getSimpleName() + ", found: " + otherType.getSimpleName() + ")");
 			toLoad++;
 
-			queue.add(AssetLoadingTask.obtain(this, loader, callback, fileName, type, parameter, priority));
+			queue.insert(0, AssetLoadingTask.obtain(this, loader, callback, fileName, type, parameter, priority));
 			queue.sort();
 
 			log.debug("Queued: " + fileName + " " + type.getSimpleName());
@@ -503,7 +503,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 			incrementRefCountedDependencies(fileName);
 		} else {
 			log.info("Loading dependency: " + descriptor);
-			queue.add(AssetLoadingTask.obtain(this, getLoader(type, fileName), dependency));
+			queue.insert(0, AssetLoadingTask.obtain(this, getLoader(type, fileName), dependency));
 			queue.sort();
 		}
 	}
@@ -602,12 +602,11 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 					nextTask();
 				}
 
-				// have we not found a task? We are done!
 				if (currentTask == null) {
 					return true;
+				} else {
+					return updateTask() && queue.size == 0 && currentTask == null;
 				}
-
-				return updateTask() && queue.size == 0 && currentTask == null;
 			} catch (Throwable t) {
 				handleTaskError(t);
 				return queue.size == 0;
