@@ -3,6 +3,7 @@ package com.gurella.engine.application;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateEvent;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;

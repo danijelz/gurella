@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.gurella.engine.application.events.ApplicationActivitySignal;
 import com.gurella.engine.application.events.ApplicationResizeSignal;
 import com.gurella.engine.application.events.ApplicationUpdateSignal;
@@ -27,10 +26,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	private static final String INITIAL_SCENE_ID_TAG = "initialSceneId";
 	private static final String BACKGROUND_COLOR_TAG = "backgroundColor";
 
-	// TODO make not static
-	public static final AsyncExecutor ASYNC_EXECUTOR = DisposablesService.add(new AsyncExecutor(4));
 	private static final InputService INPUT_SERVICE = new InputService();
-
 	public static SpriteBatch SPRITE_BATCH;
 
 	private String initialSceneId;

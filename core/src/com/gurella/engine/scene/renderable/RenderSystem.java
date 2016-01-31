@@ -3,7 +3,7 @@ package com.gurella.engine.scene.renderable;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.application.CommonUpdatePriority;
+import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneListener;

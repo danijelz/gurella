@@ -45,6 +45,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.asset.manager.AssetLoadingTask2.LoadingState;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.utils.DisposablesService;
 import com.gurella.engine.utils.SynchronizedPools;
@@ -189,8 +190,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 	public void unload(String fileName) {
 		synchronized (lock) {
 			// check if it's currently processed (and the first element in the
-			// stack, thus not a dependency)
-			// and cancel if necessary
+			// stack, thus not a dependency) and cancel if necessary
 			if (currentTask != null && currentTask.fileName.equals(fileName)) {
 				currentTask.cancel = true;
 				log.debug("Unload (from tasks): " + fileName);
@@ -429,7 +429,10 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 			log.debug("Queued: " + fileName + " " + type.getSimpleName());
 
-			update();
+			if (asyncQueue.size == 1) {
+				//TODO
+				update();
+			}
 		}
 	}
 
@@ -476,7 +479,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			}
 			syncQueue.clear();
 
-			if (asyncQueue.size > 0) {
+			if (allTasksHalted()) {
 				nextTask();
 			}
 
@@ -485,6 +488,10 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 	}
 
 	private void nextTask() {
+		if (asyncQueue.size == 0) {
+			return;
+		}
+
 		AssetLoadingTask2<?> nextTask = asyncQueue.removeIndex(0);
 
 		if (isLoaded(nextTask.fileName)) {
@@ -502,16 +509,28 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			}
 
 			nextTask.free();
+			nextTask();
 		} else {
 			waitingQueue.add(nextTask);
 			executor.submit(nextTask);
 		}
 	}
 
+	private boolean allTasksHalted() {
+		for (int i = 0; i < waitingQueue.size; i++) {
+			AssetLoadingTask2<?> task = waitingQueue.get(i);
+			if (task.loadingState == LoadingState.ready) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	<T> void readyForAsyncLoading(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
 			waitingQueue.removeValue(task, true);
 			asyncQueue.add(task);
+			asyncQueue.sort();
 		}
 	}
 
@@ -519,13 +538,14 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		synchronized (lock) {
 			waitingQueue.removeValue(task, true);
 			syncQueue.add(task);
+			syncQueue.sort();
 		}
 	}
 
 	<T> void finished(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
 			waitingQueue.removeValue(task, true);
-			if(task.parent == null) {
+			if (task.parent == null) {
 				loaded++;
 			}
 			task.free();

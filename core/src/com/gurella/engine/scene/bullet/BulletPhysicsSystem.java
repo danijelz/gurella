@@ -17,7 +17,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.gurella.engine.application.CommonUpdatePriority;
+import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;

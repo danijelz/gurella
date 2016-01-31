@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
-import com.gurella.engine.application.CommonUpdatePriority;
+import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;

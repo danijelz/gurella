@@ -11,21 +11,24 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.resource.DependencyMap.ResourceMapEntry;
+import com.gurella.engine.utils.DisposablesService;
 import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO Pools class is not thread safe
 public class ResourceContext {
+	public static final AsyncExecutor ASYNC_EXECUTOR = DisposablesService.add(new AsyncExecutor(4));
+
 	private ResourceContext parent;
 	private IntMap<ResourceReference<?>> references = new IntMap<ResourceReference<?>>();
 	private ObjectMap<Object, ObtainedResource> obtainedResources = new ObjectMap<Object, ObtainedResource>();
 
 	private ObjectMap<String, AssetResourceReference<?>> assetsByFileName = new ObjectMap<String, AssetResourceReference<?>>();
 	private OrderedMap<String, AssetResourceDescriptor<?>> assetDescriptorsByFileName = new OrderedMap<String, AssetResourceDescriptor<?>>();
-	
+
 	private int lastId = -1;
 
 	public ResourceContext(ResourceContext parent) {
@@ -364,7 +367,7 @@ public class ResourceContext {
 			instance.context = context;
 			instance.resourceReference = resourceReference;
 			instance.callback = callback;
-			Application.ASYNC_EXECUTOR.submit(instance);
+			ASYNC_EXECUTOR.submit(instance);
 		}
 
 		@Override

@@ -30,8 +30,9 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	AssetLoadingTask2<?> parent;
 	private final Array<AssetLoadingTask2<?>> dependencies = new Array<AssetLoadingTask2<?>>();
 
+	//TODO cancle not handled
 	volatile boolean cancel = false;
-	private volatile LoadingState loadingState = LoadingState.ready;
+	volatile LoadingState loadingState = LoadingState.ready;
 	private volatile float progress = 0;
 
 	private volatile T asset = null;
