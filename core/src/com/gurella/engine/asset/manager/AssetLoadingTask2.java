@@ -219,7 +219,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	}
 
 	private void handleException(Throwable exception) {
-		loadingState = LoadingState.finished;
+		loadingState = LoadingState.error;
 		this.progress = 1;
 
 		if (parent != null) {
@@ -275,11 +275,11 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		type = null;
 		params = null;
 		file = null;
+		progress = 0;
+		loadingState = LoadingState.ready;
 		loadRequestId = Integer.MAX_VALUE;
 		SynchronizedPools.freeAll(dependencies);
 		dependencies.clear();
-		loadingState = LoadingState.ready;
-		progress = 0;
 	}
 
 	void free() {
@@ -298,6 +298,6 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	}
 
 	enum LoadingState {
-		ready, waitingForDependencies, readyForSyncLoading, readyForAsyncLoading, finished;
+		ready, waitingForDependencies, readyForSyncLoading, readyForAsyncLoading, finished, error;
 	}
 }

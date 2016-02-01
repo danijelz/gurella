@@ -267,7 +267,6 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			int priority) {
 		synchronized (lock) {
 			resetStats();
-
 			AssetReference reference = assetsByFileName.get(fileName);
 			if (reference == null) {
 				addToQueue(fileName, type, parameters, callback, priority);
@@ -300,6 +299,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 					+ ", found: " + queuedTask.type.getSimpleName() + ")";
 			handleLoadException(callback, new GdxRuntimeException(message));
 		} else {
+			//TODO compose callback and params
 			queuedTask.renice(priority);
 		}
 	}
