@@ -68,7 +68,6 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		return task;
 	}
 
-	/** Loads parts of the asset asynchronously if the loader is an {@link AsynchronousAssetLoader}. */
 	@Override
 	public Void call() throws Exception {
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = (AsynchronousAssetLoader<T, AssetLoaderParameters<T>>) loader;

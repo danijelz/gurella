@@ -28,4 +28,10 @@ public class DisposablesService {
 		disposables.removeValue(disposable, true);
 		disposable.dispose();
 	}
+
+	public static void tryDispose(Object object) {
+		if (object instanceof Disposable) {
+			dispose(((Disposable) object));
+		}
+	}
 }

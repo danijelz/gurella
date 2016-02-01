@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader;
 import com.badlogic.gdx.assets.loaders.SynchronousAssetLoader;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.base.resource.AsyncCallback;
@@ -27,14 +28,13 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	private int loadRequestId;
 	private int priority;
 
-	AssetLoadingTask2<?> parent;
+	private AssetLoadingTask2<?> parent;
 	private final Array<AssetLoadingTask2<?>> dependencies = new Array<AssetLoadingTask2<?>>();
 
-	//TODO cancle not handled
-	volatile boolean cancel = false;
-	volatile LoadingState loadingState = LoadingState.ready;
+	// TODO cancle not handled
+	private volatile boolean cancel = false;
+	private volatile LoadingState loadingState = LoadingState.ready;
 	private volatile float progress = 0;
-
 	private volatile T asset = null;
 
 	static <T> AssetLoadingTask2<T> obtain(AssetManager2 manager, AsyncCallback<T> callback, String fileName,
@@ -82,15 +82,17 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 				throw new IllegalStateException();
 			}
 		} catch (Exception exception) {
-			//TODO notify manager
-			notifyException(exception);
+			handleException(exception);
 		}
 
 		return null;
 	}
 
 	private void start() {
-		resolveFile();
+		if (file == null) {
+			file = loader.resolve(fileName);
+		}
+
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		Array<AssetDescriptor<?>> descriptors = (Array) loader.getDependencies(fileName, file, params);
 		if (descriptors == null || descriptors.size == 0) {
@@ -138,12 +140,6 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		manager.finished(this);
 	}
 
-	private void resolveFile() {
-		if (file == null) {
-			file = loader.resolve(fileName);
-		}
-	}
-
 	private static void removeDuplicates(Array<AssetDescriptor<?>> descriptors) {
 		boolean ordered = descriptors.ordered;
 		descriptors.ordered = true;
@@ -172,7 +168,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		case waitingForDependencies:
 			float progress = getDependenciesProgress();
 			notifyProgress(loader instanceof SynchronousAssetLoader ? (0.9f * progress) : (0.8f * progress));
-			if(progress == 1) {
+			if (progress == 1) {
 				manager.readyForAsyncLoading(this);
 			}
 			break;
@@ -207,9 +203,9 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	private void notifyFinished() {
 		progress = 1;
-		if (callback == null) {
+		if (parent != null) {
 			parent.updateProgress();
-		} else {
+		} else if (callback != null) {
 			callback.onProgress(progress);
 			callback.onSuccess(asset);
 		}
@@ -217,19 +213,49 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	private void notifyProgress(float progress) {
 		this.progress = progress;
-		if (callback == null) {
+		if (parent != null) {
 			parent.updateProgress();
-		} else {
+		} else if (callback != null) {
 			callback.onProgress(progress);
 		}
 	}
 
-	private void notifyException(Throwable exception) {
+	private void handleException(Throwable exception) {
 		this.progress = 1;
-		if (callback == null) {
-			parent.notifyException(exception);
-		} else {
+		unloadDependencies();
+
+		if (parent != null) {
+			parent.handleException(exception);
+		} else if (callback != null) {
 			callback.onException(exception);
+		} else {
+			throw new GdxRuntimeException(exception);
+		}
+	}
+
+	private void unloadDependencies() {
+		for (int i = 0; i < dependencies.size; i++) {
+			AssetLoadingTask2<?> dependency = dependencies.get(i);
+			if (dependency.progress == 1) {
+				try {
+					manager.unloadAsset(dependency.fileName);
+				} catch (Exception e) {
+				}
+			}
+		}
+	}
+
+	void renice(int newPriority) {
+		if(priority < newPriority) {
+			reniceHierarchy(newPriority);
+		}
+	}
+	
+	private void reniceHierarchy(int newPriority) {
+		priority = newPriority;
+		for (int i = 0; i < dependencies.size; i++) {
+			AssetLoadingTask2<?> dependency = dependencies.get(i);
+			dependency.reniceHierarchy(newPriority);
 		}
 	}
 
