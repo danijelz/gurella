@@ -18,7 +18,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	private static int counter = Integer.MIN_VALUE;
 	private AssetManager2 manager;
 	private AssetLoader<T, AssetLoaderParameters<T>> loader;
-	private AsyncCallback<T> callback;
+	AsyncCallback<T> callback;
 
 	String fileName;
 	Class<T> type;

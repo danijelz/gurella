@@ -44,7 +44,6 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.manager.AssetLoadingTask2.LoadingState;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.utils.DisposablesService;
-import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.ValueUtils;
 
 /**
@@ -271,43 +270,9 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 			AssetReference reference = assetsByFileName.get(fileName);
 			if (reference == null) {
-				AssetLoadingTask2<?> queuedTask = findTaskInQueues(fileName, false);
-				if (queuedTask != null) {
-					if (queuedTask.type != type) {
-						String message = "Asset with name '" + fileName
-								+ "' already in preload queue, but has different type (expected: "
-								+ type.getSimpleName() + ", found: " + queuedTask.type.getSimpleName() + ")";
-						handleLoadException(callback, new GdxRuntimeException(message));
-						return;
-					}
-
-					queuedTask.renice(priority);
-				}
-
-				toLoad++;
-				asyncQueue.add(AssetLoadingTask2.obtain(this, callback, fileName, type, parameters, priority));
-				asyncQueue.sort();
-				if (asyncQueue.size == 1) {
-					nextTask();
-				}
+				addToQueue(fileName, type, parameters, callback, priority);
 			} else {
-				Object asset = reference.getAsset();
-				Class<?> otherType = asset.getClass();
-				if (otherType != type) {
-					String message = "Asset with name '" + fileName
-							+ "' already loaded, but has different type (expected: " + type.getSimpleName()
-							+ ", found: " + otherType.getSimpleName() + ")";
-					handleLoadException(callback, new GdxRuntimeException(message));
-				} else {
-					if (parameters != null && parameters.loadedCallback != null) {
-						parameters.loadedCallback.finishedLoading(this, fileName, type);
-					}
-
-					if (callback != null) {
-						callback.onProgress(1);
-						callback.onSuccess(ValueUtils.<T> cast(asset));
-					}
-				}
+				notifyTaskLoaded(fileName, type, parameters, callback, reference);
 			}
 		}
 	}
@@ -319,26 +284,42 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private AssetLoadingTask2<?> findTaskInQueues(String fileName, boolean remove) {
-		AssetLoadingTask2<?> task = findTaskInQueue(asyncQueue, fileName, remove);
-		if (task != null) {
-			return task;
+	private <T> void addToQueue(String fileName, Class<T> type, AssetLoaderParameters<T> parameters,
+			AsyncCallback<T> callback, int priority) {
+		AssetLoadingTask2<?> queuedTask = findTaskInQueues(fileName);
+		if (queuedTask == null) {
+			toLoad++;
+			asyncQueue.add(AssetLoadingTask2.obtain(this, callback, fileName, type, parameters, priority));
+			asyncQueue.sort();
+			if (asyncQueue.size == 1) {
+				nextTask();
+			}
+		} else if (queuedTask.type != type) {
+			String message = "Asset with name '" + fileName
+					+ "' already in preload queue, but has different type (expected: " + type.getSimpleName()
+					+ ", found: " + queuedTask.type.getSimpleName() + ")";
+			handleLoadException(callback, new GdxRuntimeException(message));
+		} else {
+			queuedTask.renice(priority);
 		}
-		task = findTaskInQueue(waitingQueue, fileName, remove);
-		if (task != null) {
-			return task;
-		}
-		return findTaskInQueue(syncQueue, fileName, remove);
 	}
 
-	private static AssetLoadingTask2<?> findTaskInQueue(Array<AssetLoadingTask2<?>> queue, String fileName,
-			boolean remove) {
+	private AssetLoadingTask2<?> findTaskInQueues(String fileName) {
+		AssetLoadingTask2<?> task = findTaskInQueue(asyncQueue, fileName);
+		if (task != null) {
+			return task;
+		}
+		task = findTaskInQueue(waitingQueue, fileName);
+		if (task != null) {
+			return task;
+		}
+		return findTaskInQueue(syncQueue, fileName);
+	}
+
+	private static AssetLoadingTask2<?> findTaskInQueue(Array<AssetLoadingTask2<?>> queue, String fileName) {
 		for (int i = 0; i < queue.size; i++) {
 			AssetLoadingTask2<?> task = queue.get(i);
 			if (task.fileName.equals(fileName)) {
-				if (remove) {
-					queue.removeIndex(i);
-				}
 				return task;
 			}
 		}
@@ -354,35 +335,36 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
+	private <T> void notifyTaskLoaded(String fileName, Class<T> type, AssetLoaderParameters<T> parameters,
+			AsyncCallback<T> callback, AssetReference reference) {
+		Object asset = reference.asset;
+		Class<?> otherType = asset.getClass();
+
+		if (otherType != type) {
+			String message = "Asset with name '" + fileName + "' already loaded, but has different type (expected: "
+					+ type.getSimpleName() + ", found: " + otherType.getSimpleName() + ")";
+			handleLoadException(callback, new GdxRuntimeException(message));
+		} else {
+			if (parameters != null && parameters.loadedCallback != null) {
+				parameters.loadedCallback.finishedLoading(this, fileName, type);
+			}
+
+			if (callback != null) {
+				callback.onProgress(1);
+				callback.onSuccess(ValueUtils.<T> cast(asset));
+			}
+		}
+	}
+
 	@Override
 	@SuppressWarnings("sync-override")
 	public void unload(String fileName) {
 		synchronized (lock) {
-			AssetLoadingTask2<?> task = findTaskInQueues(fileName, true);
+			AssetLoadingTask2<?> task = findTaskInQueues(fileName);
 			if (task == null) {
-				cancleTask(task);
-			} else {
 				unloadAsset(fileName);
-			}
-
-			// check if it's currently processed (and the first element in the
-			// stack, thus not a dependency) and cancel if necessary
-			if (currentTask != null && currentTask.fileName.equals(fileName)) {
-				currentTask.cancel = true;
-				return;
-			}
-
-			// check if it's in the queue
-			for (int i = 0; i < asyncQueue.size; i++) {
-				AssetLoadingTask2<?> task = asyncQueue.get(i);
-				if (task.fileName.equals(fileName)) {
-					if (task.parent == null) {
-						toLoad--;
-					}
-
-					asyncQueue.removeIndex(i).free();
-					return;
-				}
+			} else {
+				cancleTask(task);
 			}
 		}
 	}
@@ -642,12 +624,12 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 	@SuppressWarnings("sync-override")
 	public void clear() {
 		synchronized (lock) {
-			// TODO notify callbacks and assure that only root objects are reseted
-			SynchronizedPools.freeAll(asyncQueue);
+			GdxRuntimeException message = new GdxRuntimeException("Clear requested on assetManager.");
+			clearQueue(asyncQueue, message);
 			asyncQueue.clear();
-			SynchronizedPools.freeAll(waitingQueue);
+			clearQueue(waitingQueue, message);
 			waitingQueue.clear();
-			SynchronizedPools.freeAll(syncQueue);
+			clearQueue(syncQueue, message);
 			syncQueue.clear();
 
 			for (AssetReference reference : assetsByFileName.values()) {
@@ -662,6 +644,16 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 			loaded = 0;
 			toLoad = 0;
+		}
+	}
+
+	private static void clearQueue(Array<AssetLoadingTask2<?>> queue, GdxRuntimeException message) {
+		for (int i = 0; i < queue.size; i++) {
+			AssetLoadingTask2<?> task = queue.get(i);
+			if (task.callback != null) {
+				task.callback.onException(message);
+				task.free();
+			}
 		}
 	}
 
