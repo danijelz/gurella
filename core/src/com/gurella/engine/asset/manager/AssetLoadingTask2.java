@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.utils.ValueUtils;
 
 class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTask2<?>>, Poolable {
 	private static int counter = Integer.MIN_VALUE;
@@ -28,12 +29,10 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	private int loadRequestId;
 	private int priority;
 
-	private AssetLoadingTask2<?> parent;
+	AssetLoadingTask2<?> parent;
 	private final Array<AssetLoadingTask2<?>> dependencies = new Array<AssetLoadingTask2<?>>();
 
-	// TODO cancle not handled
-	private volatile boolean cancel = false;
-	private volatile LoadingState loadingState = LoadingState.ready;
+	volatile LoadingState loadingState = LoadingState.ready;
 	private volatile float progress = 0;
 	private volatile T asset = null;
 
@@ -93,8 +92,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 			file = loader.resolve(fileName);
 		}
 
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Array<AssetDescriptor<?>> descriptors = (Array) loader.getDependencies(fileName, file, params);
+		Array<AssetDescriptor<?>> descriptors = ValueUtils.cast(loader.getDependencies(fileName, file, params));
 		if (descriptors == null || descriptors.size == 0) {
 			loadAsync();
 		} else {
@@ -117,14 +115,14 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	private void loadAsync() {
 		if (loader instanceof SynchronousAssetLoader) {
-			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = (SynchronousAssetLoader<T, AssetLoaderParameters<T>>) loader;
+			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = ValueUtils.cast(loader);
 			asset = syncLoader.load(manager, fileName, file, params);
 			loadingState = LoadingState.finished;
 			manager.addAsset(fileName, type, asset);
 			notifyFinished();
 			manager.finished(this);
 		} else {
-			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = (AsynchronousAssetLoader<T, AssetLoaderParameters<T>>) loader;
+			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
 			asyncLoader.loadAsync(manager, fileName, file, params);
 			loadingState = LoadingState.readyForSyncLoading;
 			manager.readyForSyncLoading(this);
@@ -132,7 +130,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	}
 
 	void loadSync() {
-		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = (AsynchronousAssetLoader<T, AssetLoaderParameters<T>>) loader;
+		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
 		asset = asyncLoader.loadSync(manager, fileName, file, params);
 		loadingState = LoadingState.finished;
 		manager.addAsset(fileName, type, asset);
@@ -221,10 +219,12 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	}
 
 	private void handleException(Throwable exception) {
+		loadingState = LoadingState.finished;
 		this.progress = 1;
-		unloadDependencies();
 
 		if (parent != null) {
+			//TODO notifyManager
+			unloadDependencies();
 			parent.handleException(exception);
 		} else if (callback != null) {
 			callback.onException(exception);
@@ -276,7 +276,6 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		params = null;
 		file = null;
 		loadRequestId = Integer.MAX_VALUE;
-		cancel = false;
 		SynchronizedPools.freeAll(dependencies);
 		dependencies.clear();
 		loadingState = LoadingState.ready;

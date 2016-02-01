@@ -109,4 +109,9 @@ public class ValueUtils {
 			return first.equals(second);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T cast(Object object) {
+		return (T) object;
+	}
 }
