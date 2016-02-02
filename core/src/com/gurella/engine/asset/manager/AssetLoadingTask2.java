@@ -16,25 +16,29 @@ import com.gurella.engine.utils.ValueUtils;
 
 class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTask2<?>>, Poolable {
 	private static int counter = Integer.MIN_VALUE;
-	private AssetManager2 manager;
-	private AssetLoader<T, AssetLoaderParameters<T>> loader;
+
+	int loadRequestId;
+	int priority;
+
+	AssetManager2 manager;
+	AssetLoader<T, AssetLoaderParameters<T>> loader;
 	AsyncCallback<T> callback;
 
 	String fileName;
+	FileHandle file;
 	Class<T> type;
 	AssetLoaderParameters<T> params;
 
-	private FileHandle file;
-
-	private int loadRequestId;
-	private int priority;
-
 	AssetLoadingTask2<?> parent;
-	private final Array<AssetLoadingTask2<?>> dependencies = new Array<AssetLoadingTask2<?>>();
+	final Array<AssetLoadingTask2<?>> dependencies = new Array<AssetLoadingTask2<?>>();
+	final Array<AssetLoadingTask2<T>> competingTasks = new Array<AssetLoadingTask2<T>>();
 
 	volatile LoadingState loadingState = LoadingState.ready;
-	private volatile float progress = 0;
-	private volatile T asset = null;
+	volatile float progress = 0;
+	volatile int loadRequests = 1;
+	volatile int cancleRequests = 0;
+	volatile T asset;
+	volatile Throwable exception;
 
 	static <T> AssetLoadingTask2<T> obtain(AssetManager2 manager, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetLoaderParameters<T> params, int priority) {
@@ -81,7 +85,8 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 				throw new IllegalStateException();
 			}
 		} catch (Exception exception) {
-			handleException(exception);
+			this.exception = exception;
+			manager.exception(this);
 		}
 
 		return null;
@@ -98,8 +103,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		} else {
 			removeDuplicates(descriptors);
 			initDependencies(descriptors);
-			loadingState = LoadingState.waitingForDependencies;
-			manager.injectDependencies(dependencies);
+			manager.waitingForDependencies(this);
 		}
 	}
 
@@ -117,14 +121,10 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = ValueUtils.cast(loader);
 			asset = syncLoader.load(manager, fileName, file, params);
-			loadingState = LoadingState.finished;
-			manager.addAsset(fileName, type, asset);
-			notifyFinished();
 			manager.finished(this);
 		} else {
 			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
 			asyncLoader.loadAsync(manager, fileName, file, params);
-			loadingState = LoadingState.readyForSyncLoading;
 			manager.readyForSyncLoading(this);
 		}
 	}
@@ -132,13 +132,10 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 	void loadSync() {
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
 		asset = asyncLoader.loadSync(manager, fileName, file, params);
-		loadingState = LoadingState.finished;
-		manager.addAsset(fileName, type, asset);
-		notifyFinished();
 		manager.finished(this);
 	}
 
-	private static void removeDuplicates(Array<AssetDescriptor<?>> descriptors) {
+	private void removeDuplicates(Array<AssetDescriptor<?>> descriptors) {
 		boolean ordered = descriptors.ordered;
 		descriptors.ordered = true;
 
@@ -149,13 +146,31 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 			for (int j = descriptors.size - 1; j > i; --j) {
 				AssetDescriptor<?> otherDependency = descriptors.get(j);
-				if (type == otherDependency.type && fileName.equals(otherDependency.fileName)) {
-					descriptors.removeIndex(j);
+				if (fileName.equals(otherDependency.fileName)) {
+					if (type == otherDependency.type) {
+						descriptors.removeIndex(j);
+					} else {
+						exception = new GdxRuntimeException("Dependencies conflict.");
+						manager.exception(this);
+					}
 				}
 			}
 		}
 
 		descriptors.ordered = ordered;
+	}
+
+	void notifyProgress(float progress) {
+		this.progress = progress;
+		if (parent != null) {
+			parent.updateProgress();
+		} else if (callback != null) {
+			callback.onProgress(progress);
+		}
+		
+		for (int i = 0; i < competingTasks.size; i++) {
+			competingTasks.get(i).notifyProgress(progress);
+		}
 	}
 
 	private void updateProgress() {
@@ -177,6 +192,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 			notifyProgress(0.9f);
 			break;
 		case finished:
+		case error:
 			notifyProgress(1);
 			break;
 		default:
@@ -199,31 +215,12 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		return Math.min(1, progres / size);
 	}
 
-	private void notifyFinished() {
-		progress = 1;
-		if (parent != null) {
-			parent.updateProgress();
-		} else if (callback != null) {
-			callback.onProgress(progress);
-			callback.onSuccess(asset);
-		}
-	}
-
-	private void notifyProgress(float progress) {
-		this.progress = progress;
-		if (parent != null) {
-			parent.updateProgress();
-		} else if (callback != null) {
-			callback.onProgress(progress);
-		}
-	}
-
 	private void handleException(Throwable exception) {
 		loadingState = LoadingState.error;
 		this.progress = 1;
 
 		if (parent != null) {
-			//TODO notifyManager
+			// TODO notifyManager
 			unloadDependencies();
 			parent.handleException(exception);
 		} else if (callback != null) {
@@ -245,17 +242,21 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		}
 	}
 
-	void renice(int newPriority) {
-		if(priority < newPriority) {
-			reniceHierarchy(newPriority);
+	void merge(AssetLoadingTask2<T> competingTask) {
+		competingTasks.add(competingTask);
+		loadRequests++;
+		int newPriority = competingTask.priority;
+		if (priority < newPriority) {
+			reniceHierarchy(competingTask.loadRequestId, newPriority);
 		}
 	}
-	
-	private void reniceHierarchy(int newPriority) {
+
+	private void reniceHierarchy(int newLoadRequestId, int newPriority) {
+		loadRequestId = newLoadRequestId;
 		priority = newPriority;
 		for (int i = 0; i < dependencies.size; i++) {
 			AssetLoadingTask2<?> dependency = dependencies.get(i);
-			dependency.reniceHierarchy(newPriority);
+			dependency.reniceHierarchy(newLoadRequestId, newPriority);
 		}
 	}
 
@@ -280,6 +281,14 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		loadRequestId = Integer.MAX_VALUE;
 		SynchronizedPools.freeAll(dependencies);
 		dependencies.clear();
+		for (int i = 0; i < competingTasks.size; i++) {
+			competingTasks.get(i).free();
+		}
+		dependencies.clear();
+		asset = null;
+		exception = null;
+		loadRequests = 1;
+		cancleRequests = 0;
 	}
 
 	void free() {
