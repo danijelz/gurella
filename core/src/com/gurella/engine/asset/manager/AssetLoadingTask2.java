@@ -35,7 +35,6 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	volatile LoadingState loadingState = LoadingState.ready;
 	volatile float progress = 0;
-	volatile int cancleRequests = 0;
 
 	volatile AssetReference reference;
 	volatile Throwable exception;
@@ -71,6 +70,9 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		task.priority = parent.priority;
 		task.parent = parent;
 		task.loadRequestId = parent.loadRequestId;
+		if (task.reference == null) {
+			task.reference = AssetReference.obtain();
+		}
 		return task;
 	}
 
@@ -284,15 +286,17 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		progress = 0;
 		loadingState = LoadingState.ready;
 		loadRequestId = Integer.MAX_VALUE;
+		parent = null;
+		
 		SynchronizedPools.freeAll(dependencies);
 		dependencies.clear();
+		
 		for (int i = 0; i < concurentTasks.size; i++) {
 			concurentTasks.get(i).free();
 		}
-		dependencies.clear();
+		concurentTasks.clear();
+		
 		exception = null;
-		cancleRequests = 0;
-
 		if (reference != null) {
 			reference.reset();
 		}

@@ -31,7 +31,9 @@ class AssetReference implements Poolable {
 	}
 
 	void decRefCount() {
-		refCount--;
+		if(refCount > 0) {
+			refCount--;
+		}
 	}
 
 	void addDependency(String dependency) {

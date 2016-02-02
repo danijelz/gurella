@@ -60,6 +60,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 	private final Array<AssetLoadingTask2<?>> asyncQueue = new Array<AssetLoadingTask2<?>>();
 	private final Array<AssetLoadingTask2<?>> waitingQueue = new Array<AssetLoadingTask2<?>>();
 	private final Array<AssetLoadingTask2<?>> syncQueue = new Array<AssetLoadingTask2<?>>();
+	private AssetLoadingTask2<?> currentTask;
 
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
 
@@ -349,7 +350,10 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		synchronized (lock) {
 			AssetLoadingTask2<?> task = findTaskInQueues(fileName);
 			if (task == null) {
-				unloadAsset(fileName);
+				AssetReference reference = assetsByFileName.get(fileName);
+				if (reference != null) {
+					unloadAsset(reference);
+				}
 			} else {
 				cancleTask(task);
 			}
@@ -357,19 +361,19 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 	}
 
 	private static void cancleTask(AssetLoadingTask2<?> task) {
-		task.cancleRequests++;
+		AssetReference reference = task.reference;
+		reference.decRefCount();
+		if(!reference.isReferenced()) {
+			removeTaskFromQueues();
+		}
+		
 		if (task.loadRequests <= task.cancleRequests) {
 			AssetLoadingTask2<?> rootTask = task.getRootTask();
 			// TODO Auto-generated method stub
 		}
 	}
 
-	private void unloadAsset(String fileName) {
-		AssetReference reference = assetsByFileName.get(fileName);
-		if (reference == null) {
-			throw new GdxRuntimeException("Asset not loaded: " + fileName);
-		}
-
+	private void unloadAsset(AssetReference reference) {
 		reference.decRefCount();
 		ObjectSet<String> dependencies = reference.dependencies;
 		for (String dependency : dependencies) {
@@ -409,12 +413,13 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 				task.loadSync();
 			}
 
-			if (allTasksHalted() && asyncQueue.size > 0) {
+			if (currentTask == null && asyncQueue.size > 0) {
 				AssetLoadingTask2<?> nextTask = asyncQueue.removeIndex(0);
 				if (isLoaded(nextTask.fileName)) {
 					throw new IllegalStateException();
 				} else {
 					waitingQueue.add(nextTask);
+					currentTask = nextTask;
 					executor.submit(nextTask);
 				}
 			}
@@ -423,18 +428,9 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private boolean allTasksHalted() {
-		for (int i = 0; i < waitingQueue.size; i++) {
-			AssetLoadingTask2<?> task = waitingQueue.get(i);
-			if (task.loadingState == LoadingState.ready) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	void waitingForDependencies(AssetLoadingTask2<?> task) {
 		synchronized (lock) {
+			currentTask = null;
 			task.loadingState = LoadingState.waitingForDependencies;
 			Array<AssetLoadingTask2<?>> dependencies = task.dependencies;
 			for (int i = 0; i < dependencies.size; i++) {
@@ -478,7 +474,12 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			dependency.exception = new GdxRuntimeException(message);
 			exception(dependency);
 		} else {
-			incrementRefCountedDependencies(fileName, 1);
+			AssetLoadingTask2<?> dependencyParent = dependency.parent;
+			if (dependencyParent == null) {
+				reference.refCount++;
+			} else {
+				reference.addDependent(dependencyParent.fileName);
+			}
 			notifyFinished(fileName, type, dependency.params, dependency.callback, ValueUtils.<T> cast(asset));
 		}
 	}
@@ -498,6 +499,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 	<T> void readyForSyncLoading(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
+			currentTask = null;
 			if (!waitingQueue.removeValue(task, true)) {
 				throw new IllegalStateException();
 			}
@@ -511,6 +513,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 	<T> void finished(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
+			currentTask = null;
 			if (!waitingQueue.removeValue(task, true)) {
 				throw new IllegalStateException();
 			}
@@ -527,8 +530,6 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			int refCount = task.loadRequests - task.cancleRequests;
 			if (refCount == 0) {
 				unloadAsset(fileName);
-			} else if (refCount > 1) {
-				incrementRefCountedDependencies(fileName, refCount - 1);
 			}
 
 			notifyFinished(task, asset);
@@ -550,6 +551,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 	<T> void exception(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
+			currentTask = null;
 			task.loadingState = LoadingState.error;
 			// TODO
 		}
@@ -628,6 +630,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			waitingQueue.clear();
 			clearQueue(syncQueue, message);
 			syncQueue.clear();
+			currentTask = null;
 
 			for (AssetReference reference : assetsByFileName.values()) {
 				DisposablesService.tryDispose(reference.asset);
