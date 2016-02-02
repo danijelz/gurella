@@ -5,7 +5,7 @@ import com.gurella.engine.utils.SynchronizedPools;
 
 class AssetReference implements Poolable {
 	Object asset;
-	int refCount;
+	int refCount = 1;
 
 	public static AssetReference obtain(Object asset) {
 		AssetReference reference = SynchronizedPools.obtain(AssetReference.class);
@@ -36,7 +36,7 @@ class AssetReference implements Poolable {
 	@Override
 	public void reset() {
 		asset = null;
-		refCount = 0;
+		refCount = 1;
 	}
 
 	void free() {

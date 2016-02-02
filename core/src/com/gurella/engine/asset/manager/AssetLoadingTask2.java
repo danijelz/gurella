@@ -31,12 +31,13 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	AssetLoadingTask2<?> parent;
 	final Array<AssetLoadingTask2<?>> dependencies = new Array<AssetLoadingTask2<?>>();
-	final Array<AssetLoadingTask2<T>> competingTasks = new Array<AssetLoadingTask2<T>>();
+	final Array<AssetLoadingTask2<T>> concurentTasks = new Array<AssetLoadingTask2<T>>();
 
 	volatile LoadingState loadingState = LoadingState.ready;
 	volatile float progress = 0;
 	volatile int loadRequests = 1;
 	volatile int cancleRequests = 0;
+
 	volatile T asset;
 	volatile Throwable exception;
 
@@ -160,20 +161,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		descriptors.ordered = ordered;
 	}
 
-	void notifyProgress(float progress) {
-		this.progress = progress;
-		if (parent != null) {
-			parent.updateProgress();
-		} else if (callback != null) {
-			callback.onProgress(progress);
-		}
-		
-		for (int i = 0; i < competingTasks.size; i++) {
-			competingTasks.get(i).notifyProgress(progress);
-		}
-	}
-
-	private void updateProgress() {
+	void updateProgress() {
 		switch (loadingState) {
 		case ready:
 			notifyProgress(0);
@@ -200,6 +188,19 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		}
 	}
 
+	private void notifyProgress(float progress) {
+		this.progress = progress;
+		if (parent != null) {
+			parent.updateProgress();
+		} else if (callback != null) {
+			callback.onProgress(progress);
+		}
+
+		for (int i = 0; i < concurentTasks.size; i++) {
+			concurentTasks.get(i).notifyProgress(progress);
+		}
+	}
+
 	private float getDependenciesProgress() {
 		int size = dependencies.size;
 		if (size == 0) {
@@ -220,8 +221,6 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		this.progress = 1;
 
 		if (parent != null) {
-			// TODO notifyManager
-			unloadDependencies();
 			parent.handleException(exception);
 		} else if (callback != null) {
 			callback.onException(exception);
@@ -230,24 +229,12 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		}
 	}
 
-	private void unloadDependencies() {
-		for (int i = 0; i < dependencies.size; i++) {
-			AssetLoadingTask2<?> dependency = dependencies.get(i);
-			if (dependency.progress == 1) {
-				try {
-					manager.unloadAsset(dependency.fileName);
-				} catch (Exception e) {
-				}
-			}
-		}
-	}
-
-	void merge(AssetLoadingTask2<T> competingTask) {
-		competingTasks.add(competingTask);
+	void merge(AssetLoadingTask2<T> concurentTask) {
+		concurentTasks.add(concurentTask);
 		loadRequests++;
-		int newPriority = competingTask.priority;
+		int newPriority = concurentTask.priority;
 		if (priority < newPriority) {
-			reniceHierarchy(competingTask.loadRequestId, newPriority);
+			reniceHierarchy(concurentTask.loadRequestId, newPriority);
 		}
 	}
 
@@ -258,6 +245,30 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 			AssetLoadingTask2<?> dependency = dependencies.get(i);
 			dependency.reniceHierarchy(newLoadRequestId, newPriority);
 		}
+	}
+
+	int getTopLevelRequestsCount() {
+		int count = 0;
+		if (parent == null) {
+			count++;
+		}
+		for (int i = 0; i < concurentTasks.size; i++) {
+			AssetLoadingTask2<T> concurentTask = concurentTasks.get(i);
+			if (concurentTask.parent == null) {
+				count++;
+			}
+		}
+
+		return count;
+	}
+	
+	AssetLoadingTask2<?> getRootTask() {
+		AssetLoadingTask2<?> root = this;
+		while (root.parent != null) {
+			root = root.parent;
+		}
+		
+		return root;
 	}
 
 	@Override
@@ -281,8 +292,8 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		loadRequestId = Integer.MAX_VALUE;
 		SynchronizedPools.freeAll(dependencies);
 		dependencies.clear();
-		for (int i = 0; i < competingTasks.size; i++) {
-			competingTasks.get(i).free();
+		for (int i = 0; i < concurentTasks.size; i++) {
+			concurentTasks.get(i).free();
 		}
 		dependencies.clear();
 		asset = null;

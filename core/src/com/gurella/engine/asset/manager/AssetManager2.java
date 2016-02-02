@@ -383,36 +383,37 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private void cancleTask(AssetLoadingTask2<?> task) {
-		// TODO Auto-generated method stub
-
+	private static void cancleTask(AssetLoadingTask2<?> task) {
+		task.cancleRequests++;
+		if (task.loadRequests <= task.cancleRequests) {
+			AssetLoadingTask2<?> rootTask = task.getRootTask();
+			// TODO Auto-generated method stub
+		}
 	}
 
-	void unloadAsset(String fileName) {
-		synchronized (lock) {
-			AssetReference reference = assetsByFileName.get(fileName);
-			if (reference == null) {
-				throw new GdxRuntimeException("Asset not loaded: " + fileName);
-			}
+	private void unloadAsset(String fileName) {
+		AssetReference reference = assetsByFileName.get(fileName);
+		if (reference == null) {
+			throw new GdxRuntimeException("Asset not loaded: " + fileName);
+		}
 
-			reference.decRefCount();
-			Array<String> dependencies = assetDependencies.get(fileName);
-			if (dependencies != null) {
-				for (String dependency : dependencies) {
-					if (isLoaded(dependency)) {
-						unloadAsset(dependency);
-					}
+		reference.decRefCount();
+		Array<String> dependencies = assetDependencies.get(fileName);
+		if (dependencies != null) {
+			for (String dependency : dependencies) {
+				if (isLoaded(dependency)) {
+					unloadAsset(dependency);
 				}
 			}
+		}
 
-			if (reference.refCount <= 0) {
-				Object asset = reference.asset;
-				DisposablesService.tryDispose(asset);
-				fileNamesByAsset.remove(asset);
-				assetsByFileName.remove(fileName);
-				assetDependencies.remove(fileName);
-				reference.free();
-			}
+		if (reference.refCount <= 0) {
+			Object asset = reference.asset;
+			DisposablesService.tryDispose(asset);
+			fileNamesByAsset.remove(asset);
+			assetsByFileName.remove(fileName);
+			assetDependencies.remove(fileName);
+			reference.free();
 		}
 	}
 
@@ -527,6 +528,8 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 				throw new IllegalStateException();
 			}
 
+			task.loadingState = LoadingState.readyForAsyncLoading;
+			task.updateProgress();
 			asyncQueue.insert(0, task);
 			asyncQueue.sort();
 		}
@@ -534,11 +537,12 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 	<T> void readyForSyncLoading(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
-			task.loadingState = LoadingState.readyForSyncLoading;
 			if (!waitingQueue.removeValue(task, true)) {
 				throw new IllegalStateException();
 			}
 
+			task.loadingState = LoadingState.readyForSyncLoading;
+			task.updateProgress();
 			syncQueue.add(task);
 			syncQueue.sort();
 		}
@@ -546,22 +550,23 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 	<T> void finished(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
-			task.loadingState = LoadingState.finished;
 			if (!waitingQueue.removeValue(task, true)) {
 				throw new IllegalStateException();
 			}
 
-			if (task.parent == null) {
-				loaded++;
-			}
-
+			task.loadingState = LoadingState.finished;
+			task.updateProgress();
+			loaded += task.getTopLevelRequestsCount();
 			String fileName = task.fileName;
 			T asset = task.asset;
 			fileNamesByAsset.put(asset, fileName);
 			assetsByFileName.put(fileName, AssetReference.obtain(asset));
+
 			int refCount = task.loadRequests - task.cancleRequests;
-			if (refCount > 0) {
-				incrementRefCountedDependencies(fileName, refCount);
+			if (refCount == 0) {
+				unloadAsset(fileName);
+			} else if (refCount > 1) {
+				incrementRefCountedDependencies(fileName, refCount - 1);
 			}
 
 			notifyFinished(task);
@@ -569,25 +574,22 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private <T> void notifyFinished(AssetLoadingTask2<T> dependency) {
-		dependency.notifyProgress(1);
-		String fileName = dependency.fileName;
-		Class<T> type = dependency.type;
-		T asset = dependency.asset;
+	private <T> void notifyFinished(AssetLoadingTask2<T> task) {
+		String fileName = task.fileName;
+		Class<T> type = task.type;
+		T asset = task.asset;
 
-		notifyFinished(fileName, type, dependency.params, dependency.callback, asset);
-		Array<AssetLoadingTask2<T>> competingTasks = dependency.competingTasks;
-		for (int i = 0; i < competingTasks.size; i++) {
-			AssetLoadingTask2<T> task = competingTasks.get(i);
-			task.notifyProgress(1);
-			notifyFinished(fileName, type, task.params, task.callback, asset);
+		notifyFinished(fileName, type, task.params, task.callback, asset);
+		Array<AssetLoadingTask2<T>> concurentTasks = task.concurentTasks;
+		for (int i = 0; i < concurentTasks.size; i++) {
+			AssetLoadingTask2<T> competingTask = concurentTasks.get(i);
+			notifyFinished(fileName, type, competingTask.params, competingTask.callback, asset);
 		}
 	}
 
 	<T> void exception(AssetLoadingTask2<T> task) {
 		synchronized (lock) {
 			task.loadingState = LoadingState.error;
-			task.notifyProgress(1);
 			// TODO
 		}
 	}
@@ -688,6 +690,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 
 	private static void clearQueue(Array<AssetLoadingTask2<?>> queue, GdxRuntimeException message) {
 		for (int i = 0; i < queue.size; i++) {
+			//TODO only root tasks should be handled
 			AssetLoadingTask2<?> task = queue.get(i);
 			if (task.callback != null) {
 				task.callback.onException(message);
