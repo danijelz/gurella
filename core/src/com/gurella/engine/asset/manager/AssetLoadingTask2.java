@@ -35,10 +35,9 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	volatile LoadingState loadingState = LoadingState.ready;
 	volatile float progress = 0;
-	volatile int loadRequests = 1;
 	volatile int cancleRequests = 0;
 
-	volatile T asset;
+	volatile AssetReference reference;
 	volatile Throwable exception;
 
 	static <T> AssetLoadingTask2<T> obtain(AssetManager2 manager, AsyncCallback<T> callback, String fileName,
@@ -53,6 +52,9 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		task.priority = priority;
 		task.callback = callback;
 		task.loadRequestId = counter++;
+		if (task.reference == null) {
+			task.reference = AssetReference.obtain();
+		}
 		return task;
 	}
 
@@ -114,14 +116,16 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 			AssetDescriptor<Object> descriptor = (AssetDescriptor<Object>) descriptors.get(i);
 			@SuppressWarnings("unchecked")
 			AssetLoaderParameters<Object> castedParams = descriptor.params;
-			dependencies.add(obtain(this, descriptor.fileName, descriptor.file, descriptor.type, castedParams));
+			String dependencyFileName = descriptor.fileName;
+			reference.addDependency(dependencyFileName);
+			dependencies.add(obtain(this, dependencyFileName, descriptor.file, descriptor.type, castedParams));
 		}
 	}
 
 	private void loadAsync() {
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = ValueUtils.cast(loader);
-			asset = syncLoader.load(manager, fileName, file, params);
+			reference.asset = syncLoader.load(manager, fileName, file, params);
 			manager.finished(this);
 		} else {
 			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
@@ -132,7 +136,7 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	void loadSync() {
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
-		asset = asyncLoader.loadSync(manager, fileName, file, params);
+		reference.asset = asyncLoader.loadSync(manager, fileName, file, params);
 		manager.finished(this);
 	}
 
@@ -231,7 +235,12 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 
 	void merge(AssetLoadingTask2<T> concurentTask) {
 		concurentTasks.add(concurentTask);
-		loadRequests++;
+		AssetLoadingTask2<?> concurrentTaskParent = concurentTask.parent;
+		if(concurrentTaskParent == null) {
+			reference.refCount++;
+		} else {
+			reference.addDependent(concurentTask.parent.fileName);
+		}
 		int newPriority = concurentTask.priority;
 		if (priority < newPriority) {
 			reniceHierarchy(concurentTask.loadRequestId, newPriority);
@@ -247,27 +256,12 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 		}
 	}
 
-	int getTopLevelRequestsCount() {
-		int count = 0;
-		if (parent == null) {
-			count++;
-		}
-		for (int i = 0; i < concurentTasks.size; i++) {
-			AssetLoadingTask2<T> concurentTask = concurentTasks.get(i);
-			if (concurentTask.parent == null) {
-				count++;
-			}
-		}
-
-		return count;
-	}
-	
 	AssetLoadingTask2<?> getRootTask() {
 		AssetLoadingTask2<?> root = this;
 		while (root.parent != null) {
 			root = root.parent;
 		}
-		
+
 		return root;
 	}
 
@@ -296,10 +290,12 @@ class AssetLoadingTask2<T> implements AsyncTask<Void>, Comparable<AssetLoadingTa
 			concurentTasks.get(i).free();
 		}
 		dependencies.clear();
-		asset = null;
 		exception = null;
-		loadRequests = 1;
 		cancleRequests = 0;
+
+		if (reference != null) {
+			reference.reset();
+		}
 	}
 
 	void free() {
