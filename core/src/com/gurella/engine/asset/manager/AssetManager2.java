@@ -490,7 +490,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 			String message = "Asset with name '" + dependency.fileName
 					+ "' already in preload queue, but has different type (expected: " + dependency.type.getSimpleName()
 					+ ", found: " + queuedTask.type.getSimpleName() + ")";
-			handleLoadException(dependency.callback, new GdxRuntimeException(message));
+			exception(dependency.callback, new GdxRuntimeException(message));
 		} else {
 			queuedTask.merge(dependency);
 			asyncQueue.sort();
@@ -506,7 +506,7 @@ public class AssetManager2 extends com.badlogic.gdx.assets.AssetManager {
 		if (type != otherType) {
 			String message = "Asset with name '" + fileName + "' already loaded, but has different type (expected: "
 					+ type.getSimpleName() + ", found: " + otherType.getSimpleName() + ")";
-			handleLoadException(dependency.callback, new GdxRuntimeException(message));
+			exception(dependency.callback, new GdxRuntimeException(message));
 		} else {
 			incrementRefCountedDependencies(fileName, 1);
 			notifyFinished(fileName, type, dependency.params, dependency.callback, ValueUtils.<T> cast(asset));
