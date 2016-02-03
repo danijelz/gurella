@@ -235,22 +235,13 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			dependency.reniceHierarchy(newLoadRequestId, newPriority);
 		}
 	}
-	
+
 	void setLoadingState(LoadingState loadingState) {
 		this.loadingState = loadingState;
 		for (int i = 0; i < concurentTasks.size; i++) {
 			concurentTasks.get(i).loadingState = loadingState;
 		}
 	}
-
-	/*AssetLoadingTask2<?> getRootTask() {
-		AssetLoadingTask2<?> root = this;
-		while (root.parent != null) {
-			root = root.parent;
-		}
-
-		return root;
-	}*/
 
 	@Override
 	public int compareTo(AssetLoadingTask<?> other) {

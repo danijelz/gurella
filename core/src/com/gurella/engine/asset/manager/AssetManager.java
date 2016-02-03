@@ -325,7 +325,6 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		Class<?> otherType = asset.getClass();
 
 		if (otherType != type) {
-
 			String message = String.format(loadedAssetInconsistentMessage, fileName, type.getSimpleName(),
 					otherType.getSimpleName());
 			notifyLoadException(callback, message);
