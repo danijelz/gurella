@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.application.events.UpdateEvent;
-import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.DependencyMap;

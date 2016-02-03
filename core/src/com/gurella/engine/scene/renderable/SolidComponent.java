@@ -1,20 +1,20 @@
 package com.gurella.engine.scene.renderable;
 
-import com.gurella.engine.math.geometry.shape.shape3d.Solid;
+import com.gurella.engine.math.geometry.shape.Shape;
 
 public class SolidComponent extends RenderableComponent3d {
-	public Solid solid;
+	public Shape shape;
 
 	@Override
 	protected void updateDefaultTransform() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void updateTransform() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

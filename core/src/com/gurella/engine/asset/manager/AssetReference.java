@@ -1,5 +1,6 @@
 package com.gurella.engine.asset.manager;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.utils.SynchronizedPools;
@@ -7,7 +8,7 @@ import com.gurella.engine.utils.SynchronizedPools;
 class AssetReference implements Poolable {
 	Object asset;
 	int refCount = 0;
-	final ObjectSet<String> dependencies = new ObjectSet<String>(4);
+	final Array<String> dependencies = new Array<String>(4);
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
 
 	public static AssetReference obtain() {
@@ -24,10 +25,6 @@ class AssetReference implements Poolable {
 
 	void incRefCount() {
 		refCount++;
-	}
-
-	void incRefCount(int count) {
-		refCount += count;
 	}
 
 	void decRefCount() {

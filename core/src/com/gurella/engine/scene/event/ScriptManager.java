@@ -194,7 +194,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != BehaviourComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					EventCallbackIdentifier scriptMethod = BehaviourEvents.valueOf(method);
+					EventCallbackIdentifier scriptMethod = null;
 					if (scriptMethod != null) {
 						methods.add(scriptMethod.id);
 					}

@@ -1,12 +1,12 @@
-package com.gurella.engine.asset;
+package com.gurella.engine.resource.factory;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
-import com.gurella.engine.asset.manager.AssetManager;
 
 public class AssetRegistry implements UpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
