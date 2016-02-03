@@ -80,6 +80,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	}
 
 	public AssetManager(FileHandleResolver resolver, boolean defaultLoaders) {
+		super(resolver, false);
 		if (defaultLoaders) {
 			setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
 			setLoader(Music.class, new MusicLoader(resolver));
