@@ -42,6 +42,7 @@ import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.manager.AssetLoadingTask.LoadingState;
 import com.gurella.engine.base.resource.AsyncCallback;
+import com.gurella.engine.base.resource.AsyncCallback.SimpleAsyncCallback;
 import com.gurella.engine.utils.DisposablesService;
 import com.gurella.engine.utils.ValueUtils;
 
@@ -51,6 +52,8 @@ import com.gurella.engine.utils.ValueUtils;
  * @author mzechner
  */
 public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
+	private static final String clearRequestedMessage = "Clear requested on AssetManager.";
+	private static final String assetUnloadedMessage = "Asset unloaded.";
 	private static final String loadedAssetInconsistentMessage = "Asset with name '%1$s' already loaded, but has different type (expected: %2$s, found: %3$s).";
 	private static final String queuedAssetInconsistentMessage = "Asset with name '%1$s' already in preload queue, but has different type (expected: %2$s, found: %3$s)";
 
@@ -241,19 +244,20 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> void load(String fileName, Class<T> type) {
-		load(fileName, type, null, null, 0);
+		// TODO free SimpleAsyncCallback on finish
+		load(fileName, type, null, SimpleAsyncCallback.<T> obtain(), 0);
 	}
 
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameter) {
-		load(fileName, type, parameter, null, 0);
+		load(fileName, type, parameter, SimpleAsyncCallback.<T> obtain(), 0);
 	}
 
 	@Override
 	@SuppressWarnings({ "sync-override", "unchecked" })
 	public void load(@SuppressWarnings("rawtypes") AssetDescriptor descriptor) {
-		load(descriptor.fileName, descriptor.type, descriptor.params, null, 0);
+		load(descriptor.fileName, descriptor.type, descriptor.params, SimpleAsyncCallback.<Object> obtain(), 0);
 	}
 
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameters, AsyncCallback<T> callback,
@@ -389,7 +393,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private void cancleTask(AssetLoadingTask<?> task) {
+	private <T> void cancleTask(AssetLoadingTask<T> task) {
 		AssetReference reference = task.reference;
 		reference.decRefCount();
 		if (reference.isReferenced()) {
@@ -400,7 +404,20 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		waitingQueue.removeValue(task, true);
 		syncQueue.removeValue(task, true);
 		unloadLoadedDependencies(task);
-		propagateCancle(task);
+		AsyncCallback<T> callback = task.callback;
+		if (callback != null) {
+			callback.onCancled(assetUnloadedMessage);
+		}
+
+		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
+		for (int i = 0; i < concurentTasks.size; i++) {
+			AssetLoadingTask<T> concurentTask = concurentTasks.get(i);
+			callback = concurentTask.callback;
+			if (callback != null) {
+				callback.onCancled(assetUnloadedMessage);
+			}
+		}
+
 		task.free();
 	}
 
@@ -580,8 +597,8 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	private void handleTaskException(AssetLoadingTask<?> task) {
 		task.setLoadingState(LoadingState.error);
 		unloadLoadedDependencies(task);
-		boolean propagated = propagateException(task);
 		Throwable ex = task.exception;
+		boolean propagated = propagateException(task, ex);
 		task.free();
 		if (!propagated) {
 			throw ex instanceof RuntimeException ? (RuntimeException) ex : new GdxRuntimeException(ex);
@@ -603,9 +620,22 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private boolean propagateException(AssetLoadingTask<?> task) {
-		// TODO Auto-generated method stub
-		return false;
+	private <T> boolean propagateException(AssetLoadingTask<T> task, Throwable exception) {
+		boolean propagated = true;
+		AsyncCallback<?> callback = task.callback;
+		if (callback != null) {
+			callback.onProgress(1);
+			callback.onException(exception);
+		} else if (task.parent == null) {
+			propagated = false;
+		}
+
+		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
+		for (int i = 0; i < concurentTasks.size; i++) {
+			propagated |= propagateException(concurentTasks.get(i), exception);
+		}
+
+		return propagated;
 	}
 
 	@Override
@@ -674,12 +704,11 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	@SuppressWarnings("sync-override")
 	public void clear() {
 		synchronized (lock) {
-			GdxRuntimeException message = new GdxRuntimeException("Clear requested on AssetManager.");
-			clearQueue(asyncQueue, message);
+			clearQueue(asyncQueue);
 			asyncQueue.clear();
-			clearQueue(waitingQueue, message);
+			clearQueue(waitingQueue);
 			waitingQueue.clear();
-			clearQueue(syncQueue, message);
+			clearQueue(syncQueue);
 			syncQueue.clear();
 			currentTask = null;
 
@@ -693,12 +722,21 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
-	private static void clearQueue(Array<AssetLoadingTask<?>> queue, GdxRuntimeException message) {
+	private static void clearQueue(Array<AssetLoadingTask<?>> queue) {
 		for (int i = 0; i < queue.size; i++) {
-			AssetLoadingTask<?> task = queue.get(i);
-			AsyncCallback<?> callback = task.callback;
+			AssetLoadingTask<Object> task = ValueUtils.cast(queue.get(i));
+			AsyncCallback<Object> callback = task.callback;
 			if (callback != null) {
-				callback.onException(message);
+				callback.onCancled(clearRequestedMessage);
+			}
+
+			Array<AssetLoadingTask<Object>> concurentTasks = task.concurentTasks;
+			for (int j = 0; j < concurentTasks.size; j++) {
+				AssetLoadingTask<Object> concurentTask = concurentTasks.get(j);
+				callback = concurentTask.callback;
+				if (callback != null) {
+					callback.onCancled(clearRequestedMessage);
+				}
 			}
 
 			if (task.parent == null) {
@@ -748,11 +786,14 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 				builder.append(reference.refCount);
 
 				Array<String> dependencies = reference.dependencies;
-				if (dependencies.size > 0) {
+				int size = dependencies.size;
+				if (size > 0) {
 					builder.append(", deps: [");
-					for (String dep : dependencies) {
-						builder.append(dep);
-						builder.append(",");
+					for (int i = 0; i < size; i++) {
+						builder.append(dependencies.get(i));
+						if (i < size - 1) {
+							builder.append(",");
+						}
 					}
 
 					builder.append("]");

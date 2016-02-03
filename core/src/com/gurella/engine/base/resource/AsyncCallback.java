@@ -1,11 +1,15 @@
 package com.gurella.engine.base.resource;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.utils.ValueUtils;
 
 public interface AsyncCallback<T> {
 	void onSuccess(T value);
 
 	void onException(Throwable exception);
+
+	void onCancled(String message);
 
 	void onProgress(float progress);
 
@@ -13,7 +17,12 @@ public interface AsyncCallback<T> {
 		private float cachedProgress;
 		private T cachedValue;
 		private Throwable cachedException;
+		private String cancledMessage;
 		private boolean done;
+
+		public static <T> SimpleAsyncCallback<T> obtain() {
+			return ValueUtils.cast(SynchronizedPools.obtain(SimpleAsyncCallback.class));
+		}
 
 		@Override
 		public void onSuccess(T value) {
@@ -28,6 +37,12 @@ public interface AsyncCallback<T> {
 		}
 
 		@Override
+		public void onCancled(String message) {
+			cancledMessage = message == null ? "" : message;
+			done = true;
+		}
+
+		@Override
 		public void onProgress(float progress) {
 			this.cachedProgress = progress;
 		}
@@ -38,6 +53,10 @@ public interface AsyncCallback<T> {
 
 		public boolean isDone() {
 			return done;
+		}
+
+		public boolean isCancled() {
+			return cancledMessage != null;
 		}
 
 		public boolean isDoneWithException() {
@@ -61,7 +80,12 @@ public interface AsyncCallback<T> {
 			cachedProgress = 0;
 			cachedValue = null;
 			cachedException = null;
+			cancledMessage = null;
 			done = false;
+		}
+
+		public void free() {
+			SynchronizedPools.free(this);
 		}
 	}
 }
