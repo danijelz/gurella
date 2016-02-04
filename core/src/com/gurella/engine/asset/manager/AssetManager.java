@@ -249,27 +249,27 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	@SuppressWarnings("sync-override")
 	public <T> void load(String fileName, Class<T> type) {
 		// TODO free SimpleAsyncCallback on finish
-		load(fileName, type, null, SimpleAsyncCallback.<T> obtain(), 0);
+		load(fileName, type, null, SimpleAsyncCallback.<T> obtain(), 0, false);
 	}
 
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameter) {
-		load(fileName, type, parameter, SimpleAsyncCallback.<T> obtain(), 0);
+		load(fileName, type, parameter, SimpleAsyncCallback.<T> obtain(), 0, false);
 	}
 
 	@Override
 	@SuppressWarnings({ "sync-override", "unchecked" })
 	public void load(@SuppressWarnings("rawtypes") AssetDescriptor descriptor) {
-		load(descriptor.fileName, descriptor.type, descriptor.params, SimpleAsyncCallback.<Object> obtain(), 0);
+		load(descriptor.fileName, descriptor.type, descriptor.params, SimpleAsyncCallback.<Object> obtain(), 0, false);
 	}
 
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameters, AsyncCallback<T> callback,
-			int priority) {
+			int priority, boolean sticky) {
 		synchronized (lock) {
 			AssetReference reference = assetsByFileName.get(fileName);
 			if (reference == null) {
-				addToQueue(fileName, type, parameters, callback, priority);
+				addToQueue(fileName, type, parameters, callback, priority, sticky);
 			} else {
 				handleAssetLoaded(fileName, type, parameters, callback, reference);
 			}
@@ -277,17 +277,17 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	}
 
 	private <T> void addToQueue(String fileName, Class<T> type, AssetLoaderParameters<T> parameters,
-			AsyncCallback<T> callback, int priority) {
+			AsyncCallback<T> callback, int priority, boolean sticky) {
 		AssetLoadingTask<T> queuedTask = ValueUtils.cast(findTaskInQueues(fileName));
 		if (queuedTask == null) {
-			asyncQueue.add(AssetLoadingTask.obtain(this, callback, fileName, type, parameters, priority));
+			asyncQueue.add(AssetLoadingTask.obtain(this, callback, fileName, type, parameters, priority, sticky));
 			asyncQueue.sort();
 		} else if (queuedTask.type != type) {
 			String message = String.format(queuedAssetInconsistentMessage, fileName, type.getSimpleName(),
 					queuedTask.type.getSimpleName());
 			notifyLoadException(callback, message);
 		} else {
-			queuedTask.merge(AssetLoadingTask.obtain(this, callback, fileName, type, parameters, priority));
+			queuedTask.merge(AssetLoadingTask.obtain(this, callback, fileName, type, parameters, priority, sticky));
 			asyncQueue.sort();
 		}
 	}

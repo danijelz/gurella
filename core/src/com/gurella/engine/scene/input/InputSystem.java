@@ -33,6 +33,7 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.AbstractSignal;
+import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
@@ -92,12 +93,12 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 			componentActivated(components.get(i));
 		}
 
-		Application.addInputProcessor(inputProcessorQueue);
+		InputService.addInputProcessor(inputProcessorQueue);
 	}
 
 	@Override
 	protected void deactivated() {
-		Application.removeInputProcessor(inputProcessorQueue);
+		InputService.removeInputProcessor(inputProcessorQueue);
 		resetData();
 		eventManager = null;
 		spatialPartitioningSystem = null;

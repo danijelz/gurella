@@ -7,6 +7,7 @@ import com.gurella.engine.utils.SynchronizedPools;
 
 class AssetReference implements Poolable {
 	Object asset;
+	boolean sticky;
 	int refCount = 0;
 	final Array<String> dependencies = new Array<String>(4);
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
@@ -28,7 +29,7 @@ class AssetReference implements Poolable {
 	}
 
 	void decRefCount() {
-		if(refCount > 0) {
+		if (refCount > 0) {
 			refCount--;
 		}
 	}
@@ -46,12 +47,13 @@ class AssetReference implements Poolable {
 	}
 
 	boolean isReferenced() {
-		return refCount > 0 || dependents.size > 0;
+		return sticky || refCount > 0 || dependents.size > 0;
 	}
 
 	@Override
 	public void reset() {
 		asset = null;
+		sticky = false;
 		refCount = 0;
 		dependencies.clear();
 		dependents.clear();

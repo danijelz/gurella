@@ -7,29 +7,16 @@ import com.gurella.engine.input.ButtonTrigger.ButtonType;
 import com.gurella.engine.input.DragTrigger.DragDirection;
 import com.gurella.engine.utils.SynchronizedPools;
 
-public class InputMapper implements InputProcessor {
-	public static final InputMapper INSTANCE = new InputMapper();
-
+class InputMapper implements InputProcessor {
 	private Array<InputContext> activeContexts = new Array<InputContext>();
 
-	private InputMapper() {
-	}
-
-	public void addInputContext(InputContext inputContext) {
+	void addInputContext(InputContext inputContext) {
 		activeContexts.insert(0, inputContext);
 		activeContexts.sort();
 	}
 
-	public void removeInputContext(InputContext inputContext) {
+	void removeInputContext(InputContext inputContext) {
 		activeContexts.removeValue(inputContext, true);
-	}
-
-	private void handleButton(ButtonTrigger buttonTrigger) {
-		for (InputContext inputContext : activeContexts) {
-			if (inputContext.handleButton(buttonTrigger)) {
-				return;
-			}
-		}
 	}
 
 	@Override
@@ -41,6 +28,14 @@ public class InputMapper implements InputProcessor {
 		handleButton(buttonTrigger);
 		SynchronizedPools.free(buttonTrigger);
 		return false;
+	}
+
+	private void handleButton(ButtonTrigger buttonTrigger) {
+		for (InputContext inputContext : activeContexts) {
+			if (inputContext.handleButton(buttonTrigger)) {
+				return;
+			}
+		}
 	}
 
 	@Override

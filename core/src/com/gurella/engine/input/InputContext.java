@@ -30,11 +30,11 @@ public class InputContext implements Comparable<InputContext> {
 	private ObjectMap<InputTrigger, Listener1<Float>> rangeBindings = new ObjectMap<InputTrigger, Listener1<Float>>();
 
 	public void activate() {
-		InputMapper.INSTANCE.addInputContext(this);
+		InputService.addInputContext(this);
 	}
 
 	public void deactivate() {
-		InputMapper.INSTANCE.removeInputContext(this);
+		InputService.removeInputContext(this);
 	}
 
 	public void bindKeyTypedListener(Listener1<Character> newKeyTypedListener) {

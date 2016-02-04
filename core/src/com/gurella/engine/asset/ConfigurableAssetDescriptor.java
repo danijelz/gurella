@@ -1,42 +1,38 @@
 package com.gurella.engine.asset;
 
-import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.utils.Array;
 
 public class ConfigurableAssetDescriptor<T> {
 	boolean sticky;
 	AssetType assetType;
+
 	String fileName;
+	AssetLoaderParameters<T> parameters;
+
 	final Array<AssetSelector<T>> selectors = new Array<AssetSelector<T>>();
 
-	AssetLoaderParameters<T> parameters;
-	AssetDescriptor<T> assetDescriptor;
+	boolean resolved;
+	String resolvedFileName;
+	AssetLoaderParameters<T> resolvedParameters;
 
-	ConfigurableAssetDescriptor() {
-	}
-
-	public ConfigurableAssetDescriptor(AssetType assetType, String fileName) {
-		this.assetType = assetType;
-		this.fileName = fileName;
-	}
-
-	public AssetDescriptor<T> getAssetDescriptor() {
-		if (assetDescriptor == null) {
-			assetDescriptor = createAssetDescriptor();
+	void resolve() {
+		if (resolved) {
+			return;
 		}
-		return assetDescriptor;
-	}
 
-	private AssetDescriptor<T> createAssetDescriptor() {
+		resolved = true;
 		for (int i = 0; i < selectors.size; i++) {
 			AssetSelector<T> selector = selectors.get(i);
 			if (selector.predicate.evaluate(null)) {
-				return new AssetDescriptor<T>(selector.fileName, getAssetType(), selector.parameters);
+				resolvedFileName = selector.fileName;
+				resolvedParameters = selector.parameters;
+				return;
 			}
 		}
 
-		return new AssetDescriptor<T>(fileName, getAssetType(), parameters);
+		resolvedFileName = fileName;
+		resolvedParameters = parameters;
 	}
 
 	public String getFileName() {

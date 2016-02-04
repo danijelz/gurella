@@ -71,6 +71,7 @@ public class AssetManagerTest extends ApplicationAdapter {
 		}
 
 		@Override
+		@SuppressWarnings("rawtypes")
 		public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
 				AssetLoaderParameters<TestAssetType1> parameter) {
 			return Array.<AssetDescriptor> with(
@@ -101,6 +102,7 @@ public class AssetManagerTest extends ApplicationAdapter {
 		}
 
 		@Override
+		@SuppressWarnings("rawtypes")
 		public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
 				AssetLoaderParameters<TestAssetType2> parameter) {
 			return null;

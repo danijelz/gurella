@@ -40,7 +40,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	Throwable exception;
 
 	static <T> AssetLoadingTask<T> obtain(AssetManager manager, AsyncCallback<T> callback, String fileName,
-			Class<T> type, AssetLoaderParameters<T> params, int priority) {
+			Class<T> type, AssetLoaderParameters<T> params, int priority, boolean sticky) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
 		task.manager = manager;
@@ -53,6 +53,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.loadRequestId = counter++;
 		task.reference = AssetReference.obtain();
 		task.reference.incRefCount();
+		task.reference.sticky = sticky;
 		return task;
 	}
 
@@ -211,6 +212,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	void merge(AssetLoadingTask<T> concurentTask) {
 		concurentTasks.add(concurentTask);
 
+		reference.sticky |= concurentTask.reference.sticky;
 		AssetLoadingTask<?> concurrentTaskParent = concurentTask.parent;
 		if (concurrentTaskParent == null) {
 			reference.incRefCount();
