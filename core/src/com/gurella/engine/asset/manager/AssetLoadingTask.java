@@ -51,6 +51,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.priority = priority;
 		task.callback = callback;
 		task.loadRequestId = counter++;
+		task.reference = AssetReference.obtain();
+		task.reference.incRefCount();
 		return task;
 	}
 
@@ -67,6 +69,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.priority = parent.priority;
 		task.parent = parent;
 		task.loadRequestId = parent.loadRequestId;
+		task.reference = AssetReference.obtain();
+		task.reference.addDependent(parent.fileName);
 		return task;
 	}
 
@@ -94,13 +98,6 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	private void start() {
 		if (file == null) {
 			file = loader.resolve(fileName);
-		}
-
-		reference = AssetReference.obtain();
-		if (parent == null) {
-			reference.incRefCount();
-		} else {
-			reference.addDependent(parent.fileName);
 		}
 
 		Array<AssetDescriptor<?>> descriptors = ValueUtils.cast(loader.getDependencies(fileName, file, params));

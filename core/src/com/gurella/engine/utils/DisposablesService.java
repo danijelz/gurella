@@ -24,6 +24,13 @@ public class DisposablesService {
 		return disposable;
 	}
 
+	public static <T> T tryAdd(T object) {
+		if (object instanceof Disposable) {
+			add(((Disposable) object));
+		}
+		return object;
+	}
+
 	public static void dispose(Disposable disposable) {
 		disposables.removeValue(disposable, true);
 		disposable.dispose();

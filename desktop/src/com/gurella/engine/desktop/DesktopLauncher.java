@@ -7,6 +7,7 @@ import com.gurella.engine.GurellaEngine;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new GurellaEngine(), config);
+		@SuppressWarnings("unused")
+		LwjglApplication lwjglApplication = new LwjglApplication(new GurellaEngine(), config);
 	}
 }

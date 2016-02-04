@@ -1,5 +1,7 @@
 package com.gurella.engine.asset.manager;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
@@ -35,6 +37,7 @@ import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
@@ -72,7 +75,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	private final Object lock = new Object();
 
 	public AssetManager() {
-		this(new InternalFileHandleResolver());
+		this(new InternalFileHandleResolver(), true);
 	}
 
 	public AssetManager(FileHandleResolver resolver) {
@@ -515,13 +518,15 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 			exception(dependency);
 		} else {
 			reference.addDependent(dependency.parent.fileName);
+			dependency.setLoadingState(LoadingState.finished);
+			dependency.updateProgress();
 			notifyLoadFinished(fileName, type, dependency.params, dependency.callback, ValueUtils.<T> cast(asset));
 		}
 	}
 
 	<T> void readyForAsyncLoading(AssetLoadingTask<T> task) {
 		synchronized (lock) {
-			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
+			if (!waitingQueue.removeValue(task, true)) {
 				throw new IllegalStateException();
 			}
 
@@ -566,6 +571,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		T asset = reference.getAsset();
 		fileNamesByAsset.put(asset, fileName);
 		assetsByFileName.put(fileName, reference);
+		DisposablesService.tryAdd(asset);
 		notifyTaskFinished(task, asset);
 		task.reference = null;
 		task.free();
@@ -792,6 +798,20 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 					for (int i = 0; i < size; i++) {
 						builder.append(dependencies.get(i));
 						if (i < size - 1) {
+							builder.append(",");
+						}
+					}
+
+					builder.append("]");
+				}
+
+				ObjectSet<String> dependents = reference.dependents;
+				size = dependents.size;
+				if (size > 0) {
+					builder.append(", rels: [");
+					for (Iterator<String> iter = dependents.iterator(); iter.hasNext();) {
+						builder.append(iter.next());
+						if (iter.hasNext()) {
 							builder.append(",");
 						}
 					}

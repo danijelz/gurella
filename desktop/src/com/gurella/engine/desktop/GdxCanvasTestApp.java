@@ -31,7 +31,8 @@ public class GdxCanvasTestApp {
 		cfg.useGL30 = false;
 		cfg.width = 1200;
 		cfg.height = 800;
-		new LwjglApplication(new TestApp(), cfg);
+		@SuppressWarnings("unused")
+		LwjglApplication lwjglApplication = new LwjglApplication(new TestApp(), cfg);
 	}
 
 	private static class TestApp extends ApplicationAdapter {
