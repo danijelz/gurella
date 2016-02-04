@@ -20,13 +20,13 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	int[] valueTable;
 	int capacity, stashSize;
 
-	private float loadFactor;
-	private int hashShift, mask, threshold;
-	private int stashCapacity;
-	private int pushIterations;
+	float loadFactor;
+	int hashShift, mask, threshold;
+	int stashCapacity;
+	int pushIterations;
 
 	private Entries<K> entries1, entries2;
-	private Values values1, values2;
+	private Values<K> values1, values2;
 	private Keys<K> keys1, keys2;
 
 	/**
@@ -50,14 +50,17 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	 * loadFactor items before growing the backing table.
 	 */
 	public IdentityObjectIntMap(int initialCapacity, float loadFactor) {
-		if (initialCapacity < 0)
+		if (initialCapacity < 0) {
 			throw new IllegalArgumentException("initialCapacity must be >= 0: " + initialCapacity);
-		if (initialCapacity > 1 << 30)
+		}
+		if (initialCapacity > 1 << 30) {
 			throw new IllegalArgumentException("initialCapacity is too large: " + initialCapacity);
+		}
 		capacity = MathUtils.nextPowerOfTwo(initialCapacity);
 
-		if (loadFactor <= 0)
+		if (loadFactor <= 0) {
 			throw new IllegalArgumentException("loadFactor must be > 0: " + loadFactor);
+		}
 		this.loadFactor = loadFactor;
 
 		threshold = (int) (capacity * loadFactor);
@@ -82,8 +85,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	}
 
 	public void put(K key, int value) {
-		if (key == null)
+		if (key == null) {
 			throw new IllegalArgumentException("key cannot be null.");
+		}
 		K[] keyTable = this.keyTable;
 
 		// Check for existing keys.
@@ -121,24 +125,27 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (key1 == null) {
 			keyTable[index1] = key;
 			valueTable[index1] = value;
-			if (size++ >= threshold)
+			if (size++ >= threshold) {
 				resize(capacity << 1);
+			}
 			return;
 		}
 
 		if (key2 == null) {
 			keyTable[index2] = key;
 			valueTable[index2] = value;
-			if (size++ >= threshold)
+			if (size++ >= threshold) {
 				resize(capacity << 1);
+			}
 			return;
 		}
 
 		if (key3 == null) {
 			keyTable[index3] = key;
 			valueTable[index3] = value;
-			if (size++ >= threshold)
+			if (size++ >= threshold) {
 				resize(capacity << 1);
+			}
 			return;
 		}
 
@@ -146,8 +153,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	}
 
 	public void putAll(IdentityObjectIntMap<K> map) {
-		for (Entry<K> entry : map.entries())
+		for (Entry<K> entry : map.entries()) {
 			put(entry.key, entry.value);
+		}
 	}
 
 	/** Skips checks for existing keys. */
@@ -159,8 +167,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (key1 == null) {
 			keyTable[index1] = key;
 			valueTable[index1] = value;
-			if (size++ >= threshold)
+			if (size++ >= threshold) {
 				resize(capacity << 1);
+			}
 			return;
 		}
 
@@ -169,8 +178,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (key2 == null) {
 			keyTable[index2] = key;
 			valueTable[index2] = value;
-			if (size++ >= threshold)
+			if (size++ >= threshold) {
 				resize(capacity << 1);
+			}
 			return;
 		}
 
@@ -179,8 +189,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (key3 == null) {
 			keyTable[index3] = key;
 			valueTable[index3] = value;
-			if (size++ >= threshold)
+			if (size++ >= threshold) {
 				resize(capacity << 1);
+			}
 			return;
 		}
 
@@ -226,8 +237,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			if (key1 == null) {
 				keyTable[index1] = evictedKey;
 				valueTable[index1] = evictedValue;
-				if (size++ >= threshold)
+				if (size++ >= threshold) {
 					resize(capacity << 1);
+				}
 				return;
 			}
 
@@ -236,8 +248,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			if (key2 == null) {
 				keyTable[index2] = evictedKey;
 				valueTable[index2] = evictedValue;
-				if (size++ >= threshold)
+				if (size++ >= threshold) {
 					resize(capacity << 1);
+				}
 				return;
 			}
 
@@ -246,13 +259,15 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			if (key3 == null) {
 				keyTable[index3] = evictedKey;
 				valueTable[index3] = evictedValue;
-				if (size++ >= threshold)
+				if (size++ >= threshold) {
 					resize(capacity << 1);
+				}
 				return;
 			}
 
-			if (++i == pushIterations)
+			if (++i == pushIterations) {
 				break;
+			}
 
 			insertKey = evictedKey;
 			insertValue = evictedValue;
@@ -287,8 +302,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			index = hash2(hashCode);
 			if (key != keyTable[index]) {
 				index = hash3(hashCode);
-				if (key != keyTable[index])
+				if (key != keyTable[index]) {
 					return getStash(key, defaultValue);
+				}
 			}
 		}
 		return valueTable[index];
@@ -296,9 +312,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 
 	private int getStash(K key, int defaultValue) {
 		K[] keyTable = this.keyTable;
-		for (int i = capacity, n = i + stashSize; i < n; i++)
-			if (key == keyTable[i])
+		for (int i = capacity, n = i + stashSize; i < n; i++) {
+			if (key == keyTable[i]) {
 				return valueTable[i];
+			}
+		}
 		return defaultValue;
 	}
 
@@ -309,12 +327,13 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public int getAndIncrement(K key, int defaultValue, int increment) {
 		int hashCode = System.identityHashCode(key);
 		int index = hashCode & mask;
-		if (key !=keyTable[index]) {
+		if (key != keyTable[index]) {
 			index = hash2(hashCode);
 			if (key != keyTable[index]) {
 				index = hash3(hashCode);
-				if (key != keyTable[index])
+				if (key != keyTable[index]) {
 					return getAndIncrementStash(key, defaultValue, increment);
+				}
 			}
 		}
 		int value = valueTable[index];
@@ -392,12 +411,15 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	 * capacity is used instead.
 	 */
 	public void shrink(int maximumCapacity) {
-		if (maximumCapacity < 0)
+		if (maximumCapacity < 0) {
 			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + maximumCapacity);
-		if (size > maximumCapacity)
+		}
+		if (size > maximumCapacity) {
 			maximumCapacity = size;
-		if (capacity <= maximumCapacity)
+		}
+		if (capacity <= maximumCapacity) {
 			return;
+		}
 		maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
 		resize(maximumCapacity);
 	}
@@ -413,8 +435,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	}
 
 	public void clear() {
-		if (size == 0)
+		if (size == 0) {
 			return;
+		}
 		K[] keyTable = this.keyTable;
 		for (int i = capacity + stashSize; i-- > 0;)
 			keyTable[i] = null;
@@ -429,9 +452,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public boolean containsValue(int value) {
 		K[] keyTable = this.keyTable;
 		int[] valueTable = this.valueTable;
-		for (int i = capacity + stashSize; i-- > 0;)
-			if (keyTable[i] != null && valueTable[i] == value)
+		for (int i = capacity + stashSize; i-- > 0;) {
+			if (keyTable[i] != null && valueTable[i] == value) {
 				return true;
+			}
+		}
 		return false;
 
 	}
@@ -443,8 +468,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			index = hash2(hashCode);
 			if (key != keyTable[index]) {
 				index = hash3(hashCode);
-				if (key != keyTable[index])
+				if (key != keyTable[index]) {
 					return containsKeyStash(key);
+				}
 			}
 		}
 		return true;
@@ -452,9 +478,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 
 	private boolean containsKeyStash(K key) {
 		K[] keyTable = this.keyTable;
-		for (int i = capacity, n = i + stashSize; i < n; i++)
-			if (key == keyTable[i])
+		for (int i = capacity, n = i + stashSize; i < n; i++) {
+			if (key == keyTable[i]) {
 				return true;
+			}
+		}
 		return false;
 	}
 
@@ -465,9 +493,11 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	public K findKey(int value) {
 		K[] keyTable = this.keyTable;
 		int[] valueTable = this.valueTable;
-		for (int i = capacity + stashSize; i-- > 0;)
-			if (keyTable[i] != null && valueTable[i] == value)
+		for (int i = capacity + stashSize; i-- > 0;) {
+			if (keyTable[i] != null && valueTable[i] == value) {
 				return keyTable[i];
+			}
+		}
 		return null;
 	}
 
@@ -477,8 +507,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	 */
 	public void ensureCapacity(int additionalCapacity) {
 		int sizeNeeded = size + additionalCapacity;
-		if (sizeNeeded >= threshold)
+		if (sizeNeeded >= threshold) {
 			resize(MathUtils.nextPowerOfTwo((int) (sizeNeeded / loadFactor)));
+		}
 	}
 
 	private void resize(int newSize) {
@@ -503,8 +534,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (oldSize > 0) {
 			for (int i = 0; i < oldEndIndex; i++) {
 				K key = oldKeyTable[i];
-				if (key != null)
+				if (key != null) {
 					putResize(key, oldValueTable[i]);
+				}
 			}
 		}
 	}
@@ -528,7 +560,6 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			K key = keyTable[i];
 			if (key != null) {
 				h += System.identityHashCode(key) * 31;
-
 				int value = valueTable[i];
 				h += value;
 			}
@@ -538,25 +569,32 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this)
+		if (obj == this) {
 			return true;
-		if (!(obj instanceof IdentityObjectIntMap))
+		}
+
+		if (!(obj instanceof IdentityObjectIntMap)) {
 			return false;
-		@SuppressWarnings("unchecked")
-		IdentityObjectIntMap<K> other = (IdentityObjectIntMap<K>) obj;
-		if (other.size != size)
+		}
+
+		IdentityObjectIntMap<K> other = ValueUtils.cast(obj);
+		if (other.size != size) {
 			return false;
+		}
+
 		K[] keyTable = this.keyTable;
 		int[] valueTable = this.valueTable;
 		for (int i = 0, n = capacity + stashSize; i < n; i++) {
 			K key = keyTable[i];
 			if (key != null) {
 				int otherValue = other.get(key, 0);
-				if (otherValue == 0 && !other.containsKey(key))
+				if (otherValue == 0 && !other.containsKey(key)) {
 					return false;
+				}
 				int value = valueTable[i];
-				if (otherValue != value)
+				if (otherValue != value) {
 					return false;
+				}
 			}
 		}
 		return true;
@@ -564,8 +602,10 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 
 	@Override
 	public String toString() {
-		if (size == 0)
+		if (size == 0) {
 			return "{}";
+		}
+
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append('{');
 		K[] keyTable = this.keyTable;
@@ -573,8 +613,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		int i = keyTable.length;
 		while (i-- > 0) {
 			K key = keyTable[i];
-			if (key == null)
+			if (key == null) {
 				continue;
+			}
 			buffer.append(key);
 			buffer.append('=');
 			buffer.append(valueTable[i]);
@@ -582,8 +623,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		}
 		while (i-- > 0) {
 			K key = keyTable[i];
-			if (key == null)
+			if (key == null) {
 				continue;
+			}
 			buffer.append(", ");
 			buffer.append(key);
 			buffer.append('=');
@@ -625,10 +667,10 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	 * returned each time this method is called. Use the {@link Entries} constructor for nested or multithreaded
 	 * iteration.
 	 */
-	public Values values() {
+	public Values<K> values() {
 		if (values1 == null) {
-			values1 = new Values(this);
-			values2 = new Values(this);
+			values1 = new Values<K>(this);
+			values2 = new Values<K>(this);
 		}
 		if (!values1.valid) {
 			values1.reset();
@@ -728,10 +770,12 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		/** Note the same entry instance is returned each time this method is called. */
 		@Override
 		public Entry<K> next() {
-			if (!hasNext)
+			if (!hasNext) {
 				throw new NoSuchElementException();
-			if (!valid)
+			}
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			K[] keyTable = map.keyTable;
 			entry.key = keyTable[nextIndex];
 			entry.value = map.valueTable[nextIndex];
@@ -742,8 +786,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 
 		@Override
 		public boolean hasNext() {
-			if (!valid)
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			return hasNext;
 		}
 
@@ -758,22 +803,25 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		}
 	}
 
-	static public class Values extends MapIterator<Object> {
-		public Values(IdentityObjectIntMap<?> map) {
-			super((IdentityObjectIntMap<Object>) map);
+	static public class Values<V> extends MapIterator<V> {
+		public Values(IdentityObjectIntMap<V> map) {
+			super(map);
 		}
 
 		public boolean hasNext() {
-			if (!valid)
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			return hasNext;
 		}
 
 		public int next() {
-			if (!hasNext)
+			if (!hasNext) {
 				throw new NoSuchElementException();
-			if (!valid)
+			}
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			int value = map.valueTable[nextIndex];
 			currentIndex = nextIndex;
 			findNextIndex();
@@ -783,8 +831,9 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		/** Returns a new array containing the remaining values. */
 		public IntArray toArray() {
 			IntArray array = new IntArray(true, map.size);
-			while (hasNext)
+			while (hasNext) {
 				array.add(next());
+			}
 			return array;
 		}
 	}
@@ -796,17 +845,20 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 
 		@Override
 		public boolean hasNext() {
-			if (!valid)
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			return hasNext;
 		}
 
 		@Override
 		public K next() {
-			if (!hasNext)
+			if (!hasNext) {
 				throw new NoSuchElementException();
-			if (!valid)
+			}
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			K key = map.keyTable[nextIndex];
 			currentIndex = nextIndex;
 			findNextIndex();
@@ -821,15 +873,17 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		/** Returns a new array containing the remaining keys. */
 		public Array<K> toArray() {
 			Array<K> array = new Array<K>(true, map.size);
-			while (hasNext)
+			while (hasNext) {
 				array.add(next());
+			}
 			return array;
 		}
 
 		/** Adds the remaining keys to the array. */
 		public Array<K> toArray(Array<K> array) {
-			while (hasNext)
+			while (hasNext) {
 				array.add(next());
+			}
 			return array;
 		}
 

@@ -106,7 +106,8 @@ public class GenericBatch implements Disposable {
 		ensure3d();
 	}
 
-	public void render(final RenderableProvider renderableProvider, final Environment environment, final Shader shader) {
+	public void render(final RenderableProvider renderableProvider, final Environment environment,
+			final Shader shader) {
 		ensure3d();
 	}
 
