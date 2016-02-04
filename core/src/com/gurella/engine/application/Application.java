@@ -61,7 +61,7 @@ public class Application extends SceneElementsResourceContext implements Applica
 	}
 
 	@Override
-	public void create() {
+	public final void create() {
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		// TODO Auto-generated method stub
@@ -71,13 +71,13 @@ public class Application extends SceneElementsResourceContext implements Applica
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public final void resize(int width, int height) {
 		// TODO not yet handled by scene
 		applicationResizeSignal.onResize(width, height);
 	}
 
 	@Override
-	public void render() {
+	public final void render() {
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -86,20 +86,20 @@ public class Application extends SceneElementsResourceContext implements Applica
 	}
 
 	@Override
-	public void pause() {
+	public final void pause() {
 		paused = true;
 		// TODO not yet handled by scene
 		applicationActivitySignal.onPause();
 	}
 
 	@Override
-	public void resume() {
+	public final void resume() {
 		paused = false;
 		// TODO not yet handled by scene
 		applicationActivitySignal.onResume();
 	}
 
-	public boolean isPaused() {
+	public final boolean isPaused() {
 		return paused;
 	}
 
