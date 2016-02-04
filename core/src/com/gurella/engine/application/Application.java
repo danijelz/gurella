@@ -17,7 +17,7 @@ import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.DisposablesService;
 
-public class Application extends SceneElementsResourceContext implements ApplicationListener {
+public final class Application extends SceneElementsResourceContext implements ApplicationListener {
 	private static final String SCENES_TAG = "scenes";
 	private static final String INITIAL_SCENE_ID_TAG = "initialSceneId";
 	private static final String BACKGROUND_COLOR_TAG = "backgroundColor";
