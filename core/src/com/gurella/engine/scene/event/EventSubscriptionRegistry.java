@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.utils.ValueUtils;
@@ -60,8 +61,7 @@ class EventSubscriptionRegistry {
 		ObjectSet<EventCallbackIdentifier<?>> listenerMarkerCallbacks = new ObjectSet<EventCallbackIdentifier<?>>();
 		ObjectSet<Class<?>> listenerSubscriptions = new ObjectSet<Class<?>>();
 
-		// TODO replace with ClassReflection.getInterfaces(componentClass)
-		Class<?>[] interfaces = listenerType.getInterfaces();
+		Class<?>[] interfaces = ClassReflection.getInterfaces(listenerType);
 		for (int i = 0; i < interfaces.length; i++) {
 			Class<?> listenerInterface = interfaces[i];
 			initCaches(listenerInterface);
