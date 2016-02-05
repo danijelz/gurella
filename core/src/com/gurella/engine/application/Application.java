@@ -10,12 +10,13 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.gurella.engine.application.events.ApplicationActivitySignal;
 import com.gurella.engine.application.events.ApplicationResizeSignal;
+import com.gurella.engine.application.events.ApplicationShutdownSignal;
 import com.gurella.engine.application.events.ApplicationUpdateSignal;
 import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.utils.DisposablesService;
 
 public final class Application extends SceneElementsResourceContext implements ApplicationListener {
 	private static final String SCENES_TAG = "scenes";
@@ -28,9 +29,10 @@ public final class Application extends SceneElementsResourceContext implements A
 	private boolean paused;
 	private final SceneManager sceneManager = new SceneManager(this);
 
-	private final ApplicationUpdateSignal applicationUpdateSignal = new ApplicationUpdateSignal();
-	private final ApplicationResizeSignal applicationResizeSignal = new ApplicationResizeSignal();
-	private final ApplicationActivitySignal applicationActivitySignal = new ApplicationActivitySignal();
+	private final ApplicationUpdateSignal updateSignal = new ApplicationUpdateSignal();
+	private final ApplicationResizeSignal resizeSignal = new ApplicationResizeSignal();
+	private final ApplicationActivitySignal activitySignal = new ApplicationActivitySignal();
+	private final ApplicationShutdownSignal shutdownSignal = new ApplicationShutdownSignal(); 
 
 	private final ApplicationInitializer initializer;
 
@@ -73,7 +75,7 @@ public final class Application extends SceneElementsResourceContext implements A
 	@Override
 	public final void resize(int width, int height) {
 		// TODO not yet handled by scene
-		applicationResizeSignal.onResize(width, height);
+		resizeSignal.onResize(width, height);
 	}
 
 	@Override
@@ -82,21 +84,21 @@ public final class Application extends SceneElementsResourceContext implements A
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		EventService.notify(UpdateEvent.instance);
-		applicationUpdateSignal.update();
+		updateSignal.update();
 	}
 
 	@Override
 	public final void pause() {
 		paused = true;
 		// TODO not yet handled by scene
-		applicationActivitySignal.onPause();
+		activitySignal.onPause();
 	}
 
 	@Override
 	public final void resume() {
 		paused = false;
 		// TODO not yet handled by scene
-		applicationActivitySignal.onResume();
+		activitySignal.onResume();
 	}
 
 	public final boolean isPaused() {
@@ -117,6 +119,7 @@ public final class Application extends SceneElementsResourceContext implements A
 
 	@Override
 	public void dispose() {
+		shutdownSignal.onShutdown();
 		// TODO Auto-generated method stub
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();

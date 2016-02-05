@@ -14,10 +14,13 @@ public class ResourceService implements UpdateListener {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 	private static final AssetManager assetManager = new AssetManager();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
-
-	private ResourceService() {
+	
+	static {
 		Texture.setAssetManager(assetManager);
 		Cubemap.setAssetManager(assetManager);
+	}
+
+	private ResourceService() {
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {

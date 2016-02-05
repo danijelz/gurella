@@ -1,10 +1,8 @@
-package com.gurella.engine.scene.manager;
+package com.gurella.engine.scene.event;
 
 import com.gurella.engine.application.events.ApplicationActivityListener;
 import com.gurella.engine.application.events.ApplicationResizeListener;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.event.EventManager;
-import com.gurella.engine.scene.event.EventSubscription;
 import com.gurella.engine.utils.ImmutableArray;
 
 public final class SceneEventsSignal {

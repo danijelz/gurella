@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -13,7 +14,6 @@ import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.utils.DisposablesService;
 
 //TODO attach listeners on activate
 public class RenderSystem extends SceneSystem implements SceneListener, UpdateListener {

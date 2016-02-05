@@ -1,4 +1,4 @@
-package com.gurella.engine.utils;
+package com.gurella.engine.disposable;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;

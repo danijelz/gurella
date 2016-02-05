@@ -3,11 +3,10 @@ package com.gurella.engine.audio;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
-import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.utils.SynchronizedPools;
 
-public class AudioTrack implements Poolable, Listener1<Float> {
+public class AudioTrack implements Poolable, VolumeListener {
 	private AudioChannel audioChannel;
 	private AudioClip audioClip;
 	public final Signal1Impl<AudioTrack> completitionCallbacks = new Signal1Impl<AudioTrack>();
@@ -41,19 +40,17 @@ public class AudioTrack implements Poolable, Listener1<Float> {
 		AudioChannel nonNullAudioChannel = getNonNullAudioChannel(audioChannel);
 		track.audioChannel = nonNullAudioChannel;
 		track.setChannelVolume(nonNullAudioChannel.getCommonVolume());
-		nonNullAudioChannel.volumeListeners.addListener(track);
+		nonNullAudioChannel.addVolumeListener(track);
 		return track;
 	}
 
 	private static AudioChannel getNonNullAudioChannel(AudioChannel audioChannel) {
-		return audioChannel == null
-				? AudioChannel.DEFAULT
-				: audioChannel;
+		return audioChannel == null ? AudioChannel.DEFAULT : audioChannel;
 	}
 
 	@Override
-	public void handle(Float newChannelVolume) {
-		setChannelVolume(newChannelVolume == null ? 0 : newChannelVolume.floatValue());
+	public void volumeChanged(float newChannelVolume) {
+		setChannelVolume(newChannelVolume);
 	}
 
 	private void setChannelVolume(float newChannelVolume) {
@@ -227,7 +224,7 @@ public class AudioTrack implements Poolable, Listener1<Float> {
 
 	@Override
 	public void reset() {
-		audioChannel.volumeListeners.removeListener(this);
+		audioChannel.removeVolumeListener(this);
 		audioChannel = null;
 		audioClip = null;
 		channelVolume = 1;

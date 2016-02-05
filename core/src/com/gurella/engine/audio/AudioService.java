@@ -1,10 +1,8 @@
 package com.gurella.engine.audio;
 
-import com.gurella.engine.event.Signal1.Signal1Impl;
-
 public class AudioService {
 	private static final Volume volume = new Volume();
-	public static Signal1Impl<Float> volumeListeners = new Signal1Impl<Float>();
+	private static VolumeSignal volumeSignal = new VolumeSignal();
 
 	public static float getVolume() {
 		return volume.getVolume();
@@ -12,6 +10,14 @@ public class AudioService {
 
 	public static void setVolume(float newVolume) {
 		volume.setVolume(newVolume);
-		volumeListeners.dispatch(Float.valueOf(volume.getVolume()));
+		volumeSignal.volumeChanged(volume.getVolume());
+	}
+
+	public static boolean addVolumeListener(VolumeListener listener) {
+		return volumeSignal.addListener(listener);
+	}
+
+	public static boolean removeVolumeListener(VolumeListener listener) {
+		return volumeSignal.removeListener(listener);
 	}
 }

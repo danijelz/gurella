@@ -46,7 +46,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.manager.AssetLoadingTask.LoadingState;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.AsyncCallback.SimpleAsyncCallback;
-import com.gurella.engine.utils.DisposablesService;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.utils.ValueUtils;
 
 /**

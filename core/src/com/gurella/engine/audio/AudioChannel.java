@@ -1,17 +1,15 @@
 package com.gurella.engine.audio;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.utils.SynchronizedPools;
 
-public class AudioChannel implements Poolable, Listener1<Float> {
+public class AudioChannel implements Poolable, VolumeListener {
 	static final AudioChannel DEFAULT = newInstance();
 
 	private final Volume volume = new Volume();
 	private final Volume commonVolume = new Volume();
 
-	final Signal1Impl<Float> volumeListeners = new Signal1Impl<Float>();
+	private VolumeSignal volumeSignal = new VolumeSignal();
 
 	private float masterVolume;
 
@@ -20,7 +18,7 @@ public class AudioChannel implements Poolable, Listener1<Float> {
 
 	public static AudioChannel newInstance() {
 		AudioChannel audioChannel = SynchronizedPools.obtain(AudioChannel.class);
-		AudioService.volumeListeners.addListener(audioChannel);
+		AudioService.addVolumeListener(audioChannel);
 		audioChannel.masterVolume = AudioService.getVolume();
 		audioChannel.updateVolume();
 		return audioChannel;
@@ -37,7 +35,7 @@ public class AudioChannel implements Poolable, Listener1<Float> {
 
 	private void updateVolume() {
 		commonVolume.setVolume(getVolume() * masterVolume);
-		volumeListeners.dispatch(Float.valueOf(commonVolume.getVolume()));
+		volumeSignal.volumeChanged(commonVolume.getVolume());
 	}
 
 	public float getCommonVolume() {
@@ -45,9 +43,17 @@ public class AudioChannel implements Poolable, Listener1<Float> {
 	}
 
 	@Override
-	public void handle(Float newMasterVolume) {
-		this.masterVolume = newMasterVolume.floatValue();
+	public void volumeChanged(float newMasterVolume) {
+		this.masterVolume = newMasterVolume;
 		updateVolume();
+	}
+
+	public boolean addVolumeListener(VolumeListener listener) {
+		return volumeSignal.addListener(listener);
+	}
+
+	public boolean removeVolumeListener(VolumeListener listener) {
+		return volumeSignal.removeListener(listener);
 	}
 
 	public void free() {
@@ -57,7 +63,7 @@ public class AudioChannel implements Poolable, Listener1<Float> {
 	@Override
 	public void reset() {
 		volume.setVolume(1);
-		volumeListeners.clear();
-		AudioService.volumeListeners.removeListener(this);
+		volumeSignal.clear();
+		AudioService.removeVolumeListener(this);
 	}
 }
