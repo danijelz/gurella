@@ -127,13 +127,6 @@ public class AudioTrack implements Poolable, VolumeListener {
 		return pan.getPan();
 	}
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-		if (isPlaying()) {
-			audioClip.sound.setPriority(handle, priority);
-		}
-	}
-
 	public int getPriority() {
 		return priority;
 	}

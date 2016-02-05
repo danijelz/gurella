@@ -3,16 +3,16 @@ package com.gurella.engine.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.InputProcessorQueue;
+import com.badlogic.gdx.InputEventQueue;
 
 public class InputService {
 	private static final InputMultiplexer multiplexer = new InputMultiplexer();
-	private static final InputProcessorQueue inputProcessorQueue = new InputProcessorQueue(multiplexer);
+	private static final InputEventQueue inputQueue = new InputEventQueue(multiplexer);
 	private static final InputMapper mapper = new InputMapper();
 
 	static {
 		multiplexer.addProcessor(mapper);
-		Gdx.input.setInputProcessor(inputProcessorQueue);
+		Gdx.input.setInputProcessor(inputQueue);
 	}
 
 	private InputService() {

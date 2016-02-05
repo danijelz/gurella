@@ -21,8 +21,6 @@ public class AudioSourceComponent extends SceneNodeComponent {
 	@DefaultValue(booleanValue = true)
 	public boolean spatial = true;
 	public boolean repeatable;
-	@DefaultValue(integerValue = Integer.MAX_VALUE)
-	public int priority = Integer.MAX_VALUE;
 	@DefaultValue(enumOrdinal = 3)
 	public Attenuation attenuation = Attenuation.ROLLOFF;
 	@ResourceProperty

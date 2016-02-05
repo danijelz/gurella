@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessorQueue;
+import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -61,7 +61,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 
 	private InputProcessorDelegate delegate = new InputProcessorDelegate();
 	private InputAdapter dummyDelegate = new InputAdapter();
-	private InputProcessorQueue inputProcessorQueue = new InputProcessorQueue(delegate);
+	private InputEventQueue inputQueue = new InputEventQueue(delegate);
 
 	private IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
 	public final PointerActivitySignal pointerActivitySignal = new PointerActivitySignal();
@@ -93,12 +93,12 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 			componentActivated(components.get(i));
 		}
 
-		InputService.addInputProcessor(inputProcessorQueue);
+		InputService.addInputProcessor(inputQueue);
 	}
 
 	@Override
 	protected void deactivated() {
-		InputService.removeInputProcessor(inputProcessorQueue);
+		InputService.removeInputProcessor(inputQueue);
 		resetData();
 		eventManager = null;
 		spatialPartitioningSystem = null;
@@ -106,7 +106,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 
 	@Override
 	public void update() {
-		inputProcessorQueue.drain();
+		inputQueue.drain();
 		delegate.clean();
 	}
 
@@ -117,9 +117,9 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 
 	private void resetData() {
 		// TODO update listeners and finish actions
-		inputProcessorQueue.setProcessor(dummyDelegate);
-		inputProcessorQueue.drain();
-		inputProcessorQueue.setProcessor(delegate);
+		inputQueue.setProcessor(dummyDelegate);
+		inputQueue.drain();
+		inputQueue.setProcessor(delegate);
 		delegate.reset();
 		pointerActivitySignal.reset();
 		mouseMoveProcessor.reset();
@@ -424,7 +424,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			PointerTrack tracker = createTracker(pointer, button);
-			long eventTime = inputProcessorQueue.getCurrentEventTime();
+			long eventTime = inputQueue.getCurrentEventTime();
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
 
 			touchEvent.set(pointer, button, screenX, screenY);
@@ -471,7 +471,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 
 			PointerTrack tracker = getTracker(pointer, button);
 			if (tracker != null) {
-				long eventTime = inputProcessorQueue.getCurrentEventTime();
+				long eventTime = inputQueue.getCurrentEventTime();
 				tracker.add(eventTime, screenX, screenY, closestIntersection, node, end);
 				pointerActivitySignal.onPointerActivity(pointer, button, tracker);
 			}
@@ -493,7 +493,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 
 					PointerTrack tracker = getTracker(pointer, button);
 					if (tracker != null) {
-						long eventTime = inputProcessorQueue.getCurrentEventTime();
+						long eventTime = inputQueue.getCurrentEventTime();
 						tracker.add(eventTime, screenX, screenY, closestIntersection, node, move);
 						pointerActivitySignal.onPointerActivity(pointer, button, tracker);
 					}

@@ -114,7 +114,6 @@ public class AudioSystem extends SceneSystem implements SceneListener, UpdateLis
 		AudioSourceData audioSourceData = activeSources.get(source.getNode().id);
 		if (canObtainTrack(audioSourceData, source.repeatable)) {
 			AudioTrack track = AudioTrack.newInstance(getNonNullAudioChannel(audioChannel), source.audioClip);
-			track.setPriority(source.priority);
 			audioSourceData.activeAudioTracks.put(track.getHandle(), track);
 			track.completitionCallbacks.addListener(optionalCompletitionCallback);
 
