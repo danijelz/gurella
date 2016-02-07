@@ -29,7 +29,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.AbstractSignal;
@@ -45,6 +44,7 @@ import com.gurella.engine.scene.event.EventCallbackIdentifier;
 import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
+import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
@@ -69,7 +69,8 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(this);
 	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(this);
 	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(this, dragAndDropProcessor);
-	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(this, dragAndDropProcessor);
+	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(this,
+			dragAndDropProcessor);
 	private DragInputProcessor dragInputProcessor = new DragInputProcessor(this);
 
 	public InputSystem() {
@@ -84,7 +85,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 		Scene scene = getScene();
 		eventManager = scene.eventManager;
 		spatialPartitioningSystem = scene.spatialPartitioningSystem;
-		
+
 		scene.addListener(this);
 
 		// TODO use componentManager
@@ -292,6 +293,7 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 	private final Vector3 screenCoord = new Vector3();
 	private final Vector3 projectedCoord = new Vector3();
 	private final PickResult pickResult = new PickResult();
+	private final LayerMask layerMask = new LayerMask();
 
 	private PickResult pickNode(PickResult out, float screenX, float screenY, Layer layer, Camera camera) {
 		Vector3 cameraPosition = camera.position;
@@ -300,7 +302,8 @@ public class InputSystem extends SceneSystem implements SceneListener, UpdateLis
 		float closestDistance = Float.MAX_VALUE;
 
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		spatialPartitioningSystem.getSpatials(pickRay, spatials, layer);
+		layerMask.reset();
+		spatialPartitioningSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderableComponent = spatial.renderableComponent;

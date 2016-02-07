@@ -3,7 +3,6 @@ package com.gurella.engine.scene.layer;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
-//TODO unused
 public class LayerMask implements Poolable {
 	private boolean allAlowed = true;
 	private final Bits allowed = new Bits();

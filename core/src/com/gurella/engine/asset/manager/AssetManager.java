@@ -711,11 +711,8 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	public void clear() {
 		synchronized (lock) {
 			clearQueue(asyncQueue);
-			asyncQueue.clear();
 			clearQueue(waitingQueue);
-			waitingQueue.clear();
 			clearQueue(syncQueue);
-			syncQueue.clear();
 			currentTask = null;
 
 			for (AssetReference reference : assetsByFileName.values()) {
@@ -749,6 +746,8 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 				task.free();
 			}
 		}
+		
+		queue.clear();
 	}
 
 	@Override
