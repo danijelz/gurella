@@ -13,6 +13,7 @@ import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
+import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 
 //TODO attach listeners on activate
@@ -20,6 +21,7 @@ public class RenderSystem extends SceneSystem implements SceneListener, UpdateLi
 	private final GenericBatch batch = DisposablesService.add(new GenericBatch());
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
+	private final LayerMask layerMask = new LayerMask();
 
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
@@ -45,7 +47,8 @@ public class RenderSystem extends SceneSystem implements SceneListener, UpdateLi
 	}
 
 	private void renderSpatials(Layer layer, Camera camera) {
-		getScene().spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layer);
+		layerMask.reset();
+		getScene().spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask.allowed(layer));
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			spatial.renderableComponent.render(batch);

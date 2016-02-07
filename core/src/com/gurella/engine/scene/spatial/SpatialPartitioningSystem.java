@@ -15,6 +15,7 @@ import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.LayerComponent;
+import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 //TODO attach listeners
@@ -70,26 +71,26 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	protected abstract void doUpdateSpatials();
 
-	public void getSpatials(BoundingBox bounds, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask) {
 		updateSpatials();
-		doGetSpatials(bounds, out, layers);
+		doGetSpatials(bounds, out, mask);
 	}
 
-	protected abstract void doGetSpatials(BoundingBox bounds, Array<Spatial> out, Layer... layers);
+	protected abstract void doGetSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask);
 
-	public void getSpatials(Frustum frustum, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask) {
 		updateSpatials();
-		doGetSpatials(frustum, out, layers);
+		doGetSpatials(frustum, out, mask);
 	}
 
-	protected abstract void doGetSpatials(Frustum frustum, Array<Spatial> out, Layer... layers);
+	protected abstract void doGetSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask);
 
-	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(Ray ray, Array<Spatial> out, LayerMask mask) {
 		updateSpatials();
-		doGetSpatials(ray, out, layers);
+		doGetSpatials(ray, out, mask);
 	}
 
-	protected abstract void doGetSpatials(Ray ray, Array<Spatial> out, Layer... layers);
+	protected abstract void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask);
 
 	public synchronized void clear() {
 		Values<T> values = allSpatials.values();

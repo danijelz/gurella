@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.scene.layer.Layer;
+import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
@@ -39,18 +39,18 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 	}
 
 	@Override
-	protected void doGetSpatials(BoundingBox bounds, Array<Spatial> out, Layer... layers) {
-		bvh.traverseSpatials(bounds, out, layers);
+	protected void doGetSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask) {
+		bvh.traverseSpatials(bounds, out, mask);
 	}
 
 	@Override
-	protected void doGetSpatials(Frustum frustum, Array<Spatial> out, Layer... layers) {
-		bvh.traverseSpatials(frustum, out, layers);
+	protected void doGetSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask) {
+		bvh.traverseSpatials(frustum, out, mask);
 	}
 
 	@Override
-	protected void doGetSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
-		bvh.traverseSpatials(ray, out, layers);
+	protected void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask) {
+		bvh.traverseSpatials(ray, out, mask);
 	}
 
 	@Override

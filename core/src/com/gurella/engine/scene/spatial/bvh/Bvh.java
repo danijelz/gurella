@@ -1,7 +1,5 @@
 package com.gurella.engine.scene.spatial.bvh;
 
-import java.util.Arrays;
-
 import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
@@ -10,9 +8,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.ObjectSet.ObjectSetIterator;
-import com.gurella.engine.scene.layer.Layer;
+import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.utils.ValueUtils;
 
 public class Bvh {
 	public BvhNode rootNode;
@@ -31,16 +28,16 @@ public class Bvh {
 		this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
 		init(objects);
 	}
-	
+
 	public Bvh(int LEAF_OBJ_MAX) {
 		this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
 	}
 
 	public void init(Array<BvhSpatial> objects) {
-		if(rootNode != null) {
+		if (rootNode != null) {
 			throw new IllegalStateException("Bvh already initialized.");
 		}
-		
+
 		if (objects.size > 0) {
 			rootNode = new BvhNode(this, objects);
 		} else {
@@ -73,35 +70,36 @@ public class Bvh {
 			traverse(node.right, hitTest, result);
 		}
 	}
-	
-	public void traverseSpatials(Ray ray, Array<Spatial> result, Layer... layers) {
-		traverseSpatials(rootNode, new RayHitTest(ray), result, layers);
+
+	public void traverseSpatials(Ray ray, Array<Spatial> result, LayerMask mask) {
+		traverseSpatials(rootNode, new RayHitTest(ray), result, mask);
 	}
 
-	public void traverseSpatials(Frustum frustum, Array<Spatial> result, Layer... layers) {
-		traverseSpatials(rootNode, new FrustumHitTest(frustum), result, layers);
+	public void traverseSpatials(Frustum frustum, Array<Spatial> result, LayerMask mask) {
+		traverseSpatials(rootNode, new FrustumHitTest(frustum), result, mask);
 	}
 
-	public void traverseSpatials(BoundingBox volume, Array<Spatial> result, Layer... layers) {
-		traverseSpatials(rootNode, new BoundingBoxHitTest(volume), result, layers);
+	public void traverseSpatials(BoundingBox volume, Array<Spatial> result, LayerMask mask) {
+		traverseSpatials(rootNode, new BoundingBoxHitTest(volume), result, mask);
 	}
-	
-	private void traverseSpatials(BvhNode node, NodeTest hitTest, Array<Spatial> result, Layer... layers) {
+
+	private void traverseSpatials(BvhNode node, NodeTest hitTest, Array<Spatial> result, LayerMask mask) {
 		if (node == null) {
 			return;
 		}
 
 		if (hitTest.intersects(node.box)) {
 			if (node.spatials != null) {
-				for(int i = 0; i < node.spatials.size; i++) {
+				for (int i = 0; i < node.spatials.size; i++) {
 					BvhSpatial spatial = node.spatials.get(i);
-					if(ValueUtils.isEmpty(layers) || Arrays.binarySearch(layers, spatial.layer) >= 0) {
+					if (mask == null || mask.isValid(spatial.layer)) {
 						result.add(spatial);
 					}
 				}
 			}
-			traverseSpatials(node.left, hitTest, result);
-			traverseSpatials(node.right, hitTest, result);
+
+			traverseSpatials(node.left, hitTest, result, mask);
+			traverseSpatials(node.right, hitTest, result, mask);
 		}
 	}
 
@@ -115,7 +113,7 @@ public class Bvh {
 
 		while (refitNodes.size > 0) {
 			initSweepNodes();
-			
+
 			for (int i = 0; i < sweepNodes.size; i++) {
 				refitNodes.remove(sweepNodes.get(i));
 			}
@@ -123,7 +121,7 @@ public class Bvh {
 			for (int i = 0; i < sweepNodes.size; i++) {
 				sweepNodes.get(i).tryRotate();
 			}
-			
+
 			sweepNodes.clear();
 		}
 	}

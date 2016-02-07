@@ -23,7 +23,7 @@ import com.kotcrab.vis.ui.widget.VisSelectBox;
 
 public class GdxCanvasTestApp {
 	private static final String TEST_CLASSES_PACKAGE = "com.gurella.engine.desktop.gdxcanvastest";
-	private static final String TEST_CLASSES_RELATIVE_PATH = TEST_CLASSES_PACKAGE.replace('.', '/');;
+	private static final String TEST_CLASSES_RELATIVE_PATH = TEST_CLASSES_PACKAGE.replace('.', '/');
 
 	public static void main(String args[]) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
@@ -81,7 +81,7 @@ public class GdxCanvasTestApp {
 			testItemSelected();
 		}
 
-		private Array<TestItem> createTestItems() {
+		private static Array<TestItem> createTestItems() {
 			Array<TestItem> listItems = new Array<TestItem>();
 			for (Class<? extends CanvasTestCase> testCase : findTestClasses()) {
 				listItems.add(new TestItem(testCase));
@@ -91,7 +91,7 @@ public class GdxCanvasTestApp {
 			return listItems;
 		}
 
-		private Array<Class<? extends CanvasTestCase>> findTestClasses() {
+		private static Array<Class<? extends CanvasTestCase>> findTestClasses() {
 			Array<Class<? extends CanvasTestCase>> classes = new Array<Class<? extends CanvasTestCase>>();
 			URL resource = ClassLoader.getSystemClassLoader().getResource(TEST_CLASSES_RELATIVE_PATH);
 			File file = new File(resource.getPath());
@@ -121,6 +121,7 @@ public class GdxCanvasTestApp {
 		public void dispose() {
 			VisUI.dispose();
 			stage.dispose();
+			canvas.dispose();
 		}
 
 		@Override

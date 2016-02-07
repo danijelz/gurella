@@ -3,11 +3,13 @@ package com.gurella.engine.scene.layer;
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.IndexedValue;
 
 public final class Layer implements Comparable<Layer> {
 	private static IndexedValue<Layer> INDEXER = new IndexedValue<Layer>();
+	private static IntMap<Layer> layersByOrdnal = new IntMap<Layer>();
 	private static ObjectMap<String, Layer> layersByName = new ObjectMap<String, Layer>();
 
 	public static final Layer DEFAULT = new Layer(0, "Default");
@@ -19,14 +21,19 @@ public final class Layer implements Comparable<Layer> {
 	public final String name;
 
 	public Layer(int ordinal, String name) {
+		if (layersByOrdnal.containsKey(ordinal)) {
+			throw new GdxRuntimeException("Layer ordinal duplicate.");
+		}
+
 		if (layersByName.containsKey(name)) {
-			throw new GdxRuntimeException("Layer name duplicate");
+			throw new GdxRuntimeException("Layer name duplicate.");
 		}
 
 		this.id = INDEXER.getIndex(this);
 		this.name = name;
 		this.ordinal = ordinal;
 
+		layersByOrdnal.put(ordinal, this);
 		layersByName.put(name, this);
 	}
 
