@@ -20,6 +20,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void init() {
 	}
+	
+	protected void activate() {
+	}
+	
+	protected void deactivate() {
+	}
 
 	@Override
 	public int hashCode() {

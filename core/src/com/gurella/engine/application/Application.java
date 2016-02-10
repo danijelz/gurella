@@ -32,7 +32,7 @@ public final class Application extends SceneElementsResourceContext implements A
 	private final ApplicationUpdateSignal updateSignal = new ApplicationUpdateSignal();
 	private final ApplicationResizeSignal resizeSignal = new ApplicationResizeSignal();
 	private final ApplicationActivitySignal activitySignal = new ApplicationActivitySignal();
-	private final ApplicationShutdownSignal shutdownSignal = new ApplicationShutdownSignal(); 
+	private final ApplicationShutdownSignal shutdownSignal = new ApplicationShutdownSignal();
 
 	private final ApplicationInitializer initializer;
 
