@@ -9,11 +9,15 @@ import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.asset.manager.AssetManager;
+import com.gurella.engine.event.Signal1.Signal1Impl;
 
 public class ResourceService implements UpdateListener {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 	private static final AssetManager assetManager = new AssetManager();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
+	
+	private static final Signal1Impl<String> resourceLoadedSignal = new Signal1Impl<String>();
+	private static final Signal1Impl<String> resourceUnloadedSignal = new Signal1Impl<String>();
 	
 	static {
 		Texture.setAssetManager(assetManager);
