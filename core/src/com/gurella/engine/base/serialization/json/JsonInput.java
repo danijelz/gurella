@@ -96,7 +96,7 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValuePresent() {
 		return value != null;
 	}
 
@@ -304,6 +304,7 @@ public class JsonInput implements Input, Poolable {
 		return copyContext.copy(original);
 	}
 
+	@Override
 	public Array<AssetDescriptor<?>> getExternalDependencies() {
 		// TODO Auto-generated method stub
 		return null;

@@ -169,7 +169,7 @@ public class ReflectionModel<T> implements Metamodel<T> {
 
 	@Override
 	public T deserialize(Object template, Input input) {
-		if (!input.isValid()) {
+		if (!input.isValuePresent()) {
 			if (template == null) {
 				return null;
 			} else {

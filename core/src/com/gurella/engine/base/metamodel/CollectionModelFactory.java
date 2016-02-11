@@ -110,7 +110,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					return null;
 				} else {
@@ -348,7 +348,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public TreeSet<?> deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					return null;
 				} else {
@@ -447,7 +447,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public EnumSet<?> deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					return null;
 				} else {

@@ -55,7 +55,7 @@ public class DefaultModels {
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					throw new GdxRuntimeException("Can't deserialize null primitive.");
 				} else {
@@ -237,7 +237,7 @@ public class DefaultModels {
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				@SuppressWarnings("unchecked")
 				T instance = template == null ? null : (T) input.copyObject(template);
 				return instance;

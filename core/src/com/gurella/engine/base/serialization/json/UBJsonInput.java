@@ -2,6 +2,7 @@ package com.gurella.engine.base.serialization.json;
 
 import java.io.ByteArrayInputStream;
 
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -85,7 +86,7 @@ public class UBJsonInput implements Input, Poolable {
 	}
 
 	@Override
-	public boolean isValid() {
+	public boolean isValuePresent() {
 		return value != null;
 	}
 
@@ -291,5 +292,11 @@ public class UBJsonInput implements Input, Poolable {
 	@Override
 	public <T> T copyObject(T original) {
 		return copyContext.copy(original);
+	}
+
+	@Override
+	public Array<AssetDescriptor<?>> getExternalDependencies() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

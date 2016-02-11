@@ -20,6 +20,7 @@ public class ResourceService implements UpdateListener {
 	private static final Signal1Impl<String> resourceUnloadedSignal = new Signal1Impl<String>();
 	
 	static {
+		//TODO reset must be handled by application -> TextureParameter.textureData.
 		Texture.setAssetManager(assetManager);
 		Cubemap.setAssetManager(assetManager);
 	}
@@ -75,7 +76,7 @@ public class ResourceService implements UpdateListener {
 		}
 	}
 
-	public static boolean isResource(Object obj) {
+	public static boolean isManagedResource(Object obj) {
 		return getResourceFileName(obj) != null;
 	}
 

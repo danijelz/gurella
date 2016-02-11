@@ -1,9 +1,11 @@
 package com.gurella.engine.base.serialization;
 
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.ImmutableArray;
 
 public interface Input {
-	boolean isValid();
+	boolean isValuePresent();
 
 	int readInt();
 
@@ -56,4 +58,6 @@ public interface Input {
 	ImmutableArray<Object> getObjectStack();
 
 	<T> T copyObject(T original);
+	
+	Array<AssetDescriptor<?>> getExternalDependencies();
 }

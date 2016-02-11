@@ -423,6 +423,21 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 
 		task.free();
 	}
+	
+	//TODO implement
+	public void reload(String fileName) {
+		synchronized (lock) {
+			AssetLoadingTask<?> task = findTaskInQueues(fileName);
+			if (task != null) {
+				return;
+			}
+			
+			AssetReference reference = assetsByFileName.get(fileName);
+			if (reference == null) {
+				return;
+			}
+		}
+	}
 
 	@Override
 	public boolean update(int millis) {

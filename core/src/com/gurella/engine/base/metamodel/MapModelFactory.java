@@ -95,7 +95,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public T deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					return null;
 				} else {
@@ -301,7 +301,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public TreeMap<?, ?> deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					return null;
 				} else {
@@ -404,7 +404,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public EnumMap<?, ?> deserialize(Object template, Input input) {
-			if (!input.isValid()) {
+			if (!input.isValuePresent()) {
 				if (template == null) {
 					return null;
 				} else {

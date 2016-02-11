@@ -57,7 +57,7 @@ public class LocaleModel implements Metamodel<Locale> {
 
 	@Override
 	public Locale deserialize(Object template, Input input) {
-		if (!input.isValid()) {
+		if (!input.isValuePresent()) {
 			return (Locale) template;
 		} else if (input.isNull()) {
 			return null;
