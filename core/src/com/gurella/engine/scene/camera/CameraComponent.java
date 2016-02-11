@@ -16,6 +16,7 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ValueUtils;
 
 @BaseSceneElementType
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent
@@ -141,7 +142,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	public int compareTo(CameraComponent<?> other) {
-		return Integer.compare(ordinal, other.ordinal);
+		return ValueUtils.compare(ordinal, other.ordinal);
 	}
 
 	private void attachTransformDirtyListener() {

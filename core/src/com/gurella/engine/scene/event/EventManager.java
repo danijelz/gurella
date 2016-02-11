@@ -14,6 +14,7 @@ import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ValueUtils;
 
 //TODO activate and deactivate triggers
 public class EventManager {
@@ -362,7 +363,7 @@ public class EventManager {
 
 		@Override
 		public int compare(Object o1, Object o2) {
-			return Integer.compare(getPriority(o1.getClass(), callbackId), getPriority(o2.getClass(), callbackId));
+			return ValueUtils.compare(getPriority(o1.getClass(), callbackId), getPriority(o2.getClass(), callbackId));
 		}
 	}
 }

@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class ConfigurableAssetDescriptor<T> {
 	boolean sticky;
-	AssetType assetType;
+	Class<T> type;
 
 	String fileName;
 	AssetLoaderParameters<T> parameters;
@@ -39,8 +39,7 @@ public class ConfigurableAssetDescriptor<T> {
 		return fileName;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Class<T> getAssetType() {
-		return (Class<T>) assetType.assetType;
+	public Class<T> getType() {
+		return type;
 	}
 }

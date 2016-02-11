@@ -244,7 +244,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	@Override
 	public int compareTo(AssetLoadingTask<?> other) {
-		int result = Integer.compare(other.priority, priority);
+		int result = ValueUtils.compare(other.priority, priority);
 		return result == 0 ? Long.compare(loadRequestId, other.loadRequestId) : result;
 	}
 

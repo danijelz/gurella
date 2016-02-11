@@ -30,12 +30,16 @@ import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners on activate
 public class BulletPhysicsSystem extends SceneSystem implements SceneListener, UpdateListener {
+	static {
+		Bullet.init();
+	}
+
 	private btCollisionConfiguration collisionConfig;
 	private btDispatcher dispatcher;
 	private btBroadphaseInterface broadphase;
 	private btConstraintSolver constraintSolver;
 
-	btDynamicsWorld dynamicsWorld;
+	private btDynamicsWorld dynamicsWorld;
 
 	private CollisionTrackingInternalTickCallback tickCallback;
 
@@ -54,10 +58,6 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, U
 
 		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback());
 		tickCallback.attach(dynamicsWorld, false);
-	}
-
-	static {
-		Bullet.init();
 	}
 
 	@Override

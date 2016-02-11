@@ -109,9 +109,13 @@ public class ValueUtils {
 			return first.equals(second);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <T> T cast(Object object) {
 		return (T) object;
+	}
+
+	public static int compare(int x, int y) {
+		return (x < y) ? -1 : ((x == y) ? 0 : 1);
 	}
 }

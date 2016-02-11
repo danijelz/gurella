@@ -1,5 +1,7 @@
 package com.gurella.engine.base.resource;
 
+import com.gurella.engine.utils.ValueUtils;
+
 public class ManagedObject implements Comparable<ManagedObject> {
 	private static int indexer = 0;
 
@@ -20,10 +22,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void init() {
 	}
-	
+
 	protected void activate() {
 	}
-	
+
 	protected void deactivate() {
 	}
 
@@ -46,6 +48,6 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	@Override
 	public int compareTo(ManagedObject other) {
-		return Integer.compare(instanceId, other.instanceId);
+		return ValueUtils.compare(instanceId, other.instanceId);
 	}
 }

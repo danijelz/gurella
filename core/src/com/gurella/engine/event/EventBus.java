@@ -5,6 +5,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.Prioritized;
+import com.gurella.engine.utils.ValueUtils;
 
 public class EventBus {
 	private final ObjectMap<Object, Array<?>> listeners = new ObjectMap<Object, Array<?>>();
@@ -192,7 +193,7 @@ public class EventBus {
 
 		@Override
 		public int compare(Object o1, Object o2) {
-			return Integer.compare(getPriority(o1), getPriority(o2));
+			return ValueUtils.compare(getPriority(o1), getPriority(o2));
 		}
 
 		private static int getPriority(Object o) {

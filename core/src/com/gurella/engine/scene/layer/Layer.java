@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.IndexedValue;
+import com.gurella.engine.utils.ValueUtils;
 
 public final class Layer implements Comparable<Layer> {
 	private static IndexedValue<Layer> INDEXER = new IndexedValue<Layer>();
@@ -47,7 +48,7 @@ public final class Layer implements Comparable<Layer> {
 
 	@Override
 	public int compareTo(Layer other) {
-		return Integer.compare(ordinal, other.ordinal);
+		return ValueUtils.compare(ordinal, other.ordinal);
 	}
 
 	public static final class LayerOrdinalComparator implements Comparator<Layer> {
@@ -58,7 +59,7 @@ public final class Layer implements Comparable<Layer> {
 
 		@Override
 		public int compare(Layer layer1, Layer layer2) {
-			return Integer.compare(layer1.ordinal, layer2.ordinal);
+			return ValueUtils.compare(layer1.ordinal, layer2.ordinal);
 		}
 	}
 
@@ -70,7 +71,7 @@ public final class Layer implements Comparable<Layer> {
 
 		@Override
 		public int compare(Layer layer1, Layer layer2) {
-			return Integer.compare(layer2.ordinal, layer1.ordinal);
+			return ValueUtils.compare(layer2.ordinal, layer1.ordinal);
 		}
 	}
 }
