@@ -21,7 +21,6 @@ import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.behaviour.BehaviourEvents;
 import com.gurella.engine.utils.SynchronizedPools;
 
-//TODO return null values
 public class ScriptManager extends SceneSystem implements SceneListener {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
 

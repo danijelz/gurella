@@ -460,7 +460,7 @@ class GlyfOtline implements Poolable {
 //		long  s;
 //		  
 //		  
-//		  /* XXX: this function does not allow 64-bit arguments */
+//		  /* TODO: this function does not allow 64-bit arguments */
 //		  if ( a == 0 || b == c )
 //		  return (int) a;
 		  

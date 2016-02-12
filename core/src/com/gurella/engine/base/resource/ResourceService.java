@@ -15,12 +15,12 @@ public class ResourceService implements UpdateListener {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 	private static final AssetManager assetManager = new AssetManager();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
-	
+
 	private static final Signal1Impl<String> resourceLoadedSignal = new Signal1Impl<String>();
 	private static final Signal1Impl<String> resourceUnloadedSignal = new Signal1Impl<String>();
-	
+
 	static {
-		//TODO reset must be handled by application -> TextureParameter.textureData.
+		// TODO reset must be handled by application -> TextureParameter.textureData.
 		Texture.setAssetManager(assetManager);
 		Cubemap.setAssetManager(assetManager);
 	}

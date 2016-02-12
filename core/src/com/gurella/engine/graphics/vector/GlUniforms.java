@@ -19,8 +19,6 @@ class GlUniforms implements Poolable {
 		stencilInstance.uniformType = UniformType.stencil;
 	}
 
-	final float[] transformMatrix = new float[12];// TODO not used
-
 	final float[] scissorExtent = new float[2];
 	final float[] scissorScale = new float[2];
 	final float[] scissorMatrix = new float[12];
