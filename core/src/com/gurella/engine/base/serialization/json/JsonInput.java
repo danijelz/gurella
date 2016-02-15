@@ -1,5 +1,8 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveObjectType;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -38,7 +41,7 @@ public class JsonInput implements Input, Poolable {
 	public <T> T deserialize(Class<T> expectedType) {
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
-		T result = deserializeObject(referenceValue, expectedType, null);
+		T result = deserialize(referenceValue, expectedType, null);
 		reset();
 		return result;
 	}
@@ -51,9 +54,23 @@ public class JsonInput implements Input, Poolable {
 		rootValue = reader.parse(json);
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
-		T result = deserializeObject(referenceValue, expectedType, template);
+		T result = deserialize(referenceValue, expectedType, template);
 		reset();
 		return result;
+	}
+
+	private <T> T deserialize(JsonValue jsonValue, Class<T> expectedType, Object template) {
+		Class<T> resolvedType = resolveObjectType(expectedType, jsonValue);
+		JsonValue resolvedValue = isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue;
+		return deserializeObject(resolvedValue, resolvedType, template);
+	}
+
+	private <T> T deserializeObject(JsonValue jsonValue, Class<T> resolvedType, Object template) {
+		push(jsonValue);
+		Metamodel<T> model = Models.getModel(resolvedType);
+		T object = model.deserialize(template, this);
+		pop();
+		return object;
 	}
 
 	private void push(JsonValue value) {
@@ -73,26 +90,8 @@ public class JsonInput implements Input, Poolable {
 		valueStack.clear();
 		objectStack.clear();
 		references.clear();
+		referenceValues.clear();
 		copyContext.reset();
-	}
-
-	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType, Object template) {
-		Class<T> resolvedType = JsonSerialization.resolveObjectType(expectedType, jsonValue);
-		Metamodel<T> model = Models.getModel(resolvedType);
-
-		push(JsonSerialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
-		T object = model.deserialize(template, this);
-		pop();
-
-		return object;
-	}
-
-	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType, Object template) {
-		push(jsonValue);
-		Metamodel<T> model = Models.getModel(resolvedType);
-		T object = model.deserialize(template, this);
-		pop();
-		return object;
 	}
 
 	@Override
@@ -173,8 +172,7 @@ public class JsonInput implements Input, Poolable {
 		T result;
 		if (value.isNull()) {
 			result = null;
-		} else if (expectedType != null
-				&& (expectedType.isPrimitive() || JsonSerialization.isSimpleType(expectedType))) {
+		} else if (expectedType != null && (expectedType.isPrimitive() || isSimpleType(expectedType))) {
 			if (value.isObject()) {
 				push(value.get("value"));
 			} else {
@@ -183,17 +181,17 @@ public class JsonInput implements Input, Poolable {
 			result = Models.getModel(expectedType).deserialize(template, this);
 			pop();
 		} else if (value.isObject()) {
-			result = deserializeObject(value, expectedType, template);
+			result = deserialize(value, expectedType, template);
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
 			String itemTypeName = firstItem.getString("class", null);
 			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
 				Class<?> arrayType = ReflectionUtils.forName(firstItem.getString(ArrayType.typeNameField));
 				@SuppressWarnings("unchecked")
-				T array = (T) deserializeObjectResolved(firstItem.next, arrayType, template);
+				T array = (T) deserializeObject(firstItem.next, arrayType, template);
 				result = array;
 			} else {
-				result = deserializeObjectResolved(firstItem, expectedType, template);
+				result = deserializeObject(firstItem, expectedType, template);
 			}
 		} else {
 			int id = value.asInt();
