@@ -1,11 +1,12 @@
 package com.gurella.engine.base.resource;
 
+import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject implements Comparable<ManagedObject> {
 	private static int indexer = 0;
 
-	int id;
+	Uuid uuid;
 	String templateId;
 
 	String name;
@@ -13,7 +14,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public ManagedObject() {
 		instanceId = indexer++;
-		id = instanceId;
+	}
+
+	public void ensureUuid() {
+		if (uuid == null) {
+			uuid = Uuid.randomUuid();
+		}
 	}
 
 	public ManagedObject getTemplate() {
@@ -36,12 +42,15 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	@Override
 	public boolean equals(Object other) {
-		if (this == other)
+		if (this == other) {
 			return true;
-		if (other == null)
+		}
+		if (other == null) {
 			return false;
-		if (getClass() != other.getClass())
+		}
+		if (getClass() != other.getClass()) {
 			return false;
+		}
 
 		return instanceId == ((ManagedObject) other).instanceId;
 	}

@@ -39,9 +39,11 @@ import com.gurella.engine.base.metamodel.DefaultModels.LongPrimitiveModel;
 import com.gurella.engine.base.metamodel.DefaultModels.ShortModel;
 import com.gurella.engine.base.metamodel.DefaultModels.ShortPrimitiveModel;
 import com.gurella.engine.base.metamodel.DefaultModels.StringModel;
+import com.gurella.engine.base.metamodel.DefaultModels.UuidModel;
 import com.gurella.engine.base.metamodel.DefaultModels.VoidModel;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Uuid;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Metamodel<?>> resolvedModels = new ObjectMap<Class<?>, Metamodel<?>>();
@@ -71,6 +73,7 @@ public class Models {
 		resolvedModels.put(BigDecimal.class, BigDecimalModel.instance);
 		resolvedModels.put(Class.class, ClassModel.instance);
 		resolvedModels.put(Date.class, DateModel.instance);
+		resolvedModels.put(Uuid.class, UuidModel.instance);
 		resolvedModels.put(Locale.class, LocaleModel.instance);
 		resolvedModels.put(int[].class, IntArrayModel.instance);
 		resolvedModels.put(long[].class, LongArrayModel.instance);

@@ -9,6 +9,7 @@ import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.ValueUtils;
 
 public class DefaultModels {
@@ -507,6 +508,29 @@ public class DefaultModels {
 		@Override
 		public Date copy(Date original, CopyContext context) {
 			return new Date(original.getTime());
+		}
+	}
+
+	public static final class UuidModel extends SimpleObjectModel<Uuid> {
+		public static final UuidModel instance = new UuidModel();
+
+		private UuidModel() {
+			super(Uuid.class);
+		}
+
+		@Override
+		public void writeValue(Uuid value, Output output) {
+			output.writeString(value.toString());
+		}
+
+		@Override
+		public Uuid readValue(Input input) {
+			return Uuid.fromString(input.readString());
+		}
+
+		@Override
+		public Uuid copy(Uuid original, CopyContext context) {
+			return new Uuid(original.mostSigBits, original.leastSigBits);
 		}
 	}
 }
