@@ -5,10 +5,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateListener;
 
-public class AssetRegistry implements UpdateListener, Disposable {
+public class AssetRegistry implements ApplicationUpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
 	private final ObjectIntMap<String> managedAssets = new ObjectIntMap<String>();
 

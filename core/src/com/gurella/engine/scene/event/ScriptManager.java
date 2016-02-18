@@ -7,9 +7,9 @@ import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
+import com.gurella.engine.application.events.ApplicationUpdateEvent;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateEvent;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
@@ -42,13 +42,13 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	@Override
 	protected void attached() {
-		EventService.addListener(UpdateEvent.class, onInputUpdateListener);
-		EventService.addListener(UpdateEvent.class, onThinkUpdateListener);
-		EventService.addListener(UpdateEvent.class, onPreRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onDebugRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onAfterRenderUpdateListener);
-		EventService.addListener(UpdateEvent.class, onCleanupUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onInputUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onThinkUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onPreRenderUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onRenderUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
+		EventService.addListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
 		getGraph().addListener(scriptSceneListener);
 		getScene().startSignal.addListener(sceneStartListener);
 		getScene().stopSignal.addListener(sceneStopListener);
@@ -58,13 +58,13 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	@Override
 	protected void detached() {
-		EventService.removeListener(UpdateEvent.class, onInputUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onThinkUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onPreRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onDebugRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onAfterRenderUpdateListener);
-		EventService.removeListener(UpdateEvent.class, onCleanupUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onInputUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onThinkUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onPreRenderUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onRenderUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
+		EventService.removeListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
 		getGraph().removeListener(scriptSceneListener);
 		getScene().startSignal.removeListener(sceneStartListener);
 		getScene().stopSignal.removeListener(sceneStopListener);
@@ -204,7 +204,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnInputUpdateListener implements UpdateListener {
+	private class OnInputUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.INPUT;
@@ -218,7 +218,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnThinkUpdateListener implements UpdateListener {
+	private class OnThinkUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.THINK;
@@ -232,7 +232,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnPreRenderUpdateListener implements UpdateListener {
+	private class OnPreRenderUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.PRE_RENDER;
@@ -246,7 +246,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnRenderUpdateListener implements UpdateListener {
+	private class OnRenderUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.RENDER;
@@ -260,7 +260,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnDebugRenderUpdateListener implements UpdateListener {
+	private class OnDebugRenderUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.DEBUG_RENDER;
@@ -274,7 +274,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnAfterRenderUpdateListener implements UpdateListener {
+	private class OnAfterRenderUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.POST_RENDER;
@@ -288,7 +288,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	private class OnCleanupUpdateListener implements UpdateListener {
+	private class OnCleanupUpdateListener implements ApplicationUpdateListener {
 		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.CLEANUP;

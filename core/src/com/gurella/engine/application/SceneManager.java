@@ -3,9 +3,9 @@ package com.gurella.engine.application;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.application.events.ApplicationUpdateEvent;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateEvent;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
@@ -85,7 +85,7 @@ public class SceneManager {
 		return currentSceneGroup;
 	}
 
-	private class TransitionWorker implements AsyncResourceCallback<DependencyMap>, UpdateListener {
+	private class TransitionWorker implements AsyncResourceCallback<DependencyMap>, ApplicationUpdateListener {
 		private TransitionStateManager transitionStateManager = new TransitionStateManager();
 
 		private boolean active;
@@ -108,7 +108,7 @@ public class SceneManager {
 			dependentResourceIds.addAll(destinationScene.getInitialNodes());
 			destinationScene.obtainResourcesAsync(dependentResourceIds, this);
 			transition.beforeTransitionOut();
-			EventService.addListener(UpdateEvent.class, this);
+			EventService.addListener(ApplicationUpdateEvent.class, this);
 		}
 
 		@Override
@@ -201,7 +201,7 @@ public class SceneManager {
 		}
 
 		private void onException() {
-			EventService.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(ApplicationUpdateEvent.class, this);
 			try {
 				transition.onTransitionException(initializationException);
 				stopCurrentScene();
@@ -224,7 +224,7 @@ public class SceneManager {
 		}
 
 		private void resetTransitionData() {
-			EventService.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(ApplicationUpdateEvent.class, this);
 
 			destinationScene = null;
 			transition = null;

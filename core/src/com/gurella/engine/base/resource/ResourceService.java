@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.asset.manager.AssetDatabase;
 import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ValueUtils;
 
-public class ResourceService implements UpdateListener {
+public class ResourceService implements ApplicationUpdateListener {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 
 	private static final MockAssetManager mockManager = new MockAssetManager();

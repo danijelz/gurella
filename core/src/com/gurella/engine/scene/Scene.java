@@ -14,7 +14,6 @@ import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.event.EventManager;
-import com.gurella.engine.scene.event.SceneEventsSignal;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
@@ -62,7 +61,7 @@ public class Scene extends SceneElementsResourceContext {
 	private final Array<SceneOperation> pendingOperations = new Array<SceneOperation>();
 
 	public final EventManager eventManager = new EventManager();
-	private final SceneEventsSignal sceneEventsSignal = new SceneEventsSignal(eventManager);
+	private final SceneEventsDispatcher sceneEventsDispatcher = new SceneEventsDispatcher(eventManager);
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -147,14 +146,14 @@ public class Scene extends SceneElementsResourceContext {
 		}
 
 		active = true;
-		sceneEventsSignal.sceneStarted();
+		sceneEventsDispatcher.sceneStarted();
 		startSignal.dispatch();
 	}
 
 	public void stop() {
 		active = false;
 		stopSignal.dispatch();
-		sceneEventsSignal.sceneStopped();
+		sceneEventsDispatcher.sceneStopped();
 
 		for (int i = 0; i < allNodesInternal.size; i++) {
 			SceneNode node = allNodesInternal.get(i);
@@ -289,7 +288,7 @@ public class Scene extends SceneElementsResourceContext {
 		node.componentsInternal.put(component.baseComponentType, component);
 		node.componentBitsInternal.set(component.componentType);
 		attachElement(component);
-		sceneEventsSignal.componentAdded(component);
+		sceneEventsDispatcher.componentAdded(component);
 		node.nodeChangedSignal.componentAdded(component);
 		activateComponentSafely(component);
 	}
@@ -309,7 +308,7 @@ public class Scene extends SceneElementsResourceContext {
 			activeComponentsInternal.add(component);
 			node.activeComponentBitsInternal.set(component.componentType);
 			component.lifecycleSignal.activated();
-			sceneEventsSignal.componentActivated(component);
+			sceneEventsDispatcher.componentActivated(component);
 			node.componentActivatedSignal.dispatch(component);
 			eventManager.register(node, component);
 		}
@@ -330,7 +329,7 @@ public class Scene extends SceneElementsResourceContext {
 			component.lifecycleSignal.deactivated();
 			node.activeComponentBitsInternal.clear(component.componentType);
 			activeComponentsInternal.removeValue(component, true);
-			sceneEventsSignal.componentDeactivated(component);
+			sceneEventsDispatcher.componentDeactivated(component);
 			node.componentDeactivatedSignal.dispatch(component);
 			eventManager.unregister(node, component);
 		}
@@ -346,7 +345,7 @@ public class Scene extends SceneElementsResourceContext {
 
 	void removeComponentSafely(SceneNodeComponent component) {
 		deactivateComponentSafely(component);
-		sceneEventsSignal.componentRemoved(component);
+		sceneEventsDispatcher.componentRemoved(component);
 		SceneNode node = component.node;
 		node.nodeChangedSignal.componentRemoved(component);
 		component.lifecycleSignal.detached();
@@ -490,7 +489,7 @@ public class Scene extends SceneElementsResourceContext {
 	@Override
 	public void update() {
 		// TODO add to signal
-		sceneEventsSignal.update();
+		sceneEventsDispatcher.update();
 		cleanup();
 	}
 

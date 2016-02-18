@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
@@ -17,7 +17,7 @@ import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO attach listeners on activate
-public class AudioSystem extends SceneSystem implements SceneListener, UpdateListener {
+public class AudioSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	private RemoveOnFinishCompletitionCallback removeOnFinishCompletitionCallback = new RemoveOnFinishCompletitionCallback();
 
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();

@@ -1,16 +1,16 @@
 package com.gurella.engine.state.transitionmanager;
 
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.application.events.ApplicationUpdateEvent;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateEvent;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.event.Signal2;
 import com.gurella.engine.state.StateTransition;
 
 public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListener<STATE>, STATE, STATE>
-		implements UpdateListener {
+		implements ApplicationUpdateListener {
 	private StateTransition<STATE> currentTransition;
 	private ObjectMap<STATE, StateChangedSignal> stateListeners = new ObjectMap<STATE, StateChangedSignal>();
 	private StateMachineContext<STATE> context;
@@ -45,7 +45,7 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 		if (currentTransition.isFinished()) {
 			endTransition();
 		} else {
-			EventService.addListener(UpdateEvent.class, this);
+			EventService.addListener(ApplicationUpdateEvent.class, this);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 	public void update() {
 		if (currentTransition.isFinished()) {
 			endTransition();
-			EventService.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(ApplicationUpdateEvent.class, this);
 		}
 	}
 

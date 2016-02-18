@@ -34,7 +34,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Scaling;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.ResourceReference;
@@ -210,7 +210,7 @@ public class SceneView extends Container<Image> {
 		gl.glClearStencil(0);
 		gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		EventService.notify(UpdateEvent.instance);
+		EventService.notify(ApplicationUpdateEvent.instance);
 
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setProjectionMatrix(cameraComponent.camera.combined);

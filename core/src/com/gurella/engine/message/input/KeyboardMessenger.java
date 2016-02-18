@@ -2,9 +2,9 @@ package com.gurella.engine.message.input;
 
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.application.events.ApplicationUpdateEvent;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateEvent;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.message.Message;
 import com.gurella.engine.message.MessageCenter;
@@ -13,7 +13,7 @@ import com.gurella.engine.message.input.KeyboardMessages.KeyboardAction;
 import com.gurella.engine.message.input.KeyboardMessages.KeyboardMessage;
 import com.gurella.engine.utils.SynchronizedPools;
 
-public class KeyboardMessenger extends InputAdapter implements UpdateListener {
+public class KeyboardMessenger extends InputAdapter implements ApplicationUpdateListener {
 	private IntMap<Message> temporaryMessages = new IntMap<Message>();
 
 	@Override
@@ -30,7 +30,7 @@ public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 
 		if (action != KeyboardAction.PRESSED) {
 			if (temporaryMessages.size == 0) {
-				EventService.addListener(UpdateEvent.class, this);
+				EventService.addListener(ApplicationUpdateEvent.class, this);
 			}
 
 			temporaryMessages.put(messageId.hash, message);
@@ -68,7 +68,7 @@ public class KeyboardMessenger extends InputAdapter implements UpdateListener {
 				suppressMesage(message);
 			}
 			temporaryMessages.clear();
-			EventService.removeListener(UpdateEvent.class, this);
+			EventService.removeListener(ApplicationUpdateEvent.class, this);
 		}
 	}
 

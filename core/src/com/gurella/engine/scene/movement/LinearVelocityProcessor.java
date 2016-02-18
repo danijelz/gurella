@@ -2,8 +2,8 @@ package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneSystem;
@@ -13,7 +13,7 @@ import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-public class LinearVelocityProcessor extends SceneSystem implements UpdateListener {
+public class LinearVelocityProcessor extends SceneSystem implements ApplicationUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 

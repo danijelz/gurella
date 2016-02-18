@@ -13,7 +13,7 @@ import com.gurella.engine.application.events.ApplicationActivitySignal;
 import com.gurella.engine.application.events.ApplicationResizeSignal;
 import com.gurella.engine.application.events.ApplicationShutdownSignal;
 import com.gurella.engine.application.events.ApplicationUpdateSignal;
-import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
@@ -85,7 +85,7 @@ public final class Application extends SceneElementsResourceContext implements A
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		EventService.notify(UpdateEvent.instance);
+		EventService.notify(ApplicationUpdateEvent.instance);
 		updateSignal.update();
 	}
 
