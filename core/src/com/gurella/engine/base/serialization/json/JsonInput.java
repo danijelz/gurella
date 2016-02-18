@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.metamodel.CopyContext;
-import com.gurella.engine.base.metamodel.Metamodel;
+import com.gurella.engine.base.metamodel.Model;
 import com.gurella.engine.base.metamodel.Models;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
@@ -67,7 +67,7 @@ public class JsonInput implements Input, Poolable {
 
 	private <T> T deserializeObject(JsonValue jsonValue, Class<T> resolvedType, Object template) {
 		push(jsonValue);
-		Metamodel<T> model = Models.getModel(resolvedType);
+		Model<T> model = Models.getModel(resolvedType);
 		T object = model.deserialize(template, this);
 		pop();
 		return object;

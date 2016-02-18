@@ -20,7 +20,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	int loadRequestId;
 	int priority;
 
-	AssetManager manager;
+	AssetDatabase manager;
 	AssetLoader<T, AssetLoaderParameters<T>> loader;
 	AsyncCallback<T> callback;
 
@@ -39,7 +39,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	AssetReference reference;
 	Throwable exception;
 
-	static <T> AssetLoadingTask<T> obtain(AssetManager manager, AsyncCallback<T> callback, String fileName,
+	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetLoaderParameters<T> params, int priority, boolean sticky) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
@@ -72,6 +72,22 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.loadRequestId = parent.loadRequestId;
 		task.reference = AssetReference.obtain();
 		task.reference.addDependent(parent.fileName);
+		return task;
+	}
+
+	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, String fileName, Class<T> type,
+			AssetReference reference, AssetLoaderParameters<T> params, int priority) {
+		@SuppressWarnings("unchecked")
+		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
+		task.manager = manager;
+		task.loader = manager.findLoader(type, fileName);
+		task.fileName = fileName;
+		task.type = type;
+		task.params = params;
+		task.priority = priority;
+		task.loadRequestId = counter++;
+		task.reference = reference;
+		reference.asset = null;
 		return task;
 	}
 

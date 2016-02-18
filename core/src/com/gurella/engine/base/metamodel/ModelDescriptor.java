@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 public @interface ModelDescriptor {
 	// TODO rename
 	@SuppressWarnings("rawtypes")
-	Class<? extends Metamodel> metamodel() default ReflectionModel.class;
+	Class<? extends Model> model() default ReflectionModel.class;
 
 	String descriptiveName() default "";
 

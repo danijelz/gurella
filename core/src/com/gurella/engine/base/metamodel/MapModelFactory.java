@@ -25,27 +25,27 @@ public class MapModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Metamodel<T> create(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumMap.class, type)) {
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = (Metamodel<T>) EnumMapModel.modelInstance;
+			Model<T> casted = (Model<T>) EnumMapModel.modelInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(TreeMap.class, type)) {
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = (Metamodel<T>) TreeMapModel.modelInstance;
+			Model<T> casted = (Model<T>) TreeMapModel.modelInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(Map.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			MapModel raw = new MapModel(type);
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = raw;
+			Model<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class MapModel<T extends Map<?, ?>> implements Metamodel<T> {
+	public static class MapModel<T extends Map<?, ?>> implements Model<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -129,10 +129,10 @@ public class MapModelFactory implements ModelFactory {
 	private static class MapEntriesProperty implements Property<Set<Entry<?, ?>>> {
 		private static final String name = "entries";
 
-		private Metamodel<?> metamodel;
+		private Model<?> model;
 
-		public MapEntriesProperty(Metamodel<?> model) {
-			this.metamodel = model;
+		public MapEntriesProperty(Model<?> model) {
+			this.model = model;
 		}
 
 		@Override
@@ -147,12 +147,12 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Metamodel<?> getModel() {
-			return metamodel;
+		public Model<?> getModel() {
+			return model;
 		}
 
 		@Override
-		public Property<Set<Entry<?, ?>>> newInstance(Metamodel<?> model) {
+		public Property<Set<Entry<?, ?>>> newInstance(Model<?> model) {
 			return new MapEntriesProperty(model);
 		}
 

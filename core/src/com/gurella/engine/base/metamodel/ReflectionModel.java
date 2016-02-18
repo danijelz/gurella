@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.OrderedSet;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
@@ -30,9 +31,10 @@ import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.ValueUtils;
 
-public class ReflectionModel<T> implements Metamodel<T> {
+public class ReflectionModel<T> implements Model<T> {
 	private static final String getPrefix = "get";
 	private static final String setPrefix = "set";
 	private static final String isPrefix = "is";
@@ -75,6 +77,7 @@ public class ReflectionModel<T> implements Metamodel<T> {
 
 	private Class<T> type;
 	private boolean innerClass;
+	private boolean poolable;
 	private String name;
 	private Constructor constructor;
 
@@ -95,6 +98,7 @@ public class ReflectionModel<T> implements Metamodel<T> {
 	public ReflectionModel(Class<T> type, String[] ignoredProperties, String[] forcedProperties) {
 		this.type = type;
 		innerClass = ReflectionUtils.isInnerClass(type);
+		poolable = ClassReflection.isAssignableFrom(Poolable.class, type);
 
 		if (ignoredProperties != null) {
 			Arrays.sort(ignoredProperties);
@@ -200,6 +204,8 @@ public class ReflectionModel<T> implements Metamodel<T> {
 		try {
 			if (innerClass) {
 				return (T) getConstructor(enclosingInstance).newInstance(enclosingInstance);
+			} else if (poolable) {
+				return SynchronizedPools.obtain(type);
 			} else {
 				return (T) getConstructor(null).newInstance();
 
@@ -244,7 +250,7 @@ public class ReflectionModel<T> implements Metamodel<T> {
 	private void resolveProperties() {
 		Class<? super T> supertype = type.getSuperclass();
 		if (supertype != null && supertype != Object.class) {
-			Metamodel<? super T> model = Models.getModel(supertype);
+			Model<? super T> model = Models.getModel(supertype);
 			ImmutableArray<Property<?>> supertypeProperties = model.getProperties();
 			for (int i = 0; i < supertypeProperties.size(); i++) {
 				Property<?> property = supertypeProperties.get(i).newInstance(this);

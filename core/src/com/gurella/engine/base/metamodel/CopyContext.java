@@ -47,7 +47,7 @@ public class CopyContext implements Poolable {
 
 		copiedObjectStack.add(original);
 		copiedObjects.put(original, null);
-		Metamodel<T> model = Models.getModel(original);
+		Model<T> model = Models.getModel(original);
 		duplicate = model.copy(original, this);
 		copiedObjects.put(original, duplicate);
 		copiedObjectStack.pop();
@@ -62,7 +62,7 @@ public class CopyContext implements Poolable {
 		copiedObjectStack.add(source);
 		copiedObjects.put(source, target);
 		objectStack.add(target);
-		Metamodel<T> model = Models.getModel(source);
+		Model<T> model = Models.getModel(source);
 		ImmutableArray<Property<?>> properties = model.getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			properties.get(i).copy(source, target, this);

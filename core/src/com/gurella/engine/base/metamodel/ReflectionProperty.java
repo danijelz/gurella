@@ -29,16 +29,16 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Field field;
 	private Method getter;
 	private Method setter;
-	private Metamodel<?> metamodel;
+	private Model<?> model;
 
-	public ReflectionProperty(Field field, Metamodel<?> model) {
+	public ReflectionProperty(Field field, Model<?> model) {
 		this(field, null, null, model);
 	}
 
-	public ReflectionProperty(Field field, Method getter, Method setter, Metamodel<?> model) {
+	public ReflectionProperty(Field field, Method getter, Method setter, Model<?> model) {
 		this.name = field.getName();
 		this.field = field;
-		this.metamodel = model;
+		this.model = model;
 		this.field.setAccessible(true);
 		@SuppressWarnings("unchecked")
 		Class<T> castedType = field.getType();
@@ -127,8 +127,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Metamodel<?> getModel() {
-		return metamodel;
+	public Model<?> getModel() {
+		return model;
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Property<T> newInstance(Metamodel<?> newModel) {
+	public Property<T> newInstance(Model<?> newModel) {
 		return new ReflectionProperty<T>(field, getter, setter, newModel);
 	}
 

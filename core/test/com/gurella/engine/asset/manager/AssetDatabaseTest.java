@@ -10,34 +10,33 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
-public class AssetManagerTest extends ApplicationAdapter {
-	private com.gurella.engine.asset.manager.AssetManager manager;
+public class AssetDatabaseTest extends ApplicationAdapter {
+	private AssetDatabase database;
 
 	@Override
 	public void create() {
 		super.create();
 		InternalFileHandleResolver resolver = new InternalFileHandleResolver();
-		manager = new com.gurella.engine.asset.manager.AssetManager(resolver);
-		manager.setLoader(TestAssetType1.class, new TestAssetType1Loader(resolver));
-		manager.setLoader(TestAssetType2.class, new TestAssetType2Loader(resolver));
-		
-		manager.load("TestAssetType1", TestAssetType1.class);
+		database = new AssetDatabase(resolver);
+		database.setLoader(TestAssetType1.class, new TestAssetType1Loader(resolver));
+		database.setLoader(TestAssetType2.class, new TestAssetType2Loader(resolver));
+		database.load("TestAssetType1", TestAssetType1.class);
 	}
 	
 	@Override
 	public void render() {
 		super.render();
-		manager.update();
+		database.update();
 		
-		if(!manager.isLoaded("TestAssetType1")) {
+		if(!database.isLoaded("TestAssetType1")) {
 			return;
 		}
 		
-		manager.getDiagnostics();
+		database.getDiagnostics();
 		
-		manager.unload("TestAssetType1");
+		database.unload("TestAssetType1");
 		// manager.load("TestAssetType2", TestAssetType2.class);
-		manager.getDiagnostics();
+		database.getDiagnostics();
 	}
 
 	public static class TestAssetType1 {

@@ -46,7 +46,7 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.Uuid;
 
 public class Models {
-	private static final ObjectMap<Class<?>, Metamodel<?>> resolvedModels = new ObjectMap<Class<?>, Metamodel<?>>();
+	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	private static final Array<ModelFactory> modelFactories = new Array<ModelFactory>();
 
 	static {
@@ -94,16 +94,16 @@ public class Models {
 	private Models() {
 	}
 
-	public static <T> Metamodel<T> getModel(T object) {
+	public static <T> Model<T> getModel(T object) {
 		@SuppressWarnings("unchecked")
 		Class<T> casted = (Class<T>) object.getClass();
 		return getModel(casted);
 	}
 
-	public static <T> Metamodel<T> getModel(Class<T> type) {
+	public static <T> Model<T> getModel(Class<T> type) {
 		synchronized (resolvedModels) {
 			@SuppressWarnings("unchecked")
-			Metamodel<T> model = (Metamodel<T>) resolvedModels.get(type);
+			Model<T> model = (Model<T>) resolvedModels.get(type);
 			if (model == null) {
 				model = resolveModel(type);
 				resolvedModels.put(type, model);
@@ -112,8 +112,8 @@ public class Models {
 		}
 	}
 
-	private static <T> Metamodel<T> resolveModel(Class<T> type) {
-		Metamodel<T> model = resolveModelByDescriptor(type);
+	private static <T> Model<T> resolveModel(Class<T> type) {
+		Model<T> model = resolveModelByDescriptor(type);
 		if (model != null) {
 			return model;
 		}
@@ -122,14 +122,14 @@ public class Models {
 		return model == null ? ReflectionModel.<T> getInstance(type) : model;
 	}
 
-	private static <T> Metamodel<T> resolveModelByDescriptor(Class<T> type) {
+	private static <T> Model<T> resolveModelByDescriptor(Class<T> type) {
 		ModelDescriptor descriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
 		if (descriptor == null) {
 			return null;
 		}
 
 		@SuppressWarnings("unchecked")
-		Class<Metamodel<T>> modelType = (Class<Metamodel<T>>) descriptor.metamodel();
+		Class<Model<T>> modelType = (Class<Model<T>>) descriptor.model();
 		if (modelType == null) {
 			return null;
 		}
@@ -137,18 +137,18 @@ public class Models {
 		if (ReflectionModel.class.equals(modelType)) {
 			return ReflectionModel.<T> getInstance(type);
 		} else {
-			Metamodel<T> model = instantiateModelByFactoryMethod(modelType);
+			Model<T> model = instantiateModelByFactoryMethod(modelType);
 			return model == null ? ReflectionUtils.newInstance(modelType) : model;
 		}
 	}
 
-	private static <T> Metamodel<T> instantiateModelByFactoryMethod(Class<Metamodel<T>> modelType) {
+	private static <T> Model<T> instantiateModelByFactoryMethod(Class<Model<T>> modelType) {
 		// TODO should be annotation based
 		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance");
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				Metamodel<T> casted = (Metamodel<T>) factoryMethod.invoke(null);
+				Model<T> casted = (Model<T>) factoryMethod.invoke(null);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -160,7 +160,7 @@ public class Models {
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
-				Metamodel<T> casted = (Metamodel<T>) factoryMethod.invoke(modelType);
+				Model<T> casted = (Model<T>) factoryMethod.invoke(modelType);
 				return casted;
 			} catch (ReflectionException e) {
 				return null;
@@ -170,14 +170,14 @@ public class Models {
 		return null;
 	}
 
-	private static <T> boolean isValidFactoryMethod(Class<Metamodel<T>> modelClass, Method factoryMethod) {
+	private static <T> boolean isValidFactoryMethod(Class<Model<T>> modelClass, Method factoryMethod) {
 		return factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == modelClass
 				&& factoryMethod.isStatic();
 	}
 
-	private static <T> Metamodel<T> resolveCustomModel(Class<T> type) {
+	private static <T> Model<T> resolveCustomModel(Class<T> type) {
 		for (int i = 0; i < modelFactories.size; i++) {
-			Metamodel<T> model = modelFactories.get(i).create(type);
+			Model<T> model = modelFactories.get(i).create(type);
 			if (model != null) {
 				return model;
 			}
@@ -230,7 +230,7 @@ public class Models {
 				return true;
 			}
 		} else {
-			Metamodel<?> model = Models.getModel(first);
+			Model<?> model = Models.getModel(first);
 			ImmutableArray<Property<?>> properties = model.getProperties();
 			if (properties.size() > 0) {
 				for (int i = 0; i < properties.size(); i++) {

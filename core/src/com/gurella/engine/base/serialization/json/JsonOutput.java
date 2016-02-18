@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.metamodel.Metamodel;
+import com.gurella.engine.base.metamodel.Model;
 import com.gurella.engine.base.metamodel.Models;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.Output;
@@ -69,7 +69,7 @@ public class JsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String resourceFileName = ResourceService.getResourceFileName(object);
+		String resourceFileName = ResourceService.getFileName(object);
 		if(resourceFileName != null) {
 			//TODO
 		}
@@ -91,7 +91,7 @@ public class JsonOutput implements Output, Poolable {
 				pop();
 			}
 
-			Metamodel<Object> model = Models.getModel(object);
+			Model<Object> model = Models.getModel(object);
 			model.serialize(object, template, this);
 			pop();
 		} else {
@@ -100,7 +100,7 @@ public class JsonOutput implements Output, Poolable {
 			if (expectedType != actualType) {
 				type(actualType);
 			}
-			Metamodel<Object> model = Models.getModel(object);
+			Model<Object> model = Models.getModel(object);
 			model.serialize(object, template, this);
 			pop();
 		}
@@ -202,10 +202,10 @@ public class JsonOutput implements Output, Poolable {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
 			@SuppressWarnings("unchecked")
-			Metamodel<Object> model = (Metamodel<Object>) Models.getModel(expectedType);
+			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
 			model.serialize(value, null, this);
 		} else if (JsonSerialization.isSimpleType(value)) {
-			Metamodel<Object> model = Models.getModel(value);
+			Model<Object> model = Models.getModel(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
 				model.serialize(value, null, this);

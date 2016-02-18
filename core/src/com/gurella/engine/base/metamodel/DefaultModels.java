@@ -16,7 +16,7 @@ public class DefaultModels {
 	private DefaultModels() {
 	}
 
-	public static abstract class SimpleModel<T> implements Metamodel<T> {
+	public static abstract class SimpleModel<T> implements Model<T> {
 		private Class<T> type;
 
 		public SimpleModel(Class<T> type) {

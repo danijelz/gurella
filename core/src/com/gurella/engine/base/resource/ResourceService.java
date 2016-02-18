@@ -8,76 +8,83 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.application.events.UpdateListener;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
-import com.gurella.engine.asset.manager.AssetManager;
+import com.gurella.engine.asset.manager.AssetDatabase;
 import com.gurella.engine.event.Signal1.Signal1Impl;
+import com.gurella.engine.utils.ValueUtils;
 
 public class ResourceService implements UpdateListener {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
-	private static final AssetManager assetManager = new AssetManager();
+
+	private static final MockAssetManager mockManager = new MockAssetManager();
+
+	private static final AssetDatabase assetDatabase = new AssetDatabase();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
 
 	private static final Signal1Impl<String> resourceLoadedSignal = new Signal1Impl<String>();
 	private static final Signal1Impl<String> resourceUnloadedSignal = new Signal1Impl<String>();
 
 	static {
-		// TODO reset must be handled by application -> TextureParameter.textureData.
-		Texture.setAssetManager(assetManager);
-		Cubemap.setAssetManager(assetManager);
+		Texture.setAssetManager(mockManager);
+		Cubemap.setAssetManager(mockManager);
 	}
 
 	private ResourceService() {
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
-		return null;
+		return ValueUtils.cast(descriptors.get(fileName));
 	}
 
-	public static <T> void loadResourceAsync(String fileName, AsyncCallback<T> callback, int priority) {
-
-	}
-
-	public static <T> void loadResourceAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority) {
+	public static <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
 
 	}
 
-	public static <T> void loadResource(String fileName) {
+	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority) {
 
 	}
 
-	public static <T> void loadResource(String fileName, Class<T> type) {
+	public static <T> void load(String fileName) {
 
 	}
 
-	public static boolean isResourceLoaded(String fileName) {
-		return false;
-	}
-
-	public static <T> void unloadResource(T resource) {
+	public static <T> void load(String fileName, Class<T> type) {
 
 	}
 
-	public static void unloadUnusedResources() {
-
+	public static boolean isLoaded(String fileName) {
+		return assetDatabase.isLoaded(fileName);
 	}
 
-	public static <T> Array<T> findResources(Class<T> type, Array<T> out) {
+	public static <T> void unload(T resource) {
+		assetDatabase.unload(resource);
+	}
+
+	public static <T> Array<T> find(Class<T> type, Array<T> out) {
 		return out;
 	}
 
-	public static <T> String getResourceFileName(T resource) {
+	public static <T> String getFileName(T resource) {
 		if (resource instanceof ManagedObject) {
 			synchronized (objectsByFile) {
 				return objectsByFile.get(((ManagedObject) resource).instanceId);
 			}
 		} else {
-			synchronized (assetManager) {
-				return assetManager.getAssetFileName(resource);
+			synchronized (assetDatabase) {
+				return assetDatabase.getAssetFileName(resource);
 			}
 		}
 	}
 
-	public static boolean isManagedResource(Object obj) {
-		return getResourceFileName(obj) != null;
+	public static boolean isManaged(Object obj) {
+		return getFileName(obj) != null;
+	}
+
+	public static void reload(String fileName, int priority) {
+		assetDatabase.reload(fileName, priority);
+	}
+
+	public static void reloadInvalidated() {
+		assetDatabase.reloadInvalidated();
 	}
 
 	@Override
@@ -87,6 +94,6 @@ public class ResourceService implements UpdateListener {
 
 	@Override
 	public void update() {
-		assetManager.update();
+		assetDatabase.update();
 	}
 }

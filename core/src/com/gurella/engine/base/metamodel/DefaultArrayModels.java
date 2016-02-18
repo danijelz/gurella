@@ -11,7 +11,7 @@ public class DefaultArrayModels {
 	private DefaultArrayModels() {
 	}
 
-	private static abstract class PrimitiveArrayModel<T> implements Metamodel<T> {
+	private static abstract class PrimitiveArrayModel<T> implements Model<T> {
 		private Class<T> type;
 
 		private PrimitiveArrayModel(Class<T> type) {

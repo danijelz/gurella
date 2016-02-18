@@ -9,7 +9,7 @@ public interface Property<T> {
 
 	Class<T> getType();
 
-	Metamodel<?> getModel();
+	Model<?> getModel();
 
 	Range<?> getRange();
 
@@ -21,7 +21,7 @@ public interface Property<T> {
 
 	String getGroup();
 
-	Property<T> newInstance(Metamodel<?> model);
+	Property<T> newInstance(Model<?> model);
 
 	T getValue(Object object);
 

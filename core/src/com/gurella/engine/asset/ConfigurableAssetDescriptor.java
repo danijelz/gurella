@@ -7,39 +7,49 @@ public class ConfigurableAssetDescriptor<T> {
 	boolean sticky;
 	Class<T> type;
 
-	String fileName;
+	String fileNameUuid;
 	AssetLoaderParameters<T> parameters;
 
 	final Array<AssetSelector<T>> selectors = new Array<AssetSelector<T>>();
 
 	boolean resolved;
-	String resolvedFileName;
+	String resolvedFileNameUuid;
 	AssetLoaderParameters<T> resolvedParameters;
 
-	void resolve() {
-		if (resolved) {
-			return;
-		}
-
+	// TODO should be package private
+	private void resolve() {
 		resolved = true;
 		for (int i = 0; i < selectors.size; i++) {
 			AssetSelector<T> selector = selectors.get(i);
 			if (selector.predicate.evaluate(null)) {
-				resolvedFileName = selector.fileName;
+				resolvedFileNameUuid = selector.fileName;
 				resolvedParameters = selector.parameters;
 				return;
 			}
 		}
 
-		resolvedFileName = fileName;
+		resolvedFileNameUuid = fileNameUuid;
 		resolvedParameters = parameters;
 	}
 
-	public String getFileName() {
-		return fileName;
+	public String getFileNameUuid() {
+		if (!resolved) {
+			resolve();
+		}
+		return fileNameUuid;
 	}
 
 	public Class<T> getType() {
+		if (!resolved) {
+			resolve();
+		}
 		return type;
+	}
+
+	public AssetLoaderParameters<T> getParameters() {
+		if (!resolved) {
+			resolve();
+		}
+		return parameters;
 	}
 }

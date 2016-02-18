@@ -2,6 +2,7 @@ package com.gurella.engine.application;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Json;
@@ -13,6 +14,7 @@ import com.gurella.engine.application.events.ApplicationResizeSignal;
 import com.gurella.engine.application.events.ApplicationShutdownSignal;
 import com.gurella.engine.application.events.ApplicationUpdateSignal;
 import com.gurella.engine.application.events.UpdateEvent;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.SceneElementsResourceContext;
@@ -97,6 +99,9 @@ public final class Application extends SceneElementsResourceContext implements A
 	@Override
 	public final void resume() {
 		paused = false;
+		if(Gdx.app.getType() == ApplicationType.Android) {
+			ResourceService.reloadInvalidated();
+		}
 		// TODO not yet handled by scene
 		activitySignal.onResume();
 	}

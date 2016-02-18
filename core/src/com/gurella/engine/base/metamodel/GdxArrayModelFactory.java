@@ -20,19 +20,19 @@ public class GdxArrayModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Metamodel<T> create(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Array.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			GdxArrayModel raw = new GdxArrayModel(type);
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = raw;
+			Model<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class GdxArrayModel<T extends Array<?>> implements Metamodel<T> {
+	public static class GdxArrayModel<T extends Array<?>> implements Model<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -147,10 +147,10 @@ public class GdxArrayModelFactory implements ModelFactory {
 	private static class ArrayOrderedProperty implements Property<Boolean> {
 		private static final String name = "ordered";
 
-		private Metamodel<?> metamodel;
+		private Model<?> model;
 
-		public ArrayOrderedProperty(Metamodel<?> model) {
-			this.metamodel = model;
+		public ArrayOrderedProperty(Model<?> model) {
+			this.model = model;
 		}
 
 		@Override
@@ -164,8 +164,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Metamodel<?> getModel() {
-			return metamodel;
+		public Model<?> getModel() {
+			return model;
 		}
 
 		@Override
@@ -194,7 +194,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Property<Boolean> newInstance(Metamodel<?> newModel) {
+		public Property<Boolean> newInstance(Model<?> newModel) {
 			return new ArrayOrderedProperty(newModel);
 		}
 
@@ -235,10 +235,10 @@ public class GdxArrayModelFactory implements ModelFactory {
 	private static class ArrayItemsProperty implements Property<Object[]> {
 		private static final String name = "items";
 
-		private Metamodel<?> metamodel;
+		private Model<?> model;
 
-		public ArrayItemsProperty(Metamodel<?> model) {
-			this.metamodel = model;
+		public ArrayItemsProperty(Model<?> model) {
+			this.model = model;
 		}
 
 		@Override
@@ -252,12 +252,12 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Metamodel<?> getModel() {
-			return metamodel;
+		public Model<?> getModel() {
+			return model;
 		}
 
 		@Override
-		public Property<Object[]> newInstance(Metamodel<?> model) {
+		public Property<Object[]> newInstance(Model<?> model) {
 			return new ArrayItemsProperty(model);
 		}
 

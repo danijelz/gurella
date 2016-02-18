@@ -8,7 +8,7 @@ import com.gurella.engine.utils.ReflectionUtils;
 import com.gurella.engine.utils.ValueUtils;
 
 //TODO unused
-public abstract class BaseModel<T> implements Metamodel<T> {
+public abstract class BaseModel<T> implements Model<T> {
 	private final Class<T> type;
 	private final String name;
 	

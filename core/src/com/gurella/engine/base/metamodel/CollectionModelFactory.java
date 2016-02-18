@@ -24,27 +24,27 @@ public class CollectionModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Metamodel<T> create(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(EnumSet.class, type)) {
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = (Metamodel<T>) EnumSetModel.modelInstance;
+			Model<T> casted = (Model<T>) EnumSetModel.modelInstance;
 			return casted;
 		} else if (TreeSet.class == type) {
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = (Metamodel<T>) TreeSetModel.modelInstance;
+			Model<T> casted = (Model<T>) TreeSetModel.modelInstance;
 			return casted;
 		} else if (ClassReflection.isAssignableFrom(Collection.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			CollectionModel raw = new CollectionModel(type);
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = raw;
+			Model<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class CollectionModel<T extends Collection<?>> implements Metamodel<T> {
+	public static class CollectionModel<T extends Collection<?>> implements Model<T> {
 		private Class<T> type;
 		private ArrayExt<Property<?>> properties;
 
@@ -173,10 +173,10 @@ public class CollectionModelFactory implements ModelFactory {
 	public static class CollectionItemsProperty implements Property<Object[]> {
 		public static final String name = "items";
 
-		private Metamodel<?> metamodel;
+		private Model<?> model;
 
-		public CollectionItemsProperty(Metamodel<?> model) {
-			this.metamodel = model;
+		public CollectionItemsProperty(Model<?> model) {
+			this.model = model;
 		}
 
 		@Override
@@ -190,12 +190,12 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Metamodel<?> getModel() {
-			return metamodel;
+		public Model<?> getModel() {
+			return model;
 		}
 
 		@Override
-		public Property<Object[]> newInstance(Metamodel<?> model) {
+		public Property<Object[]> newInstance(Model<?> model) {
 			return new CollectionItemsProperty(model);
 		}
 

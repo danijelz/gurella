@@ -6,11 +6,10 @@ import com.gurella.engine.utils.ValueUtils;
 public class ManagedObject implements Comparable<ManagedObject> {
 	private static int indexer = 0;
 
-	Uuid uuid;
-	String templateId;
-
-	String name;
 	public transient final int instanceId;
+
+	String uuid;
+	String templateId;
 
 	public ManagedObject() {
 		instanceId = indexer++;
@@ -18,7 +17,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public void ensureUuid() {
 		if (uuid == null) {
-			uuid = Uuid.randomUuid();
+			uuid = Uuid.randomUuidString();
 		}
 	}
 

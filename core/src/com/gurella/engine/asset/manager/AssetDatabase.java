@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.BitmapFontLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -37,24 +39,28 @@ import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entries;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.asset.manager.AssetLoadingTask.LoadingState;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.AsyncCallback.SimpleAsyncCallback;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.utils.ValueUtils;
 
 /**
  * Loads and stores assets like textures, bitmapfonts, tile maps, sounds, music and so on.
- * TODO rollback loaded resources on failure
+ * 
  * @author mzechner
  */
-public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
+public class AssetDatabase extends AssetManager {
 	private static final String clearRequestedMessage = "Clear requested on AssetManager.";
 	private static final String assetUnloadedMessage = "Asset unloaded.";
 	private static final String loadedAssetInconsistentMessage = "Asset with name '%1$s' already loaded, but has different type (expected: %2$s, found: %3$s).";
@@ -74,15 +80,15 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 
 	private final Object lock = new Object();
 
-	public AssetManager() {
+	public AssetDatabase() {
 		this(new InternalFileHandleResolver(), true);
 	}
 
-	public AssetManager(FileHandleResolver resolver) {
+	public AssetDatabase(FileHandleResolver resolver) {
 		this(resolver, true);
 	}
 
-	public AssetManager(FileHandleResolver resolver, boolean defaultLoaders) {
+	public AssetDatabase(FileHandleResolver resolver, boolean defaultLoaders) {
 		super(resolver, false);
 		if (defaultLoaders) {
 			setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
@@ -93,7 +99,8 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 			setLoader(Texture.class, new TextureLoader(resolver));
 			setLoader(Skin.class, new SkinLoader(resolver));
 			setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
-			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class, new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
+			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class,
+					new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
 			setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
 			setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
 			setLoader(Model.class, ".g3dj", new G3dModelLoader(new JsonReader(), resolver));
@@ -349,6 +356,13 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 		}
 	}
 
+	public <T> void unload(T asset) {
+		String fileName = fileNamesByAsset.get(asset);
+		if (fileName != null) {
+			unloadAsset(fileName);
+		}
+	}
+
 	@Override
 	@SuppressWarnings("sync-override")
 	public void unload(String fileName) {
@@ -422,19 +436,56 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 
 		task.free();
 	}
-	
-	//TODO implement
-	public void reload(String fileName) {
+
+	// TODO implement
+	public <T> void reload(String fileName, int priority) {
 		synchronized (lock) {
 			AssetLoadingTask<?> task = findTaskInQueues(fileName);
 			if (task != null) {
+				// check queues
+				// reset task data
+				// renice task
+				// add to queue
 				return;
 			}
-			
-			AssetReference reference = assetsByFileName.get(fileName);
+
+			AssetReference reference = assetsByFileName.remove(fileName);
 			if (reference == null) {
 				return;
+			} else {
+				Object asset = reference.asset;
+				fileNamesByAsset.remove(asset);
+				Class<T> type = ValueUtils.cast(asset.getClass());
+				DisposablesService.tryDispose(asset);
+				ConfigurableAssetDescriptor<T> descriptor = ResourceService.getAssetDescriptor(fileName);
+				AssetLoaderParameters<T> parameters = descriptor == null ? null : descriptor.getParameters();
+				asyncQueue.add(AssetLoadingTask.obtain(this, fileName, type, reference, parameters, priority));
+				asyncQueue.sort();
 			}
+		}
+	}
+
+	public void reloadInvalidated() {
+		finishLoading();
+		synchronized (lock) {
+			Entries<String, AssetReference> entries = assetsByFileName.entries();
+			for (; entries.hasNext();) {
+				Entry<String, AssetReference> entry = entries.next();
+				AssetReference reference = entry.value;
+				Object asset = reference.asset;
+				if (asset instanceof Texture || asset instanceof Cubemap) {
+					entries.remove();
+					fileNamesByAsset.remove(asset);
+					Class<Object> type = ValueUtils.cast(asset.getClass());
+					DisposablesService.tryDispose(asset);
+					String fileName = entry.key;
+					ConfigurableAssetDescriptor<Object> descriptor = ResourceService.getAssetDescriptor(fileName);
+					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
+					asyncQueue.add(AssetLoadingTask.obtain(this, fileName, type, reference, params, Integer.MAX_VALUE));
+				}
+			}
+
+			asyncQueue.sort();
 		}
 	}
 
@@ -641,13 +692,18 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	}
 
 	private <T> boolean propagateException(AssetLoadingTask<T> task, Throwable exception) {
-		boolean propagated = true;
+		boolean propagated = false;
+
 		AsyncCallback<?> callback = task.callback;
 		if (callback != null) {
 			callback.onProgress(1);
 			callback.onException(exception);
-		} else if (task.parent == null) {
-			propagated = false;
+			propagated = true;
+		}
+
+		AssetLoadingTask<?> parent = task.parent;
+		if (parent != null) {
+			propagated |= propagateException(parent, exception);
 		}
 
 		Array<AssetLoadingTask<T>> concurentTasks = task.concurentTasks;
@@ -679,7 +735,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 	}
 
 	@Override
-	protected final void taskFailed(@SuppressWarnings("rawtypes") AssetDescriptor assetDesc, RuntimeException ex) {
+	protected void taskFailed(@SuppressWarnings("rawtypes") AssetDescriptor assetDesc, RuntimeException ex) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -760,7 +816,7 @@ public class AssetManager extends com.badlogic.gdx.assets.AssetManager {
 				task.free();
 			}
 		}
-		
+
 		queue.clear();
 	}
 

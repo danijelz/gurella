@@ -13,19 +13,19 @@ public class ObjectArrayModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Metamodel<T> create(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (type.isArray()) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			ObjectArrayModel raw = new ObjectArrayModel(type);
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = raw;
+			Model<T> casted = raw;
 			return casted;
 		} else {
 			return null;
 		}
 	}
 
-	public static class ObjectArrayModel<T> implements Metamodel<T> {
+	public static class ObjectArrayModel<T> implements Model<T> {
 		private Class<T> type;
 		private Class<?> componentType;
 

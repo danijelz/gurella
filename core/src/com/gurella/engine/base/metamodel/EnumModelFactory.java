@@ -14,12 +14,12 @@ public class EnumModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public <T> Metamodel<T> create(Class<T> type) {
+	public <T> Model<T> create(Class<T> type) {
 		if (ClassReflection.isAssignableFrom(Enum.class, type)) {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			EnumModel raw = new EnumModel(type);
 			@SuppressWarnings("unchecked")
-			Metamodel<T> casted = raw;
+			Model<T> casted = raw;
 			return casted;
 		} else {
 			return null;

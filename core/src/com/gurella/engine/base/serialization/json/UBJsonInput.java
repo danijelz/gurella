@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.gurella.engine.base.metamodel.CopyContext;
-import com.gurella.engine.base.metamodel.Metamodel;
+import com.gurella.engine.base.metamodel.Model;
 import com.gurella.engine.base.metamodel.Models;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
@@ -68,7 +68,7 @@ public class UBJsonInput implements Input, Poolable {
 
 	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType, Object template) {
 		Class<T> resolvedType = JsonSerialization.resolveObjectType(expectedType, jsonValue);
-		Metamodel<T> model = Models.getModel(resolvedType);
+		Model<T> model = Models.getModel(resolvedType);
 
 		push(JsonSerialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
 		T object = model.deserialize(template, this);
@@ -79,7 +79,7 @@ public class UBJsonInput implements Input, Poolable {
 
 	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType, Object template) {
 		push(jsonValue);
-		Metamodel<T> model = Models.getModel(resolvedType);
+		Model<T> model = Models.getModel(resolvedType);
 		T object = model.deserialize(template, this);
 		pop();
 		return object;
