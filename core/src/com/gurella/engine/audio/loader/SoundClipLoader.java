@@ -11,7 +11,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectFloatMap;
 
-public class SoundClipLoader extends AsynchronousAssetLoader<SoundClip, SoundClipLoader.SoundClipParameter> {
+public class SoundClipLoader extends AsynchronousAssetLoader<SoundClip, SoundClipLoader.SoundClipParameters> {
 	private static final ObjectFloatMap<String> durationsByFilename = new ObjectFloatMap<String>(64);
 
 	private static final SoundParameter soundParameter = new SoundParameter();
@@ -25,7 +25,7 @@ public class SoundClipLoader extends AsynchronousAssetLoader<SoundClip, SoundCli
 	}
 
 	@Override
-	public void loadAsync(AssetManager manager, String fileName, FileHandle file, SoundClipParameter parameter) {
+	public void loadAsync(AssetManager manager, String fileName, FileHandle file, SoundClipParameters parameter) {
 		soundLoader.loadAsync(manager, fileName, file, soundParameter);
 		duration = getDuration(file);
 	}
@@ -41,16 +41,18 @@ public class SoundClipLoader extends AsynchronousAssetLoader<SoundClip, SoundCli
 	}
 
 	@Override
-	public SoundClip loadSync(AssetManager manager, String fileName, FileHandle file, SoundClipParameter parameter) {
-		return new SoundClip(soundLoader.loadSync(manager, fileName, file, soundParameter), duration);
+	public SoundClip loadSync(AssetManager manager, String fileName, FileHandle file, SoundClipParameters parameter) {
+		SoundClip soundClip = new SoundClip(soundLoader.loadSync(manager, fileName, file, soundParameter), duration);
+		duration = 0;
+		return soundClip;
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file, SoundClipParameter parameter) {
+	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file, SoundClipParameters parameter) {
 		return null;
 	}
 
-	static public class SoundClipParameter extends AssetLoaderParameters<SoundClip> {
+	static public class SoundClipParameters extends AssetLoaderParameters<SoundClip> {
 	}
 }

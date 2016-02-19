@@ -28,7 +28,9 @@ public class ObjectLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderParam
 
 	@Override
 	public T loadSync(AssetManager manager, String fileName, FileHandle file, AssetLoaderParameters<T> parameters) {
-		return result;
+		T object = result;
+		result = null;
+		return object;
 	}
 
 	@Override

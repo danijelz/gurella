@@ -52,6 +52,8 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.asset.manager.AssetLoadingTask.LoadingState;
+import com.gurella.engine.audio.loader.SoundClip;
+import com.gurella.engine.audio.loader.SoundClipLoader;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
@@ -108,6 +110,7 @@ public class AssetDatabase extends AssetManager {
 			setLoader(Model.class, ".g3dj", new G3dModelLoader(new JsonReader(), resolver));
 			setLoader(Model.class, ".g3db", new G3dModelLoader(new UBJsonReader(), resolver));
 			setLoader(Model.class, ".obj", new ObjLoader(resolver));
+			setLoader(SoundClip.class, ".obj", new SoundClipLoader(resolver));
 		}
 	}
 
@@ -730,7 +733,7 @@ public class AssetDatabase extends AssetManager {
 			ThreadUtils.yield();
 		}
 	}
-	
+
 	public <T> T finishLoading(String fileName) {
 		while (!isLoaded(fileName)) {
 			update();

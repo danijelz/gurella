@@ -50,7 +50,8 @@ public class Assets {
 		if (ValueUtils.isBlank(extension)) {
 			return null;
 		}
-
+		
+		extension = extension.toLowerCase();
 		AssetType[] values = AssetType.values();
 		for (int i = 0; i < values.length; i++) {
 			if (Arrays.binarySearch(values[i].extensions, extension) > -1) {

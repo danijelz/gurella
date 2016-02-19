@@ -16,12 +16,11 @@ public class ConfigurableAssetDescriptor<T> {
 	String resolvedFileNameUuid;
 	AssetLoaderParameters<T> resolvedParameters;
 
-	// TODO should be package private
 	private void resolve() {
 		resolved = true;
 		for (int i = 0; i < selectors.size; i++) {
 			AssetSelector<T> selector = selectors.get(i);
-			if (selector.predicate.evaluate(null)) {
+			if (selector.predicate.evaluate()) {
 				resolvedFileNameUuid = selector.fileName;
 				resolvedParameters = selector.parameters;
 				return;

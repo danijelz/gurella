@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.JsonValue;
+import com.gurella.engine.audio.loader.SoundClip;
 
 public enum AssetType {
 	texture(Texture.class, "png"),
@@ -23,6 +24,7 @@ public enum AssetType {
 	model(Model.class),
 	music(Music.class, "wav", "ogg", "mp3"),
 	sound(Sound.class, "wav", "ogg", "mp3"),
+	soundClip(SoundClip.class, "wav", "ogg", "mp3"),
 	json(JsonValue.class, "json"),
 	pixmap(Pixmap.class),
 	polygonRegion(PolygonRegion.class),
