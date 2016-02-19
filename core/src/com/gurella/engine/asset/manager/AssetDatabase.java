@@ -1,5 +1,7 @@
 package com.gurella.engine.asset.manager;
 
+import static com.gurella.engine.asset.manager.AssetLoadingTask.obtain;
+
 import java.util.Iterator;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -47,10 +49,10 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.asset.manager.AssetLoadingTask.LoadingState;
 import com.gurella.engine.base.resource.AsyncCallback;
-import com.gurella.engine.base.resource.AsyncCallback.SimpleAsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.utils.ValueUtils;
@@ -200,17 +202,8 @@ public class AssetDatabase extends AssetManager {
 			if (loadersByType == null || loadersByType.size < 1) {
 				return null;
 			} else {
-				return ValueUtils.cast(loadersByType.get(getFileExtension(fileName)));
+				return ValueUtils.cast(loadersByType.get(Assets.getFileExtension(fileName)));
 			}
-		}
-	}
-
-	private static String getFileExtension(final String fileName) {
-		if (fileName == null) {
-			return "";
-		} else {
-			int index = fileName.lastIndexOf('.');
-			return index > 0 ? fileName.substring(index + 1) : "";
 		}
 	}
 
@@ -254,20 +247,19 @@ public class AssetDatabase extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> void load(String fileName, Class<T> type) {
-		// TODO free SimpleAsyncCallback on finish
-		load(fileName, type, null, SimpleAsyncCallback.<T> obtain(), 0, false);
+		load(fileName, type, null, null, 0, false);
 	}
 
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameter) {
-		load(fileName, type, parameter, SimpleAsyncCallback.<T> obtain(), 0, false);
+		load(fileName, type, parameter, null, 0, false);
 	}
 
 	@Override
 	@SuppressWarnings({ "sync-override", "unchecked" })
 	public void load(@SuppressWarnings("rawtypes") AssetDescriptor descriptor) {
-		load(descriptor.fileName, descriptor.type, descriptor.params, SimpleAsyncCallback.<Object> obtain(), 0, false);
+		load(descriptor.fileName, descriptor.type, descriptor.params, null, 0, false);
 	}
 
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameters, AsyncCallback<T> callback,
@@ -286,14 +278,15 @@ public class AssetDatabase extends AssetManager {
 			AsyncCallback<T> callback, int priority, boolean sticky) {
 		AssetLoadingTask<T> queuedTask = ValueUtils.cast(findTaskInQueues(fileName));
 		if (queuedTask == null) {
-			asyncQueue.add(AssetLoadingTask.obtain(this, callback, fileName, type, parameters, priority, sticky));
+			asyncQueue.add(obtain(this, callback, fileName, type, parameters, priority, sticky));
 			asyncQueue.sort();
 		} else if (queuedTask.type != type) {
-			String message = String.format(queuedAssetInconsistentMessage, fileName, type.getSimpleName(),
-					queuedTask.type.getSimpleName());
+			String typeName = type.getSimpleName();
+			String otherTypeName = queuedTask.type.getSimpleName();
+			String message = ValueUtils.format(queuedAssetInconsistentMessage, fileName, typeName, otherTypeName);
 			notifyLoadException(callback, message);
 		} else {
-			queuedTask.merge(AssetLoadingTask.obtain(this, callback, fileName, type, parameters, priority, sticky));
+			queuedTask.merge(obtain(this, callback, fileName, type, parameters, priority, sticky));
 			asyncQueue.sort();
 		}
 	}
@@ -335,8 +328,9 @@ public class AssetDatabase extends AssetManager {
 		Class<?> otherType = asset.getClass();
 
 		if (otherType != type) {
-			String message = String.format(loadedAssetInconsistentMessage, fileName, type.getSimpleName(),
-					otherType.getSimpleName());
+			String typeName = type.getSimpleName();
+			String otherTypeName = otherType.getSimpleName();
+			String message = ValueUtils.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
 			notifyLoadException(callback, message);
 		} else {
 			reference.incRefCount();
@@ -398,9 +392,7 @@ public class AssetDatabase extends AssetManager {
 	}
 
 	private void dereferenceDependencies(String fileName, AssetReference reference) {
-		Array<String> dependencies = reference.dependencies;
-		for (int i = 0; i < dependencies.size; i++) {
-			String dependencyFileName = dependencies.get(i);
+		for (String dependencyFileName : reference.dependencies) {
 			AssetReference dependencyReference = assetsByFileName.get(dependencyFileName);
 			dependencyReference.removeDependent(fileName);
 			if (!dependencyReference.isReferenced()) {
@@ -416,9 +408,7 @@ public class AssetDatabase extends AssetManager {
 			return;
 		}
 
-		asyncQueue.removeValue(task, true);
-		waitingQueue.removeValue(task, true);
-		syncQueue.removeValue(task, true);
+		removeTaskFromQueues(task);
 		unloadLoadedDependencies(task);
 		AsyncCallback<T> callback = task.callback;
 		if (callback != null) {
@@ -437,18 +427,23 @@ public class AssetDatabase extends AssetManager {
 		task.free();
 	}
 
-	// TODO implement
-	public <T> void reload(String fileName, int priority) {
-		synchronized (lock) {
-			AssetLoadingTask<?> task = findTaskInQueues(fileName);
-			if (task != null) {
-				// check queues
-				// reset task data
-				// renice task
-				// add to queue
-				return;
-			}
+	private <T> void removeTaskFromQueues(AssetLoadingTask<T> task) {
+		asyncQueue.removeValue(task, true);
+		waitingQueue.removeValue(task, true);
+		syncQueue.removeValue(task, true);
+	}
 
+	public <T> void reload(String fileName, AsyncCallback<T> callback, int priority) {
+		AssetLoadingTask<T> queuedTask;
+		synchronized (lock) {
+			queuedTask = ValueUtils.cast(findTaskInQueues(fileName));
+		}
+
+		if (queuedTask != null) {
+			finishLoadingAsset(fileName);
+		}
+
+		synchronized (lock) {
 			AssetReference reference = assetsByFileName.remove(fileName);
 			if (reference == null) {
 				return;
@@ -459,7 +454,7 @@ public class AssetDatabase extends AssetManager {
 				DisposablesService.tryDispose(asset);
 				ConfigurableAssetDescriptor<T> descriptor = ResourceService.getAssetDescriptor(fileName);
 				AssetLoaderParameters<T> parameters = descriptor == null ? null : descriptor.getParameters();
-				asyncQueue.add(AssetLoadingTask.obtain(this, fileName, type, reference, parameters, priority));
+				asyncQueue.add(obtain(this, callback, fileName, type, reference, parameters, priority));
 				asyncQueue.sort();
 			}
 		}
@@ -481,7 +476,7 @@ public class AssetDatabase extends AssetManager {
 					String fileName = entry.key;
 					ConfigurableAssetDescriptor<Object> descriptor = ResourceService.getAssetDescriptor(fileName);
 					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
-					asyncQueue.add(AssetLoadingTask.obtain(this, fileName, type, reference, params, Integer.MAX_VALUE));
+					asyncQueue.add(obtain(this, null, fileName, type, reference, params, Integer.MAX_VALUE));
 				}
 			}
 
@@ -560,8 +555,9 @@ public class AssetDatabase extends AssetManager {
 			asyncQueue.add(dependency);
 			asyncQueue.sort();
 		} else if (queuedTask.type != dependency.type) {
-			String message = String.format(queuedAssetInconsistentMessage, dependency.fileName,
-					dependency.type.getSimpleName(), queuedTask.type.getSimpleName());
+			String type = dependency.type.getSimpleName();
+			String otherType = queuedTask.type.getSimpleName();
+			String message = ValueUtils.format(queuedAssetInconsistentMessage, dependency.fileName, type, otherType);
 			dependency.exception = new GdxRuntimeException(message);
 			exception(dependency);
 		} else {
@@ -577,8 +573,9 @@ public class AssetDatabase extends AssetManager {
 		Class<?> otherType = asset.getClass();
 
 		if (type != otherType) {
-			String message = String.format(loadedAssetInconsistentMessage, fileName, type.getSimpleName(),
-					otherType.getSimpleName());
+			String typeName = type.getSimpleName();
+			String otherTypeName = otherType.getSimpleName();
+			String message = ValueUtils.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
 			dependency.exception = new GdxRuntimeException(message);
 			exception(dependency);
 		} else {
@@ -733,6 +730,14 @@ public class AssetDatabase extends AssetManager {
 			ThreadUtils.yield();
 		}
 	}
+	
+	public <T> T finishLoading(String fileName) {
+		while (!isLoaded(fileName)) {
+			update();
+			ThreadUtils.yield();
+		}
+		return get(fileName);
+	}
 
 	@Override
 	protected void taskFailed(@SuppressWarnings("rawtypes") AssetDescriptor assetDesc, RuntimeException ex) {
@@ -860,13 +865,13 @@ public class AssetDatabase extends AssetManager {
 				builder.append(", refCount: ");
 				builder.append(reference.refCount);
 
-				Array<String> dependencies = reference.dependencies;
+				ObjectSet<String> dependencies = reference.dependencies;
 				int size = dependencies.size;
 				if (size > 0) {
 					builder.append(", deps: [");
-					for (int i = 0; i < size; i++) {
-						builder.append(dependencies.get(i));
-						if (i < size - 1) {
+					for (Iterator<String> iter = dependencies.iterator(); iter.hasNext();) {
+						builder.append(iter.next());
+						if (iter.hasNext()) {
 							builder.append(",");
 						}
 					}
@@ -908,7 +913,7 @@ public class AssetDatabase extends AssetManager {
 	public Array<String> getDependencies(String fileName) {
 		synchronized (lock) {
 			AssetReference reference = assetsByFileName.get(fileName);
-			return reference == null ? null : reference.dependencies;
+			return reference == null ? null : reference.dependencies.iterator().toArray();
 		}
 	}
 

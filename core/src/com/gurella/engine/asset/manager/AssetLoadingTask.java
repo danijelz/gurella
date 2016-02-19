@@ -75,8 +75,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		return task;
 	}
 
-	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, String fileName, Class<T> type,
-			AssetReference reference, AssetLoaderParameters<T> params, int priority) {
+	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, AsyncCallback<T> callback, String fileName,
+			Class<T> type, AssetReference reference, AssetLoaderParameters<T> params, int priority) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
 		task.manager = manager;
@@ -85,6 +85,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.type = type;
 		task.params = params;
 		task.priority = priority;
+		task.callback = callback;
 		task.loadRequestId = counter++;
 		task.reference = reference;
 		reference.asset = null;
@@ -261,7 +262,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	@Override
 	public int compareTo(AssetLoadingTask<?> other) {
 		int result = ValueUtils.compare(other.priority, priority);
-		return result == 0 ? Long.compare(loadRequestId, other.loadRequestId) : result;
+		return result == 0 ? ValueUtils.compare(loadRequestId, other.loadRequestId) : result;
 	}
 
 	@Override

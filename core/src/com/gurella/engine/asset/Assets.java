@@ -1,6 +1,9 @@
 package com.gurella.engine.asset;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.utils.ObjectSet;
+import com.gurella.engine.utils.ValueUtils;
 
 public class Assets {
 	private static final ObjectSet<Class<?>> assetTypes = new ObjectSet<Class<?>>();
@@ -31,5 +34,29 @@ public class Assets {
 			temp = temp.getSuperclass();
 		}
 		return false;
+	}
+
+	public static String getFileExtension(final String fileName) {
+		if (fileName == null) {
+			return "";
+		} else {
+			int index = fileName.lastIndexOf('.');
+			return index > 0 ? fileName.substring(index + 1) : "";
+		}
+	}
+
+	public static <T> Class<T> getAssetType(final String fileName) {
+		String extension = getFileExtension(fileName);
+		if (ValueUtils.isBlank(extension)) {
+			return null;
+		}
+
+		AssetType[] values = AssetType.values();
+		for (int i = 0; i < values.length; i++) {
+			if (Arrays.binarySearch(values[i].extensions, extension) > -1) {
+				return ValueUtils.cast(values[i].assetType);
+			}
+		}
+		return null;
 	}
 }

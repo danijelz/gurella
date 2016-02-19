@@ -1,12 +1,15 @@
 package com.gurella.engine.base.resource;
 
+import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.asset.manager.AssetDatabase;
 import com.gurella.engine.event.Signal1.Signal1Impl;
@@ -35,20 +38,51 @@ public class ResourceService implements ApplicationUpdateListener {
 		return ValueUtils.cast(descriptors.get(fileName));
 	}
 
-	public static <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
+	public static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
+		ConfigurableAssetDescriptor<T> descriptor = ValueUtils.cast(descriptors.get(fileName));
+		return descriptor == null ? null : descriptor.getParameters();
+	}
 
+	public static <T> void loadAsync(String fileName, AsyncCallback<T> callback, int priority) {
+		Class<T> type = getResourceType(fileName);
+		loadAsync(fileName, type, callback, priority, false);
+	}
+
+	private static <T> Class<T> getResourceType(String fileName) {
+		Class<T> type = Assets.getAssetType(fileName);
+		if (type == null) {
+			throw new GdxRuntimeException("Can't find resource type from file name:" + fileName);
+		}
+		return type;
 	}
 
 	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority) {
-
+		loadAsync(fileName, type, callback, priority, false);
 	}
 
-	public static <T> void load(String fileName) {
-
+	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
+			boolean sticky) {
+		AssetLoaderParameters<T> parameters = ResourceService.<T> getAssetLoaderParameters(fileName);
+		assetDatabase.load(fileName, type, parameters, callback, priority, sticky);
 	}
 
-	public static <T> void load(String fileName, Class<T> type) {
+	public static <T> T load(String fileName) {
+		Class<T> type = getResourceType(fileName);
+		return load(fileName, type, 0, false);
+	}
 
+	public static <T> T load(String fileName, Class<T> type) {
+		return load(fileName, type, 0, false);
+	}
+
+	public static <T> T load(String fileName, Class<T> type, int priority) {
+		return load(fileName, type, priority, false);
+	}
+
+	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
+		AssetLoaderParameters<T> parameters = ResourceService.<T> getAssetLoaderParameters(fileName);
+		assetDatabase.load(fileName, type, parameters, null, priority, sticky);
+		return assetDatabase.finishLoading(fileName);
 	}
 
 	public static boolean isLoaded(String fileName) {
@@ -60,7 +94,8 @@ public class ResourceService implements ApplicationUpdateListener {
 	}
 
 	public static <T> Array<T> find(Class<T> type, Array<T> out) {
-		return out;
+		// TODO ManagedObject
+		return assetDatabase.getAll(type, out);
 	}
 
 	public static <T> String getFileName(T resource) {
@@ -79,8 +114,13 @@ public class ResourceService implements ApplicationUpdateListener {
 		return getFileName(obj) != null;
 	}
 
-	public static void reload(String fileName, int priority) {
-		assetDatabase.reload(fileName, priority);
+	public static <T> T reload(String fileName, int priority) {
+		assetDatabase.reload(fileName, null, priority);
+		return assetDatabase.finishLoading(fileName);
+	}
+
+	public static <T> void reloadAsync(String fileName, AsyncCallback<T> callback, int priority) {
+		assetDatabase.reload(fileName, callback, priority);
 	}
 
 	public static void reloadInvalidated() {

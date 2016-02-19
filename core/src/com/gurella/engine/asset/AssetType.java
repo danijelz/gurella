@@ -1,5 +1,7 @@
 package com.gurella.engine.asset;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cubemap;
@@ -39,5 +41,6 @@ public enum AssetType {
 	private AssetType(Class<?> assetType, String... extensions) {
 		this.assetType = assetType;
 		this.extensions = extensions;
+		Arrays.sort(this.extensions);
 	}
 }

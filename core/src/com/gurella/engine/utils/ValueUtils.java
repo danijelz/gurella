@@ -118,8 +118,19 @@ public class ValueUtils {
 	public static int compare(int x, int y) {
 		return (x < y) ? -1 : ((x == y) ? 0 : 1);
 	}
-	
+
 	public static int compare(long x, long y) {
 		return (x < y) ? -1 : ((x == y) ? 0 : 1);
+	}
+
+	public static String format(final String format, final String... args) {
+		String[] split = format.split("%s");
+		final StringBuilder msg = new StringBuilder();
+		for (int pos = 0; pos < split.length - 1; pos++) {
+			msg.append(split[pos]);
+			msg.append(args[pos]);
+		}
+		msg.append(split[split.length - 1]);
+		return msg.toString();
 	}
 }

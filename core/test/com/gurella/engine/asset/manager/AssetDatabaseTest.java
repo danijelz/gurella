@@ -21,6 +21,7 @@ public class AssetDatabaseTest extends ApplicationAdapter {
 		database.setLoader(TestAssetType1.class, new TestAssetType1Loader(resolver));
 		database.setLoader(TestAssetType2.class, new TestAssetType2Loader(resolver));
 		database.load("TestAssetType1", TestAssetType1.class);
+		database.reload("TestAssetType1", null, 0);
 	}
 	
 	@Override
@@ -34,8 +35,9 @@ public class AssetDatabaseTest extends ApplicationAdapter {
 		
 		database.getDiagnostics();
 		
-		database.unload("TestAssetType1");
-		// manager.load("TestAssetType2", TestAssetType2.class);
+		database.reload("TestAssetType1", null, 0);
+		// database.load("TestAssetType2", TestAssetType2.class);
+		// database.unload("TestAssetType1");
 		database.getDiagnostics();
 	}
 
