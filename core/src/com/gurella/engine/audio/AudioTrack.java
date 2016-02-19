@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.utils.SynchronizedPools;
 
+//TODO add global signals for completitions etc...
 public class AudioTrack implements Poolable, VolumeListener {
 	private AudioChannel audioChannel;
 	private AudioClip audioClip;
