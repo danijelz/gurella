@@ -14,7 +14,7 @@ public interface Property<T> {
 	Range<?> getRange();
 
 	boolean isNullable();
-
+	
 	String getDescriptiveName();
 
 	String getDescription();
