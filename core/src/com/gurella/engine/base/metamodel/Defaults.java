@@ -3,10 +3,10 @@ package com.gurella.engine.base.metamodel;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.ReflectionUtils;
 
-public class Defaults {
+class Defaults {
 	private static final ObjectMap<Class<?>, Object> defaults = new ObjectMap<Class<?>, Object>();
 
-	public static <T> T getDefault(Class<T> type) {
+	static <T> T getDefault(Class<T> type) {
 		if (defaults.containsKey(type)) {
 			@SuppressWarnings("unchecked")
 			T casted = (T) defaults.get(type);
