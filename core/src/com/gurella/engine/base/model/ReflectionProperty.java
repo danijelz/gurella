@@ -1,14 +1,14 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.base.metamodel.ValueRange.ByteRange;
-import com.gurella.engine.base.metamodel.ValueRange.CharRange;
-import com.gurella.engine.base.metamodel.ValueRange.DoubleRange;
-import com.gurella.engine.base.metamodel.ValueRange.FloatRange;
-import com.gurella.engine.base.metamodel.ValueRange.IntegerRange;
-import com.gurella.engine.base.metamodel.ValueRange.LongRange;
-import com.gurella.engine.base.metamodel.ValueRange.ShortRange;
+import com.gurella.engine.base.model.ValueRange.ByteRange;
+import com.gurella.engine.base.model.ValueRange.CharRange;
+import com.gurella.engine.base.model.ValueRange.DoubleRange;
+import com.gurella.engine.base.model.ValueRange.FloatRange;
+import com.gurella.engine.base.model.ValueRange.IntegerRange;
+import com.gurella.engine.base.model.ValueRange.LongRange;
+import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;

@@ -1,4 +1,4 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.base.serialization.Input;

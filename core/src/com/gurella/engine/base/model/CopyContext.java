@@ -1,4 +1,4 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;

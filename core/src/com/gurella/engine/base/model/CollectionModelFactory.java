@@ -1,4 +1,4 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import java.util.Collection;
 import java.util.Comparator;

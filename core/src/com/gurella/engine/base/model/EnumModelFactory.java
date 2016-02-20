@@ -1,8 +1,8 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.metamodel.DefaultModels.SimpleModel;
+import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ValueUtils;

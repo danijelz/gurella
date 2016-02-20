@@ -1,4 +1,4 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

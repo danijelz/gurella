@@ -1,4 +1,4 @@
-package com.gurella.engine.base.metamodel;
+package com.gurella.engine.base.model;
 
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
