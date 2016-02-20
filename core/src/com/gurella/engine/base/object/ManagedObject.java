@@ -1,18 +1,17 @@
-package com.gurella.engine.base.resource;
+package com.gurella.engine.base.object;
 
+import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject implements Comparable<ManagedObject> {
-	private static int indexer = 0;
-
 	public transient final int instanceId;
 
 	String uuid;
 	String templateId;
 
 	public ManagedObject() {
-		instanceId = indexer++;
+		instanceId = SequenceGenerator.next();
 	}
 
 	public void ensureUuid() {
@@ -28,10 +27,13 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	protected void init() {
 	}
 
-	protected void activate() {
+	void activate() {
 	}
 
-	protected void deactivate() {
+	void deactivate() {
+	}
+	
+	protected void reset() {
 	}
 
 	@Override

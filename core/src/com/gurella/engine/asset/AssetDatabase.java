@@ -1,6 +1,6 @@
-package com.gurella.engine.asset.manager;
+package com.gurella.engine.asset;
 
-import static com.gurella.engine.asset.manager.AssetLoadingTask.obtain;
+import static com.gurella.engine.asset.AssetLoadingTask.obtain;
 
 import java.util.Iterator;
 
@@ -49,9 +49,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.Assets;
-import com.gurella.engine.asset.ConfigurableAssetDescriptor;
-import com.gurella.engine.asset.manager.AssetLoadingTask.LoadingState;
+import com.gurella.engine.asset.AssetLoadingTask.LoadingState;
 import com.gurella.engine.audio.loader.SoundClip;
 import com.gurella.engine.audio.loader.SoundClipLoader;
 import com.gurella.engine.base.resource.AsyncCallback;

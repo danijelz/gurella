@@ -3,14 +3,14 @@ package com.gurella.engine.state.transitionmanager;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.state.StateTransition;
 
-public class StackStateTransitionManager<STATE> implements StateMachineContext<STATE> {
-	private StateMachineContext<STATE> delegate;
+public class StackStateTransitionManager<STATE> implements StateContext<STATE> {
+	private StateContext<STATE> delegate;
 	private STATE popState;
 	private StateTransition<STATE> defaultPopTransition;
 	
 	private Array<STATE> stateStack = new Array<STATE>();
 
-	public StackStateTransitionManager(StateMachineContext<STATE> delegate, STATE popState, StateTransition<STATE> defaultPopTransition) {
+	public StackStateTransitionManager(StateContext<STATE> delegate, STATE popState, StateTransition<STATE> defaultPopTransition) {
 		this.delegate = delegate;
 		this.popState = popState;
 		this.defaultPopTransition = defaultPopTransition;
@@ -34,5 +34,10 @@ public class StackStateTransitionManager<STATE> implements StateMachineContext<S
 	@Override
 	public STATE getCurrentState() {
 		return delegate.getCurrentState();
+	}
+
+	@Override
+	public STATE getInitialState() {
+		return delegate.getInitialState();
 	}
 }

@@ -1,6 +1,6 @@
 package com.gurella.engine.base.resource;
 
-public class ObjectReference extends ResourceReference {
+public class BeanReference extends ResourceReference {
 	public String objectUuid;
 	
 	@Override

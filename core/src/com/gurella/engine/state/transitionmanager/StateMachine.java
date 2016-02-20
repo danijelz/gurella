@@ -13,9 +13,9 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 		implements ApplicationUpdateListener {
 	private StateTransition<STATE> currentTransition;
 	private ObjectMap<STATE, StateChangedSignal> stateListeners = new ObjectMap<STATE, StateChangedSignal>();
-	private StateMachineContext<STATE> context;
+	private StateContext<STATE> context;
 
-	public StateMachine(StateMachineContext<STATE> stateTransitionManager) {
+	public StateMachine(StateContext<STATE> stateTransitionManager) {
 		this.context = stateTransitionManager;
 		stateChanged(stateTransitionManager.getCurrentState());
 	}
@@ -122,6 +122,13 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 		if (listener != null && stateListeners.containsKey(state)) {
 			stateListeners.get(state).removeListener(listener);
 		}
+	}
+
+	@Override
+	public void clear() {
+		super.clear();
+		stateListeners.clear();
+		context.stateChanged(context.getInitialState());
 	}
 
 	public interface StateChangedListener<STATE> {

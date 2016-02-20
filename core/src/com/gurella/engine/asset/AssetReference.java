@@ -1,4 +1,4 @@
-package com.gurella.engine.asset.manager;
+package com.gurella.engine.asset;
 
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;

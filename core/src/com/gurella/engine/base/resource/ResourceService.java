@@ -9,9 +9,10 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
+import com.gurella.engine.asset.AssetDatabase;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
-import com.gurella.engine.asset.manager.AssetDatabase;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.Signal1.Signal1Impl;
 import com.gurella.engine.utils.ValueUtils;
 

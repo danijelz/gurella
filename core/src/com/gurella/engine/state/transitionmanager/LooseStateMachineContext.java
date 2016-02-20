@@ -2,7 +2,7 @@ package com.gurella.engine.state.transitionmanager;
 
 import com.gurella.engine.state.StateTransition;
 
-public abstract class LooseStateMachineContext<STATE> extends AbstractStateMachineContext<STATE> {
+public abstract class LooseStateMachineContext<STATE> extends AbstractStateContext<STATE> {
 	public LooseStateMachineContext(STATE initialState) {
 		super(initialState);
 	}
