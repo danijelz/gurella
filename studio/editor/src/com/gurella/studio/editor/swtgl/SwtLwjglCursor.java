@@ -2,23 +2,16 @@ package com.gurella.studio.editor.swtgl;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.widgets.Display;
 
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglCursor implements Cursor {
-	/** Revert to the default system cursor */
-	public static void resetCursor() {
-		getDisplay().getActiveShell().setCursor(null);
-	}
-
-	private org.eclipse.swt.graphics.Cursor swtCursor = null;
+	org.eclipse.swt.graphics.Cursor swtCursor = null;
 
 	public SwtLwjglCursor(Pixmap pixmap, int xHotspot, int yHotspot) {
 		if (pixmap == null) {
-			swtCursor = null;
 			return;
 		}
 
@@ -56,20 +49,14 @@ public class SwtLwjglCursor implements Cursor {
 			}
 		}
 
-		swtCursor = new org.eclipse.swt.graphics.Cursor(getDisplay(), imageData, xHotspot,
+		swtCursor = new org.eclipse.swt.graphics.Cursor(SwtLwjglGraphics.getDisplay(), imageData, xHotspot,
 				pixmap.getHeight() - yHotspot - 4);
 	}
 
-	public static Display getDisplay() {
-		Display display = Display.getCurrent();
-		// may be null if outside the UI thread
-		if (display == null)
-			display = Display.getDefault();
-		return display;
-	}
-
 	@Override
-	public void setSystemCursor() {
-		getDisplay().getActiveShell().setCursor(swtCursor);
+	public void dispose() {
+		if (swtCursor != null) {
+			swtCursor.dispose();
+		}
 	}
 }

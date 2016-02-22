@@ -10,12 +10,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -225,31 +227,6 @@ public class SwtLwjglGraphics implements Graphics {
 	}
 
 	@Override
-	public boolean supportsDisplayModeChange() {
-		return false;
-	}
-
-	@Override
-	public boolean setDisplayMode(DisplayMode displayMode) {
-		return false;
-	}
-
-	@Override
-	public boolean setDisplayMode(int width, int height, boolean fullscreen) {
-		return false;
-	}
-
-	@Override
-	public DisplayMode[] getDisplayModes() {
-		return null;
-	}
-
-	@Override
-	public DisplayMode getDesktopDisplayMode() {
-		return null;
-	}
-
-	@Override
 	public void setTitle(String title) {
 	}
 
@@ -322,10 +299,93 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public void setCursor(com.badlogic.gdx.graphics.Cursor cursor) {
-		if (cursor == null) {
-			SwtLwjglCursor.resetCursor();
+		if (cursor instanceof SwtLwjglCursor) {
+			SwtLwjglCursor swtLwjglCursor = (SwtLwjglCursor) cursor;
+			getDisplay().getActiveShell().setCursor(swtLwjglCursor.swtCursor);
 		} else {
-			cursor.setSystemCursor();
+			getDisplay().getActiveShell().setCursor(null);
+		}
+	}
+
+	@Override
+	public int getBackBufferHeight() {
+		return getHeight();
+	}
+
+	@Override
+	public int getBackBufferWidth() {
+		return getWidth();
+	}
+
+	@Override
+	public DisplayMode getDisplayMode() {
+		return null;
+	}
+
+	@Override
+	public DisplayMode getDisplayMode(Monitor arg0) {
+		return null;
+	}
+
+	@Override
+	public DisplayMode[] getDisplayModes(Monitor arg0) {
+		return null;
+	}
+
+	@Override
+	public boolean supportsDisplayModeChange() {
+		return false;
+	}
+
+	@Override
+	public DisplayMode[] getDisplayModes() {
+		return null;
+	}
+
+	@Override
+	public Monitor getMonitor() {
+		return getPrimaryMonitor();
+	}
+
+	@Override
+	public Monitor[] getMonitors() {
+		return new Monitor[] { getPrimaryMonitor() };
+	}
+
+	@Override
+	public Monitor getPrimaryMonitor() {
+		return new SwtLwjglMonitor(0, 0, "Primary Monitor");
+	}
+
+	@Override
+	public boolean setFullscreenMode(DisplayMode arg0) {
+		getDisplay().getActiveShell().setFullScreen(true);
+		return true;
+	}
+
+	@Override
+	public void setSystemCursor(SystemCursor arg0) {
+		getDisplay().getActiveShell().setCursor(null);
+	}
+
+	@Override
+	public boolean setWindowedMode(int width, int height) {
+		getDisplay().getActiveShell().setFullScreen(false);
+		return true;
+	}
+
+	public static Display getDisplay() {
+		Display display = Display.getCurrent();
+		// may be null if outside the UI thread
+		if (display == null) {
+			display = Display.getDefault();
+		}
+		return display;
+	}
+
+	private class SwtLwjglMonitor extends Monitor {
+		protected SwtLwjglMonitor(int virtualX, int virtualY, String name) {
+			super(virtualX, virtualY, name);
 		}
 	}
 }

@@ -764,4 +764,19 @@ public class SwtLwjglInput implements Input {
 			}
 		}
 	}
+
+	@Override
+	public float getGyroscopeX() {
+		return 0;
+	}
+
+	@Override
+	public float getGyroscopeY() {
+		return 0;
+	}
+
+	@Override
+	public float getGyroscopeZ() {
+		return 0;
+	}
 }

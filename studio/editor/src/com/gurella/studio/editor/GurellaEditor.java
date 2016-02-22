@@ -26,19 +26,16 @@ public class GurellaEditor extends EditorPart {
 	private GLCanvas center;
 	
 	public GurellaEditor() {
-		super();
 	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void doSaveAs() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
