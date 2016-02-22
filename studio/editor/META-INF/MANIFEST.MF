@@ -13,10 +13,11 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- lib/gdx-1.7.1.jar,
- lib/gdx-backend-lwjgl-1.7.1.jar,
+ lib/gdx-1.9.1.jar,
+ lib/gdx-backend-lwjgl-1.9.1.jar,
+ lib/gdx-platform-1.9.1-natives-desktop.jar,
  lib/lwjgl-2.9.2.jar,
- lib/gdx-platform-1.7.1-natives-desktop.jar,
  lib/lwjgl-platform-2.9.2-natives-linux.jar,
  lib/lwjgl-platform-2.9.2-natives-osx.jar,
- lib/lwjgl-platform-2.9.2-natives-windows.jar
+ lib/lwjgl-platform-2.9.2-natives-windows.jar,
+ lib/gurella.jar
