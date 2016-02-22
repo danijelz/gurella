@@ -1,5 +1,6 @@
 package com.gurella.engine.base.object;
 
+import com.badlogic.gdx.utils.IdentityMap;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.ValueUtils;
@@ -9,12 +10,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	String uuid;
 	String templateId;
+	
+	private final IdentityMap<Object, ReleasableReference<?, ?>> releasables = new IdentityMap<Object, ReleasableReference<?, ?>>();
 
 	public ManagedObject() {
 		instanceId = SequenceGenerator.next();
 	}
 
-	public void ensureUuid() {
+	void ensureUuid() {
 		if (uuid == null) {
 			uuid = Uuid.randomUuidString();
 		}
@@ -32,7 +35,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	void deactivate() {
 	}
-	
+
 	protected void reset() {
 	}
 

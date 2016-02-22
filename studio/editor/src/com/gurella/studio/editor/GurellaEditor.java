@@ -17,14 +17,14 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart {
 	private GLCanvas center;
-	
+
 	public GurellaEditor() {
 	}
 
@@ -52,30 +52,17 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		SwtLwjglApplication application = new SwtLwjglApplication(new ApplicationListener() {
-			@Override
-			public void resume() {
-			}
-
-			@Override
-			public void resize(int width, int height) {
-			}
-
+		SwtLwjglApplication application = new SwtLwjglApplication(new ApplicationAdapter() {
 			@Override
 			public void render() {
 				Gdx.gl.glClearColor(0, 1, 0, 1);
 				Gdx.gl.glClearStencil(0);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-			}
-
-			@Override
-			public void pause() {
 			}
 
 			@Override
@@ -86,19 +73,18 @@ public class GurellaEditor extends EditorPart {
 			public void create() {
 			}
 		}, parent);
-		
-		
+
 		center = application.getGraphics().getGlCanvas();
 		center.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		IProject project = resource.getProject();
-		
+
 		IJavaProject javaProject = JavaCore.create(project);
 		IType lwType = null;
 		IField[] fields = null;
 		try {
-			lwType = javaProject.findType("asdasdasd.TestDdd");
+			lwType = javaProject.findType("java.util.ArrayList");
 			fields = lwType.getFields();
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
@@ -109,6 +95,6 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

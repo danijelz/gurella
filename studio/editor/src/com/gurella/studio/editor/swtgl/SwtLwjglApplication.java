@@ -49,7 +49,8 @@ public class SwtLwjglApplication implements Application {
 		this(listener, createConfig(canvas.getSize().x, canvas.getSize().y), canvas);
 	}
 
-	public SwtLwjglApplication(ApplicationListener listener, SwtLwjglApplicationConfiguration config, Composite canvas) {
+	public SwtLwjglApplication(ApplicationListener listener, SwtLwjglApplicationConfiguration config,
+			Composite canvas) {
 		this(listener, config, new SwtLwjglGraphics(canvas, config));
 	}
 
@@ -189,9 +190,7 @@ public class SwtLwjglApplication implements Application {
 		if (!isActive && graphics.config.backgroundFPS == -1) {
 			shouldRender = false;
 		}
-		int frameRate = isActive
-				? graphics.config.foregroundFPS
-				: graphics.config.backgroundFPS;
+		int frameRate = isActive ? graphics.config.foregroundFPS : graphics.config.backgroundFPS;
 		if (shouldRender) {
 			graphics.setCurrent();
 			graphics.updateTime();
@@ -213,10 +212,12 @@ public class SwtLwjglApplication implements Application {
 			executedRunnables.addAll(runnables);
 			runnables.clear();
 		}
-		if (executedRunnables.size == 0)
+		if (executedRunnables.size == 0) {
 			return false;
-		for (int i = 0; i < executedRunnables.size; i++)
+		}
+		for (int i = 0; i < executedRunnables.size; i++) {
 			executedRunnables.get(i).run();
+		}
 		executedRunnables.clear();
 		return true;
 	}
