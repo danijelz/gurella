@@ -103,7 +103,7 @@ public class ResourceService implements ApplicationUpdateListener {
 	public static <T> String getFileName(T resource) {
 		if (resource instanceof ManagedObject) {
 			synchronized (objectsByFile) {
-				return objectsByFile.get(((ManagedObject) resource).instanceId);
+				return objectsByFile.get(((ManagedObject) resource).getInstanceId());
 			}
 		} else {
 			synchronized (assetDatabase) {

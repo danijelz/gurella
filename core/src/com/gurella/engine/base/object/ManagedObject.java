@@ -13,7 +13,7 @@ import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ManagedObject implements Comparable<ManagedObject> {
-	public transient final int instanceId;
+	private transient int instanceId;
 	@PropertyDescriptor(copyable = false)
 	String uuid;
 	String templateId;
@@ -28,6 +28,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public ManagedObject() {
 		instanceId = SequenceGenerator.next();
+	}
+
+	public int getInstanceId() {
+		return instanceId;
+	}
+	
+	public String getUuid() {
+		return uuid;
 	}
 
 	public String ensureUuid() {
@@ -49,7 +57,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public void setParent(ManagedObject parent) {
 		checkDisposed();
-		
+
 		if (this.parent == parent) {
 			return;
 		}
@@ -90,15 +98,15 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (state != ManagedObjectState.ready) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
-		
-		if(parent != null && !parent.isRegistered()) {
+
+		if (parent != null && !parent.isRegistered()) {
 			throw new GdxRuntimeException("Invalid parebnt state: " + parent.state);
 		}
-		
+
 		state = ManagedObjectState.inactive;
 		init();
-		
-		for(int i = 0; i < childrenPrivate.size; i++) {
+
+		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			child.register();
 		}
@@ -111,19 +119,19 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (state != ManagedObjectState.inactive) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
-		
-		if(parent != null && !parent.isActive()) {
+
+		if (parent != null && !parent.isActive()) {
 			throw new GdxRuntimeException("Invalid parebnt state: " + parent.state);
 		}
-		
+
 		state = ManagedObjectState.active;
-		for(int i = 0; i < childrenPrivate.size; i++) {
+		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			if (child.state == ManagedObjectState.inactive) {
 				child.activate();
 			}
 		}
-		
+
 		attachAll();
 	}
 
@@ -131,15 +139,15 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (state != ManagedObjectState.active) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
-		
+
 		state = ManagedObjectState.active;
-		for(int i = 0; i < childrenPrivate.size; i++) {
+		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			if (child.state == ManagedObjectState.active) {
 				child.deactivate();
 			}
 		}
-		
+
 		detachAll();
 	}
 
@@ -147,13 +155,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (state != ManagedObjectState.inactive) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
-		
+
 		state = ManagedObjectState.disposed;
-		for(int i = 0; i < childrenPrivate.size; i++) {
+		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			child.unregister();
 		}
-		childrenPrivate.clear();
 
 		if (this instanceof Poolable) {
 			PoolService.free(this);
@@ -167,10 +174,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
 
-		clearAttachments();
-		state = ManagedObjectState.ready;
-		templateId = null;
+		instanceId = SequenceGenerator.next();
 		uuid = null;
+		templateId = null;
+		state = ManagedObjectState.ready;
+		childrenPrivate.clear();
+		clearAttachments();
 	}
 
 	//// ATTACHMENTS
