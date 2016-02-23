@@ -26,7 +26,7 @@ public class ResourceService implements ApplicationUpdateListener {
 
 	private static final Signal1Impl<String> resourceLoadedSignal = new Signal1Impl<String>();
 	private static final Signal1Impl<String> resourceUnloadedSignal = new Signal1Impl<String>();
-	private static final Signal1Impl<String> resourceRefreshedSignal = new Signal1Impl<String>();
+	private static final Signal1Impl<String> resourceRefreshSignal = new Signal1Impl<String>();
 
 	static {
 		Texture.setAssetManager(mockManager);

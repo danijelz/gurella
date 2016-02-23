@@ -10,5 +10,6 @@ public interface CommonUpdatePriority {
 	public static int PRE_RENDER = 600;
 	public static int RENDER = 700;
 	public static int POST_RENDER = 800;
-	public static int CLEANUP = 900;
+	public static int DEBUG_RENDER = 900;
+	public static int CLEANUP = 1000;
 }

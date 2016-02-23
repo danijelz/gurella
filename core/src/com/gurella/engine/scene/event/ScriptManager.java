@@ -49,11 +49,11 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		EventService.addListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
 		EventService.addListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
 		EventService.addListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
-		getGraph().addListener(scriptSceneListener);
+		//getScene().addListener(scriptSceneListener);
 		getScene().startSignal.addListener(sceneStartListener);
 		getScene().stopSignal.addListener(sceneStopListener);
-		getScene().pauseSignal.addListener(pauseListener);
-		getScene().resumeSignal.addListener(resumeListener);
+		//getScene().pauseSignal.addListener(pauseListener);
+		//getScene().resumeSignal.addListener(resumeListener);
 	}
 
 	@Override
@@ -65,11 +65,11 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		EventService.removeListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
 		EventService.removeListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
 		EventService.removeListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
-		getGraph().removeListener(scriptSceneListener);
+		//getScene().removeListener(scriptSceneListener);
 		getScene().startSignal.removeListener(sceneStartListener);
 		getScene().stopSignal.removeListener(sceneStopListener);
-		getScene().pauseSignal.removeListener(pauseListener);
-		getScene().resumeSignal.removeListener(resumeListener);
+		//getScene().pauseSignal.removeListener(pauseListener);
+		//getScene().resumeSignal.removeListener(resumeListener);
 
 		scriptsByMethod.clear();
 		nodeScriptsByMethod.clear();

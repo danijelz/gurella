@@ -29,11 +29,17 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void init() {
 	}
+	
+	void register() {
+	}
 
 	void activate() {
 	}
 
 	void deactivate() {
+	}
+	
+	void unregister() {
 	}
 
 	protected void reset() {

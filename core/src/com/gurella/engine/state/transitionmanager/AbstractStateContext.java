@@ -10,6 +10,11 @@ public abstract class AbstractStateContext<STATE> implements StateContext<STATE>
 	}
 
 	@Override
+	public STATE getCurrentState() {
+		return currentState;
+	}
+
+	@Override
 	public void stateChanged(STATE newState) {
 		currentState = newState;
 	}
@@ -17,10 +22,5 @@ public abstract class AbstractStateContext<STATE> implements StateContext<STATE>
 	@Override
 	public STATE getInitialState() {
 		return initialState;
-	}
-
-	@Override
-	public STATE getCurrentState() {
-		return currentState;
 	}
 }
