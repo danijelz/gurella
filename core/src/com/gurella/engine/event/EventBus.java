@@ -187,8 +187,9 @@ public class EventBus implements Poolable {
 	}
 
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		synchronized (eventPool) {
+			return eventPool.size == 0;
+		}
 	}
 
 	@Override

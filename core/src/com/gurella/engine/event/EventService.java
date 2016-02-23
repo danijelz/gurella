@@ -88,6 +88,9 @@ public class EventService {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.removeListener(eventType, listener);
+				if(eventBus.isEmpty()) {
+					PoolService.free(eventBus);
+				}
 			}
 		}
 	}
