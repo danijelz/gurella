@@ -240,7 +240,9 @@ public class ReflectionModel<T> implements Model<T> {
 			ImmutableArray<Property<?>> properties = getProperties();
 			for (int i = 0; i < properties.size(); i++) {
 				Property<?> property = properties.get(i);
-				property.copy(original, instance, context);
+				if (property.isCopyable()) {
+					property.copy(original, instance, context);
+				}
 			}
 			context.popObject();
 			return instance;

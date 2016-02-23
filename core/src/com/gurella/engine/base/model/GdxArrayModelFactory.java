@@ -177,6 +177,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
+		
+		@Override
+		public boolean isCopyable() {
+			return true;
+		}
 
 		@Override
 		public String getDescriptiveName() {
@@ -269,6 +274,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		@Override
 		public boolean isNullable() {
 			return false;
+		}
+		
+		@Override
+		public boolean isCopyable() {
+			return true;
 		}
 
 		@Override

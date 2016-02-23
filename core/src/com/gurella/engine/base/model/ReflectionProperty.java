@@ -24,6 +24,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Class<T> type;
 	private Range<?> range;
 	private boolean nullable;
+	private boolean copyable;
 	private T defaultValue;
 
 	private Field field;
@@ -60,6 +61,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			description = "";
 			group = "";
 			nullable = isDefaultNullable();
+			copyable = true;
 		} else {
 			descriptiveName = propertyDescriptor.descriptiveName();
 			if (ValueUtils.isBlank(descriptiveName)) {
@@ -68,6 +70,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			description = propertyDescriptor.description();
 			group = propertyDescriptor.group();
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
+			copyable = propertyDescriptor.copyable();
 		}
 
 		range = extractRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
@@ -139,6 +142,11 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public boolean isNullable() {
 		return nullable;
+	}
+	
+	@Override
+	public boolean isCopyable() {
+		return copyable;
 	}
 
 	@Override

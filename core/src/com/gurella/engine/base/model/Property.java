@@ -15,6 +15,8 @@ public interface Property<T> {
 
 	boolean isNullable();
 	
+	boolean isCopyable();
+	
 	String getDescriptiveName();
 
 	String getDescription();

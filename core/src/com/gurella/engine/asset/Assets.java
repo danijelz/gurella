@@ -21,7 +21,7 @@ public class Assets {
 	private Assets() {
 	}
 
-	public static boolean isAsset(Object obj) {
+	public static boolean hasAssetType(Object obj) {
 		return obj != null && isAssetType(obj.getClass());
 	}
 

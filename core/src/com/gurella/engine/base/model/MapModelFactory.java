@@ -165,6 +165,11 @@ public class MapModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
+		
+		@Override
+		public boolean isCopyable() {
+			return true;
+		}
 
 		@Override
 		public String getDescriptiveName() {

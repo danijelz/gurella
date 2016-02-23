@@ -13,6 +13,8 @@ public @interface PropertyDescriptor {
 	Class<? extends Property> property() default ReflectionProperty.class;
 
 	boolean nullable() default true;
+	
+	boolean copyable() default true;
 
 	String descriptiveName() default "";
 

@@ -1,21 +1,16 @@
 package com.gurella.engine.base.object;
 
-public abstract class Attachment<MO extends ManagedObject, V> {
-	MO object;
-	V value;
+public abstract class Attachment<T> {
+	T value;
 
-	public Attachment(V value) {
+	public Attachment(T value) {
 		this.value = value;
 	}
 
-	public MO getObject() {
-		return object;
-	}
-
-	public V getValue() {
+	public T getValue() {
 		return value;
 	}
-	
+
 	protected abstract void attach();
 
 	protected abstract void detach();
