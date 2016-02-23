@@ -13,13 +13,13 @@ import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.behaviour.BehaviourEvents;
-import com.gurella.engine.utils.SynchronizedPools;
 
 public class ScriptManager extends SceneSystem implements SceneListener {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
@@ -380,7 +380,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeComponentAddedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeComponentAddedListener listener = SynchronizedPools.obtain(NodeComponentAddedListener.class);
+			NodeComponentAddedListener listener = PoolService.obtain(NodeComponentAddedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().componentAddedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);
@@ -405,7 +405,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -413,7 +413,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeComponentRemovedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeComponentRemovedListener listener = SynchronizedPools.obtain(NodeComponentRemovedListener.class);
+			NodeComponentRemovedListener listener = PoolService.obtain(NodeComponentRemovedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().componentRemovedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);
@@ -438,7 +438,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -446,7 +446,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeComponentActivatedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeComponentActivatedListener listener = SynchronizedPools.obtain(NodeComponentActivatedListener.class);
+			NodeComponentActivatedListener listener = PoolService.obtain(NodeComponentActivatedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().componentActivatedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);
@@ -471,7 +471,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -480,7 +480,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeComponentDeactivatedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeComponentDeactivatedListener listener = SynchronizedPools
+			NodeComponentDeactivatedListener listener = PoolService
 					.obtain(NodeComponentDeactivatedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().componentDeactivatedSignal.addListener(listener);
@@ -506,7 +506,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -514,7 +514,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeParentChangedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeParentChangedListener listener = SynchronizedPools.obtain(NodeParentChangedListener.class);
+			NodeParentChangedListener listener = PoolService.obtain(NodeParentChangedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().parentChangedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);
@@ -539,7 +539,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -547,7 +547,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeChildAddedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeChildAddedListener listener = SynchronizedPools.obtain(NodeChildAddedListener.class);
+			NodeChildAddedListener listener = PoolService.obtain(NodeChildAddedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().childAddedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);
@@ -572,7 +572,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -580,7 +580,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeChildRemovedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeChildRemovedListener listener = SynchronizedPools.obtain(NodeChildRemovedListener.class);
+			NodeChildRemovedListener listener = PoolService.obtain(NodeChildRemovedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().childRemovedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);
@@ -605,7 +605,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 }

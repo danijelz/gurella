@@ -1,7 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ValueUtils;
 
 class SceneOperation implements Comparable<SceneOperation>, Poolable {
@@ -22,11 +22,11 @@ class SceneOperation implements Comparable<SceneOperation>, Poolable {
 	SceneNodeComponent component;
 
 	static SceneOperation obtain() {
-		return SynchronizedPools.obtain(SceneOperation.class);
+		return PoolService.obtain(SceneOperation.class);
 	}
 
 	void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	SceneOperation addSystem(Scene scene, SceneSystem sceneSystem) {

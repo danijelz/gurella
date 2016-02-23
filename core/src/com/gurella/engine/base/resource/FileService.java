@@ -3,6 +3,7 @@ package com.gurella.engine.base.resource;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.Uuid;
 
+//TODO unused
 public class FileService {
 	private static final ObjectMap<String, String> pathToUuid = new ObjectMap<String, String>();
 	private static final ObjectMap<String, String> uuidToPath = new ObjectMap<String, String>();

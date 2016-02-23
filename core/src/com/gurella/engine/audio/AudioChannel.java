@@ -1,7 +1,7 @@
 package com.gurella.engine.audio;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 public class AudioChannel implements Poolable, VolumeListener {
 	static final AudioChannel DEFAULT = newInstance();
@@ -17,7 +17,7 @@ public class AudioChannel implements Poolable, VolumeListener {
 	}
 
 	public static AudioChannel newInstance() {
-		AudioChannel audioChannel = SynchronizedPools.obtain(AudioChannel.class);
+		AudioChannel audioChannel = PoolService.obtain(AudioChannel.class);
 		AudioService.addVolumeListener(audioChannel);
 		audioChannel.masterVolume = AudioService.getVolume();
 		audioChannel.updateVolume();
@@ -57,7 +57,7 @@ public class AudioChannel implements Poolable, VolumeListener {
 	}
 
 	public void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	@Override

@@ -1,11 +1,11 @@
 package com.gurella.engine.event;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.IntMap;
 
 public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
-	private static final ObjectMap<Object, EventBus> eventBuses = new ObjectMap<Object, EventBus>();
+	private static final IntMap<EventBus> eventBuses = new IntMap<EventBus>();
 
 	public static <LISTENER> void addListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
 		globalEventBus.addListener(eventType, listener);
@@ -40,87 +40,81 @@ public class EventService {
 		return globalEventBus.getListeners(eventType, out);
 	}
 
-	public static <LISTENER> void addListener(Object source, Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
-		getEventBusBySource(source).addListener(eventType, listener);
+	public static <LISTENER> void addListener(int channel, Class<? extends Event<LISTENER>> eventType,
+			LISTENER listener) {
+		getEventBusBySource(channel).addListener(eventType, listener);
 	}
 
-	private static EventBus getEventBusBySource(Object source) {
+	private static EventBus getEventBusBySource(int channel) {
 		synchronized (eventBuses) {
-			EventBus eventBus = eventBuses.get(source);
+			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus == null) {
 				eventBus = new EventBus();
-				eventBuses.put(source, eventBus);
+				eventBuses.put(channel, eventBus);
 			}
 			return eventBus;
 		}
 	}
 
-	public static <LISTENER> void removeListener(Object source, Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
-		EventBus eventBus;
+	public static <LISTENER> void removeListener(int channel, Class<? extends Event<LISTENER>> eventType,
+			LISTENER listener) {
 		synchronized (eventBuses) {
-			eventBus = eventBuses.get(source);
-		}
-		if (eventBus != null) {
-			eventBus.removeListener(eventType, listener);
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.removeListener(eventType, listener);
+			}
 		}
 	}
 
-	public static <LISTENER> void notify(Object source, final Event<LISTENER> event) {
-		EventBus eventBus;
+	public static <LISTENER> void notify(int channel, final Event<LISTENER> event) {
 		synchronized (eventBuses) {
-			eventBus = eventBuses.get(source);
-		}
-		if (eventBus != null) {
-			eventBus.notify(event);
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.notify(event);
+			}
 		}
 	}
 
-	public static <T> void addListener(Object source, T eventType, Listener1<T> listener) {
-		getEventBusBySource(source).addListener(eventType, listener);
+	public static <T> void addListener(int channel, T eventType, Listener1<T> listener) {
+		getEventBusBySource(channel).addListener(eventType, listener);
 	}
 
-	public static <T> void removeListener(Object source, T eventType, Listener1<T> listener) {
-		EventBus eventBus;
+	public static <T> void removeListener(int channel, T eventType, Listener1<T> listener) {
 		synchronized (eventBuses) {
-			eventBus = eventBuses.get(source);
-		}
-		if (eventBus != null) {
-			eventBus.removeListener(eventType, listener);
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.removeListener(eventType, listener);
+			}
 		}
 	}
 
-	public static <T> void notify(Object source, T eventType) {
-		EventBus eventBus;
+	public static <T> void notify(int channel, T eventType) {
 		synchronized (eventBuses) {
-			eventBus = eventBuses.get(source);
-		}
-		if (eventBus != null) {
-			eventBus.notify(eventType);
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.notify(eventType);
+			}
 		}
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(Object source, Class<? extends Event<LISTENER>> eventType,
+	public <LISTENER> Array<? super LISTENER> getListeners(int channel, Class<? extends Event<LISTENER>> eventType,
 			Array<? super LISTENER> out) {
-		EventBus eventBus;
 		synchronized (eventBuses) {
-			eventBus = eventBuses.get(source);
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.getListeners(eventType, out);
+			}
 		}
-		if (eventBus != null) {
-			eventBus.getListeners(eventType, out);
-		}
-
 		return out;
 	}
 
-	public <T> Array<Listener1<? super T>> getListeners(Object source, T eventType, Array<Listener1<? super T>> out) {
-		EventBus eventBus;
+	public <T> Array<Listener1<? super T>> getListeners(int channel, T eventType, Array<Listener1<? super T>> out) {
 		synchronized (eventBuses) {
-			eventBus = eventBuses.get(source);
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.getListeners(eventType, out);
+			}
 		}
-		if (eventBus != null) {
-			eventBus.getListeners(eventType, out);
-		}
-
 		return out;
 	}
 }

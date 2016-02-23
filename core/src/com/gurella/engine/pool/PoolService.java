@@ -1,4 +1,4 @@
-package com.gurella.engine.utils;
+package com.gurella.engine.pool;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -10,18 +10,17 @@ import com.badlogic.gdx.utils.ReflectionPool;
  * 
  * @author Nathan Sweet
  */
-public class SynchronizedPools {
+public class PoolService {
 	static private final ObjectMap<Class<?>, ReflectionPool<?>> typePools = new ObjectMap<Class<?>, ReflectionPool<?>>();
 
-	private SynchronizedPools() {
+	private PoolService() {
 	}
 
 	/**
-	 * Returns a new or existing pool for the specified type, stored in a a
-	 * Class to {@link ReflectionPool} map. The max size of the pool used is
-	 * 100.
+	 * Returns a new or existing pool for the specified type, stored in a a Class to {@link ReflectionPool} map. The max
+	 * size of the pool used is 100.
 	 */
-	static private <T> Pool<T> get(Class<T> type) {
+	private static <T> Pool<T> get(Class<T> type) {
 		synchronized (typePools) {
 			@SuppressWarnings("unchecked")
 			ReflectionPool<T> pool = (ReflectionPool<T>) typePools.get(type);
@@ -35,7 +34,7 @@ public class SynchronizedPools {
 
 	/** Obtains an object from the {@link #get(Class) pool}. */
 	@SuppressWarnings("cast")
-	static public <T> T obtain(Class<T> type) {
+	public static <T> T obtain(Class<T> type) {
 		Pool<T> pool = get(type);
 		synchronized (pool) {
 			return (T) pool.obtain();
@@ -43,7 +42,7 @@ public class SynchronizedPools {
 	}
 
 	/** Frees an object from the {@link #get(Class) pool}. */
-	static public <T> void free(T object) {
+	public static <T> void free(T object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");
 		}
@@ -67,11 +66,10 @@ public class SynchronizedPools {
 	}
 
 	/**
-	 * Frees the specified objects from the {@link #get(Class) pool}. Null
-	 * objects within the array are silently ignored. Objects don't need to be
-	 * from the same pool.
+	 * Frees the specified objects from the {@link #get(Class) pool}. Null objects within the array are silently
+	 * ignored. Objects don't need to be from the same pool.
 	 */
-	static public void freeAll(Array<?> objects) {
+	public static void freeAll(Array<?> objects) {
 		if (objects == null) {
 			return;
 		}

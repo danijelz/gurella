@@ -5,8 +5,8 @@ import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.SequenceGenerator;
-import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.ValueUtils;
 
@@ -58,19 +58,40 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void register() {
-		if(isInitialized()) {
+		if(state != ManagedObjectState.ready) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
-		//TODO
+		state = ManagedObjectState.inactive;
+		init();
 	}
 
 	void activate() {
+		if(state != ManagedObjectState.inactive) {
+			throw new GdxRuntimeException("Invalid state: " + state);
+		}
+		state = ManagedObjectState.active;
+		attachAll();
 	}
 
 	void deactivate() {
+		if(state != ManagedObjectState.inactive) {
+			throw new GdxRuntimeException("Invalid state: " + state);
+		}
+		state = ManagedObjectState.active;
+		detachAll();
 	}
 
 	void unregister() {
+		if(state != ManagedObjectState.inactive) {
+			throw new GdxRuntimeException("Invalid state: " + state);
+		}
+		state = ManagedObjectState.disposed;
+		
+		if (this instanceof Poolable) {
+			PoolService.free(this);
+		} else {
+			DisposablesService.tryDispose(this);
+		}
 	}
 
 	protected void reset() {
@@ -78,10 +99,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
 		
-		uuid = null;
-		templateId = null;
-		state = ManagedObjectState.ready;
 		clearAttachments();
+		state = ManagedObjectState.ready;
+		templateId = null;
+		uuid = null;
 	}
 
 	//// ATTACHMENTS
@@ -99,12 +120,23 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			attachment.detach();
 		}
 	}
+	
+	private void attachAll() {
+		for (Attachment<?> attachment : attachments.values()) {
+			attachment.attach();
+		}
+	}
+	
+	private void detachAll() {
+		for (Attachment<?> attachment : attachments.values()) {
+			attachment.detach();
+		}
+	}
 
 	private void clearAttachments() {
 		for (Attachment<?> attachment : attachments.values()) {
-			attachment.detach();
 			if (attachment instanceof Poolable) {
-				SynchronizedPools.free(attachment);
+				PoolService.free(attachment);
 			} else {
 				DisposablesService.tryDispose(attachment);
 			}

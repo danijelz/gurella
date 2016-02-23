@@ -2,10 +2,10 @@ package com.gurella.engine.scene.spatial.bvh;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.utils.SynchronizedPools;
 
 public class BvhSpatial extends Spatial {
 	BvhNode node;
@@ -13,7 +13,7 @@ public class BvhSpatial extends Spatial {
 	private final BoundingBox bounds = new BoundingBox();
 
 	public static BvhSpatial obtain(RenderableComponent renderableComponent) {
-		BvhSpatial spatial = SynchronizedPools.obtain(BvhSpatial.class);
+		BvhSpatial spatial = PoolService.obtain(BvhSpatial.class);
 		spatial.init(renderableComponent);
 		return spatial;
 	}
@@ -29,7 +29,7 @@ public class BvhSpatial extends Spatial {
 	}
 
 	public void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	@Override

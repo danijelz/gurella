@@ -11,7 +11,7 @@ import com.gurella.engine.message.MessageCenter;
 import com.gurella.engine.message.MessageId;
 import com.gurella.engine.message.input.KeyboardMessages.KeyboardAction;
 import com.gurella.engine.message.input.KeyboardMessages.KeyboardMessage;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 public class KeyboardMessenger extends InputAdapter implements ApplicationUpdateListener {
 	private IntMap<Message> temporaryMessages = new IntMap<Message>();
@@ -24,7 +24,7 @@ public class KeyboardMessenger extends InputAdapter implements ApplicationUpdate
 	}
 
 	private void publishMessage(int keycode, KeyboardAction action) {
-		Message message = SynchronizedPools.obtain(Message.class);
+		Message message = PoolService.obtain(Message.class);
 		MessageId messageId = MessageId.fromValue(KeyboardMessage.getInstance(keycode, action));
 		message.messageId = messageId;
 
@@ -58,7 +58,7 @@ public class KeyboardMessenger extends InputAdapter implements ApplicationUpdate
 
 	private static void suppressMesage(Message message) {
 		MessageCenter.suppress(message);
-		SynchronizedPools.free(message);
+		PoolService.free(message);
 	}
 
 	@Override

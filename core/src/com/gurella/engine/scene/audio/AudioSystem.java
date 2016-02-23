@@ -10,11 +10,11 @@ import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.movement.TransformComponent;
-import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO attach listeners on activate
 public class AudioSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
@@ -342,7 +342,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 			Vector3 listenerVelocity = listener.getVelocity();
 			float dopplerVelocity = source.getDopplerVelocity();
 			float dopplerFactor = source.getDopplerFactor();
-			Vector3 SL = SynchronizedPools.obtain(Vector3.class).set(listener.getPosition()).sub(source.getPosition());
+			Vector3 SL = PoolService.obtain(Vector3.class).set(listener.getPosition()).sub(source.getPosition());
 
 			float vls = SL.isZero() ? 1.0f : SL.dot(listenerVelocity) / SL.len();
 			float vss = SL.isZero() ? 1.0f : SL.dot(sourceVelocity) / SL.len();
@@ -354,7 +354,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 
 			source.pitch.setPitch(newPitch);
 
-			SynchronizedPools.free(SL);
+			PoolService.free(SL);
 		}
 	}
 

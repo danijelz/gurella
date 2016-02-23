@@ -26,12 +26,12 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionModel<T> implements Model<T> {
@@ -205,7 +205,7 @@ public class ReflectionModel<T> implements Model<T> {
 			if (innerClass) {
 				return (T) getConstructor(enclosingInstance).newInstance(enclosingInstance);
 			} else if (poolable) {
-				return SynchronizedPools.obtain(type);
+				return PoolService.obtain(type);
 			} else {
 				return (T) getConstructor(null).newInstance();
 

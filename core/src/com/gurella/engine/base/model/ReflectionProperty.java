@@ -11,9 +11,9 @@ import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.SynchronizedPools;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ReflectionProperty<T> implements Property<T> {
@@ -186,9 +186,9 @@ public class ReflectionProperty<T> implements Property<T> {
 			ReflectionUtils.invokeMethod(setter, object, value);
 		} else if (field.isFinal()) {
 			Object fieldValue = ReflectionUtils.getFieldValue(field, object);
-			CopyContext context = SynchronizedPools.obtain(CopyContext.class);
+			CopyContext context = PoolService.obtain(CopyContext.class);
 			context.copyProperties(value, fieldValue);
-			SynchronizedPools.free(context);
+			PoolService.free(context);
 		} else {
 			ReflectionUtils.setFieldValue(field, object, value);
 		}

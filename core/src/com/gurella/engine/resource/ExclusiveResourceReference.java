@@ -3,7 +3,7 @@ package com.gurella.engine.resource;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 public class ExclusiveResourceReference<T> extends FactoryResourceReference<T> {
 	private T resource;
@@ -196,7 +196,7 @@ public class ExclusiveResourceReference<T> extends FactoryResourceReference<T> {
 
 		private static DependenciesResolverCallback obtain(ExclusiveResourceReference<?> reference,
 				int dependenciesCount) {
-			DependenciesResolverCallback callback = SynchronizedPools.obtain(DependenciesResolverCallback.class);
+			DependenciesResolverCallback callback = PoolService.obtain(DependenciesResolverCallback.class);
 			callback.reference = reference;
 			callback.dependenciesCount = dependenciesCount;
 			return callback;
@@ -205,13 +205,13 @@ public class ExclusiveResourceReference<T> extends FactoryResourceReference<T> {
 		@Override
 		public void handleResource(DependencyMap resource) {
 			reference.createResource(resource);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override
 		public void handleException(Throwable exception) {
 			reference.handleCreationException(exception);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override

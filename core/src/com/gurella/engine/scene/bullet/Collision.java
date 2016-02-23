@@ -3,8 +3,8 @@ package com.gurella.engine.scene.bullet;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.utils.SynchronizedPools;
 
 public class Collision implements Poolable {
 	private btPersistentManifold contactManifold;
@@ -18,7 +18,7 @@ public class Collision implements Poolable {
 
 	static Collision obtain(btPersistentManifold contactManifold, btCollisionObject collidedWithCollisionObject,
 			float timeStep) {
-		Collision collision = SynchronizedPools.obtain(Collision.class);
+		Collision collision = PoolService.obtain(Collision.class);
 		collision.contactManifold = contactManifold;
 		collision.collidedWithCollisionObject = collidedWithCollisionObject;
 		collision.collidedWithComponent = (BulletPhysicsRigidBodyComponent) collidedWithCollisionObject.userData;
@@ -28,7 +28,7 @@ public class Collision implements Poolable {
 	}
 
 	void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	@Override

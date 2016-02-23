@@ -5,7 +5,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.input.ButtonTrigger.ButtonType;
 import com.gurella.engine.input.DragTrigger.DragDirection;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 class InputMapper implements InputProcessor {
 	private Array<InputContext> activeContexts = new Array<InputContext>();
@@ -21,12 +21,12 @@ class InputMapper implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.KEYBOARD;
 		buttonTrigger.button = keycode;
 		buttonTrigger.buttonState = ButtonState.PRESSED;
 		handleButton(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return false;
 	}
 
@@ -40,12 +40,12 @@ class InputMapper implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.KEYBOARD;
 		buttonTrigger.button = keycode;
 		buttonTrigger.buttonState = ButtonState.RELEASED;
 		handleButton(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return false;
 	}
 
@@ -62,23 +62,23 @@ class InputMapper implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.MOUSE;
 		buttonTrigger.button = button;
 		buttonTrigger.buttonState = ButtonState.PRESSED;
 		handleButton(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.MOUSE;
 		buttonTrigger.button = button;
 		buttonTrigger.buttonState = ButtonState.RELEASED;
 		handleButton(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return false;
 	}
 
@@ -98,11 +98,11 @@ class InputMapper implements InputProcessor {
 	}
 
 	private void handleDragged(DragDirection direction, int pointer, int delta) {
-		DragTrigger dragTrigger = SynchronizedPools.obtain(DragTrigger.class);
+		DragTrigger dragTrigger = PoolService.obtain(DragTrigger.class);
 		dragTrigger.direction = direction;
 		dragTrigger.pointer = pointer;
 		handleDragged(delta, dragTrigger);
-		SynchronizedPools.free(dragTrigger);
+		PoolService.free(dragTrigger);
 	}
 
 	private void handleDragged(int delta, DragTrigger dragTrigger) {

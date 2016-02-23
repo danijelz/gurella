@@ -11,8 +11,8 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.IdentityObjectIntMap;
-import com.gurella.engine.utils.SynchronizedPools;
 
 public class UBJsonOutput implements Output, Poolable {
 	private UBJsonWriter writer;
@@ -395,7 +395,7 @@ public class UBJsonOutput implements Output, Poolable {
 		Object template;
 
 		public static ObjectInfo obtain(int ordinal, Class<?> expectedType, Object template, Object object) {
-			ObjectInfo objectInfo = SynchronizedPools.obtain(ObjectInfo.class);
+			ObjectInfo objectInfo = PoolService.obtain(ObjectInfo.class);
 			objectInfo.ordinal = ordinal;
 			objectInfo.expectedType = expectedType;
 			objectInfo.template = template;
@@ -404,7 +404,7 @@ public class UBJsonOutput implements Output, Poolable {
 		}
 
 		public void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override

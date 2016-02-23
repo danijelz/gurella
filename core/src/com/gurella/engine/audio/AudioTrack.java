@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.Signal1.Signal1Impl;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 //TODO add global signals for completitions etc...
 public class AudioTrack implements Poolable, VolumeListener {
@@ -36,7 +36,7 @@ public class AudioTrack implements Poolable, VolumeListener {
 	}
 
 	public static AudioTrack newInstance(AudioChannel audioChannel, AudioClip audioClip) {
-		AudioTrack track = SynchronizedPools.obtain(AudioTrack.class);
+		AudioTrack track = PoolService.obtain(AudioTrack.class);
 		track.audioClip = audioClip;
 		AudioChannel nonNullAudioChannel = getNonNullAudioChannel(audioChannel);
 		track.audioChannel = nonNullAudioChannel;
@@ -213,7 +213,7 @@ public class AudioTrack implements Poolable, VolumeListener {
 	}
 
 	public void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	@Override

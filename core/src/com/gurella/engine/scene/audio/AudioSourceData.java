@@ -11,9 +11,9 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.movement.TransformComponent;
-import com.gurella.engine.utils.SynchronizedPools;
 
 class AudioSourceData implements Poolable {
 	private static Attenuation defaultAttenuation = Attenuation.ROLLOFF;
@@ -35,11 +35,11 @@ class AudioSourceData implements Poolable {
 	private final Quaternion tempRotation = new Quaternion();
 
 	static AudioSourceData getInstance() {
-		return SynchronizedPools.obtain(AudioSourceData.class);
+		return PoolService.obtain(AudioSourceData.class);
 	}
 
 	void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	void init(AudioSourceComponent initAudioSourceComponent) {

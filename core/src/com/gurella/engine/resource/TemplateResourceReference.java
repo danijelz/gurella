@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 public class TemplateResourceReference<T> extends FactoryResourceReference<T> {
 	private static final String INIT_ON_START_COUNT_TAG = "initOnStartCount";
@@ -127,23 +127,23 @@ public class TemplateResourceReference<T> extends FactoryResourceReference<T> {
 
 		public static <T> void createResource(TemplateResourceReference<T> reference, AsyncResourceCallback<T> callback) {
 			@SuppressWarnings("unchecked")
-			CreateResourceWorker<T> instance = SynchronizedPools.obtain(CreateResourceWorker.class);
+			CreateResourceWorker<T> instance = PoolService.obtain(CreateResourceWorker.class);
 			instance.reference = reference;
 			instance.callback = callback;
 			instance.createResource();
-			SynchronizedPools.free(instance);
+			PoolService.free(instance);
 		}
 
 		@Override
 		public void handleResource(DependencyMap dependencyMap) {
 			createResource(dependencyMap);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override
 		public void handleException(Throwable exception) {
 			notifyException(exception);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override

@@ -4,10 +4,12 @@ import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.utils.Prioritized;
 import com.gurella.engine.utils.ValueUtils;
 
-public class EventBus {
+public class EventBus implements Poolable {
 	private final ObjectMap<Object, Array<?>> listeners = new ObjectMap<Object, Array<?>>();
 	private final Array<Object> eventPool = new Array<Object>();
 
@@ -102,17 +104,13 @@ public class EventBus {
 	}
 
 	private <LISTENER> void notifyListeners(final Event<LISTENER> event) {
-		@SuppressWarnings("unchecked")
-		Class<? extends Event<LISTENER>> eventType = (Class<? extends Event<LISTENER>>) event.getClass();
+		Class<? extends Event<LISTENER>> eventType = ValueUtils.cast(event.getClass());
 		Array<LISTENER> listenersByType;
 		synchronized (listeners) {
-			@SuppressWarnings("unchecked")
-			Array<LISTENER> casted = (Array<LISTENER>) listeners.get(eventType);
-			if (casted == null) {
+			listenersByType = ValueUtils.cast(listeners.get(eventType));
+			if (listenersByType == null) {
 				return;
 			}
-
-			listenersByType = casted;
 		}
 
 		synchronized (listenersByType) {
@@ -186,6 +184,25 @@ public class EventBus {
 				casted.addAll(listenersByType);
 			}
 		}
+	}
+
+	@Override
+	public void reset() {
+		while (true) {
+			synchronized (eventPool) {
+				if (!processing) {
+					resetInternal();
+					return;
+				}
+			}
+			ThreadUtils.yield();
+		}
+	}
+
+	private void resetInternal() {
+		listeners.clear();
+		eventPool.clear();
+		processing = false;
 	}
 
 	private static class ListenersComparator implements Comparator<Object> {

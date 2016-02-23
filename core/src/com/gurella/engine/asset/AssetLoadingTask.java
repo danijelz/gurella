@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.base.resource.AsyncCallback;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ValueUtils;
 
 class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTask<?>>, Poolable {
@@ -42,7 +42,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetLoaderParameters<T> params, int priority, boolean sticky) {
 		@SuppressWarnings("unchecked")
-		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
+		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
 		task.manager = manager;
 		task.loader = manager.findLoader(type, fileName);
 		task.fileName = fileName.replaceAll("\\\\", "/");
@@ -60,7 +60,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	static <T> AssetLoadingTask<T> obtain(AssetLoadingTask<?> parent, String fileName, FileHandle file, Class<T> type,
 			AssetLoaderParameters<T> params) {
 		@SuppressWarnings("unchecked")
-		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
+		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
 		task.manager = parent.manager;
 		task.loader = parent.manager.findLoader(type, fileName);
 		task.fileName = fileName;
@@ -78,7 +78,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetReference reference, AssetLoaderParameters<T> params, int priority) {
 		@SuppressWarnings("unchecked")
-		AssetLoadingTask<T> task = SynchronizedPools.obtain(AssetLoadingTask.class);
+		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
 		task.manager = manager;
 		task.loader = manager.findLoader(type, fileName);
 		task.fileName = fileName;
@@ -278,7 +278,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		params = null;
 		parent = null;
 
-		SynchronizedPools.freeAll(dependencies);
+		PoolService.freeAll(dependencies);
 		dependencies.clear();
 
 		for (int i = 0; i < concurentTasks.size; i++) {
@@ -298,7 +298,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	void free() {
 		if (parent == null) {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 

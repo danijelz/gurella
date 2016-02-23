@@ -1,6 +1,6 @@
 package com.gurella.engine.scene.bullet;
 
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 class CachedCollisionPair {
 	BulletPhysicsRigidBodyComponent rigidBodyComponent0;
@@ -11,14 +11,14 @@ class CachedCollisionPair {
 
 	static CachedCollisionPair obtain(BulletPhysicsRigidBodyComponent rigidBodyComponent0,
 			BulletPhysicsRigidBodyComponent rigidBodyComponent1) {
-		CachedCollisionPair cachedCollisionPair = SynchronizedPools.obtain(CachedCollisionPair.class);
+		CachedCollisionPair cachedCollisionPair = PoolService.obtain(CachedCollisionPair.class);
 		cachedCollisionPair.rigidBodyComponent0 = rigidBodyComponent0;
 		cachedCollisionPair.rigidBodyComponent1 = rigidBodyComponent1;
 		return cachedCollisionPair;
 	}
 
 	void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	@Override

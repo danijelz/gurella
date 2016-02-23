@@ -2,7 +2,7 @@ package com.gurella.engine.asset;
 
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 class AssetReference implements Poolable {
 	Object asset;
@@ -12,7 +12,7 @@ class AssetReference implements Poolable {
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
 
 	public static AssetReference obtain() {
-		return SynchronizedPools.obtain(AssetReference.class);
+		return PoolService.obtain(AssetReference.class);
 	}
 
 	private AssetReference() {
@@ -59,6 +59,6 @@ class AssetReference implements Poolable {
 	}
 
 	void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 }

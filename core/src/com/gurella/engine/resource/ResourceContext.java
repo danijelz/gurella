@@ -15,8 +15,8 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.resource.DependencyMap.ResourceMapEntry;
-import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO Pools class is not thread safe
 public class ResourceContext {
@@ -291,14 +291,14 @@ public class ResourceContext {
 
 		public static <T> T run(ResourceContext context, ResourceReference<T> resourceReference) {
 			@SuppressWarnings("unchecked")
-			ObtainResourceCallback<T> instance = SynchronizedPools.obtain(ObtainResourceCallback.class);
+			ObtainResourceCallback<T> instance = PoolService.obtain(ObtainResourceCallback.class);
 			instance.context = context;
 			instance.resourceReference = resourceReference;
 
 			try {
 				return instance.getResource();
 			} finally {
-				SynchronizedPools.free(instance);
+				PoolService.free(instance);
 			}
 		}
 
@@ -363,7 +363,7 @@ public class ResourceContext {
 		public static <T> void run(ResourceContext context, ResourceReference<T> resourceReference,
 				AsyncResourceCallback<T> callback) {
 			@SuppressWarnings("unchecked")
-			ObtainResourceTask<T> instance = SynchronizedPools.obtain(ObtainResourceTask.class);
+			ObtainResourceTask<T> instance = PoolService.obtain(ObtainResourceTask.class);
 			instance.context = context;
 			instance.resourceReference = resourceReference;
 			instance.callback = callback;
@@ -380,13 +380,13 @@ public class ResourceContext {
 		public void handleResource(T resource) {
 			context.addObtainedResource(resource, resourceReference);
 			callback.handleResource(resource);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override
 		public void handleException(Throwable throwable) {
 			callback.handleException(throwable);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override
@@ -407,7 +407,7 @@ public class ResourceContext {
 		ResourceReference<?> reference;
 
 		static ObtainedResource getInstance() {
-			return SynchronizedPools.obtain(ObtainedResource.class);
+			return PoolService.obtain(ObtainedResource.class);
 		}
 
 		@Override
@@ -417,7 +417,7 @@ public class ResourceContext {
 		}
 
 		void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 
@@ -428,13 +428,13 @@ public class ResourceContext {
 
 		public static void resolve(ResourceContext context, IntArray resourceIds,
 				AsyncResourceCallback<DependencyMap> callback) {
-			ConcurrentResolver resolver = SynchronizedPools.obtain(ConcurrentResolver.class);
+			ConcurrentResolver resolver = PoolService.obtain(ConcurrentResolver.class);
 			resolver.context = context;
 			// TODO resourceMap is never freed
 			resolver.dependencyMap = DependencyMap.obtain(context, resourceIds);
 			resolver.callback = callback;
 			resolver.resolve();
-			SynchronizedPools.free(resolver);
+			PoolService.free(resolver);
 		}
 
 		private void resolve() {
@@ -509,7 +509,7 @@ public class ResourceContext {
 
 		public static void resolve(ResourceContext context, IntArray resourceIds,
 				AsyncResourceCallback<DependencyMap> callback) {
-			AsyncResolver resolver = SynchronizedPools.obtain(AsyncResolver.class);
+			AsyncResolver resolver = PoolService.obtain(AsyncResolver.class);
 			resolver.context = context;
 			resolver.dependencyMap = DependencyMap.obtain(context, resourceIds);
 			resolver.callback = callback;
@@ -576,7 +576,7 @@ public class ResourceContext {
 					context.rollback(dependencyMap);
 				}
 
-				SynchronizedPools.free(this);
+				PoolService.free(this);
 			}
 		}
 
@@ -605,7 +605,7 @@ public class ResourceContext {
 			private AsyncResolver resolver;
 
 			public static InitCallback obtain(int index, int resourceId, AsyncResolver resolver) {
-				InitCallback instance = SynchronizedPools.obtain(InitCallback.class);
+				InitCallback instance = PoolService.obtain(InitCallback.class);
 				instance.index = index;
 				instance.resourceId = resourceId;
 				instance.resolver = resolver;
@@ -615,13 +615,13 @@ public class ResourceContext {
 			@Override
 			public void handleResource(Object resource) {
 				resolver.addResource(index, resourceId, resource);
-				SynchronizedPools.free(this);
+				PoolService.free(this);
 			}
 
 			@Override
 			public void handleException(Throwable exception) {
 				resolver.addException(exception);
-				SynchronizedPools.free(this);
+				PoolService.free(this);
 			}
 
 			@Override

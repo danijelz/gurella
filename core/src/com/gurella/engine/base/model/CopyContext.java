@@ -2,9 +2,9 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.SynchronizedPools;
 
 public class CopyContext implements Poolable {
 	private ArrayExt<Object> objectStack = new ArrayExt<Object>();
@@ -73,9 +73,9 @@ public class CopyContext implements Poolable {
 	}
 
 	public static <T> T copyObject(T original) {
-		CopyContext context = SynchronizedPools.obtain(CopyContext.class);
+		CopyContext context = PoolService.obtain(CopyContext.class);
 		T duplicate = context.copy(original);
-		SynchronizedPools.free(original);
+		PoolService.free(original);
 		return duplicate;
 	}
 }

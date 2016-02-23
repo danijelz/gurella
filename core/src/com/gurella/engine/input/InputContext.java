@@ -7,7 +7,7 @@ import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Listener2;
 import com.gurella.engine.input.ButtonTrigger.ButtonType;
 import com.gurella.engine.input.DragTrigger.DragDirection;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ValueUtils;
 
 public class InputContext implements Comparable<InputContext> {
@@ -96,12 +96,12 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindKeyActionListener(int keycode, ButtonState buttonState) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.KEYBOARD;
 		buttonTrigger.button = keycode;
 		buttonTrigger.buttonState = buttonState;
 		actionBindings.remove(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return this;
 	}
 
@@ -115,12 +115,12 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindKeyStateListener(int keycode) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.KEYBOARD;
 		buttonTrigger.button = keycode;
 		buttonTrigger.buttonState = null;
 		stateBindings.remove(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return this;
 	}
 
@@ -134,12 +134,12 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindKeyRangeListener(int keycode) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.KEYBOARD;
 		buttonTrigger.button = keycode;
 		buttonTrigger.buttonState = null;
 		rangeBindings.remove(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return this;
 	}
 
@@ -188,12 +188,12 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindTouchButtonActionListener(int button, ButtonState buttonState) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.MOUSE;
 		buttonTrigger.button = button;
 		buttonTrigger.buttonState = buttonState;
 		actionBindings.remove(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return this;
 	}
 
@@ -207,12 +207,12 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindTouchButtonStateListener(int button) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.MOUSE;
 		buttonTrigger.button = button;
 		buttonTrigger.buttonState = null;
 		stateBindings.remove(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return this;
 	}
 
@@ -226,12 +226,12 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindTouchButtonRangeListener(int button) {
-		ButtonTrigger buttonTrigger = SynchronizedPools.obtain(ButtonTrigger.class);
+		ButtonTrigger buttonTrigger = PoolService.obtain(ButtonTrigger.class);
 		buttonTrigger.buttonType = ButtonType.MOUSE;
 		buttonTrigger.button = button;
 		buttonTrigger.buttonState = null;
 		rangeBindings.remove(buttonTrigger);
-		SynchronizedPools.free(buttonTrigger);
+		PoolService.free(buttonTrigger);
 		return this;
 	}
 
@@ -359,11 +359,11 @@ public class InputContext implements Comparable<InputContext> {
 	}
 
 	public InputContext unbindTouchMovedRangeListener(DragDirection direction, int pointer) {
-		DragTrigger dragTrigger = SynchronizedPools.obtain(DragTrigger.class);
+		DragTrigger dragTrigger = PoolService.obtain(DragTrigger.class);
 		dragTrigger.direction = direction;
 		dragTrigger.pointer = pointer;
 		rangeBindings.remove(dragTrigger);
-		SynchronizedPools.free(dragTrigger);
+		PoolService.free(dragTrigger);
 		return this;
 	}
 

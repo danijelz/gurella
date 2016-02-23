@@ -33,6 +33,7 @@ import com.gurella.engine.application.events.ApplicationUpdateSignal.Application
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.AbstractSignal;
 import com.gurella.engine.input.InputService;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
@@ -49,7 +50,6 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.SynchronizedPools;
 
 //TODO attach listeners
 public class InputSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
@@ -336,7 +336,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 		int key = pointer + button * 100;
 		PointerTrack pointerTrack = trackers.get(key);
 		if (pointerTrack == null) {
-			pointerTrack = SynchronizedPools.obtain(PointerTrack.class);
+			pointerTrack = PoolService.obtain(PointerTrack.class);
 			trackers.put(key, pointerTrack);
 		} else {
 			pointerTrack.reset();
@@ -508,7 +508,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		private void reset() {
 			for (PointerTrack pointerTrack : trackers.values()) {
-				SynchronizedPools.free(pointerTrack);
+				PoolService.free(pointerTrack);
 			}
 			trackers.clear();
 		}
@@ -519,7 +519,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 				Entry<PointerTrack> entry = entries.next();
 				PointerTrack pointerTrack = entry.value;
 				if (end == pointerTrack.getPhase()) {
-					SynchronizedPools.free(pointerTrack);
+					PoolService.free(pointerTrack);
 					entries.remove();
 				}
 			}

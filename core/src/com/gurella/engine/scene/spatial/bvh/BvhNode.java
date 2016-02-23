@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ValueUtils;
 
 //TODO https://github.com/jeske/SimpleScene/tree/master/SimpleScene/Util/ssBVH
@@ -581,7 +581,7 @@ public class BvhNode implements Poolable {
 
 	void free() {
 		// TODO must first be obtained
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	// rotation option

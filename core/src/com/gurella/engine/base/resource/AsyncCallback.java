@@ -1,7 +1,7 @@
 package com.gurella.engine.base.resource;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ValueUtils;
 
 public interface AsyncCallback<T> {
@@ -21,7 +21,7 @@ public interface AsyncCallback<T> {
 		private boolean done;
 
 		public static <T> SimpleAsyncCallback<T> obtain() {
-			return ValueUtils.cast(SynchronizedPools.obtain(SimpleAsyncCallback.class));
+			return ValueUtils.cast(PoolService.obtain(SimpleAsyncCallback.class));
 		}
 
 		@Override
@@ -85,7 +85,7 @@ public interface AsyncCallback<T> {
 		}
 
 		public void free() {
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 	}
 }

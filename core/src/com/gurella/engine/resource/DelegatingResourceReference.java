@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 public class DelegatingResourceReference<T> extends ResourceReference<T> {
 	private static final String DELEGATE_ID_TAG = "delegateId";
@@ -201,7 +201,7 @@ public class DelegatingResourceReference<T> extends ResourceReference<T> {
 
 		public static <T> DelegateAsyncResourceCallback<T> getInstance(DelegatingResourceReference<T> reference) {
 			@SuppressWarnings("unchecked")
-			DelegateAsyncResourceCallback<T> instance = SynchronizedPools.obtain(DelegateAsyncResourceCallback.class);
+			DelegateAsyncResourceCallback<T> instance = PoolService.obtain(DelegateAsyncResourceCallback.class);
 			instance.reference = reference;
 			return instance;
 		}
@@ -209,13 +209,13 @@ public class DelegatingResourceReference<T> extends ResourceReference<T> {
 		@Override
 		public void handleResource(T resource) {
 			reference.notifySucess(resource);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override
 		public void handleException(Throwable exception) {
 			reference.notifyException(exception);
-			SynchronizedPools.free(this);
+			PoolService.free(this);
 		}
 
 		@Override

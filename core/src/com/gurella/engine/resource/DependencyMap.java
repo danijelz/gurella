@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.utils.SynchronizedPools;
+import com.gurella.engine.pool.PoolService;
 
 public class DependencyMap implements Poolable {
 	private final IntMap<ResourceMapEntry<?>> resourcesById = new IntMap<ResourceMapEntry<?>>();
@@ -15,7 +15,7 @@ public class DependencyMap implements Poolable {
 	private ResourceContext context;
 
 	public static DependencyMap obtain(ResourceContext context, IntArray resourceIds) {
-		DependencyMap instance = SynchronizedPools.obtain(DependencyMap.class);
+		DependencyMap instance = PoolService.obtain(DependencyMap.class);
 		instance.context = context;
 		instance.addDependecies(resourceIds);
 		return instance;
@@ -34,7 +34,7 @@ public class DependencyMap implements Poolable {
 		ResourceMapEntry<T> entry = (ResourceMapEntry<T>) resourcesById.get(resourceId);
 		if (entry == null) {
 			@SuppressWarnings("unchecked")
-			ResourceMapEntry<T> casted = SynchronizedPools.obtain(ResourceMapEntry.class);
+			ResourceMapEntry<T> casted = PoolService.obtain(ResourceMapEntry.class);
 			entry = casted;
 			resourcesById.put(resourceId, entry);
 			entries.add(entry);
@@ -75,7 +75,7 @@ public class DependencyMap implements Poolable {
 	public synchronized void reset() {
 		for (int i = 0; i < entries.size; i++) {
 			ResourceMapEntry<?> dependency = entries.get(i);
-			SynchronizedPools.free(dependency);
+			PoolService.free(dependency);
 		}
 		entries.clear();
 		resourcesById.clear();
@@ -85,7 +85,7 @@ public class DependencyMap implements Poolable {
 	}
 
 	public void free() {
-		SynchronizedPools.free(this);
+		PoolService.free(this);
 	}
 
 	static class ResourceMapEntry<T> implements Poolable {
