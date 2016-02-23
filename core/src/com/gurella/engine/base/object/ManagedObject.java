@@ -11,7 +11,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	String uuid;
 	String templateId;
 	
-	private final IdentityMap<Object, ReleasableReference<?, ?>> releasables = new IdentityMap<Object, ReleasableReference<?, ?>>();
+	private final IdentityMap<Object, Attachment<?, ?>> releasables = new IdentityMap<Object, Attachment<?, ?>>();
 
 	public ManagedObject() {
 		instanceId = SequenceGenerator.next();

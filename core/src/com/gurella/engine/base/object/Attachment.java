@@ -1,10 +1,10 @@
 package com.gurella.engine.base.object;
 
-public abstract class ReleasableReference<MO extends ManagedObject, V> {
+public abstract class Attachment<MO extends ManagedObject, V> {
 	MO object;
 	V value;
 
-	public ReleasableReference(V value) {
+	public Attachment(V value) {
 		this.value = value;
 	}
 
@@ -15,4 +15,8 @@ public abstract class ReleasableReference<MO extends ManagedObject, V> {
 	public V getValue() {
 		return value;
 	}
+	
+	protected abstract void attach();
+
+	protected abstract void detach();
 }
