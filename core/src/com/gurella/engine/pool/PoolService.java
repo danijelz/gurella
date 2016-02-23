@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.ReflectionPool;
  * @author Nathan Sweet
  */
 public class PoolService {
-	static private final ObjectMap<Class<?>, ReflectionPool<?>> typePools = new ObjectMap<Class<?>, ReflectionPool<?>>();
+	static private final ObjectMap<Class<?>, ReflectionPool<?>> pools = new ObjectMap<Class<?>, ReflectionPool<?>>();
 
 	private PoolService() {
 	}
@@ -21,12 +21,12 @@ public class PoolService {
 	 * size of the pool used is 100.
 	 */
 	private static <T> Pool<T> get(Class<T> type) {
-		synchronized (typePools) {
+		synchronized (pools) {
 			@SuppressWarnings("unchecked")
-			ReflectionPool<T> pool = (ReflectionPool<T>) typePools.get(type);
+			ReflectionPool<T> pool = (ReflectionPool<T>) pools.get(type);
 			if (pool == null) {
 				pool = new ReflectionPool<T>(type, 4, 100);
-				typePools.put(type, pool);
+				pools.put(type, pool);
 			}
 			return pool;
 		}
@@ -50,9 +50,9 @@ public class PoolService {
 		@SuppressWarnings("unchecked")
 		Class<T> type = (Class<T>) object.getClass();
 		ReflectionPool<T> pool;
-		synchronized (typePools) {
+		synchronized (pools) {
 			@SuppressWarnings("unchecked")
-			ReflectionPool<T> casted = (ReflectionPool<T>) typePools.get(type);
+			ReflectionPool<T> casted = (ReflectionPool<T>) pools.get(type);
 			pool = casted;
 		}
 
@@ -86,9 +86,9 @@ public class PoolService {
 
 			Class<?> type = object.getClass();
 			if (currentType != type) {
-				synchronized (typePools) {
+				synchronized (pools) {
 					@SuppressWarnings("unchecked")
-					ReflectionPool<Object> casted = (ReflectionPool<Object>) typePools.get(type);
+					ReflectionPool<Object> casted = (ReflectionPool<Object>) pools.get(type);
 					pool = casted;
 					if (pool == null) {
 						continue;
