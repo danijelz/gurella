@@ -2,6 +2,7 @@ package com.gurella.engine.event;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.pool.PoolService;
 
 public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
@@ -49,7 +50,7 @@ public class EventService {
 		synchronized (eventBuses) {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus == null) {
-				eventBus = new EventBus();
+				eventBus = PoolService.obtain(EventBus.class);
 				eventBuses.put(channel, eventBus);
 			}
 			return eventBus;
@@ -62,6 +63,9 @@ public class EventService {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.removeListener(eventType, listener);
+				if(eventBus.isEmpty()) {
+					PoolService.free(eventBus);
+				}
 			}
 		}
 	}

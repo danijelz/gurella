@@ -186,6 +186,11 @@ public class EventBus implements Poolable {
 		}
 	}
 
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	@Override
 	public void reset() {
 		while (true) {
