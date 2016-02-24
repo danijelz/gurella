@@ -8,10 +8,6 @@ class ObjectOperation implements Poolable {
 	OperationType operationType;
 	ManagedObject newParent;
 
-	void free() {
-		PoolService.free(this);
-	}
-
 	void execute() {
 		switch (operationType) {
 		case activate:
@@ -31,6 +27,10 @@ class ObjectOperation implements Poolable {
 		}
 
 		free();
+	}
+
+	void free() {
+		PoolService.free(this);
 	}
 
 	@Override
