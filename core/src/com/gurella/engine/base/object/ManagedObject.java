@@ -178,16 +178,21 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 		parent = newParent;
 		if (newParent != null) {
-			if (state == ManagedObjectState.active && newParent.state != ManagedObjectState.active) {
-				deactivateHierarchy();
-			}
-			else if (state == ManagedObjectState.inactive && newParent.state == ManagedObjectState.active) {
-				activateHierarchy();
-			}
+			updateStateByParent();
 			newParent.addChild(this);
 		}
 
 		parentChanged(oldParent, newParent);
+	}
+
+	private void updateStateByParent() {
+		ManagedObjectState parentState = parent.state;
+		if (state == ManagedObjectState.active && parentState != ManagedObjectState.active) {
+			deactivateHierarchy();
+		}
+		else if (state == ManagedObjectState.inactive && parentState == ManagedObjectState.active) {
+			activateHierarchy();
+		}
 	}
 
 	protected void validateNewParent(ManagedObject newParent) {
