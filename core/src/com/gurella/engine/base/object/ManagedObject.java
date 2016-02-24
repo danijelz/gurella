@@ -48,56 +48,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	public ManagedObject getTemplate() {
 		return null;
 	}
-	
+
+	//// STATE
+
 	public ManagedObjectState getState() {
 		return state;
 	}
-
-	//// HIERARCHY
-
-	public ManagedObject getParent() {
-		return parent;
-	}
-
-	public void setParent(ManagedObject parent) {
-		if (this.parent == parent) {
-			return;
-		}
-
-		if (state == ManagedObjectState.disposed) {
-			throw new GdxRuntimeException("Object is disposed.");
-		}
-
-		if (parent != null && parent.state == ManagedObjectState.disposed) {
-			throw new GdxRuntimeException("Parent is disposed.");
-		}
-
-		ManagedObject oldParent = this.parent;
-		if (oldParent != null) {
-			oldParent.removeChild(this);
-		}
-
-		this.parent = parent;
-		if (parent != null) {
-			if(state == ManagedObjectState.active && parent.state != ManagedObjectState.active) {
-				deactivateHierarchy();
-			}
-			parent.addChild(this);
-		}
-		// TODO notify parent changed
-	}
-
-	private void addChild(ManagedObject child) {
-		childrenPrivate.add(child);
-		// TODO notify childAdded()
-	}
-
-	private void removeChild(ManagedObject child) {
-		childrenPrivate.removeValue(child, true);
-		// TODO notify childRemoved()
-	}
-
-	//// STATE
 
 	public boolean isValid() {
 		return state != ManagedObjectState.disposed;
@@ -129,10 +85,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (state == ManagedObjectState.ready) {
 			init();
 		}
-		
+
 		state = ManagedObjectState.active;
 		attachAll();
-		//TODO notify activated()
+		// TODO notify activated()
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -154,7 +110,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private void deactivateHierarchy() {
 		state = ManagedObjectState.inactive;
 		detachAll();
-		//TODO notify deactivated()
+		// TODO notify deactivated()
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -164,7 +120,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	public void destroy() {
+	void destroy() {
 		if (state == ManagedObjectState.active) {
 			deactivateHierarchy();
 		}
@@ -193,6 +149,70 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.ready;
 		childrenPrivate.clear();
 		clearAttachments();
+	}
+
+	//// HIERARCHY
+
+	public ManagedObject getParent() {
+		return parent;
+	}
+
+	void setParent(ManagedObject newParent) {
+		if (parent == newParent) {
+			return;
+		}
+
+		validateNewParent(newParent);
+
+		ManagedObject oldParent = parent;
+		if (oldParent != null) {
+			oldParent.removeChild(this);
+		}
+
+		parent = newParent;
+		if (newParent != null) {
+			if (state == ManagedObjectState.active && newParent.state != ManagedObjectState.active) {
+				deactivateHierarchy();
+			}
+			else if (state == ManagedObjectState.inactive && newParent.state == ManagedObjectState.active) {
+				activateHierarchy();
+			}
+			newParent.addChild(this);
+		}
+
+		parentChanged(oldParent, newParent);
+	}
+
+	protected void validateNewParent(ManagedObject newParent) {
+		if (state == ManagedObjectState.disposed) {
+			throw new GdxRuntimeException("Object is disposed.");
+		}
+
+		if (newParent != null && newParent.state == ManagedObjectState.disposed) {
+			throw new GdxRuntimeException("Parent is disposed.");
+		}
+	}
+
+	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
+		// TODO Auto-generated method stub
+	}
+
+	private void addChild(ManagedObject child) {
+		childrenPrivate.add(child);
+		childAdded(child);
+	}
+
+	protected void childAdded(ManagedObject child) {
+		// TODO Auto-generated method stub
+	}
+
+	private void removeChild(ManagedObject child) {
+		childrenPrivate.removeValue(child, true);
+		childRemoved(child);
+	}
+
+	protected void childRemoved(ManagedObject child) {
+		// TODO Auto-generated method stub
 	}
 
 	//// ATTACHMENTS

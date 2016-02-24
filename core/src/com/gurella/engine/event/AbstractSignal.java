@@ -35,4 +35,8 @@ public abstract class AbstractSignal<LISTENER> {
 	protected Comparator<LISTENER> getComparator() {
 		return null;
 	}
+	
+	public void signal() {
+		
+	}
 }
