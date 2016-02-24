@@ -8,15 +8,15 @@ public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
 	private static final IntMap<EventBus> eventBuses = new IntMap<EventBus>();
 
-	public static <LISTENER> void addListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
+	public static <L> void addListener(Class<? extends Event<L>> eventType, L listener) {
 		globalEventBus.addListener(eventType, listener);
 	}
 
-	public static <LISTENER> void removeListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
+	public static <L> void removeListener(Class<? extends Event<L>> eventType, L listener) {
 		globalEventBus.removeListener(eventType, listener);
 	}
 
-	public static <LISTENER> void notify(final Event<LISTENER> event) {
+	public static <L> void notify(final Event<L> event) {
 		globalEventBus.notify(event);
 	}
 
@@ -32,8 +32,7 @@ public class EventService {
 		globalEventBus.notify(eventType);
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType,
-			Array<? super LISTENER> out) {
+	public <L> Array<? super L> getListeners(Class<? extends Event<L>> eventType, Array<? super L> out) {
 		return globalEventBus.getListeners(eventType, out);
 	}
 
@@ -41,8 +40,7 @@ public class EventService {
 		return globalEventBus.getListeners(eventType, out);
 	}
 
-	public static <LISTENER> void addListener(int channel, Class<? extends Event<LISTENER>> eventType,
-			LISTENER listener) {
+	public static <L> void addListener(int channel, Class<? extends Event<L>> eventType, L listener) {
 		getEventBusBySource(channel).addListener(eventType, listener);
 	}
 
@@ -57,20 +55,19 @@ public class EventService {
 		}
 	}
 
-	public static <LISTENER> void removeListener(int channel, Class<? extends Event<LISTENER>> eventType,
-			LISTENER listener) {
+	public static <L> void removeListener(int channel, Class<? extends Event<L>> eventType, L listener) {
 		synchronized (eventBuses) {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.removeListener(eventType, listener);
-				if(eventBus.isEmpty()) {
+				if (eventBus.isEmpty()) {
 					PoolService.free(eventBus);
 				}
 			}
 		}
 	}
 
-	public static <LISTENER> void notify(int channel, final Event<LISTENER> event) {
+	public static <L> void notify(int channel, final Event<L> event) {
 		synchronized (eventBuses) {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
@@ -88,7 +85,7 @@ public class EventService {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.removeListener(eventType, listener);
-				if(eventBus.isEmpty()) {
+				if (eventBus.isEmpty()) {
 					PoolService.free(eventBus);
 				}
 			}
@@ -104,8 +101,7 @@ public class EventService {
 		}
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(int channel, Class<? extends Event<LISTENER>> eventType,
-			Array<? super LISTENER> out) {
+	public <L> Array<? super L> getListeners(int channel, Class<? extends Event<L>> eventType, Array<? super L> out) {
 		synchronized (eventBuses) {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {

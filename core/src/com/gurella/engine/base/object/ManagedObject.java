@@ -18,7 +18,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	String uuid;
 	String prefabId;
 
-	private ManagedObjectState state = ManagedObjectState.ready;
+	private ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
 	private final Array<ManagedObject> childrenPrivate = new Array<ManagedObject>();
@@ -68,7 +68,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public boolean isInitialized() {
-		return state != ManagedObjectState.ready;
+		return state != ManagedObjectState.idle;
 	}
 
 	void activate() {
@@ -82,18 +82,22 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	private void activateHierarchy() {
-		if (state == ManagedObjectState.ready) {
+		if (state == ManagedObjectState.idle) {
 			init();
 		}
 
 		state = ManagedObjectState.active;
 		attachAll();
-		// TODO notify activated()
+		activated();
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			child.activateHierarchy();
 		}
+	}
+
+	protected void activated() {
+		// TODO Auto-generated method stub
 	}
 
 	protected void init() {
@@ -103,14 +107,13 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (state != ManagedObjectState.active) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
-
 		deactivateHierarchy();
 	}
 
 	private void deactivateHierarchy() {
 		state = ManagedObjectState.inactive;
 		detachAll();
-		// TODO notify deactivated()
+		deactivated();
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -118,6 +121,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 				child.deactivateHierarchy();
 			}
 		}
+	}
+
+	protected void deactivated() {
+		// TODO Auto-generated method stub
 	}
 
 	void destroy() {
@@ -146,7 +153,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		instanceId = SequenceGenerator.next();
 		uuid = null;
 		prefabId = null;
-		state = ManagedObjectState.ready;
+		state = ManagedObjectState.idle;
 		childrenPrivate.clear();
 		clearAttachments();
 	}

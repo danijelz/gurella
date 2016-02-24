@@ -15,7 +15,7 @@ public class EventBus implements Poolable {
 
 	private boolean processing;
 
-	public <LISTENER> boolean addListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
+	public <L> boolean addListener(Class<? extends Event<L>> eventType, L listener) {
 		return addListenerInternal(eventType, listener);
 	}
 
@@ -39,13 +39,13 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	private <LISTENER> Array<LISTENER> listenersByType(Object eventType) {
+	private <L> Array<L> listenersByType(Object eventType) {
 		synchronized (listeners) {
 			@SuppressWarnings("unchecked")
-			Array<LISTENER> listenersByType = (Array<LISTENER>) listeners.get(eventType);
+			Array<L> listenersByType = (Array<L>) listeners.get(eventType);
 
 			if (listenersByType == null) {
-				listenersByType = new Array<LISTENER>();
+				listenersByType = new Array<L>();
 				listeners.put(eventType, listenersByType);
 			}
 
@@ -53,7 +53,7 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public <LISTENER> boolean removeListener(Class<? extends Event<LISTENER>> eventType, LISTENER listener) {
+	public <L> boolean removeListener(Class<? extends Event<L>> eventType, L listener) {
 		return removeListenerInternal(eventType, listener);
 	}
 
@@ -78,7 +78,7 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public <LISTENER> void notify(final Event<LISTENER> event) {
+	public <L> void notify(final Event<L> event) {
 		synchronized (eventPool) {
 			if (processing) {
 				eventPool.add(event);
@@ -103,9 +103,9 @@ public class EventBus implements Poolable {
 		notifyListeners(eventType);
 	}
 
-	private <LISTENER> void notifyListeners(final Event<LISTENER> event) {
-		Class<? extends Event<LISTENER>> eventType = ValueUtils.cast(event.getClass());
-		Array<LISTENER> listenersByType;
+	private <L> void notifyListeners(final Event<L> event) {
+		Class<? extends Event<L>> eventType = ValueUtils.cast(event.getClass());
+		Array<L> listenersByType;
 		synchronized (listeners) {
 			listenersByType = ValueUtils.cast(listeners.get(eventType));
 			if (listenersByType == null) {
@@ -115,7 +115,7 @@ public class EventBus implements Poolable {
 
 		synchronized (listenersByType) {
 			for (int i = 0; i < listenersByType.size; i++) {
-				LISTENER listener = listenersByType.get(i);
+				L listener = listenersByType.get(i);
 				event.notify(listener);
 			}
 		}
@@ -163,8 +163,7 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public <LISTENER> Array<? super LISTENER> getListeners(Class<? extends Event<LISTENER>> eventType,
-			Array<? super LISTENER> out) {
+	public <L> Array<? super L> getListeners(Class<? extends Event<L>> eventType, Array<? super L> out) {
 		getListenersInternal(eventType, out);
 		return out;
 	}
