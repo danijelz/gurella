@@ -37,6 +37,6 @@ public abstract class AbstractSignal<LISTENER> {
 	}
 	
 	public void signal() {
-		
+		//TODO
 	}
 }
