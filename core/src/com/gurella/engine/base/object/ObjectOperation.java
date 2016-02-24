@@ -3,46 +3,13 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 
-class ObjectOperation implements Poolable, Comparable<ObjectOperation> {
+class ObjectOperation implements Poolable {
 	ManagedObject object;
 	OperationType operationType;
 	ManagedObject newParent;
 
-	private static ObjectOperation obtain() {
-		return PoolService.obtain(ObjectOperation.class);
-	}
-
 	void free() {
 		PoolService.free(this);
-	}
-
-	static ObjectOperation activate(ManagedObject object) {
-		ObjectOperation operation = obtain();
-		operation.object = object;
-		operation.operationType = OperationType.activate;
-		return operation;
-	}
-
-	static ObjectOperation deactivate(ManagedObject object) {
-		ObjectOperation operation = obtain();
-		operation.object = object;
-		operation.operationType = OperationType.deactivate;
-		return operation;
-	}
-
-	static ObjectOperation destroy(ManagedObject object) {
-		ObjectOperation operation = obtain();
-		operation.object = object;
-		operation.operationType = OperationType.destroy;
-		return operation;
-	}
-
-	static ObjectOperation reparent(ManagedObject object, ManagedObject newParent) {
-		ObjectOperation operation = obtain();
-		operation.object = object;
-		operation.newParent = newParent;
-		operation.operationType = OperationType.reparent;
-		return operation;
 	}
 
 	void execute() {
@@ -62,7 +29,7 @@ class ObjectOperation implements Poolable, Comparable<ObjectOperation> {
 		default:
 			throw new IllegalArgumentException();
 		}
-		
+
 		free();
 	}
 
@@ -73,12 +40,7 @@ class ObjectOperation implements Poolable, Comparable<ObjectOperation> {
 		newParent = null;
 	}
 
-	@Override
-	public int compareTo(ObjectOperation other) {
-		return operationType.compareTo(other.operationType);
-	}
-
-	private enum OperationType {
+	enum OperationType {
 		activate, reparent, deactivate, destroy
 	}
 }
