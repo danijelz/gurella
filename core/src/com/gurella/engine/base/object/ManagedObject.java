@@ -55,16 +55,16 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return state;
 	}
 
-	public boolean isValid() {
-		return state != ManagedObjectState.disposed;
-	}
-
 	public boolean isDisposed() {
 		return state == ManagedObjectState.disposed;
 	}
 
 	public boolean isActive() {
 		return state == ManagedObjectState.active;
+	}
+
+	public boolean isInactive() {
+		return state == ManagedObjectState.inactive;
 	}
 
 	public boolean isInitialized() {
@@ -189,8 +189,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		ManagedObjectState parentState = parent.state;
 		if (state == ManagedObjectState.active && parentState != ManagedObjectState.active) {
 			deactivateHierarchy();
-		}
-		else if (state == ManagedObjectState.inactive && parentState == ManagedObjectState.active) {
+		} else if (state == ManagedObjectState.inactive && parentState == ManagedObjectState.active) {
 			activateHierarchy();
 		}
 	}
