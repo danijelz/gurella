@@ -16,13 +16,13 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private transient int instanceId;
 	@PropertyDescriptor(copyable = false)
 	String uuid;
-	String templateId;
+	String prefabId;
+
+	private ManagedObjectState state = ManagedObjectState.ready;
 
 	private transient ManagedObject parent;
 	private final Array<ManagedObject> childrenPrivate = new Array<ManagedObject>();
 	public transient final ImmutableArray<ManagedObject> children = new ImmutableArray<ManagedObject>(childrenPrivate);
-
-	private ManagedObjectState state = ManagedObjectState.ready;
 
 	private final IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
 
@@ -33,7 +33,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	public int getInstanceId() {
 		return instanceId;
 	}
-	
+
 	public String getUuid() {
 		return uuid;
 	}
@@ -48,6 +48,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	public ManagedObject getTemplate() {
 		return null;
 	}
+	
+	public ManagedObjectState getState() {
+		return state;
+	}
 
 	//// HIERARCHY
 
@@ -56,24 +60,41 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void setParent(ManagedObject parent) {
-		checkDisposed();
-
 		if (this.parent == parent) {
 			return;
 		}
 
+		if (state == ManagedObjectState.disposed) {
+			throw new GdxRuntimeException("Object is disposed.");
+		}
+
+		if (parent != null && parent.state == ManagedObjectState.disposed) {
+			throw new GdxRuntimeException("Parent is disposed.");
+		}
+
 		ManagedObject oldParent = this.parent;
 		if (oldParent != null) {
-			oldParent.childrenPrivate.removeValue(this, true);
+			oldParent.removeChild(this);
 		}
 
 		this.parent = parent;
+		if (parent != null) {
+			if(state == ManagedObjectState.active && parent.state != ManagedObjectState.active) {
+				deactivateHierarchy();
+			}
+			parent.addChild(this);
+		}
+		// TODO notify parent changed
 	}
 
-	private void checkDisposed() {
-		if (state == ManagedObjectState.disposed) {
-			throw new GdxRuntimeException("Object is dispoded.");
-		}
+	private void addChild(ManagedObject child) {
+		childrenPrivate.add(child);
+		// TODO notify childAdded()
+	}
+
+	private void removeChild(ManagedObject child) {
+		childrenPrivate.removeValue(child, true);
+		// TODO notify childRemoved()
 	}
 
 	//// STATE
@@ -82,8 +103,8 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return state != ManagedObjectState.disposed;
 	}
 
-	public boolean isRegistered() {
-		return state == ManagedObjectState.inactive || state == ManagedObjectState.active;
+	public boolean isDisposed() {
+		return state == ManagedObjectState.disposed;
 	}
 
 	public boolean isActive() {
@@ -94,45 +115,32 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return state != ManagedObjectState.ready;
 	}
 
-	void register() {
-		if (state != ManagedObjectState.ready) {
-			throw new GdxRuntimeException("Invalid state: " + state);
+	void activate() {
+		if (isActivationAllowed()) {
+			activateHierarchy();
 		}
+	}
 
-		if (parent != null && !parent.isRegistered()) {
-			throw new GdxRuntimeException("Invalid parebnt state: " + parent.state);
+	protected boolean isActivationAllowed() {
+		return parent == null || parent.isActive();
+	}
+
+	private void activateHierarchy() {
+		if (state == ManagedObjectState.ready) {
+			init();
 		}
-
-		state = ManagedObjectState.inactive;
-		init();
+		
+		state = ManagedObjectState.active;
+		attachAll();
+		//TODO notify activated()
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
-			child.register();
+			child.activateHierarchy();
 		}
 	}
 
 	protected void init() {
-	}
-
-	void activate() {
-		if (state != ManagedObjectState.inactive) {
-			throw new GdxRuntimeException("Invalid state: " + state);
-		}
-
-		if (parent != null && !parent.isActive()) {
-			throw new GdxRuntimeException("Invalid parebnt state: " + parent.state);
-		}
-
-		state = ManagedObjectState.active;
-		for (int i = 0; i < childrenPrivate.size; i++) {
-			ManagedObject child = childrenPrivate.get(i);
-			if (child.state == ManagedObjectState.inactive) {
-				child.activate();
-			}
-		}
-
-		attachAll();
 	}
 
 	void deactivate() {
@@ -140,26 +148,31 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
 
-		state = ManagedObjectState.active;
+		deactivateHierarchy();
+	}
+
+	private void deactivateHierarchy() {
+		state = ManagedObjectState.inactive;
+		detachAll();
+		//TODO notify deactivated()
+
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			if (child.state == ManagedObjectState.active) {
-				child.deactivate();
+				child.deactivateHierarchy();
 			}
 		}
-
-		detachAll();
 	}
 
-	void unregister() {
-		if (state != ManagedObjectState.inactive) {
-			throw new GdxRuntimeException("Invalid state: " + state);
+	public void destroy() {
+		if (state == ManagedObjectState.active) {
+			deactivateHierarchy();
 		}
 
 		state = ManagedObjectState.disposed;
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
-			child.unregister();
+			child.destroy();
 		}
 
 		if (this instanceof Poolable) {
@@ -176,7 +189,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 		instanceId = SequenceGenerator.next();
 		uuid = null;
-		templateId = null;
+		prefabId = null;
 		state = ManagedObjectState.ready;
 		childrenPrivate.clear();
 		clearAttachments();
