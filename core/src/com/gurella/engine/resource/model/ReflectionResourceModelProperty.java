@@ -13,8 +13,8 @@ import com.gurella.engine.resource.model.ValueRange.IntegerRange;
 import com.gurella.engine.resource.model.ValueRange.LongRange;
 import com.gurella.engine.resource.model.ValueRange.ShortRange;
 import com.gurella.engine.utils.Range;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class ReflectionResourceModelProperty extends AbstractResourceModelProperty {
 	private String name;
@@ -50,9 +50,9 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 	}
 
 	private void init() {
-		init(ReflectionUtils.getDeclaredAnnotation(field, ResourceProperty.class));
-		range = initRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
-		resolvedDefaultValue = initDefaultValue(ReflectionUtils.getDeclaredAnnotation(field, DefaultValue.class));
+		init(Reflection.getDeclaredAnnotation(field, ResourceProperty.class));
+		range = initRange(Reflection.getDeclaredAnnotation(field, ValueRange.class));
+		resolvedDefaultValue = initDefaultValue(Reflection.getDeclaredAnnotation(field, DefaultValue.class));
 	}
 
 	private void init(ResourceProperty resourceProperty) {
@@ -158,7 +158,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 		ModelResourceFactory<?> factory = new ModelResourceFactory(propertyType);
 
 		PropertyValue[] values = defaultValue.compositeValues();
-		if (ValueUtils.isNotEmpty(values)) {
+		if (Values.isNotEmpty(values)) {
 			for (int i = 0; i < values.length; i++) {
 				PropertyValue propertyValue = values[i];
 				String propertyName = propertyValue.name();
@@ -218,7 +218,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 				setter.setAccessible(true);
 			}
 			Object resolvedValue = ResourceModelUtils.resolvePropertyValue(serializableValue, dependencies);
-			ReflectionUtils.invokeMethod(setter, resource, resolvedValue);
+			Reflection.invokeMethod(setter, resource, resolvedValue);
 		} finally {
 			if (!accessible) {
 				setter.setAccessible(false);
@@ -247,7 +247,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 	private static void initFinalProperty(Object resource, Field field, Object serializableValue,
 			DependencyMap dependencies) {
 		if (serializableValue instanceof ModelResourceFactory) {
-			Object fieldValue = ReflectionUtils.getFieldValue(field, resource);
+			Object fieldValue = Reflection.getFieldValue(field, resource);
 			@SuppressWarnings("unchecked")
 			ModelResourceFactory<Object> factory = (ModelResourceFactory<Object>) serializableValue;
 			factory.init(fieldValue, dependencies);
@@ -256,7 +256,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 
 	private static void initProperty(Object resource, Field field, Object serializableValue, DependencyMap dependencies) {
 		Object resolvedValue = ResourceModelUtils.resolvePropertyValue(serializableValue, dependencies);
-		ReflectionUtils.setFieldValue(field, resource, resolvedValue);
+		Reflection.setFieldValue(field, resource, resolvedValue);
 	}
 
 	@Override
@@ -326,7 +326,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 
 	ResourceModelProperty copy(PropertyValue override, boolean initByDefaultValueOverride) {
 		Object overridenValue = getDefaultValue(override, propertyType);
-		if (ValueUtils.isEqual(getDefaultValue(), overridenValue)) {
+		if (Values.isEqual(getDefaultValue(), overridenValue)) {
 			return this;
 		} else {
 			ReflectionResourceModelProperty copy = setter == null
@@ -358,7 +358,7 @@ public class ReflectionResourceModelProperty extends AbstractResourceModelProper
 
 	@Override
 	public String getDescriptiveName() {
-		return ValueUtils.isBlank(descriptiveName)
+		return Values.isBlank(descriptiveName)
 				? name
 				: descriptiveName;
 	}

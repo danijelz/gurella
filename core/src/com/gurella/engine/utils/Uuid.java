@@ -141,8 +141,8 @@ public class Uuid implements Comparable<Uuid> {
 
 	@Override
 	public int compareTo(Uuid other) {
-		int result = ValueUtils.compare(mostSigBits, other.mostSigBits);
-		return result == 0 ? ValueUtils.compare(leastSigBits, other.leastSigBits) : result;
+		int result = Values.compare(mostSigBits, other.mostSigBits);
+		return result == 0 ? Values.compare(leastSigBits, other.leastSigBits) : result;
 	}
 
 	public static void main(String[] args) {

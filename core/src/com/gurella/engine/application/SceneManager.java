@@ -11,7 +11,7 @@ import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.state.StateMachine;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class SceneManager {
 	private static final String DEFAULT_TRANSITION_GROUP = "Default";
@@ -48,7 +48,7 @@ public class SceneManager {
 
 	private static String getSceneGroup(Scene scene) {
 		String group = scene.getGroup();
-		group = ValueUtils.isBlank(group) ? DEFAULT_TRANSITION_GROUP : group;
+		group = Values.isBlank(group) ? DEFAULT_TRANSITION_GROUP : group;
 		return group;
 	}
 

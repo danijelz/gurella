@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class JsonSerialization {
 	private JsonSerialization() {
@@ -16,13 +16,13 @@ public class JsonSerialization {
 				JsonValue itemValue = serializedObject.child;
 				String itemTypeName = itemValue.getString("class", null);
 				if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
-					return ReflectionUtils.forName(itemValue.getString(ArrayType.typeNameField));
+					return Reflection.forName(itemValue.getString(ArrayType.typeNameField));
 				}
 			}
 		} else if (serializedObject.isObject()) {
 			String explicitTypeName = serializedObject.getString("class", null);
 			if (explicitTypeName != null) {
-				return ReflectionUtils.<T> forName(explicitTypeName);
+				return Reflection.<T> forName(explicitTypeName);
 			}
 		}
 

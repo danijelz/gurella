@@ -1,16 +1,21 @@
 package com.gurella.engine.event;
 
+import static com.gurella.engine.event.EventSubscriptions.getSubscriptions;
+
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.utils.Prioritized;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class EventBus implements Poolable {
 	private final ObjectMap<Object, Array<?>> listeners = new ObjectMap<Object, Array<?>>();
+	private final ObjectMap<Class<?>, Array<Object>> listenersBySubscription = new ObjectMap<Class<?>, Array<Object>>();
+
 	private final Array<Object> eventPool = new Array<Object>();
 
 	private boolean processing;
@@ -53,6 +58,33 @@ public class EventBus implements Poolable {
 		}
 	}
 
+	public void registerSubscriptions(Object listener) {
+		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		for (Class<?> subscription : subscriptions) {
+			Array<Object> subscribers = findSubscribers(subscription);
+			synchronized (subscribers) {
+				subscribers.add(listener);
+				// TODO subscribers.sort(comparator);
+				// TODO trigger
+			}
+		}
+	}
+
+	private Array<Object> findSubscribers(Class<?> subscription) {
+		synchronized (listenersBySubscription) {
+			Array<Object> listeners = listenersBySubscription.get(subscription);
+			if (listeners == null) {
+				listeners = new Array<Object>();
+				listenersBySubscription.put(subscription, listeners);
+			}
+			return listeners;
+		}
+	}
+
 	public <L> boolean removeListener(Class<? extends Event<L>> eventType, L listener) {
 		return removeListenerInternal(eventType, listener);
 	}
@@ -75,6 +107,27 @@ public class EventBus implements Poolable {
 
 		synchronized (listenersByType) {
 			return listenersByType.removeValue(listener, true);
+		}
+	}
+
+	public void unregisterSubscriptions(Object listener) {
+		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		for (Class<?> subscription : subscriptions) {
+			synchronized (listenersBySubscription) {
+				Array<Object> listeners = listenersBySubscription.get(subscription);
+				if (listeners != null) {
+					synchronized (listeners) {
+						listeners.removeValue(listener, true);
+						if (listeners.size == 0) {
+							listenersBySubscription.remove(subscription);
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -104,10 +157,10 @@ public class EventBus implements Poolable {
 	}
 
 	private <L> void notifyListeners(final Event<L> event) {
-		Class<? extends Event<L>> eventType = ValueUtils.cast(event.getClass());
+		Class<? extends Event<L>> eventType = Values.cast(event.getClass());
 		Array<L> listenersByType;
 		synchronized (listeners) {
-			listenersByType = ValueUtils.cast(listeners.get(eventType));
+			listenersByType = Values.cast(listeners.get(eventType));
 			if (listenersByType == null) {
 				return;
 			}
@@ -215,7 +268,7 @@ public class EventBus implements Poolable {
 
 		@Override
 		public int compare(Object o1, Object o2) {
-			return ValueUtils.compare(getPriority(o1), getPriority(o2));
+			return Values.compare(getPriority(o1), getPriority(o2));
 		}
 
 		private static int getPriority(Object o) {

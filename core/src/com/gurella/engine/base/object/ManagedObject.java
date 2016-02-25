@@ -10,7 +10,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class ManagedObject implements Comparable<ManagedObject> {
 	private transient int instanceId;
@@ -311,6 +311,6 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	@Override
 	public int compareTo(ManagedObject other) {
-		return ValueUtils.compare(instanceId, other.instanceId);
+		return Values.compare(instanceId, other.instanceId);
 	}
 }

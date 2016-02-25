@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceModelProperty;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 
 public class EnumPropertyEditor<T extends Enum<T>> extends
@@ -20,7 +20,7 @@ public class EnumPropertyEditor<T extends Enum<T>> extends
 
 	@Override
 	public void present(T value) {
-		if (ValueUtils.isEmpty(value)) {
+		if (Values.isEmpty(value)) {
 			valueComponent.setSelected(emptyItem);
 		} else {
 			valueComponent.setSelected(itemsByValue.get(value));

@@ -3,8 +3,8 @@ package com.gurella.engine.resource.model;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public abstract class AbstractResourceModelProperty implements ResourceModelProperty {
 	private static final String CLASS_TAG = "class";
@@ -29,7 +29,7 @@ public abstract class AbstractResourceModelProperty implements ResourceModelProp
 
 	@Override
 	public void writeValue(Json json, Object serializableValue) {
-		if (!ValueUtils.isEqual(getDefaultValue(), serializableValue)) {
+		if (!Values.isEqual(getDefaultValue(), serializableValue)) {
 			Class<?> serializableValueType = getSerializableValueType();
 			if (ModelResourceFactory.class.equals(serializableValueType)) {
 				writeModelResourceFactory(json, serializableValue);
@@ -108,7 +108,7 @@ public abstract class AbstractResourceModelProperty implements ResourceModelProp
 		JsonValue classValue = properties.get(CLASS_TAG);
 		Class<?> resourceType = classValue == null
 				? getPropertyType()
-				: ReflectionUtils.forName(classValue.asString());
+				: Reflection.forName(classValue.asString());
 
 		@SuppressWarnings("unchecked")
 		ModelResourceFactory<Object> factory = new ModelResourceFactory<Object>((Class<Object>) resourceType);

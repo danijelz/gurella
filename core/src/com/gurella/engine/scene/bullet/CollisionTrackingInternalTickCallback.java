@@ -6,10 +6,10 @@ import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.InternalTickCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.gurella.engine.event.EventCallbackIdentifier;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.behaviour.BehaviourEvents;
-import com.gurella.engine.scene.event.EventCallbackIdentifier;
 import com.gurella.engine.utils.ImmutableArray;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {

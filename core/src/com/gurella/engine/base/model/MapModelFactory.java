@@ -15,8 +15,8 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class MapModelFactory implements ModelFactory {
 	public static final MapModelFactory instance = new MapModelFactory();
@@ -82,7 +82,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(T value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -108,7 +108,7 @@ public class MapModelFactory implements ModelFactory {
 			} else {
 				@SuppressWarnings("unchecked")
 				T templateMap = template != null && type == template.getClass() ? (T) template : null;
-				T instance = ReflectionUtils.newInstance(type);
+				T instance = Reflection.newInstance(type);
 				input.pushObject(instance);
 				properties.get(0).deserialize(instance, templateMap, input);
 				input.popObject();
@@ -118,7 +118,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public T copy(T original, CopyContext context) {
-			T instance = ReflectionUtils.newInstance(type);
+			T instance = Reflection.newInstance(type);
 			context.pushObject(instance);
 			properties.get(0).copy(original, instance, context);
 			context.popObject();
@@ -288,7 +288,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(TreeMap<?, ?> value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -297,7 +297,7 @@ public class MapModelFactory implements ModelFactory {
 						? (TreeMap<?, ?>) template : null;
 				Comparator<?> comparator = value.comparator();
 				Comparator<?> templateComparator = templateMap == null ? null : templateMap.comparator();
-				if (templateMap == null ? comparator != null : !ValueUtils.isEqual(templateComparator, comparator)) {
+				if (templateMap == null ? comparator != null : !Values.isEqual(templateComparator, comparator)) {
 					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
 				getProperties().get(0).serialize(value, template, output);
@@ -357,7 +357,7 @@ public class MapModelFactory implements ModelFactory {
 		private static final Field keyTypeField;
 
 		static {
-			keyTypeField = ReflectionUtils.getDeclaredFieldSilently(EnumMap.class, keyTypeFieldName);
+			keyTypeField = Reflection.getDeclaredFieldSilently(EnumMap.class, keyTypeFieldName);
 			if (keyTypeField != null) {
 				keyTypeField.setAccessible(true);
 			}
@@ -370,7 +370,7 @@ public class MapModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(EnumMap<?, ?> value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -392,7 +392,7 @@ public class MapModelFactory implements ModelFactory {
 				if (keyTypeField == null) {
 					throw new GdxRuntimeException("Can't resolve EnumMap key type");
 				} else {
-					return ReflectionUtils.getFieldValue(keyTypeField, map);
+					return Reflection.getFieldValue(keyTypeField, map);
 				}
 			} else {
 				Enum<?> key = map.keySet().iterator().next();
@@ -424,7 +424,7 @@ public class MapModelFactory implements ModelFactory {
 				Class<Enum<?>> templateKeyType = templateMap == null ? null : (Class<Enum<?>>) getKeyType(templateMap);
 				Class<Enum<?>> keyType;
 				if (input.hasProperty(keyTypeFieldName)) {
-					keyType = ReflectionUtils.forName(input.readStringProperty(keyTypeFieldName));
+					keyType = Reflection.forName(input.readStringProperty(keyTypeFieldName));
 				} else {
 					keyType = templateKeyType;
 				}

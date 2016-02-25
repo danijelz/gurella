@@ -3,7 +3,7 @@ package com.gurella.engine.resource.model;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public final class AssetId implements Serializable {
 	private static final String FILE_NAME_TAG = "fileName";
@@ -37,7 +37,7 @@ public final class AssetId implements Serializable {
 
 	public Class<?> getAssetType() {
 		if (assetType == null) {
-			assetType = ReflectionUtils.forName(assetTypeName);
+			assetType = Reflection.forName(assetTypeName);
 		}
 		return assetType;
 	}

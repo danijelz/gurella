@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
+import com.gurella.engine.event.EventCallbackIdentifier;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;

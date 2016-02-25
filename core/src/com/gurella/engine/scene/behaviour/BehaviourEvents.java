@@ -1,6 +1,6 @@
 package com.gurella.engine.scene.behaviour;
 
-import com.gurella.engine.scene.event.EventCallbackIdentifier;
+import com.gurella.engine.event.EventCallbackIdentifier;
 
 public final class BehaviourEvents {
 	private BehaviourEvents() {

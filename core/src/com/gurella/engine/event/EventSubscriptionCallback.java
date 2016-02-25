@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.event;
+package com.gurella.engine.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

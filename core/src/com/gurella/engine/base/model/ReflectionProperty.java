@@ -13,8 +13,8 @@ import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Range;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class ReflectionProperty<T> implements Property<T> {
 	private String name;
@@ -55,7 +55,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			this.setter.setAccessible(true);
 		}
 
-		PropertyDescriptor propertyDescriptor = ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class);
+		PropertyDescriptor propertyDescriptor = Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class);
 		if (propertyDescriptor == null) {
 			descriptiveName = name;
 			description = "";
@@ -64,7 +64,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			copyable = true;
 		} else {
 			descriptiveName = propertyDescriptor.descriptiveName();
-			if (ValueUtils.isBlank(descriptiveName)) {
+			if (Values.isBlank(descriptiveName)) {
 				descriptiveName = name;
 			}
 			description = propertyDescriptor.description();
@@ -73,7 +73,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			copyable = propertyDescriptor.copyable();
 		}
 
-		range = extractRange(ReflectionUtils.getDeclaredAnnotation(field, ValueRange.class));
+		range = extractRange(Reflection.getDeclaredAnnotation(field, ValueRange.class));
 		defaultValue = getValue(Defaults.getDefault(model.getType()));
 	}
 
@@ -174,23 +174,23 @@ public class ReflectionProperty<T> implements Property<T> {
 		if (object == null) {
 			return null;
 		} else if (getter == null) {
-			return ReflectionUtils.getFieldValue(field, object);
+			return Reflection.getFieldValue(field, object);
 		} else {
-			return ReflectionUtils.invokeMethod(getter, object);
+			return Reflection.invokeMethod(getter, object);
 		}
 	}
 
 	@Override
 	public void setValue(Object object, T value) {
 		if (setter != null) {
-			ReflectionUtils.invokeMethod(setter, object, value);
+			Reflection.invokeMethod(setter, object, value);
 		} else if (field.isFinal()) {
-			Object fieldValue = ReflectionUtils.getFieldValue(field, object);
+			Object fieldValue = Reflection.getFieldValue(field, object);
 			CopyContext context = PoolService.obtain(CopyContext.class);
 			context.copyProperties(value, fieldValue);
 			PoolService.free(context);
 		} else {
-			ReflectionUtils.setFieldValue(field, object, value);
+			Reflection.setFieldValue(field, object, value);
 		}
 	}
 
@@ -199,7 +199,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		T value = getValue(object);
 		Object templateValue = template == null ? defaultValue : getValue(template);
 
-		if (!ValueUtils.isEqual(value, templateValue)) {
+		if (!Values.isEqual(value, templateValue)) {
 			if (value == null) {
 				output.writeNullProperty(name);
 			} else {
@@ -216,7 +216,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else if (template != null) {
 			T value = getValue(object);
 			T templateValue = getValue(template);
-			if (ValueUtils.isEqual(value, templateValue)) {
+			if (Values.isEqual(value, templateValue)) {
 				return;
 			}
 			setValue(object, field.isFinal() ? templateValue : input.copyObject(templateValue));

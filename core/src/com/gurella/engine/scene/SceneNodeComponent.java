@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.IndexedType;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class SceneNodeComponent extends SceneElement {
 	private static final IntIntMap baseComponentTypes = new IntIntMap();
@@ -117,7 +117,7 @@ public class SceneNodeComponent extends SceneElement {
 		int parentBaseComponentType = baseComponentTypes.get(parentComponentType, -1);
 		int baseComponentType;
 		if (parentComponentType == parentBaseComponentType) {
-			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(parentComponentClass,
+			BaseSceneElementType annotation = Reflection.getDeclaredAnnotation(parentComponentClass,
 					BaseSceneElementType.class);
 			baseComponentType = annotation == null ? componentType : parentComponentType;
 		} else {

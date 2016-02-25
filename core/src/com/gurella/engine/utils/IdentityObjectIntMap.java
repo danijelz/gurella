@@ -577,7 +577,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 			return false;
 		}
 
-		IdentityObjectIntMap<K> other = ValueUtils.cast(obj);
+		IdentityObjectIntMap<K> other = Values.cast(obj);
 		if (other.size != size) {
 			return false;
 		}

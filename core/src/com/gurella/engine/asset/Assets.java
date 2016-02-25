@@ -3,7 +3,7 @@ package com.gurella.engine.asset;
 import java.util.Arrays;
 
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class Assets {
 	private static final ObjectSet<Class<?>> assetTypes = new ObjectSet<Class<?>>();
@@ -47,7 +47,7 @@ public class Assets {
 
 	public static <T> Class<T> getAssetType(final String fileName) {
 		String extension = getFileExtension(fileName);
-		if (ValueUtils.isBlank(extension)) {
+		if (Values.isBlank(extension)) {
 			return null;
 		}
 		
@@ -55,7 +55,7 @@ public class Assets {
 		AssetType[] values = AssetType.values();
 		for (int i = 0; i < values.length; i++) {
 			if (Arrays.binarySearch(values[i].extensions, extension) > -1) {
-				return ValueUtils.cast(values[i].assetType);
+				return Values.cast(values[i].assetType);
 			}
 		}
 		return null;

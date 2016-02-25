@@ -14,7 +14,7 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.Signal1;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class ResourceService implements ApplicationUpdateListener {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
@@ -37,11 +37,11 @@ public class ResourceService implements ApplicationUpdateListener {
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
-		return ValueUtils.cast(descriptors.get(fileName));
+		return Values.cast(descriptors.get(fileName));
 	}
 
 	public static <T> AssetLoaderParameters<T> getAssetLoaderParameters(String fileName) {
-		ConfigurableAssetDescriptor<T> descriptor = ValueUtils.cast(descriptors.get(fileName));
+		ConfigurableAssetDescriptor<T> descriptor = Values.cast(descriptors.get(fileName));
 		return descriptor == null ? null : descriptor.getParameters();
 	}
 

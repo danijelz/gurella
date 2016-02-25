@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class EnumModelFactory implements ModelFactory {
 	public static final EnumModelFactory instance = new EnumModelFactory();
@@ -44,7 +44,7 @@ public class EnumModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(T value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();

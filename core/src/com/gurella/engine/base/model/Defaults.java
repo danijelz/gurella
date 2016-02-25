@@ -1,7 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 class Defaults {
 	private static final ObjectMap<Class<?>, Object> defaults = new ObjectMap<Class<?>, Object>();
@@ -13,7 +13,7 @@ class Defaults {
 			return casted;
 		}
 
-		T defaultValue = ReflectionUtils.newInstanceSilently(type);
+		T defaultValue = Reflection.newInstanceSilently(type);
 		defaults.put(type, defaultValue);
 		return defaultValue;
 	}

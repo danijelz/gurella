@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.event;
+package com.gurella.engine.event;
 
 public interface EventSubscription {
 }

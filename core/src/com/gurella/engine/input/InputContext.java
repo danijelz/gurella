@@ -8,7 +8,7 @@ import com.gurella.engine.event.Listener2;
 import com.gurella.engine.input.ButtonTrigger.ButtonType;
 import com.gurella.engine.input.DragTrigger.DragDirection;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class InputContext implements Comparable<InputContext> {
 	public int priority;
@@ -396,6 +396,6 @@ public class InputContext implements Comparable<InputContext> {
 
 	@Override
 	public int compareTo(InputContext other) {
-		return ValueUtils.compare(priority, other.priority);
+		return Values.compare(priority, other.priority);
 	}
 }

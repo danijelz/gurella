@@ -31,8 +31,8 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.IntLongMap;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class ReflectionModel<T> implements Model<T> {
 	private static final String getPrefix = "get";
@@ -97,7 +97,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	public ReflectionModel(Class<T> type, String[] ignoredProperties, String[] forcedProperties) {
 		this.type = type;
-		innerClass = ReflectionUtils.isInnerClass(type);
+		innerClass = Reflection.isInnerClass(type);
 		poolable = ClassReflection.isAssignableFrom(Poolable.class, type);
 
 		if (ignoredProperties != null) {
@@ -115,12 +115,12 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private void resolveName() {
-		ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
+		ModelDescriptor resourceAnnotation = Reflection.getAnnotation(type, ModelDescriptor.class);
 		if (resourceAnnotation == null) {
 			name = type.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			name = ValueUtils.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
+			name = Values.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
 		}
 	}
 
@@ -147,7 +147,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	@Override
 	public void serialize(T instance, Object template, Output output) {
-		if (ValueUtils.isEqual(template, instance)) {
+		if (Values.isEqual(template, instance)) {
 			return;
 		} else if (instance == null) {
 			output.writeNull();
@@ -221,9 +221,9 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		if (innerClass) {
-			constructor = ReflectionUtils.findInnerClassDeclaredConstructor(type, enclosingInstance);
+			constructor = Reflection.findInnerClassDeclaredConstructor(type, enclosingInstance);
 		} else {
-			constructor = ReflectionUtils.getDeclaredConstructor(type);
+			constructor = Reflection.getDeclaredConstructor(type);
 		}
 
 		constructor.setAccessible(true);
@@ -284,7 +284,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		if (field.isPrivate() && (forcedProperties == null || Arrays.binarySearch(forcedProperties, fieldName) < 0)
-				&& ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class) == null
+				&& Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class) == null
 				&& !isBeanProperty(field)) {
 			return true;
 		}
@@ -301,7 +301,7 @@ public class ReflectionModel<T> implements Model<T> {
 		field.setAccessible(true);
 		T defaultInstance = Defaults.getDefault(type);
 		if (defaultInstance != null) {
-			Object fieldValue = ReflectionUtils.getFieldValue(field, defaultInstance);
+			Object fieldValue = Reflection.getFieldValue(field, defaultInstance);
 			if (fieldValue == null) {
 				return true;
 			}
@@ -339,7 +339,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private Property<?> createProperty(Field field) {
-		PropertyDescriptor propertyDescriptor = ReflectionUtils.getDeclaredAnnotation(field, PropertyDescriptor.class);
+		PropertyDescriptor propertyDescriptor = Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class);
 		if (propertyDescriptor == null) {
 			return createReflectionProperty(field, false);
 		} else {
@@ -352,15 +352,15 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private static Property<?> createAnnotationProperty(Class<? extends Property<?>> propertyType) {
 		Property<?> property = getPropertyFromFactoryMethod(propertyType);
-		return property == null ? ReflectionUtils.newInstance(propertyType) : property;
+		return property == null ? Reflection.newInstance(propertyType) : property;
 	}
 
 	private static Property<?> getPropertyFromFactoryMethod(Class<? extends Property<?>> propertyType) {
 		// TODO should be annotation based @FactoryMethod
-		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(propertyType, "getInstance");
+		Method factoryMethod = Reflection.getDeclaredMethodSilently(propertyType, "getInstance");
 		if (factoryMethod != null && factoryMethod.isPublic() && factoryMethod.isStatic()
 				&& ClassReflection.isAssignableFrom(Property.class, factoryMethod.getReturnType())) {
-			return ReflectionUtils.invokeMethodSilently(factoryMethod, null);
+			return Reflection.invokeMethodSilently(factoryMethod, null);
 		} else {
 			return null;
 		}
@@ -397,7 +397,7 @@ public class ReflectionModel<T> implements Model<T> {
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
 		String prefix = Boolean.TYPE.equals(fieldType) ? isPrefix : getPrefix;
-		Method getter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
+		Method getter = Reflection.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
 		if (getter == null || (!forced && getter.isPrivate())) {
 			return null;
 		} else {
@@ -407,7 +407,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 	private static Method getPropertySetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
-		Method setter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, setPrefix + upperCaseName, fieldType);
+		Method setter = Reflection.getDeclaredMethodSilently(resourceClass, setPrefix + upperCaseName, fieldType);
 		if (setter == null || (!forced && setter.isPrivate())) {
 			return null;
 		} else {

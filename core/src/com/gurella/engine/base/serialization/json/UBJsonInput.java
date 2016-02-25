@@ -16,7 +16,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class UBJsonInput implements Input, Poolable {
 	private UBJsonReader reader = new UBJsonReader();
@@ -178,7 +178,7 @@ public class UBJsonInput implements Input, Poolable {
 			JsonValue firstItem = value.child;
 			String itemTypeName = firstItem.getString("class", null);
 			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
-				Class<?> arrayType = ReflectionUtils.forName(firstItem.getString(ArrayType.typeNameField));
+				Class<?> arrayType = Reflection.forName(firstItem.getString(ArrayType.typeNameField));
 				@SuppressWarnings("unchecked")
 				T array = (T) deserializeObjectResolved(firstItem.next, arrayType, template);
 				result = array;

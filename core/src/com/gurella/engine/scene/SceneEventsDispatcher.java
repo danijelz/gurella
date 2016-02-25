@@ -2,8 +2,8 @@ package com.gurella.engine.scene;
 
 import com.gurella.engine.application.events.ApplicationActivitySignal.ApplicationActivityListener;
 import com.gurella.engine.application.events.ApplicationResizeSignal.ApplicationResizeListener;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.event.EventManager;
-import com.gurella.engine.scene.event.EventSubscription;
 import com.gurella.engine.utils.ImmutableArray;
 
 final class SceneEventsDispatcher {

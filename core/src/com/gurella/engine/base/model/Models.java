@@ -42,7 +42,7 @@ import com.gurella.engine.base.model.DefaultModels.StringModel;
 import com.gurella.engine.base.model.DefaultModels.UuidModel;
 import com.gurella.engine.base.model.DefaultModels.VoidModel;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
 
 public class Models {
@@ -123,7 +123,7 @@ public class Models {
 	}
 
 	private static <T> Model<T> resolveModelByDescriptor(Class<T> type) {
-		ModelDescriptor descriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
+		ModelDescriptor descriptor = Reflection.getDeclaredAnnotation(type, ModelDescriptor.class);
 		if (descriptor == null) {
 			return null;
 		}
@@ -138,13 +138,13 @@ public class Models {
 			return ReflectionModel.<T> getInstance(type);
 		} else {
 			Model<T> model = instantiateModelByFactoryMethod(modelType);
-			return model == null ? ReflectionUtils.newInstance(modelType) : model;
+			return model == null ? Reflection.newInstance(modelType) : model;
 		}
 	}
 
 	private static <T> Model<T> instantiateModelByFactoryMethod(Class<Model<T>> modelType) {
 		// TODO should be annotation based
-		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance");
+		Method factoryMethod = Reflection.getDeclaredMethodSilently(modelType, "getInstance");
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -156,7 +156,7 @@ public class Models {
 		}
 
 		// TODO should be annotation based
-		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance", Class.class);
+		factoryMethod = Reflection.getDeclaredMethodSilently(modelType, "getInstance", Class.class);
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")

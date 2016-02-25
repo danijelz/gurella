@@ -11,11 +11,11 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 //TODO caches + exceptions description
-public class ReflectionUtils {
+public class Reflection {
 	private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
 	private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>, Constructor>();
 
-	private ReflectionUtils() {
+	private Reflection() {
 	}
 
 	public static <T> Class<T> forName(String className) {
@@ -87,12 +87,12 @@ public class ReflectionUtils {
 	}
 
 	public static <T> T newInstance(String className) {
-		return newInstance(ReflectionUtils.<T> forName(className));
+		return newInstance(Reflection.<T> forName(className));
 	}
 
 	public static <T> T newInstanceSilently(String className) {
 		try {
-			return newInstance(ReflectionUtils.<T> forName(className));
+			return newInstance(Reflection.<T> forName(className));
 		} catch (Exception e) {
 			return null;
 		}

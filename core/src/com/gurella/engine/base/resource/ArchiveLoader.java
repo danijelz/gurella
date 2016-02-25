@@ -8,7 +8,7 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.serialization.json.JsonInput;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class ArchiveLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderParameters<T>> {
 	private final JsonInput input = new JsonInput();
@@ -38,7 +38,7 @@ public class ArchiveLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderPara
 	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
 			AssetLoaderParameters<T> parameters) {
 		input.init(file);
-		Array<AssetDescriptor> dependencies = ValueUtils.cast(input.getExternalDependencies());
+		Array<AssetDescriptor> dependencies = Values.cast(input.getExternalDependencies());
 		return dependencies;
 	}
 }

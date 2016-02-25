@@ -62,7 +62,7 @@ public class IdentitySet<T> implements Iterable<T> {
 		hashShift = 31 - Integer.numberOfTrailingZeros(capacity);
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Math.max(Math.min(capacity, 8), (int) Math.sqrt(capacity) / 8);
-		keyTable = ValueUtils.cast(new Object[capacity + stashCapacity]);
+		keyTable = Values.cast(new Object[capacity + stashCapacity]);
 	}
 
 	/** Creates a new set identical to the specified set. */
@@ -145,7 +145,7 @@ public class IdentitySet<T> implements Iterable<T> {
 			throw new IllegalArgumentException(
 					"offset + length must be <= size: " + offset + " + " + length + " <= " + array.size);
 		}
-		addAll(ValueUtils.<T[]> cast(array.items), offset, length);
+		addAll(Values.<T[]> cast(array.items), offset, length);
 	}
 
 	public void addAll(T... array) {
@@ -424,7 +424,7 @@ public class IdentitySet<T> implements Iterable<T> {
 
 		T[] oldKeyTable = keyTable;
 
-		keyTable = ValueUtils.cast(new Object[newSize + stashCapacity]);
+		keyTable = Values.cast(new Object[newSize + stashCapacity]);
 
 		int oldSize = size;
 		size = 0;
@@ -465,7 +465,7 @@ public class IdentitySet<T> implements Iterable<T> {
 		if (!(obj instanceof IdentitySet)) {
 			return false;
 		}
-		IdentitySet<T> other = ValueUtils.cast(obj);
+		IdentitySet<T> other = Values.cast(obj);
 		if (other.size != size) {
 			return false;
 		}

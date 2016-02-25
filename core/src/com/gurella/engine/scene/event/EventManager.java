@@ -1,8 +1,8 @@
 package com.gurella.engine.scene.event;
 
-import static com.gurella.engine.scene.event.EventSubscriptions.getCallbacks;
-import static com.gurella.engine.scene.event.EventSubscriptions.getPriority;
-import static com.gurella.engine.scene.event.EventSubscriptions.getSubscriptions;
+import static com.gurella.engine.event.EventSubscriptions.getCallbacks;
+import static com.gurella.engine.event.EventSubscriptions.getPriority;
+import static com.gurella.engine.event.EventSubscriptions.getSubscriptions;
 
 import java.util.Comparator;
 
@@ -10,11 +10,13 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pools;
+import com.gurella.engine.event.EventCallbackIdentifier;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 //TODO activate and deactivate triggers
 public class EventManager {
@@ -363,7 +365,7 @@ public class EventManager {
 
 		@Override
 		public int compare(Object o1, Object o2) {
-			return ValueUtils.compare(getPriority(o1.getClass(), callbackId), getPriority(o2.getClass(), callbackId));
+			return Values.compare(getPriority(o1.getClass(), callbackId), getPriority(o2.getClass(), callbackId));
 		}
 	}
 }

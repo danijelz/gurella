@@ -5,7 +5,7 @@ import java.util.Locale;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class LocaleModel implements Model<Locale> {
 	public static final LocaleModel instance = new LocaleModel();
@@ -35,7 +35,7 @@ public class LocaleModel implements Model<Locale> {
 
 	@Override
 	public void serialize(Locale value, Object template, Output output) {
-		if (ValueUtils.isEqual(value, template)) {
+		if (Values.isEqual(value, template)) {
 			return;
 		} else if (value == null) {
 			output.writeNull();
@@ -44,12 +44,12 @@ public class LocaleModel implements Model<Locale> {
 			output.writeStringProperty("language", language);
 
 			String country = value.getCountry();
-			if (ValueUtils.isNotBlank(country)) {
+			if (Values.isNotBlank(country)) {
 				output.writeStringProperty("country", country);
 			}
 
 			String variant = value.getVariant();
-			if (ValueUtils.isNotBlank(language)) {
+			if (Values.isNotBlank(language)) {
 				output.writeStringProperty("variant", variant);
 			}
 		}

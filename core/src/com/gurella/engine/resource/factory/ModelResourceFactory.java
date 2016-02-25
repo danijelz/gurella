@@ -11,8 +11,8 @@ import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.model.ResourceModel;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelUtils;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public final class ModelResourceFactory<T> implements ResourceFactory<T> {
 	private Class<T> resourceType;
@@ -149,7 +149,7 @@ public final class ModelResourceFactory<T> implements ResourceFactory<T> {
 
 	@Override
 	public void read(Json json, JsonValue jsonData) {
-		resourceType = ReflectionUtils.forName(jsonData.getString("resourceType"));
+		resourceType = Reflection.forName(jsonData.getString("resourceType"));
 
 		JsonValue propertiesValuesMap = jsonData.get("properties");
 		if (propertiesValuesMap != null) {
@@ -214,13 +214,13 @@ public final class ModelResourceFactory<T> implements ResourceFactory<T> {
 				Object otherValue = otherPropertyValues.containsKey(name)
 						? otherPropertyValues.get(name)
 						: property.getDefaultValue();
-				if (!ValueUtils.isEqual(value, otherValue)) {
+				if (!Values.isEqual(value, otherValue)) {
 					return false;
 				}
 			} else if (otherPropertyValues.containsKey(name)) {
 				Object value = property.getDefaultValue();
 				Object otherValue = otherPropertyValues.get(name);
-				if (!ValueUtils.isEqual(value, otherValue)) {
+				if (!Values.isEqual(value, otherValue)) {
 					return false;
 				}
 			}

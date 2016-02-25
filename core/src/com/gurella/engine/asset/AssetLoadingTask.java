@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTask<?>>, Poolable {
 	private static int counter = Integer.MIN_VALUE;
@@ -118,7 +118,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			file = loader.resolve(fileName);
 		}
 
-		Array<AssetDescriptor<?>> descriptors = ValueUtils.cast(loader.getDependencies(fileName, file, params));
+		Array<AssetDescriptor<?>> descriptors = Values.cast(loader.getDependencies(fileName, file, params));
 		if (descriptors == null || descriptors.size == 0) {
 			loadAsync();
 		} else {
@@ -129,8 +129,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	private void initDependencies(Array<AssetDescriptor<?>> descriptors) {
 		for (int i = 0; i < descriptors.size; i++) {
-			AssetDescriptor<Object> descriptor = ValueUtils.cast(descriptors.get(i));
-			AssetLoaderParameters<Object> castedParams = ValueUtils.cast(descriptor.params);
+			AssetDescriptor<Object> descriptor = Values.cast(descriptors.get(i));
+			AssetLoaderParameters<Object> castedParams = Values.cast(descriptor.params);
 			Class<Object> dependencyType = descriptor.type;
 			String dependencyFileName = descriptor.fileName;
 
@@ -156,18 +156,18 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	private void loadAsync() {
 		if (loader instanceof SynchronousAssetLoader) {
-			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = ValueUtils.cast(loader);
+			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = Values.cast(loader);
 			reference.asset = syncLoader.load(manager, fileName, file, params);
 			manager.finished(this);
 		} else {
-			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
+			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
 			asyncLoader.loadAsync(manager, fileName, file, params);
 			manager.readyForSyncLoading(this);
 		}
 	}
 
 	void loadSync() {
-		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = ValueUtils.cast(loader);
+		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
 		reference.asset = asyncLoader.loadSync(manager, fileName, file, params);
 	}
 
@@ -261,8 +261,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	@Override
 	public int compareTo(AssetLoadingTask<?> other) {
-		int result = ValueUtils.compare(other.priority, priority);
-		return result == 0 ? ValueUtils.compare(loadRequestId, other.loadRequestId) : result;
+		int result = Values.compare(other.priority, priority);
+		return result == 0 ? Values.compare(loadRequestId, other.loadRequestId) : result;
 	}
 
 	@Override

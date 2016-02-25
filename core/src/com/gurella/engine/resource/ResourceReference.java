@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public abstract class ResourceReference<T> implements Disposable, Serializable {
 	private static final String ID_TAG = "id";
@@ -74,7 +74,7 @@ public abstract class ResourceReference<T> implements Disposable, Serializable {
 		if (initOnStart) {
 			json.writeValue(INIT_ON_START_TAG, Boolean.valueOf(initOnStart));
 		}
-		if (!ValueUtils.isBlank(name)) {
+		if (!Values.isBlank(name)) {
 			json.writeValue(NAME_TAG, name);
 		}
 	}

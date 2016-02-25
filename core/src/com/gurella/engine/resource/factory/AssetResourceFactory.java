@@ -12,7 +12,7 @@ import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.ResourceContext;
 import com.gurella.engine.resource.ResourceFactory;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class AssetResourceFactory<T> implements ResourceFactory<T> {
 	private static final AssetRegistry assetRegistry = DisposablesService.add(new AssetRegistry());
@@ -98,7 +98,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 		String fileName = jsonData.getString("fileName");
 		String type = jsonData.getString("type");
 		@SuppressWarnings("unchecked")
-		Class<T> assetType = (Class<T>) ReflectionUtils.forNameSilently(type);
+		Class<T> assetType = (Class<T>) Reflection.forNameSilently(type);
 		assetDescriptor = new AssetDescriptor<T>(fileName, assetType);
 	}
 

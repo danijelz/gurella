@@ -1,6 +1,6 @@
 package com.gurella.engine.base.serialization.json;
 
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class AssetReference {
 	private String fileName;
@@ -32,7 +32,7 @@ public class AssetReference {
 
 	public Class<?> getAssetType() {
 		if (assetType == null) {
-			assetType = ReflectionUtils.forName(assetTypeName);
+			assetType = Reflection.forName(assetTypeName);
 		}
 		return assetType;
 	}

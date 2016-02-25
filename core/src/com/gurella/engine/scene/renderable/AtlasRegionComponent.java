@@ -2,7 +2,7 @@ package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class AtlasRegionComponent extends RenderableComponent2d {
 	private TextureAtlas textureAtlas;
@@ -34,7 +34,7 @@ public class AtlasRegionComponent extends RenderableComponent2d {
 	}
 
 	public void setRegionName(String regionName) {
-		if (!ValueUtils.isEqual(this.regionName, regionName)) {
+		if (!Values.isEqual(this.regionName, regionName)) {
 			this.regionName = regionName;
 			if (textureAtlas != null && regionName != null) {
 				AtlasRegion tempRegion = textureAtlas.findRegion(regionName);

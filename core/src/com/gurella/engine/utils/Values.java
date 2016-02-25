@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-public class ValueUtils {
-	private ValueUtils() {
+public class Values {
+	private Values() {
 	}
 
 	public static boolean isNotEmpty(Object value) {

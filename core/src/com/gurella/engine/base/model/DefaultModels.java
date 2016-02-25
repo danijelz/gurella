@@ -8,9 +8,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 public class DefaultModels {
 	private DefaultModels() {
@@ -225,7 +225,7 @@ public class DefaultModels {
 
 		@Override
 		public void serialize(T value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -483,7 +483,7 @@ public class DefaultModels {
 
 		@Override
 		public Class<?> readValue(Input input) {
-			return ReflectionUtils.forName(input.readString());
+			return Reflection.forName(input.readString());
 		}
 	}
 

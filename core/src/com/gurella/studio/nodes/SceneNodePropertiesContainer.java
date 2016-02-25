@@ -31,7 +31,7 @@ import com.gurella.engine.scene.renderable.SolidComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.inspector.InspectorPropertiesContainer;
 import com.gurella.studio.nodes.SceneNodeTreeNode.NodeNameChangedEvent;
 import com.gurella.studio.resource.ColapsableResourcePropertiesContainer;
@@ -62,7 +62,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 		this.factory = (ModelResourceFactory<? extends SceneNode>) reference.getResourceFactory();
 
 		buildUi();
-		nameField.setText(ValueUtils.isBlank(reference.getName()) ? "Node" : reference.getName());
+		nameField.setText(Values.isBlank(reference.getName()) ? "Node" : reference.getName());
 		enabled.setChecked(factory.<Boolean> getPropertyValue("enabled", Boolean.TRUE).booleanValue());
 		setBackground("border");
 		menuButton.addListener(new MenuClickListener());

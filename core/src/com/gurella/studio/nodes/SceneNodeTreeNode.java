@@ -18,7 +18,7 @@ import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 import com.kotcrab.vis.ui.util.dialog.DialogUtils;
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter;
 import com.kotcrab.vis.ui.widget.MenuItem;
@@ -30,7 +30,7 @@ public class SceneNodeTreeNode extends Node {
 	private ModelResourceFactory<? extends SceneNode> nodeFactory;
 
 	public SceneNodeTreeNode(ResourceReference<? extends SceneNode> reference) {
-		super(new VisLabel(ValueUtils.isBlank(reference.getName()) ? "Node" : reference.getName()));
+		super(new VisLabel(Values.isBlank(reference.getName()) ? "Node" : reference.getName()));
 		this.reference = reference;
 		this.nodeFactory = (ModelResourceFactory<? extends SceneNode>) reference.getResourceFactory();
 		// TODO must also be removed

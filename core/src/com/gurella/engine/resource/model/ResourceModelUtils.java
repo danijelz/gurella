@@ -13,7 +13,7 @@ import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.common.ArrayResourceModel;
 import com.gurella.engine.resource.model.common.GdxArrayResourceModel;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class ResourceModelUtils {
 	private static final ObjectMap<Class<?>, ResourceModel<?>> resolvedResourceModels = new ObjectMap<Class<?>, ResourceModel<?>>();
@@ -51,7 +51,7 @@ public class ResourceModelUtils {
 	}
 
 	private static <T> ResourceModel<T> getAnnotationModel(Class<T> resourceType) {
-		Resource resource = ReflectionUtils.getDeclaredAnnotation(resourceType, Resource.class);
+		Resource resource = Reflection.getDeclaredAnnotation(resourceType, Resource.class);
 		if (resource != null) {
 			@SuppressWarnings("unchecked")
 			Class<ResourceModel<T>> resourceModelClass = (Class<ResourceModel<T>>) resource.model();
@@ -61,7 +61,7 @@ public class ResourceModelUtils {
 				} else {
 					ResourceModel<T> resourceModel = getModelFromFactoryMethod(resourceModelClass);
 					return resourceModel == null
-							? ReflectionUtils.newInstance(resourceModelClass)
+							? Reflection.newInstance(resourceModelClass)
 							: resourceModel;
 				}
 			}
@@ -71,7 +71,7 @@ public class ResourceModelUtils {
 	}
 
 	private static <T> ResourceModel<T> getModelFromFactoryMethod(Class<ResourceModel<T>> resourceModelType) {
-		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance");
+		Method factoryMethod = Reflection.getDeclaredMethodSilently(resourceModelType, "getInstance");
 		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -82,7 +82,7 @@ public class ResourceModelUtils {
 			}
 		} 
 		
-		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(resourceModelType, "getInstance", Class.class);
+		factoryMethod = Reflection.getDeclaredMethodSilently(resourceModelType, "getInstance", Class.class);
 		if (isValidFactoryMethod(resourceModelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")

@@ -1,9 +1,9 @@
-package com.gurella.engine.scene.event;
+package com.gurella.engine.event;
 
 import static com.badlogic.gdx.utils.reflect.ClassReflection.getDeclaredMethods;
 import static com.badlogic.gdx.utils.reflect.ClassReflection.isAssignableFrom;
-import static com.gurella.engine.utils.ReflectionUtils.getAnnotation;
-import static com.gurella.engine.utils.ReflectionUtils.getDeclaredAnnotation;
+import static com.gurella.engine.utils.Reflection.getAnnotation;
+import static com.gurella.engine.utils.Reflection.getDeclaredAnnotation;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -12,15 +12,17 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.scene.event.Priority;
+import com.gurella.engine.utils.Values;
 
-class EventSubscriptions {
+public final class EventSubscriptions {
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<Class<?>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<?>>>();
 	private static final ObjectMap<Class<?>, IntIntMap> priorities = new ObjectMap<Class<?>, IntIntMap>();
-
 	private static final ObjectMap<String, EventCallbackIdentifier<?>> callbacksById = new ObjectMap<String, EventCallbackIdentifier<?>>();
+	
+	private static final Object lock = new Object();
 
 	static {
 		markerCallbacks.put(Object.class, new ObjectSet<EventCallbackIdentifier<?>>());
@@ -32,24 +34,26 @@ class EventSubscriptions {
 	private EventSubscriptions() {
 	}
 
-	static synchronized ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerType) {
-		ObjectSet<EventCallbackIdentifier<?>> methods = callbacks.get(listenerType);
-		if (methods != null) {
-			return methods;
+	public static ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerType) {
+		synchronized (lock) {
+			ObjectSet<EventCallbackIdentifier<?>> methods = callbacks.get(listenerType);
+			if (methods != null) {
+				return methods;
+			}
+			initCaches(listenerType);
+			return callbacks.get(listenerType);
 		}
-
-		initCaches(listenerType);
-		return callbacks.get(listenerType);
 	}
 
-	static synchronized ObjectSet<Class<?>> getSubscriptions(Class<?> listenerType) {
-		ObjectSet<Class<?>> impementedSubscribers = subscriptions.get(listenerType);
-		if (impementedSubscribers != null) {
-			return impementedSubscribers;
+	public static ObjectSet<Class<?>> getSubscriptions(Class<?> listenerType) {
+		synchronized (lock) {
+			ObjectSet<Class<?>> impementedSubscribers = subscriptions.get(listenerType);
+			if (impementedSubscribers != null) {
+				return impementedSubscribers;
+			}
+			initCaches(listenerType);
+			return subscriptions.get(listenerType);
 		}
-
-		initCaches(listenerType);
-		return subscriptions.get(listenerType);
 	}
 
 	private static void initCaches(Class<?> listenerType) {
@@ -133,7 +137,7 @@ class EventSubscriptions {
 
 	private static EventCallbackIdentifier<?> createCallbackIdentifier(Method method, EventSubscriptionCallback callback) {
 		String id = callback == null ? null : callback.id();
-		id = ValueUtils.isBlank(id) ? method.getName() : id;
+		id = Values.isBlank(id) ? method.getName() : id;
 		String fullId = method.getDeclaringClass().getName() + id;
 
 		if (callbacksById.containsKey(fullId)) {
@@ -164,7 +168,7 @@ class EventSubscriptions {
 		return getPriority(superclass, callbackId);
 	}
 
-	static int getPriority(Class<?> listenerType, int callbackId) {
+	public static int getPriority(Class<?> listenerType, int callbackId) {
 		IntIntMap prioritiesByListnerType = priorities.get(listenerType);
 		return prioritiesByListnerType == null ? Integer.MAX_VALUE
 				: prioritiesByListnerType.get(callbackId, Integer.MAX_VALUE);

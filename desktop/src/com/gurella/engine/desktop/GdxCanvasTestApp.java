@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gurella.engine.desktop.gdxcanvastest.CanvasTestCase;
 import com.gurella.engine.graphics.vector.Canvas;
 import com.gurella.engine.graphics.vector.CanvasFlags.CanvasFlag;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 
@@ -106,7 +106,7 @@ public class GdxCanvasTestApp {
 				}
 
 				String className = TEST_CLASSES_PACKAGE + '.' + fileName.substring(0, fileName.length() - 6);
-				Class<?> packageClass = ReflectionUtils.forName(className);
+				Class<?> packageClass = Reflection.forName(className);
 				if (CanvasTestCase.class.isAssignableFrom(packageClass)) {
 					@SuppressWarnings("unchecked")
 					Class<? extends CanvasTestCase> casted = (Class<? extends CanvasTestCase>) packageClass;

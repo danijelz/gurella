@@ -2,7 +2,7 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 class SceneOperation implements Comparable<SceneOperation>, Poolable {
 	private enum ElementType {
@@ -199,6 +199,6 @@ class SceneOperation implements Comparable<SceneOperation>, Poolable {
 
 	@Override
 	public int compareTo(SceneOperation other) {
-		return ValueUtils.compare(getOrder(), other.getOrder());
+		return Values.compare(getOrder(), other.getOrder());
 	}
 }

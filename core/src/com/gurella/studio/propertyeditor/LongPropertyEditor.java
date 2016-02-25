@@ -2,7 +2,7 @@ package com.gurella.studio.propertyeditor;
 
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceModelProperty;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.util.Validators.GreaterThanValidator;
 import com.kotcrab.vis.ui.util.Validators.LesserThanValidator;
@@ -31,7 +31,7 @@ public class LongPropertyEditor extends SimpleResourcePropertyEditor<VisValidata
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 		String value = valueComponent.getText();
-		if (ValueUtils.isBlank(value)) {
+		if (Values.isBlank(value)) {
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 

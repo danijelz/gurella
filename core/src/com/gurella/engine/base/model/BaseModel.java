@@ -4,8 +4,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 //TODO unused
 public abstract class BaseModel<T> implements Model<T> {
@@ -21,15 +21,15 @@ public abstract class BaseModel<T> implements Model<T> {
 	public BaseModel(Class<T> type) {
 		this.type = type;
 
-		ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
+		ModelDescriptor resourceAnnotation = Reflection.getAnnotation(type, ModelDescriptor.class);
 		if (resourceAnnotation == null) {
 			name = type.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			name = ValueUtils.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
+			name = Values.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
 		}
 
-		innerClass = ReflectionUtils.isInnerClass(type);
+		innerClass = Reflection.isInnerClass(type);
 		constructor = null;
 		properties = resolveProperties();
 	}

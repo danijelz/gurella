@@ -2,7 +2,7 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.utils.IndexedType;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public abstract class SceneSystem extends SceneElement {
 	private static final ObjectIntMap<Class<? extends SceneSystem>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem>>();
@@ -44,7 +44,7 @@ public abstract class SceneSystem extends SceneElement {
 	private static Class<? extends SceneSystem> findBaseSystemType(Class<? extends SceneSystem> systemClass) {
 		Class<?> temp = systemClass;
 		while (temp != null && !SceneSystem.class.equals(systemClass) && !Object.class.equals(systemClass)) {
-			BaseSceneElementType annotation = ReflectionUtils.getDeclaredAnnotation(temp, BaseSceneElementType.class);
+			BaseSceneElementType annotation = Reflection.getDeclaredAnnotation(temp, BaseSceneElementType.class);
 			if (annotation != null) {
 				@SuppressWarnings("unchecked")
 				Class<? extends SceneSystem> casted = (Class<? extends SceneSystem>) temp;

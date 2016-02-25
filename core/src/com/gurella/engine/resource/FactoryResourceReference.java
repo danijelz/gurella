@@ -3,7 +3,7 @@ package com.gurella.engine.resource;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public abstract class FactoryResourceReference<T> extends ResourceReference<T> {
 	private static final String MODEL_TAG = "model";
@@ -44,7 +44,7 @@ public abstract class FactoryResourceReference<T> extends ResourceReference<T> {
 		super.read(json, jsonData);
 		JsonValue modelJsonValue = jsonData.get(MODEL_TAG);
 		if (modelJsonValue != null) {
-			Class<T> resourceType = ReflectionUtils.forName(modelJsonValue.getString(CLASS_TAG));
+			Class<T> resourceType = Reflection.forName(modelJsonValue.getString(CLASS_TAG));
 			resourceFactory = new ModelResourceFactory<T>(resourceType);
 			((ModelResourceFactory<T>) resourceFactory).readProperties(json, modelJsonValue);
 		} else {

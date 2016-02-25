@@ -10,8 +10,8 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class GdxArrayModelFactory implements ModelFactory {
 	public static final GdxArrayModelFactory instance = new GdxArrayModelFactory();
@@ -72,7 +72,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(T value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -107,7 +107,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 				Class<?> componentType;
 				if (input.hasProperty("componentType")) {
-					componentType = ReflectionUtils.forNameSilently(input.readStringProperty("componentType"));
+					componentType = Reflection.forNameSilently(input.readStringProperty("componentType"));
 				} else if (templateArray != null) {
 					componentType = templateArray.items.getClass();
 				} else {
@@ -124,11 +124,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		private T createArray(Class<?> componentType) {
-			Constructor constructor = ReflectionUtils.getDeclaredConstructorSilently(type, Class.class);
+			Constructor constructor = Reflection.getDeclaredConstructorSilently(type, Class.class);
 			if (constructor != null) {
-				return ReflectionUtils.invokeConstructor(constructor, componentType);
+				return Reflection.invokeConstructor(constructor, componentType);
 			} else {
-				return ReflectionUtils.newInstance(type);
+				return Reflection.newInstance(type);
 			}
 		}
 

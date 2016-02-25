@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 
 //TODO https://github.com/jeske/SimpleScene/tree/master/SimpleScene/Util/ssBVH
 public class BvhNode implements Poolable {
@@ -211,7 +211,7 @@ public class BvhNode implements Poolable {
 				return; // the benefit is not worth the cost
 			}
 
-			Gdx.app.debug("BvhNode", ValueUtils.format("BVH swap %s from %s to %s", bestRot.rot.toString(),
+			Gdx.app.debug("BvhNode", Values.format("BVH swap %s from %s to %s", bestRot.rot.toString(),
 					Float.toString(branchesSAH), Float.toString(bestRot.SAH)));
 
 			// in order to swap we need to:

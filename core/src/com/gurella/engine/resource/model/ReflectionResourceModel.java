@@ -6,8 +6,8 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	private static final ObjectMap<Class<?>, Array<ResourceModelProperty>> declaredPropertiesByClass = new ObjectMap<Class<?>, Array<ResourceModelProperty>>();
@@ -36,12 +36,12 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	}
 
 	private String resolveName() {
-		Resource resourceAnnotation = ReflectionUtils.getAnnotation(resourceType, Resource.class);
+		Resource resourceAnnotation = Reflection.getAnnotation(resourceType, Resource.class);
 		if (resourceAnnotation == null) {
 			return resourceType.getSimpleName();
 		} else {
 			String descriptiveName = resourceAnnotation.descriptiveName();
-			return ValueUtils.isBlank(descriptiveName) ? resourceType.getSimpleName() : descriptiveName;
+			return Values.isBlank(descriptiveName) ? resourceType.getSimpleName() : descriptiveName;
 		}
 	}
 
@@ -52,7 +52,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 
 	@Override
 	protected T createResourceInstance(ObjectMap<String, Object> propertyValues) {
-		return ReflectionUtils.newInstance(resourceType);
+		return Reflection.newInstance(resourceType);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 				appendProperties(clazz, cachedProperties);
 			}
 
-			PropertyOverrides overrides = ReflectionUtils.getDeclaredAnnotation(resourceType, PropertyOverrides.class);
+			PropertyOverrides overrides = Reflection.getDeclaredAnnotation(resourceType, PropertyOverrides.class);
 			if (overrides != null) {
 				boolean updateResourceOnInit = overrides.updateResourceOnInit();
 				PropertyValue[] values = overrides.values();
@@ -152,7 +152,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 			return true;
 		}
 
-		if (ReflectionUtils.getDeclaredAnnotation(field, ResourceProperty.class) == null) {
+		if (Reflection.getDeclaredAnnotation(field, ResourceProperty.class) == null) {
 			return true;
 		}
 
@@ -165,7 +165,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	}
 
 	private static ResourceModelProperty getModelProperty(Field field) {
-		ResourceProperty resourceProperty = ReflectionUtils.getDeclaredAnnotation(field, ResourceProperty.class);
+		ResourceProperty resourceProperty = Reflection.getDeclaredAnnotation(field, ResourceProperty.class);
 		if (resourceProperty == null) {
 			return createReflectionModelProperty(field, false);
 		} else {
@@ -178,12 +178,12 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	private static ResourceModelProperty createAnnotationModelProperty(
 			Class<? extends ResourceModelProperty> propertyModelClass) {
 		ResourceModelProperty resourceModelProperty = getModelPropertyFromFactoryMethod(propertyModelClass);
-		return resourceModelProperty == null ? ReflectionUtils.newInstance(propertyModelClass) : resourceModelProperty;
+		return resourceModelProperty == null ? Reflection.newInstance(propertyModelClass) : resourceModelProperty;
 	}
 
 	private static ResourceModelProperty getModelPropertyFromFactoryMethod(
 			Class<? extends ResourceModelProperty> propertyModelClass) {
-		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(propertyModelClass, "getInstance");
+		Method factoryMethod = Reflection.getDeclaredMethodSilently(propertyModelClass, "getInstance");
 		if (factoryMethod != null && factoryMethod.isPublic() && factoryMethod.getReturnType() == propertyModelClass
 				&& factoryMethod.isStatic()) {
 			try {
@@ -229,7 +229,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
 		String prefix = Boolean.TYPE.equals(fieldType) ? "is" : "get";
-		Method getter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
+		Method getter = Reflection.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
 		if (getter == null || (!forced && !getter.isPublic())) {
 			return null;
 		} else {
@@ -239,7 +239,7 @@ public class ReflectionResourceModel<T> extends AbstractResourceModel<T> {
 
 	private static Method getPropertySetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
 			boolean forced) {
-		Method setter = ReflectionUtils.getDeclaredMethodSilently(resourceClass, "set" + upperCaseName, fieldType);
+		Method setter = Reflection.getDeclaredMethodSilently(resourceClass, "set" + upperCaseName, fieldType);
 		if (setter == null || (!forced && !setter.isPublic())) {
 			return null;
 		} else {

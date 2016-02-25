@@ -14,8 +14,8 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
-import com.gurella.engine.utils.ReflectionUtils;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 
 public class CollectionModelFactory implements ModelFactory {
 	public static final CollectionModelFactory instance = new CollectionModelFactory();
@@ -54,19 +54,19 @@ public class CollectionModelFactory implements ModelFactory {
 
 		public CollectionModel(Class<T> type) {
 			this.type = type;
-			innerClass = ReflectionUtils.isInnerClass(type);
+			innerClass = Reflection.isInnerClass(type);
 			resolveName();
 			properties = new ArrayExt<Property<?>>();
 			properties.add(new CollectionItemsProperty(this));
 		}
 
 		private void resolveName() {
-			ModelDescriptor resourceAnnotation = ReflectionUtils.getAnnotation(type, ModelDescriptor.class);
+			ModelDescriptor resourceAnnotation = Reflection.getAnnotation(type, ModelDescriptor.class);
 			if (resourceAnnotation == null) {
 				name = type.getSimpleName();
 			} else {
 				String descriptiveName = resourceAnnotation.descriptiveName();
-				name = ValueUtils.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
+				name = Values.isBlank(descriptiveName) ? type.getSimpleName() : descriptiveName;
 			}
 		}
 
@@ -97,7 +97,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(T value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -160,9 +160,9 @@ public class CollectionModelFactory implements ModelFactory {
 			}
 
 			if (innerClass) {
-				constructor = ReflectionUtils.findInnerClassDeclaredConstructor(type, enclosingInstance);
+				constructor = Reflection.findInnerClassDeclaredConstructor(type, enclosingInstance);
 			} else {
-				constructor = ReflectionUtils.getDeclaredConstructor(type);
+				constructor = Reflection.getDeclaredConstructor(type);
 			}
 
 			constructor.setAccessible(true);
@@ -333,7 +333,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(TreeSet<?> value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -343,7 +343,7 @@ public class CollectionModelFactory implements ModelFactory {
 				Comparator<?> comparator = value.comparator();
 				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
 				if (resolvedTemplate == null ? comparator != null
-						: !ValueUtils.isEqual(templateComparator, comparator)) {
+						: !Values.isEqual(templateComparator, comparator)) {
 					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
 
@@ -435,7 +435,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(EnumSet<?> value, Object template, Output output) {
-			if (ValueUtils.isEqual(template, value)) {
+			if (Values.isEqual(template, value)) {
 				return;
 			} else if (value == null) {
 				output.writeNull();
@@ -462,7 +462,7 @@ public class CollectionModelFactory implements ModelFactory {
 				return null;
 			} else {
 				@SuppressWarnings("rawtypes")
-				Class<Enum> enumType = ReflectionUtils.forName(input.readStringProperty("type"));
+				Class<Enum> enumType = Reflection.forName(input.readStringProperty("type"));
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				EnumSet enumSet = EnumSet.noneOf(enumType);
 

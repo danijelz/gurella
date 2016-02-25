@@ -2,7 +2,7 @@ package com.gurella.studio.propertyeditor;
 
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceModelProperty;
-import com.gurella.engine.utils.ValueUtils;
+import com.gurella.engine.utils.Values;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
@@ -27,7 +27,7 @@ public class FloatPropertyEditor extends SimpleResourcePropertyEditor<VisValidat
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 		String value = valueComponent.getText();
-		if (ValueUtils.isBlank(value)) {
+		if (Values.isBlank(value)) {
 			throw new IllegalArgumentException("Invalid input for property: " + property.getName());
 		}
 
