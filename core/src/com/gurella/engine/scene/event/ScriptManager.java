@@ -158,10 +158,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		return scripts;
 	}
 
-	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(SceneNode node, EventCallbackIdentifier method) {
-		return node == null ? null : getNodeScriptsByMethod(node.id, method.id);
-	}
-
 	public OrderedSet<BehaviourComponent> getNodeScriptsByMethod(int nodeId, int methodId) {
 		IntMap<OrderedSet<BehaviourComponent>> nodeScripts = nodeScriptsByMethod.get(nodeId);
 		if (nodeScripts == null) {
@@ -175,10 +171,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 			nodeScripts.put(methodId, scripts);
 		}
 		return scripts;
-	}
-
-	public OrderedSet<BehaviourComponent> getScriptComponents(EventCallbackIdentifier scriptMethod) {
-		return getScriptsByMethod(scriptMethod.id);
 	}
 
 	private static class OverridenScriptMethods {

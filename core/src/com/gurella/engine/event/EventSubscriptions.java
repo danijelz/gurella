@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.event.Priority;
 
 public final class EventSubscriptions {
 	private static final ObjectMap<Class<?>, ObjectSet<Class<?>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<?>>>();
@@ -76,7 +75,7 @@ public final class EventSubscriptions {
 		priorities.put(listenerType, prioritiesByCallback);
 	}
 
-	private static int getPriority(Priority classPriority, Class<?> superclass) {
+	static int getPriority(Priority classPriority, Class<?> superclass) {
 		if (classPriority != null) {
 			return classPriority.value();
 		}
@@ -113,16 +112,16 @@ public final class EventSubscriptions {
 		void ooo();
 	}
 
+	@Priority(1)
 	public static abstract class A extends BehaviourComponent implements I {
 		@Override
-		@Priority(1)
 		public void onInput() {
 		}
 	}
 
+	@Priority(1)
 	public static class B extends A implements J {
 		@Override
-		@Priority(1)
 		public void ddd() {
 		}
 

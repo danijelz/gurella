@@ -69,7 +69,6 @@ public class EventBus implements Poolable {
 			synchronized (subscribers) {
 				subscribers.add(listener);
 				// TODO subscribers.sort(comparator);
-				// TODO trigger
 			}
 		}
 	}

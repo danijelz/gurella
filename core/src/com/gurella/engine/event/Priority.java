@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.event;
+package com.gurella.engine.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.METHOD, ElementType.TYPE })
+@Target(value = { ElementType.TYPE })
 public @interface Priority {
 	int value();
 }
