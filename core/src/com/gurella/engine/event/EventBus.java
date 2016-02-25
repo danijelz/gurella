@@ -14,7 +14,7 @@ import com.gurella.engine.utils.Values;
 
 public class EventBus implements Poolable {
 	private final ObjectMap<Object, Array<?>> listeners = new ObjectMap<Object, Array<?>>();
-	private final ObjectMap<Class<?>, Array<Object>> listenersBySubscription = new ObjectMap<Class<?>, Array<Object>>();
+	private final ObjectMap<Class<?>, Array<Object>> subscribers = new ObjectMap<Class<?>, Array<Object>>();
 
 	private final Array<Object> eventPool = new Array<Object>();
 
@@ -75,11 +75,11 @@ public class EventBus implements Poolable {
 	}
 
 	private Array<Object> findSubscribers(Class<?> subscription) {
-		synchronized (listenersBySubscription) {
-			Array<Object> listeners = listenersBySubscription.get(subscription);
+		synchronized (subscribers) {
+			Array<Object> listeners = subscribers.get(subscription);
 			if (listeners == null) {
 				listeners = new Array<Object>();
-				listenersBySubscription.put(subscription, listeners);
+				subscribers.put(subscription, listeners);
 			}
 			return listeners;
 		}
@@ -117,13 +117,13 @@ public class EventBus implements Poolable {
 		}
 
 		for (Class<?> subscription : subscriptions) {
-			synchronized (listenersBySubscription) {
-				Array<Object> listeners = listenersBySubscription.get(subscription);
+			synchronized (subscribers) {
+				Array<Object> listeners = subscribers.get(subscription);
 				if (listeners != null) {
 					synchronized (listeners) {
 						listeners.removeValue(listener, true);
 						if (listeners.size == 0) {
-							listenersBySubscription.remove(subscription);
+							subscribers.remove(subscription);
 						}
 					}
 				}
@@ -240,7 +240,8 @@ public class EventBus implements Poolable {
 
 	public boolean isEmpty() {
 		synchronized (eventPool) {
-			return eventPool.size == 0;
+			//TODO
+			return listeners.size == 0 && subscribers.size == 0;
 		}
 	}
 
