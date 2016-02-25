@@ -16,7 +16,8 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private transient int instanceId;
 	@PropertyDescriptor(copyable = false)
 	String uuid;
-	String prefabId;
+
+	PrefabReference prefab;
 
 	private ManagedObjectState state = ManagedObjectState.idle;
 
@@ -71,7 +72,11 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return state != ManagedObjectState.idle;
 	}
 
-	void activate() {
+	public void activate() {
+		ObjectOperationPool.activate(this);
+	}
+
+	void handleActivation() {
 		if (isActivationAllowed()) {
 			activateHierarchy();
 		}
@@ -96,14 +101,18 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
+	protected void init() {
+	}
+
 	protected void activated() {
 		// TODO Auto-generated method stub
 	}
 
-	protected void init() {
+	public void deactivate() {
+		ObjectOperationPool.deactivate(this);
 	}
 
-	void deactivate() {
+	void handleDeactivation() {
 		if (state != ManagedObjectState.active) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}
@@ -127,7 +136,11 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		// TODO Auto-generated method stub
 	}
 
-	void destroy() {
+	public void destroy() {
+		ObjectOperationPool.destroy(this);
+	}
+
+	void handleDestruction() {
 		if (state == ManagedObjectState.active) {
 			deactivateHierarchy();
 		}
@@ -135,7 +148,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.disposed;
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
-			child.destroy();
+			child.handleDestruction();
 		}
 
 		if (this instanceof Poolable) {
@@ -152,7 +165,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 		instanceId = SequenceGenerator.next();
 		uuid = null;
-		prefabId = null;
+		prefab = null;
 		state = ManagedObjectState.idle;
 		childrenPrivate.clear();
 		clearAttachments();
@@ -164,7 +177,17 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return parent;
 	}
 
-	void setParent(ManagedObject newParent) {
+	public void setParent(ManagedObject newParent) {
+		if (isValidNewParent(newParent)) {
+			ObjectOperationPool.reparent(this, newParent);
+		}
+	}
+
+	protected boolean isValidNewParent(@SuppressWarnings("unused") ManagedObject newParent) {
+		return true;
+	}
+
+	void reparent(ManagedObject newParent) {
 		if (parent == newParent) {
 			return;
 		}

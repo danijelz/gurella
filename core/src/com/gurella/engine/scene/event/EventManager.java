@@ -1,8 +1,8 @@
 package com.gurella.engine.scene.event;
 
-import static com.gurella.engine.scene.event.EventSubscriptionRegistry.getCallbacks;
-import static com.gurella.engine.scene.event.EventSubscriptionRegistry.getPriority;
-import static com.gurella.engine.scene.event.EventSubscriptionRegistry.getSubscriptions;
+import static com.gurella.engine.scene.event.EventSubscriptions.getCallbacks;
+import static com.gurella.engine.scene.event.EventSubscriptions.getPriority;
+import static com.gurella.engine.scene.event.EventSubscriptions.getSubscriptions;
 
 import java.util.Comparator;
 

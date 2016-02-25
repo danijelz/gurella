@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.utils.ValueUtils;
 
-class EventSubscriptionRegistry {
+class EventSubscriptions {
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> markerCallbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>> callbacks = new ObjectMap<Class<?>, ObjectSet<EventCallbackIdentifier<?>>>();
 	private static final ObjectMap<Class<?>, ObjectSet<Class<?>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<?>>>();
@@ -29,7 +29,7 @@ class EventSubscriptionRegistry {
 		priorities.put(Object.class, new IntIntMap());
 	}
 
-	private EventSubscriptionRegistry() {
+	private EventSubscriptions() {
 	}
 
 	static synchronized ObjectSet<EventCallbackIdentifier<?>> getCallbacks(Class<?> listenerType) {

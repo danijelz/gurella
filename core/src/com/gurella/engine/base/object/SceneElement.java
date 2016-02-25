@@ -9,10 +9,22 @@ public class SceneElement extends ManagedObject {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+		boolean active = isActive();
+		if(enabled && !active) {
+			handleActivation();
+		} else if(!enabled && active) {
+			handleDeactivation();
+		}
 	}
 	
 	@Override
-	protected boolean isActivationAllowed() {
+	protected final boolean isActivationAllowed() {
 		return super.isActivationAllowed() && enabled;
+	}
+	
+	@Override
+	protected void reset() {
+		super.reset();
+		enabled = true;
 	}
 }

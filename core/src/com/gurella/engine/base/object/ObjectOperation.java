@@ -13,22 +13,22 @@ class ObjectOperation implements Poolable {
 		switch (operationType) {
 		case activate:
 			if (state == ManagedObjectState.inactive) {
-				object.activate();
+				object.handleActivation();
 			}
 			break;
 		case deactivate:
 			if (state == ManagedObjectState.active) {
-				object.deactivate();
+				object.handleDeactivation();
 			}
 			break;
 		case reparent:
 			if (state != ManagedObjectState.disposed) {
-				object.setParent(newParent);
+				object.reparent(newParent);
 			}
 			break;
 		case destroy:
 			if (state != ManagedObjectState.disposed) {
-				object.destroy();
+				object.handleDestruction();
 			}
 			break;
 		default:

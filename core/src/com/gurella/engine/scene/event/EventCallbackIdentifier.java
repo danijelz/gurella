@@ -15,7 +15,7 @@ public final class EventCallbackIdentifier<T> {
 	public final Class<?>[] parameterTypes;
 
 	public static <T> EventCallbackIdentifier<T> get(Class<T> declaringClass, String id) {
-		EventCallbackIdentifier<T> instance = EventSubscriptionRegistry.getIdentifier(declaringClass, id);
+		EventCallbackIdentifier<T> instance = EventSubscriptions.getIdentifier(declaringClass, id);
 		if (instance == null) {
 			throw new GdxRuntimeException(
 					"Can't find callback: [declaringClass=" + declaringClass + ", id=" + id + "]");
