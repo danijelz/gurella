@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Listener1Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GdxStudioEvents;
 import com.gurella.studio.Project;
@@ -93,7 +93,7 @@ public class ProjectHeaderContainer extends VisTable implements Listener1<String
 		}
 	}
 
-	public static class SceneSelectionChangedEvent extends Listener1Event<Scene> {
+	public static class SceneSelectionChangedEvent extends Event1<Scene> {
 		private SceneSelectionChangedEvent(Scene value) {
 			super(value);
 		}

@@ -4,8 +4,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.event.AbstractSignal;
-import com.gurella.engine.event.Signal1.Signal1Impl;
+import com.gurella.engine.event.Signal;
+import com.gurella.engine.event.Signal1;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
@@ -38,19 +38,19 @@ public final class SceneNode extends SceneElement {
 	public final ImmutableBits activeComponentBits = new ImmutableBits(activeComponentBitsInternal);
 
 	@TransientProperty
-	public final Signal1Impl<SceneNode> parentChangedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1<SceneNode> parentChangedSignal = new Signal1<SceneNode>();
 	@TransientProperty
-	public final Signal1Impl<SceneNode> childAddedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1<SceneNode> childAddedSignal = new Signal1<SceneNode>();
 	@TransientProperty
-	public final Signal1Impl<SceneNode> childRemovedSignal = new Signal1Impl<SceneNode>();
+	public final Signal1<SceneNode> childRemovedSignal = new Signal1<SceneNode>();
 	@TransientProperty
-	public final Signal1Impl<SceneNodeComponent> componentAddedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1<SceneNodeComponent> componentAddedSignal = new Signal1<SceneNodeComponent>();
 	@TransientProperty
-	public final Signal1Impl<SceneNodeComponent> componentRemovedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1<SceneNodeComponent> componentRemovedSignal = new Signal1<SceneNodeComponent>();
 	@TransientProperty
-	public final Signal1Impl<SceneNodeComponent> componentActivatedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1<SceneNodeComponent> componentActivatedSignal = new Signal1<SceneNodeComponent>();
 	@TransientProperty
-	public final Signal1Impl<SceneNodeComponent> componentDeactivatedSignal = new Signal1Impl<SceneNodeComponent>();
+	public final Signal1<SceneNodeComponent> componentDeactivatedSignal = new Signal1<SceneNodeComponent>();
 	@TransientProperty
 	public final NodeChangedSignal nodeChangedSignal = new NodeChangedSignal();
 
@@ -94,7 +94,7 @@ public final class SceneNode extends SceneElement {
 		INDEXER.removeIndexed(this);
 	}
 
-	//TODO slow -> cache value
+	// TODO slow -> cache value
 	public final boolean isHierarchyEnabled() {
 		return this.enabled && (parent == null || parent.isHierarchyEnabled());
 	}
@@ -253,56 +253,70 @@ public final class SceneNode extends SceneElement {
 		void componentDeactivated(SceneNodeComponent component);
 	}
 
-	public class NodeChangedSignal extends AbstractSignal<NodeChangedListener> {
+	public class NodeChangedSignal extends Signal<NodeChangedListener> {
 		private NodeChangedSignal() {
 		}
 
 		void parentChanged(SceneNode newParent) {
-			for (NodeChangedListener listener : listeners) {
-				listener.parentChanged(newParent);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].parentChanged(newParent);
 			}
+			listeners.end();
 			parentChangedSignal.dispatch(newParent);
 		}
 
 		void childAdded(SceneNode child) {
-			for (NodeChangedListener listener : listeners) {
-				listener.childAdded(child);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].childAdded(child);
 			}
+			listeners.end();
 			childAddedSignal.dispatch(child);
 		}
 
 		void childRemoved(SceneNode child) {
-			for (NodeChangedListener listener : listeners) {
-				listener.childRemoved(child);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].childRemoved(child);
 			}
+			listeners.end();
 			childRemovedSignal.dispatch(child);
 		}
 
 		void componentAdded(SceneNodeComponent component) {
-			for (NodeChangedListener listener : listeners) {
-				listener.componentAdded(component);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].componentAdded(component);
 			}
+			listeners.end();
 			componentAddedSignal.dispatch(component);
 		}
 
 		void componentRemoved(SceneNodeComponent component) {
-			for (NodeChangedListener listener : listeners) {
-				listener.componentRemoved(component);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].componentRemoved(component);
 			}
+			listeners.end();
 			componentRemovedSignal.dispatch(component);
 		}
 
 		void componentActivated(SceneNodeComponent component) {
-			for (NodeChangedListener listener : listeners) {
-				listener.componentActivated(component);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].componentActivated(component);
 			}
+			listeners.end();
 			componentActivatedSignal.dispatch(component);
 		}
 
 		void componentDeactivated(SceneNodeComponent component) {
-			for (NodeChangedListener listener : listeners) {
-				listener.componentDeactivated(component);
+			NodeChangedListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].componentDeactivated(component);
 			}
+			listeners.end();
 			componentDeactivatedSignal.dispatch(component);
 		}
 	}

@@ -13,7 +13,7 @@ import com.gurella.engine.asset.AssetDatabase;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
-import com.gurella.engine.event.Signal1.Signal1Impl;
+import com.gurella.engine.event.Signal1;
 import com.gurella.engine.utils.ValueUtils;
 
 public class ResourceService implements ApplicationUpdateListener {
@@ -24,9 +24,9 @@ public class ResourceService implements ApplicationUpdateListener {
 	private static final AssetDatabase assetDatabase = new AssetDatabase();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
 
-	private static final Signal1Impl<String> resourceLoadedSignal = new Signal1Impl<String>();
-	private static final Signal1Impl<String> resourceUnloadedSignal = new Signal1Impl<String>();
-	private static final Signal1Impl<String> resourceRefreshSignal = new Signal1Impl<String>();
+	private static final Signal1<String> resourceLoadedSignal = new Signal1<String>();
+	private static final Signal1<String> resourceUnloadedSignal = new Signal1<String>();
+	private static final Signal1<String> resourceRefreshSignal = new Signal1<String>();
 
 	static {
 		Texture.setAssetManager(mockManager);

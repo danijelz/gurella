@@ -1,8 +1,8 @@
 package com.gurella.engine.application.events;
 
-import com.gurella.engine.event.AbstractSignal;
+import com.gurella.engine.event.Signal;
 
-public class ApplicationResizeSignal extends AbstractSignal<ApplicationResizeSignal.ApplicationResizeListener> {
+public class ApplicationResizeSignal extends Signal<ApplicationResizeSignal.ApplicationResizeListener> {
 	public void onResize(int width, int height) {
 		ApplicationResizeListener[] items = listeners.begin();
 		for (int i = 0, n = listeners.size; i < n; i++) {
@@ -10,7 +10,7 @@ public class ApplicationResizeSignal extends AbstractSignal<ApplicationResizeSig
 		}
 		listeners.end();
 	}
-	
+
 	public interface ApplicationResizeListener {
 		void onResize(int width, int height);
 	}

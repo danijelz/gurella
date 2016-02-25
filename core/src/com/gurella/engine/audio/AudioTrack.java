@@ -3,14 +3,14 @@ package com.gurella.engine.audio;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
-import com.gurella.engine.event.Signal1.Signal1Impl;
+import com.gurella.engine.event.Signal1;
 import com.gurella.engine.pool.PoolService;
 
 //TODO add global signals for completitions etc...
 public class AudioTrack implements Poolable, VolumeListener {
 	private AudioChannel audioChannel;
 	private AudioClip audioClip;
-	public final Signal1Impl<AudioTrack> completitionCallbacks = new Signal1Impl<AudioTrack>();
+	public final Signal1<AudioTrack> completitionCallbacks = new Signal1<AudioTrack>();
 
 	private float channelVolume = 1;
 

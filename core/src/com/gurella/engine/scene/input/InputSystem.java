@@ -31,7 +31,7 @@ import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.event.AbstractSignal;
+import com.gurella.engine.event.Signal;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
@@ -526,17 +526,21 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 		}
 	}
 
-	public static class PointerActivitySignal extends AbstractSignal<PointerActivityListener> {
+	public static class PointerActivitySignal extends Signal<PointerActivityListener> {
 		public void onPointerActivity(int pointer, int button, PointerTrack pointerTrack) {
-			for (PointerActivityListener listener : listeners) {
-				listener.onPointerActivity(pointer, button, pointerTrack);
+			PointerActivityListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].onPointerActivity(pointer, button, pointerTrack);
 			}
+			listeners.end();
 		}
 
 		private void reset() {
-			for (PointerActivityListener listener : listeners) {
-				listener.reset();
+			PointerActivityListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].reset();
 			}
+			listeners.end();
 		}
 	}
 }

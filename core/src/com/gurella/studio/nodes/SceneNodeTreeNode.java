@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Listener1Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.resource.ResourceReference;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
@@ -102,7 +102,7 @@ public class SceneNodeTreeNode extends Node {
 		return reference;
 	}
 
-	public static class NodeNameChangedEvent extends Listener1Event<ModelResourceFactory<? extends SceneNode>> {
+	public static class NodeNameChangedEvent extends Event1<ModelResourceFactory<? extends SceneNode>> {
 		public NodeNameChangedEvent(ModelResourceFactory<? extends SceneNode> value) {
 			super(value);
 		}

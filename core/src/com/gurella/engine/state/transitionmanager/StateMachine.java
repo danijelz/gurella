@@ -5,11 +5,10 @@ import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.Signal1;
-import com.gurella.engine.event.Signal2;
+import com.gurella.engine.event.Signal;
 import com.gurella.engine.state.StateTransition;
 
-public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListener<STATE>, STATE, STATE>
+public class StateMachine<STATE> extends Signal<StateMachine.StateChangedListener<STATE>>
 		implements ApplicationUpdateListener {
 	private StateTransition<STATE> currentTransition;
 	private ObjectMap<STATE, StateChangedSignal> stateListeners = new ObjectMap<STATE, StateChangedSignal>();
@@ -62,9 +61,9 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 
 	private void dispatchStateChanged(STATE currentState) {
 		dispatch(currentTransition.getSource(), currentState);
-		StateChangedSignal stateChangedSignal = stateListeners.get(currentState);
-		if (stateChangedSignal != null) {
-			stateChangedSignal.dispatch(currentState);
+		StateChangedSignal signal = stateListeners.get(currentState);
+		if (signal != null) {
+			signal.dispatch(currentState);
 		}
 	}
 
@@ -91,9 +90,12 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 		return currentTransition != null;
 	}
 
-	@Override
-	protected void dispatch(StateChangedListener<STATE> listener, STATE oldState, STATE newState) {
-		listener.stateChanged(oldState, newState);
+	private void dispatch(STATE oldState, STATE newState) {
+		StateChangedListener<STATE>[] items = listeners.begin();
+		for (int i = 0, n = listeners.size; i < n; i++) {
+			items[i].stateChanged(oldState, newState);
+		}
+		listeners.end();
 	}
 
 	@Override
@@ -111,10 +113,12 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 
 	public void addListener(STATE state, StateListener<STATE> listener) {
 		if (listener != null) {
-			if (!stateListeners.containsKey(state)) {
-				stateListeners.put(state, new StateChangedSignal());
+			StateMachine<STATE>.StateChangedSignal signal = stateListeners.get(state);
+			if (signal != null) {
+				signal = new StateChangedSignal();
+				stateListeners.put(state, signal);
 			}
-			stateListeners.get(state).addListener(listener);
+			signal.addListener(listener);
 		}
 	}
 
@@ -135,14 +139,17 @@ public class StateMachine<STATE> extends Signal2<StateMachine.StateChangedListen
 		void stateChanged(STATE oldState, STATE newState);
 	}
 
-	public interface StateListener<STATE> {
-		void stateChanged(STATE newState);
+	private class StateChangedSignal extends Signal<StateListener<STATE>> {
+		private void dispatch(STATE event) {
+			StateListener<STATE>[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].stateChanged(event);
+			}
+			listeners.end();
+		}
 	}
 
-	private class StateChangedSignal extends Signal1<StateListener<STATE>, STATE> {
-		@Override
-		protected void dispatch(StateListener<STATE> listener, STATE event) {
-			listener.stateChanged(event);
-		}
+	public interface StateListener<STATE> {
+		void stateChanged(STATE newState);
 	}
 }

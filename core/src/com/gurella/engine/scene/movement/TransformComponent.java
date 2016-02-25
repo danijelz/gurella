@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Signal1.Signal1Impl;
+import com.gurella.engine.event.Signal1;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;
@@ -56,10 +56,10 @@ public class TransformComponent extends SceneNodeComponent {
 	private final ChildComponentActivatedListener childComponentActivatedListener = new ChildComponentActivatedListener();
 	private final ChildComponentDeactivatedListener childComponentDeactivatedListener = new ChildComponentDeactivatedListener();
 
-	public final Signal1Impl<TransformComponent> dirtySignal = new Signal1Impl<TransformComponent>() {
+	public final Signal1<TransformComponent> dirtySignal = new Signal1<TransformComponent>() {
 		@Override
-		protected void dispatch(Listener1<TransformComponent> listener, TransformComponent event) {
-			super.dispatch(listener, event);
+		public void dispatch(TransformComponent event) {
+			super.dispatch(event);
 			for (int i = 0; i < childTransforms.size; i++) {
 				TransformComponent childTransform = childTransforms.get(i);
 				childTransform.dirtySignal.dispatch(childTransform);

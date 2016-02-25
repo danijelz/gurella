@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 import com.badlogic.gdx.utils.SnapshotArray;
 
-public abstract class AbstractSignal<LISTENER> {
+public abstract class Signal<LISTENER> {
 	protected SnapshotArray<LISTENER> listeners = new SnapshotArray<LISTENER>();
 
 	public boolean addListener(LISTENER listener) {
@@ -34,9 +34,5 @@ public abstract class AbstractSignal<LISTENER> {
 
 	protected Comparator<LISTENER> getComparator() {
 		return null;
-	}
-	
-	public void signal() {
-		//TODO
 	}
 }

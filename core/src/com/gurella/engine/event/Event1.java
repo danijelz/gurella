@@ -1,12 +1,12 @@
 package com.gurella.engine.event;
 
-public abstract class Listener1Event<T> implements Event<Listener1<T>> {
+public abstract class Event1<T> implements Event<Listener1<T>> {
 	protected T value;
 
-	public Listener1Event() {
+	public Event1() {
 	}
 
-	public Listener1Event(T value) {
+	public Event1(T value) {
 		this.value = value;
 	}
 

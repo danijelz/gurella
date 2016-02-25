@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Signal1.Signal1Impl;
+import com.gurella.engine.event.Signal1;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.BaseSceneElementType;
@@ -26,7 +26,7 @@ public abstract class RenderableComponent extends SceneNodeComponent {
 	private final TransformDirtyListener transformDirtyListener = new TransformDirtyListener();
 
 	@TransientProperty
-	public final Signal1Impl<RenderableComponent> dirtySignal = new Signal1Impl<RenderableComponent>();
+	public final Signal1<RenderableComponent> dirtySignal = new Signal1<RenderableComponent>();
 
 	@Override
 	protected void activated() {

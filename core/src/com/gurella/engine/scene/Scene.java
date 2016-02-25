@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.event.Signal0.Signal0Impl;
+import com.gurella.engine.event.Signal0;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.audio.AudioSystem;
@@ -40,8 +40,8 @@ public class Scene extends SceneElementsResourceContext {
 	public final IntArray initialNodes = new IntArray();
 
 	// TODO remove signals
-	public final Signal0Impl startSignal = new Signal0Impl();
-	public final Signal0Impl stopSignal = new Signal0Impl();
+	public final Signal0 startSignal = new Signal0();
+	public final Signal0 stopSignal = new Signal0();
 
 	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
 	public final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
@@ -166,7 +166,7 @@ public class Scene extends SceneElementsResourceContext {
 			SceneSystem system = allSystemsInternal.get(i);
 			removeSystem(system);
 		}
-		
+
 		cleanup();
 		releaseResources();
 
@@ -478,7 +478,7 @@ public class Scene extends SceneElementsResourceContext {
 		allNodesInternal.removeValue(node, true);
 	}
 
-	//TODO use removeComponentSafely
+	// TODO use removeComponentSafely
 	private void removeComponentFromGraph(SceneNodeComponent component) {
 		sceneGraphListenerSignal.nodeComponentRemoved(component);
 		component.lifecycleSignal.detached();

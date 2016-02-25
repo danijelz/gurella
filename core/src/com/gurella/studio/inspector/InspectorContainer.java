@@ -3,7 +3,7 @@ package com.gurella.studio.inspector;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Listener1Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.utils.ValueUtils;
 import com.kotcrab.vis.ui.widget.VisTable;
 
@@ -41,7 +41,7 @@ public class InspectorContainer extends VisTable {
 		}
 	}
 
-	public static class PresentInspectableValueEvent extends Listener1Event<InspectableValue> {
+	public static class PresentInspectableValueEvent extends Event1<InspectableValue> {
 		public PresentInspectableValueEvent(InspectableValue value) {
 			super(value);
 		}

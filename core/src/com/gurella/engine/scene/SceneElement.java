@@ -3,8 +3,8 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.event.AbstractSignal;
-import com.gurella.engine.event.Signal0.Signal0Impl;
+import com.gurella.engine.event.Signal;
+import com.gurella.engine.event.Signal0;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.utils.IndexedValue;
@@ -28,15 +28,15 @@ public abstract class SceneElement implements Poolable, Disposable {
 	@DefaultValue(booleanValue = true)
 	boolean enabled = true;
 
-	//TODO attached and detached are not needed
+	// TODO attached and detached are not needed
 	@TransientProperty
-	public final Signal0Impl attachedSignal = new Signal0Impl();
+	public final Signal0 attachedSignal = new Signal0();
 	@TransientProperty
-	public final Signal0Impl activatedSignal = new Signal0Impl();
+	public final Signal0 activatedSignal = new Signal0();
 	@TransientProperty
-	public final Signal0Impl deactivatedSignal = new Signal0Impl();
+	public final Signal0 deactivatedSignal = new Signal0();
 	@TransientProperty
-	public final Signal0Impl detachedSignal = new Signal0Impl();
+	public final Signal0 detachedSignal = new Signal0();
 	@TransientProperty
 	public final SceneElementLifecycleSignal lifecycleSignal = new SceneElementLifecycleSignal();
 
@@ -160,39 +160,47 @@ public abstract class SceneElement implements Poolable, Disposable {
 		}
 	}
 
-	public class SceneElementLifecycleSignal extends AbstractSignal<SceneGraphElementLifecycleListener> {
+	public class SceneElementLifecycleSignal extends Signal<SceneGraphElementLifecycleListener> {
 		private SceneElementLifecycleSignal() {
 		}
 
 		void attached() {
 			SceneElement.this.attached();
-			for (SceneGraphElementLifecycleListener listener : listeners) {
-				listener.attached();
+			SceneGraphElementLifecycleListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].attached();
 			}
+			listeners.end();
 			attachedSignal.dispatch();
 		}
 
 		void activated() {
 			SceneElement.this.activated();
-			for (SceneGraphElementLifecycleListener listener : listeners) {
-				listener.activated();
+			SceneGraphElementLifecycleListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].activated();
 			}
+			listeners.end();
 			activatedSignal.dispatch();
 		}
 
 		void deactivated() {
 			SceneElement.this.deactivated();
-			for (SceneGraphElementLifecycleListener listener : listeners) {
-				listener.deactivated();
+			SceneGraphElementLifecycleListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].deactivated();
 			}
+			listeners.end();
 			deactivatedSignal.dispatch();
 		}
 
 		void detached() {
 			SceneElement.this.detached();
-			for (SceneGraphElementLifecycleListener listener : listeners) {
-				listener.detached();
+			SceneGraphElementLifecycleListener[] items = listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				items[i].detached();
 			}
+			listeners.end();
 			detachedSignal.dispatch();
 		}
 	}

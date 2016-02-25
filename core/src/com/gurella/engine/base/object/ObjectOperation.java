@@ -9,18 +9,27 @@ class ObjectOperation implements Poolable {
 	ManagedObject newParent;
 
 	void execute() {
+		ManagedObjectState state = object.getState();
 		switch (operationType) {
 		case activate:
-			object.activate();
+			if (state == ManagedObjectState.inactive) {
+				object.activate();
+			}
 			break;
 		case deactivate:
-			object.deactivate();
+			if (state == ManagedObjectState.active) {
+				object.deactivate();
+			}
 			break;
 		case reparent:
-			object.setParent(newParent);
+			if (state != ManagedObjectState.disposed) {
+				object.setParent(newParent);
+			}
 			break;
 		case destroy:
-			object.destroy();
+			if (state != ManagedObjectState.disposed) {
+				object.destroy();
+			}
 			break;
 		default:
 			throw new IllegalArgumentException();

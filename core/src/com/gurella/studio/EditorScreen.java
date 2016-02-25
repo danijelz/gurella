@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Listener1Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.studio.inspector.InspectorContainer;
 import com.gurella.studio.nodes.SceneNodesContainer;
 import com.gurella.studio.project.ProjectFooterContainer;
@@ -107,7 +107,7 @@ public class EditorScreen extends ScreenAdapter {
 		Gdx.input.setInputProcessor(stage);
 	}
 
-	public static class PresentProjectEvent extends Listener1Event<Project> {
+	public static class PresentProjectEvent extends Event1<Project> {
 		public PresentProjectEvent(Project value) {
 			super(value);
 		}

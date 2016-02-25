@@ -1,18 +1,11 @@
 package com.gurella.engine.event;
 
-public abstract class Signal0<LISTENER> extends AbstractSignal<LISTENER> {
+public class Signal0 extends Signal<Listener0> {
 	public void dispatch() {
-		for (LISTENER listener : listeners) {
-			dispatch(listener);
+		Listener0[] items = listeners.begin();
+		for (int i = 0, n = listeners.size; i < n; i++) {
+			items[i].handle();
 		}
-	}
-
-	protected abstract void dispatch(LISTENER listener);
-	
-	public static class Signal0Impl extends Signal0<Listener0> {
-		@Override
-		protected void dispatch(Listener0 listener) {
-			listener.handle();
-		}
+		listeners.end();
 	}
 }

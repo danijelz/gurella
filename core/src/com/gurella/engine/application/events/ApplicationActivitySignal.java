@@ -1,8 +1,8 @@
 package com.gurella.engine.application.events;
 
-import com.gurella.engine.event.AbstractSignal;
+import com.gurella.engine.event.Signal;
 
-public class ApplicationActivitySignal extends AbstractSignal<ApplicationActivitySignal.ApplicationActivityListener> {
+public class ApplicationActivitySignal extends Signal<ApplicationActivitySignal.ApplicationActivityListener> {
 	public void onPause() {
 		ApplicationActivityListener[] items = listeners.begin();
 		for (int i = 0, n = listeners.size; i < n; i++) {
