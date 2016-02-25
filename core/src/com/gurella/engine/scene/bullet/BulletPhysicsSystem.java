@@ -1,8 +1,5 @@
 package com.gurella.engine.scene.bullet;
 
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onPhysicsSimulationEnd;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onPhysicsSimulationStart;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;

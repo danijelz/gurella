@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.event.EventCallbackIdentifier;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
@@ -20,7 +19,6 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.behaviour.BehaviourEvents;
 
 public class ScriptManager extends SceneSystem implements SceneListener {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
@@ -110,28 +108,28 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private static void addNodeListenerMethod(int methodId, BehaviourComponent behaviourComponent) {
-		if (methodId == BehaviourEvents.nodeComponentAdded.id) {
+		if (methodId == /*BehaviourEvents.nodeComponentAdded.id*/1) {
 			NodeComponentAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeComponentAdded.id) {
+		} else if (methodId == 2) {
 			NodeComponentAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeComponentRemoved.id) {
+		} else if (methodId == 3) {
 			NodeComponentRemovedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeComponentActivated.id) {
+		} else if (methodId == 4) {
 			NodeComponentActivatedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeComponentDeactivated.id) {
+		} else if (methodId == 5) {
 			NodeComponentDeactivatedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeParentChanged.id) {
+		} else if (methodId == 6) {
 			NodeParentChangedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeChildAdded.id) {
+		} else if (methodId == 7) {
 			NodeChildAddedListener.obtain(behaviourComponent);
 			return;
-		} else if (methodId == BehaviourEvents.nodeChildRemoved.id) {
+		} else if (methodId == 8) {
 			NodeChildRemovedListener.obtain(behaviourComponent);
 			return;
 		}
@@ -149,10 +147,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 				getNodeScriptsByMethod(nodeId, methodId).remove(behaviourComponent);
 			}
 		}
-	}
-
-	public OrderedSet<BehaviourComponent> getScriptsByMethod(EventCallbackIdentifier method) {
-		return getScriptsByMethod(method.id);
 	}
 
 	public OrderedSet<BehaviourComponent> getScriptsByMethod(int methodId) {
@@ -194,10 +188,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 			Class<?> tempClass = scriptComponentClass;
 			while (tempClass != BehaviourComponent.class) {
 				for (Method method : ClassReflection.getDeclaredMethods(tempClass)) {
-					EventCallbackIdentifier scriptMethod = null;
-					if (scriptMethod != null) {
-						methods.add(scriptMethod.id);
-					}
 				}
 
 				tempClass = tempClass.getSuperclass();
@@ -213,7 +203,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onInput)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onInput();
 			}
 		}
@@ -227,7 +217,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onThink)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onThink();
 			}
 		}
@@ -241,7 +231,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onPreRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onPreRender();
 			}
 		}
@@ -255,7 +245,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onRender();
 			}
 		}
@@ -269,7 +259,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onDebugRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onDebugRender();
 			}
 		}
@@ -283,7 +273,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onAfterRender)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onAfterRender();
 			}
 		}
@@ -297,7 +287,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 		@Override
 		public void update() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onCleanup)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onCleanup();
 			}
 		}
@@ -307,11 +297,11 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentActivated)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.componentActivated(node, component);
 			}
 
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.nodeComponentActivated)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.nodeComponentActivated(component);
 			}
 		}
@@ -319,7 +309,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		@Override
 		public void componentDeactivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentDeactivated)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.componentDeactivated(node, component);
 			}
 		}
@@ -327,7 +317,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		@Override
 		public void componentAdded(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentAdded)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.componentAdded(node, component);
 			}
 		}
@@ -335,7 +325,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		@Override
 		public void componentRemoved(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.componentRemoved)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.componentRemoved(node, component);
 			}
 		}
@@ -344,7 +334,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class SceneStartListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onSceneStart)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onSceneStart();
 			}
 		}
@@ -353,7 +343,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class SceneStopListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onSceneStop)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onSceneStop();
 			}
 		}
@@ -362,7 +352,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class PauseListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onPause)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onPause();
 			}
 		}
@@ -371,7 +361,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	private class ResumeListener implements Listener0 {
 		@Override
 		public void handle() {
-			for (BehaviourComponent behaviourComponent : getScriptComponents(BehaviourEvents.onResume)) {
+			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
 				behaviourComponent.onPause();
 			}
 		}

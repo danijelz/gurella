@@ -1,12 +1,5 @@
 package com.gurella.engine.scene.input;
 
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.mouseMoved;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onMouseOverEnd;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onMouseOverEndGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onMouseOverMove;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onMouseOverMoveGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onMouseOverStartGlobal;
-
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;

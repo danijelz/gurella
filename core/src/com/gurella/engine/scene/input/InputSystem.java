@@ -1,17 +1,5 @@
 package com.gurella.engine.scene.input;
 
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.keyDown;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.keyTyped;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.keyUp;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onScrolledGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onTouchDown;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onTouchDownGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onTouchUp;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onTouchUpGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.scrolled;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.touchDown;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.touchDragged;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.touchUp;
 import static com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase.begin;
 import static com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase.end;
 import static com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase.move;
@@ -31,7 +19,6 @@ import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
 import com.gurella.engine.application.events.CommonUpdatePriority;
-import com.gurella.engine.event.EventCallbackIdentifier;
 import com.gurella.engine.event.Signal;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;

@@ -4,7 +4,6 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.behaviour.BehaviourEvents;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.utils.IntLongMap;
 

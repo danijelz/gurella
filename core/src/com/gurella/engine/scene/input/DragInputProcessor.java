@@ -1,18 +1,5 @@
 package com.gurella.engine.scene.input;
 
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragEnd;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragEndGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragMove;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragMoveGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragOverEnd;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragOverEndGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragOverMove;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragOverMoveGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragOverStartGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragStart;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onDragStartGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.touchDragged;
-
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;

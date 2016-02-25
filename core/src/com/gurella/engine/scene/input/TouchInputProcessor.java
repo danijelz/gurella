@@ -1,12 +1,5 @@
 package com.gurella.engine.scene.input;
 
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.longPress;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onLongPress;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onLongPressGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onTap;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.onTapGlobal;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.tap;
-
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;

@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.application.SceneTransition;
-import com.gurella.engine.event.EventSubscriptionCallback;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.scene.SceneElement;
@@ -69,303 +68,244 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// UPDATE EVENTS
-	@EventSubscriptionCallback(marker = true)
 	public void onInput() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onThink() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onPreRender() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onRender() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onDebugRender() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onAfterRender() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onCleanup() {
 	}
 
 	// INPUT EVENTS
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onTouchDown(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onTouchUp(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onTap(IntersectionTouchEvent touchEvent, int count) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDragOverStart(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDragOverMove(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDragOverEnd(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDragStart(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDragMove(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDragEnd(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onLongPress(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onDoubleTouch(IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onScrolled(int screenX, int screenY, int amount, Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onMouseOverStart(int screenX, int screenY, Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onMouseOverEnd(int screenX, int screenY) {
 	}
 
 	// NODE DRAG AND DROP
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public DragSource getDragSource(DragStartCondition dragStartCondition) {
 		return null;
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public DropTarget getDropTarget(Array<DragSource> dragSources) {
 		return null;
 	}
 
 	// RESOLVED GLOBAL INPUT
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onTouchDownGlobal", marker = true)
 	public void onTouchDown(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onTouchUpGlobal", marker = true)
 	public void onTouchUp(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onTapGlobal", marker = true)
 	public void onTap(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent, int count) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDragOverStartGlobal", marker = true)
 	public void onDragOverStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDragOverMoveGlobal", marker = true)
 	public void onDragOverMove(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDragOverEndGlobal", marker = true)
 	public void onDragOverEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDragStartGlobal", marker = true)
 	public void onDragStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDragMoveGlobal", marker = true)
 	public void onDragMove(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDragEndGlobal", marker = true)
 	public void onDragEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onLongPressGlobal", marker = true)
 	public void onLongPress(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onDoubleTouchGlobal", marker = true)
 	public void onDoubleTouch(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onScrolledGlobal", marker = true)
 	public void onScrolled(RenderableComponent renderableComponent, int screenX, int screenY, int amount,
 			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onMouseOverStartGlobal", marker = true)
 	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onMouseOverMoveGlobal", marker = true)
 	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onMouseOverEndGlobal", marker = true)
 	public void onMouseOverEnd(RenderableComponent renderableComponent, int screenX, int screenY) {
 	}
 
 	// //GLOBAL INPUT
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void keyDown(int keycode) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void keyUp(int keycode) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void keyTyped(char character) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void touchDown(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void doubleTouchDown(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void touchUp(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void touchDragged(TouchEvent touchEvent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void mouseMoved(int screenX, int screenY) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void scrolled(int screenX, int screenY, int amount) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void tap(TouchEvent touchEvent, int count) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void longPress(TouchEvent touchEvent) {
 	}
 
 	// BULLET PHYSICS EVENTS
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onCollisionEnter(Collision collision) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onCollisionStay(Collision collision) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent) {
 	}
 
 	// GLOBAL BULLET PHYSICS EVENTS
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onCollisionEnterGlobal", marker = true)
 	public void onCollisionEnter(CollisionPair collision) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onCollisionStayGlobal", marker = true)
 	public void onCollisionStay(CollisionPair collision) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(id = "onCollisionExitGlobal", marker = true)
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent1,
 			BulletPhysicsRigidBodyComponent rigidBodyComponent2) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onPhysicsSimulationStart(btDynamicsWorld dynamicsWorld) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onPhysicsSimulationStep(btDynamicsWorld dynamicsWorld, float timeStep) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onPhysicsSimulationEnd(btDynamicsWorld dynamicsWorld) {
 	}
 
@@ -402,92 +342,74 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentAdded(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentRemoved(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentActivated(SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeComponentDeactivated(SceneNodeComponent component) {
 	}
 
 	// TODO triggers
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeParentChanged(SceneNode newParent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeChildAdded(SceneNode child) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void nodeChildRemoved(SceneNode child) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void componentAdded(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void componentActivated(SceneNode node, SceneNodeComponent component) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void componentDeactivated(SceneNode node, SceneNodeComponent component) {
 	}
 
 	// TODO triggers
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void parentChanged(SceneNode node, SceneNode newParent) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void childAdded(SceneNode node, SceneNode child) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void childRemoved(SceneNode node, SceneNode child) {
 	}
 
 	// SCENE EVENTS
-	@EventSubscriptionCallback(marker = true)
 	public void onSceneStart() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onSceneStop() {
 	}
 
 	// APPLICATION EVENTS
-	@EventSubscriptionCallback(marker = true)
 	public void onPause() {
 	}
 
-	@EventSubscriptionCallback(marker = true)
 	public void onResume() {
 	}
 
@@ -498,7 +420,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// TODO
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onResize(int width, int height) {
 	}
 
@@ -512,18 +433,15 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// TODO tag events
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onNodeTagged(SceneNode node, Tag tag) {
 	}
 
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onNodeUntagged(SceneNode node, Tag tag) {
 	}
 
 	// TODO layer events
 	@SuppressWarnings("unused")
-	@EventSubscriptionCallback(marker = true)
 	public void onNodeLayerChanged(SceneNode node, Layer oldLayer, Layer newLayer) {
 	}
 
@@ -673,10 +591,10 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
 	}
-	
+
 	public void registerListener(Object listener) {
 	}
-	
+
 	public void unregisterListener(Object listener) {
 	}
 

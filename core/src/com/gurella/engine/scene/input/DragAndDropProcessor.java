@@ -1,8 +1,5 @@
 package com.gurella.engine.scene.input;
 
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.getDragSource;
-import static com.gurella.engine.scene.behaviour.BehaviourEvents.getDropTarget;
-
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.scene.SceneNode;
