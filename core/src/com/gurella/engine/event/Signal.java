@@ -6,21 +6,17 @@ import com.badlogic.gdx.utils.SnapshotArray;
 
 public abstract class Signal<LISTENER> {
 	protected SnapshotArray<LISTENER> listeners = new SnapshotArray<LISTENER>();
+	protected Comparator<LISTENER> comparator;
 
 	public boolean addListener(LISTENER listener) {
 		if (listener == null || listeners.contains(listener, true)) {
 			return false;
 		} else {
 			listeners.add(listener);
-			sort();
+			if (comparator != null) {
+				listeners.sort(comparator);
+			}
 			return true;
-		}
-	}
-
-	private void sort() {
-		Comparator<LISTENER> comparator = getComparator();
-		if (comparator != null) {
-			listeners.sort(comparator);
 		}
 	}
 
@@ -30,9 +26,5 @@ public abstract class Signal<LISTENER> {
 
 	public void clear() {
 		listeners.clear();
-	}
-
-	protected Comparator<LISTENER> getComparator() {
-		return null;
 	}
 }
