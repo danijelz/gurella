@@ -1,8 +1,5 @@
 package com.gurella.engine.scene.event;
 
-import static com.gurella.engine.event.EventSubscriptions.getPriority;
-import static com.gurella.engine.event.EventSubscriptions.getSubscriptions;
-
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.IntMap;
@@ -30,8 +27,11 @@ public class EventManager {
 			ArrayExt<Object> subscribers = findSubscribers(subscription);
 			subscribers.add(listener);
 			// TODO subscribers.sort(comparator);
-			// TODO trigger
 		}
+	}
+
+	private ObjectSet<Class<?>> getSubscriptions(Class<? extends Object> class1) {
+		return null;
 	}
 
 	public void register(SceneElement element, Object listener) {
@@ -52,7 +52,6 @@ public class EventManager {
 			ArrayExt<Object> listenersByElement = findSubscribers(elementId, subscription);
 			listenersByElement.add(listener);
 			// TODO listenersByElement.sort(comparator);
-			// TODO trigger
 		}
 	}
 
@@ -183,6 +182,11 @@ public class EventManager {
 		@Override
 		public int compare(Object o1, Object o2) {
 			return Values.compare(getPriority(o1.getClass(), callbackId), getPriority(o2.getClass(), callbackId));
+		}
+
+		private int getPriority(Class<? extends Object> class1, int callbackId2) {
+			// TODO Auto-generated method stub
+			return 0;
 		}
 	}
 }

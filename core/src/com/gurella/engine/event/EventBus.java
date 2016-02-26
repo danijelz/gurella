@@ -1,6 +1,6 @@
 package com.gurella.engine.event;
 
-import static com.gurella.engine.event.EventSubscriptions.getSubscriptions;
+import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 
 import java.util.Comparator;
 
@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Prioritized;
 import com.gurella.engine.utils.Values;
 
@@ -58,22 +59,25 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public void registerSubscriptions(Object listener) {
-		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+	public void subscribe(Object subscriber) {
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;
 		}
 
-		for (Class<?> subscription : subscriptions) {
+		SubscriberComparator comparator = PoolService.obtain(SubscriberComparator.class);
+		for (Class<? extends EventSubscription> subscription : subscriptions) {
 			Array<Object> subscribers = findSubscribers(subscription);
 			synchronized (subscribers) {
-				subscribers.add(listener);
-				// TODO subscribers.sort(comparator);
+				subscribers.add(subscriber);
+				comparator.subscription = subscription;
+				subscribers.sort(comparator);
 			}
 		}
+		PoolService.free(comparator);
 	}
 
-	private Array<Object> findSubscribers(Class<?> subscription) {
+	private Array<Object> findSubscribers(Class<? extends EventSubscription> subscription) {
 		synchronized (subscribers) {
 			Array<Object> listeners = subscribers.get(subscription);
 			if (listeners == null) {
@@ -109,18 +113,18 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public void unregisterSubscriptions(Object listener) {
-		ObjectSet<Class<?>> subscriptions = getSubscriptions(listener.getClass());
+	public void unsubscribe(Object subscriber) {
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;
 		}
 
-		for (Class<?> subscription : subscriptions) {
+		for (Class<? extends EventSubscription> subscription : subscriptions) {
 			synchronized (subscribers) {
 				Array<Object> listeners = subscribers.get(subscription);
 				if (listeners != null) {
 					synchronized (listeners) {
-						listeners.removeValue(listener, true);
+						listeners.removeValue(subscriber, true);
 						if (listeners.size == 0) {
 							subscribers.remove(subscription);
 						}
@@ -236,11 +240,27 @@ public class EventBus implements Poolable {
 			}
 		}
 	}
+	
+	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType, Array<? super L> out) {
+		@SuppressWarnings("unchecked")
+		Array<Object> casted = (Array<Object>) out;
+		synchronized (subscribers) {
+			Array<Object> subscribersByType = subscribers.get(subscriptionType);
+			if (subscribersByType != null) {
+				casted.addAll(subscribersByType);
+			}
+		}
+		return out;
+	}
 
 	public boolean isEmpty() {
-		synchronized (eventPool) {
-			//TODO
-			return listeners.size == 0 && subscribers.size == 0;
+		while (true) {
+			synchronized (eventPool) {
+				if (!processing) {
+					return listeners.size == 0 && subscribers.size == 0;
+				}
+			}
+			ThreadUtils.yield();
 		}
 	}
 
@@ -259,12 +279,14 @@ public class EventBus implements Poolable {
 
 	private void resetInternal() {
 		listeners.clear();
+		subscribers.clear();
 		eventPool.clear();
 		processing = false;
 	}
 
 	private static class ListenersComparator implements Comparator<Object> {
-		private static ListenersComparator instance = new ListenersComparator();
+		// TODO
+		private static final ListenersComparator instance = new ListenersComparator();
 
 		@Override
 		public int compare(Object o1, Object o2) {
@@ -277,6 +299,16 @@ public class EventBus implements Poolable {
 			} else {
 				return Integer.MAX_VALUE;
 			}
+		}
+	}
+
+	private static class SubscriberComparator implements Comparator<Object> {
+		Class<? extends EventSubscription> subscription;
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			return Values.compare(Subscriptions.getPriority(o1.getClass(), subscription),
+					Subscriptions.getPriority(o2.getClass(), subscription));
 		}
 	}
 }

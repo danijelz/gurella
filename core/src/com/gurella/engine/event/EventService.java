@@ -32,12 +32,25 @@ public class EventService {
 		globalEventBus.notify(eventType);
 	}
 
-	public <L> Array<? super L> getListeners(Class<? extends Event<L>> eventType, Array<? super L> out) {
+	public static void subscribe(Object subscriber) {
+		globalEventBus.subscribe(subscriber);
+	}
+
+	public static void unsubscribe(Object subscriber) {
+		globalEventBus.unsubscribe(subscriber);
+	}
+
+	public static <L> Array<? super L> getListeners(Class<? extends Event<L>> eventType, Array<? super L> out) {
 		return globalEventBus.getListeners(eventType, out);
 	}
 
-	public <T> Array<Listener1<? super T>> getListeners(T eventType, Array<Listener1<? super T>> out) {
+	public static <T> Array<Listener1<? super T>> getListeners(T eventType, Array<Listener1<? super T>> out) {
 		return globalEventBus.getListeners(eventType, out);
+	}
+
+	public static <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
+			Array<? super L> out) {
+		return globalEventBus.getSubscribers(subscriptionType, out);
 	}
 
 	public static <L> void addListener(int channel, Class<? extends Event<L>> eventType, L listener) {
@@ -101,7 +114,16 @@ public class EventService {
 		}
 	}
 
-	public <L> Array<? super L> getListeners(int channel, Class<? extends Event<L>> eventType, Array<? super L> out) {
+	public static void subscribe(int channel, Object subscriber) {
+		getEventBusBySource(channel).subscribe(subscriber);
+	}
+
+	public static void unsubscribe(int channel, Object subscriber) {
+		getEventBusBySource(channel).unsubscribe(subscriber);
+	}
+
+	public static <L> Array<? super L> getListeners(int channel, Class<? extends Event<L>> eventType,
+			Array<? super L> out) {
 		synchronized (eventBuses) {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
@@ -111,11 +133,23 @@ public class EventService {
 		return out;
 	}
 
-	public <T> Array<Listener1<? super T>> getListeners(int channel, T eventType, Array<Listener1<? super T>> out) {
+	public static <T> Array<Listener1<? super T>> getListeners(int channel, T eventType,
+			Array<Listener1<? super T>> out) {
 		synchronized (eventBuses) {
 			EventBus eventBus = eventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.getListeners(eventType, out);
+			}
+		}
+		return out;
+	}
+
+	public static <L extends EventSubscription> Array<? super L> getSubscribers(int channel, Class<L> subscriptionType,
+			Array<? super L> out) {
+		synchronized (eventBuses) {
+			EventBus eventBus = eventBuses.get(channel);
+			if (eventBus != null) {
+				eventBus.getSubscribers(subscriptionType, out);
 			}
 		}
 		return out;

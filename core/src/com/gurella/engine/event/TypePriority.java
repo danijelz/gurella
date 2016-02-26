@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.TYPE })
-public @interface SubscriptionPriority {
-	Class<? extends EventSubscription> type();
+public @interface TypePriority {
+	Class<?> type();
 
 	int priority();
 }
