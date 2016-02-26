@@ -31,7 +31,8 @@ class InputMapper implements InputProcessor {
 	}
 
 	private void handleButton(ButtonTrigger buttonTrigger) {
-		for (InputContext inputContext : activeContexts) {
+		for (int i = 0; i < activeContexts.size; i++) {
+			InputContext inputContext = activeContexts.get(i);
 			if (inputContext.handleButton(buttonTrigger)) {
 				return;
 			}
@@ -51,7 +52,8 @@ class InputMapper implements InputProcessor {
 
 	@Override
 	public boolean keyTyped(char character) {
-		for (InputContext inputContext : activeContexts) {
+		for (int i = 0; i < activeContexts.size; i++) {
+			InputContext inputContext = activeContexts.get(i);
 			if (inputContext.handleKeyTyped(character)) {
 				return false;
 			}
@@ -106,7 +108,8 @@ class InputMapper implements InputProcessor {
 	}
 
 	private void handleDragged(int delta, DragTrigger dragTrigger) {
-		for (InputContext inputContext : activeContexts) {
+		for (int i = 0; i < activeContexts.size; i++) {
+			InputContext inputContext = activeContexts.get(i);
 			if (inputContext.handleTouchMoved(dragTrigger, delta)) {
 				return;
 			}
@@ -120,7 +123,8 @@ class InputMapper implements InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		for (InputContext inputContext : activeContexts) {
+		for (int i = 0; i < activeContexts.size; i++) {
+			InputContext inputContext = activeContexts.get(i);
 			if (inputContext.handleScroll(amount)) {
 				return false;
 			}

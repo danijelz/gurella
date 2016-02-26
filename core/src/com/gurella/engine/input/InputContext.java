@@ -246,6 +246,7 @@ public class InputContext implements Comparable<InputContext> {
 			Listener1<Integer> defaultActionListener = getDefaultActionListener(buttonTrigger);
 			if (defaultActionListener != null) {
 				defaultActionListener.handle(Integer.valueOf(buttonTrigger.getButton()));
+				handled = true;
 			}
 		}
 
@@ -260,6 +261,7 @@ public class InputContext implements Comparable<InputContext> {
 			Listener2<ButtonState, Integer> defaultStateListener = getDefaultStateListener(buttonTrigger);
 			if (defaultStateListener != null) {
 				defaultStateListener.handle(buttonState, Integer.valueOf(buttonTrigger.getButton()));
+				handled = true;
 			}
 		}
 

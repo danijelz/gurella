@@ -8,6 +8,7 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
@@ -106,7 +107,11 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void activated() {
-		//EventService.getSubscribers(ObjectsActivityListener.class, out);
+		Array<ObjectsActivityListener> listeners = new Array<ObjectsActivityListener>();
+		EventService.getSubscribers(ObjectsActivityListener.class, listeners);
+		for(int i = 0; i < listeners.size; i++) {
+			listeners.get(i).objectActivated(this);
+		}
 		// TODO Auto-generated method stub
 	}
 
