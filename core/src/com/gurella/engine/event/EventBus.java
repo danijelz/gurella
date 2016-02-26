@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.Prioritized;
 import com.gurella.engine.utils.Values;
 
 public class EventBus implements Poolable {
@@ -29,17 +28,19 @@ public class EventBus implements Poolable {
 		return addListenerInternal(eventType, listener);
 	}
 
-	private boolean addListenerInternal(Object eventType, Object listener) {
-		final Array<Object> listenersByType = listenersByType(eventType);
+	private boolean addListenerInternal(Object event, Object listener) {
+		final Array<Object> listenersByType = listenersByType(event);
 
 		synchronized (listenersByType) {
 			if (listenersByType.contains(listener, true)) {
 				return false;
 			} else {
 				listenersByType.add(listener);
-				if (listener instanceof Prioritized) {
-					listenersByType.sort(ListenersComparator.instance);
-				}
+				Class<?> eventType = event.getClass();
+				Listeners.initListenerPriotiy(eventType, listener.getClass());
+				ListenersComparator comparator = PoolService.obtain(ListenersComparator.class);
+				comparator.eventType = eventType;
+				PoolService.free(comparator);
 				return true;
 			}
 		}
@@ -240,8 +241,9 @@ public class EventBus implements Poolable {
 			}
 		}
 	}
-	
-	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType, Array<? super L> out) {
+
+	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
+			Array<? super L> out) {
 		@SuppressWarnings("unchecked")
 		Array<Object> casted = (Array<Object>) out;
 		synchronized (subscribers) {
@@ -284,31 +286,33 @@ public class EventBus implements Poolable {
 		processing = false;
 	}
 
-	private static class ListenersComparator implements Comparator<Object> {
-		// TODO
-		private static final ListenersComparator instance = new ListenersComparator();
+	private static class ListenersComparator implements Comparator<Object>, Poolable {
+		Class<?> eventType;
 
 		@Override
 		public int compare(Object o1, Object o2) {
-			return Values.compare(getPriority(o1), getPriority(o2));
+			return Values.compare(Listeners.getPriority(eventType, o1.getClass()),
+					Listeners.getPriority(eventType, o2.getClass()));
 		}
 
-		private static int getPriority(Object o) {
-			if (o instanceof Prioritized) {
-				return ((Prioritized) o).getPriority();
-			} else {
-				return Integer.MAX_VALUE;
-			}
+		@Override
+		public void reset() {
+			eventType = null;
 		}
 	}
 
-	private static class SubscriberComparator implements Comparator<Object> {
+	private static class SubscriberComparator implements Comparator<Object>, Poolable {
 		Class<? extends EventSubscription> subscription;
 
 		@Override
 		public int compare(Object o1, Object o2) {
 			return Values.compare(Subscriptions.getPriority(o1.getClass(), subscription),
 					Subscriptions.getPriority(o2.getClass(), subscription));
+		}
+
+		@Override
+		public void reset() {
+			subscription = null;
 		}
 	}
 }
