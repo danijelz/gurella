@@ -81,11 +81,13 @@ public class EventService {
 	}
 
 	public static <L> void notify(int channel, final Event<L> event) {
+		EventBus eventBus;
 		synchronized (eventBuses) {
-			EventBus eventBus = eventBuses.get(channel);
-			if (eventBus != null) {
-				eventBus.notify(event);
-			}
+			eventBus = eventBuses.get(channel);
+		}
+
+		if (eventBus != null) {
+			eventBus.notify(event);
 		}
 	}
 
@@ -106,11 +108,13 @@ public class EventService {
 	}
 
 	public static <T> void notify(int channel, T eventType) {
+		EventBus eventBus;
 		synchronized (eventBuses) {
-			EventBus eventBus = eventBuses.get(channel);
-			if (eventBus != null) {
-				eventBus.notify(eventType);
-			}
+			eventBus = eventBuses.get(channel);
+		}
+
+		if (eventBus != null) {
+			eventBus.notify(eventType);
 		}
 	}
 

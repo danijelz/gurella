@@ -7,14 +7,14 @@ import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.scene.BaseSceneElementType;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
-@BaseSceneElementType
+@BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent {
 	//TODO LayerComponent ??
 	public Layer layer = Layer.DEFAULT;

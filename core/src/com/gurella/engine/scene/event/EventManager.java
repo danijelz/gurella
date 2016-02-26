@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.event.SubscriptionEvent;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.ArrayExt;

@@ -9,7 +9,7 @@ import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.scene.BaseSceneElementType;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.layer.Layer;
@@ -18,7 +18,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-@BaseSceneElementType
+@BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent
 		implements Comparable<CameraComponent<?>> {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);

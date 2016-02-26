@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.scene.BaseSceneElementType;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -19,7 +19,7 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 //TODO attach listeners
-@BaseSceneElementType
+@BaseSceneElement
 public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem implements SceneListener {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();

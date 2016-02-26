@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.TYPE })
-public @interface BaseSceneElementType {
+public @interface BaseSceneElement {
 }

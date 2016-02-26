@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
@@ -105,6 +106,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void activated() {
+		//EventService.getSubscribers(ObjectsActivityListener.class, out);
 		// TODO Auto-generated method stub
 	}
 

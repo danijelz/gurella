@@ -1,10 +1,10 @@
 package com.gurella.engine.scene.ui;
 
-import com.gurella.engine.scene.BaseSceneElementType;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.layer.Layer;
 
-@BaseSceneElementType
+@BaseSceneElement
 public class UiComponent extends BehaviourComponent {
 	public Layer layer;
 	public int x;

@@ -44,7 +44,7 @@ public abstract class SceneSystem extends SceneElement {
 	private static Class<? extends SceneSystem> findBaseSystemType(Class<? extends SceneSystem> systemClass) {
 		Class<?> temp = systemClass;
 		while (temp != null && !SceneSystem.class.equals(systemClass) && !Object.class.equals(systemClass)) {
-			BaseSceneElementType annotation = Reflection.getDeclaredAnnotation(temp, BaseSceneElementType.class);
+			BaseSceneElement annotation = Reflection.getDeclaredAnnotation(temp, BaseSceneElement.class);
 			if (annotation != null) {
 				@SuppressWarnings("unchecked")
 				Class<? extends SceneSystem> casted = (Class<? extends SceneSystem>) temp;

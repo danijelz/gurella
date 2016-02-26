@@ -117,8 +117,8 @@ public class SceneNodeComponent extends SceneElement {
 		int parentBaseComponentType = baseComponentTypes.get(parentComponentType, -1);
 		int baseComponentType;
 		if (parentComponentType == parentBaseComponentType) {
-			BaseSceneElementType annotation = Reflection.getDeclaredAnnotation(parentComponentClass,
-					BaseSceneElementType.class);
+			BaseSceneElement annotation = Reflection.getDeclaredAnnotation(parentComponentClass,
+					BaseSceneElement.class);
 			baseComponentType = annotation == null ? componentType : parentComponentType;
 		} else {
 			baseComponentType = parentComponentType;

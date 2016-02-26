@@ -6,10 +6,10 @@ import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.scene.BaseSceneElementType;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent;
 
-@BaseSceneElementType
+@BaseSceneElement
 public abstract class LightComponent<T extends BaseLight> extends SceneNodeComponent {
 	@TransientProperty
 	T light;
