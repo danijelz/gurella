@@ -8,39 +8,50 @@ import com.badlogic.gdx.utils.ObjectMap;
 class Listeners {
 	private static final ObjectMap<Class<?>, ObjectIntMap<Class<?>>> priorities = new ObjectMap<Class<?>, ObjectIntMap<Class<?>>>();
 
-	static void initListenerPriotiy(Class<?> eventType, Class<?> listenerType) {
+	static int getPriority(Class<?> eventType, Class<?> listenerType) {
 		ObjectIntMap<Class<?>> prioritiesByEvent = priorities.get(eventType);
 		if (prioritiesByEvent == null) {
 			prioritiesByEvent = new ObjectIntMap<Class<?>>();
 		}
 
 		if (prioritiesByEvent.containsKey(listenerType)) {
-			return;
+			return prioritiesByEvent.get(listenerType, 0);
 		}
 
-		TypePriority listenerPriority = findListenerPriority(eventType, listenerType);
-		if (listenerPriority != null) {
-			prioritiesByEvent.put(listenerType, listenerPriority.priority());
-			return;
-		}
-
-		Priority priority = findPriority(listenerType);
-		prioritiesByEvent.put(listenerType, priority == null ? 0 : priority.value());
-	}
-
-	private static TypePriority findListenerPriority(Class<?> eventType, Class<?> listenerType) {
 		Class<?> type = listenerType;
 		while (type != null && type != Object.class) {
+			ObjectIntMap<Class<?>> prioritiesByType = priorities.get(eventType);
+			if (prioritiesByType != null && prioritiesByType.containsKey(listenerType)) {
+				int value = prioritiesByType.get(listenerType, 0);
+				prioritiesByEvent.put(listenerType, value);
+				return value;
+			}
+
 			TypePriorities typePriorities = getAnnotation(listenerType, TypePriorities.class);
 			if (typePriorities != null) {
 				TypePriority listenerPriority = findListenerPriority(typePriorities, eventType);
 				if (listenerPriority != null) {
-					return listenerPriority;
+					int value = listenerPriority.priority();
+					prioritiesByEvent.put(listenerType, value);
+					return value;
 				}
 			}
 			type = type.getSuperclass();
 		}
-		return null;
+
+		type = listenerType;
+		while (type != null && type != Object.class) {
+			Priority priority = getAnnotation(type, Priority.class);
+			if (priority != null) {
+				int value = priority.value();
+				prioritiesByEvent.put(listenerType, value);
+				return value;
+			}
+			type = type.getSuperclass();
+		}
+
+		prioritiesByEvent.put(listenerType, 0);
+		return 0;
 	}
 
 	private static TypePriority findListenerPriority(TypePriorities typePriorities, Class<?> eventType) {
@@ -57,22 +68,5 @@ class Listeners {
 		}
 
 		return null;
-	}
-
-	private static Priority findPriority(Class<?> listenerType) {
-		Class<?> type = listenerType;
-		while (type != null && type != Object.class) {
-			Priority priority = getAnnotation(type, Priority.class);
-			if (priority == null) {
-				return priority;
-			}
-			type = type.getSuperclass();
-		}
-		return null;
-	}
-
-	static int getPriority(Class<?> eventType, Class<?> listenerType) {
-		ObjectIntMap<Class<?>> prioritiesByEvent = priorities.get(eventType);
-		return prioritiesByEvent.get(listenerType, 0);
 	}
 }

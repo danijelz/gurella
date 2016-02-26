@@ -37,7 +37,6 @@ public class EventBus implements Poolable {
 			} else {
 				listenersByType.add(listener);
 				Class<?> eventType = event.getClass();
-				Listeners.initListenerPriotiy(eventType, listener.getClass());
 				ListenersComparator comparator = PoolService.obtain(ListenersComparator.class);
 				comparator.eventType = eventType;
 				PoolService.free(comparator);
