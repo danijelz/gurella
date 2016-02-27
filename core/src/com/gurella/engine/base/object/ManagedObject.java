@@ -74,7 +74,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void activate() {
-		ObjectOperations.activate(this);
+		Objects.activate(this);
 	}
 
 	void handleActivation() {
@@ -90,7 +90,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		attachAll();
 		EventService.subscribe(this);
 		activated();
-		ObjectOperations.notifyActivated(this);
+		Objects.activated(this);
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -109,14 +109,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void deactivate() {
-		ObjectOperations.deactivate(this);
+		Objects.deactivate(this);
 	}
 
 	void handleDeactivation() {
 		state = ManagedObjectState.inactive;
 
 		deactivated();
-		ObjectOperations.notifyDeactivated(this);
+		Objects.deactivated(this);
 		EventService.unsubscribe(this);
 		detachAll();
 
@@ -132,7 +132,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void destroy() {
-		ObjectOperations.destroy(this);
+		Objects.destroy(this);
 	}
 
 	void handleDestruction() {
@@ -174,7 +174,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public void setParent(ManagedObject newParent) {
 		if (isValidNewParent(newParent)) {
-			ObjectOperations.reparent(this, newParent);
+			Objects.reparent(this, newParent);
 		}
 	}
 
@@ -201,6 +201,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		parentChanged(oldParent, newParent);
+		Objects.parentChanged(this, oldParent, newParent);
 	}
 
 	private void updateStateByParent() {
@@ -220,6 +221,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		if (newParent != null && newParent.state == ManagedObjectState.disposed) {
 			throw new GdxRuntimeException("Parent is disposed.");
 		}
+
+		if (newParent == this) {
+			throw new GdxRuntimeException("Invalid parent.");
+		}
 	}
 
 	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
@@ -229,6 +234,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private void addChild(ManagedObject child) {
 		childrenPrivate.add(child);
 		childAdded(child);
+		Objects.childAdded(this, child);
 	}
 
 	protected void childAdded(ManagedObject child) {
@@ -238,6 +244,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private void removeChild(ManagedObject child) {
 		childrenPrivate.removeValue(child, true);
 		childRemoved(child);
+		Objects.childRemoved(this, child);
 	}
 
 	protected void childRemoved(ManagedObject child) {
