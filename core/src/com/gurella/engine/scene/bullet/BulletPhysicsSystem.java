@@ -54,8 +54,7 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 		broadphase = DisposablesService.add(new btDbvtBroadphase());
 		constraintSolver = DisposablesService.add(new btSequentialImpulseConstraintSolver());
 
-		dynamicsWorld = DisposablesService
-				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
+		dynamicsWorld = DisposablesService.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
 		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback(tempListeners));
