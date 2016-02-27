@@ -55,12 +55,12 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 	private IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
 	public final PointerActivitySignal pointerActivitySignal = new PointerActivitySignal();
-	
+
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
-	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(this);
+	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
 	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(this);
-	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(this, dragAndDropProcessor);
+	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(tempListeners, dragAndDropProcessor);
 	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(this,
 			dragAndDropProcessor);
 	private DragInputProcessor dragInputProcessor = new DragInputProcessor(this);
