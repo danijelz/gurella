@@ -1,18 +1,23 @@
 package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.subscriptions.scene.input.GlobalLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectLongPressListener;
 import com.gurella.engine.utils.IntLongMap;
+import com.gurella.engine.utils.Values;
 
 public class TouchInputProcessor implements PointerActivityListener {
 	private float tapSquareSize = 20;
@@ -28,11 +33,11 @@ public class TouchInputProcessor implements PointerActivityListener {
 	private final TouchEvent touchEvent = new TouchEvent();
 	private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
 
-	private InputSystem inputSystem;
+	private Array<Object> tempListeners;
 	private DragAndDropProcessor dragAndDropProcessor;
 
-	public TouchInputProcessor(InputSystem inputSystem, DragAndDropProcessor dragAndDropProcessor) {
-		this.inputSystem = inputSystem;
+	public TouchInputProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
+		this.tempListeners = tempListeners;
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}
 
@@ -109,9 +114,7 @@ public class TouchInputProcessor implements PointerActivityListener {
 				}
 
 				long activityEndTime = pointerTrack.getTime(pointerTrack.getSize() - 1) - lastTapTimes.get(key, -1);
-				int tapCount = activityEndTime > tapCountInterval
-						? 0
-						: tapCounters.get(key, 0);
+				int tapCount = activityEndTime > tapCountInterval ? 0 : tapCounters.get(key, 0);
 				tapCounters.put(key, tapCount + 1);
 				lastTapTimes.put(key, pointerTrack.getTime(pointerTrack.getSize() - 1));
 
@@ -161,8 +164,10 @@ public class TouchInputProcessor implements PointerActivityListener {
 	private void dispatchLongPress(int pointer, int button, PointerTrack pointerTrack) {
 		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(longPress)) {
-			behaviourComponent.longPress(touchEvent);
+		Array<GlobalLongPressListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(GlobalLongPressListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).longPress(touchEvent);
 		}
 
 		SceneNode node = pointerTrack.getCommonNode();
@@ -172,8 +177,11 @@ public class TouchInputProcessor implements PointerActivityListener {
 			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onLongPressGlobal)) {
 				behaviourComponent.onLongPress(renderableComponent, intersectionTouchEvent);
 			}
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, onLongPress)) {
-				behaviourComponent.onLongPress(intersectionTouchEvent);
+
+			Array<ObjectLongPressListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(ObjectLongPressListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onLongPress(intersectionTouchEvent);
 			}
 
 			if (pointer == 0 && button == Buttons.LEFT && pointerTrack.getPhase() != PointerTrackerPhase.end) {

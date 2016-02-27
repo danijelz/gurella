@@ -40,21 +40,23 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO attach listeners
+//TODO attach listeners -> SceneListener
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.INPUT, type = ApplicationUpdateListener.class) })
 public class InputSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
-	private EventManager eventManager;
 	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
 
+	//TODO double queue
 	private InputProcessorDelegate delegate = new InputProcessorDelegate();
 	private InputAdapter dummyDelegate = new InputAdapter();
 	private InputEventQueue inputQueue = new InputEventQueue(delegate);
 
 	private IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
 	public final PointerActivitySignal pointerActivitySignal = new PointerActivitySignal();
+	
+	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(this);
 	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(this);
@@ -73,10 +75,9 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	@Override
 	protected void activated() {
 		Scene scene = getScene();
-		eventManager = scene.eventManager;
 		spatialPartitioningSystem = scene.spatialPartitioningSystem;
 
-		scene.addListener(this);
+		//scene.addListener(this);
 
 		// TODO use componentManager
 		ImmutableArray<SceneNodeComponent> components = scene.activeComponents;
@@ -91,7 +92,6 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	protected void deactivated() {
 		InputService.removeInputProcessor(inputQueue);
 		resetData();
-		eventManager = null;
 		spatialPartitioningSystem = null;
 	}
 
