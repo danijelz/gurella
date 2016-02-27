@@ -11,12 +11,14 @@ import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.GlobalLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.GlobalTapListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionTapListener;
 import com.gurella.engine.subscriptions.scene.input.ObjectLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectTapListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
@@ -145,19 +147,26 @@ public class TouchInputProcessor implements PointerActivityListener {
 		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
 		int tapCount = tapCounters.get(key, 1);
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(tap)) {
-			behaviourComponent.tap(touchEvent, tapCount);
+		Array<GlobalTapListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(GlobalTapListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).tap(touchEvent, tapCount);
 		}
 
 		SceneNode node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onTapGlobal)) {
-				behaviourComponent.onTap(renderableComponent, intersectionTouchEvent, tapCount);
+			Array<IntersectionTapListener> intersectionListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(IntersectionTapListener.class, intersectionListeners);
+			for (int i = 0; i < intersectionListeners.size; i++) {
+				intersectionListeners.get(i).onTap(renderableComponent, intersectionTouchEvent, tapCount);
 			}
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, onTap)) {
-				behaviourComponent.onTap(intersectionTouchEvent, tapCount);
+
+			Array<ObjectTapListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(ObjectTapListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onTap(intersectionTouchEvent, tapCount);
 			}
 		}
 	}
