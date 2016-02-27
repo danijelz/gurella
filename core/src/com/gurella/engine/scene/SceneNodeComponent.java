@@ -150,6 +150,11 @@ public class SceneNodeComponent extends SceneElement {
 	public SceneNode getNode() {
 		return node;
 	}
+	
+
+	public int getNodeId() {
+		return node.id;
+	}
 
 	@Override
 	final void activate() {

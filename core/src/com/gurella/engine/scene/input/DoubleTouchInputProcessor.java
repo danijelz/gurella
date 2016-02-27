@@ -110,7 +110,8 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 			}
 
 			Array<ObjectDoubleTouchDownListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(ObjectDoubleTouchDownListener.class, listeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectDoubleTouchDownListener.class,
+					listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onDoubleTouch(intersectionTouchEvent);
 			}

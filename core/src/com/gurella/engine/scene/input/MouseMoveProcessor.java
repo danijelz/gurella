@@ -36,7 +36,7 @@ public class MouseMoveProcessor {
 				}
 
 				Array<ObjectMouseListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(ObjectMouseListener.class, listeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectMouseListener.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onMouseOverMove(screenX, screenY, intersection);
 				}
@@ -48,7 +48,7 @@ public class MouseMoveProcessor {
 				}
 
 				Array<ObjectMouseListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(ObjectMouseListener.class, listeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectMouseListener.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onMouseOverEnd(screenX, screenY);
 				}
@@ -67,7 +67,7 @@ public class MouseMoveProcessor {
 			}
 
 			Array<ObjectMouseListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(ObjectMouseListener.class, listeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectMouseListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onMouseOverStart(screenX, screenY, intersection);
 			}
