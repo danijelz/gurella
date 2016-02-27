@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.utils.Values;
 
+//TODO unify priorities with EventBus
 public final class Subscriptions {
 	private static final ObjectMap<Class<?>, ObjectSet<Class<? extends EventSubscription>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<? extends EventSubscription>>>();
 	private static final ObjectMap<Class<?>, ObjectIntMap<Class<?>>> priorities = new ObjectMap<Class<?>, ObjectIntMap<Class<?>>>();
@@ -20,6 +21,7 @@ public final class Subscriptions {
 		subscriptions.put(Object.class, new ObjectSet<Class<? extends EventSubscription>>());
 		subscriptions.put(EventSubscription.class, new ObjectSet<Class<? extends EventSubscription>>());
 		priorities.put(Object.class, new ObjectIntMap<Class<?>>());
+		priorities.put(EventSubscription.class, new ObjectIntMap<Class<?>>());
 	}
 
 	private Subscriptions() {

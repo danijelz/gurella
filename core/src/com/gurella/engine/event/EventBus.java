@@ -150,7 +150,26 @@ public class EventBus implements Poolable {
 		}
 
 		listenersByType.clear();
+		processPool();
+	}
 
+	private <L extends EventSubscription> void notifyListeners(final SubscriptionHandler<L> handler) {
+		Class<L> eventType = handler.subscriptionType;
+		Array<L> listenersByType = Values.cast(selectedListeners);
+		synchronized (listeners) {
+			Array<L> temp = Values.cast(listeners.get(eventType));
+			if (temp == null) {
+				return;
+			}
+			listenersByType.addAll(temp);
+		}
+
+		for (int i = 0; i < listenersByType.size; i++) {
+			L listener = listenersByType.get(i);
+			handler.notify(listener);
+		}
+
+		listenersByType.clear();
 		processPool();
 	}
 
@@ -161,7 +180,6 @@ public class EventBus implements Poolable {
 			if (temp == null) {
 				return;
 			}
-
 			listenersByType.addAll(temp);
 		}
 
@@ -169,8 +187,8 @@ public class EventBus implements Poolable {
 			Listener1<T> listener = listenersByType.get(i);
 			listener.handle(eventType);
 		}
-		listenersByType.clear();
 
+		listenersByType.clear();
 		processPool();
 	}
 

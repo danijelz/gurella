@@ -8,7 +8,6 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
@@ -88,8 +87,10 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		state = ManagedObjectState.active;
-		activateValues();
+		attachAll();
+		EventService.subscribe(this);
 		activated();
+		ObjectOperationPool.notifyActivated(this);
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -104,23 +105,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	protected void init() {
 	}
 
-	private void activateValues() {
-		for (Attachment<?> attachment : attachments.values()) {
-			attachment.attach();
-		}
-
-		EventService.subscribe(this);
-
-		Array<ObjectsActivityListener> listeners = new Array<ObjectsActivityListener>();
-		EventService.getSubscribers(ObjectsActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).objectActivated(this);
-		}
-		//TODO notify
-	}
-
 	protected void activated() {
-		// TODO Auto-generated method stub
 	}
 
 	public void deactivate() {
@@ -129,8 +114,11 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	void handleDeactivation() {
 		state = ManagedObjectState.inactive;
-		deactivateValues();
+
 		deactivated();
+		ObjectOperationPool.notifyDeactivated(this);
+		EventService.unsubscribe(this);
+		detachAll();
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -140,16 +128,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	private void deactivateValues() {
-		//TODO notify
-		EventService.unsubscribe(this);
-		for (Attachment<?> attachment : attachments.values()) {
-			attachment.detach();
-		}
-	}
-
 	protected void deactivated() {
-		// TODO Auto-generated method stub
 	}
 
 	public void destroy() {
@@ -274,9 +253,21 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
+	private void attachAll() {
+		for (Attachment<?> attachment : attachments.values()) {
+			attachment.attach();
+		}
+	}
+
 	public void detach(Object value) {
 		Attachment<?> attachment = attachments.remove(value);
 		if (attachment != null && isActive()) {
+			attachment.detach();
+		}
+	}
+
+	private void detachAll() {
+		for (Attachment<?> attachment : attachments.values()) {
 			attachment.detach();
 		}
 	}
