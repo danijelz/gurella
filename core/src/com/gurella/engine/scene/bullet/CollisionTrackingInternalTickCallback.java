@@ -5,27 +5,34 @@ import com.badlogic.gdx.physics.bullet.collision.btManifoldPoint;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.InternalTickCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionListener;
+import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionPairListener;
+import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationStepListener;
+import com.gurella.engine.utils.Values;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
-	Scene scene;
+	private Array<Object> tempListeners;
 
 	private Collision collision0 = new Collision();
 	private Collision collision1 = new Collision();
-	private CollisionPair collisionPair;
+	private CollisionPair collisionPair = new CollisionPair();
 
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 	private ObjectSet<CachedCollisionPair> currentTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 
+	CollisionTrackingInternalTickCallback(Array<Object> tempListeners) {
+		this.tempListeners = tempListeners;
+	}
+
 	@Override
 	public void onInternalTick(btDynamicsWorld dynamicsWorld, float timeStep) {
+		fireSimulationStepEvent(dynamicsWorld, timeStep);
 		updateCurrentCollisions(dynamicsWorld, timeStep);
 		clearPreviousCollisions();
 		swapCollisionPairs();
-		fireSimulationStepEndEvent(dynamicsWorld, timeStep);
 	}
 
 	private void updateCurrentCollisions(btDynamicsWorld dynamicsWorld, float timeStep) {
@@ -65,32 +72,40 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		currentTickCollisionPairs.add(cachedCollisionPair);
 
 		if (previousTickCollisionPairs.contains(cachedCollisionPair)) {
-			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
-					BehaviourEvents.onCollisionStay)) {
-				behaviourComponent.onCollisionStay(collision0);
+			Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(rigidBodyComponent0.getNode().id, BulletCollisionListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onCollisionStay(collision0);
 			}
 
-			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
-					BehaviourEvents.onCollisionStay)) {
-				behaviourComponent.onCollisionStay(collision1);
+			listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(rigidBodyComponent1.getNode().id, BulletCollisionListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onCollisionStay(collision1);
 			}
 
-			for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onCollisionStayGlobal)) {
-				behaviourComponent.onCollisionStay(collisionPair);
+			Array<BulletCollisionPairListener> pairListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(BulletCollisionPairListener.class, pairListeners);
+			for (int i = 0; i < pairListeners.size; i++) {
+				pairListeners.get(i).onCollisionStay(collisionPair);
 			}
 		} else {
-			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
-					BehaviourEvents.onCollisionEnter)) {
-				behaviourComponent.onCollisionEnter(collision0);
+			Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(rigidBodyComponent0.getNode().id, BulletCollisionListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onCollisionEnter(collision0);
 			}
 
-			for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
-					BehaviourEvents.onCollisionEnter)) {
-				behaviourComponent.onCollisionEnter(collision1);
+			listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(rigidBodyComponent1.getNode().id, BulletCollisionListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onCollisionEnter(collision1);
 			}
 
-			for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onCollisionEnterGlobal)) {
-				behaviourComponent.onCollisionEnter(collisionPair);
+			Array<BulletCollisionPairListener> pairListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(BulletCollisionPairListener.class, pairListeners);
+			for (int i = 0; i < pairListeners.size; i++) {
+				pairListeners.get(i).onCollisionEnter(collisionPair);
 			}
 		}
 
@@ -113,24 +128,23 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		BulletPhysicsRigidBodyComponent rigidBodyComponent0 = cachedCollisionPair.rigidBodyComponent0;
 		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
 
-		for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent0,
-				BehaviourEvents.onCollisionExit)) {
-			behaviourComponent.onCollisionExit(rigidBodyComponent1);
+		Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(rigidBodyComponent0.getNode().id, BulletCollisionListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onCollisionExit(rigidBodyComponent1);
 		}
 
-		for (BehaviourComponent behaviourComponent : getNodeScripts(rigidBodyComponent1,
-				BehaviourEvents.onCollisionExit)) {
-			behaviourComponent.onCollisionExit(rigidBodyComponent0);
+		listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(rigidBodyComponent1.getNode().id, BulletCollisionListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onCollisionExit(rigidBodyComponent0);
 		}
 
-		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onCollisionExitGlobal)) {
-			behaviourComponent.onCollisionExit(rigidBodyComponent0, rigidBodyComponent1);
+		Array<BulletCollisionPairListener> pairListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(BulletCollisionPairListener.class, pairListeners);
+		for (int i = 0; i < pairListeners.size; i++) {
+			pairListeners.get(i).onCollisionExit(rigidBodyComponent0, rigidBodyComponent1);
 		}
-	}
-
-	private ImmutableArray<BehaviourComponent> getNodeScripts(BulletPhysicsRigidBodyComponent rigidBodyComponent,
-			EventCallbackIdentifier<BehaviourComponent> scriptMethod) {
-		return scene.eventManager.getListeners(rigidBodyComponent.getNode(), scriptMethod);
 	}
 
 	private void swapCollisionPairs() {
@@ -139,14 +153,12 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		currentTickCollisionPairs = temp;
 	}
 
-	private void fireSimulationStepEndEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
-		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onPhysicsSimulationStep)) {
-			behaviourComponent.onPhysicsSimulationStep(dynamicsWorld, timeStep);
+	private void fireSimulationStepEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
+		Array<BulletSimulationStepListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(BulletSimulationStepListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onPhysicsSimulationStep(dynamicsWorld, timeStep);
 		}
-	}
-
-	private ImmutableArray<BehaviourComponent> getScripts(EventCallbackIdentifier<BehaviourComponent> method) {
-		return scene.eventManager.getListeners(method);
 	}
 
 	void clear() {
@@ -159,6 +171,5 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 			cachedCollisionPair.free();
 		}
 		currentTickCollisionPairs.clear();
-		scene = null;
 	}
 }

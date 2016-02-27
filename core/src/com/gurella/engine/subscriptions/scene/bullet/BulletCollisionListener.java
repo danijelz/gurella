@@ -4,7 +4,7 @@ import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.bullet.Collision;
 
-public interface CollisionListener extends EventSubscription {
+public interface BulletCollisionListener extends EventSubscription {
 	void onCollisionEnter(Collision collision);
 
 	void onCollisionStay(Collision collision);

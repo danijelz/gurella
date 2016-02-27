@@ -19,17 +19,16 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.subscriptions.scene.bullet.PhysicsSimulationTickListener;
+import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-//TODO attach listeners on activate
+//TODO attach listeners on activate -> SceneListener
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.PHYSICS, type = ApplicationUpdateListener.class) })
 public class BulletPhysicsSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	static {
@@ -59,15 +58,13 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
-		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback());
+		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback(tempListeners));
 		tickCallback.attach(dynamicsWorld, false);
 	}
 
 	@Override
 	protected void activated() {
-		Scene scene = getScene();
-		tickCallback.scene = scene;
-		ImmutableArray<SceneNodeComponent> components = scene.activeComponents;
+		ImmutableArray<SceneNodeComponent> components = getScene().activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
@@ -93,16 +90,16 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 	}
 
 	private void dispatchSimulationStartEvent() {
-		Array<PhysicsSimulationTickListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(PhysicsSimulationTickListener.class, listeners);
+		Array<BulletSimulationTickListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(BulletSimulationTickListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
 
 	private void dispatchSimulationEndEvent() {
-		Array<PhysicsSimulationTickListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(PhysicsSimulationTickListener.class, listeners);
+		Array<BulletSimulationTickListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(BulletSimulationTickListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).onPhysicsSimulationEnd(dynamicsWorld);
 		}
