@@ -1,11 +1,16 @@
 package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.subscriptions.scene.input.GlobalDoubleTouchDownListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionDoubleTouchDownListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectDoubleTouchDownListener;
 import com.gurella.engine.utils.IntLongMap;
+import com.gurella.engine.utils.Values;
 
 public class DoubleTouchInputProcessor implements PointerActivityListener {
 	private float tapSquareSize = 20;
@@ -18,11 +23,11 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 	private final TouchEvent touchEvent = new TouchEvent();
 	private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
 
-	private InputSystem inputSystem;
+	private Array<Object> tempListeners;
 	private DragAndDropProcessor dragAndDropProcessor;
 
-	public DoubleTouchInputProcessor(InputSystem inputSystem, DragAndDropProcessor dragAndDropProcessor) {
-		this.inputSystem = inputSystem;
+	public DoubleTouchInputProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
+		this.tempListeners = tempListeners;
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}
 
@@ -53,7 +58,8 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 		if (startTime > 0) {
 			int centerX = startScreenX.remove(key, Integer.MAX_VALUE);
 			int centerY = startScreenY.remove(key, Integer.MAX_VALUE);
-			if (currentTime - startTime <= maxDoubleClickDelay && isWithinTapSquare(screenX, screenY, centerX, centerY)) {
+			if (currentTime - startTime <= maxDoubleClickDelay
+					&& isWithinTapSquare(screenX, screenY, centerX, centerY)) {
 				dispatchDoubleTap(pointer, button, screenX, screenY, pointerTrack);
 				return;
 			}
@@ -87,19 +93,26 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEvents.doubleTouchDown)) {
-			behaviourComponent.doubleTouchDown(touchEvent);
+		Array<GlobalDoubleTouchDownListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(GlobalDoubleTouchDownListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).doubleTouchDown(touchEvent);
 		}
 
 		SceneNode node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(BehaviourEvents.onDoubleTouchGlobal)) {
-				behaviourComponent.onDoubleTouch(renderableComponent, intersectionTouchEvent);
+			Array<IntersectionDoubleTouchDownListener> intersectionListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(IntersectionDoubleTouchDownListener.class, intersectionListeners);
+			for (int i = 0; i < intersectionListeners.size; i++) {
+				intersectionListeners.get(i).onDoubleTouch(renderableComponent, intersectionTouchEvent);
 			}
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, BehaviourEvents.onDoubleTouch)) {
-				behaviourComponent.onDoubleTouch(intersectionTouchEvent);
+
+			Array<ObjectDoubleTouchDownListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(ObjectDoubleTouchDownListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onDoubleTouch(intersectionTouchEvent);
 			}
 
 			if (pointer == 0 && button == Buttons.LEFT) {

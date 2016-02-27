@@ -29,7 +29,6 @@ import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.camera.CameraComponent;
-import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
@@ -61,7 +60,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
 	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(this);
 	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(tempListeners, dragAndDropProcessor);
-	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(this,
+	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(tempListeners,
 			dragAndDropProcessor);
 	private DragInputProcessor dragInputProcessor = new DragInputProcessor(this);
 
