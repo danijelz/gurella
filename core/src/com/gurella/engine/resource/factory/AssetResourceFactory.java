@@ -5,9 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.AssetResourceDescriptor;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.ResourceContext;
@@ -18,7 +16,7 @@ public class AssetResourceFactory<T> implements ResourceFactory<T> {
 	private static final AssetRegistry assetRegistry = DisposablesService.add(new AssetRegistry());
 
 	static {
-		EventService.addListener(ApplicationUpdateEvent.class, assetRegistry);
+		//EventService.addListener(ApplicationUpdateEvent.class, assetRegistry);
 	}
 
 	private AssetDescriptor<T> assetDescriptor;

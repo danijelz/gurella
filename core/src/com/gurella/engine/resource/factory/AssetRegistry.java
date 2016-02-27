@@ -5,8 +5,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 public class AssetRegistry implements ApplicationUpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
@@ -91,7 +91,6 @@ public class AssetRegistry implements ApplicationUpdateListener, Disposable {
 		}
 	}
 
-	@Override
 	public int getPriority() {
 		return CommonUpdatePriority.INPUT;
 	}

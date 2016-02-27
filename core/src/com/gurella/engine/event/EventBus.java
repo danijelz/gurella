@@ -17,7 +17,7 @@ public class EventBus implements Poolable {
 	private final ObjectMap<Object, OrderedSet<?>> listeners = new ObjectMap<Object, OrderedSet<?>>();
 
 	private final Array<Object> eventPool = new Array<Object>();
-	private final Array<Object> selectedListeners = new Array<Object>();
+	private final Array<Object> workingListeners = new Array<Object>();
 
 	private boolean processing;
 
@@ -135,7 +135,7 @@ public class EventBus implements Poolable {
 
 	private <L> void notifyListeners(final Event<L> event) {
 		Class<? extends Event<L>> eventType = Values.cast(event.getClass());
-		Array<L> listenersByType = Values.cast(selectedListeners);
+		Array<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
 			OrderedSet<L> temp = Values.cast(listeners.get(eventType));
 			if (temp == null) {
@@ -155,7 +155,7 @@ public class EventBus implements Poolable {
 
 	private <L extends EventSubscription> void notifyListeners(final SubscriptionHandler<L> handler) {
 		Class<L> eventType = handler.subscriptionType;
-		Array<L> listenersByType = Values.cast(selectedListeners);
+		Array<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
 			OrderedSet<L> temp = Values.cast(listeners.get(eventType));
 			if (temp == null) {
@@ -174,7 +174,7 @@ public class EventBus implements Poolable {
 	}
 
 	private <T> void notifyListeners(T eventType) {
-		Array<Listener1<T>> listenersByType = Values.cast(selectedListeners);
+		Array<Listener1<T>> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
 			OrderedSet<Listener1<T>> temp = Values.cast(listeners.get(eventType));
 			if (temp == null) {

@@ -7,5 +7,4 @@ public interface ObjectsCompositionListener extends EventSubscription {
 	void childAdded(ManagedObject object, ManagedObject child);
 
 	void childRemoved(ManagedObject object, ManagedObject child);
-
 }

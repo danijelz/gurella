@@ -20,7 +20,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	PrefabReference prefab;
 
-	private ManagedObjectState state = ManagedObjectState.idle;
+	ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
 	private final Array<ManagedObject> childrenPrivate = new Array<ManagedObject>();
@@ -178,6 +178,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
+	//TODO throw exception
 	protected boolean isValidNewParent(@SuppressWarnings("unused") ManagedObject newParent) {
 		return true;
 	}
@@ -227,6 +228,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
 		// TODO Auto-generated method stub
 	}
@@ -237,7 +239,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		Objects.childAdded(this, child);
 	}
 
-	protected void childAdded(ManagedObject child) {
+	protected void childAdded(@SuppressWarnings("unused") ManagedObject child) {
 		// TODO Auto-generated method stub
 	}
 
@@ -247,7 +249,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		Objects.childRemoved(this, child);
 	}
 
-	protected void childRemoved(ManagedObject child) {
+	protected void childRemoved(@SuppressWarnings("unused") ManagedObject child) {
 		// TODO Auto-generated method stub
 	}
 

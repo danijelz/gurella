@@ -5,18 +5,21 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 //TODO attach listeners on activate
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
 public class AudioSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	private RemoveOnFinishCompletitionCallback removeOnFinishCompletitionCallback = new RemoveOnFinishCompletitionCallback();
 
@@ -151,11 +154,6 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 		if (audioSourceData != null && audioSourceData.activeAudioTracks.remove(track.getHandle()) != null) {
 			track.free();
 		}
-	}
-
-	@Override
-	public int getPriority() {
-		return CommonUpdatePriority.PRE_RENDER;
 	}
 
 	@Override

@@ -1,13 +1,15 @@
 package com.gurella.engine.state;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.application.events.ApplicationUpdateEvent;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.state.StateTransition.SimpleStateTransition;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.THINK, type = ApplicationUpdateListener.class) })
 public class StateMachine<STATE> extends Signal<StateMachine.StateChangedListener<STATE>>
 		implements ApplicationUpdateListener {
 	private STATE previousState;
@@ -64,7 +66,7 @@ public class StateMachine<STATE> extends Signal<StateMachine.StateChangedListene
 		if (currentTransition.isFinished()) {
 			endTransition();
 		} else {
-			EventService.addListener(ApplicationUpdateEvent.class, this);
+			EventService.subscribe(this);
 		}
 	}
 
@@ -125,13 +127,8 @@ public class StateMachine<STATE> extends Signal<StateMachine.StateChangedListene
 	public void update() {
 		if (currentTransition.isFinished()) {
 			endTransition();
-			EventService.removeListener(ApplicationUpdateEvent.class, this);
+			EventService.unsubscribe(this);
 		}
-	}
-
-	@Override
-	public int getPriority() {
-		return CommonUpdatePriority.THINK;
 	}
 
 	public void addListener(STATE state, StateListener<STATE> listener) {

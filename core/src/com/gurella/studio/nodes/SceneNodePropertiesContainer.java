@@ -180,7 +180,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 			menu.addSeparator();
 			addItem("Test", TestComponnent.class);
 			menu.addSeparator();
-			addItem("Test Input", TestInputComponnent.class);
+			addItem("Test Input", TestInputComponent.class);
 			return menu;
 		}
 

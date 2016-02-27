@@ -7,9 +7,6 @@ import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.application.events.ApplicationUpdateEvent;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
@@ -19,6 +16,8 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 public class ScriptManager extends SceneSystem implements SceneListener {
 	private static IntMap<OverridenScriptMethods> scriptMethods = new IntMap<OverridenScriptMethods>();
@@ -41,13 +40,13 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	@Override
 	protected void attached() {
-		EventService.addListener(ApplicationUpdateEvent.class, onInputUpdateListener);
-		EventService.addListener(ApplicationUpdateEvent.class, onThinkUpdateListener);
-		EventService.addListener(ApplicationUpdateEvent.class, onPreRenderUpdateListener);
-		EventService.addListener(ApplicationUpdateEvent.class, onRenderUpdateListener);
-		EventService.addListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
-		EventService.addListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
-		EventService.addListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onInputUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onThinkUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onPreRenderUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onRenderUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
+//		EventService.addListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
 		//getScene().addListener(scriptSceneListener);
 		getScene().startSignal.addListener(sceneStartListener);
 		getScene().stopSignal.addListener(sceneStopListener);
@@ -57,13 +56,13 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 
 	@Override
 	protected void detached() {
-		EventService.removeListener(ApplicationUpdateEvent.class, onInputUpdateListener);
-		EventService.removeListener(ApplicationUpdateEvent.class, onThinkUpdateListener);
-		EventService.removeListener(ApplicationUpdateEvent.class, onPreRenderUpdateListener);
-		EventService.removeListener(ApplicationUpdateEvent.class, onRenderUpdateListener);
-		EventService.removeListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
-		EventService.removeListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
-		EventService.removeListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onInputUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onThinkUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onPreRenderUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onRenderUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onDebugRenderUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onAfterRenderUpdateListener);
+		//		EventService.removeListener(ApplicationUpdateEvent.class, onCleanupUpdateListener);
 		//getScene().removeListener(scriptSceneListener);
 		getScene().startSignal.removeListener(sceneStartListener);
 		getScene().stopSignal.removeListener(sceneStopListener);
@@ -188,7 +187,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnInputUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.INPUT;
 		}
@@ -202,7 +200,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnThinkUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.THINK;
 		}
@@ -216,7 +213,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnPreRenderUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.PRE_RENDER;
 		}
@@ -230,7 +226,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnRenderUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.RENDER;
 		}
@@ -244,7 +239,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnDebugRenderUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.DEBUG_RENDER;
 		}
@@ -258,7 +252,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnAfterRenderUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.POST_RENDER;
 		}
@@ -272,7 +265,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class OnCleanupUpdateListener implements ApplicationUpdateListener {
-		@Override
 		public int getPriority() {
 			return CommonUpdatePriority.CLEANUP;
 		}
@@ -286,7 +278,6 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 	}
 
 	private class ScriptSceneListener implements SceneListener {
-		@Override
 		public void componentActivated(SceneNodeComponent component) {
 			SceneNode node = component.getNode();
 			for (BehaviourComponent behaviourComponent : getScriptsByMethod(1)) {
@@ -463,8 +454,7 @@ public class ScriptManager extends SceneSystem implements SceneListener {
 		BehaviourComponent behaviourComponent;
 
 		static NodeComponentDeactivatedListener obtain(BehaviourComponent behaviourComponent) {
-			NodeComponentDeactivatedListener listener = PoolService
-					.obtain(NodeComponentDeactivatedListener.class);
+			NodeComponentDeactivatedListener listener = PoolService.obtain(NodeComponentDeactivatedListener.class);
 			listener.behaviourComponent = behaviourComponent;
 			behaviourComponent.getNode().componentDeactivatedSignal.addListener(listener);
 			behaviourComponent.deactivatedSignal.addListener(listener);

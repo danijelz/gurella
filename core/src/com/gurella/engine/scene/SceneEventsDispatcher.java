@@ -1,9 +1,9 @@
 package com.gurella.engine.scene;
 
-import com.gurella.engine.application.events.ApplicationActivitySignal.ApplicationActivityListener;
-import com.gurella.engine.application.events.ApplicationResizeSignal.ApplicationResizeListener;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.event.EventManager;
+import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
+import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 final class SceneEventsDispatcher {
@@ -132,23 +132,23 @@ final class SceneEventsDispatcher {
 		ImmutableArray<ApplicationResizeListener> listeners = eventManager
 				.getListeners(ApplicationResizeListener.class);
 		for (int i = 0; i < listeners.size(); i++) {
-			listeners.get(i).onResize(width, height);
+			listeners.get(i).resize(width, height);
 		}
 	}
 
-	public void pause(int width, int height) {
+	public void pause() {
 		ImmutableArray<ApplicationActivityListener> listeners = eventManager
 				.getListeners(ApplicationActivityListener.class);
 		for (int i = 0; i < listeners.size(); i++) {
-			listeners.get(i).onPause();
+			listeners.get(i).pause();
 		}
 	}
 
-	public void resume(int width, int height) {
+	public void resume() {
 		ImmutableArray<ApplicationActivityListener> listeners = eventManager
 				.getListeners(ApplicationActivityListener.class);
 		for (int i = 0; i < listeners.size(); i++) {
-			listeners.get(i).onResume();
+			listeners.get(i).resume();
 		}
 	}
 

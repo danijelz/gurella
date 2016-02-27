@@ -13,7 +13,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class TestInputComponnent extends BehaviourComponent implements TestEventSubscription {
+public class TestInputComponent extends BehaviourComponent implements TestEventSubscription {
 
 	//////////// INPUT EVENTS
 	@Override
@@ -29,10 +29,11 @@ public class TestInputComponnent extends BehaviourComponent implements TestEvent
 	@Override
 	public void onTap(IntersectionTouchEvent pointerEvent, int count) {
 		System.out.println("onTap");
-		ImmutableArray<TestInputComponnent> listeners = getScene().eventManager.getListeners(getNode(), testCallback);
+		ImmutableArray<TestInputComponent> listeners = getScene().eventManager.getListeners(getNode(),
+				null /*testCallback*/);
 		for (int i = 0; i < listeners.size(); i++) {
-			TestInputComponnent testInputComponnent = listeners.get(i);
-			testInputComponnent.testCallback();
+			TestInputComponent testInputComponent = listeners.get(i);
+			testInputComponent.testCallback();
 		}
 
 		ImmutableArray<TestEventSubscription> subListeners = getScene().eventManager.getListeners(getNode(),

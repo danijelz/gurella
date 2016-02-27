@@ -14,18 +14,21 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.event.EventManager;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners on activate
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.PHYSICS, type = ApplicationUpdateListener.class) })
 public class BulletPhysicsSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	static {
 		Bullet.init();
@@ -79,11 +82,6 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 
 		tickCallback.clear();
 		eventManager = null;
-	}
-
-	@Override
-	public int getPriority() {
-		return CommonUpdatePriority.PHYSICS;
 	}
 
 	@Override

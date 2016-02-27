@@ -3,14 +3,15 @@ package com.gurella.engine.application;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.application.events.ApplicationUpdateEvent;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.state.StateMachine;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 
 public class SceneManager {
@@ -85,6 +86,7 @@ public class SceneManager {
 		return currentSceneGroup;
 	}
 
+	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.IO, type = ApplicationUpdateListener.class) })
 	private class TransitionWorker implements AsyncResourceCallback<DependencyMap>, ApplicationUpdateListener {
 		private TransitionStateManager transitionStateManager = new TransitionStateManager();
 
@@ -108,7 +110,7 @@ public class SceneManager {
 			dependentResourceIds.addAll(destinationScene.getInitialNodes());
 			destinationScene.obtainResourcesAsync(dependentResourceIds, this);
 			transition.beforeTransitionOut();
-			EventService.addListener(ApplicationUpdateEvent.class, this);
+			EventService.subscribe(this);
 		}
 
 		@Override
@@ -124,11 +126,6 @@ public class SceneManager {
 		@Override
 		public void handleProgress(float progress) {
 			initializationProgress = progress;
-		}
-
-		@Override
-		public int getPriority() {
-			return CommonUpdatePriority.INPUT;
 		}
 
 		@Override
@@ -201,7 +198,7 @@ public class SceneManager {
 		}
 
 		private void onException() {
-			EventService.removeListener(ApplicationUpdateEvent.class, this);
+			EventService.unsubscribe(this);
 			try {
 				transition.onTransitionException(initializationException);
 				stopCurrentScene();
@@ -224,7 +221,7 @@ public class SceneManager {
 		}
 
 		private void resetTransitionData() {
-			EventService.removeListener(ApplicationUpdateEvent.class, this);
+			EventService.unsubscribe(this);
 
 			destinationScene = null;
 			transition = null;

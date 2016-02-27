@@ -3,7 +3,7 @@ package com.gurella.engine.subscriptions.application;
 import com.gurella.engine.event.EventSubscription;
 
 public interface ApplicationActivityListener extends EventSubscription {
-	void onPause();
+	void pause();
 
-	void onResume();
+	void resume();
 }

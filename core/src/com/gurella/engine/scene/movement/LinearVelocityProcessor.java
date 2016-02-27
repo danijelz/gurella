@@ -2,17 +2,20 @@ package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.Listener0;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.manager.ComponentBitsPredicate;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
 public class LinearVelocityProcessor extends SceneSystem implements ApplicationUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
@@ -56,11 +59,6 @@ public class LinearVelocityProcessor extends SceneSystem implements ApplicationU
 			linearVelocityComponent.velocity.set(tempVelocity).scl(1.0f / deltaTime);
 			linearVelocityComponent.lastPosition.set(tempTranslate);
 		}
-	}
-
-	@Override
-	public int getPriority() {
-		return CommonUpdatePriority.THINK;
 	}
 
 	private class ActivateListener implements Listener0 {

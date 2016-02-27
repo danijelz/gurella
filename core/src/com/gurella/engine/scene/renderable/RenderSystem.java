@@ -3,9 +3,9 @@ package com.gurella.engine.scene.renderable;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -15,8 +15,11 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 //TODO attach listeners on activate
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.RENDER, type = ApplicationUpdateListener.class) })
 public class RenderSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	private final GenericBatch batch = DisposablesService.add(new GenericBatch());
 	private Array<Layer> orderedLayers = new Array<Layer>();
@@ -54,11 +57,6 @@ public class RenderSystem extends SceneSystem implements SceneListener, Applicat
 			spatial.renderableComponent.render(batch);
 		}
 		tempSpatials.clear();
-	}
-
-	@Override
-	public int getPriority() {
-		return CommonUpdatePriority.RENDER;
 	}
 
 	@Override

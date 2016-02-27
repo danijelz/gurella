@@ -1,13 +1,13 @@
 package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectParentListener;
@@ -22,6 +22,9 @@ class Objects implements ApplicationUpdateListener {
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>();
 	private static final Array<Object> tempListeners = new Array<Object>(64);
 
+	private Objects() {
+	}
+
 	static void activate(ManagedObject object) {
 		operation(object, OperationType.activate, null);
 	}
@@ -35,7 +38,11 @@ class Objects implements ApplicationUpdateListener {
 	}
 
 	static void reparent(ManagedObject object, ManagedObject newParent) {
-		operation(object, OperationType.reparent, newParent);
+		if (object.state == ManagedObjectState.idle && object.isValidNewParent(newParent)) {
+			object.reparent(newParent);
+		} else {
+			operation(object, OperationType.reparent, newParent);
+		}
 	}
 
 	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {

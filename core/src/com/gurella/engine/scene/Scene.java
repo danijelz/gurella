@@ -26,11 +26,6 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 
 public class Scene extends SceneElementsResourceContext {
-	private static final String ID_TAG = "id";
-	private static final String GROUP_TAG = "group";
-	private static final String INITIAL_SYSTEMS_TAG = "initialSystems";
-	private static final String INITIAL_NODES_TAG = "initialNodes";
-
 	public static final String defaultGroup = "Default";
 
 	private String id;
@@ -495,53 +490,11 @@ public class Scene extends SceneElementsResourceContext {
 
 	private void cleanup() {
 		pendingOperations.sort();
-
 		for (SceneOperation graphOperation : pendingOperations) {
 			graphOperation.execute();
 			graphOperation.free();
 		}
-
 		pendingOperations.clear();
-	}
-
-	@Override
-	public void write(Json json) {
-		json.writeValue(ID_TAG, id);
-		json.writeValue(GROUP_TAG, group);
-
-		json.writeArrayStart(INITIAL_SYSTEMS_TAG);
-		for (int i = 0; i < initialSystems.size; i++) {
-			int initialSystemId = initialSystems.get(i);
-			json.writeValue(Integer.valueOf(initialSystemId));
-		}
-		json.writeArrayEnd();
-
-		json.writeArrayStart(INITIAL_NODES_TAG);
-		for (int i = 0; i < initialNodes.size; i++) {
-			int initialNodeId = initialNodes.get(i);
-			json.writeValue(Integer.valueOf(initialNodeId));
-		}
-		json.writeArrayEnd();
-
-		super.write(json);
-	}
-
-	@Override
-	public void read(Json json, JsonValue jsonData) {
-		id = jsonData.getString(ID_TAG);
-		group = jsonData.getString(GROUP_TAG);
-
-		JsonValue values = jsonData.get(INITIAL_SYSTEMS_TAG);
-		for (JsonValue value : values) {
-			addInitialSystem(value.asInt());
-		}
-
-		values = jsonData.get(INITIAL_NODES_TAG);
-		for (JsonValue value : values) {
-			addInitialNode(value.asInt());
-		}
-
-		super.read(json, jsonData);
 	}
 
 	@Override

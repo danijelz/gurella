@@ -1,40 +1,31 @@
 package com.gurella.engine.application;
 
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.gurella.engine.application.events.ApplicationActivitySignal;
-import com.gurella.engine.application.events.ApplicationResizeSignal;
-import com.gurella.engine.application.events.ApplicationShutdownSignal;
-import com.gurella.engine.application.events.ApplicationUpdateSignal;
-import com.gurella.engine.application.events.ApplicationUpdateEvent;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
+import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.utils.Values;
 
 public final class Application extends SceneElementsResourceContext implements ApplicationListener {
-	private static final String SCENES_TAG = "scenes";
-	private static final String INITIAL_SCENE_ID_TAG = "initialSceneId";
-	private static final String BACKGROUND_COLOR_TAG = "backgroundColor";
-
 	private String initialSceneId;
 	private Color backgroundColor;
 
 	private boolean paused;
 	private final SceneManager sceneManager = new SceneManager(this);
 
-	private final ApplicationUpdateSignal updateSignal = new ApplicationUpdateSignal();
-	private final ApplicationResizeSignal resizeSignal = new ApplicationResizeSignal();
-	private final ApplicationActivitySignal activitySignal = new ApplicationActivitySignal();
-	private final ApplicationShutdownSignal shutdownSignal = new ApplicationShutdownSignal();
+	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	private final ApplicationInitializer initializer;
 
@@ -68,7 +59,6 @@ public final class Application extends SceneElementsResourceContext implements A
 	public final void create() {
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
-		// TODO Auto-generated method stub
 		initializer.init(this);
 		// TODO add init scripts to initializer
 		sceneManager.showScene(initialSceneId);
@@ -76,8 +66,11 @@ public final class Application extends SceneElementsResourceContext implements A
 
 	@Override
 	public final void resize(int width, int height) {
-		// TODO not yet handled by scene
-		resizeSignal.onResize(width, height);
+		Array<ApplicationResizeListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ApplicationResizeListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).resize(width, height);
+		}
 	}
 
 	@Override
@@ -85,25 +78,34 @@ public final class Application extends SceneElementsResourceContext implements A
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		EventService.notify(ApplicationUpdateEvent.instance);
-		updateSignal.update();
+		Array<ApplicationUpdateListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).update();
+		}
 	}
 
 	@Override
 	public final void pause() {
 		paused = true;
-		// TODO not yet handled by scene
-		activitySignal.onPause();
+		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ApplicationActivityListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).pause();
+		}
 	}
 
 	@Override
 	public final void resume() {
 		paused = false;
-		if(Gdx.app.getType() == ApplicationType.Android) {
+		if (Gdx.app.getType() == ApplicationType.Android) {
 			ResourceService.reloadInvalidated();
 		}
-		// TODO not yet handled by scene
-		activitySignal.onResume();
+		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ApplicationActivityListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).resume();
+		}
 	}
 
 	public final boolean isPaused() {
@@ -124,37 +126,12 @@ public final class Application extends SceneElementsResourceContext implements A
 
 	@Override
 	public void dispose() {
-		shutdownSignal.onShutdown();
-		// TODO Auto-generated method stub
+		Array<ApplicationShutdownListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ApplicationShutdownListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).shutdown();
+		}
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
-	}
-
-	@Override
-	public void write(Json json) {
-		json.writeValue(INITIAL_SCENE_ID_TAG, initialSceneId);
-		json.writeValue(BACKGROUND_COLOR_TAG, backgroundColor);
-		json.writeArrayStart(SCENES_TAG);
-		for (Entry<String, Scene> entry : getScenes().entries()) {
-			json.writeValue(entry.value, Scene.class);
-		}
-		json.writeArrayEnd();
-		super.write(json);
-	}
-
-	@Override
-	public void read(Json json, JsonValue jsonData) {
-		initialSceneId = jsonData.getString(INITIAL_SCENE_ID_TAG);
-		backgroundColor = json.readValue(Color.class, jsonData.get(BACKGROUND_COLOR_TAG));
-		if (backgroundColor == null) {
-			backgroundColor = Color.WHITE;
-		}
-		JsonValue scenesArray = jsonData.get(SCENES_TAG);
-		for (JsonValue sceneValue : scenesArray) {
-			Scene scene = new Scene(this, "");// TODO
-			scene.read(json, sceneValue);
-			addScene(scene);
-		}
-		super.read(json, jsonData);
 	}
 }

@@ -17,9 +17,9 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.application.events.ApplicationUpdateSignal.ApplicationUpdateListener;
-import com.gurella.engine.application.events.CommonUpdatePriority;
 import com.gurella.engine.event.Signal;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
@@ -36,9 +36,12 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.INPUT, type = ApplicationUpdateListener.class) })
 public class InputSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
@@ -335,11 +338,6 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	public PointerTrack getTracker(int pointer, int button) {
 		int key = pointer + button * 100;
 		return trackers.get(key);
-	}
-
-	@Override
-	public int getPriority() {
-		return CommonUpdatePriority.INPUT;
 	}
 
 	ImmutableArray<BehaviourComponent> getListeners(EventCallbackIdentifier<BehaviourComponent> method) {
