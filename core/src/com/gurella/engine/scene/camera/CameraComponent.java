@@ -3,7 +3,6 @@ package com.gurella.engine.scene.camera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.model.DefaultValue;
@@ -14,13 +13,14 @@ import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent
-		implements Comparable<CameraComponent<?>> {
+		implements Comparable<CameraComponent<?>>, ApplicationResizeListener {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -46,11 +46,15 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	private final TransformComponentActivatedListener transformComponentActivatedListener = new TransformComponentActivatedListener();
 	private final TransformComponentDeactivatedListener transformComponentDeactivatedListener = new TransformComponentDeactivatedListener();
 	private final TransformDirtyListener transformDirtyListener = new TransformDirtyListener();
-	private final ResizeListener resizeListener = new ResizeListener();
 
 	public CameraComponent() {
 		camera = createCamera();
 		viewport = new CameraViewport(camera);
+	}
+	
+	@Override
+	public void resize(int width, int height) {
+		viewport.update(width, height);
 	}
 
 	abstract T createCamera();
@@ -58,7 +62,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@Override
 	protected void activated() {
 		super.activated();
-		getScene().resizeSignal.addListener(resizeListener);
 		initCamera();
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SceneNode node = getNode();
@@ -82,7 +85,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@Override
 	protected void deactivated() {
 		super.deactivated();
-		getScene().resizeSignal.removeListener(resizeListener);
 		SceneNode node = getNode();
 		node.componentActivatedSignal.removeListener(transformComponentActivatedListener);
 		node.componentDeactivatedSignal.removeListener(transformComponentDeactivatedListener);
@@ -213,13 +215,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		@Override
 		public void handle(TransformComponent component) {
 			updateTransform();
-		}
-	}
-
-	private class ResizeListener implements Listener1<Vector2> {
-		@Override
-		public void handle(Vector2 screenSize) {
-			viewport.update((int) screenSize.x, (int) screenSize.y);
 		}
 	}
 }

@@ -108,7 +108,7 @@ public class SceneView extends Container<Image> {
 		view.start(null);
 		addPlane();
 		addCamera();
-		view.update();
+		//view.update();
 
 		EventService.addListener(SceneSelectionChangedEvent.class, new SceneSelectionChangedListener());
 	}
@@ -202,7 +202,7 @@ public class SceneView extends Container<Image> {
 	@Override
 	public void act(float delta) {
 		updateView();
-		view.update();
+		//view.update();
 
 		frameBuffer.bind();
 		gl.glClearColor(0, 0, 0.3f, 1);

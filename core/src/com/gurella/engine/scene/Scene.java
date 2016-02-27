@@ -481,13 +481,6 @@ public class Scene extends SceneElementsResourceContext {
 		allComponentsInternal.removeValue(component, true);
 	}
 
-	@Override
-	public void update() {
-		// TODO add to signal
-		sceneEventsDispatcher.update();
-		cleanup();
-	}
-
 	private void cleanup() {
 		pendingOperations.sort();
 		for (SceneOperation graphOperation : pendingOperations) {

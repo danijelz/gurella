@@ -2,12 +2,9 @@ package com.gurella.engine.scene.bullet;
 
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
-import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
 
-//TODO unused
-public class CollisionPair implements Poolable {
+public class CollisionPair {
 	private btPersistentManifold contactManifold;
 
 	private btCollisionObject collisionObject0;
@@ -20,33 +17,22 @@ public class CollisionPair implements Poolable {
 
 	private float timeStep = -1;
 
-	private CollisionPair() {
+	CollisionPair() {
 	}
 
-	static CollisionPair obtain(btPersistentManifold contactManifold, btCollisionObject collisionObject0,
+	void init(btPersistentManifold contactManifold, btCollisionObject collisionObject0,
 			btCollisionObject collisionObject1, float timeStep) {
-		CollisionPair collision = PoolService.obtain(CollisionPair.class);
-
-		collision.contactManifold = contactManifold;
-
-		collision.collisionObject0 = collisionObject0;
-		collision.component0 = (BulletPhysicsRigidBodyComponent) collisionObject0.userData;
-		collision.node0 = collision.component0.getNode();
-
-		collision.collisionObject1 = collisionObject1;
-		collision.component1 = (BulletPhysicsRigidBodyComponent) collisionObject1.userData;
-		collision.node1 = collision.component1.getNode();
-
-		collision.timeStep = timeStep;
-		return collision;
+		this.contactManifold = contactManifold;
+		this.collisionObject0 = collisionObject0;
+		this.component0 = (BulletPhysicsRigidBodyComponent) collisionObject0.userData;
+		this.node0 = this.component0.getNode();
+		this.collisionObject1 = collisionObject1;
+		this.component1 = (BulletPhysicsRigidBodyComponent) collisionObject1.userData;
+		this.node1 = this.component1.getNode();
+		this.timeStep = timeStep;
 	}
 
-	void free() {
-		PoolService.free(this);
-	}
-
-	@Override
-	public void reset() {
+	void reset() {
 		contactManifold = null;
 		collisionObject0 = null;
 		component0 = null;

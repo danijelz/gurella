@@ -11,17 +11,21 @@ import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 class CollisionTrackingInternalTickCallback extends InternalTickCallback {
+	Scene scene;
+
+	private Collision collision0 = new Collision();
+	private Collision collision1 = new Collision();
+	private CollisionPair collisionPair;
+
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 	private ObjectSet<CachedCollisionPair> currentTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
-
-	Scene scene;
 
 	@Override
 	public void onInternalTick(btDynamicsWorld dynamicsWorld, float timeStep) {
 		updateCurrentCollisions(dynamicsWorld, timeStep);
 		clearPreviousCollisions();
 		swapCollisionPairs();
-		fireSimulationStepEvent(dynamicsWorld, timeStep);
+		fireSimulationStepEndEvent(dynamicsWorld, timeStep);
 	}
 
 	private void updateCurrentCollisions(btDynamicsWorld dynamicsWorld, float timeStep) {
@@ -49,14 +53,13 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	private void handleContactManifold(btPersistentManifold contactManifold, float timeStep) {
 		btCollisionObject collisionObject0 = contactManifold.getBody0();
 		BulletPhysicsRigidBodyComponent rigidBodyComponent0 = (BulletPhysicsRigidBodyComponent) collisionObject0.userData;
-		Collision collision1 = Collision.obtain(contactManifold, collisionObject0, timeStep);
+		collision1.init(contactManifold, collisionObject0, timeStep);
 
 		btCollisionObject collisionObject1 = contactManifold.getBody1();
 		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = (BulletPhysicsRigidBodyComponent) collisionObject1.userData;
-		Collision collision0 = Collision.obtain(contactManifold, collisionObject1, timeStep);
+		collision0.init(contactManifold, collisionObject1, timeStep);
 
-		CollisionPair collisionPair = CollisionPair.obtain(contactManifold, collisionObject0, collisionObject1,
-				timeStep);
+		collisionPair.init(contactManifold, collisionObject0, collisionObject1, timeStep);
 
 		CachedCollisionPair cachedCollisionPair = CachedCollisionPair.obtain(rigidBodyComponent0, rigidBodyComponent1);
 		currentTickCollisionPairs.add(cachedCollisionPair);
@@ -91,9 +94,9 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 			}
 		}
 
-		collisionPair.free();
-		collision0.free();
-		collision1.free();
+		collisionPair.reset();
+		collision0.reset();
+		collision1.reset();
 	}
 
 	private void clearPreviousCollisions() {
@@ -136,7 +139,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		currentTickCollisionPairs = temp;
 	}
 
-	private void fireSimulationStepEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
+	private void fireSimulationStepEndEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
 		for (BehaviourComponent behaviourComponent : getScripts(BehaviourEvents.onPhysicsSimulationStep)) {
 			behaviourComponent.onPhysicsSimulationStep(dynamicsWorld, timeStep);
 		}

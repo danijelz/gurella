@@ -14,18 +14,20 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
-import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.bullet.PhysicsSimulationTickListener;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Values;
 
 //TODO attach listeners on activate
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.PHYSICS, type = ApplicationUpdateListener.class) })
@@ -44,7 +46,8 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 	private CollisionTrackingInternalTickCallback tickCallback;
 
 	private Vector3 gravity = new Vector3(0, -10f, 0);
-	private EventManager eventManager;
+
+	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	public BulletPhysicsSystem() {
 		collisionConfig = DisposablesService.add(new btDefaultCollisionConfiguration());
@@ -64,7 +67,6 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 	protected void activated() {
 		Scene scene = getScene();
 		tickCallback.scene = scene;
-		eventManager = scene.eventManager;
 		ImmutableArray<SceneNodeComponent> components = scene.activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
@@ -81,7 +83,6 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 		}
 
 		tickCallback.clear();
-		eventManager = null;
 	}
 
 	@Override
@@ -92,14 +93,18 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 	}
 
 	private void dispatchSimulationStartEvent() {
-		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onPhysicsSimulationStart)) {
-			behaviourComponent.onPhysicsSimulationStart(dynamicsWorld);
+		Array<PhysicsSimulationTickListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(PhysicsSimulationTickListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onPhysicsSimulationStart(dynamicsWorld);
 		}
 	}
 
 	private void dispatchSimulationEndEvent() {
-		for (BehaviourComponent behaviourComponent : eventManager.getListeners(onPhysicsSimulationEnd)) {
-			behaviourComponent.onPhysicsSimulationEnd(dynamicsWorld);
+		Array<PhysicsSimulationTickListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(PhysicsSimulationTickListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onPhysicsSimulationEnd(dynamicsWorld);
 		}
 	}
 
