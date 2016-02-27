@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.event.EventSubscription;
-import com.gurella.engine.event.SubscriptionEvent;
+import com.gurella.engine.event.SubscriptionHandler;
 import com.gurella.engine.scene.SceneElement;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.utils.ArrayExt;
@@ -137,15 +137,15 @@ public class EventManager {
 		return listeners == null ? ImmutableArray.<T> empty() : listeners.immutable();
 	}
 
-	public <T extends EventSubscription> void notify(SceneElement element, SubscriptionEvent<T> event) {
+	public <T extends EventSubscription> void notify(SceneElement element, SubscriptionHandler<T> event) {
 		ImmutableArray<T> listeners = getListeners(element, event.subscriptionType);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
-			event.notify(script);
+			//event.notify(script);
 		}
 	}
 
-	public <T extends EventSubscription> void notifyParentHierarchy(SceneNode node, SubscriptionEvent<T> event) {
+	public <T extends EventSubscription> void notifyParentHierarchy(SceneNode node, SubscriptionHandler<T> event) {
 		notify(node, event);
 		SceneNode parent = node.getParent();
 		if (parent != null) {
@@ -153,7 +153,7 @@ public class EventManager {
 		}
 	}
 
-	public <T extends EventSubscription> void notifyChildHierarchy(SceneNode node, SubscriptionEvent<T> event) {
+	public <T extends EventSubscription> void notifyChildHierarchy(SceneNode node, SubscriptionHandler<T> event) {
 		notify(node, event);
 		ImmutableArray<SceneNode> children = node.children;
 		for (int i = 0; i < children.size(); i++) {
@@ -164,11 +164,11 @@ public class EventManager {
 		}
 	}
 
-	public <T extends EventSubscription> void notify(SubscriptionEvent<T> event) {
+	public <T extends EventSubscription> void notify(SubscriptionHandler<T> event) {
 		ImmutableArray<T> listeners = getListeners(event.subscriptionType);
 		for (int i = 0; i < listeners.size(); i++) {
 			T script = listeners.get(i);
-			event.notify(script);
+			//event.notify(script);
 		}
 	}
 

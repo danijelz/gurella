@@ -14,48 +14,35 @@ import com.gurella.engine.utils.Values;
 
 public class EventBus implements Poolable {
 	private final ObjectMap<Object, Array<?>> listeners = new ObjectMap<Object, Array<?>>();
-	private final ObjectMap<Class<?>, Array<Object>> subscribers = new ObjectMap<Class<?>, Array<Object>>();
 
 	private final Array<Object> eventPool = new Array<Object>();
+	private final Array<Object> selectedListeners = new Array<Object>();
 
 	private boolean processing;
 
 	public <L> boolean addListener(Class<? extends Event<L>> eventType, L listener) {
-		return addListenerInternal(eventType, listener);
+		synchronized (listeners) {
+			return addListenerInternal(eventType, listener);
+		}
 	}
 
 	public <T> boolean addListener(T eventType, Listener1<? super T> listener) {
-		return addListenerInternal(eventType, listener);
+		synchronized (listeners) {
+			return addListenerInternal(eventType, listener);
+		}
 	}
 
 	private boolean addListenerInternal(Object event, Object listener) {
 		final Array<Object> listenersByType = listenersByType(event);
-
-		synchronized (listenersByType) {
-			if (listenersByType.contains(listener, true)) {
-				return false;
-			} else {
-				listenersByType.add(listener);
-				Class<?> eventType = event.getClass();
-				ListenersComparator comparator = PoolService.obtain(ListenersComparator.class);
-				comparator.eventType = eventType;
-				PoolService.free(comparator);
-				return true;
-			}
-		}
-	}
-
-	private <L> Array<L> listenersByType(Object eventType) {
-		synchronized (listeners) {
-			@SuppressWarnings("unchecked")
-			Array<L> listenersByType = (Array<L>) listeners.get(eventType);
-
-			if (listenersByType == null) {
-				listenersByType = new Array<L>();
-				listeners.put(eventType, listenersByType);
-			}
-
-			return listenersByType;
+		if (listenersByType.contains(listener, true)) {
+			return false;
+		} else {
+			listenersByType.add(listener);
+			Class<?> eventType = event.getClass();
+			ListenersComparator comparator = PoolService.obtain(ListenersComparator.class);
+			comparator.eventType = eventType;
+			PoolService.free(comparator);
+			return true;
 		}
 	}
 
@@ -66,51 +53,42 @@ public class EventBus implements Poolable {
 		}
 
 		SubscriberComparator comparator = PoolService.obtain(SubscriberComparator.class);
-		for (Class<? extends EventSubscription> subscription : subscriptions) {
-			Array<Object> subscribers = findSubscribers(subscription);
-			synchronized (subscribers) {
+		synchronized (listeners) {
+			for (Class<? extends EventSubscription> subscription : subscriptions) {
+				Array<Object> subscribers = listenersByType(subscription);
 				subscribers.add(subscriber);
 				comparator.subscription = subscription;
 				subscribers.sort(comparator);
 			}
 		}
+
 		PoolService.free(comparator);
 	}
 
-	private Array<Object> findSubscribers(Class<? extends EventSubscription> subscription) {
-		synchronized (subscribers) {
-			Array<Object> listeners = subscribers.get(subscription);
-			if (listeners == null) {
-				listeners = new Array<Object>();
-				subscribers.put(subscription, listeners);
-			}
-			return listeners;
+	private <L> Array<L> listenersByType(Object eventType) {
+		Array<L> listenersByType = Values.cast(listeners.get(eventType));
+		if (listenersByType == null) {
+			listenersByType = new Array<L>();
+			listeners.put(eventType, listenersByType);
 		}
+		return listenersByType;
 	}
 
 	public <L> boolean removeListener(Class<? extends Event<L>> eventType, L listener) {
-		return removeListenerInternal(eventType, listener);
+		synchronized (listeners) {
+			return removeListenerInternal(eventType, listener);
+		}
 	}
 
 	public <T> boolean removeListener(T eventType, Listener1<? super T> listener) {
-		return removeListenerInternal(eventType, listener);
+		synchronized (listeners) {
+			return removeListenerInternal(eventType, listener);
+		}
 	}
 
 	private boolean removeListenerInternal(Object eventType, Object listener) {
-		Array<Object> listenersByType;
-		synchronized (listeners) {
-			@SuppressWarnings("unchecked")
-			Array<Object> casted = (Array<Object>) listeners.get(eventType);
-			if (casted == null) {
-				return false;
-			}
-
-			listenersByType = casted;
-		}
-
-		synchronized (listenersByType) {
-			return listenersByType.removeValue(listener, true);
-		}
+		Array<Object> listenersByType = Values.cast(listeners.get(eventType));
+		return listenersByType == null ? false : listenersByType.removeValue(listener, true);
 	}
 
 	public void unsubscribe(Object subscriber) {
@@ -119,16 +97,11 @@ public class EventBus implements Poolable {
 			return;
 		}
 
-		for (Class<? extends EventSubscription> subscription : subscriptions) {
-			synchronized (subscribers) {
-				Array<Object> listeners = subscribers.get(subscription);
-				if (listeners != null) {
-					synchronized (listeners) {
-						listeners.removeValue(subscriber, true);
-						if (listeners.size == 0) {
-							subscribers.remove(subscription);
-						}
-					}
+		synchronized (listeners) {
+			for (Class<? extends EventSubscription> subscription : subscriptions) {
+				Array<Object> subscribers = Values.cast(listeners.get(subscription));
+				if (subscribers != null) {
+					subscribers.removeValue(subscriber, true);
 				}
 			}
 		}
@@ -151,6 +124,7 @@ public class EventBus implements Poolable {
 		synchronized (eventPool) {
 			if (processing) {
 				eventPool.add(eventType);
+				return;
 			} else {
 				processing = true;
 			}
@@ -161,42 +135,41 @@ public class EventBus implements Poolable {
 
 	private <L> void notifyListeners(final Event<L> event) {
 		Class<? extends Event<L>> eventType = Values.cast(event.getClass());
-		Array<L> listenersByType;
+		Array<L> listenersByType = Values.cast(selectedListeners);
 		synchronized (listeners) {
-			listenersByType = Values.cast(listeners.get(eventType));
-			if (listenersByType == null) {
+			Array<L> temp = Values.cast(listeners.get(eventType));
+			if (temp == null) {
 				return;
 			}
+			listenersByType.addAll(temp);
 		}
 
-		synchronized (listenersByType) {
-			for (int i = 0; i < listenersByType.size; i++) {
-				L listener = listenersByType.get(i);
-				event.notify(listener);
-			}
+		for (int i = 0; i < listenersByType.size; i++) {
+			L listener = listenersByType.get(i);
+			event.notify(listener);
 		}
+
+		listenersByType.clear();
 
 		processPool();
 	}
 
 	private <T> void notifyListeners(T eventType) {
-		Array<Listener1<T>> listenersByType;
+		Array<Listener1<T>> listenersByType = Values.cast(selectedListeners);
 		synchronized (listeners) {
-			@SuppressWarnings("unchecked")
-			Array<Listener1<T>> casted = (Array<Listener1<T>>) listeners.get(eventType);
-			if (casted == null) {
+			Array<Listener1<T>> temp = Values.cast(listeners.get(eventType));
+			if (temp == null) {
 				return;
 			}
 
-			listenersByType = casted;
+			listenersByType.addAll(temp);
 		}
 
-		synchronized (listenersByType) {
-			for (int i = 0; i < listenersByType.size; i++) {
-				Listener1<T> listener = listenersByType.get(i);
-				listener.handle(eventType);
-			}
+		for (int i = 0; i < listenersByType.size; i++) {
+			Listener1<T> listener = listenersByType.get(i);
+			listener.handle(eventType);
 		}
+		listenersByType.clear();
 
 		processPool();
 	}
@@ -229,36 +202,26 @@ public class EventBus implements Poolable {
 		return out;
 	}
 
-	public void getListenersInternal(Object eventType, Array<?> out) {
-		@SuppressWarnings("unchecked")
-		Array<Object> casted = (Array<Object>) out;
-		synchronized (listeners) {
-			@SuppressWarnings("unchecked")
-			Array<Object> listenersByType = (Array<Object>) listeners.get(eventType);
-			if (listenersByType != null) {
-				casted.addAll(listenersByType);
-			}
-		}
-	}
-
 	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
 			Array<? super L> out) {
-		@SuppressWarnings("unchecked")
-		Array<Object> casted = (Array<Object>) out;
-		synchronized (subscribers) {
-			Array<Object> subscribersByType = subscribers.get(subscriptionType);
-			if (subscribersByType != null) {
-				casted.addAll(subscribersByType);
+		getListenersInternal(subscriptionType, out);
+		return out;
+	}
+
+	public <T> void getListenersInternal(Object eventType, Array<T> out) {
+		synchronized (listeners) {
+			Array<T> listenersByType = Values.cast(listeners.get(eventType));
+			if (listenersByType != null) {
+				out.addAll(listenersByType);
 			}
 		}
-		return out;
 	}
 
 	public boolean isEmpty() {
 		while (true) {
 			synchronized (eventPool) {
 				if (!processing) {
-					return listeners.size == 0 && subscribers.size == 0;
+					return listeners.size == 0;
 				}
 			}
 			ThreadUtils.yield();
@@ -280,7 +243,6 @@ public class EventBus implements Poolable {
 
 	private void resetInternal() {
 		listeners.clear();
-		subscribers.clear();
 		eventPool.clear();
 		processing = false;
 	}

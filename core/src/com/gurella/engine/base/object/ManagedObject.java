@@ -107,6 +107,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void activated() {
+		EventService.subscribe(this);
 		Array<ObjectsActivityListener> listeners = new Array<ObjectsActivityListener>();
 		EventService.getSubscribers(ObjectsActivityListener.class, listeners);
 		for(int i = 0; i < listeners.size; i++) {
@@ -140,6 +141,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void deactivated() {
+		EventService.subscribe(this);
 		// TODO Auto-generated method stub
 	}
 
