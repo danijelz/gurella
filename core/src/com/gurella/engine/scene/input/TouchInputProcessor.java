@@ -213,7 +213,7 @@ public class TouchInputProcessor implements PointerActivityListener {
 		}
 
 		@Override
-		public void cancel() {
+		public synchronized void cancel() {
 			super.cancel();
 			reset();
 		}
