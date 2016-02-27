@@ -79,8 +79,21 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void handleActivation() {
-		if (isActivationAllowed()) {
-			activateHierarchy();
+		if (!isActivationAllowed()) {
+			return;
+		}
+
+		if (state == ManagedObjectState.idle) {
+			init();
+		}
+
+		state = ManagedObjectState.active;
+		activateValues();
+		activated();
+
+		for (int i = 0; i < childrenPrivate.size; i++) {
+			ManagedObject child = childrenPrivate.get(i);
+			child.handleActivation();
 		}
 	}
 
@@ -88,31 +101,25 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return parent == null || parent.isActive();
 	}
 
-	private void activateHierarchy() {
-		if (state == ManagedObjectState.idle) {
-			init();
-		}
-
-		state = ManagedObjectState.active;
-		attachAll();
-		activated();
-
-		for (int i = 0; i < childrenPrivate.size; i++) {
-			ManagedObject child = childrenPrivate.get(i);
-			child.activateHierarchy();
-		}
-	}
-
 	protected void init() {
 	}
 
-	protected void activated() {
+	private void activateValues() {
+		for (Attachment<?> attachment : attachments.values()) {
+			attachment.attach();
+		}
+
 		EventService.subscribe(this);
+
 		Array<ObjectsActivityListener> listeners = new Array<ObjectsActivityListener>();
 		EventService.getSubscribers(ObjectsActivityListener.class, listeners);
-		for(int i = 0; i < listeners.size; i++) {
+		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).objectActivated(this);
 		}
+		//TODO notify
+	}
+
+	protected void activated() {
 		// TODO Auto-generated method stub
 	}
 
@@ -121,27 +128,27 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void handleDeactivation() {
-		if (state != ManagedObjectState.active) {
-			throw new GdxRuntimeException("Invalid state: " + state);
-		}
-		deactivateHierarchy();
-	}
-
-	private void deactivateHierarchy() {
 		state = ManagedObjectState.inactive;
-		detachAll();
+		deactivateValues();
 		deactivated();
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
 			if (child.state == ManagedObjectState.active) {
-				child.deactivateHierarchy();
+				child.handleDeactivation();
 			}
 		}
 	}
 
+	private void deactivateValues() {
+		//TODO notify
+		EventService.unsubscribe(this);
+		for (Attachment<?> attachment : attachments.values()) {
+			attachment.detach();
+		}
+	}
+
 	protected void deactivated() {
-		EventService.subscribe(this);
 		// TODO Auto-generated method stub
 	}
 
@@ -151,7 +158,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	void handleDestruction() {
 		if (state == ManagedObjectState.active) {
-			deactivateHierarchy();
+			handleDeactivation();
 		}
 
 		state = ManagedObjectState.disposed;
@@ -220,9 +227,9 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	private void updateStateByParent() {
 		ManagedObjectState parentState = parent.state;
 		if (state == ManagedObjectState.active && parentState != ManagedObjectState.active) {
-			deactivateHierarchy();
+			handleDeactivation();
 		} else if (state == ManagedObjectState.inactive && parentState == ManagedObjectState.active) {
-			activateHierarchy();
+			handleActivation();
 		}
 	}
 
@@ -267,21 +274,9 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	private void attachAll() {
-		for (Attachment<?> attachment : attachments.values()) {
-			attachment.attach();
-		}
-	}
-
 	public void detach(Object value) {
 		Attachment<?> attachment = attachments.remove(value);
 		if (attachment != null && isActive()) {
-			attachment.detach();
-		}
-	}
-
-	private void detachAll() {
-		for (Attachment<?> attachment : attachments.values()) {
 			attachment.detach();
 		}
 	}

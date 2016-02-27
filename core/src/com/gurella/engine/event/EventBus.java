@@ -193,27 +193,24 @@ public class EventBus implements Poolable {
 	}
 
 	public <L> Array<? super L> getListeners(Class<? extends Event<L>> eventType, Array<? super L> out) {
-		getListenersInternal(eventType, out);
-		return out;
+		return getListenersInternal(eventType, out);
 	}
 
 	public <T> Array<Listener1<? super T>> getListeners(T eventType, Array<Listener1<? super T>> out) {
-		getListenersInternal(eventType, out);
-		return out;
+		return getListenersInternal(eventType, out);
 	}
 
-	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
-			Array<? super L> out) {
-		getListenersInternal(subscriptionType, out);
-		return out;
+	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> type, Array<? super L> out) {
+		return getListenersInternal(type, out);
 	}
 
-	public <T> void getListenersInternal(Object eventType, Array<T> out) {
+	public <T> Array<T> getListenersInternal(Object eventType, Array<T> out) {
 		synchronized (listeners) {
 			Array<T> listenersByType = Values.cast(listeners.get(eventType));
 			if (listenersByType != null) {
 				out.addAll(listenersByType);
 			}
+			return out;
 		}
 	}
 
@@ -221,7 +218,13 @@ public class EventBus implements Poolable {
 		while (true) {
 			synchronized (eventPool) {
 				if (!processing) {
-					return listeners.size == 0;
+					//TODO wrong
+					for (Array<?> listenersByType : listeners.values()) {
+						if (listenersByType.size > 0) {
+							return false;
+						}
+					}
+					return true;
 				}
 			}
 			ThreadUtils.yield();
