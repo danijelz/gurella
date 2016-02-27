@@ -15,6 +15,7 @@ import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.GlobalLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.ObjectLongPressListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
@@ -174,8 +175,10 @@ public class TouchInputProcessor implements PointerActivityListener {
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onLongPressGlobal)) {
-				behaviourComponent.onLongPress(renderableComponent, intersectionTouchEvent);
+			Array<IntersectionLongPressListener> intersectionListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(IntersectionLongPressListener.class, intersectionListeners);
+			for (int i = 0; i < intersectionListeners.size; i++) {
+				intersectionListeners.get(i).onLongPress(renderableComponent, intersectionTouchEvent);
 			}
 
 			Array<ObjectLongPressListener> listeners = Values.cast(tempListeners);

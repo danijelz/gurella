@@ -355,7 +355,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyDown(int keycode) {
-			for (BehaviourComponent behaviourComponent : eventManager.getListeners(keyDown)) {
+			for (BehaviourComponent behaviourComponent : getListeners(keyDown)) {
 				behaviourComponent.keyDown(keycode);
 			}
 			return false;
@@ -363,7 +363,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyUp(int keycode) {
-			for (BehaviourComponent behaviourComponent : eventManager.getListeners(keyUp)) {
+			for (BehaviourComponent behaviourComponent : getListeners(keyUp)) {
 				behaviourComponent.keyUp(keycode);
 			}
 			return false;
@@ -371,7 +371,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyTyped(char character) {
-			for (BehaviourComponent behaviourComponent : eventManager.getListeners(keyTyped)) {
+			for (BehaviourComponent behaviourComponent : getListeners(keyTyped)) {
 				behaviourComponent.keyTyped(character);
 			}
 			return false;
@@ -389,18 +389,18 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
 
-			for (BehaviourComponent behaviourComponent : eventManager.getListeners(scrolled)) {
+			for (BehaviourComponent behaviourComponent : getListeners(scrolled)) {
 				behaviourComponent.scrolled(screenX, screenY, amount);
 			}
 
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : eventManager.getListeners(onScrolledGlobal)) {
+				for (BehaviourComponent behaviourComponent : getListeners(onScrolledGlobal)) {
 					behaviourComponent.onScrolled(renderableComponent, screenX, screenY, amount, closestIntersection);
 				}
 
-				for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, onTouchDown)) {
+				for (BehaviourComponent behaviourComponent : getListeners(node, onTouchDown)) {
 					behaviourComponent.onScrolled(screenX, screenY, amount, closestIntersection);
 				}
 			}
@@ -416,18 +416,18 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
 
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (BehaviourComponent behaviourComponent : eventManager.getListeners(touchDown)) {
+			for (BehaviourComponent behaviourComponent : getListeners(touchDown)) {
 				behaviourComponent.touchDown(touchEvent);
 			}
 
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : eventManager.getListeners(onTouchDownGlobal)) {
+				for (BehaviourComponent behaviourComponent : getListeners(onTouchDownGlobal)) {
 					behaviourComponent.onTouchDown(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, onTouchDown)) {
+				for (BehaviourComponent behaviourComponent : getListeners(node, onTouchDown)) {
 					behaviourComponent.onTouchDown(intersectionTouchEvent);
 				}
 			}
@@ -440,7 +440,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (BehaviourComponent behaviourComponent : eventManager.getListeners(touchUp)) {
+			for (BehaviourComponent behaviourComponent : getListeners(touchUp)) {
 				behaviourComponent.touchUp(touchEvent);
 			}
 
@@ -448,11 +448,11 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : eventManager.getListeners(onTouchUpGlobal)) {
+				for (BehaviourComponent behaviourComponent : getListeners(onTouchUpGlobal)) {
 					behaviourComponent.onTouchUp(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (BehaviourComponent behaviourComponent : eventManager.getListeners(node, onTouchUp)) {
+				for (BehaviourComponent behaviourComponent : getListeners(node, onTouchUp)) {
 					behaviourComponent.onTouchUp(intersectionTouchEvent);
 				}
 			}
@@ -475,7 +475,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					touchEvent.set(pointer, button, screenX, screenY);
-					for (BehaviourComponent behaviourComponent : eventManager.getListeners(touchDragged)) {
+					for (BehaviourComponent behaviourComponent : getListeners(touchDragged)) {
 						behaviourComponent.touchDragged(touchEvent);
 					}
 
