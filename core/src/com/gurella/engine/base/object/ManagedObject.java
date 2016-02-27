@@ -74,7 +74,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void activate() {
-		ObjectOperationPool.activate(this);
+		ObjectOperations.activate(this);
 	}
 
 	void handleActivation() {
@@ -90,7 +90,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		attachAll();
 		EventService.subscribe(this);
 		activated();
-		ObjectOperationPool.notifyActivated(this);
+		ObjectOperations.notifyActivated(this);
 
 		for (int i = 0; i < childrenPrivate.size; i++) {
 			ManagedObject child = childrenPrivate.get(i);
@@ -109,14 +109,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void deactivate() {
-		ObjectOperationPool.deactivate(this);
+		ObjectOperations.deactivate(this);
 	}
 
 	void handleDeactivation() {
 		state = ManagedObjectState.inactive;
 
 		deactivated();
-		ObjectOperationPool.notifyDeactivated(this);
+		ObjectOperations.notifyDeactivated(this);
 		EventService.unsubscribe(this);
 		detachAll();
 
@@ -132,7 +132,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void destroy() {
-		ObjectOperationPool.destroy(this);
+		ObjectOperations.destroy(this);
 	}
 
 	void handleDestruction() {
@@ -174,7 +174,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public void setParent(ManagedObject newParent) {
 		if (isValidNewParent(newParent)) {
-			ObjectOperationPool.reparent(this, newParent);
+			ObjectOperations.reparent(this, newParent);
 		}
 	}
 

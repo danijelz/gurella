@@ -12,43 +12,38 @@ import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.utils.Values;
 
-//TODO unused
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
-class ObjectOperationPool implements ApplicationUpdateListener {
+class ObjectOperations implements ApplicationUpdateListener {
+	private static final ObjectOperations instance = new ObjectOperations();
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>();
 	private static final Array<Object> tempListeners = new Array<Object>(64);
 
-	private static ObjectOperation operation() {
-		return PoolService.obtain(ObjectOperation.class);
+	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {
+		if (operations.size == 0) {
+			EventService.subscribe(instance);
+		}
+
+		ObjectOperation operation = PoolService.obtain(ObjectOperation.class);
+		operation.object = object;
+		operation.operationType = operationType;
+		operation.newParent = newParent;
+		operations.add(operation);
 	}
 
 	static void activate(ManagedObject object) {
-		ObjectOperation operation = operation();
-		operation.object = object;
-		operation.operationType = OperationType.activate;
-		operations.add(operation);
+		operation(object, OperationType.activate, null);
 	}
 
 	static void deactivate(ManagedObject object) {
-		ObjectOperation operation = operation();
-		operation.object = object;
-		operation.operationType = OperationType.deactivate;
-		operations.add(operation);
+		operation(object, OperationType.deactivate, null);
 	}
 
 	static void destroy(ManagedObject object) {
-		ObjectOperation operation = operation();
-		operation.object = object;
-		operation.operationType = OperationType.destroy;
-		operations.add(operation);
+		operation(object, OperationType.destroy, null);
 	}
 
 	static void reparent(ManagedObject object, ManagedObject newParent) {
-		ObjectOperation operation = operation();
-		operation.object = object;
-		operation.newParent = newParent;
-		operation.operationType = OperationType.reparent;
-		operations.add(operation);
+		operation(object, OperationType.reparent, newParent);
 	}
 
 	static void notifyActivated(ManagedObject object) {
@@ -85,6 +80,6 @@ class ObjectOperationPool implements ApplicationUpdateListener {
 			ObjectOperation operation = operations.removeIndex(0);
 			operation.execute();
 		}
-		operations.clear();
+		EventService.unsubscribe(instance);
 	}
 }
