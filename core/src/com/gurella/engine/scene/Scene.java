@@ -4,10 +4,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.application.Application;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal0;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.SceneElementsResourceContext;
@@ -21,8 +20,10 @@ import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.scene.tag.TagManager;
+import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
+import com.gurella.engine.utils.Values;
 
 public class Scene extends SceneElementsResourceContext {
 	public static final String defaultGroup = "Default";
@@ -33,6 +34,7 @@ public class Scene extends SceneElementsResourceContext {
 	public final IntArray initialSystems = new IntArray();
 	public final IntArray initialNodes = new IntArray();
 
+	private final Array<Object> tempListeners = new Array<Object>(64);
 	// TODO remove signals
 	public final Signal0 startSignal = new Signal0();
 	public final Signal0 stopSignal = new Signal0();
@@ -137,14 +139,22 @@ public class Scene extends SceneElementsResourceContext {
 		}
 
 		active = true;
-		sceneEventsDispatcher.sceneStarted();
-		startSignal.dispatch();
+
+		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).sceneStared(this);
+		}
 	}
 
 	public void stop() {
 		active = false;
-		stopSignal.dispatch();
-		sceneEventsDispatcher.sceneStopped();
+
+		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).sceneStopped(this);
+		}
 
 		for (int i = 0; i < allNodesInternal.size; i++) {
 			SceneNode node = allNodesInternal.get(i);
@@ -210,7 +220,6 @@ public class Scene extends SceneElementsResourceContext {
 			system.active = true;
 			system.lifecycleSignal.activated();
 			activeSystemsInternal.add(system);
-			eventManager.register(system);
 		}
 	}
 
@@ -227,7 +236,6 @@ public class Scene extends SceneElementsResourceContext {
 			system.active = false;
 			system.lifecycleSignal.deactivated();
 			activeSystemsInternal.removeValue(system, true);
-			eventManager.unregister(system);
 		}
 	}
 
@@ -299,7 +307,6 @@ public class Scene extends SceneElementsResourceContext {
 			component.lifecycleSignal.activated();
 			sceneEventsDispatcher.componentActivated(component);
 			node.componentActivatedSignal.dispatch(component);
-			eventManager.register(node, component);
 		}
 	}
 
@@ -320,7 +327,6 @@ public class Scene extends SceneElementsResourceContext {
 			activeComponentsInternal.removeValue(component, true);
 			sceneEventsDispatcher.componentDeactivated(component);
 			node.componentDeactivatedSignal.dispatch(component);
-			eventManager.unregister(node, component);
 		}
 	}
 
