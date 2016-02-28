@@ -1,8 +1,8 @@
-package com.gurella.engine.base.object;
+package com.gurella.engine.scene;
 
-import com.gurella.engine.scene.Scene;
+import com.gurella.engine.base.object.ManagedObject;
 
-public class SceneElement extends ManagedObject {
+public class SceneElement2 extends ManagedObject {
 	boolean enabled = true;
 	Scene scene;
 
@@ -14,9 +14,9 @@ public class SceneElement extends ManagedObject {
 		this.enabled = enabled;
 		boolean active = isActive();
 		if (enabled && !active) {
-			handleActivation();
+			activate();
 		} else if (!enabled && active) {
-			handleDeactivation();
+			deactivate();
 		}
 	}
 
