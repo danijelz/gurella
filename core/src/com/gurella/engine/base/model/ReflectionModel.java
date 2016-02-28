@@ -165,7 +165,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (template != null && type == template.getClass()) {
 			return template;
 		} else if (instance instanceof ManagedObject) {
-			return ((ManagedObject) instance).getTemplate();
+			return ((ManagedObject) instance).getPrefab();
 		} else {
 			return null;
 		}

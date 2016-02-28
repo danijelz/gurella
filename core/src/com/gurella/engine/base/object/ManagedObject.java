@@ -14,7 +14,7 @@ import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
 public class ManagedObject implements Comparable<ManagedObject> {
-	private transient int instanceId;
+	transient int instanceId;
 	@PropertyDescriptor(copyable = false)
 	String uuid;
 
@@ -47,7 +47,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return uuid;
 	}
 
-	public ManagedObject getTemplate() {
+	public ManagedObject getPrefab() {
 		return null;
 	}
 
@@ -254,9 +254,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	//// ATTACHMENTS
-
+	//TOFDO addAttachment, clearAttachment
 	public void attach(Attachment<?> attachment) {
-		attachments.put(attachment.value, attachment);
+		Object value = attachment.value;
+		if (value == null) {
+			throw new GdxRuntimeException("Attachment value must be non null.");
+		}
+
+		attachments.put(value, attachment);
 		if (isActive()) {
 			attachment.attach();
 		}

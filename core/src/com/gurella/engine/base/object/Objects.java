@@ -17,7 +17,7 @@ import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.utils.Values;
 
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
-class Objects implements ApplicationUpdateListener {
+final class Objects implements ApplicationUpdateListener {
 	private static final Objects instance = new Objects();
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>();
 	private static final Array<Object> tempListeners = new Array<Object>(64);
@@ -65,7 +65,7 @@ class Objects implements ApplicationUpdateListener {
 		}
 
 		Array<ObjectActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.getInstanceId(), ObjectActivityListener.class, listeners);
+		EventService.getSubscribers(object.instanceId, ObjectActivityListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).activated();
 		}
@@ -79,7 +79,7 @@ class Objects implements ApplicationUpdateListener {
 		}
 
 		Array<ObjectActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.getInstanceId(), ObjectActivityListener.class, listeners);
+		EventService.getSubscribers(object.instanceId, ObjectActivityListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).deactivated();
 		}
@@ -93,7 +93,7 @@ class Objects implements ApplicationUpdateListener {
 		}
 
 		Array<ObjectCompositionListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.getInstanceId(), ObjectCompositionListener.class, listeners);
+		EventService.getSubscribers(object.instanceId, ObjectCompositionListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).childAdded(object);
 		}
@@ -107,7 +107,7 @@ class Objects implements ApplicationUpdateListener {
 		}
 
 		Array<ObjectCompositionListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.getInstanceId(), ObjectCompositionListener.class, listeners);
+		EventService.getSubscribers(object.instanceId, ObjectCompositionListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).childRemoved(object);
 		}
@@ -121,7 +121,7 @@ class Objects implements ApplicationUpdateListener {
 		}
 
 		Array<ObjectParentListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.getInstanceId(), ObjectParentListener.class, listeners);
+		EventService.getSubscribers(object.instanceId, ObjectParentListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).parentChanged(oldParent, newParent);
 		}

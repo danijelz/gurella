@@ -13,7 +13,6 @@ import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
-import com.gurella.engine.scene.event.EventManager;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
@@ -54,9 +53,6 @@ public class Scene extends SceneElementsResourceContext {
 	public final ImmutableArray<SceneSystem> activeSystems = ImmutableArray.with(activeSystemsInternal);
 
 	private final Array<SceneOperation> pendingOperations = new Array<SceneOperation>();
-
-	public final EventManager eventManager = new EventManager();
-	private final SceneEventsDispatcher sceneEventsDispatcher = new SceneEventsDispatcher(eventManager);
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -164,8 +160,6 @@ public class Scene extends SceneElementsResourceContext {
 
 		cleanup();
 		releaseResources();
-
-		eventManager.clear();
 	}
 
 	public boolean isActive() {
