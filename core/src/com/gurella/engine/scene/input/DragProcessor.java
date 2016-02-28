@@ -1,21 +1,27 @@
 package com.gurella.engine.scene.input;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.subscriptions.scene.input.GlobalDragListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionDragListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionMouseListener;
+import com.gurella.engine.utils.Values;
 
-public class DragInputProcessor implements PointerActivityListener {
+public class DragProcessor implements PointerActivityListener {
 	private final IntMap<SceneNode> dragStartNodes = new IntMap<SceneNode>(10);
 	private final IntMap<SceneNode> dragOverNodes = new IntMap<SceneNode>(10);
 
 	private final TouchEvent touchEvent = new TouchEvent();
 	private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
 
-	private InputSystem inputSystem;
+	private Array<Object> tempListeners;
 
-	public DragInputProcessor(InputSystem inputSystem) {
-		this.inputSystem = inputSystem;
+	public DragProcessor(Array<Object> tempListeners) {
+		this.tempListeners = tempListeners;
 	}
 
 	@Override
@@ -40,8 +46,10 @@ public class DragInputProcessor implements PointerActivityListener {
 		int screenX = pointerTrack.getScreenX(0);
 		int screenY = pointerTrack.getScreenY(0);
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(touchDragged)) {
-			behaviourComponent.touchDragged(touchEvent);
+		Array<GlobalDragListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(GlobalDragListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).touchDragged(touchEvent);
 		}
 
 		SceneNode node = pointerTrack.getNode(0);
@@ -49,8 +57,10 @@ public class DragInputProcessor implements PointerActivityListener {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			dragStartNodes.put(key, node);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onDragStartGlobal)) {
-				behaviourComponent.onDragStart(renderableComponent, intersectionTouchEvent);
+			Array<IntersectionDragListener> intersectionListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(IntersectionDragListener.class, intersectionListeners);
+			for (int i = 0; i < intersectionListeners.size; i++) {
+				intersectionListeners.get(i).onDragStart(renderableComponent, intersectionTouchEvent);
 			}
 
 			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, onDragStart)) {
@@ -74,15 +84,19 @@ public class DragInputProcessor implements PointerActivityListener {
 		int screenX = pointerTrack.getScreenX(last);
 		int screenY = pointerTrack.getScreenY(last);
 		touchEvent.set(pointer, button, screenX, screenY);
-		for (BehaviourComponent behaviourComponent : inputSystem.getListeners(touchDragged)) {
-			behaviourComponent.touchDragged(touchEvent);
+		Array<GlobalDragListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(GlobalDragListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).touchDragged(touchEvent);
 		}
 
 		SceneNode dragStartNode = dragStartNodes.get(key);
 		if (dragStartNode != null) {
 			RenderableComponent renderableComponent = dragStartNode.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onDragMoveGlobal)) {
-				behaviourComponent.onDragMove(renderableComponent, touchEvent);
+			Array<IntersectionDragListener> intersectionListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(IntersectionDragListener.class, intersectionListeners);
+			for (int i = 0; i < intersectionListeners.size; i++) {
+				intersectionListeners.get(i).onDragMove(renderableComponent, touchEvent);
 			}
 
 			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(dragStartNode, onDragMove)) {
@@ -138,8 +152,10 @@ public class DragInputProcessor implements PointerActivityListener {
 		SceneNode dragStartNode = dragStartNodes.remove(key);
 		if (dragStartNode != null) {
 			RenderableComponent renderableComponent = dragStartNode.getComponent(RenderableComponent.class);
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(onDragEndGlobal)) {
-				behaviourComponent.onDragEnd(renderableComponent, touchEvent);
+			Array<IntersectionDragListener> intersectionListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(IntersectionDragListener.class, intersectionListeners);
+			for (int i = 0; i < intersectionListeners.size; i++) {
+				intersectionListeners.get(i).onDragEnd(renderableComponent, touchEvent);
 			}
 
 			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(dragStartNode, onDragEnd)) {

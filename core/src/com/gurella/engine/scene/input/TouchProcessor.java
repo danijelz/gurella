@@ -22,7 +22,7 @@ import com.gurella.engine.subscriptions.scene.input.ObjectTapListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
-public class TouchInputProcessor implements PointerActivityListener {
+public class TouchProcessor implements PointerActivityListener {
 	private float tapSquareSize = 20;
 	private long tapCountInterval = (long) (0.4f * 1000000000l);
 	private float longPressSeconds = 0.8f;
@@ -39,7 +39,7 @@ public class TouchInputProcessor implements PointerActivityListener {
 	private Array<Object> tempListeners;
 	private DragAndDropProcessor dragAndDropProcessor;
 
-	public TouchInputProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
+	public TouchProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
 		this.tempListeners = tempListeners;
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}

@@ -12,7 +12,7 @@ import com.gurella.engine.subscriptions.scene.input.ObjectDoubleTouchDownListene
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
-public class DoubleTouchInputProcessor implements PointerActivityListener {
+public class DoubleTouchProcessor implements PointerActivityListener {
 	private float tapSquareSize = 20;
 	private long maxDoubleClickDelay = (long) (0.4f * 1000000000l);
 
@@ -26,7 +26,7 @@ public class DoubleTouchInputProcessor implements PointerActivityListener {
 	private Array<Object> tempListeners;
 	private DragAndDropProcessor dragAndDropProcessor;
 
-	public DoubleTouchInputProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
+	public DoubleTouchProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
 		this.tempListeners = tempListeners;
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}

@@ -28,7 +28,6 @@ import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
-import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
@@ -70,16 +69,15 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
 	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(tempListeners);
-	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(tempListeners, dragAndDropProcessor);
-	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(tempListeners,
-			dragAndDropProcessor);
-	private DragInputProcessor dragInputProcessor = new DragInputProcessor(this);
+	private TouchProcessor touchProcessor = new TouchProcessor(tempListeners, dragAndDropProcessor);
+	private DragProcessor dragProcessor = new DragProcessor(tempListeners);
+	private DoubleTouchProcessor doubleTouchProcessor = new DoubleTouchProcessor(tempListeners, dragAndDropProcessor);
 
 	public InputSystem() {
 		pointerActivitySignal.addListener(dragAndDropProcessor);
-		pointerActivitySignal.addListener(touchInputProcessor);
-		pointerActivitySignal.addListener(doubleTouchInputProcessor);
-		pointerActivitySignal.addListener(dragInputProcessor);
+		pointerActivitySignal.addListener(touchProcessor);
+		pointerActivitySignal.addListener(doubleTouchProcessor);
+		pointerActivitySignal.addListener(dragProcessor);
 	}
 
 	@Override
@@ -348,15 +346,6 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	public PointerTrack getTracker(int pointer, int button) {
 		int key = pointer + button * 100;
 		return trackers.get(key);
-	}
-
-	ImmutableArray<BehaviourComponent> getListeners(EventCallbackIdentifier<BehaviourComponent> method) {
-		return eventManager.getListeners(method);
-	}
-
-	ImmutableArray<BehaviourComponent> getListeners(SceneNode node,
-			EventCallbackIdentifier<BehaviourComponent> method) {
-		return eventManager.getListeners(node, method);
 	}
 
 	private class InputProcessorDelegate implements com.badlogic.gdx.InputProcessor {
