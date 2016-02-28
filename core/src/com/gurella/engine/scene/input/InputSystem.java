@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
@@ -37,7 +38,12 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.input.GlobalTouchListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectTouchListener;
+import com.gurella.engine.subscriptions.scene.input.TouchDraggedListener;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Values;
 
 //TODO attach listeners -> SceneListener
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.INPUT, type = ApplicationUpdateListener.class) })
@@ -415,19 +421,25 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
 
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (BehaviourComponent behaviourComponent : getListeners(touchDown)) {
-				behaviourComponent.touchDown(touchEvent);
+			Array<GlobalTouchListener> globalListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(GlobalTouchListener.class, globalListeners);
+			for (int i = 0; i < globalListeners.size; i++) {
+				globalListeners.get(i).touchDown(touchEvent);
 			}
 
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : getListeners(onTouchDownGlobal)) {
-					behaviourComponent.onTouchDown(renderableComponent, intersectionTouchEvent);
+				Array<IntersectionTouchListener> intersectionListeners = Values.cast(tempListeners);
+				EventService.getSubscribers(IntersectionTouchListener.class, intersectionListeners);
+				for (int i = 0; i < intersectionListeners.size; i++) {
+					intersectionListeners.get(i).onTouchDown(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (BehaviourComponent behaviourComponent : getListeners(node, onTouchDown)) {
-					behaviourComponent.onTouchDown(intersectionTouchEvent);
+				Array<ObjectTouchListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectTouchListener.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).onTouchDown(intersectionTouchEvent);
 				}
 			}
 
@@ -439,20 +451,26 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchEvent.set(pointer, button, screenX, screenY);
-			for (BehaviourComponent behaviourComponent : getListeners(touchUp)) {
-				behaviourComponent.touchUp(touchEvent);
+			Array<GlobalTouchListener> globalListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(GlobalTouchListener.class, globalListeners);
+			for (int i = 0; i < globalListeners.size; i++) {
+				globalListeners.get(i).touchUp(touchEvent);
 			}
 
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : getListeners(onTouchUpGlobal)) {
-					behaviourComponent.onTouchUp(renderableComponent, intersectionTouchEvent);
+				Array<IntersectionTouchListener> intersectionListeners = Values.cast(tempListeners);
+				EventService.getSubscribers(IntersectionTouchListener.class, intersectionListeners);
+				for (int i = 0; i < intersectionListeners.size; i++) {
+					intersectionListeners.get(i).onTouchUp(renderableComponent, intersectionTouchEvent);
 				}
 
-				for (BehaviourComponent behaviourComponent : getListeners(node, onTouchUp)) {
-					behaviourComponent.onTouchUp(intersectionTouchEvent);
+				Array<ObjectTouchListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectTouchListener.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).onTouchDown(intersectionTouchEvent);
 				}
 			}
 
@@ -474,8 +492,10 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					touchEvent.set(pointer, button, screenX, screenY);
-					for (BehaviourComponent behaviourComponent : getListeners(touchDragged)) {
-						behaviourComponent.touchDragged(touchEvent);
+					Array<TouchDraggedListener> listeners = Values.cast(tempListeners);
+					EventService.getSubscribers(TouchDraggedListener.class, listeners);
+					for (int i = 0; i < listeners.size; i++) {
+						listeners.get(i).touchDragged(touchEvent);
 					}
 
 					PointerTrack tracker = getTracker(pointer, button);
