@@ -2,9 +2,11 @@ package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.behaviour.BehaviourComponent;
-import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.subscriptions.scene.input.ObjectDragSourceListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectDropTargetListener;
+import com.gurella.engine.utils.Values;
 
 public class DragAndDropProcessor implements PointerActivityListener {
 	private SceneNode sourceNode;
@@ -12,10 +14,10 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	private Array<DragSource> dragSources = new Array<DragSource>(10);
 	private Array<DropTarget> dropTargets = new Array<DropTarget>(10);
 
-	private InputSystem inputSystem;
+	private Array<Object> tempListeners;
 
-	public DragAndDropProcessor(InputSystem inputSystem) {
-		this.inputSystem = inputSystem;
+	public DragAndDropProcessor(Array<Object> tempListeners) {
+		this.tempListeners = tempListeners;
 	}
 
 	@Override
@@ -60,13 +62,14 @@ public class DragAndDropProcessor implements PointerActivityListener {
 
 	private void initDragSources(SceneNode node, DragStartCondition condition) {
 		dragSources.clear();
-		ImmutableArray<BehaviourComponent> scripts = inputSystem.getListeners(node, getDragSource);
-		if (scripts == null || scripts.size() < 1) {
+		Array<ObjectDragSourceListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(node.id, ObjectDragSourceListener.class, listeners);
+		if (listeners.size < 1) {
 			return;
 		}
 
-		for (BehaviourComponent behaviourComponent : scripts) {
-			DragSource dragSource = behaviourComponent.getDragSource(condition);
+		for (int i = 0; i < listeners.size; i++) {
+			DragSource dragSource = listeners.get(i).getDragSource(condition);
 			if (dragSource != null) {
 				dragSources.add(dragSource);
 			}
@@ -114,13 +117,14 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	}
 
 	private void initDropTargets(SceneNode node) {
-		ImmutableArray<BehaviourComponent> scripts = inputSystem.getListeners(node, getDropTarget);
-		if (scripts == null || scripts.size() < 1) {
+		Array<ObjectDropTargetListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(node.id, ObjectDropTargetListener.class, listeners);
+		if (listeners.size < 1) {
 			return;
 		}
 
-		for (BehaviourComponent behaviourComponent : scripts) {
-			DropTarget dropTarget = behaviourComponent.getDropTarget(dragSources);
+		for (int i = 0; i < listeners.size; i++) {
+			DropTarget dropTarget = listeners.get(i).getDropTarget(dragSources);
 			if (dropTarget != null) {
 				dropTargets.add(dropTarget);
 			}

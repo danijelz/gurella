@@ -164,7 +164,7 @@ public class TouchInputProcessor implements PointerActivityListener {
 			}
 
 			Array<ObjectTapListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(ObjectTapListener.class, listeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectTapListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onTap(intersectionTouchEvent, tapCount);
 			}
@@ -191,7 +191,7 @@ public class TouchInputProcessor implements PointerActivityListener {
 			}
 
 			Array<ObjectLongPressListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(ObjectLongPressListener.class, listeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectLongPressListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onLongPress(intersectionTouchEvent);
 			}

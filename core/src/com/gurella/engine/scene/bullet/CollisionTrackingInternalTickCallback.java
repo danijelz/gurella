@@ -73,13 +73,13 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 
 		if (previousTickCollisionPairs.contains(cachedCollisionPair)) {
 			Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent0.getNode().id, BulletCollisionListener.class, listeners);
+			EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onCollisionStay(collision0);
 			}
 
 			listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent1.getNode().id, BulletCollisionListener.class, listeners);
+			EventService.getSubscribers(rigidBodyComponent1.getNodeId(), BulletCollisionListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onCollisionStay(collision1);
 			}
@@ -91,13 +91,13 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 			}
 		} else {
 			Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent0.getNode().id, BulletCollisionListener.class, listeners);
+			EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onCollisionEnter(collision0);
 			}
 
 			listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent1.getNode().id, BulletCollisionListener.class, listeners);
+			EventService.getSubscribers(rigidBodyComponent1.getNodeId(), BulletCollisionListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onCollisionEnter(collision1);
 			}
@@ -129,13 +129,13 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
 
 		Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(rigidBodyComponent0.getNode().id, BulletCollisionListener.class, listeners);
+		EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).onCollisionExit(rigidBodyComponent1);
 		}
 
 		listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(rigidBodyComponent1.getNode().id, BulletCollisionListener.class, listeners);
+		EventService.getSubscribers(rigidBodyComponent1.getNodeId(), BulletCollisionListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).onCollisionExit(rigidBodyComponent0);
 		}

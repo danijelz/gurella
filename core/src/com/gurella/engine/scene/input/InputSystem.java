@@ -58,7 +58,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
-	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(this);
+	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(tempListeners);
 	private TouchInputProcessor touchInputProcessor = new TouchInputProcessor(tempListeners, dragAndDropProcessor);
 	private DoubleTouchInputProcessor doubleTouchInputProcessor = new DoubleTouchInputProcessor(tempListeners,
 			dragAndDropProcessor);
