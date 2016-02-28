@@ -2,6 +2,7 @@ package com.gurella.engine.base.object;
 
 import com.gurella.engine.event.EventService;
 
+//TODO unused + Poolable
 public class ObjectSubscriptionAttachment<T> extends Attachment<T> {
 	private int objectId;
 

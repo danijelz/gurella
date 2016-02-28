@@ -2,7 +2,7 @@ package com.gurella.engine.base.object;
 
 import com.gurella.engine.event.EventService;
 
-//TODO unused
+//TODO unused + Poolable
 class SubscriptionAttachment<T> extends Attachment<T> {
 	public SubscriptionAttachment(T value) {
 		super(value);
