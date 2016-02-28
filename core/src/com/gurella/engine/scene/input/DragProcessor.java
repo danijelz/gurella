@@ -8,7 +8,7 @@ import com.gurella.engine.scene.behaviour.BehaviourComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.GlobalDragListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionDragListener;
-import com.gurella.engine.subscriptions.scene.input.IntersectionMouseListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectDragListener;
 import com.gurella.engine.utils.Values;
 
 public class DragProcessor implements PointerActivityListener {
@@ -63,8 +63,10 @@ public class DragProcessor implements PointerActivityListener {
 				intersectionListeners.get(i).onDragStart(renderableComponent, intersectionTouchEvent);
 			}
 
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(node, onDragStart)) {
-				behaviourComponent.onDragStart(intersectionTouchEvent);
+			Array<ObjectDragListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectDragListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onDragStart(intersectionTouchEvent);
 			}
 
 			dragOverNodes.put(key, node);
@@ -99,8 +101,10 @@ public class DragProcessor implements PointerActivityListener {
 				intersectionListeners.get(i).onDragMove(renderableComponent, touchEvent);
 			}
 
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(dragStartNode, onDragMove)) {
-				behaviourComponent.onDragMove(touchEvent);
+			Array<ObjectDragListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectDragListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onDragMove(touchEvent);
 			}
 		}
 
@@ -158,8 +162,10 @@ public class DragProcessor implements PointerActivityListener {
 				intersectionListeners.get(i).onDragEnd(renderableComponent, touchEvent);
 			}
 
-			for (BehaviourComponent behaviourComponent : inputSystem.getListeners(dragStartNode, onDragEnd)) {
-				behaviourComponent.onDragEnd(touchEvent);
+			Array<ObjectDragListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectDragListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onDragEnd(touchEvent);
 			}
 		}
 
