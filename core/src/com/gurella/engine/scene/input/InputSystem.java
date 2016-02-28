@@ -42,6 +42,8 @@ import com.gurella.engine.subscriptions.scene.input.GlobalScrollListener;
 import com.gurella.engine.subscriptions.scene.input.GlobalTouchListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionScrollListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
+import com.gurella.engine.subscriptions.scene.input.KeyListener;
+import com.gurella.engine.subscriptions.scene.input.KeyTypedListener;
 import com.gurella.engine.subscriptions.scene.input.ObjectScrollListener;
 import com.gurella.engine.subscriptions.scene.input.ObjectTouchListener;
 import com.gurella.engine.subscriptions.scene.input.TouchDraggedListener;
@@ -363,24 +365,30 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyDown(int keycode) {
-			for (BehaviourComponent behaviourComponent : getListeners(keyDown)) {
-				behaviourComponent.keyDown(keycode);
+			Array<KeyListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(KeyListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).keyDown(keycode);
 			}
 			return false;
 		}
 
 		@Override
 		public boolean keyUp(int keycode) {
-			for (BehaviourComponent behaviourComponent : getListeners(keyUp)) {
-				behaviourComponent.keyUp(keycode);
+			Array<KeyListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(KeyListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).keyUp(keycode);
 			}
 			return false;
 		}
 
 		@Override
 		public boolean keyTyped(char character) {
-			for (BehaviourComponent behaviourComponent : getListeners(keyTyped)) {
-				behaviourComponent.keyTyped(character);
+			Array<KeyTypedListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(KeyTypedListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).keyTyped(character);
 			}
 			return false;
 		}
@@ -397,9 +405,6 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
 
-			for (BehaviourComponent behaviourComponent : getListeners(scrolled)) {
-				behaviourComponent.scrolled(screenX, screenY, amount);
-			}
 			Array<GlobalScrollListener> globalListeners = Values.cast(tempListeners);
 			EventService.getSubscribers(GlobalScrollListener.class, globalListeners);
 			for (int i = 0; i < globalListeners.size; i++) {
