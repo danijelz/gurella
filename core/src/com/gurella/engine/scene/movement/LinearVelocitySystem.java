@@ -2,7 +2,6 @@ package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.SceneNode;
@@ -16,18 +15,13 @@ import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
-public class LinearVelocityProcessor extends SceneSystem implements ApplicationUpdateListener {
+public class LinearVelocitySystem extends SceneSystem implements ApplicationUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 
 	private NodeManager nodeManager;
 	private Vector3 tempTranslate = new Vector3();
 	private Vector3 tempVelocity = new Vector3();
-
-	public LinearVelocityProcessor() {
-		activatedSignal.addListener(new ActivateListener());
-		deactivatedSignal.addListener(new DeactivateListener());
-	}
 
 	@Override
 	protected void activated() {
@@ -58,20 +52,6 @@ public class LinearVelocityProcessor extends SceneSystem implements ApplicationU
 
 			linearVelocityComponent.velocity.set(tempVelocity).scl(1.0f / deltaTime);
 			linearVelocityComponent.lastPosition.set(tempTranslate);
-		}
-	}
-
-	private class ActivateListener implements Listener0 {
-		@Override
-		public void handle() {
-
-		}
-	}
-
-	private class DeactivateListener implements Listener0 {
-		@Override
-		public void handle() {
-			nodeManager = null;
 		}
 	}
 }

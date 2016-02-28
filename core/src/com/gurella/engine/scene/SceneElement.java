@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.application.Application;
 import com.gurella.engine.event.Signal;
-import com.gurella.engine.event.Signal0;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.utils.IndexedValue;
@@ -28,15 +27,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 	@DefaultValue(booleanValue = true)
 	boolean enabled = true;
 
-	// TODO attached and detached are not needed
-	@TransientProperty
-	public final Signal0 attachedSignal = new Signal0();
-	@TransientProperty
-	public final Signal0 activatedSignal = new Signal0();
-	@TransientProperty
-	public final Signal0 deactivatedSignal = new Signal0();
-	@TransientProperty
-	public final Signal0 detachedSignal = new Signal0();
 	@TransientProperty
 	public final SceneElementLifecycleSignal lifecycleSignal = new SceneElementLifecycleSignal();
 
@@ -103,10 +93,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 	}
 
 	void clearSignals() {
-		attachedSignal.clear();
-		activatedSignal.clear();
-		deactivatedSignal.clear();
-		detachedSignal.clear();
 		lifecycleSignal.clear();
 	}
 
@@ -171,7 +157,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 				items[i].attached();
 			}
 			listeners.end();
-			attachedSignal.dispatch();
 		}
 
 		void activated() {
@@ -181,7 +166,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 				items[i].activated();
 			}
 			listeners.end();
-			activatedSignal.dispatch();
 		}
 
 		void deactivated() {
@@ -191,7 +175,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 				items[i].deactivated();
 			}
 			listeners.end();
-			deactivatedSignal.dispatch();
 		}
 
 		void detached() {
@@ -201,7 +184,6 @@ public abstract class SceneElement implements Poolable, Disposable {
 				items[i].detached();
 			}
 			listeners.end();
-			detachedSignal.dispatch();
 		}
 	}
 }
