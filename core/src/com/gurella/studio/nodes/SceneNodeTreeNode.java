@@ -58,12 +58,12 @@ public class SceneNodeTreeNode extends Node {
 		ModelResourceFactory<SceneNode> childFactory = new ModelResourceFactory<SceneNode>(SceneNode.class);
 		childFactory.setPropertyValue("activateOnInit", Boolean.FALSE);
 
-		Scene scene = (Scene) reference.getOwningContext();
+		/*Scene scene = (Scene) reference.getOwningContext();
 
 		int nodeId = scene.getNextId();
 		SharedResourceReference<SceneNode> nodeReference = new SharedResourceReference<SceneNode>(nodeId, nodeName,
 				false, false, childFactory);
-		scene.add(nodeReference);
+		scene.add(nodeReference);*/
 
 		Array<Object> children = nodeFactory.getPropertyValue("children");
 		if (children == null) {
@@ -71,15 +71,15 @@ public class SceneNodeTreeNode extends Node {
 			nodeFactory.setPropertyValue("children", children);
 		}
 
-		children.add(new ResourceId(nodeId));
-		add(new SceneNodeTreeNode(nodeReference));
+		/*children.add(new ResourceId(nodeId));
+		add(new SceneNodeTreeNode(nodeReference));*/
 	}
 
 	private void removeNode() {
 		SceneNodeTreeNode parent = (SceneNodeTreeNode) getParent();
 		if (parent == null) {
-			Scene scene = (Scene) reference.getOwningContext();
-			scene.remove(reference.getId());
+			/*Scene scene = (Scene) reference.getOwningContext();
+			scene.remove(reference.getId());*/
 			getTree().remove(this);
 		} else {
 			parent.removeChild(this);
@@ -92,8 +92,8 @@ public class SceneNodeTreeNode extends Node {
 				child.removeChild((SceneNodeTreeNode) child2);
 			}
 
-			Scene scene = (Scene) reference.getOwningContext();
-			scene.remove(reference.getId());
+			/*Scene scene = (Scene) reference.getOwningContext();
+			scene.remove(reference.getId());*/
 			remove(child);
 		}
 	}

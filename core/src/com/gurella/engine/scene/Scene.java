@@ -5,11 +5,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.application.Application;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.Signal0;
 import com.gurella.engine.resource.DependencyMap;
-import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
@@ -25,19 +23,11 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
 
-public class Scene extends SceneElementsResourceContext {
-	public static final String defaultGroup = "Default";
-
-	private String id;
-	private String group = defaultGroup;
-
+public class Scene extends ManagedObject {
 	public final IntArray initialSystems = new IntArray();
 	public final IntArray initialNodes = new IntArray();
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
-	// TODO remove signals
-	public final Signal0 startSignal = new Signal0();
-	public final Signal0 stopSignal = new Signal0();
 
 	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
 	public final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
@@ -68,23 +58,6 @@ public class Scene extends SceneElementsResourceContext {
 	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 
 	private boolean active;
-
-	public Scene(Application application, String id) {
-		super(application);
-		this.id = id;
-	}
-
-	public Application getApplication() {
-		return (Application) getParent();
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getGroup() {
-		return group;
-	}
 
 	public void addInitialSystem(int systemId) {
 		initialSystems.add(systemId);
@@ -169,7 +142,7 @@ public class Scene extends SceneElementsResourceContext {
 		}
 
 		cleanup();
-		releaseResources();
+		//releaseResources();
 	}
 
 	public boolean isActive() {
@@ -488,10 +461,5 @@ public class Scene extends SceneElementsResourceContext {
 			graphOperation.free();
 		}
 		pendingOperations.clear();
-	}
-
-	@Override
-	public String toString() {
-		return id;
 	}
 }

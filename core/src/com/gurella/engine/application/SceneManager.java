@@ -2,6 +2,7 @@ package com.gurella.engine.application;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
@@ -20,7 +21,7 @@ public class SceneManager {
 	private static final SceneTransition defaultTransition = new SceneTransition();
 
 	private Application application;
-	private ObjectMap<String, Scene> scenes = new ObjectMap<String, Scene>();
+	private IntMap<Scene> scenes = new IntMap<Scene>();
 	private ObjectMap<String, Array<Scene>> scenesByGroup = new ObjectMap<String, Array<Scene>>();
 
 	private String currentSceneGroup = DEFAULT_TRANSITION_GROUP; // TODO groups
@@ -33,7 +34,7 @@ public class SceneManager {
 	}
 
 	public void addScene(Scene scene) {
-		scenes.put(scene.getId(), scene);
+		scenes.put(scene.getInstanceId(), scene);
 		String group = getSceneGroup(scene);
 		getGroupScenes(group).add(scene);
 	}
@@ -48,12 +49,13 @@ public class SceneManager {
 	}
 
 	private static String getSceneGroup(Scene scene) {
-		String group = scene.getGroup();
+		/*String group = scene.getGroup();
 		group = Values.isBlank(group) ? DEFAULT_TRANSITION_GROUP : group;
-		return group;
+		return group;*/
+		return null;
 	}
 
-	public ObjectMap<String, Scene> getScenes() {
+	public IntMap<Scene> getScenes() {
 		return scenes;
 	}
 
@@ -66,7 +68,7 @@ public class SceneManager {
 			throw new IllegalStateException("Scene transition already in progress.");
 		}
 
-		Scene destinationScene = scenes.get(sceneId);
+		Scene destinationScene = null;//scenes.get(sceneId);
 		if (destinationScene == null) {
 			throw new IllegalArgumentException("Invalid sceneId: " + sceneId);
 		}
@@ -108,7 +110,7 @@ public class SceneManager {
 			this.transition.init(currentScene, destinationScene);
 			dependentResourceIds.addAll(destinationScene.getInitialSystems());
 			dependentResourceIds.addAll(destinationScene.getInitialNodes());
-			destinationScene.obtainResourcesAsync(dependentResourceIds, this);
+			//destinationScene.obtainResourcesAsync(dependentResourceIds, this);
 			transition.beforeTransitionOut();
 			EventService.subscribe(this);
 		}
@@ -204,7 +206,7 @@ public class SceneManager {
 				stopCurrentScene();
 
 				if (destinationSceneResources != null) {
-					destinationScene.rollback(destinationSceneResources);
+					//destinationScene.rollback(destinationSceneResources);
 					destinationSceneResources.free();
 					destinationSceneResources = null;
 				}

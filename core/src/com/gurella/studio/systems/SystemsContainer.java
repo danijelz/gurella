@@ -71,7 +71,7 @@ public class SystemsContainer extends VisTable {
 		Array<SceneItem> items = new Array<SceneItem>();
 		for (int i = 0; i < initialSystems.size; i++) {
 			int systemId = initialSystems.get(i);
-			ResourceReference<? extends SceneSystem> reference = scene.getReference(systemId);
+			ResourceReference<? extends SceneSystem> reference = null;//scene.getReference(systemId);
 			items.add(new SceneItem(reference));
 			usedSystemTypes.add(reference.getResourceFactory().getResourceType());
 		}
@@ -82,11 +82,11 @@ public class SystemsContainer extends VisTable {
 
 	private <T extends SceneSystem> void addSystem(Class<T> systemType) {
 		ModelResourceFactory<T> systemFactory = new ModelResourceFactory<T>(systemType);
-		int systemId = scene.getNextId();
+		/*int systemId = scene.getNextId();
 		SharedResourceReference<T> systemReference = new SharedResourceReference<T>(systemId, null, false, false,
 				systemFactory);
 		scene.add(systemReference);
-		scene.addInitialSystem(systemId);
+		scene.addInitialSystem(systemId);*/
 		buildUi();
 	}
 

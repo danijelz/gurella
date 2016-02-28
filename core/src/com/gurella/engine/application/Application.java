@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
@@ -19,7 +19,7 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Values;
 
 public final class Application extends SceneElementsResourceContext implements ApplicationListener {
-	private String initialSceneId;
+	private String initialScenePath;
 	private Color backgroundColor;
 
 	private boolean paused;
@@ -47,12 +47,8 @@ public final class Application extends SceneElementsResourceContext implements A
 		sceneManager.addScene(scene);
 	}
 
-	public void setInitialScene(Scene initialScene) {
-		this.initialSceneId = initialScene.getId();
-	}
-
-	public void setInitialScene(String initialSceneId) {
-		this.initialSceneId = initialSceneId;
+	public void setInitialScene(String initialScenePath) {
+		this.initialScenePath = initialScenePath;
 	}
 
 	@Override
@@ -61,7 +57,7 @@ public final class Application extends SceneElementsResourceContext implements A
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		initializer.init(this);
 		// TODO add init scripts to initializer
-		sceneManager.showScene(initialSceneId);
+		sceneManager.showScene(initialScenePath);
 	}
 
 	@Override
@@ -112,7 +108,7 @@ public final class Application extends SceneElementsResourceContext implements A
 		return paused;
 	}
 
-	public ObjectMap<String, Scene> getScenes() {
+	public IntMap<Scene> getScenes() {
 		return sceneManager.getScenes();
 	}
 

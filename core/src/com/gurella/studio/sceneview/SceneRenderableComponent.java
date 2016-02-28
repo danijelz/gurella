@@ -100,7 +100,7 @@ public class SceneRenderableComponent extends RenderableComponent {
 				assetRegistry.update();
 			}
 
-			AssetResourceReference<?> textureReference = getScene().findOrCreateAssetReference(texture.getFileName(),
+			/*AssetResourceReference<?> textureReference = getScene().findOrCreateAssetReference(texture.getFileName(),
 					texture.getAssetType());
 
 			Texture ttt = assetRegistry.get(descriptor);
@@ -111,7 +111,7 @@ public class SceneRenderableComponent extends RenderableComponent {
 
 			textureComponent = new TextureComponent();
 			textureComponent.setTransformComponent(getTransformComponent());
-			resourceFactory.init(textureComponent, dependencyMap);
+			resourceFactory.init(textureComponent, dependencyMap);*/
 		}
 	}
 

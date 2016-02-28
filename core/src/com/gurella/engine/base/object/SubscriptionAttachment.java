@@ -1,9 +1,10 @@
 package com.gurella.engine.base.object;
 
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 
-//TODO unused + Poolable
-class SubscriptionAttachment<T> extends Attachment<T> {
+//TODO unused 
+class SubscriptionAttachment<T> extends Attachment<T> implements Poolable {
 	public SubscriptionAttachment(T value) {
 		super(value);
 	}
@@ -16,5 +17,10 @@ class SubscriptionAttachment<T> extends Attachment<T> {
 	@Override
 	protected void detach() {
 		EventService.unsubscribe(value);
+	}
+
+	@Override
+	public void reset() {
+		value = null;
 	}
 }

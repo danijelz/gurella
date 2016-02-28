@@ -128,17 +128,17 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 	}
 
 	private <T extends SceneNodeComponent> void addComponent(Class<T> componentType) {
-		Scene scene = (Scene) reference.getOwningContext();
+		Scene scene = null;//(Scene) reference.getOwningContext();
 		ModelResourceFactory<T> componentFactory = new ModelResourceFactory<T>(componentType);
-		int componentId = scene.getNextId();
-		scene.add(new SharedResourceReference<T>(componentId, null, false, false, componentFactory));
+		//int componentId = scene.getNextId();
+		//scene.add(new SharedResourceReference<T>(componentId, null, false, false, componentFactory));
 
 		Array<ResourceId> components = factory.getPropertyValue("components");
 		if (components == null) {
 			components = new Array<ResourceId>();
 		}
 
-		components.add(new ResourceId(componentId));
+		//components.add(new ResourceId(componentId));
 		factory.setPropertyValue("components", components);
 		componentContainers.clear();
 		clearChildren();

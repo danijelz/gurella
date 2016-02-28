@@ -76,7 +76,7 @@ public class ProjectHeaderContainer extends VisTable implements Listener1<String
 
 		@Override
 		public String toString() {
-			return scene == null ? "" : scene.getId();
+			return scene == null ? "" : "";//scene.getId();
 		}
 	}
 

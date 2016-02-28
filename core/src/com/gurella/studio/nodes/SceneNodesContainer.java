@@ -70,8 +70,8 @@ public class SceneNodesContainer extends VisTable {
 	private void refresh() {
 		nodesTree.clearChildren();
 		for (int i = 0; i < scene.initialNodes.size; i++) {
-			ResourceReference<SceneNode> sceneNode = scene.getReference(scene.initialNodes.get(i));
-			nodesTree.add(new SceneNodeTreeNode(sceneNode));
+			/*ResourceReference<SceneNode> sceneNode = scene.getReference(scene.initialNodes.get(i));
+			nodesTree.add(new SceneNodeTreeNode(sceneNode));*/
 		}
 	}
 
@@ -85,10 +85,10 @@ public class SceneNodesContainer extends VisTable {
 
 		ModelResourceFactory<SceneNode> nodeFactory = new ModelResourceFactory<SceneNode>(SceneNode.class);
 		nodeFactory.setPropertyValue("activateOnInit", Boolean.FALSE);
-		int nodeId = scene.getNextId();
+		int nodeId = 1;//scene.getNextId();
 		SharedResourceReference<SceneNode> nodeReference = new SharedResourceReference<SceneNode>(nodeId, nodeName,
 				false, false, nodeFactory);
-		scene.add(nodeReference);
+		//scene.add(nodeReference);
 
 		if (parentFactory == null) {
 			scene.addInitialNode(nodeId);

@@ -104,7 +104,7 @@ public class SceneView extends Container<Image> {
 		setActor(image);
 
 		application = new Application(null);
-		view = new Scene(application, "");
+		view = null;//new Scene(application, "");
 		view.start(null);
 		addPlane();
 		addCamera();
@@ -121,8 +121,8 @@ public class SceneView extends Container<Image> {
 
 	public void presentScene(Scene selectedScene) {
 		scene = selectedScene;
-		sceneNodes = scene.getSceneNodes();
-		sceneNodeComponents = scene.getSceneNodeComponents();
+		sceneNodes = null;//scene.getSceneNodes();
+		sceneNodeComponents = null;//scene.getSceneNodeComponents();
 	}
 
 	private void addPlane() {

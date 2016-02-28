@@ -63,7 +63,7 @@ public class AssetsContainer extends VisTable {
 
 	private void presentScene(Scene selectedScene) {
 		scene = selectedScene;
-		String sceneId = selectedScene.getId();
+		String sceneId = "";//selectedScene.getId();
 		String sceneDirectoryName = applicationFile.file().getAbsolutePath() + "/" + sceneId;
 		sceneDirectory = new FileHandle(sceneDirectoryName);
 		if (!sceneDirectory.exists()) {
@@ -80,7 +80,7 @@ public class AssetsContainer extends VisTable {
 		String path = f.path();
 		int index = path.indexOf(sceneDirectory.name());
 		String subPath = path.substring(index, path.length());
-		return AssetsContainer.this.scene.containsAsset(subPath);
+		return false;//AssetsContainer.this.scene.containsAsset(subPath);
 	}
 
 	private class PresentProjectListener implements Listener1<Project> {
@@ -162,7 +162,7 @@ public class AssetsContainer extends VisTable {
 					String path = f.path();
 					int index = path.indexOf(sceneDirectory.name());
 					String subPath = path.substring(index, path.length());
-					if (!scene.containsAsset(subPath) && subPath.endsWith(".png")) {
+					/*if (!scene.containsAsset(subPath) && subPath.endsWith(".png")) {
 						AssetDescriptor<Texture> assetDescriptor = new AssetDescriptor<Texture>(subPath, Texture.class);
 						AssetResourceReference<Texture> asset = new AssetResourceReference<Texture>(scene.getNextId(),
 								false, true, assetDescriptor);
@@ -184,7 +184,7 @@ public class AssetsContainer extends VisTable {
 						if (!directoryNode.isExpanded()) {
 							directoryNode.setExpanded(true);
 						}
-					}
+					}*/
 				}
 			}
 
@@ -287,7 +287,7 @@ public class AssetsContainer extends VisTable {
 			if (selected.first() instanceof FileNode) {
 				FileNode fileNode = (FileNode) selected.first();
 				String fileName = fileNode.file.path();
-				AssetResourceDescriptor<?> assetDescriptor = scene.findAssetDescriptor(fileName);
+				/*AssetResourceDescriptor<?> assetDescriptor = scene.findAssetDescriptor(fileName);
 				if (assetDescriptor == null) {
 					assetDescriptor = createDefaultAssetDescriptor(fileNode.file);
 				}
@@ -297,7 +297,7 @@ public class AssetsContainer extends VisTable {
 					EventService.notify(
 							new PresentInspectableValueEvent(new InspectableValue(new TexturePropertiesContainer(scene,
 									(AssetResourceDescriptor<Texture>) assetDescriptor))));
-				}
+				}*/
 			} else {
 				EventService.notify(new PresentInspectableValueEvent(null));
 			}

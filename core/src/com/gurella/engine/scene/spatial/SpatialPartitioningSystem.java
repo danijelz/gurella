@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.event.Listener0;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.Scene;
@@ -19,16 +18,14 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 
-//TODO attach listeners
+//TODO attach listeners -> SceneSystem
 @BaseSceneElement
-public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem implements SceneListener, SceneActivityListener {
+public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem
+		implements SceneListener, SceneActivityListener {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();
 	protected IntMap<T> removedSpatials = new IntMap<T>();
-
-	private SceneStartListener sceneStartListener = new SceneStartListener();
-	private SceneStopListener sceneStopListener = new SceneStopListener();
 
 	protected IntMap<T> spatialsByRenderableComponent = new IntMap<T>();
 	private SpatialDirtyListener spatialDirtyListener = new SpatialDirtyListener();
@@ -149,46 +146,17 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 			}
 		}
 	}
-	
+
 	@Override
 	public void sceneStared(Scene scene) {
 		// TODO Auto-generated method stub
 		initSpatials();
 	}
-	
+
 	@Override
 	public void sceneStopped(Scene scene) {
 		// TODO Auto-generated method stub
 		clear();
-	}
-
-	@Override
-	protected void attached() {
-		Scene scene = getScene();
-		scene.startSignal.addListener(sceneStartListener);
-		scene.stopSignal.addListener(sceneStopListener);
-	}
-
-	@Override
-	protected void detached() {
-		clear();
-		Scene scene = getScene();
-		scene.startSignal.removeListener(sceneStartListener);
-		scene.stopSignal.removeListener(sceneStopListener);
-	}
-
-	private class SceneStartListener implements Listener0 {
-		@Override
-		public void handle() {
-			initSpatials();
-		}
-	}
-
-	private class SceneStopListener implements Listener0 {
-		@Override
-		public void handle() {
-			clear();
-		}
 	}
 
 	private class SpatialDirtyListener implements Listener1<RenderableComponent> {
