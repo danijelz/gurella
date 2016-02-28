@@ -17,10 +17,11 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.LayerComponent;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 
 //TODO attach listeners
 @BaseSceneElement
-public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem implements SceneListener {
+public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem implements SceneListener, SceneActivityListener {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();
@@ -147,6 +148,18 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 				spatial.layer = Layer.DEFAULT;
 			}
 		}
+	}
+	
+	@Override
+	public void sceneStared(Scene scene) {
+		// TODO Auto-generated method stub
+		initSpatials();
+	}
+	
+	@Override
+	public void sceneStopped(Scene scene) {
+		// TODO Auto-generated method stub
+		clear();
 	}
 
 	@Override
