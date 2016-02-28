@@ -38,8 +38,11 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.input.GlobalScrollListener;
 import com.gurella.engine.subscriptions.scene.input.GlobalTouchListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionScrollListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
+import com.gurella.engine.subscriptions.scene.input.ObjectScrollListener;
 import com.gurella.engine.subscriptions.scene.input.ObjectTouchListener;
 import com.gurella.engine.subscriptions.scene.input.TouchDraggedListener;
 import com.gurella.engine.utils.ImmutableArray;
@@ -397,16 +400,26 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			for (BehaviourComponent behaviourComponent : getListeners(scrolled)) {
 				behaviourComponent.scrolled(screenX, screenY, amount);
 			}
+			Array<GlobalScrollListener> globalListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(GlobalScrollListener.class, globalListeners);
+			for (int i = 0; i < globalListeners.size; i++) {
+				globalListeners.get(i).scrolled(screenX, screenY, amount);
+			}
 
 			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-				for (BehaviourComponent behaviourComponent : getListeners(onScrolledGlobal)) {
-					behaviourComponent.onScrolled(renderableComponent, screenX, screenY, amount, closestIntersection);
+				Array<IntersectionScrollListener> intersectionListeners = Values.cast(tempListeners);
+				EventService.getSubscribers(IntersectionScrollListener.class, intersectionListeners);
+				for (int i = 0; i < intersectionListeners.size; i++) {
+					intersectionListeners.get(i).onScrolled(renderableComponent, screenX, screenY, amount,
+							closestIntersection);
 				}
 
-				for (BehaviourComponent behaviourComponent : getListeners(node, onTouchDown)) {
-					behaviourComponent.onScrolled(screenX, screenY, amount, closestIntersection);
+				Array<ObjectScrollListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectScrollListener.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).onScrolled(screenX, screenY, amount, closestIntersection);
 				}
 			}
 
