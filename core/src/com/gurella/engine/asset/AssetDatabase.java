@@ -55,6 +55,8 @@ import com.gurella.engine.audio.loader.SoundClipLoader;
 import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
 import com.gurella.engine.utils.Values;
 
 /**
@@ -79,6 +81,8 @@ public class AssetDatabase extends AssetManager {
 	private AssetLoadingTask<?> currentTask;
 
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
+
+	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	private final Object lock = new Object();
 
@@ -384,6 +388,12 @@ public class AssetDatabase extends AssetManager {
 	}
 
 	private void unloadAsset(String fileName, AssetReference reference) {
+		Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ResourceActivityListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).resourceUnloaded(fileName);
+		}
+
 		Object asset = reference.asset;
 		DisposablesService.tryDispose(asset);
 		fileNamesByAsset.remove(asset);
@@ -449,6 +459,12 @@ public class AssetDatabase extends AssetManager {
 			if (reference == null) {
 				return;
 			} else {
+				Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(ResourceActivityListener.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).resourceReloaded(fileName);
+				}
+
 				Object asset = reference.asset;
 				fileNamesByAsset.remove(asset);
 				Class<T> type = Values.cast(asset.getClass());
@@ -464,17 +480,24 @@ public class AssetDatabase extends AssetManager {
 	public void reloadInvalidated() {
 		finishLoading();
 		synchronized (lock) {
+			Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(ResourceActivityListener.class, listeners);
+
 			Entries<String, AssetReference> entries = assetsByFileName.entries();
 			for (; entries.hasNext();) {
 				Entry<String, AssetReference> entry = entries.next();
 				AssetReference reference = entry.value;
 				Object asset = reference.asset;
 				if (asset instanceof Texture || asset instanceof Cubemap) {
+					String fileName = entry.key;
+					for (int i = 0; i < listeners.size; i++) {
+						listeners.get(i).resourceReloaded(fileName);
+					}
+
 					entries.remove();
 					fileNamesByAsset.remove(asset);
 					Class<Object> type = Values.cast(asset.getClass());
 					DisposablesService.tryDispose(asset);
-					String fileName = entry.key;
 					ConfigurableAssetDescriptor<Object> descriptor = ResourceService.getAssetDescriptor(fileName);
 					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
 					asyncQueue.add(obtain(this, null, fileName, type, reference, params, Integer.MAX_VALUE));
@@ -649,6 +672,12 @@ public class AssetDatabase extends AssetManager {
 		for (int i = 0; i < concurentTasks.size; i++) {
 			AssetLoadingTask<T> competingTask = concurentTasks.get(i);
 			notifyLoadFinished(fileName, type, competingTask.params, competingTask.callback, asset);
+		}
+
+		Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ResourceActivityListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).resourceLoaded(fileName, asset);
 		}
 	}
 

@@ -4,7 +4,7 @@ import com.gurella.engine.event.EventSubscription;
 
 //TODO unused
 public interface ResourceActivityListener extends EventSubscription {
-	void resourceLoaded(String resourcePath);
+	void resourceLoaded(String resourcePath, Object resource);
 
 	void resourceUnloaded(String resourcePath);
 
