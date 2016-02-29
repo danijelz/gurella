@@ -146,6 +146,8 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			child.handleDestruction();
 		}
 
+		clear();
+
 		if (this instanceof Poolable) {
 			PoolService.free(this);
 		} else {
@@ -162,8 +164,11 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		uuid = null;
 		prefab = null;
 		state = ManagedObjectState.idle;
+	}
+
+	protected void clear() {
 		childrenPrivate.clear();
-		clearAttachments();
+		removeAttachments();
 	}
 
 	//// HIERARCHY
@@ -178,7 +183,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	//TODO throw exception
+	// TODO throw exception
 	protected boolean isValidNewParent(@SuppressWarnings("unused") ManagedObject newParent) {
 		return true;
 	}
@@ -254,7 +259,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	//// ATTACHMENTS
-	//TOFDO addAttachment, clearAttachment
+	// TODO addAttachment, removeAttachment
 	public void attach(Attachment<?> attachment) {
 		Object value = attachment.value;
 		if (value == null) {
@@ -286,7 +291,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	private void clearAttachments() {
+	private void removeAttachments() {
 		for (Attachment<?> attachment : attachments.values()) {
 			if (attachment instanceof Poolable) {
 				PoolService.free(attachment);

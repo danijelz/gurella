@@ -40,7 +40,7 @@ abstract class CffDict {
 			        b4 = valueData[++i] & 0xff;
 			        operands.add(b1 << 24 | b2 << 16 | b3 << 8 | b4);
 			    } else if (op == 30) {
-			    	i += parseFloatOperand(operands, valueData, i);
+			    	i += parseFloatOperand(operands, valueData);
 			    } else if (op >= 32 && op <= 246) {
 			    	operands.add(op - 139);
 			    } else if (op >= 247 && op <= 250) {
@@ -59,7 +59,7 @@ abstract class CffDict {
 	}
 	
 	
-	int parseFloatOperand(Array<Number> operands, byte[] valueData, int i) {
+	int parseFloatOperand(Array<Number> operands, byte[] valueData) {
 		tempStringBuilder.delete(0, tempStringBuilder.length());
 		int eof = 15;
 	    int count = 0;

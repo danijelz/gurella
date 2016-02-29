@@ -12,15 +12,15 @@ public abstract class SceneSystem extends SceneElement {
 	public final int systemType;
 
 	public SceneSystem() {
-		baseSystemType = getSystemType(getClass());
+		baseSystemType = getBaseSystemType(getClass());
 		systemType = SYSTEM_TYPE_INDEXER.getType(getClass());
 	}
 
-	public static int getSystemType(SceneSystem system) {
-		return getSystemType(system.getClass());
+	public static int getBaseSystemType(SceneSystem system) {
+		return getBaseSystemType(system.getClass());
 	}
 
-	public static int getSystemType(Class<? extends SceneSystem> systemClass) {
+	public static int getBaseSystemType(Class<? extends SceneSystem> systemClass) {
 		int type = baseSystemTypes.get(systemClass, -1);
 		if (type != -1) {
 			return type;
@@ -56,11 +56,11 @@ public abstract class SceneSystem extends SceneElement {
 		return null;
 	}
 
-	public static int getImplementationSystemType(SceneSystem system) {
-		return getImplementationSystemType(system.getClass());
+	public static int getSystemType(SceneSystem system) {
+		return getSystemType(system.getClass());
 	}
 
-	public static int getImplementationSystemType(Class<? extends SceneSystem> systemClass) {
+	public static int getSystemType(Class<? extends SceneSystem> systemClass) {
 		int type = SYSTEM_TYPE_INDEXER.findType(systemClass, -1);
 		if (type != -1) {
 			return type;
@@ -76,11 +76,11 @@ public abstract class SceneSystem extends SceneElement {
 		}
 	}
 
-	public int getSystemType() {
+	public int getBaseSystemType() {
 		return baseSystemType;
 	}
 
-	public int getImplementationSystemType() {
+	public int getSystemType() {
 		return systemType;
 	}
 

@@ -29,6 +29,11 @@ public class Scene extends ManagedObject {
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
+	private final IntMap<SceneSystem> allSystemsInternal = new IntMap<SceneSystem>();
+	public final ImmutableIntMapValues<SceneSystem> allSystems = ImmutableIntMapValues.with(allSystemsInternal);
+	private final Array<SceneSystem> activeSystemsInternal = new Array<SceneSystem>();
+	public final ImmutableArray<SceneSystem> activeSystems = ImmutableArray.with(activeSystemsInternal);
+
 	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
 	public final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
 	private final Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
@@ -38,13 +43,6 @@ public class Scene extends ManagedObject {
 	public final ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray.with(allComponentsInternal);
 	private final Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
 	public final ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray.with(activeComponentsInternal);
-
-	private final IntMap<SceneSystem> allSystemsInternal = new IntMap<SceneSystem>();
-	public final ImmutableIntMapValues<SceneSystem> allSystems = ImmutableIntMapValues.with(allSystemsInternal);
-	private final Array<SceneSystem> activeSystemsInternal = new Array<SceneSystem>();
-	public final ImmutableArray<SceneSystem> activeSystems = ImmutableArray.with(activeSystemsInternal);
-
-	private final Array<SceneOperation> pendingOperations = new Array<SceneOperation>();
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -56,8 +54,6 @@ public class Scene extends ManagedObject {
 	public final RenderSystem renderSystem = new RenderSystem();
 	public final AudioSystem audioSystem = new AudioSystem();
 	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
-
-	private boolean active;
 
 	public void addInitialSystem(int systemId) {
 		initialSystems.add(systemId);
@@ -84,7 +80,7 @@ public class Scene extends ManagedObject {
 	}
 
 	public void start(DependencyMap initialResources) {
-		if (active) {
+		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
 		}
 
@@ -111,7 +107,7 @@ public class Scene extends ManagedObject {
 			addNodeSafely(node);
 		}
 
-		active = true;
+		activate();
 
 		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
@@ -121,7 +117,7 @@ public class Scene extends ManagedObject {
 	}
 
 	public void stop() {
-		active = false;
+		deactivate();
 
 		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
@@ -141,16 +137,12 @@ public class Scene extends ManagedObject {
 			removeSystem(system);
 		}
 
-		cleanup();
-		//releaseResources();
-	}
-
-	public boolean isActive() {
-		return active;
+		// cleanup();
+		// releaseResources();
 	}
 
 	public void addSystem(SceneSystem system) {
-		pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
+		// pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
 	}
 
 	void addSystemSafely(SceneSystem system) {
@@ -176,7 +168,7 @@ public class Scene extends ManagedObject {
 		if (!element.initialized) {
 			element.initialized = true;
 			element.init();
-			element.lifecycleSignal.attached();
+			//element.lifecycleSignal.attached();
 		}
 	}
 
@@ -185,13 +177,13 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException("System does not belong to graph.");
 		}
 
-		pendingOperations.add(SceneOperation.obtain().activateSystem(system));
+		// pendingOperations.add(SceneOperation.obtain().activateSystem(system));
 	}
 
 	void activateSystemSafely(SceneSystem system) {
 		if (!system.active) {
 			system.active = true;
-			system.lifecycleSignal.activated();
+			//system.lifecycleSignal.activated();
 			activeSystemsInternal.add(system);
 		}
 	}
@@ -201,13 +193,13 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException("System does not belong to graph.");
 		}
 
-		pendingOperations.add(SceneOperation.obtain().deactivateSystem(system));
+		// pendingOperations.add(SceneOperation.obtain().deactivateSystem(system));
 	}
 
 	void deactivateSystemSafely(SceneSystem system) {
 		if (system.active) {
 			system.active = false;
-			system.lifecycleSignal.deactivated();
+			//system.lifecycleSignal.deactivated();
 			activeSystemsInternal.removeValue(system, true);
 		}
 	}
@@ -217,18 +209,18 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException("Node does not belong to graph.");
 		}
 
-		pendingOperations.add(SceneOperation.obtain().detachSystem(system));
+		// pendingOperations.add(SceneOperation.obtain().detachSystem(system));
 	}
 
 	void removeSystemSafely(SceneSystem system) {
 		deactivateSystemSafely(system);
-		system.lifecycleSignal.detached();
+		//system.lifecycleSignal.detached();
 		system.scene = null;
 		allSystemsInternal.remove(system.baseSystemType);
 	}
 
 	public <T extends SceneSystem> T getSystem(Class<T> systemClass) {
-		T system = getSystem(SceneSystem.getSystemType(systemClass));
+		T system = getSystem(SceneSystem.getBaseSystemType(systemClass));
 		if (system == null || ClassReflection.isAssignableFrom(systemClass, system.getClass())) {
 			return system;
 		} else {
@@ -247,7 +239,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalStateException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().attachComponent(this, node, component));
+		// pendingOperations.add(SceneOperation.obtain().attachComponent(this, node, component));
 	}
 
 	void addComponentSafely(SceneNode node, SceneNodeComponent component) {
@@ -268,7 +260,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().activateComponent(component));
+		// pendingOperations.add(SceneOperation.obtain().activateComponent(component));
 	}
 
 	void activateComponentSafely(SceneNodeComponent component) {
@@ -277,7 +269,7 @@ public class Scene extends ManagedObject {
 			component.active = true;
 			activeComponentsInternal.add(component);
 			node.activeComponentBitsInternal.set(component.componentType);
-			component.lifecycleSignal.activated();
+			//component.lifecycleSignal.activated();
 			sceneEventsDispatcher.componentActivated(component);
 			node.componentActivatedSignal.dispatch(component);
 		}
@@ -288,14 +280,14 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().deactivateComponent(component));
+		// pendingOperations.add(SceneOperation.obtain().deactivateComponent(component));
 	}
 
 	void deactivateComponentSafely(SceneNodeComponent component) {
 		if (component.active) {
 			SceneNode node = component.node;
 			component.active = false;
-			component.lifecycleSignal.deactivated();
+			//component.lifecycleSignal.deactivated();
 			node.activeComponentBitsInternal.clear(component.componentType);
 			activeComponentsInternal.removeValue(component, true);
 			sceneEventsDispatcher.componentDeactivated(component);
@@ -308,7 +300,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().detachComponent(component));
+		// pendingOperations.add(SceneOperation.obtain().detachComponent(component));
 	}
 
 	void removeComponentSafely(SceneNodeComponent component) {
@@ -316,7 +308,7 @@ public class Scene extends ManagedObject {
 		sceneEventsDispatcher.componentRemoved(component);
 		SceneNode node = component.node;
 		node.nodeChangedSignal.componentRemoved(component);
-		component.lifecycleSignal.detached();
+		//component.lifecycleSignal.detached();
 		component.scene = null;
 
 		node.componentsInternal.remove(component.baseComponentType);
@@ -329,7 +321,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().attachNode(this, node));
+		// pendingOperations.add(SceneOperation.obtain().attachNode(this, node));
 	}
 
 	void addNodeSafely(SceneNode node) {
@@ -364,13 +356,13 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().activateNode(node));
+		// pendingOperations.add(SceneOperation.obtain().activateNode(node));
 	}
 
 	private void activateNodeSafely(SceneNode node) {
 		if (!node.active && node.isHierarchyEnabled() && (node.parent == null || node.parent.active)) {
 			node.active = true;
-			node.lifecycleSignal.activated();
+			//node.lifecycleSignal.activated();
 			activeNodesInternal.add(node);
 		}
 	}
@@ -393,7 +385,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException("Node does not belong to graph.");
 		}
 
-		pendingOperations.add(SceneOperation.obtain().deactivateNode(node));
+		// pendingOperations.add(SceneOperation.obtain().deactivateNode(node));
 	}
 
 	void deactivateNodeSafely(SceneNode node) {
@@ -408,7 +400,7 @@ public class Scene extends ManagedObject {
 
 		if (node.active) {
 			node.active = false;
-			node.lifecycleSignal.deactivated();
+			//node.lifecycleSignal.deactivated();
 			activeNodesInternal.removeValue(node, true);
 		}
 	}
@@ -418,7 +410,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException();
 		}
 
-		pendingOperations.add(SceneOperation.obtain().removeNode(node));
+		// pendingOperations.add(SceneOperation.obtain().removeNode(node));
 	}
 
 	void removeNodeSafely(SceneNode node) {
@@ -441,7 +433,7 @@ public class Scene extends ManagedObject {
 			removeComponentFromGraph(component);
 		}
 
-		node.lifecycleSignal.detached();
+		//node.lifecycleSignal.detached();
 		node.scene = null;
 		allNodesInternal.removeValue(node, true);
 	}
@@ -449,17 +441,8 @@ public class Scene extends ManagedObject {
 	// TODO use removeComponentSafely
 	private void removeComponentFromGraph(SceneNodeComponent component) {
 		sceneGraphListenerSignal.nodeComponentRemoved(component);
-		component.lifecycleSignal.detached();
+		//component.lifecycleSignal.detached();
 		component.scene = null;
 		allComponentsInternal.removeValue(component, true);
-	}
-
-	private void cleanup() {
-		pendingOperations.sort();
-		for (SceneOperation graphOperation : pendingOperations) {
-			graphOperation.execute();
-			graphOperation.free();
-		}
-		pendingOperations.clear();
 	}
 }
