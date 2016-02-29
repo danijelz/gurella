@@ -38,7 +38,7 @@ final class Objects implements ApplicationUpdateListener {
 	}
 
 	static void reparent(ManagedObject object, ManagedObject newParent) {
-		if (object.state == ManagedObjectState.idle && object.isValidNewParent(newParent)) {
+		if (object.state == ManagedObjectState.idle) {
 			object.reparent(newParent);
 		} else {
 			operation(object, OperationType.reparent, newParent);
