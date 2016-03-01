@@ -8,6 +8,7 @@ import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.TypeSequence;
+import com.gurella.engine.utils.Values;
 
 public final class SceneNodeComponentType {
 	private static final int invalidId = -1;
@@ -25,6 +26,10 @@ public final class SceneNodeComponentType {
 
 	static int findBaseType(Class<? extends SceneNodeComponent2> type) {
 		return baseComponentTypes.get(typeSequence.findTypeId(type), invalidId);
+	}
+
+	static int findBaseType(int typeId) {
+		return baseComponentTypes.get(typeId, invalidId);
 	}
 
 	public static int getBaseType(Class<? extends SceneNodeComponent2> type) {
@@ -47,13 +52,13 @@ public final class SceneNodeComponentType {
 		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
 	}
 
-	public static ImmutableBits getSubtypes(int id) {
-		BitsExt subtypes = componentSubtypes.get(id);
+	public static ImmutableBits getSubtypes(int typeId) {
+		BitsExt subtypes = componentSubtypes.get(typeId);
 		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
 	}
 
-	public static boolean isSubtype(int baseComponentType, int componentType) {
-		return getSubtypes(baseComponentType).get(componentType);
+	public static boolean isSubtype(int baseTypeId, int typeId) {
+		return getSubtypes(baseTypeId).get(typeId);
 	}
 
 	public static boolean isSubtype(Class<? extends SceneNodeComponent2> baseType,
@@ -67,7 +72,7 @@ public final class SceneNodeComponentType {
 			return;
 		}
 
-		initComponentDataHierarchy(type);
+		initHierarchy(type);
 
 		Class<?> temp = type;
 		BitsExt lastBits = null;
@@ -90,7 +95,7 @@ public final class SceneNodeComponentType {
 		}
 	}
 
-	private static void initComponentDataHierarchy(Class<? extends SceneNodeComponent2> type) {
+	private static void initHierarchy(Class<? extends SceneNodeComponent2> type) {
 		if (typeSequence.contais(type)) {
 			return;
 		}
@@ -99,19 +104,20 @@ public final class SceneNodeComponentType {
 			throw new GdxRuntimeException("Invalid class: " + type);
 		}
 
-		int id = typeSequence.getTypeId(type);
-		componentSubtypes.put(id, new BitsExt());
-		@SuppressWarnings("unchecked")
-		Class<? extends SceneNodeComponent2> parentType = (Class<? extends SceneNodeComponent2>) type.getSuperclass();
-		initComponentDataHierarchy(parentType);
+		int typeId = typeSequence.getTypeId(type);
+		componentSubtypes.put(typeId, new BitsExt());
+
+		Class<? extends SceneNodeComponent2> parentType = Values.cast(type.getSuperclass());
+		initHierarchy(parentType);
+
 		int parentId = typeSequence.getTypeId(parentType);
 		int parentBaseId = baseComponentTypes.get(parentId, invalidId);
 
 		if (parentId == parentBaseId) {
 			BaseSceneElement base = Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class);
-			baseComponentTypes.put(id, base == null ? id : parentId);
+			baseComponentTypes.put(typeId, base == null ? typeId : parentId);
 		} else {
-			baseComponentTypes.put(id, parentId);
+			baseComponentTypes.put(typeId, parentId);
 		}
 	}
 }

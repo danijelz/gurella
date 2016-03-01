@@ -22,6 +22,7 @@ import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
@@ -30,7 +31,8 @@ import com.gurella.engine.utils.Values;
 
 //TODO attach listeners on activate -> SceneListener
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.PHYSICS, type = ApplicationUpdateListener.class) })
-public class BulletPhysicsSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
+public class BulletPhysicsSystem extends SceneSystem
+		implements SceneListener, ApplicationUpdateListener, ApplicationActivityListener {
 	static {
 		Bullet.init();
 	}
@@ -39,12 +41,12 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 	private btDispatcher dispatcher;
 	private btBroadphaseInterface broadphase;
 	private btConstraintSolver constraintSolver;
-
 	private btDynamicsWorld dynamicsWorld;
-
 	private CollisionTrackingInternalTickCallback tickCallback;
 
-	private Vector3 gravity = new Vector3(0, -10f, 0);
+	public boolean stopSimulationOnPause;
+	private boolean paused;
+	private final Vector3 gravity = new Vector3(0, -10f, 0);
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
@@ -54,7 +56,8 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 		broadphase = DisposablesService.add(new btDbvtBroadphase());
 		constraintSolver = DisposablesService.add(new btSequentialImpulseConstraintSolver());
 
-		dynamicsWorld = DisposablesService.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
+		dynamicsWorld = DisposablesService
+				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
 		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback(tempListeners));
@@ -67,6 +70,7 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
+		//TODO paused = Application.isPaused();
 	}
 
 	@Override
@@ -83,6 +87,10 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 
 	@Override
 	public void update() {
+		if (paused && stopSimulationOnPause) {
+			return;
+		}
+
 		dispatchSimulationStartEvent();
 		dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1f / 60f);
 		dispatchSimulationEndEvent();
@@ -133,5 +141,15 @@ public class BulletPhysicsSystem extends SceneSystem implements SceneListener, A
 			BulletPhysicsRigidBodyComponent rigidBodyComponent = (BulletPhysicsRigidBodyComponent) component;
 			dynamicsWorld.removeRigidBody(rigidBodyComponent.rigidBody);
 		}
+	}
+
+	@Override
+	public void pause() {
+		paused = true;
+	}
+
+	@Override
+	public void resume() {
+		paused = false;
 	}
 }

@@ -10,18 +10,19 @@ import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
 import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
+import com.gurella.engine.utils.Values;
 
 public final class SceneNode2 extends SceneElement2 implements Poolable {
 	// TODO remove
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
-	final Array<SceneNode2> childrenPrivate = new Array<SceneNode2>();
-	public transient final ImmutableArray<SceneNode2> childNodes = ImmutableArray.with(childrenPrivate);
+	final Array<SceneNode2> _childNodes = new Array<SceneNode2>();
+	public transient final ImmutableArray<SceneNode2> childNodes = ImmutableArray.with(_childNodes);
 
 	// TODO remove
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
-	final IntMap<SceneNodeComponent2> componentsPrivate = new IntMap<SceneNodeComponent2>();
+	final IntMap<SceneNodeComponent2> _components = new IntMap<SceneNodeComponent2>();
 	public transient final ImmutableIntMapValues<SceneNodeComponent2> components = ImmutableIntMapValues
-			.with(componentsPrivate);
+			.with(_components);
 
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
@@ -65,5 +66,13 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 
 	public void removeComponent(SceneNodeComponent2 component) {
 
+	}
+
+	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
+		return Values.cast(_components.get(SceneNodeComponentType.findBaseType(typeId)));
+	}
+
+	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
+		return Values.cast(_components.get(SceneNodeComponentType.findBaseType(type)));
 	}
 }
