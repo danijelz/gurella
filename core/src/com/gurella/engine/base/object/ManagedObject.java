@@ -312,23 +312,17 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		detach(subscriber);
 	}
 
-	public void subscribeTo(ManagedObject object, Object subscriber) {
-		if (object == null) {
-			throw new NullPointerException("object is null;");
-		}
-		if (subscriber == null) {
-			throw new NullPointerException("subscriber is null;");
+	protected void subscribeTo(ManagedObject object, Object subscriber) {
+		if (object == null || subscriber == null) {
+			throw new NullPointerException("object or subscriber is null;");
 		}
 
 		attach(ObjectSubscriptionAttachment.obtain(object.instanceId, subscriber));
 	}
 
 	protected void unsubscribeFrom(ManagedObject object, Object subscriber) {
-		if (object == null) {
-			throw new NullPointerException("object is null;");
-		}
-		if (subscriber == null) {
-			throw new NullPointerException("subscriber is null;");
+		if (object == null || subscriber == null) {
+			throw new NullPointerException("object or subscriber is null;");
 		}
 
 		ObjectSubscription objectSubscription = PoolService.obtain(ObjectSubscription.class);
