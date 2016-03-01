@@ -5,14 +5,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.object.ManagedObject;
 
 public final class SceneNode2 extends SceneElement2 implements Poolable {
-	public void addChild(SceneNode2 child) {
-
-	}
-
-	public void removeChild(SceneNode2 child) {
-
-	}
-
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
 		super.validateReparent(newParent);
@@ -39,5 +31,21 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	public void reset() {
 		super.reset();
 		// TODO
+	}
+	
+	public void addChild(SceneNode2 child) {
+
+	}
+
+	public void removeChild(SceneNode2 child) {
+
+	}
+	
+	public void addComponent(SceneNodeComponent2 component) {
+		
+	}
+	
+	public void removeComponent(SceneNodeComponent2 component) {
+		
 	}
 }
