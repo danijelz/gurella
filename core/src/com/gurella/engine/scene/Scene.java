@@ -146,8 +146,7 @@ public class Scene extends ManagedObject {
 	}
 	
 	public void addSystem(SceneSystem2 system) {
-		system.setParent(this);
-		// pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
+		system.setScene(this);
 	}
 
 	void addSystemSafely(SceneSystem system) {

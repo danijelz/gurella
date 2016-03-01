@@ -155,6 +155,11 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
+	protected void clear() {
+		childrenPrivate.clear();
+		removeAttachments();
+	}
+
 	protected void reset() {
 		if (state != ManagedObjectState.disposed) {
 			throw new GdxRuntimeException("Invalid state: " + state);
@@ -166,26 +171,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.idle;
 	}
 
-	protected void clear() {
-		childrenPrivate.clear();
-		removeAttachments();
-	}
-
 	//// HIERARCHY
 
 	public ManagedObject getParent() {
 		return parent;
 	}
 
-	public void setParent(ManagedObject newParent) {
-		if (isValidNewParent(newParent)) {
-			Objects.reparent(this, newParent);
-		}
-	}
-
-	// TODO throw exception
-	protected boolean isValidNewParent(@SuppressWarnings("unused") ManagedObject newParent) {
-		return true;
+	protected final void setParent(ManagedObject newParent) {
+		Objects.reparent(this, newParent);
 	}
 
 	void reparent(ManagedObject newParent) {
@@ -193,7 +186,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			return;
 		}
 
-		validateNewParent(newParent);
+		validateReparent(newParent);
 
 		ManagedObject oldParent = parent;
 		if (oldParent != null) {
@@ -219,7 +212,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	protected void validateNewParent(ManagedObject newParent) {
+	protected void validateReparent(ManagedObject newParent) {
 		if (state == ManagedObjectState.disposed) {
 			throw new GdxRuntimeException("Object is disposed.");
 		}
