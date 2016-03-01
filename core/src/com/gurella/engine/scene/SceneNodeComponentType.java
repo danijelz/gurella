@@ -11,7 +11,8 @@ import com.gurella.engine.utils.TypeSequence;
 import com.gurella.engine.utils.Values;
 
 public final class SceneNodeComponentType {
-	private static final int invalidId = -1;
+	public static final int invalidId = -1;
+
 	private static final IntIntMap baseComponentTypes = new IntIntMap();
 	private static final IntMap<BitsExt> componentSubtypes = new IntMap<BitsExt>();
 	private static final TypeSequence<SceneNodeComponent2> typeSequence = new TypeSequence<SceneNodeComponent2>();
