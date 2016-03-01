@@ -15,7 +15,7 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	// TODO remove
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
 	final Array<SceneNode2> childrenPrivate = new Array<SceneNode2>();
-	public transient final ImmutableArray<SceneNode2> children = ImmutableArray.with(childrenPrivate);
+	public transient final ImmutableArray<SceneNode2> childNodes = ImmutableArray.with(childrenPrivate);
 
 	// TODO remove
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
