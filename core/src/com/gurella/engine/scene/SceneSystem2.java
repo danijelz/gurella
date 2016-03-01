@@ -20,22 +20,16 @@ public class SceneSystem2 extends SceneElement2 {
 			throw new GdxRuntimeException("System can only be added to Scene.");
 		}
 	}
-	
+
 	@Override
 	protected final boolean isActivationAllowed() {
 		return super.isActivationAllowed();
 	}
-	
+
 	final void setParent(Scene scene) {
 		setParent(scene);
 	}
-	
-	@Override
-	void setScene(Scene scene) {
-		super.setScene(scene);
-		setParent(scene);
-	}
-	
+
 	@Override
 	protected void activated() {
 		scene.systemActivated(this);
