@@ -222,7 +222,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		if (newParent == this) {
-			throw new GdxRuntimeException("Invalid parent.");
+			throw new GdxRuntimeException("Parent can't be 'this'.");
 		}
 	}
 

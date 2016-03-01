@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.TypeSequence;
 
+//TODO test
 public class SceneSystemType {
 	private static final ObjectIntMap<Class<? extends SceneSystem2>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem2>>();
 	private static TypeSequence<SceneSystem2> typeIndexer = new TypeSequence<SceneSystem2>();

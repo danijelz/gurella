@@ -38,15 +38,9 @@ public final class SceneNode extends SceneElement {
 	public final ImmutableBits activeComponentBits = new ImmutableBits(activeComponentBitsInternal);
 
 	@TransientProperty
-	public final Signal1<SceneNode> parentChangedSignal = new Signal1<SceneNode>();
-	@TransientProperty
 	public final Signal1<SceneNode> childAddedSignal = new Signal1<SceneNode>();
 	@TransientProperty
 	public final Signal1<SceneNode> childRemovedSignal = new Signal1<SceneNode>();
-	@TransientProperty
-	public final Signal1<SceneNodeComponent> componentAddedSignal = new Signal1<SceneNodeComponent>();
-	@TransientProperty
-	public final Signal1<SceneNodeComponent> componentRemovedSignal = new Signal1<SceneNodeComponent>();
 	@TransientProperty
 	public final Signal1<SceneNodeComponent> componentActivatedSignal = new Signal1<SceneNodeComponent>();
 	@TransientProperty
@@ -263,7 +257,6 @@ public final class SceneNode extends SceneElement {
 				items[i].parentChanged(newParent);
 			}
 			listeners.end();
-			parentChangedSignal.dispatch(newParent);
 		}
 
 		void childAdded(SceneNode child) {
@@ -290,7 +283,6 @@ public final class SceneNode extends SceneElement {
 				items[i].componentAdded(component);
 			}
 			listeners.end();
-			componentAddedSignal.dispatch(component);
 		}
 
 		void componentRemoved(SceneNodeComponent component) {
@@ -299,7 +291,6 @@ public final class SceneNode extends SceneElement {
 				items[i].componentRemoved(component);
 			}
 			listeners.end();
-			componentRemovedSignal.dispatch(component);
 		}
 
 		void componentActivated(SceneNodeComponent component) {

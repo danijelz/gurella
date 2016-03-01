@@ -414,8 +414,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	public boolean isPaused() {
-		Application application = getApplication();
-		return application == null ? false : application.isPaused();
+		return false;
 	}
 
 	// TODO

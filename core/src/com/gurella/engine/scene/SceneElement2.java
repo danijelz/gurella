@@ -9,7 +9,7 @@ public class SceneElement2 extends ManagedObject {
 	boolean enabled = true;
 
 	@Override
-	protected final boolean isActivationAllowed() {
+	protected boolean isActivationAllowed() {
 		return super.isActivationAllowed() && enabled && scene != null;
 	}
 

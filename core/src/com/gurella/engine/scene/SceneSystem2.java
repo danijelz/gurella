@@ -22,8 +22,18 @@ public class SceneSystem2 extends SceneElement2 {
 	}
 	
 	@Override
+	protected final boolean isActivationAllowed() {
+		return super.isActivationAllowed();
+	}
+	
+	@Override
 	void setScene(Scene scene) {
 		super.setScene(scene);
 		setParent(scene);
+	}
+	
+	@Override
+	protected void activated() {
+		scene.systemActivated(this);
 	}
 }

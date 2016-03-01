@@ -29,10 +29,10 @@ public class Scene extends ManagedObject {
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
-	private final IntMap<SceneSystem> allSystemsInternal = new IntMap<SceneSystem>();
-	public final ImmutableIntMapValues<SceneSystem> allSystems = ImmutableIntMapValues.with(allSystemsInternal);
-	private final Array<SceneSystem> activeSystemsInternal = new Array<SceneSystem>();
-	public final ImmutableArray<SceneSystem> activeSystems = ImmutableArray.with(activeSystemsInternal);
+	private final IntMap<SceneSystem2> allSystemsInternal = new IntMap<SceneSystem2>();
+	public final ImmutableIntMapValues<SceneSystem2> allSystems = ImmutableIntMapValues.with(allSystemsInternal);
+	private final Array<SceneSystem2> activeSystemsInternal = new Array<SceneSystem2>();
+	public final ImmutableArray<SceneSystem2> activeSystems = ImmutableArray.with(activeSystemsInternal);
 
 	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
 	public final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
@@ -133,20 +133,29 @@ public class Scene extends ManagedObject {
 		}
 
 		for (int i = 0; i < allSystemsInternal.size; i++) {
-			SceneSystem system = allSystemsInternal.get(i);
+			SceneSystem system = null;//allSystemsInternal.get(i);
 			removeSystem(system);
 		}
 
 		// cleanup();
 		// releaseResources();
 	}
+	
+	public void addSystem(SceneSystem2 system) {
+		system.setScene(this);
+		int baseSystemType = system.baseSystemType;
+		if (allSystemsInternal.containsKey(baseSystemType)) {
+			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
+		}
+		allSystemsInternal.put(baseSystemType, system);
+	}
 
 	public void addSystem(SceneSystem system) {
 		// pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
 	}
 	
-	public void addSystem(SceneSystem2 system) {
-		system.setScene(this);
+	void systemActivated(SceneSystem2 system) {
+		activeSystemsInternal.add(system);
 	}
 
 	void addSystemSafely(SceneSystem system) {
@@ -159,7 +168,7 @@ public class Scene extends ManagedObject {
 			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
 		}
 
-		allSystemsInternal.put(systemType, system);
+		//allSystemsInternal.put(systemType, system);
 		system.scene = this;
 		attachElement(system);
 
@@ -188,7 +197,7 @@ public class Scene extends ManagedObject {
 		if (!system.active) {
 			system.active = true;
 			//system.lifecycleSignal.activated();
-			activeSystemsInternal.add(system);
+			//activeSystemsInternal.add(system);
 		}
 	}
 
@@ -204,7 +213,7 @@ public class Scene extends ManagedObject {
 		if (system.active) {
 			system.active = false;
 			//system.lifecycleSignal.deactivated();
-			activeSystemsInternal.removeValue(system, true);
+			//activeSystemsInternal.removeValue(system, true);
 		}
 	}
 
@@ -223,8 +232,9 @@ public class Scene extends ManagedObject {
 		allSystemsInternal.remove(system.baseSystemType);
 	}
 
-	public <T extends SceneSystem> T getSystem(Class<T> systemClass) {
-		T system = getSystem(SceneSystem.getBaseSystemType(systemClass));
+	public <T extends SceneSystem2> T getSystem(Class<T> systemClass) {
+		T system = getSystem(SceneSystemType.getBaseSystemType(systemClass));
+		//TODO fast check without reflection
 		if (system == null || ClassReflection.isAssignableFrom(systemClass, system.getClass())) {
 			return system;
 		} else {
@@ -232,10 +242,8 @@ public class Scene extends ManagedObject {
 		}
 	}
 
-	public <T extends SceneSystem> T getSystem(int systemType) {
-		@SuppressWarnings("unchecked")
-		T casted = (T) allSystemsInternal.get(systemType);
-		return casted;
+	public <T extends SceneSystem2> T getSystem(int systemType) {
+		return Values.cast(allSystemsInternal.get(systemType));
 	}
 
 	void addComponent(SceneNode node, SceneNodeComponent component) {
