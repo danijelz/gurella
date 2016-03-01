@@ -30,19 +30,22 @@ public class Scene extends ManagedObject {
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	private final IntMap<SceneSystem2> allSystemsInternal = new IntMap<SceneSystem2>();
-	public final ImmutableIntMapValues<SceneSystem2> allSystems = ImmutableIntMapValues.with(allSystemsInternal);
+	public transient final ImmutableIntMapValues<SceneSystem2> allSystems = ImmutableIntMapValues
+			.with(allSystemsInternal);
 	private final Array<SceneSystem2> activeSystemsInternal = new Array<SceneSystem2>();
-	public final ImmutableArray<SceneSystem2> activeSystems = ImmutableArray.with(activeSystemsInternal);
+	public transient final ImmutableArray<SceneSystem2> activeSystems = ImmutableArray.with(activeSystemsInternal);
 
 	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
-	public final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
+	public transient final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
 	private final Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
-	public final ImmutableArray<SceneNode> activeNodes = ImmutableArray.with(activeNodesInternal);
+	public transient final ImmutableArray<SceneNode> activeNodes = ImmutableArray.with(activeNodesInternal);
 
 	private final Array<SceneNodeComponent> allComponentsInternal = new Array<SceneNodeComponent>();
-	public final ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray.with(allComponentsInternal);
+	public transient final ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray
+			.with(allComponentsInternal);
 	private final Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
-	public final ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray.with(activeComponentsInternal);
+	public transient final ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray
+			.with(activeComponentsInternal);
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -140,20 +143,35 @@ public class Scene extends ManagedObject {
 		// cleanup();
 		// releaseResources();
 	}
-	
+
 	public void addSystem(SceneSystem2 system) {
-		system.setScene(this);
+		system.setParent(this);
 		int baseSystemType = system.baseSystemType;
 		if (allSystemsInternal.containsKey(baseSystemType)) {
 			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
 		}
+		system.setScene(this);
 		allSystemsInternal.put(baseSystemType, system);
 	}
+
+	public void removeSystem(SceneSystem2 system) {
+
+	}
+
+	public void addNode(SceneNode2 node) {
+
+	}
+
+	public void removeNode(SceneNode2 node) {
+
+	}
+
+	/////////// OLD
 
 	public void addSystem(SceneSystem system) {
 		// pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
 	}
-	
+
 	void systemActivated(SceneSystem2 system) {
 		activeSystemsInternal.add(system);
 	}
@@ -450,7 +468,6 @@ public class Scene extends ManagedObject {
 		allNodesInternal.removeValue(node, true);
 	}
 
-	// TODO use removeComponentSafely
 	private void removeComponentFromGraph(SceneNodeComponent component) {
 		sceneGraphListenerSignal.nodeComponentRemoved(component);
 		//component.lifecycleSignal.detached();

@@ -3,10 +3,6 @@ package com.gurella.engine.base.object;
 public abstract class Attachment<T> {
 	protected T value;
 
-	public Attachment(T value) {
-		this.value = value;
-	}
-
 	public T getValue() {
 		return value;
 	}

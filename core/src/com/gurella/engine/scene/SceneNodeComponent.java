@@ -8,13 +8,13 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.engine.utils.TypeSequence;
+import com.gurella.engine.utils.TypeRegistry;
 
 public class SceneNodeComponent extends SceneElement {
 	private static final IntIntMap baseComponentTypes = new IntIntMap();
 	private static final IntMap<BitsExt> componentSubtypes = new IntMap<BitsExt>();
-	private static final TypeSequence<SceneNodeComponent> COMPONENT_TYPE_INDEXER = new TypeSequence<SceneNodeComponent>();
-	private static final int rootComponentType = COMPONENT_TYPE_INDEXER.getTypeId(SceneNodeComponent.class);
+	private static final TypeRegistry<SceneNodeComponent> COMPONENT_TYPE_INDEXER = new TypeRegistry<SceneNodeComponent>();
+	private static final int rootComponentType = COMPONENT_TYPE_INDEXER.getId(SceneNodeComponent.class);
 
 	static {
 		baseComponentTypes.put(rootComponentType, rootComponentType);
@@ -27,22 +27,22 @@ public class SceneNodeComponent extends SceneElement {
 	public SceneNodeComponent() {
 		Class<? extends SceneNodeComponent> componentClass = getClass();
 		initComponentData(componentClass);
-		componentType = COMPONENT_TYPE_INDEXER.getTypeId(componentClass);
+		componentType = COMPONENT_TYPE_INDEXER.getId(componentClass);
 		baseComponentType = baseComponentTypes.get(componentType, componentType);
 	}
 
 	static int findBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
-		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findTypeId(componentClass), -1);
+		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findId(componentClass), -1);
 	}
 
 	public static int getBaseComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findTypeId(componentClass), -1);
+		return baseComponentTypes.get(COMPONENT_TYPE_INDEXER.findId(componentClass), -1);
 	}
 
 	public static int getComponentType(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		return COMPONENT_TYPE_INDEXER.findTypeId(componentClass);
+		return COMPONENT_TYPE_INDEXER.findId(componentClass);
 	}
 
 	public static ImmutableBits getComponentSubtypes(SceneNodeComponent component) {
@@ -51,7 +51,7 @@ public class SceneNodeComponent extends SceneElement {
 
 	public static ImmutableBits getComponentSubtypes(Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		BitsExt subtypes = componentSubtypes.get(COMPONENT_TYPE_INDEXER.findTypeId(componentClass));
+		BitsExt subtypes = componentSubtypes.get(COMPONENT_TYPE_INDEXER.findId(componentClass));
 		return subtypes == null ? ImmutableBits.empty : subtypes.immutable();
 	}
 
@@ -67,7 +67,7 @@ public class SceneNodeComponent extends SceneElement {
 	public static boolean isSubtype(Class<? extends SceneNodeComponent> baseComponentClass,
 			Class<? extends SceneNodeComponent> componentClass) {
 		initComponentData(componentClass);
-		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findTypeId(componentClass));
+		return getComponentSubtypes(baseComponentClass).get(COMPONENT_TYPE_INDEXER.findId(componentClass));
 	}
 
 	private static void initComponentData(Class<? extends SceneNodeComponent> componentClass) {
@@ -84,7 +84,7 @@ public class SceneNodeComponent extends SceneElement {
 		while (temp != SceneNodeComponent.class) {
 			@SuppressWarnings("unchecked")
 			Class<? extends SceneNodeComponent> casted = (Class<? extends SceneNodeComponent>) temp;
-			int componentType = COMPONENT_TYPE_INDEXER.getTypeId(casted);
+			int componentType = COMPONENT_TYPE_INDEXER.getId(casted);
 			currentBits = componentSubtypes.get(componentType);
 
 			if (lastBits == null) {
@@ -107,13 +107,13 @@ public class SceneNodeComponent extends SceneElement {
 			throw new GdxRuntimeException("Invalid class: " + componentClass);
 		}
 
-		int componentType = COMPONENT_TYPE_INDEXER.getTypeId(componentClass);
+		int componentType = COMPONENT_TYPE_INDEXER.getId(componentClass);
 		componentSubtypes.put(componentType, new BitsExt());
 		@SuppressWarnings("unchecked")
 		Class<? extends SceneNodeComponent> parentComponentClass = (Class<? extends SceneNodeComponent>) componentClass
 				.getSuperclass();
 		initComponentDataHierarchy(parentComponentClass);
-		int parentComponentType = COMPONENT_TYPE_INDEXER.getTypeId(parentComponentClass);
+		int parentComponentType = COMPONENT_TYPE_INDEXER.getId(parentComponentClass);
 		int parentBaseComponentType = baseComponentTypes.get(parentComponentType, -1);
 		int baseComponentType;
 		if (parentComponentType == parentBaseComponentType) {

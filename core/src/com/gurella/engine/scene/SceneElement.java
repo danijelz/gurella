@@ -4,11 +4,11 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.utils.ValueSequence;
+import com.gurella.engine.utils.ValueRegistry;
 
 //TODO remove Disposable
 public abstract class SceneElement implements Poolable, Disposable {
-	static ValueSequence<SceneElement> INDEXER = new ValueSequence<SceneElement>();
+	static ValueRegistry<SceneElement> INDEXER = new ValueRegistry<SceneElement>();
 
 	@TransientProperty
 	public final int id;
@@ -35,7 +35,7 @@ public abstract class SceneElement implements Poolable, Disposable {
 
 	public static <T extends SceneElement> T getElementById(int id) {
 		@SuppressWarnings("unchecked")
-		T casted = (T) INDEXER.getValueById(id);
+		T casted = (T) INDEXER.getValue(id);
 		return casted;
 	}
 

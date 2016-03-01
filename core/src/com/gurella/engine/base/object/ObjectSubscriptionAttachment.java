@@ -2,14 +2,17 @@ package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.pool.PoolService;
 
 //TODO unused 
-public class ObjectSubscriptionAttachment<T> extends Attachment<T> implements Poolable {
+class ObjectSubscriptionAttachment extends Attachment<Object> implements Poolable {
 	private int objectId;
 
-	public ObjectSubscriptionAttachment(T value, int objectId) {
-		super(value);
-		this.objectId = objectId;
+	static ObjectSubscriptionAttachment obtain(Object subscriber, int objectId) {
+		ObjectSubscriptionAttachment attachment = PoolService.obtain(ObjectSubscriptionAttachment.class);
+		attachment.value = subscriber;
+		attachment.objectId = objectId;
+		return attachment;
 	}
 
 	@Override
@@ -26,5 +29,9 @@ public class ObjectSubscriptionAttachment<T> extends Attachment<T> implements Po
 	public void reset() {
 		objectId = -1;
 		value = null;
+	}
+
+	void free() {
+		PoolService.free(this);
 	}
 }

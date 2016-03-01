@@ -2,10 +2,10 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.utils.ValueSequence;
+import com.gurella.engine.utils.ValueRegistry;
 
 public final class Tag {
-	private static final ValueSequence<Tag> INDEXER = new ValueSequence<Tag>();
+	private static final ValueRegistry<Tag> INDEXER = new ValueRegistry<Tag>();
 	private static ObjectMap<String, Tag> tagsByName = new ObjectMap<String, Tag>();
 
 	public final int id;
@@ -23,7 +23,7 @@ public final class Tag {
 	}
 
 	public static Tag getTag(int id) {
-		return INDEXER.getValueById(id);
+		return INDEXER.getValue(id);
 	}
 
 	public static Tag getTag(String name) {

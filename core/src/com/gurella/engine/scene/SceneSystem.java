@@ -1,19 +1,19 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.engine.utils.TypeSequence;
+import com.gurella.engine.utils.TypeRegistry;
 import com.gurella.engine.utils.Reflection;
 
 public abstract class SceneSystem extends SceneElement {
 	private static final ObjectIntMap<Class<? extends SceneSystem>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem>>();
-	private static TypeSequence<SceneSystem> SYSTEM_TYPE_INDEXER = new TypeSequence<SceneSystem>();
+	private static TypeRegistry<SceneSystem> SYSTEM_TYPE_INDEXER = new TypeRegistry<SceneSystem>();
 
 	public final int baseSystemType;
 	public final int systemType;
 
 	public SceneSystem() {
 		baseSystemType = getBaseSystemType(getClass());
-		systemType = SYSTEM_TYPE_INDEXER.getTypeId(getClass());
+		systemType = SYSTEM_TYPE_INDEXER.getId(getClass());
 	}
 
 	public static int getBaseSystemType(SceneSystem system) {
@@ -26,16 +26,16 @@ public abstract class SceneSystem extends SceneElement {
 			return type;
 		}
 
-		type = SYSTEM_TYPE_INDEXER.findTypeId(systemClass);
+		type = SYSTEM_TYPE_INDEXER.findId(systemClass);
 		if (type != -1) {
 			return type;
 		}
 
 		Class<? extends SceneSystem> baseSystemType = findBaseSystemType(systemClass);
 		if (baseSystemType == null) {
-			return SYSTEM_TYPE_INDEXER.getTypeId(systemClass);
+			return SYSTEM_TYPE_INDEXER.getId(systemClass);
 		} else {
-			type = SYSTEM_TYPE_INDEXER.getTypeId(baseSystemType);
+			type = SYSTEM_TYPE_INDEXER.getId(baseSystemType);
 			baseSystemTypes.put(systemClass, type);
 			return type;
 		}
@@ -61,16 +61,16 @@ public abstract class SceneSystem extends SceneElement {
 	}
 
 	public static int getSystemType(Class<? extends SceneSystem> systemClass) {
-		int type = SYSTEM_TYPE_INDEXER.findTypeId(systemClass);
+		int type = SYSTEM_TYPE_INDEXER.findId(systemClass);
 		if (type != -1) {
 			return type;
 		}
 
 		Class<? extends SceneSystem> baseSystemType = findBaseSystemType(systemClass);
 		if (baseSystemType == null) {
-			return SYSTEM_TYPE_INDEXER.getTypeId(systemClass);
+			return SYSTEM_TYPE_INDEXER.getId(systemClass);
 		} else {
-			int baseType = SYSTEM_TYPE_INDEXER.getTypeId(baseSystemType);
+			int baseType = SYSTEM_TYPE_INDEXER.getId(baseSystemType);
 			baseSystemTypes.put(systemClass, baseType);
 			return type;
 		}

@@ -2,12 +2,12 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.engine.utils.TypeSequence;
+import com.gurella.engine.utils.TypeRegistry;
 
 //TODO test
 public class SceneSystemType {
 	private static final ObjectIntMap<Class<? extends SceneSystem2>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem2>>();
-	private static TypeSequence<SceneSystem2> typeIndexer = new TypeSequence<SceneSystem2>();
+	private static final TypeRegistry<SceneSystem2> registry = new TypeRegistry<SceneSystem2>();
 
 	private SceneSystemType() {
 	}
@@ -17,21 +17,21 @@ public class SceneSystemType {
 	}
 
 	public static int getBaseSystemType(Class<? extends SceneSystem2> systemClass) {
-		int type = baseSystemTypes.get(systemClass, TypeSequence.invalidId);
-		if (type != TypeSequence.invalidId) {
+		int type = baseSystemTypes.get(systemClass, TypeRegistry.invalidId);
+		if (type != TypeRegistry.invalidId) {
 			return type;
 		}
 
-		type = typeIndexer.findTypeId(systemClass);
-		if (type != TypeSequence.invalidId) {
+		type = registry.findId(systemClass);
+		if (type != TypeRegistry.invalidId) {
 			return type;
 		}
 
 		Class<? extends SceneSystem2> baseSystemType = findBaseSystemType(systemClass);
 		if (baseSystemType == null) {
-			return typeIndexer.getTypeId(systemClass);
+			return registry.getId(systemClass);
 		} else {
-			type = typeIndexer.getTypeId(baseSystemType);
+			type = registry.getId(baseSystemType);
 			baseSystemTypes.put(systemClass, type);
 			return type;
 		}
@@ -57,16 +57,16 @@ public class SceneSystemType {
 	}
 
 	public static int getSystemType(Class<? extends SceneSystem2> systemClass) {
-		int type = typeIndexer.findTypeId(systemClass);
-		if (type != TypeSequence.invalidId) {
+		int type = registry.findId(systemClass);
+		if (type != TypeRegistry.invalidId) {
 			return type;
 		}
 
 		Class<? extends SceneSystem2> baseSystemType = findBaseSystemType(systemClass);
 		if (baseSystemType == null) {
-			return typeIndexer.getTypeId(systemClass);
+			return registry.getId(systemClass);
 		} else {
-			int baseType = typeIndexer.getTypeId(baseSystemType);
+			int baseType = registry.getId(baseSystemType);
 			baseSystemTypes.put(systemClass, baseType);
 			return type;
 		}

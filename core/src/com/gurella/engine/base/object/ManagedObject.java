@@ -73,7 +73,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		return state != ManagedObjectState.idle;
 	}
 
-	public void activate() {
+	public final void activate() {
 		Objects.activate(this);
 	}
 
@@ -108,7 +108,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	protected void activated() {
 	}
 
-	public void deactivate() {
+	public final void deactivate() {
 		Objects.deactivate(this);
 	}
 
@@ -190,13 +190,17 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 		ManagedObject oldParent = parent;
 		if (oldParent != null) {
-			oldParent.removeChild(this);
+			oldParent.childrenPrivate.removeValue(this, true);
+			childRemoved(this);
+			Objects.childRemoved(oldParent, this);
 		}
 
 		parent = newParent;
 		if (newParent != null) {
+			newParent.childrenPrivate.add(this);
+			newParent.childAdded(this);
+			Objects.childAdded(newParent, this);
 			updateStateByParent();
-			newParent.addChild(this);
 		}
 
 		parentChanged(oldParent, newParent);
@@ -226,33 +230,20 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
+	protected void childRemoved(@SuppressWarnings("unused") ManagedObject child) {
 		// TODO Auto-generated method stub
-	}
-
-	private void addChild(ManagedObject child) {
-		childrenPrivate.add(child);
-		childAdded(child);
-		Objects.childAdded(this, child);
 	}
 
 	protected void childAdded(@SuppressWarnings("unused") ManagedObject child) {
 		// TODO Auto-generated method stub
 	}
 
-	private void removeChild(ManagedObject child) {
-		childrenPrivate.removeValue(child, true);
-		childRemoved(child);
-		Objects.childRemoved(this, child);
-	}
-
-	protected void childRemoved(@SuppressWarnings("unused") ManagedObject child) {
+	@SuppressWarnings("unused")
+	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
 		// TODO Auto-generated method stub
 	}
 
 	//// ATTACHMENTS
-	// TODO addAttachment, removeAttachment
 	public void attach(Attachment<?> attachment) {
 		Object value = attachment.value;
 		if (value == null) {
@@ -294,6 +285,14 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		attachments.clear();
+	}
+
+	protected void subscribe(Object subscriber) {
+		attach(SubscriptionAttachment.obtain(subscriber));
+	}
+
+	protected void unsubscribe(Object subscriber) {
+		detach(subscriber);
 	}
 
 	@Override

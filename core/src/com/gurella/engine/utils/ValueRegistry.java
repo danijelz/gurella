@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 
-public class ValueSequence<T> {
+public class ValueRegistry<T> {
 	public static final int invalidId = -1;
 
 	private final AtomicInteger sequence = new AtomicInteger(0);
@@ -28,7 +28,7 @@ public class ValueSequence<T> {
 		return idsByValue.get(value, invalidId) != invalidId;
 	}
 
-	public synchronized T getValueById(int id) {
+	public synchronized T getValue(int id) {
 		return valuesById.get(id);
 	}
 

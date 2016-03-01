@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.resource.SceneElementsResourceContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
@@ -18,7 +17,7 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Values;
 
-public final class Application extends SceneElementsResourceContext implements ApplicationListener {
+public final class Application implements ApplicationListener {
 	private String initialScenePath;
 	private Color backgroundColor;
 
@@ -33,13 +32,11 @@ public final class Application extends SceneElementsResourceContext implements A
 		return new Application(new JsonApplicationInitializer(projectFileName));
 	}
 
-	private Application() {
-		super(null);
+	Application() {
 		this.initializer = null;
 	}
 
 	public Application(ApplicationInitializer initializer) {
-		super(null);
 		this.initializer = initializer;
 	}
 
