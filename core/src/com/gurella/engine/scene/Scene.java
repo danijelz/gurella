@@ -158,6 +158,20 @@ public class Scene extends ManagedObject {
 
 	}
 
+	public <T extends SceneSystem2> T getSystem(Class<T> systemClass) {
+		T system = getSystem(SceneSystemType.getBaseSystemType(systemClass));
+		//TODO fast check without reflection
+		if (system == null || ClassReflection.isAssignableFrom(systemClass, system.getClass())) {
+			return system;
+		} else {
+			return null;
+		}
+	}
+
+	public <T extends SceneSystem2> T getSystem(int systemType) {
+		return Values.cast(allSystemsInternal.get(systemType));
+	}
+
 	public void addNode(SceneNode2 node) {
 
 	}
@@ -248,20 +262,6 @@ public class Scene extends ManagedObject {
 		//system.lifecycleSignal.detached();
 		system.scene = null;
 		allSystemsInternal.remove(system.baseSystemType);
-	}
-
-	public <T extends SceneSystem2> T getSystem(Class<T> systemClass) {
-		T system = getSystem(SceneSystemType.getBaseSystemType(systemClass));
-		//TODO fast check without reflection
-		if (system == null || ClassReflection.isAssignableFrom(systemClass, system.getClass())) {
-			return system;
-		} else {
-			return null;
-		}
-	}
-
-	public <T extends SceneSystem2> T getSystem(int systemType) {
-		return Values.cast(allSystemsInternal.get(systemType));
 	}
 
 	void addComponent(SceneNode node, SceneNodeComponent component) {

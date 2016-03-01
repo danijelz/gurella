@@ -5,33 +5,77 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 
 //TODO unused 
-class ObjectSubscriptionAttachment extends Attachment<Object> implements Poolable {
-	private int objectId;
-
-	static ObjectSubscriptionAttachment obtain(Object subscriber, int objectId) {
+class ObjectSubscriptionAttachment extends Attachment<ObjectSubscriptionAttachment.ObjectSubscription>
+		implements Poolable {
+	static ObjectSubscriptionAttachment obtain(int objectId, Object subscriber) {
 		ObjectSubscriptionAttachment attachment = PoolService.obtain(ObjectSubscriptionAttachment.class);
-		attachment.value = subscriber;
-		attachment.objectId = objectId;
+		attachment.value.objectId = objectId;
+		attachment.value.subscriber = subscriber;
 		return attachment;
+	}
+
+	ObjectSubscriptionAttachment() {
+		value = new ObjectSubscription();
 	}
 
 	@Override
 	protected void attach() {
-		EventService.subscribe(objectId, value);
+		EventService.subscribe(value.objectId, value.subscriber);
 	}
 
 	@Override
 	protected void detach() {
-		EventService.unsubscribe(objectId, value);
+		EventService.unsubscribe(value.objectId, value.subscriber);
 	}
 
 	@Override
 	public void reset() {
-		objectId = -1;
-		value = null;
+		value.reset();
 	}
 
-	void free() {
-		PoolService.free(this);
+	static class ObjectSubscription implements Poolable {
+		int objectId;
+		Object subscriber;
+
+		static ObjectSubscription obtain(int objectId, Object subscriber) {
+			ObjectSubscription objectSubscription = PoolService.obtain(ObjectSubscription.class);
+			objectSubscription.objectId = objectId;
+			objectSubscription.subscriber = subscriber;
+			return objectSubscription;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + objectId;
+			return prime * result + subscriber.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+
+			ObjectSubscription other = (ObjectSubscription) obj;
+			return objectId == other.objectId && subscriber == other.subscriber;
+		}
+
+		@Override
+		public void reset() {
+			objectId = -1;
+			subscriber = null;
+		}
+
+		void free() {
+			PoolService.free(this);
+		}
 	}
 }

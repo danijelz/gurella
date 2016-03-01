@@ -25,8 +25,4 @@ class SubscriptionAttachment extends Attachment<Object> implements Poolable {
 	public void reset() {
 		value = null;
 	}
-
-	void free() {
-		PoolService.free(this);
-	}
 }

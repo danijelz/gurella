@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
@@ -157,7 +158,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void clear() {
 		childrenPrivate.clear();
-		removeAttachments();
+		clearAttachments();
 	}
 
 	protected void reset() {
@@ -264,8 +265,16 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	public void detach(Object value) {
 		Attachment<?> attachment = attachments.remove(value);
-		if (attachment != null && isActive()) {
-			attachment.detach();
+		if (attachment != null) {
+			if (isActive()) {
+				attachment.detach();
+			}
+
+			if (attachment instanceof Poolable) {
+				PoolService.free(attachment);
+			} else {
+				DisposablesService.tryDispose(attachment);
+			}
 		}
 	}
 
@@ -275,7 +284,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	private void removeAttachments() {
+	private void clearAttachments() {
 		for (Attachment<?> attachment : attachments.values()) {
 			if (attachment instanceof Poolable) {
 				PoolService.free(attachment);
@@ -288,11 +297,43 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void subscribe(Object subscriber) {
+		if (subscriber == null) {
+			throw new NullPointerException("subscriber is null;");
+		}
+
 		attach(SubscriptionAttachment.obtain(subscriber));
 	}
 
 	protected void unsubscribe(Object subscriber) {
+		if (subscriber == null) {
+			throw new NullPointerException("subscriber is null;");
+		}
+
 		detach(subscriber);
+	}
+
+	public void subscribeTo(ManagedObject object, Object subscriber) {
+		if (object == null) {
+			throw new NullPointerException("object is null;");
+		}
+		if (subscriber == null) {
+			throw new NullPointerException("subscriber is null;");
+		}
+
+		attach(ObjectSubscriptionAttachment.obtain(object.instanceId, subscriber));
+	}
+
+	protected void unsubscribeFrom(ManagedObject object, Object subscriber) {
+		if (object == null) {
+			throw new NullPointerException("object is null;");
+		}
+		if (subscriber == null) {
+			throw new NullPointerException("subscriber is null;");
+		}
+
+		ObjectSubscription objectSubscription = PoolService.obtain(ObjectSubscription.class);
+		detach(objectSubscription);
+		objectSubscription.free();
 	}
 
 	@Override
