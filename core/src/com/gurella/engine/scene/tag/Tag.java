@@ -2,10 +2,10 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.utils.IndexedValue;
+import com.gurella.engine.utils.ValueSequence;
 
 public final class Tag {
-	private static final IndexedValue<Tag> INDEXER = new IndexedValue<Tag>();
+	private static final ValueSequence<Tag> INDEXER = new ValueSequence<Tag>();
 	private static ObjectMap<String, Tag> tagsByName = new ObjectMap<String, Tag>();
 
 	public final int id;
@@ -16,14 +16,14 @@ public final class Tag {
 			throw new GdxRuntimeException("Layer name duplicate");
 		}
 
-		id = INDEXER.getIndex(this);
+		id = INDEXER.getId(this);
 		this.name = name;
 
 		tagsByName.put(name, this);
 	}
 
 	public static Tag getTag(int id) {
-		return INDEXER.getValueByIndex(id);
+		return INDEXER.getValueById(id);
 	}
 
 	public static Tag getTag(String name) {

@@ -1,19 +1,19 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.engine.utils.IndexedType;
+import com.gurella.engine.utils.TypeSequence;
 import com.gurella.engine.utils.Reflection;
 
 public abstract class SceneSystem extends SceneElement {
 	private static final ObjectIntMap<Class<? extends SceneSystem>> baseSystemTypes = new ObjectIntMap<Class<? extends SceneSystem>>();
-	private static IndexedType<SceneSystem> SYSTEM_TYPE_INDEXER = new IndexedType<SceneSystem>();
+	private static TypeSequence<SceneSystem> SYSTEM_TYPE_INDEXER = new TypeSequence<SceneSystem>();
 
 	public final int baseSystemType;
 	public final int systemType;
 
 	public SceneSystem() {
 		baseSystemType = getBaseSystemType(getClass());
-		systemType = SYSTEM_TYPE_INDEXER.getType(getClass());
+		systemType = SYSTEM_TYPE_INDEXER.getTypeId(getClass());
 	}
 
 	public static int getBaseSystemType(SceneSystem system) {
@@ -26,16 +26,16 @@ public abstract class SceneSystem extends SceneElement {
 			return type;
 		}
 
-		type = SYSTEM_TYPE_INDEXER.findType(systemClass, -1);
+		type = SYSTEM_TYPE_INDEXER.findTypeId(systemClass);
 		if (type != -1) {
 			return type;
 		}
 
 		Class<? extends SceneSystem> baseSystemType = findBaseSystemType(systemClass);
 		if (baseSystemType == null) {
-			return SYSTEM_TYPE_INDEXER.getType(systemClass);
+			return SYSTEM_TYPE_INDEXER.getTypeId(systemClass);
 		} else {
-			type = SYSTEM_TYPE_INDEXER.getType(baseSystemType);
+			type = SYSTEM_TYPE_INDEXER.getTypeId(baseSystemType);
 			baseSystemTypes.put(systemClass, type);
 			return type;
 		}
@@ -61,16 +61,16 @@ public abstract class SceneSystem extends SceneElement {
 	}
 
 	public static int getSystemType(Class<? extends SceneSystem> systemClass) {
-		int type = SYSTEM_TYPE_INDEXER.findType(systemClass, -1);
+		int type = SYSTEM_TYPE_INDEXER.findTypeId(systemClass);
 		if (type != -1) {
 			return type;
 		}
 
 		Class<? extends SceneSystem> baseSystemType = findBaseSystemType(systemClass);
 		if (baseSystemType == null) {
-			return SYSTEM_TYPE_INDEXER.getType(systemClass);
+			return SYSTEM_TYPE_INDEXER.getTypeId(systemClass);
 		} else {
-			int baseType = SYSTEM_TYPE_INDEXER.getType(baseSystemType);
+			int baseType = SYSTEM_TYPE_INDEXER.getTypeId(baseSystemType);
 			baseSystemTypes.put(systemClass, baseType);
 			return type;
 		}
@@ -114,7 +114,7 @@ public abstract class SceneSystem extends SceneElement {
 	@Override
 	public final void dispose() {
 		detach();
-		INDEXER.removeIndexed(this);
+		INDEXER.remove(this);
 	}
 
 	@Override

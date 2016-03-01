@@ -5,11 +5,11 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.utils.IndexedValue;
+import com.gurella.engine.utils.ValueSequence;
 import com.gurella.engine.utils.Values;
 
 public final class Layer implements Comparable<Layer> {
-	private static IndexedValue<Layer> INDEXER = new IndexedValue<Layer>();
+	private static ValueSequence<Layer> INDEXER = new ValueSequence<Layer>();
 	private static IntMap<Layer> layersByOrdnal = new IntMap<Layer>();
 	private static ObjectMap<String, Layer> layersByName = new ObjectMap<String, Layer>();
 
@@ -30,7 +30,7 @@ public final class Layer implements Comparable<Layer> {
 			throw new GdxRuntimeException("Layer name duplicate.");
 		}
 
-		this.id = INDEXER.getIndex(this);
+		this.id = INDEXER.getId(this);
 		this.name = name;
 		this.ordinal = ordinal;
 
@@ -39,7 +39,7 @@ public final class Layer implements Comparable<Layer> {
 	}
 
 	public static Layer getLayer(int id) {
-		return INDEXER.getValueByIndex(id);
+		return INDEXER.getValueById(id);
 	}
 
 	public static Layer getLayer(String name) {

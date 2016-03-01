@@ -6,11 +6,11 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.event.Signal;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.utils.IndexedValue;
+import com.gurella.engine.utils.ValueSequence;
 
 //TODO remove Disposable
 public abstract class SceneElement implements Poolable, Disposable {
-	static IndexedValue<SceneElement> INDEXER = new IndexedValue<SceneElement>();
+	static ValueSequence<SceneElement> INDEXER = new ValueSequence<SceneElement>();
 
 	@TransientProperty
 	public final int id;
@@ -28,7 +28,7 @@ public abstract class SceneElement implements Poolable, Disposable {
 	boolean enabled = true;
 
 	public SceneElement() {
-		id = INDEXER.getIndex(this);
+		id = INDEXER.getId(this);
 	}
 
 	public int getId() {
@@ -37,7 +37,7 @@ public abstract class SceneElement implements Poolable, Disposable {
 
 	public static <T extends SceneElement> T getElementById(int id) {
 		@SuppressWarnings("unchecked")
-		T casted = (T) INDEXER.getValueByIndex(id);
+		T casted = (T) INDEXER.getValueById(id);
 		return casted;
 	}
 

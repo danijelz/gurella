@@ -91,7 +91,7 @@ public final class SceneNode extends SceneElement {
 		}
 
 		detach();
-		INDEXER.removeIndexed(this);
+		INDEXER.remove(this);
 	}
 
 	// TODO slow -> cache value
