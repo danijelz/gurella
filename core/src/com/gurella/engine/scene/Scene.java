@@ -25,15 +25,15 @@ import com.gurella.engine.utils.Values;
 public final class Scene extends ManagedObject {
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
-	private final IntMap<SceneSystem2> _systems = new IntMap<SceneSystem2>();
+	final IntMap<SceneSystem2> _systems = new IntMap<SceneSystem2>();
 	public transient final ImmutableIntMapValues<SceneSystem2> systems = ImmutableIntMapValues.with(_systems);
-	private transient final IdentityOrderedSet<SceneSystem2> _activeSystems = new IdentityOrderedSet<SceneSystem2>();
+	transient final IdentityOrderedSet<SceneSystem2> _activeSystems = new IdentityOrderedSet<SceneSystem2>();
 	public transient final ImmutableArray<SceneSystem2> activeSystems = _activeSystems.orderedItems();
 
-	private final IdentityOrderedSet<SceneNode> _nodes = new IdentityOrderedSet<SceneNode>();
-	public transient final ImmutableArray<SceneNode> nodes = _nodes.orderedItems();
-	private transient final IdentityOrderedSet<SceneNode> _activeNodes = new IdentityOrderedSet<SceneNode>();
-	public transient final ImmutableArray<SceneNode> activeNodes = _activeNodes.orderedItems();
+	final IdentityOrderedSet<SceneNode2> _nodes = new IdentityOrderedSet<SceneNode2>();
+	public transient final ImmutableArray<SceneNode2> nodes = _nodes.orderedItems();
+	transient final IdentityOrderedSet<SceneNode2> _activeNodes = new IdentityOrderedSet<SceneNode2>();
+	public transient final ImmutableArray<SceneNode2> activeNodes = _activeNodes.orderedItems();
 
 	private transient final IdentityOrderedSet<SceneNodeComponent> _components = new IdentityOrderedSet<SceneNodeComponent>();
 	public transient final ImmutableArray<SceneNodeComponent> components = _components.orderedItems();
@@ -54,13 +54,13 @@ public final class Scene extends ManagedObject {
 	public final void start() {
 		activate();
 	}
-	
+
 	@Override
 	protected void activated() {
 		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
 		}
-		
+
 		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
@@ -72,7 +72,7 @@ public final class Scene extends ManagedObject {
 		destroy();
 		// TODO releaseResources();
 	}
-	
+
 	@Override
 	protected void deactivated() {
 		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
@@ -95,8 +95,7 @@ public final class Scene extends ManagedObject {
 		} else {
 			SceneNode2 node = (SceneNode2) child;
 			node.scene = this;
-			// TODO Auto-generated method stub
-			_nodes.add(null);
+			_nodes.add(node);
 		}
 	}
 
@@ -109,17 +108,12 @@ public final class Scene extends ManagedObject {
 		} else {
 			SceneNode2 node = (SceneNode2) child;
 			node.scene = null;
-			// TODO Auto-generated method stub
-			_nodes.remove(null);
+			_nodes.remove(node);
 		}
 	}
 
 	public void addSystem(SceneSystem2 system) {
 		system.setParent(this);
-	}
-
-	void systemActivated(SceneSystem2 system) {
-		_activeSystems.add(system);
 	}
 
 	public void removeSystem(SceneSystem2 system) {

@@ -2,6 +2,7 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.event.EventService;
 
 public abstract class SceneSystem2 extends SceneElement2 {
 	public final int baseSystemType;
@@ -31,7 +32,16 @@ public abstract class SceneSystem2 extends SceneElement2 {
 	}
 
 	@Override
-	protected void activated() {
-		scene.systemActivated(this);
+	protected final void activated() {
+		super.activated();
+		scene._activeSystems.add(this);
+		EventService.subscribe(scene.getInstanceId(), this);
+	}
+
+	@Override
+	protected final void deactivated() {
+		super.deactivated();
+		scene._activeSystems.remove(this);
+		EventService.unsubscribe(scene.getInstanceId(), this);
 	}
 }

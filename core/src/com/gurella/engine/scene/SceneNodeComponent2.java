@@ -35,11 +35,15 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 
 	@Override
 	protected final void activated() {
+		super.activated();
+		EventService.subscribe(scene.getInstanceId(), this);
 		EventService.subscribe(getNodeId(), this);
 	}
 
 	@Override
 	protected final void deactivated() {
+		super.deactivated();
+		EventService.unsubscribe(scene.getInstanceId(), this);
 		EventService.unsubscribe(getNodeId(), this);
 	}
 
