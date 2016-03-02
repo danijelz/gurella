@@ -64,7 +64,7 @@ import com.gurella.engine.utils.Values;
  * 
  * @author mzechner
  */
-public class AssetDatabase extends AssetManager {
+public class AssetRegistry extends AssetManager {
 	private static final String clearRequestedMessage = "Clear requested on AssetManager.";
 	private static final String assetUnloadedMessage = "Asset unloaded.";
 	private static final String loadedAssetInconsistentMessage = "Asset with name '%s' already loaded, but has different type (expected: %s, found: %s).";
@@ -86,15 +86,15 @@ public class AssetDatabase extends AssetManager {
 
 	private final Object lock = new Object();
 
-	public AssetDatabase() {
+	public AssetRegistry() {
 		this(new InternalFileHandleResolver(), true);
 	}
 
-	public AssetDatabase(FileHandleResolver resolver) {
+	public AssetRegistry(FileHandleResolver resolver) {
 		this(resolver, true);
 	}
 
-	public AssetDatabase(FileHandleResolver resolver, boolean defaultLoaders) {
+	public AssetRegistry(FileHandleResolver resolver, boolean defaultLoaders) {
 		super(resolver, false);
 		if (defaultLoaders) {
 			setLoader(BitmapFont.class, new BitmapFontLoader(resolver));

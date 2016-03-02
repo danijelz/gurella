@@ -60,7 +60,7 @@ public class ComponentManager extends SceneSystem implements SceneListener {
 		familyComponents.family = family;
 		families.put(family.id, familyComponents);
 
-		ImmutableArray<SceneNodeComponent> components = getScene().allComponents;
+		ImmutableArray<SceneNodeComponent> components = getScene().components;
 		for (int i = 0; i < components.size(); i++) {
 			familyComponents.handle(components.get(i));
 		}

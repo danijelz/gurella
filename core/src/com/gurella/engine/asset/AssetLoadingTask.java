@@ -20,7 +20,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	int loadRequestId;
 	int priority;
 
-	AssetDatabase manager;
+	AssetRegistry manager;
 	AssetLoader<T, AssetLoaderParameters<T>> loader;
 	AsyncCallback<T> callback;
 
@@ -39,7 +39,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	AssetReference reference;
 	Throwable exception;
 
-	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, AsyncCallback<T> callback, String fileName,
+	static <T> AssetLoadingTask<T> obtain(AssetRegistry manager, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetLoaderParameters<T> params, int priority, boolean sticky) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
@@ -75,7 +75,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		return task;
 	}
 
-	static <T> AssetLoadingTask<T> obtain(AssetDatabase manager, AsyncCallback<T> callback, String fileName,
+	static <T> AssetLoadingTask<T> obtain(AssetRegistry manager, AsyncCallback<T> callback, String fileName,
 			Class<T> type, AssetReference reference, AssetLoaderParameters<T> params, int priority) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);

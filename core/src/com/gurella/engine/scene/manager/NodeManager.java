@@ -60,7 +60,7 @@ public class NodeManager extends SceneSystem implements SceneListener {
 			return;
 		}
 
-		ImmutableArray<SceneNode> nodes = scene.allNodes;
+		ImmutableArray<SceneNode> nodes = scene.nodes;
 		for (int i = 0; i < nodes.size(); i++) {
 			familyNodes.handle(nodes.get(i));
 		}

@@ -8,8 +8,8 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 
 	public SceneNodeComponent2() {
 		Class<? extends SceneNodeComponent2> type = getClass();
-		baseComponentType = SceneNodeComponentType.getBaseType(type);
-		componentType = SceneNodeComponentType.getType(type);
+		baseComponentType = ComponentType.getBaseType(type);
+		componentType = ComponentType.getType(type);
 	}
 
 	@Override
@@ -41,5 +41,9 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 	@Override
 	protected final void deactivated() {
 		EventService.unsubscribe(getNodeId(), this);
+	}
+
+	final void setParent(SceneNode2 node) {
+		super.setParent(node);
 	}
 }

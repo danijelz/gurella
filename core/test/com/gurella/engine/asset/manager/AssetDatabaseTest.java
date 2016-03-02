@@ -9,16 +9,16 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.asset.AssetDatabase;
+import com.gurella.engine.asset.AssetRegistry;
 
 public class AssetDatabaseTest extends ApplicationAdapter {
-	private AssetDatabase database;
+	private AssetRegistry database;
 
 	@Override
 	public void create() {
 		super.create();
 		InternalFileHandleResolver resolver = new InternalFileHandleResolver();
-		database = new AssetDatabase(resolver);
+		database = new AssetRegistry(resolver);
 		database.setLoader(TestAssetType1.class, new TestAssetType1Loader(resolver));
 		database.setLoader(TestAssetType2.class, new TestAssetType2Loader(resolver));
 		database.load("TestAssetType1", TestAssetType1.class);

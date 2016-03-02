@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.asset.AssetDatabase;
+import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
@@ -26,7 +26,7 @@ public class ResourceService implements ApplicationUpdateListener {
 
 	private static final MockAssetManager mockManager = new MockAssetManager();
 
-	private static final AssetDatabase assetDatabase = new AssetDatabase();
+	private static final AssetRegistry assetRegistry = new AssetRegistry();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
 
 	//TODO remove signals
@@ -72,7 +72,7 @@ public class ResourceService implements ApplicationUpdateListener {
 	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
 			boolean sticky) {
 		AssetLoaderParameters<T> parameters = ResourceService.<T> getAssetLoaderParameters(fileName);
-		assetDatabase.load(fileName, type, parameters, callback, priority, sticky);
+		assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
 	}
 
 	public static <T> T load(String fileName) {
@@ -90,21 +90,21 @@ public class ResourceService implements ApplicationUpdateListener {
 
 	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
 		AssetLoaderParameters<T> parameters = ResourceService.<T> getAssetLoaderParameters(fileName);
-		assetDatabase.load(fileName, type, parameters, null, priority, sticky);
-		return assetDatabase.finishLoading(fileName);
+		assetRegistry.load(fileName, type, parameters, null, priority, sticky);
+		return assetRegistry.finishLoading(fileName);
 	}
 
 	public static boolean isLoaded(String fileName) {
-		return assetDatabase.isLoaded(fileName);
+		return assetRegistry.isLoaded(fileName);
 	}
 
 	public static <T> void unload(T resource) {
-		assetDatabase.unload(resource);
+		assetRegistry.unload(resource);
 	}
 
 	public static <T> Array<T> find(Class<T> type, Array<T> out) {
 		// TODO ManagedObject
-		return assetDatabase.getAll(type, out);
+		return assetRegistry.getAll(type, out);
 	}
 
 	public static <T> String getFileName(T resource) {
@@ -113,8 +113,8 @@ public class ResourceService implements ApplicationUpdateListener {
 				return objectsByFile.get(((ManagedObject) resource).getInstanceId());
 			}
 		} else {
-			synchronized (assetDatabase) {
-				return assetDatabase.getAssetFileName(resource);
+			synchronized (assetRegistry) {
+				return assetRegistry.getAssetFileName(resource);
 			}
 		}
 	}
@@ -124,20 +124,20 @@ public class ResourceService implements ApplicationUpdateListener {
 	}
 
 	public static <T> T reload(String fileName, int priority) {
-		assetDatabase.reload(fileName, null, priority);
-		return assetDatabase.finishLoading(fileName);
+		assetRegistry.reload(fileName, null, priority);
+		return assetRegistry.finishLoading(fileName);
 	}
 
 	public static <T> void reloadAsync(String fileName, AsyncCallback<T> callback, int priority) {
-		assetDatabase.reload(fileName, callback, priority);
+		assetRegistry.reload(fileName, callback, priority);
 	}
 
 	public static void reloadInvalidated() {
-		assetDatabase.reloadInvalidated();
+		assetRegistry.reloadInvalidated();
 	}
 
 	@Override
 	public void update() {
-		assetDatabase.update();
+		assetRegistry.update();
 	}
 }

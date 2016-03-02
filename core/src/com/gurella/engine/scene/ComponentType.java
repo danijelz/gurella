@@ -11,7 +11,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.TypeRegistry;
 import com.gurella.engine.utils.Values;
 
-public final class SceneNodeComponentType {
+public final class ComponentType {
 	public static final int invalidId = -1;
 
 	private static final IntIntMap baseComponentTypes = new IntIntMap();
@@ -23,7 +23,7 @@ public final class SceneNodeComponentType {
 		baseComponentTypes.put(rootComponentType, rootComponentType);
 	}
 
-	private SceneNodeComponentType() {
+	private ComponentType() {
 	}
 
 	static int findBaseType(Class<? extends SceneNodeComponent2> type) {
@@ -32,6 +32,10 @@ public final class SceneNodeComponentType {
 
 	static int findBaseType(int typeId) {
 		return baseComponentTypes.get(typeId, invalidId);
+	}
+	
+	static int findType(Class<? extends SceneNodeComponent2> type) {
+		return registry.findId(type);
 	}
 
 	public static int getBaseType(Class<? extends SceneNodeComponent2> type) {
@@ -60,7 +64,8 @@ public final class SceneNodeComponentType {
 	}
 
 	public static boolean isSubtype(int baseTypeId, int typeId) {
-		return getSubtypes(baseTypeId).get(typeId);
+		BitsExt subtypes = componentSubtypes.get(baseTypeId);
+		return subtypes == null ? false : subtypes.get(typeId);
 	}
 
 	public static boolean isSubtype(Class<? extends SceneNodeComponent2> baseType,
