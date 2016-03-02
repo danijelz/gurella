@@ -40,18 +40,18 @@ public class AudioSourceComponent extends SceneNodeComponent {
 	@DefaultValue(floatValue = 20.0f)
 	public float maxDistance = 20.0f;
 	@ResourceProperty
-	@DefaultValue(compositeValues = {@PropertyValue(name = "degrees", floatValue = 360)})
+	@DefaultValue(compositeValues = { @PropertyValue(name = "degrees", floatValue = 360) })
 	public final Angle innerConeAngle = Angle.getFromDegrees(360);
 	@ResourceProperty
-	@DefaultValue(compositeValues = {@PropertyValue(name = "degrees", floatValue = 360)})
+	@DefaultValue(compositeValues = { @PropertyValue(name = "degrees", floatValue = 360) })
 	public final Angle outerConeAngle = Angle.getFromDegrees(360);
 	@ResourceProperty
 	public final Volume outerConeVolume = new Volume();
 	@ResourceProperty
-	@DefaultValue(compositeValues = {@PropertyValue(name = "y", floatValue = 1)})
+	@DefaultValue(compositeValues = { @PropertyValue(name = "y", floatValue = 1) })
 	public final Vector3 up = new Vector3(0, 1, 0);
 	@ResourceProperty
-	@DefaultValue(compositeValues = {@PropertyValue(name = "z", floatValue = -1)})
+	@DefaultValue(compositeValues = { @PropertyValue(name = "z", floatValue = -1) })
 	public final Vector3 lookAt = new Vector3(0, 0, -1);
 
 	public AudioTrack play() {
@@ -110,7 +110,7 @@ public class AudioSourceComponent extends SceneNodeComponent {
 		}
 		return audioProcessor.loop(this, audioChannel, completitionCallback);
 	}
-	
+
 	public void free(AudioTrack track) {
 		if (audioProcessor != null) {
 			audioProcessor.free(this, track);

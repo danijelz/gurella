@@ -52,27 +52,34 @@ public final class Scene extends ManagedObject {
 	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 
 	public final void start() {
+		activate();
+	}
+	
+	@Override
+	protected void activated() {
 		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
 		}
-
-		activate();
-
+		
 		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).sceneStared(this);
+			globalListeners.get(i).sceneStarted(this);
 		}
 	}
 
 	public final void stop() {
+		destroy();
+		// TODO releaseResources();
+	}
+	
+	@Override
+	protected void deactivated() {
 		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
 			globalListeners.get(i).sceneStopped(this);
 		}
-		destroy();
-		// TODO releaseResources();
 	}
 
 	@Override

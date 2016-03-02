@@ -21,8 +21,6 @@ import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 //TODO attach listeners on activate
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
 public class AudioSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
-	private RemoveOnFinishCompletitionCallback removeOnFinishCompletitionCallback = new RemoveOnFinishCompletitionCallback();
-
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -121,7 +119,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 			track.completitionCallbacks.addListener(optionalCompletitionCallback);
 
 			if (removeOnFinish) {
-				track.completitionCallbacks.addListener(removeOnFinishCompletitionCallback);
+				track.completitionCallbacks.addListener(RemoveOnFinishCompletitionCallback.instance);
 			}
 
 			if (loop) {
@@ -356,7 +354,9 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 		}
 	}
 
-	private class RemoveOnFinishCompletitionCallback implements Listener1<AudioTrack> {
+	private static class RemoveOnFinishCompletitionCallback implements Listener1<AudioTrack> {
+		private static final RemoveOnFinishCompletitionCallback instance = new RemoveOnFinishCompletitionCallback();
+		
 		@Override
 		public void handle(AudioTrack track) {
 			track.free();

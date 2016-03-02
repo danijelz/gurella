@@ -148,7 +148,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	}
 
 	@Override
-	public void sceneStared(Scene scene) {
+	public void sceneStarted(Scene scene) {
 		// TODO Auto-generated method stub
 		initSpatials();
 	}
