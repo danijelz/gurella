@@ -245,7 +245,7 @@ public class SceneView extends Container<Image> {
 			return;
 		}
 
-		IntArray initialNodes = scene.getInitialNodes();
+		IntArray initialNodes = new IntArray();// scene.getInitialNodes();
 		for (int i = 0; i < initialNodes.size; i++) {
 			ResourceReference<? extends SceneNode> nodeReference = sceneNodes.get(initialNodes.get(i));
 			SceneNode node = nodesMap.get(nodeReference);

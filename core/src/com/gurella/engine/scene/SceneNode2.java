@@ -13,6 +13,8 @@ import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
 
 public final class SceneNode2 extends SceneElement2 implements Poolable {
+	String name;
+	
 	// TODO remove
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
 	final IdentityOrderedSet<SceneNode2> _childNodes = new IdentityOrderedSet<SceneNode2>();
@@ -23,6 +25,10 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	final IntMap<SceneNodeComponent2> _components = new IntMap<SceneNodeComponent2>();
 	public transient final ImmutableIntMapValues<SceneNodeComponent2> components = ImmutableIntMapValues
 			.with(_components);
+	
+	public String getName() {
+		return name;
+	}
 
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
@@ -57,6 +63,14 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	@Override
 	public final void reset() {
 		super.reset();
+	}
+	
+	final void setParent(SceneNode2 node) {
+		super.setParent(node);
+	}
+	
+	final void setParent(Scene scene) {
+		super.setParent(scene);
 	}
 
 	@Override

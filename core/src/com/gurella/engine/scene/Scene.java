@@ -2,7 +2,6 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.object.ManagedObject;
@@ -24,8 +23,6 @@ import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
 
 public final class Scene extends ManagedObject {
-	public final IntArray initialNodes = new IntArray();
-
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
 	private final IntMap<SceneSystem2> _systems = new IntMap<SceneSystem2>();
@@ -53,18 +50,6 @@ public final class Scene extends ManagedObject {
 	public final RenderSystem renderSystem = new RenderSystem();
 	public final AudioSystem audioSystem = new AudioSystem();
 	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
-
-	public void addInitialNode(int nodeId) {
-		initialNodes.add(nodeId);
-	}
-
-	public void removeInitialNode(int nodeId) {
-		initialNodes.removeValue(nodeId);
-	}
-
-	public IntArray getInitialNodes() {
-		return initialNodes;
-	}
 
 	public final void start() {
 		if (isActive()) {
@@ -157,11 +142,11 @@ public final class Scene extends ManagedObject {
 	}
 
 	public void addNode(SceneNode2 node) {
-
+		node.setParent(this);
 	}
 
 	public void removeNode(SceneNode2 node) {
-
+		node.destroy();
 	}
 
 	public String getDiagnostics() {

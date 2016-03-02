@@ -67,7 +67,7 @@ public class SystemsContainer extends VisTable {
 		add(header).top().left().fillX().expandX();
 
 		usedSystemTypes.clear();
-		IntArray initialSystems = scene.getInitialSystems();
+		IntArray initialSystems = new IntArray();// scene.getInitialSystems();
 		Array<SceneItem> items = new Array<SceneItem>();
 		for (int i = 0; i < initialSystems.size; i++) {
 			int systemId = initialSystems.get(i);

@@ -108,8 +108,8 @@ public class SceneManager {
 			this.destinationScene = destinationScene;
 			this.transition = transition;
 			this.transition.init(currentScene, destinationScene);
-			dependentResourceIds.addAll(destinationScene.getInitialSystems());
-			dependentResourceIds.addAll(destinationScene.getInitialNodes());
+			//dependentResourceIds.addAll(destinationScene.getInitialSystems());
+			//dependentResourceIds.addAll(destinationScene.getInitialNodes());
 			//destinationScene.obtainResourcesAsync(dependentResourceIds, this);
 			transition.beforeTransitionOut();
 			EventService.subscribe(this);

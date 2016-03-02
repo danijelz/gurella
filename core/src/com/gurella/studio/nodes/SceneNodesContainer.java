@@ -69,10 +69,10 @@ public class SceneNodesContainer extends VisTable {
 
 	private void refresh() {
 		nodesTree.clearChildren();
-		for (int i = 0; i < scene.initialNodes.size; i++) {
-			/*ResourceReference<SceneNode> sceneNode = scene.getReference(scene.initialNodes.get(i));
-			nodesTree.add(new SceneNodeTreeNode(sceneNode));*/
-		}
+		/*for (int i = 0; i < scene.initialNodes.size; i++) {
+			ResourceReference<SceneNode> sceneNode = scene.getReference(scene.initialNodes.get(i));
+			nodesTree.add(new SceneNodeTreeNode(sceneNode));
+		}*/
 	}
 
 	private void addNode(String nodeName) {
@@ -91,7 +91,7 @@ public class SceneNodesContainer extends VisTable {
 		//scene.add(nodeReference);
 
 		if (parentFactory == null) {
-			scene.addInitialNode(nodeId);
+			//scene.addInitialNode(nodeId);
 		} else {
 			Array<Object> children = parentFactory.getPropertyValue("children");
 			if (children == null) {

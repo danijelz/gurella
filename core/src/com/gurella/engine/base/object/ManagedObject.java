@@ -24,7 +24,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
-	private final IdentityOrderedSet<ManagedObject> childrenPrivate = new IdentityOrderedSet<ManagedObject>();
+	private transient final IdentityOrderedSet<ManagedObject> childrenPrivate = new IdentityOrderedSet<ManagedObject>();
 	public transient final ImmutableArray<ManagedObject> children = childrenPrivate.orderedItems();
 
 	private final IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
