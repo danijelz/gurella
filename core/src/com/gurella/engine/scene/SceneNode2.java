@@ -1,6 +1,5 @@
 package com.gurella.engine.scene;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -8,6 +7,7 @@ import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
 import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty;
+import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
@@ -15,8 +15,8 @@ import com.gurella.engine.utils.Values;
 public final class SceneNode2 extends SceneElement2 implements Poolable {
 	// TODO remove
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
-	final Array<SceneNode2> _childNodes = new Array<SceneNode2>();
-	public transient final ImmutableArray<SceneNode2> childNodes = ImmutableArray.with(_childNodes);
+	final IdentityOrderedSet<SceneNode2> _childNodes = new IdentityOrderedSet<SceneNode2>();
+	public transient final ImmutableArray<SceneNode2> childNodes = _childNodes.orderedItems();
 
 	// TODO remove
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
@@ -47,9 +47,14 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	}
 
 	@Override
-	public void reset() {
+	protected final void clear() {
+		super.clear();
+		_childNodes.clear();
+	}
+
+	@Override
+	public final void reset() {
 		super.reset();
-		// TODO
 	}
 
 	public void addChild(SceneNode2 child) {

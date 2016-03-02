@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
@@ -32,17 +31,17 @@ public final class Scene extends ManagedObject {
 
 	private final IntMap<SceneSystem2> _allSystems = new IntMap<SceneSystem2>();
 	public transient final ImmutableIntMapValues<SceneSystem2> allSystems = ImmutableIntMapValues.with(_allSystems);
-	private final IdentityOrderedSet<SceneSystem2> activeSystemsInternal = new IdentityOrderedSet<SceneSystem2>();
+	private transient final IdentityOrderedSet<SceneSystem2> activeSystemsInternal = new IdentityOrderedSet<SceneSystem2>();
 	public transient final ImmutableArray<SceneSystem2> activeSystems = activeSystemsInternal.orderedItems();
 
 	private final IdentityOrderedSet<SceneNode> _allNodes = new IdentityOrderedSet<SceneNode>();
 	public transient final ImmutableArray<SceneNode> allNodes = _allNodes.orderedItems();
-	private final IdentityOrderedSet<SceneNode> _activeNodes = new IdentityOrderedSet<SceneNode>();
+	private transient final IdentityOrderedSet<SceneNode> _activeNodes = new IdentityOrderedSet<SceneNode>();
 	public transient final ImmutableArray<SceneNode> activeNodes = _activeNodes.orderedItems();
 
-	private final IdentityOrderedSet<SceneNodeComponent> _allComponents = new IdentityOrderedSet<SceneNodeComponent>();
+	private transient final IdentityOrderedSet<SceneNodeComponent> _allComponents = new IdentityOrderedSet<SceneNodeComponent>();
 	public transient final ImmutableArray<SceneNodeComponent> allComponents = _allComponents.orderedItems();
-	private final IdentityOrderedSet<SceneNodeComponent> _activeComponents = new IdentityOrderedSet<SceneNodeComponent>();
+	private transient final IdentityOrderedSet<SceneNodeComponent> _activeComponents = new IdentityOrderedSet<SceneNodeComponent>();
 	public transient final ImmutableArray<SceneNodeComponent> activeComponents = _activeComponents.orderedItems();
 
 	public final ComponentManager componentManager = new ComponentManager();
@@ -55,14 +54,6 @@ public final class Scene extends ManagedObject {
 	public final RenderSystem renderSystem = new RenderSystem();
 	public final AudioSystem audioSystem = new AudioSystem();
 	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
-
-	public void addInitialSystem(int systemId) {
-		initialSystems.add(systemId);
-	}
-
-	public void removeInitialSystem(int systemId) {
-		initialSystems.removeValue(systemId);
-	}
 
 	public IntArray getInitialSystems() {
 		return initialSystems;
@@ -80,24 +71,10 @@ public final class Scene extends ManagedObject {
 		return initialNodes;
 	}
 
-	public void start(DependencyMap initialResources) {
+	public final void start() {
 		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
 		}
-
-		/*
-		 * addSystemSafely(componentManager); addSystemSafely(nodeManager); addSystemSafely(tagManager);
-		 * addSystemSafely(layerManager);
-		 * 
-		 * addSystemSafely(spatialPartitioningSystem); addSystemSafely(inputSystem); addSystemSafely(renderSystem);
-		 * addSystemSafely(audioSystem); addSystemSafely(bulletPhysicsSystem);
-		 * 
-		 * for (int i = 0; i < initialSystems.size; i++) { int initialSystemId = initialSystems.get(i); SceneSystem
-		 * system = initialResources.getResource(initialSystemId); addSystemSafely(system); }
-		 * 
-		 * for (int i = 0; i < initialNodes.size; i++) { int initialNodeId = initialNodes.get(i); SceneNode node =
-		 * initialResources.getResource(initialNodeId); addNodeSafely(node); }
-		 */
 
 		activate();
 
@@ -108,28 +85,19 @@ public final class Scene extends ManagedObject {
 		}
 	}
 
-	public void stop() {
-		deactivate();
+	public final void stop() {
+		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).sceneStopped(this);
+		}
+		destroy();
 
-		/*
-		 * Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
-		 * EventService.getSubscribers(SceneActivityListener.class, globalListeners); for (int i = 0; i <
-		 * globalListeners.size; i++) { globalListeners.get(i).sceneStopped(this); }
-		 * 
-		 * for (int i = 0; i < allNodesInternal.size; i++) { SceneNode node = allNodesInternal.get(i); if
-		 * (node.getParent() == null) { removeNode(node); } }
-		 * 
-		 * for (int i = 0; i < allSystemsInternal.size; i++) { SceneSystem system = null;//allSystemsInternal.get(i);
-		 * removeSystem(system); }
-		 */
-
-		// cleanup();
-		// releaseResources();
+		// TODO releaseResources();
 	}
 
 	@Override
 	protected final void childAdded(ManagedObject child) {
-		// TODO Auto-generated method stub
 		if (child instanceof SceneSystem2) {
 			SceneSystem2 system = (SceneSystem2) child;
 			int baseSystemType = system.baseSystemType;
@@ -138,6 +106,25 @@ public final class Scene extends ManagedObject {
 			}
 			system.scene = this;
 			_allSystems.put(baseSystemType, system);
+		} else {
+			SceneNode2 node = (SceneNode2) child;
+			node.scene = this;
+			// TODO Auto-generated method stub
+			_allNodes.add(null);
+		}
+	}
+	
+	@Override
+	protected void childRemoved(ManagedObject child) {
+		if (child instanceof SceneSystem2) {
+			SceneSystem2 system = (SceneSystem2) child;
+			system.scene = null;
+			_allSystems.remove(system.baseSystemType);
+		} else {
+			SceneNode2 node = (SceneNode2) child;
+			node.scene = null;
+			// TODO Auto-generated method stub
+			_allNodes.remove(null);
 		}
 	}
 

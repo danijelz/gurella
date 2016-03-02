@@ -14,7 +14,7 @@ import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
-public class ManagedObject implements Comparable<ManagedObject> {
+public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient int instanceId;
 	@PropertyDescriptor(copyable = false)
 	String uuid;
@@ -148,13 +148,13 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			child.handleDestruction();
 		}
 
-		state = ManagedObjectState.disposed;
-
 		if (parent != null) {
 			parent.childrenPrivate.remove(this);
 			parent.childRemoved(this);
 			Objects.childRemoved(parent, this);
 		}
+
+		state = ManagedObjectState.disposed;
 
 		clear();
 

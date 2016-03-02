@@ -1,10 +1,10 @@
 package com.gurella.engine.scene;
 
+import com.gurella.engine.event.EventService;
+
 public abstract class SceneNodeComponent2 extends SceneElement2 {
 	public final int baseComponentType;
 	public final int componentType;
-
-	transient SceneNode2 node;
 
 	public SceneNodeComponent2() {
 		Class<? extends SceneNodeComponent2> type = getClass();
@@ -22,14 +22,24 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 	}
 
 	public final boolean isParentHierarchyEnabled() {
-		return node == null ? false : node.isHierarchyEnabled();
+		return getNode() == null ? false : getNode().isHierarchyEnabled();
 	}
 
 	public SceneNode2 getNode() {
-		return node;
+		return (SceneNode2) getParent();
 	}
 
 	public int getNodeId() {
-		return node.getInstanceId();
+		return getNode().getInstanceId();
+	}
+
+	@Override
+	protected final void activated() {
+		EventService.subscribe(getNodeId(), this);
+	}
+
+	@Override
+	protected final void deactivated() {
+		EventService.unsubscribe(getNodeId(), this);
 	}
 }

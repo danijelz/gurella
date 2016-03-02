@@ -171,7 +171,7 @@ public class SceneManager {
 			try {
 				if (transition.onTransitionHold(initializationProgress) && destinationSceneResources != null) {
 					transition.afterTransitionHold();
-					destinationScene.start(destinationSceneResources);
+					//destinationScene.start(destinationSceneResources);
 					transition.beforeTransitionIn();
 					transitionStateManager.apply(SceneTransitionState.IN);
 				}

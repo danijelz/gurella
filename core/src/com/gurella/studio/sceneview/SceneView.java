@@ -105,7 +105,7 @@ public class SceneView extends Container<Image> {
 
 		application = new Application(null);
 		view = null;//new Scene(application, "");
-		view.start(null);
+		view.start();
 		addPlane();
 		addCamera();
 		//view.update();
