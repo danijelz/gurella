@@ -1,6 +1,5 @@
 package com.gurella.engine.base.object;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -9,6 +8,7 @@ import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscri
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
@@ -24,8 +24,8 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
-	private final Array<ManagedObject> childrenPrivate = new Array<ManagedObject>();
-	public transient final ImmutableArray<ManagedObject> children = new ImmutableArray<ManagedObject>(childrenPrivate);
+	private final IdentityOrderedSet<ManagedObject> childrenPrivate = new IdentityOrderedSet<ManagedObject>();
+	public transient final ImmutableArray<ManagedObject> children = childrenPrivate.orderedItems();
 
 	private final IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
 
@@ -90,11 +90,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.active;
 		attachAll();
 		EventService.subscribe(this);
+
 		activated();
 		Objects.activated(this);
 
-		for (int i = 0; i < childrenPrivate.size; i++) {
-			ManagedObject child = childrenPrivate.get(i);
+		for (int i = 0; i < children.size(); i++) {
+			ManagedObject child = children.get(i);
 			child.handleActivation();
 		}
 	}
@@ -114,19 +115,20 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void handleDeactivation() {
-		state = ManagedObjectState.inactive;
-
-		deactivated();
-		Objects.deactivated(this);
-		EventService.unsubscribe(this);
-		detachAll();
-
 		for (int i = 0; i < childrenPrivate.size; i++) {
-			ManagedObject child = childrenPrivate.get(i);
+			ManagedObject child = children.get(i);
 			if (child.state == ManagedObjectState.active) {
 				child.handleDeactivation();
 			}
 		}
+
+		state = ManagedObjectState.inactive;
+
+		deactivated();
+		Objects.deactivated(this);
+
+		EventService.unsubscribe(this);
+		detachAll();
 	}
 
 	protected void deactivated() {
@@ -141,10 +143,17 @@ public class ManagedObject implements Comparable<ManagedObject> {
 			handleDeactivation();
 		}
 
-		state = ManagedObjectState.disposed;
 		for (int i = 0; i < childrenPrivate.size; i++) {
-			ManagedObject child = childrenPrivate.get(i);
+			ManagedObject child = children.get(i);
 			child.handleDestruction();
+		}
+
+		state = ManagedObjectState.disposed;
+
+		if (parent != null) {
+			parent.childrenPrivate.remove(this);
+			parent.childRemoved(this);
+			Objects.childRemoved(parent, this);
 		}
 
 		clear();
@@ -170,6 +179,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		uuid = null;
 		prefab = null;
 		state = ManagedObjectState.idle;
+		parent = null;
 	}
 
 	//// HIERARCHY
@@ -191,8 +201,8 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 		ManagedObject oldParent = parent;
 		if (oldParent != null) {
-			oldParent.childrenPrivate.removeValue(this, true);
-			childRemoved(this);
+			oldParent.childrenPrivate.remove(this);
+			oldParent.childRemoved(this);
 			Objects.childRemoved(oldParent, this);
 		}
 
@@ -245,7 +255,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	//// ATTACHMENTS
-	public void attach(Attachment<?> attachment) {
+	protected void attach(Attachment<?> attachment) {
 		Object value = attachment.value;
 		if (value == null) {
 			throw new GdxRuntimeException("Attachment value must be non null.");
@@ -263,7 +273,7 @@ public class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	public void detach(Object value) {
+	protected void detach(Object value) {
 		Attachment<?> attachment = attachments.remove(value);
 		if (attachment != null) {
 			if (isActive()) {
@@ -292,13 +302,12 @@ public class ManagedObject implements Comparable<ManagedObject> {
 				DisposablesService.tryDispose(attachment);
 			}
 		}
-
 		attachments.clear();
 	}
 
 	protected void subscribe(Object subscriber) {
 		if (subscriber == null) {
-			throw new NullPointerException("subscriber is null;");
+			throw new NullPointerException("subscriber is null.");
 		}
 
 		attach(SubscriptionAttachment.obtain(subscriber));
@@ -306,26 +315,39 @@ public class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void unsubscribe(Object subscriber) {
 		if (subscriber == null) {
-			throw new NullPointerException("subscriber is null;");
+			throw new NullPointerException("subscriber is null.");
 		}
-
 		detach(subscriber);
 	}
 
 	protected void subscribeTo(ManagedObject object, Object subscriber) {
 		if (object == null || subscriber == null) {
-			throw new NullPointerException("object or subscriber is null;");
+			throw new NullPointerException("object or subscriber is null.");
 		}
-
 		attach(ObjectSubscriptionAttachment.obtain(object.instanceId, subscriber));
 	}
 
 	protected void unsubscribeFrom(ManagedObject object, Object subscriber) {
 		if (object == null || subscriber == null) {
-			throw new NullPointerException("object or subscriber is null;");
+			throw new NullPointerException("object or subscriber is null.");
 		}
+		ObjectSubscription objectSubscription = ObjectSubscription.obtain(object.instanceId, subscriber);
+		detach(objectSubscription);
+		objectSubscription.free();
+	}
 
-		ObjectSubscription objectSubscription = PoolService.obtain(ObjectSubscription.class);
+	public void subscribeTo(Object subscriber) {
+		if (subscriber == null) {
+			throw new NullPointerException("subscriber is null.");
+		}
+		attach(ObjectSubscriptionAttachment.obtain(instanceId, subscriber));
+	}
+
+	public void unsubscribeFrom(Object subscriber) {
+		if (subscriber == null) {
+			throw new NullPointerException("subscriber is null.");
+		}
+		ObjectSubscription objectSubscription = ObjectSubscription.obtain(instanceId, subscriber);
 		detach(objectSubscription);
 		objectSubscription.free();
 	}

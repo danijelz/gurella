@@ -1,6 +1,5 @@
 package com.gurella.engine.scene;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.object.ManagedObject;
 
 public class SceneElement2 extends ManagedObject {
@@ -13,25 +12,15 @@ public class SceneElement2 extends ManagedObject {
 		return super.isActivationAllowed() && enabled && scene != null;
 	}
 
-	public Scene getScene() {
+	public final Scene getScene() {
 		return scene;
-	}
-
-	void setScene(Scene scene) {
-		if (this.scene == scene) {
-			return;
-		} else if (this.scene != null && scene != null) {
-			throw new GdxRuntimeException("Element already belongs to scene.");
-		}
-
-		this.scene = scene;
 	}
 
 	public final boolean isEnabled() {
 		return enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public final void setEnabled(boolean enabled) {
 		if (this.enabled == enabled) {
 			return;
 		}

@@ -3,7 +3,7 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.object.ManagedObject;
 
-public class SceneSystem2 extends SceneElement2 {
+public abstract class SceneSystem2 extends SceneElement2 {
 	public final int baseSystemType;
 	public final int systemType;
 
@@ -27,7 +27,7 @@ public class SceneSystem2 extends SceneElement2 {
 	}
 
 	final void setParent(Scene scene) {
-		setParent(scene);
+		super.setParent(scene);
 	}
 
 	@Override

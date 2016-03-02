@@ -55,21 +55,21 @@ public final class SceneNode extends SceneElement {
 	@Override
 	final void activate() {
 		if (scene != null) {
-			scene.activateNode(this);
+			//scene.activateNode(this);
 		}
 	}
 
 	@Override
 	final void deactivate() {
 		if (scene != null) {
-			scene.deactivateNode(this);
+			//scene.deactivateNode(this);
 		}
 	}
 
 	@Override
 	public final void detach() {
 		if (scene != null) {
-			scene.removeNode(this);
+			//scene.removeNode(this);
 		}
 	}
 
@@ -124,7 +124,7 @@ public final class SceneNode extends SceneElement {
 			componentBitsInternal.set(component.componentType);
 			nodeChangedSignal.componentAdded(component);
 		} else {
-			scene.addComponent(this, component);
+			//scene.addComponent(this, component);
 		}
 	}
 
@@ -139,7 +139,7 @@ public final class SceneNode extends SceneElement {
 		} else {
 			SceneNodeComponent component = componentsInternal.get(baseComponentType);
 			if (component != null) {
-				scene.removeComponent(component);
+				//scene.removeComponent(component);
 			}
 		}
 	}
@@ -196,7 +196,7 @@ public final class SceneNode extends SceneElement {
 			nodeChangedSignal.childAdded(child);
 			child.nodeChangedSignal.parentChanged(child);
 		} else if (child.scene == null) {
-			scene.addNode(child);
+			//scene.addNode(child);
 		}
 	}
 
@@ -206,7 +206,7 @@ public final class SceneNode extends SceneElement {
 		}
 
 		if (child.scene != null) {
-			scene.removeNode(child);
+			//scene.removeNode(child);
 		} else {
 			// TODO graph must handle child
 			childrenInternal.removeValue(child, true);

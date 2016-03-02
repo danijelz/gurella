@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 
-//TODO unused 
 class ObjectSubscriptionAttachment extends Attachment<ObjectSubscriptionAttachment.ObjectSubscription>
 		implements Poolable {
 	static ObjectSubscriptionAttachment obtain(int objectId, Object subscriber) {

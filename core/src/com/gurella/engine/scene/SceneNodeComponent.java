@@ -158,21 +158,21 @@ public class SceneNodeComponent extends SceneElement {
 	@Override
 	final void activate() {
 		if (scene != null) {
-			scene.activateComponent(this);
+			//scene.activateComponent(this);
 		}
 	}
 
 	@Override
 	final void deactivate() {
 		if (scene != null) {
-			scene.deactivateComponent(this);
+			//scene.deactivateComponent(this);
 		}
 	}
 
 	@Override
 	public final void detach() {
 		if (scene != null) {
-			scene.removeComponent(this);
+			//scene.removeComponent(this);
 		}
 	}
 

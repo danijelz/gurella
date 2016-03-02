@@ -87,21 +87,21 @@ public abstract class SceneSystem extends SceneElement {
 	@Override
 	final void activate() {
 		if (scene != null) {
-			scene.activateSystem(this);
+			//scene.activateSystem(this);
 		}
 	}
 
 	@Override
 	final void deactivate() {
 		if (scene != null) {
-			scene.deactivateSystem(this);
+			//scene.deactivateSystem(this);
 		}
 	}
 
 	@Override
 	public final void detach() {
 		if (scene != null) {
-			scene.removeSystem(this);
+			//scene.removeSystem(this);
 		}
 	}
 

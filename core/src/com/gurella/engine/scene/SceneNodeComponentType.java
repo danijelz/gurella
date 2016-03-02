@@ -1,5 +1,6 @@
 package com.gurella.engine.scene;
 
+import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
@@ -120,5 +121,20 @@ public final class SceneNodeComponentType {
 		} else {
 			baseComponentTypes.put(typeId, parentId);
 		}
+	}
+
+	public static Bits getBitsFor(Bits out, SceneNodeComponent2... components){
+	for (int i = 0; i < components.length; i++) {
+			out.set(components[i].baseComponentType);
+		}
+		return out;
+	}
+
+	@SafeVarargs
+	public static Bits getBitsFor(Bits out, Class<? extends SceneNodeComponent2>... componentClasses) {
+		for (int i = 0; i < componentClasses.length; i++) {
+			out.set(getBaseType(componentClasses[i]));
+		}
+		return out;
 	}
 }

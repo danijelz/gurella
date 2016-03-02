@@ -19,33 +19,31 @@ import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.scene.tag.TagManager;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
+import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
 
-public class Scene extends ManagedObject {
+public final class Scene extends ManagedObject {
 	public final IntArray initialSystems = new IntArray();
 	public final IntArray initialNodes = new IntArray();
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
-	private final IntMap<SceneSystem2> allSystemsInternal = new IntMap<SceneSystem2>();
-	public transient final ImmutableIntMapValues<SceneSystem2> allSystems = ImmutableIntMapValues
-			.with(allSystemsInternal);
-	private final Array<SceneSystem2> activeSystemsInternal = new Array<SceneSystem2>();
-	public transient final ImmutableArray<SceneSystem2> activeSystems = ImmutableArray.with(activeSystemsInternal);
+	private final IntMap<SceneSystem2> _allSystems = new IntMap<SceneSystem2>();
+	public transient final ImmutableIntMapValues<SceneSystem2> allSystems = ImmutableIntMapValues.with(_allSystems);
+	private final IdentityOrderedSet<SceneSystem2> activeSystemsInternal = new IdentityOrderedSet<SceneSystem2>();
+	public transient final ImmutableArray<SceneSystem2> activeSystems = activeSystemsInternal.orderedItems();
 
-	private final Array<SceneNode> allNodesInternal = new Array<SceneNode>();
-	public transient final ImmutableArray<SceneNode> allNodes = ImmutableArray.with(allNodesInternal);
-	private final Array<SceneNode> activeNodesInternal = new Array<SceneNode>();
-	public transient final ImmutableArray<SceneNode> activeNodes = ImmutableArray.with(activeNodesInternal);
+	private final IdentityOrderedSet<SceneNode> _allNodes = new IdentityOrderedSet<SceneNode>();
+	public transient final ImmutableArray<SceneNode> allNodes = _allNodes.orderedItems();
+	private final IdentityOrderedSet<SceneNode> _activeNodes = new IdentityOrderedSet<SceneNode>();
+	public transient final ImmutableArray<SceneNode> activeNodes = _activeNodes.orderedItems();
 
-	private final Array<SceneNodeComponent> allComponentsInternal = new Array<SceneNodeComponent>();
-	public transient final ImmutableArray<SceneNodeComponent> allComponents = ImmutableArray
-			.with(allComponentsInternal);
-	private final Array<SceneNodeComponent> activeComponentsInternal = new Array<SceneNodeComponent>();
-	public transient final ImmutableArray<SceneNodeComponent> activeComponents = ImmutableArray
-			.with(activeComponentsInternal);
+	private final IdentityOrderedSet<SceneNodeComponent> _allComponents = new IdentityOrderedSet<SceneNodeComponent>();
+	public transient final ImmutableArray<SceneNodeComponent> allComponents = _allComponents.orderedItems();
+	private final IdentityOrderedSet<SceneNodeComponent> _activeComponents = new IdentityOrderedSet<SceneNodeComponent>();
+	public transient final ImmutableArray<SceneNodeComponent> activeComponents = _activeComponents.orderedItems();
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -87,28 +85,19 @@ public class Scene extends ManagedObject {
 			throw new GdxRuntimeException("Scene is already active.");
 		}
 
-		addSystemSafely(componentManager);
-		addSystemSafely(nodeManager);
-		addSystemSafely(tagManager);
-		addSystemSafely(layerManager);
-
-		addSystemSafely(spatialPartitioningSystem);
-		addSystemSafely(inputSystem);
-		addSystemSafely(renderSystem);
-		addSystemSafely(audioSystem);
-		addSystemSafely(bulletPhysicsSystem);
-
-		for (int i = 0; i < initialSystems.size; i++) {
-			int initialSystemId = initialSystems.get(i);
-			SceneSystem system = initialResources.getResource(initialSystemId);
-			addSystemSafely(system);
-		}
-
-		for (int i = 0; i < initialNodes.size; i++) {
-			int initialNodeId = initialNodes.get(i);
-			SceneNode node = initialResources.getResource(initialNodeId);
-			addNodeSafely(node);
-		}
+		/*
+		 * addSystemSafely(componentManager); addSystemSafely(nodeManager); addSystemSafely(tagManager);
+		 * addSystemSafely(layerManager);
+		 * 
+		 * addSystemSafely(spatialPartitioningSystem); addSystemSafely(inputSystem); addSystemSafely(renderSystem);
+		 * addSystemSafely(audioSystem); addSystemSafely(bulletPhysicsSystem);
+		 * 
+		 * for (int i = 0; i < initialSystems.size; i++) { int initialSystemId = initialSystems.get(i); SceneSystem
+		 * system = initialResources.getResource(initialSystemId); addSystemSafely(system); }
+		 * 
+		 * for (int i = 0; i < initialNodes.size; i++) { int initialNodeId = initialNodes.get(i); SceneNode node =
+		 * initialResources.getResource(initialNodeId); addNodeSafely(node); }
+		 */
 
 		activate();
 
@@ -122,45 +111,59 @@ public class Scene extends ManagedObject {
 	public void stop() {
 		deactivate();
 
-		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).sceneStopped(this);
-		}
-
-		for (int i = 0; i < allNodesInternal.size; i++) {
-			SceneNode node = allNodesInternal.get(i);
-			if (node.getParent() == null) {
-				removeNode(node);
-			}
-		}
-
-		for (int i = 0; i < allSystemsInternal.size; i++) {
-			SceneSystem system = null;//allSystemsInternal.get(i);
-			removeSystem(system);
-		}
+		/*
+		 * Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
+		 * EventService.getSubscribers(SceneActivityListener.class, globalListeners); for (int i = 0; i <
+		 * globalListeners.size; i++) { globalListeners.get(i).sceneStopped(this); }
+		 * 
+		 * for (int i = 0; i < allNodesInternal.size; i++) { SceneNode node = allNodesInternal.get(i); if
+		 * (node.getParent() == null) { removeNode(node); } }
+		 * 
+		 * for (int i = 0; i < allSystemsInternal.size; i++) { SceneSystem system = null;//allSystemsInternal.get(i);
+		 * removeSystem(system); }
+		 */
 
 		// cleanup();
 		// releaseResources();
 	}
 
+	@Override
+	protected final void childAdded(ManagedObject child) {
+		// TODO Auto-generated method stub
+		if (child instanceof SceneSystem2) {
+			SceneSystem2 system = (SceneSystem2) child;
+			int baseSystemType = system.baseSystemType;
+			if (_allSystems.containsKey(baseSystemType)) {
+				throw new IllegalArgumentException("Scene already contains system: " + system.getClass().getName());
+			}
+			system.scene = this;
+			_allSystems.put(baseSystemType, system);
+		}
+	}
+
 	public void addSystem(SceneSystem2 system) {
 		system.setParent(this);
-		int baseSystemType = system.baseSystemType;
-		if (allSystemsInternal.containsKey(baseSystemType)) {
-			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
-		}
-		system.setScene(this);
-		allSystemsInternal.put(baseSystemType, system);
+	}
+
+	void systemActivated(SceneSystem2 system) {
+		activeSystemsInternal.add(system);
 	}
 
 	public void removeSystem(SceneSystem2 system) {
+		if (isDefaultSystem(system)) {
+			throw new GdxRuntimeException("Can't remove default system.");
+		}
+		system.destroy();
+	}
 
+	private boolean isDefaultSystem(SceneSystem2 system) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	public <T extends SceneSystem2> T getSystem(Class<T> systemClass) {
 		T system = getSystem(SceneSystemType.getBaseSystemType(systemClass));
-		//TODO fast check without reflection
+		// TODO fast check without reflection
 		if (system == null || ClassReflection.isAssignableFrom(systemClass, system.getClass())) {
 			return system;
 		} else {
@@ -169,7 +172,7 @@ public class Scene extends ManagedObject {
 	}
 
 	public <T extends SceneSystem2> T getSystem(int systemType) {
-		return Values.cast(allSystemsInternal.get(systemType));
+		return Values.cast(_allSystems.get(systemType));
 	}
 
 	public void addNode(SceneNode2 node) {
@@ -178,300 +181,5 @@ public class Scene extends ManagedObject {
 
 	public void removeNode(SceneNode2 node) {
 
-	}
-
-	/////////// OLD
-
-	public void addSystem(SceneSystem system) {
-		// pendingOperations.add(SceneOperation.obtain().addSystem(this, system));
-	}
-
-	void systemActivated(SceneSystem2 system) {
-		activeSystemsInternal.add(system);
-	}
-
-	void addSystemSafely(SceneSystem system) {
-		if (system.scene != null) {
-			throw new IllegalArgumentException("System is already attached to graph.");
-		}
-
-		int systemType = system.baseSystemType;
-		if (allSystemsInternal.containsKey(systemType)) {
-			throw new IllegalArgumentException("Graph already contains system: " + system.getClass().getName());
-		}
-
-		//allSystemsInternal.put(systemType, system);
-		system.scene = this;
-		attachElement(system);
-
-		if (system.isEnabled()) {
-			activateSystemSafely(system);
-		}
-	}
-
-	private static void attachElement(SceneElement element) {
-		if (!element.initialized) {
-			element.initialized = true;
-			element.init();
-			//element.lifecycleSignal.attached();
-		}
-	}
-
-	void activateSystem(SceneSystem system) {
-		if (system.scene != this) {
-			throw new IllegalArgumentException("System does not belong to graph.");
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().activateSystem(system));
-	}
-
-	void activateSystemSafely(SceneSystem system) {
-		if (!system.active) {
-			system.active = true;
-			//system.lifecycleSignal.activated();
-			//activeSystemsInternal.add(system);
-		}
-	}
-
-	void deactivateSystem(SceneSystem system) {
-		if (system.scene != this) {
-			throw new IllegalArgumentException("System does not belong to graph.");
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().deactivateSystem(system));
-	}
-
-	void deactivateSystemSafely(SceneSystem system) {
-		if (system.active) {
-			system.active = false;
-			//system.lifecycleSignal.deactivated();
-			//activeSystemsInternal.removeValue(system, true);
-		}
-	}
-
-	public void removeSystem(SceneSystem system) {
-		if (system.scene != this) {
-			throw new IllegalArgumentException("Node does not belong to graph.");
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().detachSystem(system));
-	}
-
-	void removeSystemSafely(SceneSystem system) {
-		deactivateSystemSafely(system);
-		//system.lifecycleSignal.detached();
-		system.scene = null;
-		allSystemsInternal.remove(system.baseSystemType);
-	}
-
-	void addComponent(SceneNode node, SceneNodeComponent component) {
-		if (component.scene != null || component.node != null) {
-			throw new IllegalStateException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().attachComponent(this, node, component));
-	}
-
-	void addComponentSafely(SceneNode node, SceneNodeComponent component) {
-		allComponentsInternal.add(component);
-		component.scene = this;
-		component.node = node;
-
-		node.componentsInternal.put(component.baseComponentType, component);
-		node.componentBitsInternal.set(component.componentType);
-		attachElement(component);
-		sceneEventsDispatcher.componentAdded(component);
-		node.nodeChangedSignal.componentAdded(component);
-		activateComponentSafely(component);
-	}
-
-	void activateComponent(SceneNodeComponent component) {
-		if (component.scene != this) {
-			throw new IllegalArgumentException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().activateComponent(component));
-	}
-
-	void activateComponentSafely(SceneNodeComponent component) {
-		SceneNode node = component.node;
-		if (!component.active && component.isHierarchyEnabled()) {
-			component.active = true;
-			activeComponentsInternal.add(component);
-			node.activeComponentBitsInternal.set(component.componentType);
-			//component.lifecycleSignal.activated();
-			sceneEventsDispatcher.componentActivated(component);
-			node.componentActivatedSignal.dispatch(component);
-		}
-	}
-
-	void deactivateComponent(SceneNodeComponent component) {
-		if (component.scene != this) {
-			throw new IllegalArgumentException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().deactivateComponent(component));
-	}
-
-	void deactivateComponentSafely(SceneNodeComponent component) {
-		if (component.active) {
-			SceneNode node = component.node;
-			component.active = false;
-			//component.lifecycleSignal.deactivated();
-			node.activeComponentBitsInternal.clear(component.componentType);
-			activeComponentsInternal.removeValue(component, true);
-			sceneEventsDispatcher.componentDeactivated(component);
-			node.componentDeactivatedSignal.dispatch(component);
-		}
-	}
-
-	void removeComponent(SceneNodeComponent component) {
-		if (component.scene != this) {
-			throw new IllegalArgumentException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().detachComponent(component));
-	}
-
-	void removeComponentSafely(SceneNodeComponent component) {
-		deactivateComponentSafely(component);
-		sceneEventsDispatcher.componentRemoved(component);
-		SceneNode node = component.node;
-		node.nodeChangedSignal.componentRemoved(component);
-		//component.lifecycleSignal.detached();
-		component.scene = null;
-
-		node.componentsInternal.remove(component.baseComponentType);
-		node.componentBitsInternal.clear(component.componentType);
-		allComponentsInternal.removeValue(component, true);
-	}
-
-	public void addNode(SceneNode node) {
-		if (node.scene != null) {
-			throw new IllegalArgumentException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().attachNode(this, node));
-	}
-
-	void addNodeSafely(SceneNode node) {
-		if (node.scene != null) {
-			return;
-		}
-
-		allNodesInternal.add(node);
-		node.scene = this;
-		attachElement(node);
-
-		if (node.parent != null) {
-			node.nodeChangedSignal.parentChanged(node.parent);
-		}
-
-		if (node.isHierarchyEnabled()) {
-			activateNodeSafely(node);
-		}
-
-		for (SceneNodeComponent component : node.componentsInternal.values()) {
-			addComponentSafely(node, component);
-		}
-
-		Array<SceneNode> children = node.childrenInternal;
-		for (int i = 0; i < children.size; i++) {
-			addNodeSafely(children.get(i));
-		}
-	}
-
-	void activateNode(SceneNode node) {
-		if (node.scene != this) {
-			throw new IllegalArgumentException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().activateNode(node));
-	}
-
-	private void activateNodeSafely(SceneNode node) {
-		if (!node.active && node.isHierarchyEnabled() && (node.parent == null || node.parent.active)) {
-			node.active = true;
-			//node.lifecycleSignal.activated();
-			activeNodesInternal.add(node);
-		}
-	}
-
-	void activateNodeHierarchySafely(SceneNode node) {
-		activateNodeSafely(node);
-
-		for (SceneNodeComponent component : node.componentsInternal.values()) {
-			activateComponentSafely(component);
-		}
-
-		Array<SceneNode> children = node.childrenInternal;
-		for (int i = 0; i < children.size; i++) {
-			activateNodeHierarchySafely(children.get(i));
-		}
-	}
-
-	void deactivateNode(SceneNode node) {
-		if (node.scene != this) {
-			throw new IllegalArgumentException("Node does not belong to graph.");
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().deactivateNode(node));
-	}
-
-	void deactivateNodeSafely(SceneNode node) {
-		Array<SceneNode> children = node.childrenInternal;
-		for (int i = 0; i < children.size; i++) {
-			deactivateNodeSafely(children.get(i));
-		}
-
-		for (SceneNodeComponent component : node.componentsInternal.values()) {
-			deactivateComponentSafely(component);
-		}
-
-		if (node.active) {
-			node.active = false;
-			//node.lifecycleSignal.deactivated();
-			activeNodesInternal.removeValue(node, true);
-		}
-	}
-
-	public void removeNode(SceneNode node) {
-		if (node.scene != this) {
-			throw new IllegalArgumentException();
-		}
-
-		// pendingOperations.add(SceneOperation.obtain().removeNode(node));
-	}
-
-	void removeNodeSafely(SceneNode node) {
-		deactivateNodeSafely(node);
-		removeNodeFromGraph(node);
-
-		if (node.parent != null) {
-			node.parent.childrenInternal.removeValue(node, true);
-			node.parent = null;
-		}
-	}
-
-	private void removeNodeFromGraph(SceneNode node) {
-		Array<SceneNode> children = node.childrenInternal;
-		for (int i = 0; i < children.size; i++) {
-			removeNodeFromGraph(children.get(i));
-		}
-
-		for (SceneNodeComponent component : node.componentsInternal.values()) {
-			removeComponentFromGraph(component);
-		}
-
-		//node.lifecycleSignal.detached();
-		node.scene = null;
-		allNodesInternal.removeValue(node, true);
-	}
-
-	private void removeComponentFromGraph(SceneNodeComponent component) {
-		sceneGraphListenerSignal.nodeComponentRemoved(component);
-		//component.lifecycleSignal.detached();
-		component.scene = null;
-		allComponentsInternal.removeValue(component, true);
 	}
 }

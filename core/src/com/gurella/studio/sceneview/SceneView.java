@@ -175,7 +175,7 @@ public class SceneView extends Container<Image> {
 		modelComponent.setModel(model);
 		node.addComponent(modelComponent);
 
-		view.addNode(node);
+		//view.addNode(node);
 	}
 
 	private void addCamera() {
@@ -196,7 +196,7 @@ public class SceneView extends Container<Image> {
 		 * node.addComponent(cameraComponent);
 		 */
 
-		view.addNode(node);
+		//view.addNode(node);
 	}
 
 	@Override
@@ -258,7 +258,7 @@ public class SceneView extends Container<Image> {
 				node.addComponent(transformComponent);
 				sceneRenderableComponent = new SceneRenderableComponent();
 				node.addComponent(sceneRenderableComponent);
-				view.addNode(node);
+				//view.addNode(node);
 				nodesMap.put(nodeReference, node);
 			} else {
 				sceneRenderableComponent = node.getComponent(SceneRenderableComponent.class);
