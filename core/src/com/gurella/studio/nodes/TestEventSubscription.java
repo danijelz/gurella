@@ -1,7 +1,7 @@
 package com.gurella.studio.nodes;
 
-import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
-public interface TestEventSubscription extends EventSubscription {
+public interface TestEventSubscription extends SceneEventSubscription {
 	void testEventSubscription();
 }

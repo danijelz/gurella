@@ -1,6 +1,8 @@
 package com.gurella.engine.scene;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
+import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public abstract class SceneNodeComponent2 extends SceneElement2 {
 	public final int baseComponentType;
@@ -37,16 +39,24 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 	protected final void activated() {
 		super.activated();
 		scene._activeComponents.add(this);
-		EventService.subscribe(scene.getInstanceId(), this);
-		EventService.subscribe(getNodeId(), this);
+		if (this instanceof SceneEventSubscription) {
+			EventService.subscribe(scene.getInstanceId(), this);
+		}
+		if (this instanceof NodeEventSubscription) {
+			EventService.subscribe(getNodeId(), this);
+		}
 	}
 
 	@Override
 	protected final void deactivated() {
 		super.deactivated();
 		scene._activeComponents.remove(this);
-		EventService.unsubscribe(scene.getInstanceId(), this);
-		EventService.unsubscribe(getNodeId(), this);
+		if (this instanceof SceneEventSubscription) {
+			EventService.unsubscribe(scene.getInstanceId(), this);
+		}
+		if (this instanceof NodeEventSubscription) {
+			EventService.unsubscribe(getNodeId(), this);
+		}
 	}
 
 	final void setParent(SceneNode2 node) {

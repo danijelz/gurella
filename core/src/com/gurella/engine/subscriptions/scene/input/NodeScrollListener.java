@@ -1,8 +1,8 @@
 package com.gurella.engine.subscriptions.scene.input;
 
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 
-public interface ObjectScrollListener extends EventSubscription {
+public interface NodeScrollListener extends NodeEventSubscription {
 	void onScrolled(int screenX, int screenY, int amount, Vector3 intersection);
 }

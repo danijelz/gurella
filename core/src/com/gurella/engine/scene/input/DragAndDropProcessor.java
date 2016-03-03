@@ -4,8 +4,8 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.subscriptions.scene.input.ObjectDragSourceListener;
-import com.gurella.engine.subscriptions.scene.input.ObjectDropTargetListener;
+import com.gurella.engine.subscriptions.scene.input.NodeDragSourceListener;
+import com.gurella.engine.subscriptions.scene.input.NodeDropTargetListener;
 import com.gurella.engine.utils.Values;
 
 public class DragAndDropProcessor implements PointerActivityListener {
@@ -62,8 +62,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 
 	private void initDragSources(SceneNode node, DragStartCondition condition) {
 		dragSources.clear();
-		Array<ObjectDragSourceListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(node.id, ObjectDragSourceListener.class, listeners);
+		Array<NodeDragSourceListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(node.id, NodeDragSourceListener.class, listeners);
 		if (listeners.size < 1) {
 			return;
 		}
@@ -117,8 +117,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	}
 
 	private void initDropTargets(SceneNode node) {
-		Array<ObjectDropTargetListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(node.id, ObjectDropTargetListener.class, listeners);
+		Array<NodeDropTargetListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(node.id, NodeDropTargetListener.class, listeners);
 		if (listeners.size < 1) {
 			return;
 		}

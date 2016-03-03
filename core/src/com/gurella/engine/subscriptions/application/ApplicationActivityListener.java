@@ -1,8 +1,6 @@
 package com.gurella.engine.subscriptions.application;
 
-import com.gurella.engine.event.EventSubscription;
-
-public interface ApplicationActivityListener extends EventSubscription {
+public interface ApplicationActivityListener extends ApplicationEventSubscription {
 	void pause();
 
 	void resume();

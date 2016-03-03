@@ -1,8 +1,6 @@
 package com.gurella.engine.subscriptions.scene;
 
-import com.gurella.engine.event.EventSubscription;
-
-public interface SceneActivityListener extends EventSubscription {
+public interface SceneActivityListener extends SceneEventSubscription {
 	void sceneStarted();
 
 	void sceneStopped();

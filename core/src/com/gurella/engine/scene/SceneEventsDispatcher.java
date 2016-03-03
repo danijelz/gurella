@@ -3,15 +3,15 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.scene.CleanupUpdateListener;
-import com.gurella.engine.subscriptions.scene.DebugRenderUpdateListener;
-import com.gurella.engine.subscriptions.scene.InputUpdateListener;
-import com.gurella.engine.subscriptions.scene.IoUpdateListener;
-import com.gurella.engine.subscriptions.scene.LogicUpdateListener;
-import com.gurella.engine.subscriptions.scene.PhysicsUpdateListener;
-import com.gurella.engine.subscriptions.scene.PreRenderUpdateListener;
-import com.gurella.engine.subscriptions.scene.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
+import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.DebugRenderUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.IoUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.LogicUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.Values;
 
 class SceneEventsDispatcher implements ApplicationUpdateListener {

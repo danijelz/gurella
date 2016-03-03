@@ -1,9 +1,9 @@
 package com.gurella.engine.subscriptions.scene.input;
 
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 
-public interface ObjectMouseListener extends EventSubscription {
+public interface NodeMouseOverListener extends NodeEventSubscription {
 	void onMouseOverStart(int screenX, int screenY, Vector3 intersection);
 
 	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection);

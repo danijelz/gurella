@@ -3,6 +3,7 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public abstract class SceneSystem2 extends SceneElement2 {
 	public final int baseSystemType;
@@ -35,23 +36,27 @@ public abstract class SceneSystem2 extends SceneElement2 {
 	protected final void activated() {
 		super.activated();
 		scene._activeSystems.add(this);
-		EventService.subscribe(scene.getInstanceId(), this);
+		if (this instanceof SceneEventSubscription) {
+			EventService.subscribe(scene.getInstanceId(), this);
+		}
 		onActivate();
 	}
-	
+
 	protected void onActivate() {
-		
+
 	}
 
 	@Override
 	protected final void deactivated() {
 		super.deactivated();
 		scene._activeSystems.remove(this);
-		EventService.unsubscribe(scene.getInstanceId(), this);
+		if (this instanceof SceneEventSubscription) {
+			EventService.unsubscribe(scene.getInstanceId(), this);
+		}
 		onDeactivate();
 	}
-	
+
 	protected void onDeactivate() {
-		
+
 	}
 }

@@ -150,13 +150,13 @@ public final class Scene extends ManagedObject {
 
 	public <T extends SceneSystem2> T getSystem(int typeId) {
 		SceneSystem2 value = _systems.get(SystemType.findBaseType(typeId));
-		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.cast(value) : null;
+		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.<T> cast(value) : null;
 	}
 
 	public <T extends SceneSystem2> T getSystem(Class<T> type) {
 		int typeId = SystemType.findType(type);
 		SceneSystem2 value = _systems.get(SystemType.findBaseType(typeId));
-		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.cast(value) : null;
+		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.<T> cast(value) : null;
 	}
 
 	public <T extends SceneSystem2 & Poolable> T newSystem(Class<T> systemType) {

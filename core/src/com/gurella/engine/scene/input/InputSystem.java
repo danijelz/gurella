@@ -37,15 +37,15 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.subscriptions.scene.input.GlobalScrollListener;
-import com.gurella.engine.subscriptions.scene.input.GlobalTouchListener;
+import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
+import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionScrollListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
-import com.gurella.engine.subscriptions.scene.input.KeyListener;
-import com.gurella.engine.subscriptions.scene.input.KeyTypedListener;
-import com.gurella.engine.subscriptions.scene.input.ObjectScrollListener;
-import com.gurella.engine.subscriptions.scene.input.ObjectTouchListener;
-import com.gurella.engine.subscriptions.scene.input.TouchDraggedListener;
+import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
+import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
+import com.gurella.engine.subscriptions.scene.input.NodeScrollListener;
+import com.gurella.engine.subscriptions.scene.input.NodeTouchListener;
+import com.gurella.engine.subscriptions.scene.input.SceneTouchDraggedListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
@@ -354,8 +354,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyDown(int keycode) {
-			Array<KeyListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(KeyListener.class, listeners);
+			Array<SceneKeyListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(SceneKeyListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).keyDown(keycode);
 			}
@@ -364,8 +364,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyUp(int keycode) {
-			Array<KeyListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(KeyListener.class, listeners);
+			Array<SceneKeyListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(SceneKeyListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).keyUp(keycode);
 			}
@@ -374,8 +374,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 
 		@Override
 		public boolean keyTyped(char character) {
-			Array<KeyTypedListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(KeyTypedListener.class, listeners);
+			Array<SceneKeyTypedListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(SceneKeyTypedListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).keyTyped(character);
 			}
@@ -394,8 +394,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
 
-			Array<GlobalScrollListener> globalListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(GlobalScrollListener.class, globalListeners);
+			Array<SceneScrollListener> globalListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(SceneScrollListener.class, globalListeners);
 			for (int i = 0; i < globalListeners.size; i++) {
 				globalListeners.get(i).scrolled(screenX, screenY, amount);
 			}
@@ -410,8 +410,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 							closestIntersection);
 				}
 
-				Array<ObjectScrollListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectScrollListener.class, listeners);
+				Array<NodeScrollListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), NodeScrollListener.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onScrolled(screenX, screenY, amount, closestIntersection);
 				}
@@ -428,8 +428,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
 
 			touchEvent.set(pointer, button, screenX, screenY);
-			Array<GlobalTouchListener> globalListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(GlobalTouchListener.class, globalListeners);
+			Array<SceneTouchListener> globalListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(SceneTouchListener.class, globalListeners);
 			for (int i = 0; i < globalListeners.size; i++) {
 				globalListeners.get(i).touchDown(touchEvent);
 			}
@@ -443,8 +443,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 					intersectionListeners.get(i).onTouchDown(renderableComponent, intersectionTouchEvent);
 				}
 
-				Array<ObjectTouchListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectTouchListener.class, listeners);
+				Array<NodeTouchListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), NodeTouchListener.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onTouchDown(intersectionTouchEvent);
 				}
@@ -458,8 +458,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchEvent.set(pointer, button, screenX, screenY);
-			Array<GlobalTouchListener> globalListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(GlobalTouchListener.class, globalListeners);
+			Array<SceneTouchListener> globalListeners = Values.cast(tempListeners);
+			EventService.getSubscribers(SceneTouchListener.class, globalListeners);
 			for (int i = 0; i < globalListeners.size; i++) {
 				globalListeners.get(i).touchUp(touchEvent);
 			}
@@ -474,8 +474,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 					intersectionListeners.get(i).onTouchUp(renderableComponent, intersectionTouchEvent);
 				}
 
-				Array<ObjectTouchListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), ObjectTouchListener.class, listeners);
+				Array<NodeTouchListener> listeners = Values.cast(tempListeners);
+				EventService.getSubscribers(renderableComponent.getNodeId(), NodeTouchListener.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onTouchDown(intersectionTouchEvent);
 				}
@@ -499,8 +499,8 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					touchEvent.set(pointer, button, screenX, screenY);
-					Array<TouchDraggedListener> listeners = Values.cast(tempListeners);
-					EventService.getSubscribers(TouchDraggedListener.class, listeners);
+					Array<SceneTouchDraggedListener> listeners = Values.cast(tempListeners);
+					EventService.getSubscribers(SceneTouchDraggedListener.class, listeners);
 					for (int i = 0; i < listeners.size; i++) {
 						listeners.get(i).touchDragged(touchEvent);
 					}

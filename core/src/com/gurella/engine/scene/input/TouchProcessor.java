@@ -13,12 +13,12 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.GlobalLongPressListener;
-import com.gurella.engine.subscriptions.scene.input.GlobalTapListener;
+import com.gurella.engine.subscriptions.scene.input.SceneLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.SceneTapListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTapListener;
-import com.gurella.engine.subscriptions.scene.input.ObjectLongPressListener;
-import com.gurella.engine.subscriptions.scene.input.ObjectTapListener;
+import com.gurella.engine.subscriptions.scene.input.NodeLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.NodeTapListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
@@ -147,8 +147,8 @@ public class TouchProcessor implements PointerActivityListener {
 		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
 		int tapCount = tapCounters.get(key, 1);
 		touchEvent.set(pointer, button, screenX, screenY);
-		Array<GlobalTapListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(GlobalTapListener.class, globalListeners);
+		Array<SceneTapListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(SceneTapListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
 			globalListeners.get(i).tap(touchEvent, tapCount);
 		}
@@ -163,8 +163,8 @@ public class TouchProcessor implements PointerActivityListener {
 				intersectionListeners.get(i).onTap(renderableComponent, intersectionTouchEvent, tapCount);
 			}
 
-			Array<ObjectTapListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectTapListener.class, listeners);
+			Array<NodeTapListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), NodeTapListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onTap(intersectionTouchEvent, tapCount);
 			}
@@ -174,8 +174,8 @@ public class TouchProcessor implements PointerActivityListener {
 	private void dispatchLongPress(int pointer, int button, PointerTrack pointerTrack) {
 		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
 		touchEvent.set(pointer, button, screenX, screenY);
-		Array<GlobalLongPressListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(GlobalLongPressListener.class, globalListeners);
+		Array<SceneLongPressListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(SceneLongPressListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
 			globalListeners.get(i).longPress(touchEvent);
 		}
@@ -190,8 +190,8 @@ public class TouchProcessor implements PointerActivityListener {
 				intersectionListeners.get(i).onLongPress(renderableComponent, intersectionTouchEvent);
 			}
 
-			Array<ObjectLongPressListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectLongPressListener.class, listeners);
+			Array<NodeLongPressListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), NodeLongPressListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onLongPress(intersectionTouchEvent);
 			}

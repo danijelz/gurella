@@ -8,6 +8,7 @@ import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscri
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
@@ -89,7 +90,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 		state = ManagedObjectState.active;
 		attachAll();
-		EventService.subscribe(this);
+
+		if (this instanceof ApplicationEventSubscription) {
+			EventService.subscribe(this);
+		}
 
 		activated();
 		Objects.activated(this);
@@ -127,7 +131,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		deactivated();
 		Objects.deactivated(this);
 
-		EventService.unsubscribe(this);
+		if (this instanceof ApplicationEventSubscription) {
+			EventService.unsubscribe(this);
+		}
+
 		detachAll();
 	}
 

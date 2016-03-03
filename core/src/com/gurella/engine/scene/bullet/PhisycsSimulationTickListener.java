@@ -1,9 +1,9 @@
 package com.gurella.engine.scene.bullet;
 
-import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 //TODO unused
-public interface PhisycsSimulationTickListener extends EventSubscription {
+public interface PhisycsSimulationTickListener extends SceneEventSubscription {
 	void physicsSimulationStart();
 
 	void physicsSimulationEnd();

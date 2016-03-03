@@ -33,7 +33,7 @@ public final class ComponentType {
 	static int findBaseType(int typeId) {
 		return baseComponentTypes.get(typeId, invalidId);
 	}
-	
+
 	static int findType(Class<? extends SceneNodeComponent2> type) {
 		return registry.findId(type);
 	}
@@ -75,7 +75,7 @@ public final class ComponentType {
 	}
 
 	private static void init(Class<? extends SceneNodeComponent2> type) {
-		if (registry.contais(type)) {
+		if (registry.contais(type) || !ClassReflection.isAssignableFrom(SceneNodeComponent2.class, type)) {
 			return;
 		}
 
@@ -86,8 +86,7 @@ public final class ComponentType {
 		BitsExt currentBits;
 
 		while (temp != SceneNodeComponent2.class) {
-			@SuppressWarnings("unchecked")
-			Class<? extends SceneNodeComponent2> casted = (Class<? extends SceneNodeComponent2>) temp;
+			Class<? extends SceneNodeComponent2> casted = Values.cast(temp);
 			int componentType = registry.getId(casted);
 			currentBits = componentSubtypes.get(componentType);
 

@@ -6,9 +6,9 @@ import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.GlobalDoubleTouchDownListener;
+import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchDownListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionDoubleTouchDownListener;
-import com.gurella.engine.subscriptions.scene.input.ObjectDoubleTouchDownListener;
+import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchDownListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
@@ -93,8 +93,8 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
 		touchEvent.set(pointer, button, screenX, screenY);
-		Array<GlobalDoubleTouchDownListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(GlobalDoubleTouchDownListener.class, globalListeners);
+		Array<SceneDoubleTouchDownListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(SceneDoubleTouchDownListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
 			globalListeners.get(i).doubleTouchDown(touchEvent);
 		}
@@ -109,8 +109,8 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 				intersectionListeners.get(i).onDoubleTouch(renderableComponent, intersectionTouchEvent);
 			}
 
-			Array<ObjectDoubleTouchDownListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), ObjectDoubleTouchDownListener.class,
+			Array<NodeDoubleTouchDownListener> listeners = Values.cast(tempListeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDoubleTouchDownListener.class,
 					listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onDoubleTouch(intersectionTouchEvent);

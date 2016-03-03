@@ -162,13 +162,13 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 
 	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
-		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.cast(value) : null;
+		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.<T> cast(value) : null;
 	}
 
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
 		int typeId = ComponentType.findType(type);
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
-		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.cast(value) : null;
+		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.<T> cast(value) : null;
 	}
 
 	public <T extends SceneNodeComponent2 & Poolable> T newComponent(Class<T> componentType) {

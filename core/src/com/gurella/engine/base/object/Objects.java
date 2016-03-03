@@ -10,7 +10,7 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectCompositionListener;
-import com.gurella.engine.subscriptions.base.object.ObjectParentListener;
+import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
@@ -124,8 +124,8 @@ final class Objects implements ApplicationUpdateListener {
 			globalListeners.get(i).parentChanged(object, oldParent, newParent);
 		}
 
-		Array<ObjectParentListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.instanceId, ObjectParentListener.class, listeners);
+		Array<ObjectParentChangeListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(object.instanceId, ObjectParentChangeListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).parentChanged(oldParent, newParent);
 		}

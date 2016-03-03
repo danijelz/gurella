@@ -1,6 +1,5 @@
 package com.gurella.engine.scene;
 
-import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
@@ -74,7 +73,7 @@ public class SystemType {
 	}
 
 	private static void init(Class<? extends SceneSystem2> type) {
-		if (registry.contais(type)) {
+		if (registry.contais(type) || !ClassReflection.isAssignableFrom(SceneSystem2.class, type)) {
 			return;
 		}
 
@@ -85,8 +84,7 @@ public class SystemType {
 		BitsExt currentBits;
 
 		while (temp != SceneSystem2.class) {
-			@SuppressWarnings("unchecked")
-			Class<? extends SceneSystem2> casted = (Class<? extends SceneSystem2>) temp;
+			Class<? extends SceneSystem2> casted = Values.cast(temp);
 			int componentType = registry.getId(casted);
 			currentBits = componentSubtypes.get(componentType);
 
@@ -125,20 +123,5 @@ public class SystemType {
 		} else {
 			baseComponentTypes.put(typeId, parentId);
 		}
-	}
-
-	public static Bits getBitsFor(Bits out, SceneSystem2... components){
-	for (int i = 0; i < components.length; i++) {
-			out.set(components[i].baseSystemType);
-		}
-		return out;
-	}
-
-	@SafeVarargs
-	public static Bits getBitsFor(Bits out, Class<? extends SceneSystem2>... componentClasses) {
-		for (int i = 0; i < componentClasses.length; i++) {
-			out.set(getBaseType(componentClasses[i]));
-		}
-		return out;
 	}
 }
