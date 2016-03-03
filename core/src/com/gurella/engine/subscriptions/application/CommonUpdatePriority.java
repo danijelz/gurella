@@ -1,14 +1,14 @@
 package com.gurella.engine.subscriptions.application;
 
 public interface CommonUpdatePriority {
-	public static int IO = -400;
-	public static int INPUT = -300;
-	public static int LOGIC = -200;
-	public static int PHYSICS = -100;
-	public static int UPDATE = 0;
-	public static int PRE_RENDER = 100;
-	public static int RENDER = 200;
-	public static int POST_RENDER = 300;
-	public static int DEBUG_RENDER = 400;
-	public static int CLEANUP = 500;
+	int IO = -400;
+	int INPUT = -300;
+	int LOGIC = -200;
+	int PHYSICS = -100;
+	int UPDATE = 0;
+	int PRE_RENDER = 100;
+	int RENDER = 200;
+	int POST_RENDER = 300;
+	int DEBUG_RENDER = 400;
+	int CLEANUP = 500;
 }
