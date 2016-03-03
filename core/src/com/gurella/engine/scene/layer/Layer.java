@@ -9,7 +9,7 @@ import com.gurella.engine.utils.ValueRegistry;
 import com.gurella.engine.utils.Values;
 
 public final class Layer implements Comparable<Layer> {
-	private static ValueRegistry<Layer> INDEXER = new ValueRegistry<Layer>();
+	private static ValueRegistry<Layer> registry = new ValueRegistry<Layer>();
 	private static IntMap<Layer> layersByOrdnal = new IntMap<Layer>();
 	private static ObjectMap<String, Layer> layersByName = new ObjectMap<String, Layer>();
 
@@ -30,7 +30,7 @@ public final class Layer implements Comparable<Layer> {
 			throw new GdxRuntimeException("Layer name duplicate.");
 		}
 
-		this.id = INDEXER.getId(this);
+		this.id = registry.getId(this);
 		this.name = name;
 		this.ordinal = ordinal;
 
@@ -39,7 +39,7 @@ public final class Layer implements Comparable<Layer> {
 	}
 
 	public static Layer getLayer(int id) {
-		return INDEXER.getValue(id);
+		return registry.getValue(id);
 	}
 
 	public static Layer getLayer(String name) {

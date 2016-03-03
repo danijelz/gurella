@@ -1,21 +1,20 @@
 package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
 
-public class TagComponent extends SceneNodeComponent {
+public class TagComponent extends SceneNodeComponent2 implements Poolable {
 	@ResourceProperty(descriptiveName = "tags")
-	final Bits tagsInternal = new Bits();
-	@TransientProperty
-	public final ImmutableBits tags = new ImmutableBits(tagsInternal);
+	final Bits _tags = new Bits();
+	public final transient ImmutableBits tags = new ImmutableBits(_tags);
 
 	public void addTag(Tag tag) {
 		int tagId = tag.id;
-		if (!tagsInternal.getAndSet(tagId)) {
+		if (!_tags.getAndSet(tagId)) {
 			tagAdded(tagId);
 		}
 	}
@@ -23,7 +22,7 @@ public class TagComponent extends SceneNodeComponent {
 	public void addTags(Tag... tags) {
 		for (Tag tag : tags) {
 			int tagId = tag.id;
-			if (!tagsInternal.getAndSet(tagId)) {
+			if (!_tags.getAndSet(tagId)) {
 				tagAdded(tagId);
 			}
 		}
@@ -44,7 +43,7 @@ public class TagComponent extends SceneNodeComponent {
 
 	public void removeTag(Tag tag) {
 		int tagId = tag.id;
-		if (tagsInternal.getAndClear(tagId)) {
+		if (_tags.getAndClear(tagId)) {
 			tagRemoved(tagId);
 		}
 	}
@@ -52,7 +51,7 @@ public class TagComponent extends SceneNodeComponent {
 	public void removeTags(Tag... tags) {
 		for (Tag tag : tags) {
 			int tagId = tag.id;
-			if (tagsInternal.getAndClear(tagId)) {
+			if (_tags.getAndClear(tagId)) {
 				tagRemoved(tagId);
 			}
 		}
@@ -72,7 +71,7 @@ public class TagComponent extends SceneNodeComponent {
 	}
 
 	@Override
-	protected void resetted() {
-		tagsInternal.clear();
+	public void reset() {
+		_tags.clear();
 	}
 }

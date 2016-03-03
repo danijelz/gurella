@@ -3,16 +3,41 @@ package com.gurella.engine.scene.layer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.manager.ComponentManager;
+import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
+import com.gurella.engine.scene.manager.ComponentTypePredicate;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class LayerManager extends SceneSystem2 implements ComponentActivityListener {
+public class LayerManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
+	private static final ComponentFamily<LayerComponent> family = new ComponentFamily<LayerComponent>(
+			new ComponentTypePredicate(LayerComponent.class));
+
 	private IntMap<ArrayExt<SceneNode2>> nodesByLayer = new IntMap<ArrayExt<SceneNode2>>();
 	private IntIntMap nodeLayers = new IntIntMap();
+
+	@Override
+	protected void onActivate() {
+		super.onActivate();
+		ComponentManager componentManager = getScene().componentManager;
+		componentManager.registerComponentFamily(family);
+		ImmutableArray<? extends LayerComponent> components = componentManager.getComponents(family);
+		for (int i = 0; i < components.size(); i++) {
+			componentActivated(components.get(i));
+		}
+	}
+	
+	@Override
+	protected void onDeactivate() {
+		super.onDeactivate();
+		nodesByLayer.clear();
+		nodeLayers.clear();
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
@@ -82,5 +107,11 @@ public class LayerManager extends SceneSystem2 implements ComponentActivityListe
 	public ImmutableArray<SceneNode2> getNodesByLayer(int layerId) {
 		ArrayExt<SceneNode2> layerNodes = nodesByLayer.get(layerId);
 		return layerNodes == null ? ImmutableArray.<SceneNode2> empty() : layerNodes.immutable();
+	}
+
+	@Override
+	public void reset() {
+		nodesByLayer.clear();
+		nodeLayers.clear();
 	}
 }
