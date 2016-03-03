@@ -224,9 +224,9 @@ public class EventBus implements Poolable {
 
 	private <T> Array<T> getListenersInternal(Object eventType, Array<T> out) {
 		synchronized (listeners) {
-			Array<T> listenersByType = Values.cast(listeners.get(eventType));
+			OrderedSet<T> listenersByType = Values.cast(listeners.get(eventType));
 			if (listenersByType != null) {
-				out.addAll(listenersByType);
+				out.addAll(listenersByType.orderedItems());
 			}
 			return out;
 		}

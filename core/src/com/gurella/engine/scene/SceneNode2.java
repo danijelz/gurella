@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
 import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty;
@@ -14,7 +15,7 @@ import com.gurella.engine.utils.Values;
 
 public final class SceneNode2 extends SceneElement2 implements Poolable {
 	String name;
-	
+
 	// TODO remove
 	@ResourceProperty(model = SceneNodeChildrenModelProperty.class)
 	final IdentityOrderedSet<SceneNode2> _childNodes = new IdentityOrderedSet<SceneNode2>();
@@ -25,7 +26,7 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	final IntMap<SceneNodeComponent2> _components = new IntMap<SceneNodeComponent2>();
 	public transient final ImmutableIntMapValues<SceneNodeComponent2> components = ImmutableIntMapValues
 			.with(_components);
-	
+
 	public String getName() {
 		return name;
 	}
@@ -34,8 +35,9 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	protected final void validateReparent(ManagedObject newParent) {
 		super.validateReparent(newParent);
 		Class<?> parentType = newParent.getClass();
-		if (parentType != SceneNode2.class || parentType != Scene.class) {
-			throw new GdxRuntimeException("Node can only be added to Scene or other Node.");
+		if (parentType != SceneNode2.class && parentType != Scene.class) {
+			throw new GdxRuntimeException(
+					"Node can only be added to Scene or other Node. Parent type: " + parentType.getSimpleName());
 		}
 	}
 
@@ -64,11 +66,11 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	public final void reset() {
 		super.reset();
 	}
-	
+
 	final void setParent(SceneNode2 node) {
 		super.setParent(node);
 	}
-	
+
 	final void setParent(Scene scene) {
 		super.setParent(scene);
 	}
@@ -112,12 +114,29 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		child.destroy();
 	}
 
+	public SceneNode2 newChild() {
+		SceneNode2 node = PoolService.obtain(SceneNode2.class);
+		node.setParent(this);
+		return node;
+	}
+
 	public void addComponent(SceneNodeComponent2 component) {
 		component.setParent(this);
 	}
 
 	public void removeComponent(SceneNodeComponent2 component) {
-		component.destroy();
+		SceneNodeComponent2 value = _components.get(component.baseComponentType);
+		if (value == component) {
+			component.destroy();
+		}
+	}
+
+	public <T extends SceneNodeComponent2> void removeComponent(Class<T> componentType) {
+		int typeId = ComponentType.findType(componentType);
+		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(typeId));
+		if (component != null) {
+			component.destroy();
+		}
 	}
 
 	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
@@ -129,5 +148,31 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		int typeId = ComponentType.findType(type);
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.cast(value) : null;
+	}
+
+	public <T extends SceneNodeComponent2 & Poolable> T newComponent(Class<T> componentType) {
+		T component = PoolService.obtain(componentType);
+		component.setParent(this);
+		return component;
+	}
+
+	public String getDiagnostics() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("\t");
+		if (!isActive()) {
+			builder.append("*");
+		}
+		builder.append(name == null ? "-" : name);
+		builder.append("\n\tComponents [");
+		for (SceneNodeComponent2 component : _components.values()) {
+			builder.append("\n\t\t");
+			if (!component.isActive()) {
+				builder.append("*");
+			}
+			builder.append(component.getClass().getSimpleName());
+		}
+		builder.append("]");
+
+		return builder.toString();
 	}
 }

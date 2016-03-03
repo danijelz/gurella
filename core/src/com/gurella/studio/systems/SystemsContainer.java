@@ -113,7 +113,7 @@ public class SystemsContainer extends VisTable {
 			menu = new PopupMenu();
 			addItem("Input", InputSystem.class);
 			menu.addSeparator();
-			addItem("Render", RenderSystem.class);
+			//addItem("Render", RenderSystem.class);
 			menu.addSeparator();
 			addItem("BulletPhysics", BulletPhysicsSystem.class);
 			menu.addSeparator();

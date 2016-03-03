@@ -9,7 +9,7 @@ import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
@@ -20,13 +20,18 @@ import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 //TODO attach listeners on activate
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.RENDER, type = ApplicationUpdateListener.class) })
-public class RenderSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
-	private final GenericBatch batch = DisposablesService.add(new GenericBatch());
+public class RenderSystem extends SceneSystem2 implements SceneListener, ApplicationUpdateListener {
+	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 	private final LayerMask layerMask = new LayerMask();
 
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
+	
+	@Override
+	protected void init() {
+		batch = DisposablesService.add(new GenericBatch());
+	}
 
 	@Override
 	public void update() {

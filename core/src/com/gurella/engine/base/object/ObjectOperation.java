@@ -12,7 +12,7 @@ class ObjectOperation implements Poolable {
 		ManagedObjectState state = object.getState();
 		switch (operationType) {
 		case activate:
-			if (state == ManagedObjectState.inactive) {
+			if (state == ManagedObjectState.idle || state == ManagedObjectState.inactive) {
 				object.handleActivation();
 			}
 			break;

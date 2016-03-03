@@ -10,14 +10,14 @@ public abstract class SceneSystem2 extends SceneElement2 {
 
 	public SceneSystem2() {
 		Class<? extends SceneSystem2> type = getClass();
-		baseSystemType = SceneSystemType.getBaseSystemType(type);
-		systemType = SceneSystemType.getSystemType(type);
+		baseSystemType = SystemType.getBaseType(type);
+		systemType = SystemType.getType(type);
 	}
 
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
 		super.validateReparent(newParent);
-		if (!(newParent instanceof Scene)) {
+		if (newParent.getClass() != Scene.class) {
 			throw new GdxRuntimeException("System can only be added to Scene.");
 		}
 	}

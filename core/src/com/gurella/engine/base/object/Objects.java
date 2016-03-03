@@ -34,7 +34,11 @@ final class Objects implements ApplicationUpdateListener {
 	}
 
 	static void destroy(ManagedObject object) {
-		operation(object, OperationType.destroy, null);
+		if (object.state == ManagedObjectState.idle) {
+			object.handleDestruction();
+		} else {
+			operation(object, OperationType.destroy, null);
+		}
 	}
 
 	static void reparent(ManagedObject object, ManagedObject newParent) {
