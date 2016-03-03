@@ -9,19 +9,19 @@ import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.LayerComponent;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 
 //TODO attach listeners -> SceneSystem
 @BaseSceneElement
-public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem
-		implements SceneListener, SceneActivityListener {
+public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem2
+		implements ComponentActivityListener, SceneActivityListener {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();
@@ -112,15 +112,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	protected abstract T createSpatial(RenderableComponent drawableComponent);
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof RenderableComponent) {
 			T spatial = createSpatial((RenderableComponent) component);
 			add(spatial);
@@ -133,7 +125,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof RenderableComponent) {
 			T spatial = allSpatials.get(component.getNode().id);
 			if (spatial != null) {

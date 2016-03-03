@@ -1,8 +1,9 @@
 package com.gurella.engine.math.geometry;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class Angle {
+public class Angle implements Poolable {
 	private float degrees;
 
 	private Angle() {
@@ -42,5 +43,10 @@ public class Angle {
 
 	public void setRadians(float angleInRadians) {
 		setDegrees(angleInRadians * MathUtils.radiansToDegrees);
+	}
+
+	@Override
+	public void reset() {
+		degrees = 0;
 	}
 }

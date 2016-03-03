@@ -8,14 +8,14 @@ import com.gurella.engine.event.Signal1;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElement
-public abstract class RenderableComponent extends SceneNodeComponent {
+public abstract class RenderableComponent extends SceneNodeComponent2 {
 	//TODO LayerComponent ??
 	public Layer layer = Layer.DEFAULT;
 
@@ -29,9 +29,8 @@ public abstract class RenderableComponent extends SceneNodeComponent {
 	public final Signal1<RenderableComponent> dirtySignal = new Signal1<RenderableComponent>();
 
 	@Override
-	protected void activated() {
-		super.activated();
-		SceneNode node = getNode();
+	protected void onActivate() {
+		SceneNode2 node = getNode();
 		node.componentActivatedSignal.addListener(transformComponentActivatedListener);
 		node.componentDeactivatedSignal.addListener(transformComponentDeactivatedListener);
 		transformComponent = node.getActiveComponent(TransformComponent.class);
@@ -53,10 +52,9 @@ public abstract class RenderableComponent extends SceneNodeComponent {
 			transformComponent.dirtySignal.addListener(transformDirtyListener);
 		}
 	}
-
+	
 	@Override
-	protected void deactivated() {
-		super.deactivated();
+	protected void onDeactivate() {
 		SceneNode node = getNode();
 		node.componentActivatedSignal.removeListener(transformComponentActivatedListener);
 		node.componentDeactivatedSignal.removeListener(transformComponentDeactivatedListener);
@@ -98,18 +96,18 @@ public abstract class RenderableComponent extends SceneNodeComponent {
 
 	public abstract boolean getIntersection(Ray ray, Vector3 intersection);
 
-	private class TransformComponentActivatedListener implements Listener1<SceneNodeComponent> {
+	private class TransformComponentActivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				setTransformComponent((TransformComponent) component);
 			}
 		}
 	}
 
-	private class TransformComponentDeactivatedListener implements Listener1<SceneNodeComponent> {
+	private class TransformComponentDeactivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				setTransformComponent(null);
 			}

@@ -1,10 +1,9 @@
 package com.gurella.engine.audio;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.gurella.engine.resource.model.DefaultValue;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class Pitch {
-	@DefaultValue(floatValue = 1)
+public class Pitch implements Poolable {
 	private float pitch = 1;
 
 	public float getPitch() {
@@ -17,5 +16,10 @@ public class Pitch {
 
 	public void set(Pitch pitch) {
 		this.pitch = pitch.pitch;
+	}
+
+	@Override
+	public void reset() {
+		pitch = 1;
 	}
 }

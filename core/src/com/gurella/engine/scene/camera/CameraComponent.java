@@ -9,8 +9,8 @@ import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
@@ -19,7 +19,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
-public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent
+public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
 		implements Comparable<CameraComponent<?>>, ApplicationResizeListener {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
@@ -58,13 +58,12 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	abstract T createCamera();
-
+	
 	@Override
-	protected void activated() {
-		super.activated();
+	protected void onActivate() {
 		initCamera();
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		SceneNode node = getNode();
+		SceneNode2 node = getNode();
 		node.componentActivatedSignal.addListener(transformComponentActivatedListener);
 		node.componentDeactivatedSignal.addListener(transformComponentDeactivatedListener);
 		transformComponent = node.getActiveComponent(TransformComponent.class);
@@ -81,11 +80,11 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.far = far;
 		viewport.update();
 	}
-
+	
 	@Override
-	protected void deactivated() {
+	protected void onDeactivate() {
 		super.deactivated();
-		SceneNode node = getNode();
+		SceneNode2 node = getNode();
 		node.componentActivatedSignal.removeListener(transformComponentActivatedListener);
 		node.componentDeactivatedSignal.removeListener(transformComponentDeactivatedListener);
 		detachTransformDirtyListener();
@@ -193,18 +192,18 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.update(true);
 	}
 
-	private class TransformComponentActivatedListener implements Listener1<SceneNodeComponent> {
+	private class TransformComponentActivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				setTransformComponent((TransformComponent) component);
 			}
 		}
 	}
 
-	private class TransformComponentDeactivatedListener implements Listener1<SceneNodeComponent> {
+	private class TransformComponentDeactivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				setTransformComponent(null);
 			}

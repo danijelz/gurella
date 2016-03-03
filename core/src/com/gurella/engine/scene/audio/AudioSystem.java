@@ -10,13 +10,14 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 //TODO attach listeners on activate
-public class AudioSystem extends SceneSystem implements SceneListener, PreRenderUpdateListener {
+public class AudioSystem extends SceneSystem2 implements ComponentActivityListener, PreRenderUpdateListener {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -27,15 +28,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, PreRender
 	private Vector3 v2 = new Vector3();
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = AudioListenerData.getInstance();
 			audioListenerData.init((AudioListenerComponent) component);
@@ -61,7 +54,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, PreRender
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = activeListeners.remove(component.getNode().getId());
 			if (audioListenerData != null) {
@@ -108,7 +101,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, PreRender
 
 	private AudioTrack obtainTrack(AudioSourceComponent source, AudioChannel audioChannel,
 			Listener1<AudioTrack> optionalCompletitionCallback, boolean loop, boolean removeOnFinish) {
-		AudioSourceData audioSourceData = activeSources.get(source.getNode().id);
+		AudioSourceData audioSourceData = activeSources.get(source.getNodeId());
 		if (canObtainTrack(audioSourceData, source.repeatable)) {
 			AudioTrack track = AudioTrack.newInstance(getNonNullAudioChannel(audioChannel), source.audioClip);
 			audioSourceData.activeAudioTracks.put(track.getHandle(), track);
@@ -140,11 +133,11 @@ public class AudioSystem extends SceneSystem implements SceneListener, PreRender
 	}
 
 	private static AudioChannel getNonNullAudioChannel(AudioChannel audioChannel) {
-		return audioChannel == null ? GraphAudioChannel.GAME.getAudioChannel() : audioChannel;
+		return audioChannel == null ? SceneAudioChannel.GAME.getAudioChannel() : audioChannel;
 	}
 
 	void free(AudioSourceComponent source, AudioTrack track) {
-		AudioSourceData audioSourceData = activeSources.get(source.getNode().id);
+		AudioSourceData audioSourceData = activeSources.get(source.getNodeId());
 		if (audioSourceData != null && audioSourceData.activeAudioTracks.remove(track.getHandle()) != null) {
 			track.free();
 		}

@@ -5,18 +5,17 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.graphics.GenericBatch;
-import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 
-//TODO attach listeners on activate
-public class RenderSystem extends SceneSystem2 implements SceneListener, RenderUpdateListener {
+public class RenderSystem extends SceneSystem2 implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
@@ -61,15 +60,7 @@ public class RenderSystem extends SceneSystem2 implements SceneListener, RenderU
 	}
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
 			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
 			boolean layersUpdated = false;
@@ -115,7 +106,7 @@ public class RenderSystem extends SceneSystem2 implements SceneListener, RenderU
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
 			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
 			boolean layersUpdated = false;

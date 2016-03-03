@@ -2,12 +2,12 @@ package com.gurella.engine.scene.audio;
 
 import com.gurella.engine.audio.AudioChannel;
 
-public enum GraphAudioChannel {
+public enum SceneAudioChannel {
 	AMBIENT, GAME, HUD;
 
 	private AudioChannel audioChannel;
 
-	private GraphAudioChannel() {
+	private SceneAudioChannel() {
 		this.audioChannel = AudioChannel.newInstance();
 	}
 

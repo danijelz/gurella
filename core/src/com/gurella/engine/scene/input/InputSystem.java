@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
@@ -23,9 +24,9 @@ import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
@@ -33,6 +34,7 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionScrollListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
 import com.gurella.engine.subscriptions.scene.input.NodeScrollListener;
@@ -46,8 +48,7 @@ import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-//TODO attach listeners -> SceneListener
-public class InputSystem extends SceneSystem implements SceneListener, InputUpdateListener {
+public class InputSystem extends SceneSystem2 implements ComponentActivityListener, InputUpdateListener, Poolable {
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
@@ -75,27 +76,27 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 		pointerActivitySignal.addListener(doubleTouchProcessor);
 		pointerActivitySignal.addListener(dragProcessor);
 	}
-
+	
 	@Override
-	protected void activated() {
+	protected void onActivate() {
 		Scene scene = getScene();
 		spatialPartitioningSystem = scene.spatialPartitioningSystem;
 
 		//scene.addListener(this);
 
 		// TODO use componentManager
-		ImmutableArray<SceneNodeComponent> components = scene.activeComponents;
+		ImmutableArray<SceneNodeComponent2> components = scene.activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
 
 		InputService.addInputProcessor(inputQueue);
 	}
-
+	
 	@Override
-	protected void deactivated() {
+	protected void onDeactivate() {
 		InputService.removeInputProcessor(inputQueue);
-		resetData();
+		reset();
 		spatialPartitioningSystem = null;
 	}
 
@@ -104,13 +105,9 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 		inputQueue.drain();
 		delegate.clean();
 	}
-
+	
 	@Override
-	protected void resetted() {
-		resetData();
-	}
-
-	private void resetData() {
+	public void reset() {
 		// TODO update listeners and finish actions
 		inputQueue.setProcessor(dummyDelegate);
 		inputQueue.drain();
@@ -121,15 +118,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 	}
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
 			addCameraComponent((CameraComponent<?>) component);
 		}
@@ -173,7 +162,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
 			removeCameraComponent((CameraComponent<?>) component);
 		}
@@ -380,7 +369,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 
 		@Override
 		public boolean mouseMoved(int screenX, int screenY) {
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			mouseMoveProcessor.mouseMoved(screenX, screenY, node, closestIntersection);
 			return false;
 		}
@@ -396,7 +385,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 				globalListeners.get(i).scrolled(screenX, screenY, amount);
 			}
 
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
 				Array<IntersectionScrollListener> intersectionListeners = Values.cast(tempListeners);
@@ -418,7 +407,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			PointerTrack tracker = createTracker(pointer, button);
 			long eventTime = inputQueue.getCurrentEventTime();
 			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
@@ -460,7 +449,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 				globalListeners.get(i).touchUp(touchEvent);
 			}
 
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			if (node != null) {
 				intersectionTouchEvent.set(pointer, button, screenX, screenY, closestIntersection);
 				RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
@@ -489,7 +478,7 @@ public class InputSystem extends SceneSystem implements SceneListener, InputUpda
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			SceneNode node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
 			touchEvent.set(pointer, -1, screenX, screenY);
 
 			for (int button = 0; button < 3; button++) {

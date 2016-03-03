@@ -15,20 +15,21 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 //TODO attach listeners on activate -> SceneListener
-public class BulletPhysicsSystem extends SceneSystem
-		implements SceneListener, PhysicsUpdateListener, ApplicationActivityListener {
+public class BulletPhysicsSystem extends SceneSystem2
+		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener, Poolable {
 	static {
 		Bullet.init();
 	}
@@ -61,8 +62,8 @@ public class BulletPhysicsSystem extends SceneSystem
 	}
 
 	@Override
-	protected void activated() {
-		ImmutableArray<SceneNodeComponent> components = getScene().activeComponents;
+	protected void onActivate() {
+		ImmutableArray<SceneNodeComponent2> components = getScene().activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
@@ -70,7 +71,7 @@ public class BulletPhysicsSystem extends SceneSystem
 	}
 
 	@Override
-	protected void deactivated() {
+	protected void onDeactivate() {
 		int numCollisionObjects = dynamicsWorld.getNumCollisionObjects();
 		btCollisionObjectArray collisionObjectArray = dynamicsWorld.getCollisionObjectArray();
 
@@ -109,22 +110,13 @@ public class BulletPhysicsSystem extends SceneSystem
 	}
 
 	@Override
-	protected void resetted() {
-		super.resetted();
+	public void reset() {
 		dynamicsWorld.clearForces();
 		tickCallback.clear();
 	}
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof BulletPhysicsRigidBodyComponent) {
 			BulletPhysicsRigidBodyComponent rigidBodyComponent = (BulletPhysicsRigidBodyComponent) component;
 			dynamicsWorld.addRigidBody(rigidBodyComponent.rigidBody);
@@ -132,7 +124,7 @@ public class BulletPhysicsSystem extends SceneSystem
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof BulletPhysicsRigidBodyComponent) {
 			BulletPhysicsRigidBodyComponent rigidBodyComponent = (BulletPhysicsRigidBodyComponent) component;
 			dynamicsWorld.removeRigidBody(rigidBodyComponent.rigidBody);

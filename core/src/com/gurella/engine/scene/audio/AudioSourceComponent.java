@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.audio;
 
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioClip;
 import com.gurella.engine.audio.AudioTrack;
@@ -9,19 +10,15 @@ import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.math.geometry.Angle;
-import com.gurella.engine.resource.model.DefaultValue;
-import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNodeComponent2;
 
-public class AudioSourceComponent extends SceneNodeComponent {
+public class AudioSourceComponent extends SceneNodeComponent2 implements Poolable {
 	AudioSystem audioProcessor;
 	public AudioClip audioClip;
 
-	@DefaultValue(booleanValue = true)
 	public boolean spatial = true;
 	public boolean repeatable;
-	@DefaultValue(enumOrdinal = 3)
 	public Attenuation attenuation = Attenuation.ROLLOFF;
 	@ResourceProperty
 	public final Volume volume = new Volume();
@@ -29,37 +26,28 @@ public class AudioSourceComponent extends SceneNodeComponent {
 	public final Pan pan = new Pan();
 	@ResourceProperty
 	public final Pitch pitch = new Pitch();
-	@DefaultValue(floatValue = 0.5f)
 	public float dopplerFactor = 0.5f;
-	@DefaultValue(floatValue = 1.0f)
 	public float dopplerVelocity = 1.0f;
-	@DefaultValue(floatValue = 0.3f)
 	public float rollOff = 0.3f;
-	@DefaultValue(floatValue = 2.0f)
 	public float referenceDistance = 2.0f;
-	@DefaultValue(floatValue = 20.0f)
 	public float maxDistance = 20.0f;
 	@ResourceProperty
-	@DefaultValue(compositeValues = { @PropertyValue(name = "degrees", floatValue = 360) })
 	public final Angle innerConeAngle = Angle.getFromDegrees(360);
 	@ResourceProperty
-	@DefaultValue(compositeValues = { @PropertyValue(name = "degrees", floatValue = 360) })
 	public final Angle outerConeAngle = Angle.getFromDegrees(360);
 	@ResourceProperty
 	public final Volume outerConeVolume = new Volume();
 	@ResourceProperty
-	@DefaultValue(compositeValues = { @PropertyValue(name = "y", floatValue = 1) })
 	public final Vector3 up = new Vector3(0, 1, 0);
 	@ResourceProperty
-	@DefaultValue(compositeValues = { @PropertyValue(name = "z", floatValue = -1) })
 	public final Vector3 lookAt = new Vector3(0, 0, -1);
 
 	public AudioTrack play() {
-		return play(GraphAudioChannel.GAME.getAudioChannel(), null);
+		return play(SceneAudioChannel.GAME.getAudioChannel(), null);
 	}
 
-	public AudioTrack play(GraphAudioChannel graphAudioChannel) {
-		return play(graphAudioChannel.getAudioChannel(), null);
+	public AudioTrack play(SceneAudioChannel sceneAudioChannel) {
+		return play(sceneAudioChannel.getAudioChannel(), null);
 	}
 
 	public AudioTrack play(AudioChannel audioChannel) {
@@ -67,11 +55,11 @@ public class AudioSourceComponent extends SceneNodeComponent {
 	}
 
 	public AudioTrack play(Listener1<AudioTrack> completitionCallback) {
-		return play(GraphAudioChannel.GAME.getAudioChannel(), completitionCallback);
+		return play(SceneAudioChannel.GAME.getAudioChannel(), completitionCallback);
 	}
 
-	public AudioTrack play(GraphAudioChannel graphAudioChannel, Listener1<AudioTrack> completitionCallback) {
-		return play(graphAudioChannel.getAudioChannel(), completitionCallback);
+	public AudioTrack play(SceneAudioChannel sceneAudioChannel, Listener1<AudioTrack> completitionCallback) {
+		return play(sceneAudioChannel.getAudioChannel(), completitionCallback);
 	}
 
 	public AudioTrack play(AudioChannel audioChannel, Listener1<AudioTrack> completitionCallback) {
@@ -82,11 +70,11 @@ public class AudioSourceComponent extends SceneNodeComponent {
 	}
 
 	public void playOnce() {
-		playOnce(GraphAudioChannel.GAME.getAudioChannel(), null);
+		playOnce(SceneAudioChannel.GAME.getAudioChannel(), null);
 	}
 
-	public void playOnce(GraphAudioChannel graphAudioChannel) {
-		playOnce(graphAudioChannel.getAudioChannel(), null);
+	public void playOnce(SceneAudioChannel sceneAudioChannel) {
+		playOnce(sceneAudioChannel.getAudioChannel(), null);
 	}
 
 	public void playOnce(AudioChannel audioChannel, Listener1<AudioTrack> completitionCallback) {
@@ -97,11 +85,11 @@ public class AudioSourceComponent extends SceneNodeComponent {
 	}
 
 	public AudioTrack loop() {
-		return loop(GraphAudioChannel.GAME.getAudioChannel(), null);
+		return loop(SceneAudioChannel.GAME.getAudioChannel(), null);
 	}
 
-	public AudioTrack loop(GraphAudioChannel graphAudioChannel) {
-		return loop(graphAudioChannel.getAudioChannel(), null);
+	public AudioTrack loop(SceneAudioChannel sceneAudioChannel) {
+		return loop(sceneAudioChannel.getAudioChannel(), null);
 	}
 
 	public AudioTrack loop(AudioChannel audioChannel, Listener1<AudioTrack> completitionCallback) {
@@ -115,5 +103,27 @@ public class AudioSourceComponent extends SceneNodeComponent {
 		if (audioProcessor != null) {
 			audioProcessor.free(this, track);
 		}
+	}
+
+	@Override
+	public void reset() {
+		audioProcessor = null;
+		audioClip = null;
+		spatial = true;
+		repeatable = false;
+		attenuation = Attenuation.ROLLOFF;
+		volume.reset();
+		pan.reset();
+		pitch.reset();
+		dopplerFactor = 0.5f;
+		dopplerVelocity = 1.0f;
+		rollOff = 0.3f;
+		referenceDistance = 2.0f;
+		maxDistance = 20.0f;
+		innerConeAngle.setDegrees(360);
+		outerConeAngle.setDegrees(360);
+		outerConeVolume.reset();
+		up.set(0, 1, 0);
+		lookAt.set(0, 0, -1);
 	}
 }

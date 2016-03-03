@@ -1,8 +1,9 @@
 package com.gurella.engine.audio;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class Pan {
+public class Pan implements Poolable {
 	private float pan;
 
 	public float getPan() {
@@ -15,5 +16,10 @@ public class Pan {
 
 	public void set(Pan pan) {
 		this.pan = pan.pan;
+	}
+
+	@Override
+	public void reset() {
+		pan = 0;
 	}
 }

@@ -3,7 +3,7 @@ package com.gurella.engine.scene.input;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.SceneMouseListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionMouseListener;
@@ -11,7 +11,7 @@ import com.gurella.engine.subscriptions.scene.input.NodeMouseOverListener;
 import com.gurella.engine.utils.Values;
 
 public class MouseMoveProcessor {
-	private SceneNode mouseOverNode;
+	private SceneNode2 mouseOverNode;
 
 	private Array<Object> tempListeners;
 
@@ -19,7 +19,7 @@ public class MouseMoveProcessor {
 		this.tempListeners = tempListeners;
 	}
 
-	void mouseMoved(int screenX, int screenY, SceneNode pointerNode, Vector3 intersection) {
+	void mouseMoved(int screenX, int screenY, SceneNode2 pointerNode, Vector3 intersection) {
 		Array<SceneMouseListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(SceneMouseListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
