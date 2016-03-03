@@ -76,6 +76,18 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	}
 
 	@Override
+	protected final void activated() {
+		super.activated();
+		scene._activeNodes.add(this);
+	}
+
+	@Override
+	protected final void deactivated() {
+		super.deactivated();
+		scene._activeNodes.remove(this);
+	}
+
+	@Override
 	protected final void childAdded(ManagedObject child) {
 		if (child instanceof SceneNodeComponent2) {
 			SceneNodeComponent2 component = (SceneNodeComponent2) child;
@@ -111,7 +123,9 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	}
 
 	public void removeChild(SceneNode2 child) {
-		child.destroy();
+		if (_childNodes.contains(child)) {
+			child.destroy();
+		}
 	}
 
 	public SceneNode2 newChild() {
@@ -134,7 +148,14 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	public <T extends SceneNodeComponent2> void removeComponent(Class<T> componentType) {
 		int typeId = ComponentType.findType(componentType);
 		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(typeId));
-		if (component != null) {
+		if (component != null && ComponentType.isSubtype(typeId, component.componentType)) {
+			component.destroy();
+		}
+	}
+
+	public void removeComponent(int componentTypeId) {
+		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(componentTypeId));
+		if (component != null && ComponentType.isSubtype(componentTypeId, component.componentType)) {
 			component.destroy();
 		}
 	}

@@ -11,7 +11,7 @@ public abstract class SceneSystem2 extends SceneElement2 {
 	public SceneSystem2() {
 		Class<? extends SceneSystem2> type = getClass();
 		baseSystemType = SystemType.getBaseType(type);
-		systemType = SystemType.getType(type);
+		systemType = SystemType.findType(type);
 	}
 
 	@Override
@@ -36,6 +36,11 @@ public abstract class SceneSystem2 extends SceneElement2 {
 		super.activated();
 		scene._activeSystems.add(this);
 		EventService.subscribe(scene.getInstanceId(), this);
+		onActivate();
+	}
+	
+	protected void onActivate() {
+		
 	}
 
 	@Override
@@ -43,5 +48,10 @@ public abstract class SceneSystem2 extends SceneElement2 {
 		super.deactivated();
 		scene._activeSystems.remove(this);
 		EventService.unsubscribe(scene.getInstanceId(), this);
+		onDeactivate();
+	}
+	
+	protected void onDeactivate() {
+		
 	}
 }

@@ -4,12 +4,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.audio.AudioSystem;
-import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
@@ -38,10 +36,10 @@ public final class Scene extends ManagedObject {
 	transient final IdentityOrderedSet<SceneNode2> _activeNodes = new IdentityOrderedSet<SceneNode2>();
 	public transient final ImmutableArray<SceneNode2> activeNodes = _activeNodes.orderedItems();
 
-	private transient final IdentityOrderedSet<SceneNodeComponent> _components = new IdentityOrderedSet<SceneNodeComponent>();
-	public transient final ImmutableArray<SceneNodeComponent> components = _components.orderedItems();
-	private transient final IdentityOrderedSet<SceneNodeComponent> _activeComponents = new IdentityOrderedSet<SceneNodeComponent>();
-	public transient final ImmutableArray<SceneNodeComponent> activeComponents = _activeComponents.orderedItems();
+	transient final IdentityOrderedSet<SceneNodeComponent2> _components = new IdentityOrderedSet<SceneNodeComponent2>();
+	public transient final ImmutableArray<SceneNodeComponent2> components = _components.orderedItems();
+	transient final IdentityOrderedSet<SceneNodeComponent2> _activeComponents = new IdentityOrderedSet<SceneNodeComponent2>();
+	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
@@ -52,7 +50,7 @@ public final class Scene extends ManagedObject {
 	public final InputSystem inputSystem = new InputSystem();
 	public final RenderSystem renderSystem = new RenderSystem();
 	public final AudioSystem audioSystem = new AudioSystem();
-	//public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
+	// TODO public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 
 	public final void start() {
 		if (isActive()) {
@@ -119,14 +117,42 @@ public final class Scene extends ManagedObject {
 	}
 
 	public void removeSystem(SceneSystem2 system) {
-		int typeId = SystemType.findType(system.getClass());
-		SceneNodeComponent2 value = _systems.get(ComponentType.findBaseType(typeId));
-		if (value == component) {
-			component.destroy();
+		SceneSystem2 value = _systems.get(system.baseSystemType);
+		if (value != system) {
+			return;
 		}
+
 		if (isDefaultSystem(system)) {
 			throw new GdxRuntimeException("Can't remove default system.");
 		}
+
+		system.destroy();
+	}
+
+	public <T extends SceneSystem2> void removeSystem(Class<T> type) {
+		int typeId = SystemType.findType(type);
+		SceneSystem2 system = _systems.get(SystemType.findBaseType(typeId));
+		if (system == null || !SystemType.isSubtype(typeId, system.systemType)) {
+			return;
+		}
+
+		if (isDefaultSystem(system)) {
+			throw new GdxRuntimeException("Can't remove default system.");
+		}
+
+		system.destroy();
+	}
+
+	public void removeSystem(int systemType) {
+		SceneSystem2 system = _systems.get(SystemType.findBaseType(systemType));
+		if (system == null || !SystemType.isSubtype(systemType, system.systemType)) {
+			return;
+		}
+
+		if (isDefaultSystem(system)) {
+			throw new GdxRuntimeException("Can't remove default system.");
+		}
+
 		system.destroy();
 	}
 
@@ -135,20 +161,17 @@ public final class Scene extends ManagedObject {
 		return false;
 	}
 
-	public <T extends SceneSystem2> T getSystem(Class<T> systemClass) {
-		T system = getSystem(SystemType.getBaseSystemType(systemClass));
-		// TODO fast check without reflection
-		if (system == null || ClassReflection.isAssignableFrom(systemClass, system.getClass())) {
-			return system;
-		} else {
-			return null;
-		}
+	public <T extends SceneSystem2> T getSystem(int typeId) {
+		SceneSystem2 value = _systems.get(SystemType.findBaseType(typeId));
+		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.cast(value) : null;
 	}
 
-	public <T extends SceneSystem2> T getSystem(int systemType) {
-		return Values.cast(_systems.get(systemType));
+	public <T extends SceneSystem2> T getSystem(Class<T> type) {
+		int typeId = SystemType.findType(type);
+		SceneSystem2 value = _systems.get(SystemType.findBaseType(typeId));
+		return value != null && SystemType.isSubtype(typeId, value.systemType) ? Values.cast(value) : null;
 	}
-	
+
 	public <T extends SceneSystem2 & Poolable> T newSystem(Class<T> systemType) {
 		T system = PoolService.obtain(systemType);
 		system.setParent(this);
@@ -160,9 +183,11 @@ public final class Scene extends ManagedObject {
 	}
 
 	public void removeNode(SceneNode2 node) {
-		node.destroy();
+		if (_nodes.contains(node)) {
+			node.destroy();
+		}
 	}
-	
+
 	public SceneNode2 newNode(String name) {
 		SceneNode2 node = PoolService.obtain(SceneNode2.class);
 		node.name = name;
@@ -190,7 +215,7 @@ public final class Scene extends ManagedObject {
 
 		return builder.toString();
 	}
-	
+
 	public static void main(String[] args) {
 		Scene scene = new Scene();
 		scene.newSystem(TestSystem.class);
@@ -199,16 +224,16 @@ public final class Scene extends ManagedObject {
 		System.out.println(scene.getDiagnostics());
 
 		System.out.println("\n\n\n");
-		scene.activate();
+		scene.start();
 		update();
 		System.out.println(scene.getDiagnostics());
-		
+
 		System.out.println("\n\n\n");
 		node.removeComponent(TestComponent.class);
 		update();
 		System.out.println(scene.getDiagnostics());
 	}
-	
+
 	private static void update() {
 		Array<ApplicationUpdateListener> listeners = new Array<ApplicationUpdateListener>();
 		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
@@ -216,14 +241,14 @@ public final class Scene extends ManagedObject {
 			listeners.get(i).update();
 		}
 	}
-	
+
 	private static class TestSystem extends SceneSystem2 implements Poolable {
 		@Override
 		public void reset() {
 			super.reset();
 		}
 	}
-	
+
 	private static class TestComponent extends SceneNodeComponent2 implements Poolable {
 		@Override
 		public void reset() {
