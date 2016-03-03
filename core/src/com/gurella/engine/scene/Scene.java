@@ -24,7 +24,7 @@ import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
 
 public final class Scene extends ManagedObject {
-	private final Array<Object> tempListeners = new Array<Object>(64);
+	private final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
 	final IntMap<SceneSystem2> _systems = new IntMap<SceneSystem2>();
 	public transient final ImmutableIntMapValues<SceneSystem2> systems = ImmutableIntMapValues.with(_systems);
@@ -61,25 +61,13 @@ public final class Scene extends ManagedObject {
 
 	@Override
 	protected void activated() {
-		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).sceneStarted(this);
-		}
+		eventsDispatcher.activate();
 	}
 
 	public final void stop() {
+		eventsDispatcher.deactivate();
 		destroy();
 		// TODO releaseResources();
-	}
-
-	@Override
-	protected void deactivated() {
-		Array<SceneActivityListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneActivityListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).sceneStopped(this);
-		}
 	}
 
 	@Override

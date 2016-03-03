@@ -9,7 +9,7 @@ import com.gurella.engine.state.StateTransition;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.THINK, type = ApplicationUpdateListener.class) })
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.LOGIC, type = ApplicationUpdateListener.class) })
 public class StateMachine<STATE> extends Signal<StateMachine.StateChangedListener<STATE>>
 		implements ApplicationUpdateListener {
 	private StateTransition<STATE> currentTransition;
