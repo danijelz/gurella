@@ -19,8 +19,6 @@ import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
@@ -35,23 +33,21 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
-import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionScrollListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
-import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
-import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
 import com.gurella.engine.subscriptions.scene.input.NodeScrollListener;
 import com.gurella.engine.subscriptions.scene.input.NodeTouchListener;
+import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
+import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
+import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchDraggedListener;
+import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
+import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 //TODO attach listeners -> SceneListener
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.INPUT, type = ApplicationUpdateListener.class) })
-public class InputSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
+public class InputSystem extends SceneSystem implements SceneListener, InputUpdateListener {
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
@@ -104,7 +100,7 @@ public class InputSystem extends SceneSystem implements SceneListener, Applicati
 	}
 
 	@Override
-	public void update() {
+	public void onInputUpdate() {
 		inputQueue.drain();
 		delegate.clean();
 	}

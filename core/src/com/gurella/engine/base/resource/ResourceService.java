@@ -12,7 +12,6 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.Signal1;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
@@ -28,11 +27,6 @@ public class ResourceService implements ApplicationUpdateListener {
 
 	private static final AssetRegistry assetRegistry = new AssetRegistry();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
-
-	//TODO remove signals
-	private static final Signal1<String> resourceLoadedSignal = new Signal1<String>();
-	private static final Signal1<String> resourceUnloadedSignal = new Signal1<String>();
-	private static final Signal1<String> resourceRefreshSignal = new Signal1<String>();
 
 	static {
 		Texture.setAssetManager(mockManager);

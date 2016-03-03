@@ -81,6 +81,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 			renderUpdateListeners.get(i).onRenderUpdate();
 		}
 
+		//TODO only fire if in debug mode
 		Array<DebugRenderUpdateListener> debugRenderUpdateListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(sceneId, DebugRenderUpdateListener.class, debugRenderUpdateListeners);
 		for (int i = 0; i < debugRenderUpdateListeners.size; i++) {
