@@ -1,16 +1,19 @@
 package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.resource.model.DefaultValue;
-import com.gurella.engine.resource.model.PropertyValue;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNodeComponent2;
 
-public class LinearVelocityComponent extends SceneNodeComponent {
+public class LinearVelocityComponent extends SceneNodeComponent2 implements Poolable {
 	@ResourceProperty
-	@DefaultValue(compositeValues = { @PropertyValue(name = "x", floatValue = Float.NaN),
-			@PropertyValue(name = "y", floatValue = Float.NaN), @PropertyValue(name = "z", floatValue = Float.NaN) })
 	public final Vector3 lastPosition = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 	@ResourceProperty
 	public final Vector3 velocity = new Vector3();
+
+	@Override
+	public void reset() {
+		lastPosition.set(Float.NaN, Float.NaN, Float.NaN);
+		velocity.setZero();
+	}
 }

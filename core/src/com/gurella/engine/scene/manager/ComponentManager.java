@@ -7,50 +7,35 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO attach listeners
-public class ComponentManager extends SceneSystem implements SceneListener {
+public class ComponentManager extends SceneSystem2 implements ComponentActivityListener {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-		handleComponent(component);
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
-		handleComponent(component);
-	}
-
-	private void handleComponent(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		for (FamilyComponents<?> familyComponents : families.values()) {
 			familyComponents.handle(component);
 		}
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
-		handleComponent(component);
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		for (FamilyComponents<?> familyComponents : families.values()) {
 			familyComponents.remove(component);
 		}
 	}
 
-	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily<T> family) {
+	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily<T> family) {
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.get(family.id);
 		return familyComponents == null ? ImmutableArray.<T> empty() : familyComponents.immutableComponents;
 	}
 
-	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily<T> family) {
+	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily<T> family) {
 		if (families.containsKey(family.id)) {
 			return;
 		}
@@ -60,13 +45,13 @@ public class ComponentManager extends SceneSystem implements SceneListener {
 		familyComponents.family = family;
 		families.put(family.id, familyComponents);
 
-		ImmutableArray<SceneNodeComponent> components = getScene().components;
+		ImmutableArray<SceneNodeComponent2> components = getScene().components;
 		for (int i = 0; i < components.size(); i++) {
 			familyComponents.handle(components.get(i));
 		}
 	}
 
-	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily<T> family) {
+	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily<T> family) {
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.remove(family.id);
 		if (familyComponents != null) {
@@ -74,32 +59,32 @@ public class ComponentManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	public static final class ComponentFamily<T extends SceneNodeComponent> {
+	public static final class ComponentFamily<T extends SceneNodeComponent2> {
 		private static int INDEXER = 0;
 
 		public final int id;
 		public final Comparator<? super T> comparator;
-		public final Predicate<? super SceneNodeComponent> predicate;
+		public final Predicate<? super SceneNodeComponent2> predicate;
 
-		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate) {
+		public ComponentFamily(Predicate<? super SceneNodeComponent2> predicate) {
 			id = INDEXER++;
 			comparator = null;
 			this.predicate = predicate;
 		}
 
-		public ComponentFamily(Predicate<? super SceneNodeComponent> predicate, Comparator<? super T> comparator) {
+		public ComponentFamily(Predicate<? super SceneNodeComponent2> predicate, Comparator<? super T> comparator) {
 			id = INDEXER++;
 			this.comparator = comparator;
 			this.predicate = predicate;
 		}
 	}
 
-	private static class FamilyComponents<T extends SceneNodeComponent> implements Poolable {
+	private static class FamilyComponents<T extends SceneNodeComponent2> implements Poolable {
 		private ComponentFamily<T> family;
 		private final Array<T> components = new Array<T>();
 		private final ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
 
-		private void handle(SceneNodeComponent component) {
+		private void handle(SceneNodeComponent2 component) {
 			if (family.predicate.evaluate(component)) {
 				@SuppressWarnings("unchecked")
 				T casted = (T) component;
@@ -111,7 +96,7 @@ public class ComponentManager extends SceneSystem implements SceneListener {
 			}
 		}
 
-		private void remove(SceneNodeComponent component) {
+		private void remove(SceneNodeComponent2 component) {
 			@SuppressWarnings("unchecked")
 			T casted = (T) component;
 			components.removeValue(casted, true);

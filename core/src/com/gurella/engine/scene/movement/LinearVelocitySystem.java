@@ -3,7 +3,7 @@ package com.gurella.engine.scene.movement;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.manager.ComponentBitsPredicate;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
@@ -11,7 +11,7 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-public class LinearVelocitySystem extends SceneSystem implements PreRenderUpdateListener {
+public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 
@@ -20,13 +20,13 @@ public class LinearVelocitySystem extends SceneSystem implements PreRenderUpdate
 	private Vector3 tempVelocity = new Vector3();
 
 	@Override
-	protected void activated() {
+	protected void onActivate() {
 		nodeManager = getScene().nodeManager;
 		nodeManager.registerFamily(family);
 	}
 
 	@Override
-	protected void deactivated() {
+	protected void onDeactivate() {
 		nodeManager.unregisterFamily(family);
 		nodeManager = null;
 	}

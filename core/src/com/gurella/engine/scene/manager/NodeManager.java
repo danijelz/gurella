@@ -8,42 +8,30 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO add nodeAdded and nodeRemoved...
-//TODO attach listeners
-public class NodeManager extends SceneSystem implements SceneListener {
+public class NodeManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		handleComponent(component);
 	}
 
-	private void handleComponent(SceneNodeComponent component) {
-		SceneNode node = component.getNode();
+	@Override
+	public void componentDeactivated(SceneNodeComponent2 component) {
+		handleComponent(component);
+	}
+
+	private void handleComponent(SceneNodeComponent2 component) {
+		SceneNode2 node = component.getNode();
 		for (FamilyNodes familyNodes : families.values()) {
 			familyNodes.handle(node);
 		}
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-		handleComponent(component);
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
-		handleComponent(component);
-	}
-
-	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
-		handleComponent(component);
 	}
 
 	public void registerFamily(SceneNodeFamily family) {
@@ -60,7 +48,7 @@ public class NodeManager extends SceneSystem implements SceneListener {
 			return;
 		}
 
-		ImmutableArray<SceneNode> nodes = scene.nodes;
+		ImmutableArray<SceneNode2> nodes = scene.nodes;
 		for (int i = 0; i < nodes.size(); i++) {
 			familyNodes.handle(nodes.get(i));
 		}
@@ -73,17 +61,17 @@ public class NodeManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	public boolean belongsToFamily(SceneNode node, SceneNodeFamily family) {
+	public boolean belongsToFamily(SceneNode2 node, SceneNodeFamily family) {
 		return getNodes(family).contains(node, true);
 	}
 
-	public ImmutableArray<SceneNode> getNodes(SceneNodeFamily family) {
+	public ImmutableArray<SceneNode2> getNodes(SceneNodeFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
-		return familyNodes == null ? ImmutableArray.<SceneNode> empty() : familyNodes.immutableNodes;
+		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.immutableNodes;
 	}
 
 	@Override
-	protected void resetted() {
+	public void reset() {
 		for (FamilyNodes familyNodes : families.values()) {
 			Pools.free(familyNodes);
 		}
@@ -94,16 +82,16 @@ public class NodeManager extends SceneSystem implements SceneListener {
 		private static int INDEXER = 0;
 
 		public final int id;
-		public final Comparator<SceneNode> comparator;
-		public final Predicate<SceneNode> predicate;
+		public final Comparator<SceneNode2> comparator;
+		public final Predicate<SceneNode2> predicate;
 
-		public SceneNodeFamily(Predicate<SceneNode> predicate) {
+		public SceneNodeFamily(Predicate<SceneNode2> predicate) {
 			id = INDEXER++;
 			this.predicate = predicate;
 			comparator = null;
 		}
 
-		public SceneNodeFamily(Predicate<SceneNode> predicate, Comparator<SceneNode> comparator) {
+		public SceneNodeFamily(Predicate<SceneNode2> predicate, Comparator<SceneNode2> comparator) {
 			id = INDEXER++;
 			this.predicate = predicate;
 			this.comparator = comparator;
@@ -112,10 +100,10 @@ public class NodeManager extends SceneSystem implements SceneListener {
 
 	private static class FamilyNodes implements Poolable {
 		private SceneNodeFamily family;
-		private final Array<SceneNode> nodes = new Array<SceneNode>();
-		private final ImmutableArray<SceneNode> immutableNodes = new ImmutableArray<SceneNode>(nodes);
+		private final Array<SceneNode2> nodes = new Array<SceneNode2>();
+		private final ImmutableArray<SceneNode2> immutableNodes = new ImmutableArray<SceneNode2>(nodes);
 
-		private void handle(SceneNode node) {
+		private void handle(SceneNode2 node) {
 			boolean belongsToFamily = family.predicate.evaluate(node);
 			boolean containsNode = nodes.contains(node, true);
 			if (belongsToFamily && !containsNode) {
@@ -128,7 +116,7 @@ public class NodeManager extends SceneSystem implements SceneListener {
 			}
 		}
 
-		private void remove(SceneNode node) {
+		private void remove(SceneNode2 node) {
 			nodes.removeValue(node, true);
 		}
 

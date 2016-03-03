@@ -1,20 +1,21 @@
 package com.gurella.engine.scene.manager;
 
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.ComponentType;
+import com.gurella.engine.scene.SceneNodeComponent2;
 
-public class ComponentTypePredicate implements Predicate<SceneNodeComponent> {
+public class ComponentTypePredicate implements Predicate<SceneNodeComponent2> {
 	private int componentType;
 	private boolean includeInactiveComponents;
 
-	public ComponentTypePredicate(Class<? extends SceneNodeComponent> componentClass,
+	public ComponentTypePredicate(Class<? extends SceneNodeComponent2> componentClass,
 			boolean includeInactiveComponents) {
-		this.componentType = SceneNodeComponent.getComponentType(componentClass);
+		this.componentType = ComponentType.getType(componentClass);
 		this.includeInactiveComponents = includeInactiveComponents;
 	}
 
-	public ComponentTypePredicate(Class<? extends SceneNodeComponent> componentClass) {
-		this.componentType = SceneNodeComponent.getComponentType(componentClass);
+	public ComponentTypePredicate(Class<? extends SceneNodeComponent2> componentClass) {
+		this.componentType = ComponentType.getType(componentClass);
 		this.includeInactiveComponents = false;
 	}
 
@@ -29,8 +30,8 @@ public class ComponentTypePredicate implements Predicate<SceneNodeComponent> {
 	}
 
 	@Override
-	public boolean evaluate(SceneNodeComponent component) {
-		return SceneNodeComponent.isSubtype(componentType, component.componentType)
+	public boolean evaluate(SceneNodeComponent2 component) {
+		return ComponentType.isSubtype(componentType, component.componentType)
 				? includeInactiveComponents ? true : component.isActive() : false;
 	}
 }
