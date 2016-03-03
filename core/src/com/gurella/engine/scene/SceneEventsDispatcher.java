@@ -2,7 +2,10 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.DebugRenderUpdateListener;
@@ -14,6 +17,7 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.Values;
 
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
 class SceneEventsDispatcher implements ApplicationUpdateListener {
 	private final Scene scene;
 	private final Array<Object> tempListeners = new Array<Object>(64);
