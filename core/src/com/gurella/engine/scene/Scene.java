@@ -59,7 +59,7 @@ public final class Scene extends ManagedObject {
 	}
 
 	@Override
-	protected void activated() {
+	protected final void activated() {
 		eventsDispatcher.activate();
 	}
 
