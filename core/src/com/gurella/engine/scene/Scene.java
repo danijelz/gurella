@@ -23,7 +23,7 @@ import com.gurella.engine.utils.ImmutableIntMapValues;
 import com.gurella.engine.utils.Values;
 
 public final class Scene extends ManagedObject {
-	private final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
+	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
 	final IntMap<SceneSystem2> _systems = new IntMap<SceneSystem2>();
 	public transient final ImmutableIntMapValues<SceneSystem2> systems = ImmutableIntMapValues.with(_systems);
@@ -232,14 +232,12 @@ public final class Scene extends ManagedObject {
 	private static class TestSystem extends SceneSystem2 implements Poolable {
 		@Override
 		public void reset() {
-			super.reset();
 		}
 	}
 
 	private static class TestComponent extends SceneNodeComponent2 implements Poolable {
 		@Override
 		public void reset() {
-			super.reset();
 		}
 	}
 }

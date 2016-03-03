@@ -170,7 +170,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 			menu.addSeparator();
 			addItem("Tag", TagComponent.class);
 			menu.addSeparator();
-			addItem("Layer", LayerComponent.class);
+			//addItem("Layer", LayerComponent.class);
 			menu.addSeparator();
 			addItem("Texture", TextureComponent.class);
 			addItem("Texture Region", TextureRegionComponent.class);

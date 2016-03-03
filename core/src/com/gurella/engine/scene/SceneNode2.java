@@ -64,7 +64,6 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 
 	@Override
 	public final void reset() {
-		super.reset();
 	}
 
 	final void setParent(SceneNode2 node) {

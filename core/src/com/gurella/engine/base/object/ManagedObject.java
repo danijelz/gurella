@@ -166,6 +166,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		clear();
 
 		if (this instanceof Poolable) {
+			resetValues();
 			PoolService.free(this);
 		} else {
 			DisposablesService.tryDispose(this);
@@ -177,7 +178,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		clearAttachments();
 	}
 
-	protected void reset() {
+	protected void resetValues() {
 		if (state != ManagedObjectState.disposed) {
 			throw new GdxRuntimeException("Invalid state: " + state);
 		}

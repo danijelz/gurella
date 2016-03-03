@@ -3,28 +3,19 @@ package com.gurella.engine.scene.layer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.scene.SceneListener;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
-import com.gurella.engine.scene.SceneSystem;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO attach listeners
-public class LayerManager extends SceneSystem implements SceneListener {
-	private IntMap<ArrayExt<SceneNode>> nodesByLayer = new IntMap<ArrayExt<SceneNode>>();
+public class LayerManager extends SceneSystem2 implements ComponentActivityListener {
+	private IntMap<ArrayExt<SceneNode2>> nodesByLayer = new IntMap<ArrayExt<SceneNode2>>();
 	private IntIntMap nodeLayers = new IntIntMap();
 
 	@Override
-	public void componentAdded(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentRemoved(SceneNodeComponent component) {
-	}
-
-	@Override
-	public void componentActivated(SceneNodeComponent component) {
+	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof LayerComponent) {
 			LayerComponent layerComponent = (LayerComponent) component;
 			addNode(layerComponent, layerComponent.layer);
@@ -34,23 +25,23 @@ public class LayerManager extends SceneSystem implements SceneListener {
 	private void addNode(LayerComponent layerComponent, Layer layer) {
 		if (layer != Layer.DEFAULT) {
 			int layerId = layer.id;
-			SceneNode node = layerComponent.getNode();
+			SceneNode2 node = layerComponent.getNode();
 			getNodes(layerId).add(node);
-			nodeLayers.put(node.id, layerId);
+			nodeLayers.put(node.getInstanceId(), layerId);
 		}
 	}
 
-	private Array<SceneNode> getNodes(int layerType) {
-		ArrayExt<SceneNode> nodes = nodesByLayer.get(layerType);
+	private Array<SceneNode2> getNodes(int layerType) {
+		ArrayExt<SceneNode2> nodes = nodesByLayer.get(layerType);
 		if (nodes == null) {
-			nodes = new ArrayExt<SceneNode>();
+			nodes = new ArrayExt<SceneNode2>();
 			nodesByLayer.put(layerType, nodes);
 		}
 		return nodes;
 	}
 
 	@Override
-	public void componentDeactivated(SceneNodeComponent component) {
+	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof LayerComponent) {
 			LayerComponent layerComponent = (LayerComponent) component;
 			removeNode(layerComponent, layerComponent.layer);
@@ -60,10 +51,10 @@ public class LayerManager extends SceneSystem implements SceneListener {
 	private void removeNode(LayerComponent layerComponent, Layer layer) {
 		if (layer != Layer.DEFAULT) {
 			int layerId = layer.id;
-			Array<SceneNode> nodes = nodesByLayer.get(layerId);
-			SceneNode node = layerComponent.getNode();
+			Array<SceneNode2> nodes = nodesByLayer.get(layerId);
+			SceneNode2 node = layerComponent.getNode();
 			nodes.removeValue(node, true);
-			nodeLayers.remove(node.id, 0);
+			nodeLayers.remove(node.getInstanceId(), 0);
 		}
 	}
 
@@ -77,19 +68,19 @@ public class LayerManager extends SceneSystem implements SceneListener {
 		}
 	}
 
-	public Layer getNodeLayer(SceneNode node) {
-		int nodeId = node.id;
+	public Layer getNodeLayer(SceneNode2 node) {
+		int nodeId = node.getInstanceId();
 		int layerId = nodeLayers.get(nodeId, -1);
 		return layerId == -1 ? Layer.DEFAULT : Layer.getLayer(layerId);
 	}
 
-	public ImmutableArray<SceneNode> getNodesByLayer(Layer layer) {
-		ArrayExt<SceneNode> layerNodes = nodesByLayer.get(layer.id);
-		return layerNodes == null ? ImmutableArray.<SceneNode> empty() : layerNodes.immutable();
+	public ImmutableArray<SceneNode2> getNodesByLayer(Layer layer) {
+		ArrayExt<SceneNode2> layerNodes = nodesByLayer.get(layer.id);
+		return layerNodes == null ? ImmutableArray.<SceneNode2> empty() : layerNodes.immutable();
 	}
 
-	public ImmutableArray<SceneNode> getNodesByLayer(int layerId) {
-		ArrayExt<SceneNode> layerNodes = nodesByLayer.get(layerId);
-		return layerNodes == null ? ImmutableArray.<SceneNode> empty() : layerNodes.immutable();
+	public ImmutableArray<SceneNode2> getNodesByLayer(int layerId) {
+		ArrayExt<SceneNode2> layerNodes = nodesByLayer.get(layerId);
+		return layerNodes == null ? ImmutableArray.<SceneNode2> empty() : layerNodes.immutable();
 	}
 }

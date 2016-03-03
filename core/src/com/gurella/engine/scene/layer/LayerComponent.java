@@ -1,9 +1,10 @@
 package com.gurella.engine.scene.layer;
 
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNodeComponent2;
 
-public class LayerComponent extends SceneNodeComponent {
+public class LayerComponent extends SceneNodeComponent2 implements Poolable {
 	Layer layer = Layer.DEFAULT;
 
 	public Layer getLayer() {
@@ -22,9 +23,9 @@ public class LayerComponent extends SceneNodeComponent {
 			}
 		}
 	}
-
+	
 	@Override
-	protected void resetted() {
+	public void reset() {
 		layer = Layer.DEFAULT;
 	}
 }

@@ -6,6 +6,8 @@ import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.DebugRenderUpdateListener;
@@ -45,6 +47,34 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 			listeners.get(i).sceneStopped();
 		}
 		EventService.unsubscribe(this);
+	}
+
+	void componentActivated(SceneNodeComponent2 component) {
+		Array<ComponentActivityListener> sceneListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(sceneId, ComponentActivityListener.class, sceneListeners);
+		for (int i = 0; i < sceneListeners.size; i++) {
+			sceneListeners.get(i).componentActivated(component);
+		}
+
+		Array<NodeComponentActivityListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(component.getNodeId(), NodeComponentActivityListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).nodeComponentActivated(component);
+		}
+	}
+
+	void componentDeactivated(SceneNodeComponent2 component) {
+		Array<ComponentActivityListener> sceneListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(sceneId, ComponentActivityListener.class, sceneListeners);
+		for (int i = 0; i < sceneListeners.size; i++) {
+			sceneListeners.get(i).componentDeactivated(component);
+		}
+
+		Array<NodeComponentActivityListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(component.getNodeId(), NodeComponentActivityListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).nodeComponentDeactivated(component);
+		}
 	}
 
 	@Override

@@ -43,7 +43,6 @@ public abstract class SceneSystem2 extends SceneElement2 {
 	}
 
 	protected void onActivate() {
-
 	}
 
 	@Override
@@ -57,6 +56,5 @@ public abstract class SceneSystem2 extends SceneElement2 {
 	}
 
 	protected void onDeactivate() {
-
 	}
 }
