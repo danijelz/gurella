@@ -17,22 +17,18 @@ import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSol
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
+import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 //TODO attach listeners on activate -> SceneListener
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.PHYSICS, type = ApplicationUpdateListener.class) })
 public class BulletPhysicsSystem extends SceneSystem
-		implements SceneListener, ApplicationUpdateListener, ApplicationActivityListener {
+		implements SceneListener, PhysicsUpdateListener, ApplicationActivityListener {
 	static {
 		Bullet.init();
 	}
@@ -86,7 +82,7 @@ public class BulletPhysicsSystem extends SceneSystem
 	}
 
 	@Override
-	public void update() {
+	public void onPhisycsUpdate() {
 		if (paused && stopSimulationOnPause) {
 			return;
 		}

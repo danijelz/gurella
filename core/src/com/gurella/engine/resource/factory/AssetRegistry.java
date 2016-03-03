@@ -5,9 +5,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.IO, type = ApplicationUpdateListener.class) })
 public class AssetRegistry implements ApplicationUpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
 	private final ObjectIntMap<String> managedAssets = new ObjectIntMap<String>();
@@ -89,10 +92,6 @@ public class AssetRegistry implements ApplicationUpdateListener, Disposable {
 				managedAssets.getAndIncrement(fileName, 0, 1);
 			}
 		}
-	}
-
-	public int getPriority() {
-		return CommonUpdatePriority.INPUT;
 	}
 
 	@Override

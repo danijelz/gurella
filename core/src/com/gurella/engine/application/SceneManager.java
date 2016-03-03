@@ -13,7 +13,6 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.state.StateMachine;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.utils.Values;
 
 public class SceneManager {
 	private static final String DEFAULT_TRANSITION_GROUP = "Default";

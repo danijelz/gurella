@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
@@ -15,26 +13,24 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 
 //TODO attach listeners on activate
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.RENDER, type = ApplicationUpdateListener.class) })
-public class RenderSystem extends SceneSystem2 implements SceneListener, ApplicationUpdateListener {
+public class RenderSystem extends SceneSystem2 implements SceneListener, RenderUpdateListener {
 	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 	private final LayerMask layerMask = new LayerMask();
 
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
-	
+
 	@Override
 	protected void init() {
 		batch = DisposablesService.add(new GenericBatch());
 	}
 
 	@Override
-	public void update() {
+	public void onRenderUpdate() {
 		for (Layer layer : orderedLayers) {
 			render(layer);
 		}

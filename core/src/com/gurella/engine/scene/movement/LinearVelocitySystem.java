@@ -2,20 +2,16 @@ package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.SceneNode;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.manager.ComponentBitsPredicate;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO attach listeners
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
-public class LinearVelocitySystem extends SceneSystem implements ApplicationUpdateListener {
+public class LinearVelocitySystem extends SceneSystem implements PreRenderUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
 
@@ -36,7 +32,7 @@ public class LinearVelocitySystem extends SceneSystem implements ApplicationUpda
 	}
 
 	@Override
-	public void update() {
+	public void onPreRenderUpdate() {
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		ImmutableArray<SceneNode> nodes = nodeManager.getNodes(family);
 		for (int i = 0; i < nodes.size(); i++) {

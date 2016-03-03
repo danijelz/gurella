@@ -8,19 +8,15 @@ import com.badlogic.gdx.utils.LongMap;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.movement.TransformComponent;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 //TODO attach listeners on activate
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.UPDATE, type = ApplicationUpdateListener.class) })
-public class AudioSystem extends SceneSystem implements SceneListener, ApplicationUpdateListener {
+public class AudioSystem extends SceneSystem implements SceneListener, PreRenderUpdateListener {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -155,7 +151,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 	}
 
 	@Override
-	public void update() {
+	public void onPreRenderUpdate() {
 		AudioListenerData listener = getActiveListener();
 		if (listener == null) {
 			mute();
@@ -356,7 +352,7 @@ public class AudioSystem extends SceneSystem implements SceneListener, Applicati
 
 	private static class RemoveOnFinishCompletitionCallback implements Listener1<AudioTrack> {
 		private static final RemoveOnFinishCompletitionCallback instance = new RemoveOnFinishCompletitionCallback();
-		
+
 		@Override
 		public void handle(AudioTrack track) {
 			track.free();
