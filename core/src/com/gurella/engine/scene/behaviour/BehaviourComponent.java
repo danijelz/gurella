@@ -13,14 +13,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntArray;
-import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.application.Application;
 import com.gurella.engine.application.SceneTransition;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
-import com.gurella.engine.scene.SceneElement;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneElement2;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.bullet.Collision;
 import com.gurella.engine.scene.bullet.CollisionPair;
@@ -40,7 +38,7 @@ import com.gurella.engine.scene.tag.Tag;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
-public abstract class BehaviourComponent extends SceneNodeComponent {
+public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	private final IdentityMap<Object, Releasable<?>> releasables = new IdentityMap<Object, Releasable<?>>();
 
 	private void addReleasable(Releasable<?> releasable) {
@@ -316,87 +314,87 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	protected void init() {
 	}
 
-	@Override
-	protected void attached() {
-	}
-
-	@Override
-	protected void activated() {
-	}
-
-	@Override
-	protected void deactivated() {
-	}
-
-	@Override
-	protected void resetted() {
-	}
-
-	@Override
-	protected void detached() {
-	}
-
-	@Override
-	protected void disposed() {
-	}
+	//	@Override
+	//	protected void attached() {
+	//	}
+	//
+	//	@Override
+	//	protected void activated() {
+	//	}
+	//
+	//	@Override
+	//	protected void deactivated() {
+	//	}
+	//
+	//	@Override
+	//	protected void resetted() {
+	//	}
+	//
+	//	@Override
+	//	protected void detached() {
+	//	}
+	//
+	//	@Override
+	//	protected void disposed() {
+	//	}
 
 	// OWNING NODE EVENTS TODO
 	@SuppressWarnings("unused")
-	public void nodeComponentAdded(SceneNodeComponent component) {
+	public void nodeComponentAdded(SceneNodeComponent2 component) {
 	}
 
 	@SuppressWarnings("unused")
-	public void nodeComponentRemoved(SceneNodeComponent component) {
+	public void nodeComponentRemoved(SceneNodeComponent2 component) {
 	}
 
 	@SuppressWarnings("unused")
-	public void nodeComponentActivated(SceneNodeComponent component) {
+	public void nodeComponentActivated(SceneNodeComponent2 component) {
 	}
 
 	@SuppressWarnings("unused")
-	public void nodeComponentDeactivated(SceneNodeComponent component) {
-	}
-
-	// TODO triggers
-	@SuppressWarnings("unused")
-	public void nodeParentChanged(SceneNode newParent) {
-	}
-
-	@SuppressWarnings("unused")
-	public void nodeChildAdded(SceneNode child) {
-	}
-
-	@SuppressWarnings("unused")
-	public void nodeChildRemoved(SceneNode child) {
-	}
-
-	@SuppressWarnings("unused")
-	public void componentAdded(SceneNode node, SceneNodeComponent component) {
-	}
-
-	@SuppressWarnings("unused")
-	public void componentRemoved(SceneNode node, SceneNodeComponent component) {
-	}
-
-	@SuppressWarnings("unused")
-	public void componentActivated(SceneNode node, SceneNodeComponent component) {
-	}
-
-	@SuppressWarnings("unused")
-	public void componentDeactivated(SceneNode node, SceneNodeComponent component) {
+	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 	}
 
 	// TODO triggers
 	@SuppressWarnings("unused")
-	public void parentChanged(SceneNode node, SceneNode newParent) {
+	public void nodeParentChanged(SceneNode2 newParent) {
 	}
 
 	@SuppressWarnings("unused")
-	public void childAdded(SceneNode node, SceneNode child) {
+	public void nodeChildAdded(SceneNode2 child) {
 	}
 
 	@SuppressWarnings("unused")
-	public void childRemoved(SceneNode node, SceneNode child) {
+	public void nodeChildRemoved(SceneNode2 child) {
+	}
+
+	@SuppressWarnings("unused")
+	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
+	}
+
+	@SuppressWarnings("unused")
+	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
+	}
+
+	@SuppressWarnings("unused")
+	public void componentActivated(SceneNode2 node, SceneNodeComponent2 component) {
+	}
+
+	@SuppressWarnings("unused")
+	public void componentDeactivated(SceneNode2 node, SceneNodeComponent2 component) {
+	}
+
+	// TODO triggers
+	@SuppressWarnings("unused")
+	public void parentChanged(SceneNode2 node, SceneNode2 newParent) {
+	}
+
+	@SuppressWarnings("unused")
+	public void childAdded(SceneNode2 node, SceneNode2 child) {
+	}
+
+	@SuppressWarnings("unused")
+	public void childRemoved(SceneNode2 node, SceneNode2 child) {
 	}
 
 	// SCENE EVENTS
@@ -432,16 +430,16 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// TODO tag events
 	@SuppressWarnings("unused")
-	public void onNodeTagged(SceneNode node, Tag tag) {
+	public void onNodeTagged(SceneNode2 node, Tag tag) {
 	}
 
 	@SuppressWarnings("unused")
-	public void onNodeUntagged(SceneNode node, Tag tag) {
+	public void onNodeUntagged(SceneNode2 node, Tag tag) {
 	}
 
 	// TODO layer events
 	@SuppressWarnings("unused")
-	public void onNodeLayerChanged(SceneNode node, Layer oldLayer, Layer newLayer) {
+	public void onNodeLayerChanged(SceneNode2 node, Layer oldLayer, Layer newLayer) {
 	}
 
 	// //////////TODO METHODS
@@ -464,43 +462,43 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	}
 
 	// TODO getActiveComponent getComponentSafely
-	public <T extends SceneNodeComponent> T getComponent(Class<T> componnetType) {
+	public <T extends SceneNodeComponent2> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);
 	}
 
-	public Array<? super SceneNodeComponent> getComponents(Array<? super SceneNodeComponent> out) {
-		Values<SceneNodeComponent> components = getNode().getComponents();
-		while (components.hasNext) {
-			out.add(components.next());
-		}
+	public Array<? super SceneNodeComponent2> getComponents(Array<? super SceneNodeComponent2> out) {
+		//		Values<SceneNodeComponent2> components = getNode().getComponents();
+		//		while (components.hasNext) {
+		//			out.add(components.next());
+		//		}
 		return out;
 	}
 
-	public <T extends SceneNodeComponent> T getComponentInChildren(Class<T> componetType) {
-		ImmutableArray<SceneNode> children = getNode().children;
-		for (int i = 0; i < children.size(); i++) {
-			T component = children.get(i).getComponent(componetType);
-			if (component != null) {
-				return component;
-			}
-		}
+	public <T extends SceneNodeComponent2> T getComponentInChildren(Class<T> componetType) {
+		//		ImmutableArray<SceneNode2> children = getNode().children;
+		//		for (int i = 0; i < children.size(); i++) {
+		//			T component = children.get(i).getComponent(componetType);
+		//			if (component != null) {
+		//				return component;
+		//			}
+		//		}
 		return null;
 	}
 
-	public <T extends SceneNodeComponent> Array<T> getComponentsInChildren(Class<T> componnetType, Array<T> out) {
+	public <T extends SceneNodeComponent2> Array<T> getComponentsInChildren(Class<T> componnetType, Array<T> out) {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent> T getComponentInParent(Class<T> componnetType) {
+	public <T extends SceneNodeComponent2> T getComponentInParent(Class<T> componnetType) {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent> Array<T> getComponentsInParent(Class<T> componnetType, Array<T> out) {
+	public <T extends SceneNodeComponent2> Array<T> getComponentsInParent(Class<T> componnetType, Array<T> out) {
 		return null;
 	}
 
-	public Array<SceneNodeComponent> getSceneComponents(Class<? extends SceneNodeComponent> componentClass,
-			Comparator<SceneNodeComponent> comparator) {
+	public Array<SceneNodeComponent2> getSceneComponents(Class<? extends SceneNodeComponent2> componentClass,
+			Comparator<SceneNodeComponent2> comparator) {
 		return null;
 	}
 
@@ -510,9 +508,9 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 	public void runAction(final Action action) {
 	}
 
-	public SceneNode getParentNode() {
-		SceneNode node = getNode();
-		return node == null ? null : node.getParent();
+	public SceneNode2 getParentNode() {
+		SceneNode2 node = getNode();
+		return null;// node == null ? null : node.getParent();
 	}
 
 	public <T> T obtainResource(int resourceId) {
@@ -559,17 +557,17 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	}
 
-	public Array<SceneNode> getNodes(SceneNodeFamily nodeFamily) {
+	public Array<SceneNode2> getNodes(SceneNodeFamily nodeFamily) {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent> void registerComponentFamily(ComponentFamily<T> componentFamily) {
+	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily<T> componentFamily) {
 	}
 
-	public <T extends SceneNodeComponent> void unregisterComponentFamily(ComponentFamily<?> componentFamily) {
+	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily<?> componentFamily) {
 	}
 
-	public <T extends SceneNodeComponent> ImmutableArray<T> getComponents(ComponentFamily<T> componentFamily) {
+	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily<T> componentFamily) {
 		return null;
 	}
 
@@ -623,10 +621,10 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 
 	// TODO poolable
 	public static abstract class Releasable<T> {
-		SceneElement owningElement;
+		SceneElement2 owningElement;
 		T value;
 
-		void init(SceneElement owningElement, T value) {
+		void init(SceneElement2 owningElement, T value) {
 			this.owningElement = owningElement;
 			this.value = value;
 		}
@@ -635,7 +633,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent {
 			return value;
 		}
 
-		public SceneElement getOwningElement() {
+		public SceneElement2 getOwningElement() {
 			return owningElement;
 		}
 

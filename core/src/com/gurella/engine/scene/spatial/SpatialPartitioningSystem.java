@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.layer.Layer;
@@ -39,7 +38,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	public synchronized void add(T spatial) {
 		addedSpatials.put(spatial.nodeId, spatial);
 		allSpatials.put(spatial.nodeId, spatial);
-		spatialsByRenderableComponent.put(spatial.renderableComponent.id, spatial);
+		spatialsByRenderableComponent.put(spatial.renderableComponent.getInstanceId(), spatial);
 		spatial.renderableComponent.dirtySignal.addListener(spatialDirtyListener);
 	}
 
@@ -51,7 +50,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	private void removeSpatial(T spatial) {
 		spatial.renderableComponent.dirtySignal.removeListener(spatialDirtyListener);
-		spatialsByRenderableComponent.remove(spatial.renderableComponent.id);
+		spatialsByRenderableComponent.remove(spatial.renderableComponent.getInstanceId());
 		removedSpatials.put(spatial.nodeId, spatial);
 		addedSpatials.remove(spatial.nodeId);
 		dirtySpatials.remove(spatial.nodeId);
@@ -117,7 +116,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 			T spatial = createSpatial((RenderableComponent) component);
 			add(spatial);
 		} else if (component instanceof LayerComponent) {
-			T spatial = allSpatials.get(component.getNode().id);
+			T spatial = allSpatials.get(component.getNodeId());
 			if (spatial != null) {
 				spatial.layer = ((LayerComponent) component).getLayer();
 			}
@@ -127,12 +126,12 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof RenderableComponent) {
-			T spatial = allSpatials.get(component.getNode().id);
+			T spatial = allSpatials.get(component.getNodeId());
 			if (spatial != null) {
 				remove(spatial);
 			}
 		} else if (component instanceof LayerComponent) {
-			T spatial = allSpatials.get(component.getNode().id);
+			T spatial = allSpatials.get(component.getNodeId());
 			if (spatial != null) {
 				spatial.layer = Layer.DEFAULT;
 			}
@@ -154,7 +153,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	private class SpatialDirtyListener implements Listener1<RenderableComponent> {
 		@Override
 		public void handle(RenderableComponent renderableComponent) {
-			markDirty(spatialsByRenderableComponent.get(renderableComponent.id));
+			markDirty(spatialsByRenderableComponent.get(renderableComponent.getInstanceId()));
 		}
 	}
 }

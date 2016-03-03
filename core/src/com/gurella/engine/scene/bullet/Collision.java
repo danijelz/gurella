@@ -2,13 +2,13 @@ package com.gurella.engine.scene.bullet;
 
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 
 public class Collision {
 	private btPersistentManifold contactManifold;
 	private btCollisionObject collidedWithCollisionObject;
 	private BulletPhysicsRigidBodyComponent collidedWithComponent;
-	private SceneNode collidedWithNode;
+	private SceneNode2 collidedWithNode;
 	private float timeStep = -1;
 
 	Collision() {
@@ -42,7 +42,7 @@ public class Collision {
 		return collidedWithComponent;
 	}
 
-	public SceneNode getCollidedWithNode() {
+	public SceneNode2 getCollidedWithNode() {
 		return collidedWithNode;
 	}
 

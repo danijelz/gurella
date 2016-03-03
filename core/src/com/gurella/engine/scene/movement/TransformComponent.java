@@ -4,15 +4,17 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Signal1;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.utils.ImmutableArray;
 
-public class TransformComponent extends SceneNodeComponent {
+public class TransformComponent extends SceneNodeComponent2 implements Poolable {
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
 
 	@ResourceProperty
@@ -292,7 +294,9 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	private void markChildrenWorldTranslationDirty() {
-		for (SceneNode child : getNode().children) {
+		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
+		for (int i = 0; i < childNodes.size(); i++) {
+			SceneNode2 child = childNodes.get(i);
 			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
 			childTransformComponent.markWorldTranslationDirty();
 		}
@@ -531,7 +535,9 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	private void markChildrenWorldScaleDirty() {
-		for (SceneNode child : getNode().children) {
+		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
+		for (int i = 0; i < childNodes.size(); i++) {
+			SceneNode2 child = childNodes.get(i);
 			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
 			childTransformComponent.markWorldScaleDirty();
 		}
@@ -805,7 +811,9 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	private void markChildrenWorldRotationDirty() {
-		for (SceneNode child : getNode().children) {
+		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
+		for (int i = 0; i < childNodes.size(); i++) {
+			SceneNode2 child = childNodes.get(i);
 			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
 			childTransformComponent.markWorldRotationDirty();
 		}
@@ -880,7 +888,9 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	private void markChildrenWorldTransformDirty() {
-		for (SceneNode child : getNode().children) {
+		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
+		for (int i = 0; i < childNodes.size(); i++) {
+			SceneNode2 child = childNodes.get(i);
 			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
 			childTransformComponent.markWorldTransformDirty();
 		}
@@ -943,8 +953,7 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	@Override
-	protected void resetted() {
-		super.resetted();
+	public void reset() {
 		parentTransform = null;
 		childTransforms.clear();
 		dirtySignal.clear();
@@ -956,12 +965,11 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	@Override
-	protected void activated() {
-		super.activated();
-		SceneNode node = getNode();
+	protected void onActivate() {
+		SceneNode2 node = getNode();
 		node.parentChangedSignal.addListener(parentChangedListener);
 
-		SceneNode parent = node.getParent();
+		SceneNode2 parent = node.getParent();
 		if (parent != null) {
 			parentTransform = parent.getComponent(TransformComponent.class);
 			parent.componentActivatedSignal.addListener(parentComponentActivatedListener);
@@ -973,12 +981,11 @@ public class TransformComponent extends SceneNodeComponent {
 	}
 
 	@Override
-	protected void deactivated() {
-		super.deactivated();
-		SceneNode node = getNode();
+	protected void onDeactivate() {
+		SceneNode2 node = getNode();
 		node.parentChangedSignal.removeListener(parentChangedListener);
 
-		SceneNode parent = node.getParent();
+		SceneNode2 parent = node.getParent();
 		if (parent != null) {
 			parentTransform = null;
 			parent.componentActivatedSignal.removeListener(parentComponentActivatedListener);
@@ -989,61 +996,61 @@ public class TransformComponent extends SceneNodeComponent {
 		node.childRemovedSignal.removeListener(childRemovedListener);
 	}
 
-	private class ParentChangedListener implements Listener1<SceneNode> {
+	private class ParentChangedListener implements Listener1<SceneNode2> {
 		@Override
-		public void handle(SceneNode newParent) {
+		public void handle(SceneNode2 newParent) {
 			if (newParent != null) {
 				parentTransform = newParent.getActiveComponent(TransformComponent.class);
 			}
 		}
 	}
 
-	private class ParentComponentActivatedListener implements Listener1<SceneNodeComponent> {
+	private class ParentComponentActivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				parentTransform = (TransformComponent) component;
 			}
 		}
 	}
 
-	private class ParentComponentDeactivatedListener implements Listener1<SceneNodeComponent> {
+	private class ParentComponentDeactivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (parentTransform == component) {
 				parentTransform = null;
 			}
 		}
 	}
 
-	private class ChildAddedListener implements Listener1<SceneNode> {
+	private class ChildAddedListener implements Listener1<SceneNode2> {
 		@Override
-		public void handle(SceneNode child) {
+		public void handle(SceneNode2 child) {
 			child.componentActivatedSignal.addListener(childComponentActivatedListener);
 			child.componentDeactivatedSignal.addListener(childComponentDeactivatedListener);
 		}
 	}
 
-	private class ChildRemovedListener implements Listener1<SceneNode> {
+	private class ChildRemovedListener implements Listener1<SceneNode2> {
 		@Override
-		public void handle(SceneNode child) {
+		public void handle(SceneNode2 child) {
 			child.componentActivatedSignal.removeListener(childComponentActivatedListener);
 			child.componentDeactivatedSignal.removeListener(childComponentDeactivatedListener);
 		}
 	}
 
-	private class ChildComponentActivatedListener implements Listener1<SceneNodeComponent> {
+	private class ChildComponentActivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				childTransforms.add((TransformComponent) component);
 			}
 		}
 	}
 
-	private class ChildComponentDeactivatedListener implements Listener1<SceneNodeComponent> {
+	private class ChildComponentDeactivatedListener implements Listener1<SceneNodeComponent2> {
 		@Override
-		public void handle(SceneNodeComponent component) {
+		public void handle(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				childTransforms.removeValue((TransformComponent) component, true);
 			}

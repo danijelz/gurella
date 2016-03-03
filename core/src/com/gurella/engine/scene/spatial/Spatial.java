@@ -11,7 +11,7 @@ public class Spatial implements Poolable {
 	public boolean dirty;
 
 	public void init(RenderableComponent renderableComponent) {
-		this.nodeId = renderableComponent.getNode().id;
+		this.nodeId = renderableComponent.getNodeId();
 		this.renderableComponent = renderableComponent;
 		this.layer = renderableComponent.layer;
 	}

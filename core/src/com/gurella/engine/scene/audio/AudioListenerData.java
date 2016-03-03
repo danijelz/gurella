@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.movement.TransformComponent;
 
 class AudioListenerData implements Poolable {
@@ -29,7 +29,7 @@ class AudioListenerData implements Poolable {
 	}
 
 	void init(AudioListenerComponent initAudioListenerComponent) {
-		SceneNode node = initAudioListenerComponent.getNode();
+		SceneNode2 node = initAudioListenerComponent.getNode();
 		this.transformComponent = node.getActiveComponent(TransformComponent.class);
 	}
 

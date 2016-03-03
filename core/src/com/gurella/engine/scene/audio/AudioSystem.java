@@ -5,11 +5,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.movement.TransformComponent;
@@ -17,7 +17,7 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 //TODO attach listeners on activate
-public class AudioSystem extends SceneSystem2 implements ComponentActivityListener, PreRenderUpdateListener {
+public class AudioSystem extends SceneSystem2 implements ComponentActivityListener, PreRenderUpdateListener, Poolable {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -32,21 +32,21 @@ public class AudioSystem extends SceneSystem2 implements ComponentActivityListen
 		if (component instanceof AudioListenerComponent) {
 			AudioListenerData audioListenerData = AudioListenerData.getInstance();
 			audioListenerData.init((AudioListenerComponent) component);
-			activeListeners.put(component.getNode().id, audioListenerData);
+			activeListeners.put(component.getNodeId(), audioListenerData);
 			activeListenersStack.add(audioListenerData);
 		} else if (component instanceof AudioSourceComponent) {
 			AudioSourceComponent audioSourceComponent = (AudioSourceComponent) component;
 			audioSourceComponent.audioProcessor = this;
 			AudioSourceData audioSourceData = AudioSourceData.getInstance();
 			audioSourceData.init(audioSourceComponent);
-			activeSources.put(audioSourceComponent.getNode().id, audioSourceData);
+			activeSources.put(audioSourceComponent.getNodeId(), audioSourceData);
 		} else if (component instanceof TransformComponent) {
-			AudioListenerData audioListenerData = activeListeners.get(component.getNode().id);
+			AudioListenerData audioListenerData = activeListeners.get(component.getNodeId());
 			if (audioListenerData != null) {
 				audioListenerData.transformComponent = (TransformComponent) component;
 			}
 
-			AudioSourceData audioSourceData = activeSources.get(component.getNode().id);
+			AudioSourceData audioSourceData = activeSources.get(component.getNodeId());
 			if (audioSourceData != null) {
 				audioSourceData.transformComponent = (TransformComponent) component;
 			}
@@ -56,13 +56,13 @@ public class AudioSystem extends SceneSystem2 implements ComponentActivityListen
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof AudioListenerComponent) {
-			AudioListenerData audioListenerData = activeListeners.remove(component.getNode().getId());
+			AudioListenerData audioListenerData = activeListeners.remove(component.getNodeId());
 			if (audioListenerData != null) {
 				activeListenersStack.removeValue(audioListenerData, true);
 				audioListenerData.free();
 			}
 		} else if (component instanceof AudioSourceComponent) {
-			AudioSourceData audioSourceData = activeSources.remove(component.getNode().getId());
+			AudioSourceData audioSourceData = activeSources.remove(component.getNodeId());
 			if (audioSourceData != null) {
 				((AudioSourceComponent) component).audioProcessor = null;
 				LongMap<AudioTrack> activeAudioTracks = audioSourceData.activeAudioTracks;
@@ -72,12 +72,12 @@ public class AudioSystem extends SceneSystem2 implements ComponentActivityListen
 				activeAudioTracks.clear();
 			}
 		} else if (component instanceof TransformComponent) {
-			AudioListenerData audioListenerData = activeListeners.get(component.getNode().getId());
+			AudioListenerData audioListenerData = activeListeners.get(component.getNodeId());
 			if (audioListenerData != null) {
 				audioListenerData.transformComponent = null;
 			}
 
-			AudioSourceData audioSourceData = activeSources.get(component.getNode().getId());
+			AudioSourceData audioSourceData = activeSources.get(component.getNodeId());
 			if (audioSourceData != null) {
 				audioSourceData.transformComponent = null;
 			}
@@ -341,6 +341,11 @@ public class AudioSystem extends SceneSystem2 implements ComponentActivityListen
 
 			PoolService.free(SL);
 		}
+	}
+	
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
 	}
 
 	private static class RemoveOnFinishCompletitionCallback implements Listener1<AudioTrack> {

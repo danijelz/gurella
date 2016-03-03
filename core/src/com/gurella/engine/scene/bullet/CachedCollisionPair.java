@@ -23,7 +23,7 @@ class CachedCollisionPair {
 
 	@Override
 	public int hashCode() {
-		return rigidBodyComponent0.id + rigidBodyComponent1.id;
+		return rigidBodyComponent0.getInstanceId() + rigidBodyComponent1.getInstanceId();
 	}
 
 	@Override
@@ -35,7 +35,11 @@ class CachedCollisionPair {
 		if (getClass() != obj.getClass())
 			return false;
 		CachedCollisionPair other = (CachedCollisionPair) obj;
-		return (rigidBodyComponent0.id == other.rigidBodyComponent0.id && rigidBodyComponent1.id == other.rigidBodyComponent1.id)
-				|| (rigidBodyComponent0.id == other.rigidBodyComponent1.id && rigidBodyComponent1.id == other.rigidBodyComponent0.id);
+		int component0Id = rigidBodyComponent0.getInstanceId();
+		int otherComponent0Id = other.rigidBodyComponent0.getInstanceId();
+		int component1Id = rigidBodyComponent1.getInstanceId();
+		int otherComponent1Id = other.rigidBodyComponent1.getInstanceId();
+		return (component0Id == otherComponent0Id && component1Id == otherComponent1Id)
+				|| (component0Id == otherComponent1Id && component1Id == otherComponent0Id);
 	}
 }
