@@ -17,7 +17,6 @@ import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.scene.tag.TagManager;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableIntMapValues;
