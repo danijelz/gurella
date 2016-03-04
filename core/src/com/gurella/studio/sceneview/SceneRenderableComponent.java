@@ -127,4 +127,10 @@ public class SceneRenderableComponent extends RenderableComponent {
 	public boolean getIntersection(Ray ray, Vector3 intersection) {
 		return false;
 	}
+
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+		
+	}
 }

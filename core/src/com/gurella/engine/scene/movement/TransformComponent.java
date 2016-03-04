@@ -826,7 +826,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		markChildrenWorldRotationDirty();
 	}
 
-	// ////////////////transform
+	//////////////////transform
 
 	public void setTransform(Matrix4 newTransform) {
 		transform.set(newTransform);
@@ -969,7 +969,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		SceneNode2 node = getNode();
 		node.parentChangedSignal.addListener(parentChangedListener);
 
-		SceneNode2 parent = node.getParent();
+		SceneNode2 parent = node.getParentNode();
 		if (parent != null) {
 			parentTransform = parent.getComponent(TransformComponent.class);
 			parent.componentActivatedSignal.addListener(parentComponentActivatedListener);
@@ -985,7 +985,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		SceneNode2 node = getNode();
 		node.parentChangedSignal.removeListener(parentChangedListener);
 
-		SceneNode2 parent = node.getParent();
+		SceneNode2 parent = node.getParentNode();
 		if (parent != null) {
 			parentTransform = null;
 			parent.componentActivatedSignal.removeListener(parentComponentActivatedListener);

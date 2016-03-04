@@ -66,6 +66,11 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	public final void reset() {
 	}
 
+	public SceneNode2 getParentNode() {
+		ManagedObject parent = getParent();
+		return parent instanceof SceneNode2 ? (SceneNode2) parent : null;
+	}
+
 	final void setParent(SceneNode2 node) {
 		super.setParent(node);
 	}
