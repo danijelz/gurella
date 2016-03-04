@@ -1,9 +1,10 @@
-package com.gurella.engine.scene;
+package com.gurella.engine.resource;
 
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.TransientProperty;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.ValueRegistry;
 
 //TODO remove Disposable

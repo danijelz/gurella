@@ -37,12 +37,12 @@ import com.gurella.engine.application.Application;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.ResourceReference;
+import com.gurella.engine.resource.SceneNode;
+import com.gurella.engine.resource.SceneNodeComponent;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.movement.TransformComponent;
@@ -129,7 +129,7 @@ public class SceneView extends Container<Image> {
 		SceneNode node = new SceneNode();
 
 		TransformComponent transformComponent = new TransformComponent();
-		node.addComponent(transformComponent);
+		//node.addComponent(transformComponent);
 
 		ModelComponent modelComponent = new ModelComponent();
 		ModelBuilder builder = new ModelBuilder();
@@ -173,7 +173,7 @@ public class SceneView extends Container<Image> {
 		}
 
 		modelComponent.setModel(model);
-		node.addComponent(modelComponent);
+		//node.addComponent(modelComponent);
 
 		//view.addNode(node);
 	}
@@ -183,10 +183,10 @@ public class SceneView extends Container<Image> {
 
 		TransformComponent transformComponent = new TransformComponent();
 		transformComponent.setTranslation(1, 3, 10);
-		node.addComponent(transformComponent);
+		//node.addComponent(transformComponent);
 
 		cameraComponent = new PerspectiveCameraComponent();
-		node.addComponent(cameraComponent);
+		//node.addComponent(cameraComponent);
 
 		cameraInputController = new CameraInputController(cameraComponent.camera);
 		inputMultiplexer.addProcessor(cameraInputController);
@@ -255,17 +255,17 @@ public class SceneView extends Container<Image> {
 			if (node == null) {
 				node = new SceneNode();
 				transformComponent = new TransformComponent();
-				node.addComponent(transformComponent);
+				//node.addComponent(transformComponent);
 				sceneRenderableComponent = new SceneRenderableComponent();
-				node.addComponent(sceneRenderableComponent);
+				//node.addComponent(sceneRenderableComponent);
 				//view.addNode(node);
 				nodesMap.put(nodeReference, node);
 			} else {
-				sceneRenderableComponent = node.getComponent(SceneRenderableComponent.class);
-				transformComponent = node.getComponent(TransformComponent.class);
+				//sceneRenderableComponent = node.getComponent(SceneRenderableComponent.class);
+				//transformComponent = node.getComponent(TransformComponent.class);
 			}
 
-			updateNode(nodeReference, transformComponent, sceneRenderableComponent);
+			//updateNode(nodeReference, transformComponent, sceneRenderableComponent);
 		}
 	}
 
@@ -281,7 +281,7 @@ public class SceneView extends Container<Image> {
 				ResourceReference<? extends SceneNodeComponent> componentReference = sceneNodeComponents
 						.get(componentId);
 
-				if (TransformComponent.class.equals(componentReference.getResourceType())) {
+				/*if (TransformComponent.class.equals(componentReference.getResourceType())) {
 					@SuppressWarnings("unchecked")
 					ModelResourceFactory<TransformComponent> resourceFactory = (ModelResourceFactory<TransformComponent>) componentReference
 							.getResourceFactory();
@@ -290,7 +290,7 @@ public class SceneView extends Container<Image> {
 
 				if (TextureComponent.class.equals(componentReference.getResourceType())) {
 					sceneRenderableComponent.addTexture((ResourceReference<TextureComponent>) componentReference);
-				}
+				}*/
 			}
 		}
 	}

@@ -2,7 +2,7 @@ package com.gurella.engine.scene.movement;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.manager.ComponentBitsPredicate;
 import com.gurella.engine.scene.manager.NodeManager;
@@ -34,9 +34,9 @@ public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdat
 	@Override
 	public void onPreRenderUpdate() {
 		float deltaTime = Gdx.graphics.getDeltaTime();
-		ImmutableArray<SceneNode> nodes = nodeManager.getNodes(family);
+		ImmutableArray<SceneNode2> nodes = nodeManager.getNodes(family);
 		for (int i = 0; i < nodes.size(); i++) {
-			SceneNode node = nodes.get(i);
+			SceneNode2 node = nodes.get(i);
 			LinearVelocityComponent linearVelocityComponent = node.getComponent(LinearVelocityComponent.class);
 			node.getComponent(TransformComponent.class).getTranslation(tempTranslate);
 

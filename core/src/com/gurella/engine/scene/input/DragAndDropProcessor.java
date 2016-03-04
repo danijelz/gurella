@@ -3,14 +3,14 @@ package com.gurella.engine.scene.input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.scene.input.NodeDragSourceListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDropTargetListener;
 import com.gurella.engine.utils.Values;
 
 public class DragAndDropProcessor implements PointerActivityListener {
-	private SceneNode sourceNode;
-	private SceneNode targetNode;
+	private SceneNode2 sourceNode;
+	private SceneNode2 targetNode;
 	private Array<DragSource> dragSources = new Array<DragSource>(10);
 	private Array<DropTarget> dropTargets = new Array<DropTarget>(10);
 
@@ -41,7 +41,7 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	}
 
 	private void begin(PointerTrack pointerTrack, DragStartCondition condition) {
-		SceneNode node = pointerTrack.getNode(0);
+		SceneNode2 node = pointerTrack.getNode(0);
 		if (node == null) {
 			return;
 		}
@@ -60,10 +60,10 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		}
 	}
 
-	private void initDragSources(SceneNode node, DragStartCondition condition) {
+	private void initDragSources(SceneNode2 node, DragStartCondition condition) {
 		dragSources.clear();
 		Array<NodeDragSourceListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(node.id, NodeDragSourceListener.class, listeners);
+		EventService.getSubscribers(node.getInstanceId(), NodeDragSourceListener.class, listeners);
 		if (listeners.size < 1) {
 			return;
 		}
@@ -88,7 +88,7 @@ public class DragAndDropProcessor implements PointerActivityListener {
 			dragSources.get(i).dragMove(screenX, screenY);
 		}
 
-		SceneNode node = pointerTrack.getNode(last);
+		SceneNode2 node = pointerTrack.getNode(last);
 		if (targetNode != null) {
 			if (targetNode == node) {
 				for (int i = 0; i < dropTargets.size; i++) {
@@ -116,9 +116,9 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		}
 	}
 
-	private void initDropTargets(SceneNode node) {
+	private void initDropTargets(SceneNode2 node) {
 		Array<NodeDropTargetListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(node.id, NodeDropTargetListener.class, listeners);
+		EventService.getSubscribers(node.getInstanceId(), NodeDropTargetListener.class, listeners);
 		if (listeners.size < 1) {
 			return;
 		}
@@ -139,7 +139,7 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		int last = pointerTrack.getSize() - 1;
 		int screenX = pointerTrack.getScreenX(last);
 		int screenY = pointerTrack.getScreenY(last);
-		SceneNode node = pointerTrack.getNode(last);
+		SceneNode2 node = pointerTrack.getNode(last);
 
 		if (targetNode != null && node == targetNode) {
 			if (dropTargets.size > 0) {

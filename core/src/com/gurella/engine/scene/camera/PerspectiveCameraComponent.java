@@ -2,8 +2,9 @@ package com.gurella.engine.scene.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> {
+public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> implements Poolable {
 	/** the field of view in degrees **/
 	private float fieldOfView = 67;
 

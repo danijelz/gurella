@@ -10,10 +10,10 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.ResourceReference;
+import com.gurella.engine.resource.SceneSystem;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.renderable.RenderSystem;
@@ -111,11 +111,11 @@ public class SystemsContainer extends VisTable {
 
 		private PopupMenu createMenu() {
 			menu = new PopupMenu();
-			addItem("Input", InputSystem.class);
+			//addItem("Input", InputSystem.class);
 			menu.addSeparator();
 			//addItem("Render", RenderSystem.class);
 			menu.addSeparator();
-			addItem("BulletPhysics", BulletPhysicsSystem.class);
+			//addItem("BulletPhysics", BulletPhysicsSystem.class);
 			menu.addSeparator();
 			return menu;
 		}

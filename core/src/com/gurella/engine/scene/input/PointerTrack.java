@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 
 public class PointerTrack implements Poolable {
 	private PointerTrackerPhase phase;
@@ -18,10 +18,9 @@ public class PointerTrack implements Poolable {
 	private FloatArray intersectionX = new FloatArray();
 	private FloatArray intersectionY = new FloatArray();
 	private FloatArray intersectionZ = new FloatArray();
-	private Array<SceneNode> nodes = new Array<SceneNode>();
+	private Array<SceneNode2> nodes = new Array<SceneNode2>();
 
-	void add(long eventTime, int sx, int sy, Vector3 intersection, SceneNode node,
-			PointerTrackerPhase newPhase) {
+	void add(long eventTime, int sx, int sy, Vector3 intersection, SceneNode2 node, PointerTrackerPhase newPhase) {
 		size++;
 		time.add(eventTime);
 		screenX.add(sx);
@@ -56,7 +55,7 @@ public class PointerTrack implements Poolable {
 	public int getScreenY(int index) {
 		return screenY.get(index);
 	}
-	
+
 	public Vector2 getScreenCoordinates(int index, Vector2 out) {
 		return out.set(screenX.get(index), screenY.get(index));
 	}
@@ -73,26 +72,26 @@ public class PointerTrack implements Poolable {
 		return intersectionZ.get(index);
 	}
 
-	public SceneNode getNode(int index) {
+	public SceneNode2 getNode(int index) {
 		return nodes.get(index);
 	}
-	
+
 	public long getTimeSpan() {
 		return time.peek() - time.first();
 	}
-	
-	public SceneNode getCommonNode() {
-		SceneNode node = nodes.get(0);
-		if(node == null) {
+
+	public SceneNode2 getCommonNode() {
+		SceneNode2 node = nodes.get(0);
+		if (node == null) {
 			return null;
 		}
-		
-		for(int i = 1; i < size; i++) {
-			if(!node.equals(getNode(i))) {
+
+		for (int i = 1; i < size; i++) {
+			if (!node.equals(getNode(i))) {
 				return null;
 			}
 		}
-		
+
 		return node;
 	}
 

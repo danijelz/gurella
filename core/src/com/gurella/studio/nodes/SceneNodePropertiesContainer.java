@@ -10,12 +10,13 @@ import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.resource.ResourceReference;
+import com.gurella.engine.resource.SceneNode;
+import com.gurella.engine.resource.SceneNodeComponent;
 import com.gurella.engine.resource.SharedResourceReference;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
 import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
@@ -178,9 +179,9 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 //			addItem("Model", ModelComponent.class);
 //			addItem("Solid", SolidComponent.class);
 			menu.addSeparator();
-			addItem("Test", TestComponnent.class);
-			menu.addSeparator();
-			addItem("Test Input", TestInputComponent.class);
+//			addItem("Test", TestComponnent.class);
+//			menu.addSeparator();
+//			addItem("Test Input", TestInputComponent.class);
 			return menu;
 		}
 
@@ -219,7 +220,7 @@ public class SceneNodePropertiesContainer extends VisTable implements InspectorP
 		}
 	}
 
-	public static class TestComponnent extends SceneNodeComponent {
+	public static class TestComponnent extends SceneNodeComponent2 {
 		public Vector3 testVector;
 		public String[] testStringArray;
 		public int[] testIntArray;

@@ -23,7 +23,6 @@ import com.gurella.engine.event.Signal;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneListener;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;

@@ -10,15 +10,15 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.SceneLongPressListener;
-import com.gurella.engine.subscriptions.scene.input.SceneTapListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTapListener;
 import com.gurella.engine.subscriptions.scene.input.NodeLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.NodeTapListener;
+import com.gurella.engine.subscriptions.scene.input.SceneLongPressListener;
+import com.gurella.engine.subscriptions.scene.input.SceneTapListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
@@ -153,7 +153,7 @@ public class TouchProcessor implements PointerActivityListener {
 			globalListeners.get(i).tap(touchEvent, tapCount);
 		}
 
-		SceneNode node = pointerTrack.getCommonNode();
+		SceneNode2 node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
@@ -180,7 +180,7 @@ public class TouchProcessor implements PointerActivityListener {
 			globalListeners.get(i).longPress(touchEvent);
 		}
 
-		SceneNode node = pointerTrack.getCommonNode();
+		SceneNode2 node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);

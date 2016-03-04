@@ -1,10 +1,11 @@
-package com.gurella.engine.scene;
+package com.gurella.engine.resource;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.Reflection;

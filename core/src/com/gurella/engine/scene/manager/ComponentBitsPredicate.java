@@ -1,16 +1,16 @@
 package com.gurella.engine.scene.manager;
 
-import static com.gurella.engine.scene.SceneNodeComponent.getComponentSubtypes;
-import static com.gurella.engine.scene.SceneNodeComponent.getComponentType;
+import static com.gurella.engine.scene.ComponentType.getSubtypes;
+import static com.gurella.engine.scene.ComponentType.getType;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
 
-public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
+public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 	private boolean activeComponents;
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
@@ -20,12 +20,12 @@ public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 	}
 
 	@Override
-	public boolean evaluate(SceneNode node) {
+	public boolean evaluate(SceneNode2 node) {
 		ImmutableBits componentBits = activeComponents ? node.activeComponentBits : node.componentBits;
 
 		int componentId = all.nextSetBit(0);
 		while (componentId != -1) {
-			if (!componentBits.intersects(getComponentSubtypes(componentId))) {
+			if (!componentBits.intersects(getSubtypes(componentId))) {
 				return false;
 			}
 			componentId = all.nextSetBit(componentId);
@@ -51,17 +51,17 @@ public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 	}
 
 	@SafeVarargs
-	public static Builder all(boolean activeComponents, Class<? extends SceneNodeComponent>... types) {
+	public static Builder all(boolean activeComponents, Class<? extends SceneNodeComponent2>... types) {
 		return new Builder(activeComponents).all(types);
 	}
 
 	@SafeVarargs
-	public static Builder exclude(boolean activeComponents, Class<? extends SceneNodeComponent>... types) {
+	public static Builder exclude(boolean activeComponents, Class<? extends SceneNodeComponent2>... types) {
 		return new Builder(activeComponents).exclude(types);
 	}
 
 	@SafeVarargs
-	public static Builder any(boolean activeComponents, Class<? extends SceneNodeComponent>... types) {
+	public static Builder any(boolean activeComponents, Class<? extends SceneNodeComponent2>... types) {
 		return new Builder(activeComponents).any(types);
 	}
 
@@ -75,25 +75,25 @@ public class ComponentBitsPredicate implements Predicate<SceneNode>, Poolable {
 			this.activeComponents = activeComponents;
 		}
 
-		public Builder all(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
-			for (Class<? extends SceneNodeComponent> type : types) {
-				all.set(getComponentType(type));
+		public Builder all(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
+			for (Class<? extends SceneNodeComponent2> type : types) {
+				all.set(getType(type));
 			}
 			return this;
 		}
 
-		public Builder any(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
-			for (Class<? extends SceneNodeComponent> type : types) {
-				int componentType = getComponentType(type);
-				getComponentSubtypes(componentType).orBits(any);
+		public Builder any(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
+			for (Class<? extends SceneNodeComponent2> type : types) {
+				int componentType = getType(type);
+				getSubtypes(componentType).orBits(any);
 			}
 			return this;
 		}
 
-		public Builder exclude(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent>... types) {
-			for (Class<? extends SceneNodeComponent> type : types) {
-				int componentType = getComponentType(type);
-				getComponentSubtypes(componentType).orBits(exclude);
+		public Builder exclude(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
+			for (Class<? extends SceneNodeComponent2> type : types) {
+				int componentType = getType(type);
+				getSubtypes(componentType).orBits(exclude);
 			}
 			return this;
 		}

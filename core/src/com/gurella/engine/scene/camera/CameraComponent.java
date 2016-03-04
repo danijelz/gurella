@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.camera;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
@@ -20,7 +22,7 @@ import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
-		implements Comparable<CameraComponent<?>>, ApplicationResizeListener {
+		implements ApplicationResizeListener {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -51,14 +53,14 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera = createCamera();
 		viewport = new CameraViewport(camera);
 	}
-	
+
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
 	}
 
 	abstract T createCamera();
-	
+
 	@Override
 	protected void onActivate() {
 		initCamera();
@@ -80,7 +82,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.far = far;
 		viewport.update();
 	}
-	
+
 	@Override
 	protected void onDeactivate() {
 		super.deactivated();
@@ -141,11 +143,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		}
 	}
 
-	@Override
-	public int compareTo(CameraComponent<?> other) {
-		return Values.compare(ordinal, other.ordinal);
-	}
-
 	private void attachTransformDirtyListener() {
 		if (transformComponent != null) {
 			transformComponent.dirtySignal.addListener(transformDirtyListener);
@@ -198,6 +195,18 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 			if (component instanceof TransformComponent) {
 				setTransformComponent((TransformComponent) component);
 			}
+		}
+	}
+
+	public static final class CameraComponentComparator implements Comparator<CameraComponent<?>> {
+		public static final CameraComponentComparator instance = new CameraComponentComparator();
+
+		private CameraComponentComparator() {
+		}
+
+		@Override
+		public int compare(CameraComponent<?> o1, CameraComponent<?> o2) {
+			return Values.compare(o1.ordinal, o2.ordinal);
 		}
 	}
 

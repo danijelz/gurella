@@ -4,11 +4,11 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.resource.DependencyMap;
+import com.gurella.engine.resource.SceneNode;
+import com.gurella.engine.resource.SceneNodeComponent;
 import com.gurella.engine.resource.model.ResourceId;
 import com.gurella.engine.resource.model.ResourceModelProperty;
 import com.gurella.engine.resource.model.ResourceModelUtils;
-import com.gurella.engine.scene.SceneNode;
-import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.utils.Range;
 
 public class SceneNodeComponentsModelProperty implements ResourceModelProperty {

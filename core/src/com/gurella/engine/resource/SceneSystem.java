@@ -1,7 +1,8 @@
-package com.gurella.engine.scene;
+package com.gurella.engine.resource;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.utils.TypeRegistry;
+import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.utils.Reflection;
 
 public abstract class SceneSystem extends SceneElement {

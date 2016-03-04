@@ -4,11 +4,11 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchDownListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionDoubleTouchDownListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchDownListener;
+import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchDownListener;
 import com.gurella.engine.utils.IntLongMap;
 import com.gurella.engine.utils.Values;
 
@@ -99,7 +99,7 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 			globalListeners.get(i).doubleTouchDown(touchEvent);
 		}
 
-		SceneNode node = pointerTrack.getCommonNode();
+		SceneNode2 node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
@@ -110,8 +110,7 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 			}
 
 			Array<NodeDoubleTouchDownListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDoubleTouchDownListener.class,
-					listeners);
+			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDoubleTouchDownListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onDoubleTouch(intersectionTouchEvent);
 			}

@@ -1,4 +1,4 @@
-package com.gurella.engine.scene;
+package com.gurella.engine.resource;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;

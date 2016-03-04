@@ -2,10 +2,10 @@ package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.scene.SceneNode;
+import com.gurella.engine.scene.SceneNode2;
 
 public class PickResult implements Poolable {
-	public SceneNode node;
+	public SceneNode2 node;
 	public final Vector3 intersection = new Vector3();
 
 	@Override

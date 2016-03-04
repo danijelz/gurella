@@ -55,7 +55,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 {
 	
 	@Override
 	protected void onDeactivate() {
-		SceneNode node = getNode();
+		SceneNode2 node = getNode();
 		node.componentActivatedSignal.removeListener(transformComponentActivatedListener);
 		node.componentDeactivatedSignal.removeListener(transformComponentDeactivatedListener);
 		detachTransformDirtyListener();

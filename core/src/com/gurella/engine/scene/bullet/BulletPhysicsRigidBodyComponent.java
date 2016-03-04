@@ -10,7 +10,7 @@ import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.scene.SceneNodeComponent;
+import com.gurella.engine.resource.SceneNodeComponent;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.movement.TransformComponent;
 

@@ -14,10 +14,10 @@ import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.AssetResourceReference;
 import com.gurella.engine.resource.DependencyMap;
 import com.gurella.engine.resource.ResourceReference;
+import com.gurella.engine.resource.SceneNodeComponent;
 import com.gurella.engine.resource.factory.AssetRegistry;
 import com.gurella.engine.resource.factory.ModelResourceFactory;
 import com.gurella.engine.resource.model.AssetId;
-import com.gurella.engine.scene.SceneNodeComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 
@@ -62,8 +62,7 @@ public class SceneRenderableComponent extends RenderableComponent {
 		}
 
 		@SuppressWarnings("unchecked")
-		ModelResourceFactory<TextureComponent> resourceFactory = (ModelResourceFactory<TextureComponent>) componentReference
-				.getResourceFactory();
+		ModelResourceFactory<TextureComponent> resourceFactory = null;//(ModelResourceFactory<TextureComponent>) componentReference.getResourceFactory();
 
 		AssetId texture = resourceFactory.getPropertyValue("texture");
 		@SuppressWarnings("unchecked")
