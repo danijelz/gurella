@@ -1,13 +1,10 @@
 package com.gurella.engine.scene.camera;
 
-import java.util.Comparator;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -15,13 +12,13 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
+import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
-		implements ApplicationResizeListener, NodeComponentActivityListener, Poolable {
+		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -38,8 +35,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public final transient T camera;
 	public final transient CameraViewport viewport;
 	transient TransformComponent transformComponent;
-
-	private final TransformDirtyListener transformDirtyListener = new TransformDirtyListener();
 
 	public CameraComponent() {
 		camera = createCamera();
@@ -58,7 +53,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		initCamera();
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		transformComponent = getNode().getActiveComponent(TransformComponent.class);
-		attachTransformDirtyListener();
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {
@@ -74,7 +68,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	protected void onDeactivate() {
-		detachTransformDirtyListener();
 		transformComponent = null;
 	}
 
@@ -90,6 +83,11 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		if (component instanceof TransformComponent) {
 			setTransformComponent(null);
 		}
+	}
+
+	@Override
+	public void onNodeTransformChanged() {
+		updateTransform();
 	}
 
 	public float getNear() {
@@ -142,27 +140,8 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		}
 	}
 
-	private void attachTransformDirtyListener() {
-		if (transformComponent != null) {
-			transformComponent.dirtySignal.addListener(transformDirtyListener);
-		}
-	}
-
-	private void detachTransformDirtyListener() {
-		if (transformComponent != null) {
-			transformComponent.dirtySignal.removeListener(transformDirtyListener);
-		}
-	}
-
-	public TransformComponent getTransformComponent() {
-		return transformComponent;
-	}
-
-	public void setTransformComponent(TransformComponent transformComponent) {
-		detachTransformDirtyListener();
+	private void setTransformComponent(TransformComponent transformComponent) {
 		this.transformComponent = transformComponent;
-		attachTransformDirtyListener();
-
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {
@@ -195,24 +174,5 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		ordinal = 0;
 		renderingLayers.clear();
 		transformComponent = null;
-	}
-
-	public static final class CameraComponentComparator implements Comparator<CameraComponent<?>> {
-		public static final CameraComponentComparator instance = new CameraComponentComparator();
-
-		private CameraComponentComparator() {
-		}
-
-		@Override
-		public int compare(CameraComponent<?> o1, CameraComponent<?> o2) {
-			return Values.compare(o1.ordinal, o2.ordinal);
-		}
-	}
-
-	private class TransformDirtyListener implements Listener1<TransformComponent> {
-		@Override
-		public void handle(TransformComponent component) {
-			updateTransform();
-		}
 	}
 }

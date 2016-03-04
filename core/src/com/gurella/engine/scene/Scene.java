@@ -68,6 +68,12 @@ public final class Scene extends ManagedObject {
 		destroy();
 		// TODO releaseResources();
 	}
+	
+	@Override
+	protected final void deactivated() {
+		super.deactivated();
+		//TODO reset managers and systems
+	}
 
 	@Override
 	protected final void childAdded(ManagedObject child) {

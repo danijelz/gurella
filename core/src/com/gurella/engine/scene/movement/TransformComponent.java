@@ -5,16 +5,20 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.event.Signal1;
-import com.gurella.engine.resource.model.DefaultValue;
-import com.gurella.engine.resource.model.PropertyValue;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class TransformComponent extends SceneNodeComponent2 implements Poolable {
+	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
+	private static final Object lock = new Object();
+
+	private int nodeId;
+
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
 
 	@ResourceProperty
@@ -32,8 +36,6 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private boolean worldEulerRotationDirty = true;
 
 	@ResourceProperty
-	@DefaultValue(compositeValues = { @PropertyValue(name = "x", floatValue = 1),
-			@PropertyValue(name = "y", floatValue = 1), @PropertyValue(name = "z", floatValue = 1) })
 	private final Vector3 scale = new Vector3(1, 1, 1);
 	private final Vector3 worldScale = new Vector3(1, 1, 1);
 	private boolean worldScaleDirty = true;
@@ -42,13 +44,15 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private boolean transformDirty = true;
 
 	private final Matrix4 worldTransform = new Matrix4();
-	private boolean worldlTransformDirty = true;
+	private boolean worldTransformDirty = true;
 
 	private final Matrix4 worldTransformInverse = new Matrix4();
-	private boolean worldlTransformInvDirty = true;
+	private boolean worldTransformInvDirty = true;
 
 	private TransformComponent parentTransform;
 	private final Array<TransformComponent> childTransforms = new Array<TransformComponent>();
+
+	private boolean transformChangeSent = true;
 
 	private final ParentChangedListener parentChangedListener = new ParentChangedListener();
 	private final ParentComponentActivatedListener parentComponentActivatedListener = new ParentComponentActivatedListener();
@@ -58,22 +62,45 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private final ChildComponentActivatedListener childComponentActivatedListener = new ChildComponentActivatedListener();
 	private final ChildComponentDeactivatedListener childComponentDeactivatedListener = new ChildComponentDeactivatedListener();
 
-	public final Signal1<TransformComponent> dirtySignal = new Signal1<TransformComponent>() {
-		@Override
-		public void dispatch(TransformComponent event) {
-			super.dispatch(event);
-			for (int i = 0; i < childTransforms.size; i++) {
-				TransformComponent childTransform = childTransforms.get(i);
-				childTransform.dirtySignal.dispatch(childTransform);
-			}
+	@Override
+	protected void onActivate() {
+		SceneNode2 node = getNode();
+		nodeId = node.getInstanceId();
+		node.parentChangedSignal.addListener(parentChangedListener);
+
+		SceneNode2 parent = node.getParentNode();
+		if (parent != null) {
+			parentTransform = parent.getComponent(TransformComponent.class);
+			parent.componentActivatedSignal.addListener(parentComponentActivatedListener);
+			parent.componentDeactivatedSignal.addListener(parentComponentDeactivatedListener);
 		}
-	};
+
+		node.childAddedSignal.addListener(childAddedListener);
+		node.childRemovedSignal.addListener(childRemovedListener);
+	}
+
+	@Override
+	protected void onDeactivate() {
+		SceneNode2 node = getNode();
+		node.parentChangedSignal.removeListener(parentChangedListener);
+
+		SceneNode2 parent = node.getParentNode();
+		if (parent != null) {
+			parentTransform = null;
+			parent.componentActivatedSignal.removeListener(parentComponentActivatedListener);
+			parent.componentDeactivatedSignal.removeListener(parentComponentDeactivatedListener);
+		}
+
+		node.childAddedSignal.removeListener(childAddedListener);
+		node.childRemovedSignal.removeListener(childRemovedListener);
+		nodeId = -1;
+	}
 
 	// //////////translate
 
 	public TransformComponent translate(Vector3 additionalTranslation) {
 		this.translation.add(additionalTranslation);
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 
 		if (!worldTranslationDirty) {
 			this.worldTranslation.add(additionalTranslation);
@@ -81,6 +108,18 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		}
 
 		return this;
+	}
+
+	private static void notifyChanged(TransformComponent component) {
+		synchronized (lock) {
+			if (!component.transformChangeSent) {
+				EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).onNodeTransformChanged();
+				}
+				component.transformChangeSent = false;
+			}
+		}
 	}
 
 	public TransformComponent translate(float x, float y, float z) {
@@ -91,7 +130,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldTranslationDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -103,7 +142,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldTranslationDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -115,7 +154,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldTranslationDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -127,42 +166,42 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldTranslationDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setTranslation(float x, float y, float z) {
 		this.translation.set(x, y, z);
 		markWorldTranslationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setTranslation(Vector3 translation) {
 		this.translation.set(translation);
 		markWorldTranslationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setTranslationX(float x) {
 		this.translation.x = x;
 		markWorldTranslationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setTranslationY(float y) {
 		this.translation.y = y;
 		markWorldTranslationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setTranslationZ(float z) {
 		this.translation.z = z;
 		markWorldTranslationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -180,8 +219,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		worldTranslationDirty = false;
 		markWorldTranslationHierarchyDirty();
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -197,8 +235,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markWorldTranslationHierarchyDirty();
 		}
 
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -214,8 +251,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markWorldTranslationHierarchyDirty();
 		}
 
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -231,8 +267,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markWorldTranslationHierarchyDirty();
 		}
 
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -287,8 +322,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		if (!worldTranslationDirty) {
 			worldTranslationDirty = true;
-			worldlTransformDirty = true;
-			worldlTransformInvDirty = true;
+			worldTransformDirty = true;
+			worldTransformInvDirty = true;
 			markChildrenWorldTranslationDirty();
 		}
 	}
@@ -304,8 +339,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	private void markWorldTranslationHierarchyDirty() {
 		transformDirty = true;
-		worldlTransformDirty = true;
-		worldlTransformInvDirty = true;
+		worldTransformDirty = true;
+		worldTransformInvDirty = true;
 		markChildrenWorldTranslationDirty();
 	}
 
@@ -320,7 +355,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldScaleDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -332,7 +367,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldScaleDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -344,7 +379,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldScaleDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -356,7 +391,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldScaleDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -368,42 +403,42 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markChildrenWorldScaleDirty();
 		}
 
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setScale(Vector3 scale) {
 		this.scale.set(scale);
 		markWorldScaleDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setScale(float x, float y, float z) {
 		this.scale.set(x, y, z);
 		markWorldScaleDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setScaleX(float x) {
 		this.scale.x = x;
 		markWorldScaleDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setScaleY(float y) {
 		this.scale.y = y;
 		markWorldScaleDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
 	public TransformComponent setScaleZ(float z) {
 		this.scale.z = z;
 		markWorldScaleDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -421,8 +456,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		worldScaleDirty = false;
 		markWorldScaleHierarchyDirty();
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -438,8 +472,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markWorldScaleHierarchyDirty();
 		}
 
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -455,8 +488,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markWorldScaleHierarchyDirty();
 		}
 
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -472,8 +504,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			markWorldScaleHierarchyDirty();
 		}
 
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -528,8 +559,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		if (!worldScaleDirty) {
 			worldScaleDirty = true;
-			worldlTransformDirty = true;
-			worldlTransformInvDirty = true;
+			worldTransformDirty = true;
+			worldTransformInvDirty = true;
 			markChildrenWorldScaleDirty();
 		}
 	}
@@ -545,8 +576,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	private void markWorldScaleHierarchyDirty() {
 		transformDirty = true;
-		worldlTransformDirty = true;
-		worldlTransformInvDirty = true;
+		worldTransformDirty = true;
+		worldTransformInvDirty = true;
 		markChildrenWorldScaleDirty();
 	}
 
@@ -561,7 +592,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.nor();
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -582,8 +613,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		worldRotationDirty = false;
 		markWorldRotationHierarchyDirty();
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -592,7 +622,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.set(Vector3.X, angle);
 		eulerRotation.x = angle;
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -600,7 +630,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.set(Vector3.Y, angle);
 		eulerRotation.y = angle;
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -608,7 +638,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.set(Vector3.Z, angle);
 		eulerRotation.z = angle;
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -620,7 +650,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.setEulerAngles(y, x, z);
 		eulerRotation.set(x, y, z);
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -642,8 +672,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		worldRotationDirty = false;
 		markWorldRotationHierarchyDirty();
-		dirtySignal.dispatch(this);
-
+		notifyChanged(this);
 		return this;
 	}
 
@@ -651,7 +680,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		eulerRotation.x = angle;
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -659,7 +688,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		eulerRotation.y = angle;
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -667,7 +696,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		eulerRotation.z = angle;
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -676,7 +705,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.nor();
 		eulerRotation.add(additionalRotation.getPitch(), additionalRotation.getYaw(), additionalRotation.getRoll());
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -685,7 +714,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.nor();
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -694,7 +723,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.mul(rotator);
 		eulerRotation.x += angle;
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -703,7 +732,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.mul(rotator);
 		eulerRotation.y += angle;
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -712,7 +741,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.mul(rotator);
 		eulerRotation.z += angle;
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -725,7 +754,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		rotation.mul(rotator);
 		eulerRotation.add(x, y, z);
 		markWorldRotationDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 		return this;
 	}
 
@@ -804,8 +833,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		if (!worldRotationDirty) {
 			worldRotationDirty = true;
 			worldEulerRotationDirty = true;
-			worldlTransformDirty = true;
-			worldlTransformInvDirty = true;
+			worldTransformDirty = true;
+			worldTransformInvDirty = true;
 			markChildrenWorldRotationDirty();
 		}
 	}
@@ -821,8 +850,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	private void markWorldRotationHierarchyDirty() {
 		transformDirty = true;
-		worldlTransformDirty = true;
-		worldlTransformInvDirty = true;
+		worldTransformDirty = true;
+		worldTransformInvDirty = true;
 		markChildrenWorldRotationDirty();
 	}
 
@@ -835,7 +864,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		transform.getRotation(rotation, true);
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		markWorldTransformDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 	}
 
 	public void setWorldTransform(Matrix4 newWorldTransform) {
@@ -859,15 +888,15 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		}
 
-		worldlTransformDirty = false;
-		worldlTransformInvDirty = false;
+		worldTransformDirty = false;
+		worldTransformInvDirty = false;
 		worldTranslationDirty = false;
 		worldScaleDirty = false;
 		worldRotationDirty = false;
 		worldEulerRotationDirty = false;
 
 		markChildrenWorldTransformDirty();
-		dirtySignal.dispatch(this);
+		notifyChanged(this);
 	}
 
 	private void markTransformDirty() {
@@ -876,9 +905,9 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	private void markWorldTransformDirty() {
-		if (!worldlTransformDirty || !worldTranslationDirty || !worldScaleDirty || !worldRotationDirty) {
-			worldlTransformDirty = true;
-			worldlTransformInvDirty = true;
+		if (!worldTransformDirty || !worldTranslationDirty || !worldScaleDirty || !worldRotationDirty) {
+			worldTransformDirty = true;
+			worldTransformInvDirty = true;
 			worldTranslationDirty = true;
 			worldScaleDirty = true;
 			worldRotationDirty = true;
@@ -910,14 +939,14 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	private Matrix4 getWorldTransform() {
-		if (worldlTransformDirty) {
+		if (worldTransformDirty) {
 			if (parentTransform == null) {
 				worldTransform.set(getTransform());
 			} else {
 				worldTransform.set(parentTransform.getWorldTransform()).mul(getTransform());
 			}
 
-			worldlTransformDirty = false;
+			worldTransformDirty = false;
 		}
 
 		return worldTransform;
@@ -928,9 +957,9 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public Matrix4 getWorldTransformInverse() {
-		if (worldlTransformInvDirty) {
+		if (worldTransformInvDirty) {
 			worldTransformInverse.set(getWorldTransform()).inv();
-			worldlTransformInvDirty = false;
+			worldTransformInvDirty = false;
 		}
 
 		return worldTransformInverse;
@@ -954,46 +983,21 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	@Override
 	public void reset() {
+		nodeId = -1;
 		parentTransform = null;
 		childTransforms.clear();
-		dirtySignal.clear();
 		translation.setZero();
 		rotation.idt();
 		eulerRotation.setZero();
 		scale.set(1, 1, 1);
-		markTransformDirty();
-	}
-
-	@Override
-	protected void onActivate() {
-		SceneNode2 node = getNode();
-		node.parentChangedSignal.addListener(parentChangedListener);
-
-		SceneNode2 parent = node.getParentNode();
-		if (parent != null) {
-			parentTransform = parent.getComponent(TransformComponent.class);
-			parent.componentActivatedSignal.addListener(parentComponentActivatedListener);
-			parent.componentDeactivatedSignal.addListener(parentComponentDeactivatedListener);
-		}
-
-		node.childAddedSignal.addListener(childAddedListener);
-		node.childRemovedSignal.addListener(childRemovedListener);
-	}
-
-	@Override
-	protected void onDeactivate() {
-		SceneNode2 node = getNode();
-		node.parentChangedSignal.removeListener(parentChangedListener);
-
-		SceneNode2 parent = node.getParentNode();
-		if (parent != null) {
-			parentTransform = null;
-			parent.componentActivatedSignal.removeListener(parentComponentActivatedListener);
-			parent.componentDeactivatedSignal.removeListener(parentComponentDeactivatedListener);
-		}
-
-		node.childAddedSignal.removeListener(childAddedListener);
-		node.childRemovedSignal.removeListener(childRemovedListener);
+		transformDirty = true;
+		worldTransformDirty = true;
+		worldTransformInvDirty = true;
+		worldTranslationDirty = true;
+		worldScaleDirty = true;
+		worldRotationDirty = true;
+		worldEulerRotationDirty = true;
+		transformChangeSent = true;
 	}
 
 	private class ParentChangedListener implements Listener1<SceneNode2> {
