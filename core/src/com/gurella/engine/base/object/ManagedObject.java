@@ -128,6 +128,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 		state = ManagedObjectState.inactive;
 
+		detachAll();
 		deactivated();
 		Objects.deactivated(this);
 
@@ -135,7 +136,6 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			EventService.unsubscribe(this);
 		}
 
-		detachAll();
 	}
 
 	protected void deactivated() {
