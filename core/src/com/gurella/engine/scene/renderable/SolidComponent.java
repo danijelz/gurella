@@ -17,4 +17,9 @@ public class SolidComponent extends RenderableComponent3d {
 
 	}
 
+	@Override
+	public void reset() {
+		super.reset();
+		shape = null;
+	}
 }

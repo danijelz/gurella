@@ -65,7 +65,7 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 	}
 
 	@Override
-	protected void doClear() {
+	protected void doClearSpatials() {
 		bvh.clear();
 	}
 }

@@ -5,11 +5,14 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
+import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -17,7 +20,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
 	private static final Object lock = new Object();
 
-	private int nodeId;
+	private transient int nodeId;
 
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
 
@@ -52,7 +55,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private TransformComponent parentTransform;
 	private final Array<TransformComponent> childTransforms = new Array<TransformComponent>();
 
-	private boolean transformChangeSent = true;
+	private transient boolean changeDispatched = true;
 
 	private final ParentChangedListener parentChangedListener = new ParentChangedListener();
 	private final ParentComponentActivatedListener parentComponentActivatedListener = new ParentComponentActivatedListener();
@@ -96,6 +99,18 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		nodeId = -1;
 	}
 
+	private static void notifyChanged(TransformComponent component) {
+		synchronized (lock) {
+			if (!component.changeDispatched) {
+				EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).onNodeTransformChanged();
+				}
+				component.changeDispatched = false;
+			}
+		}
+	}
+
 	// //////////translate
 
 	public TransformComponent translate(Vector3 additionalTranslation) {
@@ -108,18 +123,6 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		}
 
 		return this;
-	}
-
-	private static void notifyChanged(TransformComponent component) {
-		synchronized (lock) {
-			if (!component.transformChangeSent) {
-				EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
-				for (int i = 0; i < listeners.size; i++) {
-					listeners.get(i).onNodeTransformChanged();
-				}
-				component.transformChangeSent = false;
-			}
-		}
 	}
 
 	public TransformComponent translate(float x, float y, float z) {
@@ -997,7 +1000,34 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		worldScaleDirty = true;
 		worldRotationDirty = true;
 		worldEulerRotationDirty = true;
-		transformChangeSent = true;
+		changeDispatched = true;
+	}
+
+	private class ParentChangedListener2 implements ObjectParentChangeListener {
+		@Override
+		public void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
+			if (newParent instanceof SceneNode2) {
+				parentTransform = ((SceneNode2) newParent).getActiveComponent(TransformComponent.class);
+			}
+		}
+	}
+
+	private class ParentComponentActivityListener implements NodeComponentActivityListener {
+		@Override
+		public void nodeComponentActivated(SceneNodeComponent2 component) {
+			if (component instanceof TransformComponent) {
+				parentTransform = (TransformComponent) component;
+				//TODO mark dirty
+			}
+		}
+
+		@Override
+		public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+			if (parentTransform == component) {
+				parentTransform = null;
+				//TODO mark dirty
+			}
+		}
 	}
 
 	private class ParentChangedListener implements Listener1<SceneNode2> {
@@ -1005,6 +1035,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		public void handle(SceneNode2 newParent) {
 			if (newParent != null) {
 				parentTransform = newParent.getActiveComponent(TransformComponent.class);
+				//TODO mark dirty
 			}
 		}
 	}

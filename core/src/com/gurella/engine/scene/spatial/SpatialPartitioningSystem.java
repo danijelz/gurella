@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.gurella.engine.event.Listener1;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
@@ -16,18 +15,18 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
+import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChanged;
 
 //TODO attach listeners -> SceneSystem
 @BaseSceneElement
 public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem2
-		implements ComponentActivityListener, SceneActivityListener {
+		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChanged {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();
 	protected IntMap<T> removedSpatials = new IntMap<T>();
 
 	protected IntMap<T> spatialsByRenderableComponent = new IntMap<T>();
-	private SpatialDirtyListener spatialDirtyListener = new SpatialDirtyListener();
 
 	private synchronized void initSpatials() {
 		doInitSpatials();
@@ -39,7 +38,6 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 		addedSpatials.put(spatial.nodeId, spatial);
 		allSpatials.put(spatial.nodeId, spatial);
 		spatialsByRenderableComponent.put(spatial.renderableComponent.getInstanceId(), spatial);
-		spatial.renderableComponent.dirtySignal.addListener(spatialDirtyListener);
 	}
 
 	public synchronized void remove(T spatial) {
@@ -49,7 +47,6 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	}
 
 	private void removeSpatial(T spatial) {
-		spatial.renderableComponent.dirtySignal.removeListener(spatialDirtyListener);
 		spatialsByRenderableComponent.remove(spatial.renderableComponent.getInstanceId());
 		removedSpatials.put(spatial.nodeId, spatial);
 		addedSpatials.remove(spatial.nodeId);
@@ -89,17 +86,22 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	protected abstract void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask);
 
-	public synchronized void clear() {
+	public final synchronized void clearSpatials() {
 		Values<T> values = allSpatials.values();
 		while (values.hasNext) {
 			T spatial = values.next();
 			removeSpatial(spatial);
 		}
-		doClear();
+		doClearSpatials();
 		allSpatials.clear();
 	}
 
-	protected abstract void doClear();
+	protected abstract void doClearSpatials();
+
+	@Override
+	public void onRenderableChanged(RenderableComponent component) {
+		markDirty(spatialsByRenderableComponent.get(component.getInstanceId()));
+	}
 
 	public synchronized void markDirty(T spatial) {
 		int nodeId = spatial.nodeId;
@@ -147,13 +149,6 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 	@Override
 	public void sceneStopped() {
 		// TODO Auto-generated method stub
-		clear();
-	}
-
-	private class SpatialDirtyListener implements Listener1<RenderableComponent> {
-		@Override
-		public void handle(RenderableComponent renderableComponent) {
-			markDirty(spatialsByRenderableComponent.get(renderableComponent.getInstanceId()));
-		}
+		clearSpatials();
 	}
 }

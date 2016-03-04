@@ -13,11 +13,11 @@ public class ModelComponent extends RenderableComponent3d {
 	public void setModel(Model model) {
 		if (this.model != model) {
 			this.model = model;
-			if(model == null) {
+			if (model == null) {
 				instance = null;
 			} else {
 				instance = new ModelInstance(model);
-				if(transformComponent != null) {
+				if (transformComponent != null) {
 					transformComponent.getWorldTransform(instance.transform);
 				}
 			}
@@ -26,15 +26,21 @@ public class ModelComponent extends RenderableComponent3d {
 
 	@Override
 	protected void updateDefaultTransform() {
-		if(instance != null) {
+		if (instance != null) {
 			instance.transform.idt();
 		}
 	}
 
 	@Override
 	protected void updateTransform() {
-		if(instance != null) {
+		if (instance != null) {
 			transformComponent.getWorldTransform(instance.transform);
 		}
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		model = null;
 	}
 }

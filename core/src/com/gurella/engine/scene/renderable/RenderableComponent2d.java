@@ -8,16 +8,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.GenericBatch;
-import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.resource.model.TransientProperty;
 
 public abstract class RenderableComponent2d extends RenderableComponent {
 	float width;
 	float height;
-	@DefaultValue(booleanValue = true)
 	boolean dimensionsFromTexture = true;
-	@DefaultValue(integerValue = -1)
 	int pixelsPerUnit = -1;
 	boolean _25d;
 	@ResourceProperty
@@ -41,7 +38,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			if (!dimensionsFromTexture) {
 				sprite.setSize(width, height);
 			}
-			fireDirty();
+			notifyChanged(this);
 		}
 	}
 
@@ -55,7 +52,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			if (!dimensionsFromTexture) {
 				sprite.setSize(width, height);
 			}
-			fireDirty();
+			notifyChanged(this);
 		}
 	}
 
@@ -81,7 +78,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			if (transformComponent != null) {
 				updateTransform();
 			}
-			fireDirty();
+			notifyChanged(this);
 		}
 	}
 
@@ -97,7 +94,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			} else {
 				sprite.setSize(width, height);
 			}
-			fireDirty();
+			notifyChanged(this);
 		}
 	}
 
@@ -138,5 +135,16 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	@Override
 	public boolean getIntersection(Ray ray, Vector3 intersection) {
 		return Intersector.intersectRayTriangles(ray, sprite.getVertices(), intersection);
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		width = 0;
+		height = 0;
+		dimensionsFromTexture = true;
+		pixelsPerUnit = -1;
+		_25d = false;
+		tint.set(1, 1, 1, 1);
 	}
 }

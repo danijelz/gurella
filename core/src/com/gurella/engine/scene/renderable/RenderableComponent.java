@@ -3,52 +3,67 @@ package com.gurella.engine.scene.renderable;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.event.Signal1;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GenericBatch;
-import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.BaseSceneElement;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
+import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChanged;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2
 		implements NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
+	private static final Array<SceneRenderableChanged> listeners = new Array<SceneRenderableChanged>();
+	private static final Object lock = new Object();
+
+	private transient int nodeId;
+
 	//TODO LayerComponent ??
 	public Layer layer = Layer.DEFAULT;
+	transient TransformComponent transformComponent;
 
-	TransformComponent transformComponent;
-
-	@TransientProperty
-	public final Signal1<RenderableComponent> dirtySignal = new Signal1<RenderableComponent>();
+	private transient boolean changeDispatched = true;
 
 	@Override
 	protected void onActivate() {
-		transformComponent = getNode().getActiveComponent(TransformComponent.class);
+		SceneNode2 node = getNode();
+		nodeId = node.getInstanceId();
+		transformComponent = node.getActiveComponent(TransformComponent.class);
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {
 			updateTransform();
 		}
-		fireDirty();
+	}
+
+	static void notifyChanged(RenderableComponent component) {
+		synchronized (lock) {
+			if (!component.changeDispatched) {
+				EventService.getSubscribers(component.nodeId, SceneRenderableChanged.class, listeners);
+				for (int i = 0; i < listeners.size; i++) {
+					listeners.get(i).onRenderableChanged(component);
+				}
+				component.changeDispatched = false;
+			}
+		}
 	}
 
 	@Override
 	protected void onDeactivate() {
+		nodeId = -1;
 		transformComponent = null;
-	}
-
-	void fireDirty() {
-		dirtySignal.dispatch(this);
 	}
 
 	@Override
 	public void onNodeTransformChanged() {
-		fireDirty();
+		notifyChanged(this);
 	}
 
 	@Override
@@ -77,7 +92,15 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 			updateTransform();
 		}
 
-		fireDirty();
+		notifyChanged(this);
+	}
+
+	@Override
+	public void reset() {
+		nodeId = -1;
+		layer = Layer.DEFAULT;
+		transformComponent = null;
+		changeDispatched = true;
 	}
 
 	protected abstract void updateDefaultTransform();
