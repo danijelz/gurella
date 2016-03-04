@@ -978,7 +978,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			}
 
 			if (newParent instanceof SceneNode2) {
-				SceneNode2 parentNode = (SceneNode2) oldParent;
+				SceneNode2 parentNode = (SceneNode2) newParent;
 				TransformComponent newParentTransform = parentNode.getActiveComponent(TransformComponent.class);
 				if (parentTransform != null || newParentTransform != null) {
 					parentTransform = newParentTransform;
