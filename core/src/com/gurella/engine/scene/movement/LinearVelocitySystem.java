@@ -10,7 +10,6 @@ import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO attach listeners
 public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());

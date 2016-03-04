@@ -2,12 +2,9 @@ package com.gurella.engine.scene.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.resource.model.DefaultValue;
-import com.gurella.engine.resource.model.PropertyOverrides;
-import com.gurella.engine.resource.model.PropertyValue;
 
-public class OrtographicCameraComponent extends CameraComponent<OrthographicCamera> implements Poolable {
+public class OrtographicCameraComponent extends CameraComponent<OrthographicCamera> {
 	@DefaultValue(floatValue = 1)
 	private float zoom = 1;
 
@@ -30,5 +27,11 @@ public class OrtographicCameraComponent extends CameraComponent<OrthographicCame
 	public void setZoom(float zoom) {
 		this.zoom = zoom;
 		camera.zoom = zoom;
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		zoom = 1;
 	}
 }

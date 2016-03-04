@@ -6,31 +6,28 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.Listener1;
-import com.gurella.engine.resource.model.DefaultValue;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.resource.model.TransientProperty;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
+import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
-		implements ApplicationResizeListener {
+		implements ApplicationResizeListener, NodeComponentActivityListener, Poolable {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
 	/** the near clipping plane distance, has to be positive **/
-	@DefaultValue(floatValue = 1)
 	public float near = 1;
 	/** the far clipping plane distance, has to be positive **/
-	@DefaultValue(floatValue = 1000)
 	public float far = 1000;
 
 	private int ordinal;
@@ -38,15 +35,10 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@ResourceProperty
 	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
 
-	@TransientProperty
-	public T camera;
-	@TransientProperty
-	public CameraViewport viewport;
-	@TransientProperty
-	private TransformComponent transformComponent;
+	public final transient T camera;
+	public final transient CameraViewport viewport;
+	transient TransformComponent transformComponent;
 
-	private final TransformComponentActivatedListener transformComponentActivatedListener = new TransformComponentActivatedListener();
-	private final TransformComponentDeactivatedListener transformComponentDeactivatedListener = new TransformComponentDeactivatedListener();
 	private final TransformDirtyListener transformDirtyListener = new TransformDirtyListener();
 
 	public CameraComponent() {
@@ -65,10 +57,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	protected void onActivate() {
 		initCamera();
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		SceneNode2 node = getNode();
-		node.componentActivatedSignal.addListener(transformComponentActivatedListener);
-		node.componentDeactivatedSignal.addListener(transformComponentDeactivatedListener);
-		transformComponent = node.getActiveComponent(TransformComponent.class);
+		transformComponent = getNode().getActiveComponent(TransformComponent.class);
 		attachTransformDirtyListener();
 		if (transformComponent == null) {
 			updateDefaultTransform();
@@ -85,12 +74,22 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	protected void onDeactivate() {
-		super.deactivated();
-		SceneNode2 node = getNode();
-		node.componentActivatedSignal.removeListener(transformComponentActivatedListener);
-		node.componentDeactivatedSignal.removeListener(transformComponentDeactivatedListener);
 		detachTransformDirtyListener();
 		transformComponent = null;
+	}
+
+	@Override
+	public void nodeComponentActivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			setTransformComponent((TransformComponent) component);
+		}
+	}
+
+	@Override
+	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			setTransformComponent(null);
+		}
 	}
 
 	public float getNear() {
@@ -189,13 +188,13 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.update(true);
 	}
 
-	private class TransformComponentActivatedListener implements Listener1<SceneNodeComponent2> {
-		@Override
-		public void handle(SceneNodeComponent2 component) {
-			if (component instanceof TransformComponent) {
-				setTransformComponent((TransformComponent) component);
-			}
-		}
+	@Override
+	public void reset() {
+		near = 1;
+		far = 1000;
+		ordinal = 0;
+		renderingLayers.clear();
+		transformComponent = null;
 	}
 
 	public static final class CameraComponentComparator implements Comparator<CameraComponent<?>> {
@@ -207,15 +206,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		@Override
 		public int compare(CameraComponent<?> o1, CameraComponent<?> o2) {
 			return Values.compare(o1.ordinal, o2.ordinal);
-		}
-	}
-
-	private class TransformComponentDeactivatedListener implements Listener1<SceneNodeComponent2> {
-		@Override
-		public void handle(SceneNodeComponent2 component) {
-			if (component instanceof TransformComponent) {
-				setTransformComponent(null);
-			}
 		}
 	}
 
