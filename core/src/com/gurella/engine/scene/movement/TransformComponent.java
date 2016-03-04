@@ -971,13 +971,21 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private class NodeParentChangedListener implements ObjectParentChangeListener {
 		@Override
 		public void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
+			if (oldParent instanceof SceneNode2) {
+				SceneNode2 parentNode = (SceneNode2) oldParent;
+				unsubscribeFrom(parentNode, parentComponentActivityListener);
+				unsubscribeFrom(parentNode, parentNodeTransformChangedListener);
+			}
+
 			if (newParent instanceof SceneNode2) {
-				TransformComponent newParentTransform = ((SceneNode2) newParent)
-						.getActiveComponent(TransformComponent.class);
+				SceneNode2 parentNode = (SceneNode2) oldParent;
+				TransformComponent newParentTransform = parentNode.getActiveComponent(TransformComponent.class);
 				if (parentTransform != null || newParentTransform != null) {
 					parentTransform = newParentTransform;
 					markTransformDirty();
 				}
+				subscribeTo(parentNode, parentComponentActivityListener);
+				subscribeTo(parentNode, parentNodeTransformChangedListener);
 			}
 		}
 	}
