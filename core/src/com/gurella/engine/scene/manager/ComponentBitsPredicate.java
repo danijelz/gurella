@@ -11,7 +11,6 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
 
 public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
-	private boolean activeComponents;
 	private final Bits all = new Bits();
 	private final Bits exclude = new Bits();
 	private final Bits any = new Bits();
@@ -21,7 +20,7 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 
 	@Override
 	public boolean evaluate(SceneNode2 node) {
-		ImmutableBits componentBits = activeComponents ? node.activeComponentBits : node.componentBits;
+		ImmutableBits componentBits = node.componentBits;
 
 		int componentId = all.nextSetBit(0);
 		while (componentId != -1) {
@@ -44,25 +43,24 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 
 	@Override
 	public void reset() {
-		activeComponents = false;
 		all.clear();
 		exclude.clear();
 		any.clear();
 	}
 
 	@SafeVarargs
-	public static Builder all(boolean activeComponents, Class<? extends SceneNodeComponent2>... types) {
-		return new Builder(activeComponents).all(types);
+	public static Builder all(Class<? extends SceneNodeComponent2>... types) {
+		return new Builder().all(types);
 	}
 
 	@SafeVarargs
-	public static Builder exclude(boolean activeComponents, Class<? extends SceneNodeComponent2>... types) {
-		return new Builder(activeComponents).exclude(types);
+	public static Builder exclude(Class<? extends SceneNodeComponent2>... types) {
+		return new Builder().exclude(types);
 	}
 
 	@SafeVarargs
-	public static Builder any(boolean activeComponents, Class<? extends SceneNodeComponent2>... types) {
-		return new Builder(activeComponents).any(types);
+	public static Builder any(Class<? extends SceneNodeComponent2>... types) {
+		return new Builder().any(types);
 	}
 
 	public static class Builder implements Poolable {
@@ -70,10 +68,6 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		private final Bits all = new Bits();
 		private final Bits exclude = new Bits();
 		private final Bits any = new Bits();
-
-		private Builder(boolean activeComponents) {
-			this.activeComponents = activeComponents;
-		}
 
 		public Builder all(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
 			for (Class<? extends SceneNodeComponent2> type : types) {
@@ -100,7 +94,6 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 
 		public ComponentBitsPredicate build() {
 			ComponentBitsPredicate predicate = new ComponentBitsPredicate();
-			predicate.activeComponents = activeComponents;
 			predicate.all.or(all);
 			predicate.exclude.or(exclude);
 			predicate.any.or(any);

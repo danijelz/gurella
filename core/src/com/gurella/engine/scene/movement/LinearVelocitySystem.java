@@ -12,7 +12,7 @@ import com.gurella.engine.utils.ImmutableArray;
 
 public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdateListener {
 	private static final SceneNodeFamily family = new SceneNodeFamily(
-			ComponentBitsPredicate.all(true, TransformComponent.class, LinearVelocityComponent.class).build());
+			ComponentBitsPredicate.all(TransformComponent.class, LinearVelocityComponent.class).build());
 
 	private NodeManager nodeManager;
 	private Vector3 tempTranslate = new Vector3();
