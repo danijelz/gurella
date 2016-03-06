@@ -20,6 +20,10 @@ public class EventService {
 		globalEventBus.notify(event);
 	}
 
+	public static <L extends EventSubscription> void notify(SubscriptionEvent<L> event) {
+		globalEventBus.notify(event);
+	}
+
 	public static <T> void addListener(T eventType, Listener1<T> listener) {
 		globalEventBus.addListener(eventType, listener);
 	}
@@ -137,6 +141,17 @@ public class EventService {
 					PoolService.free(eventBus);
 				}
 			}
+		}
+	}
+
+	public static <L extends EventSubscription> void notify(int channel, SubscriptionEvent<L> event) {
+		EventBus eventBus;
+		synchronized (eventBuses) {
+			eventBus = eventBuses.get(channel);
+		}
+
+		if (eventBus != null) {
+			eventBus.notify(event);
 		}
 	}
 

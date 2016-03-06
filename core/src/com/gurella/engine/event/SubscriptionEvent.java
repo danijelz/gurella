@@ -1,10 +1,10 @@
 package com.gurella.engine.event;
 
 //TODO unused
-public abstract class SubscriptionHandler<LISTENER extends EventSubscription> {
+public abstract class SubscriptionEvent<LISTENER extends EventSubscription> {
 	public final Class<LISTENER> subscriptionType;
 
-	public SubscriptionHandler(Class<LISTENER> subscriptionType) {
+	public SubscriptionEvent(Class<LISTENER> subscriptionType) {
 		this.subscriptionType = subscriptionType;
 	}
 
