@@ -96,12 +96,12 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	public TransformComponent translate(Vector3 additionalTranslation) {
 		this.translation.add(additionalTranslation);
-		notifyChanged(this);
 
 		if (!worldTranslationDirty) {
 			this.worldTranslation.add(additionalTranslation);
 		}
 
+		notifyChanged(this);
 		return this;
 	}
 
