@@ -81,8 +81,6 @@ public class InputSystem extends SceneSystem2 implements ComponentActivityListen
 		Scene scene = getScene();
 		spatialPartitioningSystem = scene.spatialPartitioningSystem;
 
-		//scene.addListener(this);
-
 		// TODO use componentManager
 		ImmutableArray<SceneNodeComponent2> components = scene.activeComponents;
 		for (int i = 0; i < components.size(); i++) {
