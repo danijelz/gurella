@@ -12,9 +12,7 @@ import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
 import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableBits;
-import com.gurella.engine.utils.ImmutableIntMapValues;
 
-//TODO make SceneNodeSignal usable
 public final class SceneNode extends SceneElement {
 	@TransientProperty
 	SceneNode parent;
@@ -27,7 +25,7 @@ public final class SceneNode extends SceneElement {
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
 	final IntMap<SceneNodeComponent> componentsInternal = new IntMap<SceneNodeComponent>();
 	@TransientProperty
-	public final ImmutableIntMapValues<SceneNodeComponent> components = ImmutableIntMapValues.with(componentsInternal);
+	public final Values<SceneNodeComponent> components = componentsInternal.values();
 	@TransientProperty
 	final Bits componentBitsInternal = new Bits();
 	@TransientProperty

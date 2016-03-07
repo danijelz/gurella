@@ -3,7 +3,6 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
@@ -21,14 +20,14 @@ import com.gurella.engine.scene.tag.TagManager;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ImmutableIntMapValues;
+import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
 public final class Scene extends ManagedObject {
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
-	final IntMap<SceneSystem2> _systems = new IntMap<SceneSystem2>();
-	public transient final ImmutableIntMapValues<SceneSystem2> systems = ImmutableIntMapValues.with(_systems);
+	final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
+	public transient final ImmutableArray<SceneSystem2> systems = _systems.orderedValues();
 	transient final IdentityOrderedSet<SceneSystem2> _activeSystems = new IdentityOrderedSet<SceneSystem2>();
 	public transient final ImmutableArray<SceneSystem2> activeSystems = _activeSystems.orderedItems();
 
@@ -44,6 +43,7 @@ public final class Scene extends ManagedObject {
 
 	public final ComponentManager componentManager = new ComponentManager();
 	public final NodeManager nodeManager = new NodeManager();
+
 	public final TagManager tagManager = new TagManager();
 	public final LayerManager layerManager = new LayerManager();
 
@@ -70,11 +70,11 @@ public final class Scene extends ManagedObject {
 		destroy();
 		// TODO releaseResources();
 	}
-	
+
 	@Override
 	protected final void deactivated() {
 		super.deactivated();
-		//TODO reset managers and systems
+		// TODO reset managers and systems
 	}
 
 	@Override
@@ -227,46 +227,46 @@ public final class Scene extends ManagedObject {
 		update();
 		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
-		
+
 		TransformComponent transform1 = node1.newComponent(TransformComponent.class);
 		update();
-		
+
 		SceneNode2 node2 = node1.newChild("node 2");
 		TransformComponent transform2 = node2.newComponent(TransformComponent.class);
 		update();
 		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
-		
+
 		node2.activate();
 		update();
 		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
-		
+
 		Vector3 out = new Vector3();
 		transform1.translate(1, 1, 1);
 		transform2.getWorldTranslation(out);
 		System.out.println("\n\n\n");
 		System.out.println(out);
-		
+
 		transform1.translate(1, 1, 1);
 		transform2.getWorldTranslation(out);
 		System.out.println("\n\n\n");
 		System.out.println(out);
-		
+
 		scene.addNode(node2);
 		update();
 		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
-		
+
 		transform2.getWorldTranslation(out);
 		System.out.println("\n\n\n");
 		System.out.println(out);
-		
+
 		node1.addChild(node2);
 		update();
 		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
-		
+
 		transform2.getWorldTranslation(out);
 		System.out.println("\n\n\n");
 		System.out.println(out);

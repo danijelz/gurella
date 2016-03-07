@@ -1,7 +1,6 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
@@ -10,7 +9,7 @@ import com.gurella.engine.resource.model.common.SceneNodeChildrenModelProperty;
 import com.gurella.engine.resource.model.common.SceneNodeComponentsModelProperty;
 import com.gurella.engine.utils.IdentityOrderedSet;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.ImmutableIntMapValues;
+import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
 public final class SceneNode2 extends SceneElement2 implements Poolable {
@@ -23,9 +22,8 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 
 	// TODO remove
 	@ResourceProperty(model = SceneNodeComponentsModelProperty.class)
-	final IntMap<SceneNodeComponent2> _components = new IntMap<SceneNodeComponent2>();
-	public transient final ImmutableIntMapValues<SceneNodeComponent2> components = ImmutableIntMapValues
-			.with(_components);
+	final OrderedValuesIntMap<SceneNodeComponent2> _components = new OrderedValuesIntMap<SceneNodeComponent2>();
+	public transient final ImmutableArray<SceneNodeComponent2> components = _components.orderedValues();
 
 	public String getName() {
 		return name;
@@ -143,6 +141,12 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		component.setParent(this);
 	}
 
+	public <T extends SceneNodeComponent2 & Poolable> T newComponent(Class<T> componentType) {
+		T component = PoolService.obtain(componentType);
+		component.setParent(this);
+		return component;
+	}
+
 	public void removeComponent(SceneNodeComponent2 component) {
 		SceneNodeComponent2 value = _components.get(component.baseComponentType);
 		if (value == component) {
@@ -170,26 +174,20 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.<T> cast(value) : null;
 	}
 
-	public <T extends SceneNodeComponent2> T getActiveComponent(int typeId) {
-		SceneNodeComponent2 value = getComponent(typeId);
-		return value == null || !value.isActive() ? null : Values.<T> cast(value);
-	}
-
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
 		int typeId = ComponentType.findType(type);
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.<T> cast(value) : null;
 	}
 
-	public <T extends SceneNodeComponent2> T getActiveComponent(Class<T> type) {
-		SceneNodeComponent2 value = getComponent(type);
+	public <T extends SceneNodeComponent2> T getActiveComponent(int typeId) {
+		SceneNodeComponent2 value = getComponent(typeId);
 		return value == null || !value.isActive() ? null : Values.<T> cast(value);
 	}
 
-	public <T extends SceneNodeComponent2 & Poolable> T newComponent(Class<T> componentType) {
-		T component = PoolService.obtain(componentType);
-		component.setParent(this);
-		return component;
+	public <T extends SceneNodeComponent2> T getActiveComponent(Class<T> type) {
+		SceneNodeComponent2 value = getComponent(type);
+		return value == null || !value.isActive() ? null : Values.<T> cast(value);
 	}
 
 	public String getDiagnostics() {
@@ -201,7 +199,7 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		builder.append(name == null ? "-" : name);
 
 		builder.append("\n\tComponents [");
-		for (SceneNodeComponent2 component : _components.values()) {
+		for (SceneNodeComponent2 component : components) {
 			builder.append("\n\t\t");
 			if (!component.isActive()) {
 				builder.append("*");

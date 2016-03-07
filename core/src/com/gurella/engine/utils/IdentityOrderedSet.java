@@ -55,14 +55,14 @@ public class IdentityOrderedSet<T> extends IdentitySet<T> {
 
 	@Override
 	public void clear(int maximumCapacity) {
-		items.clear();
 		super.clear(maximumCapacity);
+		items.clear();
 	}
 
 	@Override
 	public void clear() {
-		items.clear();
 		super.clear();
+		items.clear();
 	}
 
 	public ImmutableArray<T> orderedItems() {

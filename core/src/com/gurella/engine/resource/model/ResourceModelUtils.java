@@ -171,7 +171,6 @@ public class ResourceModelUtils {
 					appendDependentResourceIds(context, item, dependentResourceIds);
 				}
 			}
-			// TODO Map.Entry ...
 		}
 	}
 }

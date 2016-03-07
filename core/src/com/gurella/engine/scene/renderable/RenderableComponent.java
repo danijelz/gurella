@@ -14,13 +14,13 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
-import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChanged;
+import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2
 		implements NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
-	private static final Array<SceneRenderableChanged> listeners = new Array<SceneRenderableChanged>();
+	private static final Array<SceneRenderableChangedListener> listeners = new Array<SceneRenderableChangedListener>();
 	private static final Object lock = new Object();
 
 	private transient int nodeId;
@@ -47,7 +47,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		synchronized (lock) {
 			if (!component.changeDispatched) {
 				component.changeDispatched = true;
-				EventService.getSubscribers(component.nodeId, SceneRenderableChanged.class, listeners);
+				EventService.getSubscribers(component.nodeId, SceneRenderableChangedListener.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onRenderableChanged(component);
 				}
