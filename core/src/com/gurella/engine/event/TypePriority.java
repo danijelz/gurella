@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+//TODO rename
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.TYPE })
