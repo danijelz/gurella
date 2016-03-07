@@ -95,8 +95,8 @@ public class InputSystem extends SceneSystem2 implements ComponentActivityListen
 	@Override
 	protected void onDeactivate() {
 		InputService.removeInputProcessor(inputQueue);
-		reset();
 		spatialPartitioningSystem = null;
+		reset();
 	}
 
 	@Override
