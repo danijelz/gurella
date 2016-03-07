@@ -22,7 +22,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 	PrefabReference prefab;
 
-	ManagedObjectState state = ManagedObjectState.idle;
+	transient ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
 	private transient final IdentityOrderedSet<ManagedObject> childrenPrivate = new IdentityOrderedSet<ManagedObject>();
@@ -164,6 +164,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.disposed;
 
 		clear();
+		//TODO EventService.removeChannel(instanceId);
 
 		if (this instanceof Poolable) {
 			resetValues();
