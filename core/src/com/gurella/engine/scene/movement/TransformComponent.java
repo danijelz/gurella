@@ -68,6 +68,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 		SceneNode2 parentNode = node.getParentNode();
 		if (parentNode != null) {
+			parentTransform = parentNode.getActiveComponent(TransformComponent.class);
 			subscribeTo(parentNode, parentComponentActivityListener);
 			subscribeTo(parentNode, parentNodeTransformChangedListener);
 		}
@@ -80,13 +81,14 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	private static void notifyChanged(TransformComponent component) {
 		synchronized (lock) {
-			if (!component.changeDispatched) {
-				EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
-				for (int i = 0; i < listeners.size; i++) {
-					listeners.get(i).onNodeTransformChanged();
-				}
-				component.changeDispatched = false;
+			// if (!component.changeDispatched) {
+			component.changeDispatched = true;
+			EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onNodeTransformChanged();
 			}
+			listeners.clear();
+			// }
 		}
 	}
 
@@ -822,7 +824,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		markChildrenWorldRotationDirty();
 	}
 
-	//////////////////transform
+	////////////////// transform
 
 	public void setTransform(Matrix4 newTransform) {
 		transform.set(newTransform);
@@ -862,7 +864,6 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		worldRotationDirty = false;
 		worldEulerRotationDirty = false;
 
-		markChildrenWorldTransformDirty();
 		notifyChanged(this);
 	}
 
@@ -879,17 +880,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 			worldScaleDirty = true;
 			worldRotationDirty = true;
 			worldEulerRotationDirty = true;
-			markChildrenWorldTransformDirty();
 			notifyChanged(this);
-		}
-	}
-
-	private void markChildrenWorldTransformDirty() {
-		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
-		for (int i = 0; i < childNodes.size(); i++) {
-			SceneNode2 child = childNodes.get(i);
-			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
-			childTransformComponent.markWorldTransformDirty();
 		}
 	}
 
@@ -975,6 +966,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 				SceneNode2 parentNode = (SceneNode2) oldParent;
 				unsubscribeFrom(parentNode, parentComponentActivityListener);
 				unsubscribeFrom(parentNode, parentNodeTransformChangedListener);
+				parentTransform = null;
 			}
 
 			if (newParent instanceof SceneNode2) {
@@ -987,6 +979,8 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 				subscribeTo(parentNode, parentComponentActivityListener);
 				subscribeTo(parentNode, parentNodeTransformChangedListener);
 			}
+			
+			markTransformDirty();
 		}
 	}
 

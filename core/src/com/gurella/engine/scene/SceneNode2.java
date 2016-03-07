@@ -132,8 +132,9 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		}
 	}
 
-	public SceneNode2 newChild() {
+	public SceneNode2 newChild(String name) {
 		SceneNode2 node = PoolService.obtain(SceneNode2.class);
+		node.name = name;
 		node.setParent(this);
 		return node;
 	}
@@ -198,6 +199,7 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 			builder.append("*");
 		}
 		builder.append(name == null ? "-" : name);
+
 		builder.append("\n\tComponents [");
 		for (SceneNodeComponent2 component : _components.values()) {
 			builder.append("\n\t\t");
@@ -205,6 +207,13 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 				builder.append("*");
 			}
 			builder.append(component.getClass().getSimpleName());
+		}
+		builder.append("]");
+
+		builder.append("\n\tChildren [");
+		for (SceneNode2 child : _childNodes) {
+			builder.append("\n\t\t");
+			builder.append(child.getDiagnostics());
 		}
 		builder.append("]");
 

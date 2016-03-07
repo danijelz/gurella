@@ -1,5 +1,6 @@
 package com.gurella.engine.scene;
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -12,6 +13,7 @@ import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
 import com.gurella.engine.scene.manager.NodeManager;
+import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
@@ -212,19 +214,62 @@ public final class Scene extends ManagedObject {
 	public static void main(String[] args) {
 		Scene scene = new Scene();
 		scene.newSystem(TestSystem.class);
-		SceneNode2 node = scene.newNode("node 1");
-		node.newComponent(TestComponent.class);
+		SceneNode2 node1 = scene.newNode("node 1");
+		node1.newComponent(TestComponent.class);
 		System.out.println(scene.getDiagnostics());
 
-		System.out.println("\n\n\n");
 		scene.start();
 		update();
+		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
 
-		System.out.println("\n\n\n");
-		node.removeComponent(TestComponent.class);
+		node1.removeComponent(TestComponent.class);
 		update();
+		System.out.println("\n\n\n");
 		System.out.println(scene.getDiagnostics());
+		
+		TransformComponent transform1 = node1.newComponent(TransformComponent.class);
+		update();
+		
+		SceneNode2 node2 = node1.newChild("node 2");
+		TransformComponent transform2 = node2.newComponent(TransformComponent.class);
+		update();
+		System.out.println("\n\n\n");
+		System.out.println(scene.getDiagnostics());
+		
+		node2.activate();
+		update();
+		System.out.println("\n\n\n");
+		System.out.println(scene.getDiagnostics());
+		
+		Vector3 out = new Vector3();
+		transform1.translate(1, 1, 1);
+		transform2.getWorldTranslation(out);
+		System.out.println("\n\n\n");
+		System.out.println(out);
+		
+		transform1.translate(1, 1, 1);
+		transform2.getWorldTranslation(out);
+		System.out.println("\n\n\n");
+		System.out.println(out);
+		
+		scene.addNode(node2);
+		update();
+		System.out.println("\n\n\n");
+		System.out.println(scene.getDiagnostics());
+		
+		transform2.getWorldTranslation(out);
+		System.out.println("\n\n\n");
+		System.out.println(out);
+		
+		node1.addChild(node2);
+		update();
+		System.out.println("\n\n\n");
+		System.out.println(scene.getDiagnostics());
+		
+		transform2.getWorldTranslation(out);
+		System.out.println("\n\n\n");
+		System.out.println(out);
 	}
 
 	private static void update() {

@@ -230,7 +230,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		ManagedObjectState parentState = parent.state;
 		if (state == ManagedObjectState.active && parentState != ManagedObjectState.active) {
 			handleDeactivation();
-		} else if (state == ManagedObjectState.inactive && parentState == ManagedObjectState.active) {
+		} else if (state.ordinal() < ManagedObjectState.active.ordinal() && parentState == ManagedObjectState.active) {
 			handleActivation();
 		}
 	}

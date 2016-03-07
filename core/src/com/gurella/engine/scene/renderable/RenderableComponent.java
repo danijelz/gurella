@@ -46,11 +46,11 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	static void notifyChanged(RenderableComponent component) {
 		synchronized (lock) {
 			if (!component.changeDispatched) {
+				component.changeDispatched = true;
 				EventService.getSubscribers(component.nodeId, SceneRenderableChanged.class, listeners);
 				for (int i = 0; i < listeners.size; i++) {
 					listeners.get(i).onRenderableChanged(component);
 				}
-				component.changeDispatched = false;
 			}
 		}
 	}
@@ -84,7 +84,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		return transformComponent;
 	}
 
-	public void setTransformComponent(TransformComponent transformComponent) {
+	private void setTransformComponent(TransformComponent transformComponent) {
 		this.transformComponent = transformComponent;
 		if (transformComponent == null) {
 			updateDefaultTransform();
