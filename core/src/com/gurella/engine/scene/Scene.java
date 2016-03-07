@@ -66,7 +66,6 @@ public final class Scene extends ManagedObject {
 	}
 
 	public final void stop() {
-		eventsDispatcher.deactivate();
 		destroy();
 		// TODO releaseResources();
 	}
@@ -74,6 +73,7 @@ public final class Scene extends ManagedObject {
 	@Override
 	protected final void deactivated() {
 		super.deactivated();
+		eventsDispatcher.deactivate();
 		// TODO reset managers and systems
 	}
 
@@ -269,6 +269,20 @@ public final class Scene extends ManagedObject {
 
 		transform2.getWorldTranslation(out);
 		System.out.println("\n\n\n");
+		System.out.println(out);
+
+		transform1.disable();
+		update();
+		System.out.println("\n\n\n");
+		System.out.println(scene.getDiagnostics());
+		transform2.getWorldTranslation(out);
+		System.out.println(out);
+
+		transform1.enable();
+		update();
+		System.out.println("\n\n\n");
+		System.out.println(scene.getDiagnostics());
+		transform2.getWorldTranslation(out);
 		System.out.println(out);
 	}
 

@@ -50,15 +50,16 @@ final class Objects implements ApplicationUpdateListener {
 	}
 
 	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {
-		if (operations.size == 0) {
-			EventService.subscribe(instance);
-		}
-
+		boolean subscribe = operations.size == 0;
 		ObjectOperation operation = PoolService.obtain(ObjectOperation.class);
 		operation.object = object;
 		operation.operationType = operationType;
 		operation.newParent = newParent;
 		operations.add(operation);
+		
+		if (subscribe) {
+			EventService.subscribe(instance);
+		}
 	}
 
 	static void activated(ManagedObject object) {

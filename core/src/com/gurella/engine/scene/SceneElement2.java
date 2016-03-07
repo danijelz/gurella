@@ -34,6 +34,14 @@ public class SceneElement2 extends ManagedObject {
 		}
 	}
 
+	public final void enable() {
+		setEnabled(true);
+	}
+
+	public final void disable() {
+		setEnabled(false);
+	}
+
 	@Override
 	protected final void resetValues() {
 		super.resetValues();

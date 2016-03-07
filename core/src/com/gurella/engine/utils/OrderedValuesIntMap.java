@@ -27,8 +27,9 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 
 	@Override
 	public V put(int key, V value) {
-		if (!containsKey(key))
+		if (!containsKey(key)) {
 			values.add(value);
+		}
 		return super.put(key, value);
 	}
 
