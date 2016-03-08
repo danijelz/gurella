@@ -296,10 +296,9 @@ public class GdxArrayModelFactory implements ModelFactory {
 				return;
 			}
 
-			Object templateItems = templateArray == null ? null
+			Object[] templateItems = templateArray == null ? null
 					: Arrays.copyOf(templateArray.items, templateArray.size);
 			Object[] items = Arrays.copyOf(array.items, array.size);
-
 			output.writeObjectProperty(name, array.items.getClass(), templateItems, items);
 		}
 

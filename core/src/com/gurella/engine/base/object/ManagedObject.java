@@ -49,8 +49,8 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		return uuid;
 	}
 
-	public ManagedObject getPrefab() {
-		return null;
+	public PrefabReference getPrefab() {
+		return prefab;
 	}
 
 	//// STATE

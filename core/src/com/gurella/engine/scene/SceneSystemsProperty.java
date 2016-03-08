@@ -1,14 +1,16 @@
 package com.gurella.engine.scene;
 
+import com.badlogic.gdx.utils.IntSet;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.SequenceGenerator;
 
-public class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
+class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 	public SceneSystemsProperty() {
 		super("Systems");
 	}
@@ -40,8 +42,45 @@ public class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 
 	@Override
 	public void serialize(Object object, Object template, Output output) {
-		// TODO Auto-generated method stub
+		//TODO garbage 
+		SceneElements<SceneSystem2> elements = new SceneElements<SceneSystem2>();
 
+		Scene scene = (Scene) object;
+		ImmutableArray<SceneSystem2> systems = scene.systems;
+		if (template == null) {
+			systems.appendAll(elements.elements);
+			output.writeObjectProperty(name, SceneElements.class, null, elements);
+			return;
+		}
+
+		Scene templateScene = (Scene) template;
+		ImmutableArray<SceneSystem2> templateSystems = templateScene.systems;
+		IntSet templateIds = new IntSet();
+		for (int i = 0; i < systems.size(); i++) {
+			SceneSystem2 system = systems.get(i);
+			int prefabId = getPrefabId(system);
+			if (SequenceGenerator.invalidId != prefabId) {
+				templateIds.add(prefabId);
+			}
+			elements.elements.add(system);
+		}
+
+		for (int i = 0; i < templateSystems.size(); i++) {
+			SceneSystem2 system = templateSystems.get(i);
+			if (!templateIds.contains(system.getInstanceId())) {
+				elements.removedTemplateElements.add(system.getUuid());
+			}
+		}
+
+		output.writeObjectProperty(name, SceneElements.class, null, elements);
+	}
+
+	private static int getPrefabId(SceneSystem2 system) {
+		PrefabReference prefab = system.getPrefab();
+		if (prefab == null) {
+			return SequenceGenerator.invalidId;
+		}
+		return prefab.getPrefab().getInstanceId();
 	}
 
 	@Override
@@ -52,17 +91,19 @@ public class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 
 	@Override
 	public void copy(Object original, Object duplicate, CopyContext context) {
-		Scene scene = (Scene) context.getObjectStack().peek();
-		ImmutableArray<SceneSystem2> systems = scene.systems;
-		for (int i = 0; i < systems.size(); i++) {
-			SceneSystem2 system = systems.get(i);
+		Scene originalScene = (Scene) original;
+		Scene duplicateScene = (Scene) duplicate;
+
+		ImmutableArray<SceneSystem2> duplicateSystems = duplicateScene.systems;
+		for (int i = 0; i < duplicateSystems.size(); i++) {
+			SceneSystem2 system = duplicateSystems.get(i);
 			system.destroy();
 		}
 
-		ImmutableArray<SceneSystem2> newSystems = Values.cast(original);
+		ImmutableArray<SceneSystem2> newSystems = originalScene.systems;
 		for (int i = 0; i < newSystems.size(); i++) {
 			SceneSystem2 system = newSystems.get(i);
-			scene.addSystem(system);
+			duplicateScene.addSystem(system);
 		}
 	}
 }
