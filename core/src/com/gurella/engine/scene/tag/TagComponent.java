@@ -2,13 +2,13 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.resource.model.ResourceProperty;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
 
 public class TagComponent extends SceneNodeComponent2 implements Poolable {
-	@ResourceProperty(descriptiveName = "tags")
+	@PropertyDescriptor(descriptiveName = "tags")
 	final Bits _tags = new Bits();
 	public final transient ImmutableBits tags = new ImmutableBits(_tags);
 

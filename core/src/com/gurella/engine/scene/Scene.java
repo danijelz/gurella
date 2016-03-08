@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
@@ -26,8 +27,9 @@ import com.gurella.engine.utils.Values;
 public final class Scene extends ManagedObject {
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
-	final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
-	public transient final ImmutableArray<SceneSystem2> systems = _systems.orderedValues();
+	transient final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
+	@PropertyDescriptor(property = SceneSystemsProperty.class)
+	public final ImmutableArray<SceneSystem2> systems = _systems.orderedValues();
 	transient final IdentityOrderedSet<SceneSystem2> _activeSystems = new IdentityOrderedSet<SceneSystem2>();
 	public transient final ImmutableArray<SceneSystem2> activeSystems = _activeSystems.orderedItems();
 

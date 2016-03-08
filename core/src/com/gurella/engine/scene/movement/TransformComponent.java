@@ -5,9 +5,9 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.resource.model.ResourceProperty;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
@@ -23,7 +23,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
 
-	@ResourceProperty
+	@PropertyDescriptor
 	private final Vector3 translation = new Vector3();
 	private final Vector3 worldTranslation = new Vector3();
 	private boolean worldTranslationDirty = true;
@@ -32,12 +32,12 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private final Quaternion worldRotation = new Quaternion();
 	private boolean worldRotationDirty = true;
 
-	@ResourceProperty(descriptiveName = "rotation")
+	@PropertyDescriptor(descriptiveName = "rotation")
 	private final Vector3 eulerRotation = new Vector3();
 	private final Vector3 worldEulerRotation = new Vector3();
 	private boolean worldEulerRotationDirty = true;
 
-	@ResourceProperty
+	@PropertyDescriptor
 	private final Vector3 scale = new Vector3(1, 1, 1);
 	private final Vector3 worldScale = new Vector3(1, 1, 1);
 	private boolean worldScaleDirty = true;
@@ -979,7 +979,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 				subscribeTo(parentNode, parentComponentActivityListener);
 				subscribeTo(parentNode, parentNodeTransformChangedListener);
 			}
-			
+
 			markTransformDirty();
 		}
 	}

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.resource.model.ResourceProperty;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
@@ -29,7 +29,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	private int ordinal;
 	// TODO notify render system for layer changes
-	@ResourceProperty
+	@PropertyDescriptor
 	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
 
 	public final transient T camera;
