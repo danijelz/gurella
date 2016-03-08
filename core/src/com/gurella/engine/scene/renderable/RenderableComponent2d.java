@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.resource.model.TransientProperty;
 
 public abstract class RenderableComponent2d extends RenderableComponent {
 	float width;
@@ -22,8 +21,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 
 	// TODO flipX, flipY, zOrder, origin (center, leftBottom)
 
-	@TransientProperty
-	public final Sprite sprite = new Sprite();
+	public transient final Sprite sprite = new Sprite();
 
 	public RenderableComponent2d() {
 	}

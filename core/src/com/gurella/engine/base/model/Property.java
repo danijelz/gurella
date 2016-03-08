@@ -9,8 +9,6 @@ public interface Property<T> {
 
 	Class<T> getType();
 
-	Model<?> getModel();
-
 	Range<?> getRange();
 
 	boolean isNullable();

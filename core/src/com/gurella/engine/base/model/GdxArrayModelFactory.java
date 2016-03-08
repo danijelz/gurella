@@ -39,8 +39,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public GdxArrayModel(Class<T> type) {
 			this.type = type;
 			properties = new ArrayExt<Property<?>>();
-			properties.add(new ArrayOrderedProperty(this));
-			properties.add(new ArrayItemsProperty(this));
+			properties.add(new ArrayOrderedProperty());
+			properties.add(new ArrayItemsProperty());
 		}
 
 		@Override
@@ -147,12 +147,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 	private static class ArrayOrderedProperty implements Property<Boolean> {
 		private static final String name = "ordered";
 
-		private Model<?> model;
-
-		public ArrayOrderedProperty(Model<?> model) {
-			this.model = model;
-		}
-
 		@Override
 		public String getName() {
 			return name;
@@ -164,11 +158,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
-		}
-
-		@Override
 		public Range<?> getRange() {
 			return null;
 		}
@@ -177,7 +166,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isCopyable() {
 			return true;
@@ -200,7 +189,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public Property<Boolean> newInstance(Model<?> newModel) {
-			return new ArrayOrderedProperty(newModel);
+			return new ArrayOrderedProperty();
 		}
 
 		@Override
@@ -240,12 +229,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 	private static class ArrayItemsProperty implements Property<Object[]> {
 		private static final String name = "items";
 
-		private Model<?> model;
-
-		public ArrayItemsProperty(Model<?> model) {
-			this.model = model;
-		}
-
 		@Override
 		public String getName() {
 			return name;
@@ -257,13 +240,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
-		}
-
-		@Override
 		public Property<Object[]> newInstance(Model<?> model) {
-			return new ArrayItemsProperty(model);
+			return new ArrayItemsProperty();
 		}
 
 		@Override
@@ -275,7 +253,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isCopyable() {
 			return true;

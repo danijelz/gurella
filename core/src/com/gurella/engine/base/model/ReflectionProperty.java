@@ -30,7 +30,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Field field;
 	private Method getter;
 	private Method setter;
-	private Model<?> model;
 
 	public ReflectionProperty(Field field, Model<?> model) {
 		this(field, null, null, model);
@@ -39,7 +38,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	public ReflectionProperty(Field field, Method getter, Method setter, Model<?> model) {
 		this.name = field.getName();
 		this.field = field;
-		this.model = model;
 		this.field.setAccessible(true);
 		@SuppressWarnings("unchecked")
 		Class<T> castedType = field.getType();
@@ -130,11 +128,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public Model<?> getModel() {
-		return model;
-	}
-
-	@Override
 	public Range<?> getRange() {
 		return range;
 	}
@@ -143,7 +136,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	public boolean isNullable() {
 		return nullable;
 	}
-	
+
 	@Override
 	public boolean isCopyable() {
 		return copyable;

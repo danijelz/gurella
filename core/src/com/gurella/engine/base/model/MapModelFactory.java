@@ -52,7 +52,7 @@ public class MapModelFactory implements ModelFactory {
 		public MapModel(Class<T> type) {
 			this.type = type;
 			properties = new ArrayExt<Property<?>>();
-			properties.add(new MapEntriesProperty(this));
+			properties.add(new MapEntriesProperty());
 		}
 
 		@Override
@@ -129,12 +129,6 @@ public class MapModelFactory implements ModelFactory {
 	private static class MapEntriesProperty implements Property<Set<Entry<?, ?>>> {
 		private static final String name = "entries";
 
-		private Model<?> model;
-
-		public MapEntriesProperty(Model<?> model) {
-			this.model = model;
-		}
-
 		@Override
 		public String getName() {
 			return name;
@@ -147,13 +141,8 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
-		}
-
-		@Override
 		public Property<Set<Entry<?, ?>>> newInstance(Model<?> model) {
-			return new MapEntriesProperty(model);
+			return new MapEntriesProperty();
 		}
 
 		@Override
@@ -165,7 +154,7 @@ public class MapModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isCopyable() {
 			return true;

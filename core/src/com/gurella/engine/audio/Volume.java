@@ -2,11 +2,11 @@ package com.gurella.engine.audio;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.resource.model.ValueRange;
-import com.gurella.engine.resource.model.ValueRange.FloatRange;
+import com.gurella.engine.base.model.ValueRange;
+import com.gurella.engine.base.model.ValueRange.FloatRange;
 
 public class Volume implements Poolable {
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float volume = 1;
 
 	public static Volume getInstance(float volume) {

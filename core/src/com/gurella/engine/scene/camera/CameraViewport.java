@@ -10,17 +10,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Scaling;
-import com.gurella.engine.resource.model.DefaultValue;
+import com.gurella.engine.base.model.ValueRange;
+import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.resource.model.ResourceProperty;
-import com.gurella.engine.resource.model.TransientProperty;
-import com.gurella.engine.resource.model.ValueRange;
-import com.gurella.engine.resource.model.ValueRange.FloatRange;
 
 public class CameraViewport {
-	@TransientProperty
-	private Camera camera;
+	private transient Camera camera;
 	@ResourceProperty(nullable = false)
-	@DefaultValue(enumOrdinal = 9)
 	private CameraViewportType type = CameraViewportType.screen;
 
 	private float worldWidth, worldHeight;
@@ -34,10 +30,8 @@ public class CameraViewport {
 	private float viewportX;
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float viewportY;
-	@DefaultValue(floatValue = 1)
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float viewportWidth = 1;
-	@DefaultValue(floatValue = 1)
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float viewportHeight = 1;
 
@@ -86,8 +80,8 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Configures this viewport's screen bounds using the specified screen size.
-	 * Typically called from {@link ApplicationListener#resize(int, int)}.
+	 * Configures this viewport's screen bounds using the specified screen size. Typically called from
+	 * {@link ApplicationListener#resize(int, int)}.
 	 */
 	public void update(int newScreenWidth, int newScreenHeight) {
 		updateViewportRect(newScreenWidth, newScreenHeight);
@@ -243,9 +237,8 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Transforms a point to real screen coordinates (as opposed to OpenGL ES
-	 * window coordinates), where the origin is in the top left and the the
-	 * y-axis is pointing downwards.
+	 * Transforms a point to real screen coordinates (as opposed to OpenGL ES window coordinates), where the origin is
+	 * in the top left and the the y-axis is pointing downwards.
 	 */
 	public Vector2 toScreenCoordinates(Vector2 worldCoords, Matrix4 transformMatrix) {
 		tmp.set(worldCoords.x, worldCoords.y, 0);
@@ -270,8 +263,7 @@ public class CameraViewport {
 	}
 
 	/**
-	 * The virtual width of this viewport in world coordinates. This width is
-	 * scaled to the viewport's screen width.
+	 * The virtual width of this viewport in world coordinates. This width is scaled to the viewport's screen width.
 	 */
 	public void setWorldWidth(float worldWidth) {
 		this.worldWidth = worldWidth;
@@ -282,8 +274,7 @@ public class CameraViewport {
 	}
 
 	/**
-	 * The virtual height of this viewport in world coordinates. This height is
-	 * scaled to the viewport's screen height.
+	 * The virtual height of this viewport in world coordinates. This height is scaled to the viewport's screen height.
 	 */
 	public void setWorldHeight(float worldHeight) {
 		this.worldHeight = worldHeight;
@@ -299,8 +290,8 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the viewport's offset from the left edge of the screen. This is
-	 * typically set by {@link #update(int, int, boolean)}.
+	 * Sets the viewport's offset from the left edge of the screen. This is typically set by
+	 * {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenX(int screenX) {
 		this.screenX = screenX;
@@ -311,8 +302,8 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the viewport's offset from the bottom edge of the screen. This is
-	 * typically set by {@link #update(int, int, boolean)}.
+	 * Sets the viewport's offset from the bottom edge of the screen. This is typically set by
+	 * {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenY(int screenY) {
 		this.screenY = screenY;
@@ -323,8 +314,7 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the viewport's width in screen coordinates. This is typically set by
-	 * {@link #update(int, int, boolean)}.
+	 * Sets the viewport's width in screen coordinates. This is typically set by {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenWidth(int screenWidth) {
 		this.screenWidth = screenWidth;
@@ -335,16 +325,14 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the viewport's height in screen coordinates. This is typically set
-	 * by {@link #update(int, int, boolean)}.
+	 * Sets the viewport's height in screen coordinates. This is typically set by {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenHeight(int screenHeight) {
 		this.screenHeight = screenHeight;
 	}
 
 	/**
-	 * Sets the viewport's position in screen coordinates. This is typically set
-	 * by {@link #update(int, int, boolean)}.
+	 * Sets the viewport's position in screen coordinates. This is typically set by {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenPosition(int screenX, int screenY) {
 		this.screenX = screenX;
@@ -352,8 +340,7 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the viewport's size in screen coordinates. This is typically set by
-	 * {@link #update(int, int, boolean)}.
+	 * Sets the viewport's size in screen coordinates. This is typically set by {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenSize(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
@@ -361,8 +348,7 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the viewport's bounds in screen coordinates. This is typically set
-	 * by {@link #update(int, int, boolean)}.
+	 * Sets the viewport's bounds in screen coordinates. This is typically set by {@link #update(int, int, boolean)}.
 	 */
 	public void setScreenBounds(int screenX, int screenY, int screenWidth, int screenHeight) {
 		this.screenX = screenX;
@@ -446,8 +432,8 @@ public class CameraViewport {
 	}
 
 	/**
-	 * Sets the number of pixels for each world unit. Eg, a scale of 2.5 means
-	 * there are 2.5 world units for every 1 screen pixel. Default is 1.
+	 * Sets the number of pixels for each world unit. Eg, a scale of 2.5 means there are 2.5 world units for every 1
+	 * screen pixel. Default is 1.
 	 */
 	public void setUnitsPerPixel(float unitsPerPixel) {
 		this.unitsPerPixel = unitsPerPixel;
@@ -495,61 +481,51 @@ public class CameraViewport {
 
 	public enum CameraViewportType {
 		/**
-		 * Scales the source to fit the target while keeping the same aspect
-		 * ratio. This may cause the source to be smaller than the target in one
-		 * direction.
+		 * Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be
+		 * smaller than the target in one direction.
 		 */
 		fit,
 		/**
-		 * Scales the source to fill the target while keeping the same aspect
-		 * ratio. This may cause the source to be larger than the target in one
-		 * direction.
+		 * Scales the source to fill the target while keeping the same aspect ratio. This may cause the source to be
+		 * larger than the target in one direction.
 		 */
 		fill,
 		/**
-		 * Scales the source to fill the target in the x direction while keeping
-		 * the same aspect ratio. This may cause the source to be smaller or
-		 * larger than the target in the y direction.
+		 * Scales the source to fill the target in the x direction while keeping the same aspect ratio. This may cause
+		 * the source to be smaller or larger than the target in the y direction.
 		 */
 		fillX,
 		/**
-		 * Scales the source to fill the target in the y direction while keeping
-		 * the same aspect ratio. This may cause the source to be smaller or
-		 * larger than the target in the x direction.
+		 * Scales the source to fill the target in the y direction while keeping the same aspect ratio. This may cause
+		 * the source to be smaller or larger than the target in the x direction.
 		 */
 		fillY,
 		/**
-		 * Scales the source to fill the target. This may cause the source to
-		 * not keep the same aspect ratio.
+		 * Scales the source to fill the target. This may cause the source to not keep the same aspect ratio.
 		 */
 		stretch,
 		/**
-		 * Scales the source to fill the target in the x direction, without
-		 * changing the y direction. This may cause the source to not keep the
-		 * same aspect ratio.
+		 * Scales the source to fill the target in the x direction, without changing the y direction. This may cause the
+		 * source to not keep the same aspect ratio.
 		 */
 		stretchX,
 		/**
-		 * Scales the source to fill the target in the y direction, without
-		 * changing the x direction. This may cause the source to not keep the
-		 * same aspect ratio.
+		 * Scales the source to fill the target in the y direction, without changing the x direction. This may cause the
+		 * source to not keep the same aspect ratio.
 		 */
 		stretchY,
 		/** The source is not scaled. */
 		none,
 		/**
-		 * A viewport that keeps the world aspect ratio by extending the world
-		 * in one direction. The world is first scaled to fit within the
-		 * viewport, then the shorter dimension is lengthened to fill the
-		 * viewport. A maximum size can be specified to limit how much the world
-		 * is extended and black bars (letterboxing) are used for any remaining
-		 * space.
+		 * A viewport that keeps the world aspect ratio by extending the world in one direction. The world is first
+		 * scaled to fit within the viewport, then the shorter dimension is lengthened to fill the viewport. A maximum
+		 * size can be specified to limit how much the world is extended and black bars (letterboxing) are used for any
+		 * remaining space.
 		 */
 		extend,
 		/**
-		 * A viewport where the world size is based on the size of the screen.
-		 * By default 1 world unit == 1 screen pixel, but this ratio can be
-		 * {@link #setUnitsPerPixel(float) changed}.
+		 * A viewport where the world size is based on the size of the screen. By default 1 world unit == 1 screen
+		 * pixel, but this ratio can be {@link #setUnitsPerPixel(float) changed}.
 		 */
 		screen;
 	}

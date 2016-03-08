@@ -7,11 +7,9 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.GenericBatch;
-import com.gurella.engine.resource.model.TransientProperty;
 
 public abstract class RenderableComponent3d extends RenderableComponent {
-	@TransientProperty
-	public ModelInstance instance;
+	public transient ModelInstance instance;
 
 	@Override
 	protected void render(GenericBatch batch) {
@@ -30,10 +28,10 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 		Array<Node> nodes = instance.nodes;
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
-			//node.
+			// node.
 		}
 
-		//instance.nodes.get(0).calculateBoundingBox(out, transform)
+		// instance.nodes.get(0).calculateBoundingBox(out, transform)
 		// TODO Auto-generated method stub
 		return false;
 	}

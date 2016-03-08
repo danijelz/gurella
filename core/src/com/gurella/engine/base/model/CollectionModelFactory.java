@@ -57,7 +57,7 @@ public class CollectionModelFactory implements ModelFactory {
 			innerClass = Reflection.isInnerClass(type);
 			resolveName();
 			properties = new ArrayExt<Property<?>>();
-			properties.add(new CollectionItemsProperty(this));
+			properties.add(new CollectionItemsProperty());
 		}
 
 		private void resolveName() {
@@ -173,12 +173,6 @@ public class CollectionModelFactory implements ModelFactory {
 	public static class CollectionItemsProperty implements Property<Object[]> {
 		public static final String name = "items";
 
-		private Model<?> model;
-
-		public CollectionItemsProperty(Model<?> model) {
-			this.model = model;
-		}
-
 		@Override
 		public String getName() {
 			return name;
@@ -190,13 +184,8 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public Model<?> getModel() {
-			return model;
-		}
-
-		@Override
 		public Property<Object[]> newInstance(Model<?> model) {
-			return new CollectionItemsProperty(model);
+			return new CollectionItemsProperty();
 		}
 
 		@Override
@@ -208,7 +197,7 @@ public class CollectionModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isCopyable() {
 			return true;
@@ -342,8 +331,7 @@ public class CollectionModelFactory implements ModelFactory {
 						? (TreeSet<?>) template : null;
 				Comparator<?> comparator = value.comparator();
 				Comparator<?> templateComparator = resolvedTemplate == null ? null : resolvedTemplate.comparator();
-				if (resolvedTemplate == null ? comparator != null
-						: !Values.isEqual(templateComparator, comparator)) {
+				if (resolvedTemplate == null ? comparator != null : !Values.isEqual(templateComparator, comparator)) {
 					output.writeObjectProperty("comparator", Comparator.class, templateComparator, comparator);
 				}
 
