@@ -307,18 +307,19 @@ public class GdxArrayModelFactory implements ModelFactory {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;
-				Object templateValue = template == null ? null : getValue(template);
+				Object[] templateValue = template == null ? null : getValue(template);
 				Object[] value = input.readObjectProperty(name, array.items.getClass(), templateValue);
 				array.ensureCapacity(value.length - array.size);
 				array.addAll(value);
 			} else if (template != null) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;
-				Object[] value = getValue(template);
-				int length = value.length;
-				array.ensureCapacity(length - array.size);
-				for (int i = 0; i < length; i++) {
-					array.add(input.copyObject(value[i]));
+				@SuppressWarnings("unchecked")
+				Array<Object> templateArray = (Array<Object>) template;
+				int size = templateArray.size;
+				array.ensureCapacity(size - array.size);
+				for (int i = 0; i < size; i++) {
+					array.add(input.copyObject(templateArray.get(i)));
 				}
 			}
 		}

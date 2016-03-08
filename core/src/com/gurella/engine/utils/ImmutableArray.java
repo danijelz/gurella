@@ -64,19 +64,29 @@ public class ImmutableArray<T> implements Iterable<T> {
 	public <V> V[] toArray(Class<?> type) {
 		return array.toArray(type);
 	}
-	
+
 	public void appendAll(Array<? super T> out) {
 		out.addAll(array);
 	}
 
 	@Override
-	public int hashCode() {
-		return array.hashCode();
+	public boolean equals(Object object) {
+		if (object == null) {
+			return false;
+		}
+		if (object == this) {
+			return true;
+		}
+		if (!(object instanceof ImmutableArray)) {
+			return false;
+		}
+		ImmutableArray<?> other = (ImmutableArray<?>) object;
+		return array.equals(other.array);
 	}
 
 	@Override
-	public boolean equals(Object object) {
-		return array.equals(object);
+	public int hashCode() {
+		return 31 * array.hashCode();
 	}
 
 	@Override

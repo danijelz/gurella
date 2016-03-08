@@ -60,7 +60,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 			return false;
 		}
 
-		int prefabInstanceId = prefab.getPrefab().getInstanceId();
+		int prefabInstanceId = prefab.get().getInstanceId();
 
 		for (int i = 0; i < templateElements.size(); i++) {
 			T templateElement = templateElements.get(i);
@@ -72,7 +72,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	}
 	
 	static class SceneElements<T extends SceneElement2> {
-		Array<String> removedTemplateElements;
+		Array<String> removedElements;
 		Array<T> elements;
 	}
 }

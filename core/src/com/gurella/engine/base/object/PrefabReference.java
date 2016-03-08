@@ -14,7 +14,7 @@ public class PrefabReference {
 		return uuid;
 	}
 
-	public ManagedObject getPrefab() {
+	public ManagedObject get() {
 		if (prefab == null) {
 			//TODO prefab = ResourceService.get(FileService.getPath(fileUuid), uuid);
 		}

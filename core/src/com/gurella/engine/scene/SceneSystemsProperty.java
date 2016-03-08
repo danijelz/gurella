@@ -1,5 +1,6 @@
 package com.gurella.engine.scene;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
@@ -68,7 +69,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 		for (int i = 0; i < templateSystems.size(); i++) {
 			SceneSystem2 system = templateSystems.get(i);
 			if (!templateIds.contains(system.getInstanceId())) {
-				elements.removedTemplateElements.add(system.getUuid());
+				elements.removedElements.add(system.getUuid());
 			}
 		}
 
@@ -80,13 +81,36 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 		if (prefab == null) {
 			return SequenceGenerator.invalidId;
 		}
-		return prefab.getPrefab().getInstanceId();
+		return prefab.get().getInstanceId();
 	}
 
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
-		// TODO Auto-generated method stub
-
+		if (input.hasProperty(name)) {
+			@SuppressWarnings("unchecked")
+			Array<Object> array = (Array<Object>) object;
+			Object templateValue = template == null ? null : getValue(template);
+			Object[] value = input.readObjectProperty(name, array.items.getClass(), templateValue);
+			array.ensureCapacity(value.length - array.size);
+			array.addAll(value);
+		} else if (template != null) {
+			Scene scene = (Scene) object;
+			Scene templateScene = (Scene) template;
+			ImmutableArray<SceneSystem2> templateSystems = templateScene.systems;
+			for (int i = 0; i < templateSystems.size(); i++) {
+				SceneSystem2 system = templateSystems.get(i);
+				if (!templateIds.contains(system.getInstanceId())) {
+					elements.removedElements.add(system.getUuid());
+				}
+			}
+			
+			Object[] value = getValue(template);
+			int length = value.length;
+			array.ensureCapacity(length - array.size);
+			for (int i = 0; i < length; i++) {
+				array.add(input.copyObject(value[i]));
+			}
+		}
 	}
 
 	@Override
