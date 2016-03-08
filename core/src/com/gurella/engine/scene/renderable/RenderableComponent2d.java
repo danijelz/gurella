@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.graphics.GenericBatch;
 
 public abstract class RenderableComponent2d extends RenderableComponent {
@@ -16,7 +15,6 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	boolean dimensionsFromTexture = true;
 	int pixelsPerUnit = -1;
 	boolean _25d;
-	@PropertyDescriptor
 	final Color tint = new Color(1, 1, 1, 1);
 
 	// TODO flipX, flipY, zOrder, origin (center, leftBottom)

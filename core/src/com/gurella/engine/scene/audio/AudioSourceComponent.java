@@ -8,7 +8,6 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -20,26 +19,18 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements Poolabl
 	public boolean spatial = true;
 	public boolean repeatable;
 	public Attenuation attenuation = Attenuation.ROLLOFF;
-	@PropertyDescriptor
 	public final Volume volume = new Volume();
-	@PropertyDescriptor
 	public final Pan pan = new Pan();
-	@PropertyDescriptor
 	public final Pitch pitch = new Pitch();
 	public float dopplerFactor = 0.5f;
 	public float dopplerVelocity = 1.0f;
 	public float rollOff = 0.3f;
 	public float referenceDistance = 2.0f;
 	public float maxDistance = 20.0f;
-	@PropertyDescriptor
 	public final Angle innerConeAngle = Angle.getFromDegrees(360);
-	@PropertyDescriptor
 	public final Angle outerConeAngle = Angle.getFromDegrees(360);
-	@PropertyDescriptor
 	public final Volume outerConeVolume = new Volume();
-	@PropertyDescriptor
 	public final Vector3 up = new Vector3(0, 1, 0);
-	@PropertyDescriptor
 	public final Vector3 lookAt = new Vector3(0, 0, -1);
 
 	public AudioTrack play() {

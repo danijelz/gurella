@@ -2,10 +2,8 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.base.model.PropertyDescriptor;
 
 public class PointLightComponent extends LightComponent<PointLight> {
-	@PropertyDescriptor
 	final Vector3 position = new Vector3();
 	float intensity;
 

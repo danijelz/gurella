@@ -2,10 +2,8 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
-import com.gurella.engine.base.model.PropertyDescriptor;
 
 public class DirectionalLightComponent extends LightComponent<DirectionalLight> {
-	@PropertyDescriptor
 	private final Vector3 direction = new Vector3();
 
 	@Override

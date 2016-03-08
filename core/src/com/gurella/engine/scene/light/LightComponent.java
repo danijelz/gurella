@@ -2,15 +2,12 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 @BaseSceneElement
 public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent2 {
 	transient T light;
-
-	@PropertyDescriptor
 	final Color color = new Color(0, 0, 0, 1);
 
 	public LightComponent() {
