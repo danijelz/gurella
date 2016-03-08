@@ -135,7 +135,6 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		if (this instanceof ApplicationEventSubscription) {
 			EventService.unsubscribe(this);
 		}
-
 	}
 
 	protected void deactivated() {
@@ -162,9 +161,8 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		state = ManagedObjectState.disposed;
-
 		clear();
-		//TODO EventService.removeChannel(instanceId);
+		// TODO EventService.removeChannel(instanceId);
 
 		if (this instanceof Poolable) {
 			resetValues();

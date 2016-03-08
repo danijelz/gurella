@@ -38,6 +38,7 @@ import com.gurella.engine.scene.tag.Tag;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes
+@SuppressWarnings("unused")
 public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	private final IdentityMap<Object, Releasable<?>> releasables = new IdentityMap<Object, Releasable<?>>();
 
@@ -88,222 +89,222 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	}
 
 	// INPUT EVENTS
-	@SuppressWarnings("unused")
+	
 	public void onTouchDown(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onTouchUp(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onTap(IntersectionTouchEvent touchEvent, int count) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragOverStart(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragOverMove(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragOverEnd(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragStart(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragMove(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragEnd(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onLongPress(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDoubleTouch(IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onScrolled(int screenX, int screenY, int amount, Vector3 intersection) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onMouseOverStart(int screenX, int screenY, Vector3 intersection) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onMouseOverEnd(int screenX, int screenY) {
 	}
 
 	// NODE DRAG AND DROP
-	@SuppressWarnings("unused")
+	
 	public DragSource getDragSource(DragStartCondition dragStartCondition) {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
+	
 	public DropTarget getDropTarget(Array<DragSource> dragSources) {
 		return null;
 	}
 
 	// RESOLVED GLOBAL INPUT
-	@SuppressWarnings("unused")
+	
 	public void onTouchDown(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onTouchUp(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onTap(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent, int count) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragOverStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragOverMove(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragOverEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragMove(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDragEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onLongPress(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onDoubleTouch(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onScrolled(RenderableComponent renderableComponent, int screenX, int screenY, int amount,
 			Vector3 intersection) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onMouseOverEnd(RenderableComponent renderableComponent, int screenX, int screenY) {
 	}
 
 	// //GLOBAL INPUT
-	@SuppressWarnings("unused")
+	
 	public void keyDown(int keycode) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void keyUp(int keycode) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void keyTyped(char character) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void touchDown(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void doubleTouchDown(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void touchUp(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void touchDragged(TouchEvent touchEvent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void mouseMoved(int screenX, int screenY) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void scrolled(int screenX, int screenY, int amount) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void tap(TouchEvent touchEvent, int count) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void longPress(TouchEvent touchEvent) {
 	}
 
 	// BULLET PHYSICS EVENTS
-	@SuppressWarnings("unused")
+	
 	public void onCollisionEnter(Collision collision) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onCollisionStay(Collision collision) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent) {
 	}
 
 	// GLOBAL BULLET PHYSICS EVENTS
-	@SuppressWarnings("unused")
+	
 	public void onCollisionEnter(CollisionPair collision) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onCollisionStay(CollisionPair collision) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent1,
 			BulletPhysicsRigidBodyComponent rigidBodyComponent2) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onPhysicsSimulationStart(btDynamicsWorld dynamicsWorld) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onPhysicsSimulationStep(btDynamicsWorld dynamicsWorld, float timeStep) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onPhysicsSimulationEnd(btDynamicsWorld dynamicsWorld) {
 	}
 
@@ -339,61 +340,61 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	//	}
 
 	// OWNING NODE EVENTS TODO
-	@SuppressWarnings("unused")
+	
 	public void nodeComponentAdded(SceneNodeComponent2 component) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void nodeComponentRemoved(SceneNodeComponent2 component) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void nodeComponentActivated(SceneNodeComponent2 component) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 	}
 
 	// TODO triggers
-	@SuppressWarnings("unused")
+	
 	public void nodeParentChanged(SceneNode2 newParent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void nodeChildAdded(SceneNode2 child) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void nodeChildRemoved(SceneNode2 child) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void componentActivated(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void componentDeactivated(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
 	// TODO triggers
-	@SuppressWarnings("unused")
+	
 	public void parentChanged(SceneNode2 node, SceneNode2 newParent) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void childAdded(SceneNode2 node, SceneNode2 child) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void childRemoved(SceneNode2 node, SceneNode2 child) {
 	}
 
@@ -416,7 +417,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	}
 
 	// TODO
-	@SuppressWarnings("unused")
+	
 	public void onResize(int width, int height) {
 	}
 
@@ -429,16 +430,16 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	// TODO animation events
 
 	// TODO tag events
-	@SuppressWarnings("unused")
+	
 	public void onNodeTagged(SceneNode2 node, Tag tag) {
 	}
 
-	@SuppressWarnings("unused")
+	
 	public void onNodeUntagged(SceneNode2 node, Tag tag) {
 	}
 
 	// TODO layer events
-	@SuppressWarnings("unused")
+	
 	public void onNodeLayerChanged(SceneNode2 node, Layer oldLayer, Layer newLayer) {
 	}
 
