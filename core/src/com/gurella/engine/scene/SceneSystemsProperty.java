@@ -116,7 +116,14 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 						scene.addSystem(input.copyObject(templateSystem));
 					}
 				} else if (templateSystem == null) {
-
+					scene.addSystem(system);
+				} else {
+					if(system.getPrefab() == null) {
+						
+					}
+					if(templateSystem.getUuid().equals(getPrefabUuid(system))) {
+						scene.addSystem(system);
+					}
 				}
 			}
 		} else if (template != null) {
@@ -128,6 +135,11 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 				scene.addSystem(input.copyObject(system));
 			}
 		}
+	}
+	
+	private static String getPrefabUuid(SceneSystem2 system) {
+		PrefabReference prefab = system.getPrefab();
+		return prefab == null ? null : prefab.getUuid();
 	}
 
 	@Override
