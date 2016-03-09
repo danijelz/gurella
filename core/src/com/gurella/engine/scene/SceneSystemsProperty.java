@@ -69,7 +69,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 		for (int i = 0; i < templateSystems.size(); i++) {
 			SceneSystem2 system = templateSystems.get(i);
 			if (!templateIds.contains(system.getInstanceId())) {
-				elements.removedElements.add(system.getUuid());
+				elements.removedElements.add(system.ensureUuid());
 			}
 		}
 
@@ -105,28 +105,39 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 			ImmutableArray<SceneSystem2> templateSystems = templateScene.systems;
 			int size = systems.size;
 			int templateSize = templateSystems.size();
-			int max = Math.max(size, templateSize);
-			
-			/*SceneSystem2 system = size < max ? null : systems.get(i);
-			SceneSystem2 templateSystem = templateSize < max ? null : templateSystems.get(i);*/
-			
+			Array<String> addedElements = new Array<String>();
 
-			for (int i = 0; i < max; i++) {
-				SceneSystem2 system = size < max ? null : systems.get(i);
-				SceneSystem2 templateSystem = templateSize < max ? null : templateSystems.get(i);
+			int i = 0;
+			int ti = 0;
+			SceneSystem2 system = systems.get(i++);
+			SceneSystem2 templateSystem = templateSystems.get(ti++);
 
+			while (system != null || templateSystem != null) {
 				if (system == null) {
-					if(!removedElements.contains(templateSystem.getUuid(), false)) {
+					String templateUuid = templateSystem.getUuid();
+					if (!removedElements.contains(templateUuid, false)
+							&& !addedElements.contains(templateUuid, false)) {
 						scene.addSystem(input.copyObject(templateSystem));
+						templateSystem = ti < templateSize ? null : templateSystems.get(ti++);
 					}
 				} else if (templateSystem == null) {
 					scene.addSystem(system);
+					system = i < size ? null : systems.get(i++);
 				} else {
-					if(system.getPrefab() == null) {
-						
-					}
-					if(templateSystem.getUuid().equals(getPrefabUuid(system))) {
-						scene.addSystem(system);
+					scene.addSystem(system);
+					system = i < size ? null : systems.get(i++);
+
+					String prefabUuid = getPrefabUuid(system);
+					if (prefabUuid != null) {
+						addedElements.add(prefabUuid);
+
+						String templateUuid = templateSystem.getUuid();
+						if (!removedElements.contains(templateUuid, false)
+								&& !addedElements.contains(templateUuid, false) && !contains(templateUuid, systems)) {
+							scene.addSystem(input.copyObject(templateSystem));
+						}
+
+						templateSystem = ti < templateSize ? null : templateSystems.get(ti++);
 					}
 				}
 			}
@@ -140,7 +151,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 			}
 		}
 	}
-	
+
 	private static String getPrefabUuid(SceneSystem2 system) {
 		PrefabReference prefab = system.getPrefab();
 		return prefab == null ? null : prefab.getUuid();
