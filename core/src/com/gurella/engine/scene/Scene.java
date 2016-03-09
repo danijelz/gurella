@@ -33,8 +33,9 @@ public final class Scene extends ManagedObject {
 	transient final IdentityOrderedSet<SceneSystem2> _activeSystems = new IdentityOrderedSet<SceneSystem2>();
 	public transient final ImmutableArray<SceneSystem2> activeSystems = _activeSystems.orderedItems();
 
-	final IdentityOrderedSet<SceneNode2> _nodes = new IdentityOrderedSet<SceneNode2>();
-	public transient final ImmutableArray<SceneNode2> nodes = _nodes.orderedItems();
+	transient final IdentityOrderedSet<SceneNode2> _nodes = new IdentityOrderedSet<SceneNode2>();
+	@PropertyDescriptor(property = SceneNodesProperty.class)
+	public final ImmutableArray<SceneNode2> nodes = _nodes.orderedItems();
 	transient final IdentityOrderedSet<SceneNode2> _activeNodes = new IdentityOrderedSet<SceneNode2>();
 	public transient final ImmutableArray<SceneNode2> activeNodes = _activeNodes.orderedItems();
 
