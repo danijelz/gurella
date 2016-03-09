@@ -36,6 +36,18 @@ public class ArrayExt<T> extends Array<T> {
 	public ArrayExt(T[] array) {
 		super(array);
 	}
+	
+	@Override
+	public T[] toArray() {
+		// TODO array pool
+		return super.toArray();
+	}
+	
+	@Override
+	protected T[] resize(int newSize) {
+		// TODO array pool
+		return super.resize(newSize);
+	}
 
 	public ImmutableArray<T> immutable() {
 		if (immutable == null) {

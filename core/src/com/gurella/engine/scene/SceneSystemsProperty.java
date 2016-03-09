@@ -94,7 +94,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 			SceneElements<SceneSystem2> sceneElements = input.readObjectProperty(name, SceneElements.class, null);
 			Array<SceneSystem2> systems = sceneElements.elements;
 
-			if (templateScene == null) {
+			if (templateScene == null || templateScene.systems.size() < 1) {
 				for (int i = 0; i < systems.size; i++) {
 					scene.addSystem(systems.get(i));
 				}
@@ -106,6 +106,10 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 			int size = systems.size;
 			int templateSize = templateSystems.size();
 			int max = Math.max(size, templateSize);
+			
+			/*SceneSystem2 system = size < max ? null : systems.get(i);
+			SceneSystem2 templateSystem = templateSize < max ? null : templateSystems.get(i);*/
+			
 
 			for (int i = 0; i < max; i++) {
 				SceneSystem2 system = size < max ? null : systems.get(i);
