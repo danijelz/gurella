@@ -242,6 +242,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(Object object, Object template, Output output) {
+			// TODO garbage
 			@SuppressWarnings("unchecked")
 			Collection<Object> collection = (Collection<Object>) object;
 			if (template == null && collection.isEmpty()) {
@@ -270,6 +271,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public void deserialize(Object object, Object template, Input input) {
+			// TODO garbage
 			if (input.hasProperty(name)) {
 				Object[] templateArray = null;
 				if (template != null) {

@@ -243,6 +243,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			throw new GdxRuntimeException("Parent is disposed.");
 		}
 
+		//TODO detect cycles
 		if (newParent == this) {
 			throw new GdxRuntimeException("Parent can't be 'this'.");
 		}

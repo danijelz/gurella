@@ -290,6 +290,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public void serialize(Object object, Object template, Output output) {
+			// TODO garbage
 			Array<?> array = (Array<?>) object;
 			Array<?> templateArray = (Array<?>) template;
 			if ((templateArray == null && array.size == 0) || array.equals(templateArray)) {
@@ -307,6 +308,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 			if (input.hasProperty(name)) {
 				@SuppressWarnings("unchecked")
 				Array<Object> array = (Array<Object>) object;
+				// TODO garbage
 				Object[] templateValue = template == null ? null : getValue(template);
 				Object[] value = input.readObjectProperty(name, array.items.getClass(), templateValue);
 				array.ensureCapacity(value.length - array.size);

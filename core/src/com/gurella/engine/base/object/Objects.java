@@ -62,6 +62,7 @@ final class Objects implements ApplicationUpdateListener {
 		}
 	}
 
+	//TODO nitifications not needed
 	static void activated(ManagedObject object) {
 		Array<ObjectsActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ObjectsActivityListener.class, globalListeners);

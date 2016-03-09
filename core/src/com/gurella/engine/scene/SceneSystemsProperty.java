@@ -43,7 +43,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 
 	@Override
 	public void serialize(Object object, Object template, Output output) {
-		//TODO garbage 
+		// TODO garbage
 		SceneElements<SceneSystem2> elements = new SceneElements<SceneSystem2>();
 
 		Scene scene = (Scene) object;
@@ -86,29 +86,46 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
+		// TODO garbage
 		if (input.hasProperty(name)) {
+			Scene scene = (Scene) object;
+			Scene templateScene = (Scene) template;
 			@SuppressWarnings("unchecked")
-			Array<Object> array = (Array<Object>) object;
-			Object templateValue = template == null ? null : getValue(template);
-			Object[] value = input.readObjectProperty(name, array.items.getClass(), templateValue);
-			array.ensureCapacity(value.length - array.size);
-			array.addAll(value);
+			SceneElements<SceneSystem2> sceneElements = input.readObjectProperty(name, SceneElements.class, null);
+			Array<SceneSystem2> systems = sceneElements.elements;
+
+			if (templateScene == null) {
+				for (int i = 0; i < systems.size; i++) {
+					scene.addSystem(systems.get(i));
+				}
+				return;
+			}
+
+			Array<String> removedElements = sceneElements.removedElements;
+			ImmutableArray<SceneSystem2> templateSystems = templateScene.systems;
+			int size = systems.size;
+			int templateSize = templateSystems.size();
+			int max = Math.max(size, templateSize);
+
+			for (int i = 0; i < max; i++) {
+				SceneSystem2 system = size < max ? null : systems.get(i);
+				SceneSystem2 templateSystem = templateSize < max ? null : templateSystems.get(i);
+
+				if (system == null) {
+					if(!removedElements.contains(templateSystem.getUuid(), false)) {
+						scene.addSystem(input.copyObject(templateSystem));
+					}
+				} else if (templateSystem == null) {
+
+				}
+			}
 		} else if (template != null) {
 			Scene scene = (Scene) object;
 			Scene templateScene = (Scene) template;
 			ImmutableArray<SceneSystem2> templateSystems = templateScene.systems;
 			for (int i = 0; i < templateSystems.size(); i++) {
 				SceneSystem2 system = templateSystems.get(i);
-				if (!templateIds.contains(system.getInstanceId())) {
-					elements.removedElements.add(system.getUuid());
-				}
-			}
-			
-			Object[] value = getValue(template);
-			int length = value.length;
-			array.ensureCapacity(length - array.size);
-			for (int i = 0; i < length; i++) {
-				array.add(input.copyObject(value[i]));
+				scene.addSystem(input.copyObject(system));
 			}
 		}
 	}
@@ -127,7 +144,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 		ImmutableArray<SceneSystem2> newSystems = originalScene.systems;
 		for (int i = 0; i < newSystems.size(); i++) {
 			SceneSystem2 system = newSystems.get(i);
-			duplicateScene.addSystem(system);
+			duplicateScene.addSystem(context.copy(system));
 		}
 	}
 }
