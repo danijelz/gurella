@@ -69,7 +69,11 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	@Override
 	public void serialize(Object object, Object template, Output output) {
 		PrefabReference value = ((ManagedObject) object).prefab;
-		PrefabReference templateValue = template == null ? null : ((ManagedObject) template).prefab;
+		if (value == null && template == null) {
+			return;
+		}
+
+		PrefabReference templateValue = ((ManagedObject) template).prefab;
 
 		if (!Values.isEqual(value, templateValue)) {
 			if (value == null) {
@@ -82,13 +86,33 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
-		// TODO Auto-generated method stub
+		if (input.hasProperty(name)) {
+			PrefabReference templateValue = template == null ? null : ((ManagedObject) template).prefab;
+			((ManagedObject) object).prefab = input.readObjectProperty(name, PrefabReference.class, templateValue);
+		} else if (template != null) {
+			PrefabReference templateValue = ((ManagedObject) template).prefab;
+			if (templateValue == null) {
+				return;
+			}
 
+			PrefabReference copy = new PrefabReference();
+			copy.fileUuid = templateValue.fileUuid;
+			copy.uuid = templateValue.uuid;
+			((ManagedObject) object).prefab = copy;
+		}
 	}
 
 	@Override
 	public void copy(Object original, Object duplicate, CopyContext context) {
-		// TODO Auto-generated method stub
-
+		ManagedObject originalObject = (ManagedObject) original;
+		PrefabReference originalPrefab = originalObject.prefab;
+		if (originalPrefab == null) {
+			((ManagedObject) duplicate).prefab = new PrefabReference(originalObject);
+		} else {
+			PrefabReference copy = new PrefabReference();
+			copy.fileUuid = originalPrefab.fileUuid;
+			copy.uuid = originalPrefab.uuid;
+			((ManagedObject) duplicate).prefab = copy;
+		}
 	}
 }

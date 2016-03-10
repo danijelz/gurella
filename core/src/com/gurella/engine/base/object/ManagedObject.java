@@ -17,7 +17,7 @@ import com.gurella.engine.utils.Values;
 
 public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient int instanceId;
-	@PropertyDescriptor(copyable = false)
+	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
 	String uuid;
 
 	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)

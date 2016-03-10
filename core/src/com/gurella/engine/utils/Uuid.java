@@ -4,7 +4,8 @@ import com.badlogic.gdx.math.RandomXS128;
 
 public class Uuid implements Comparable<Uuid> {
 	private static final RandomXS128 random = new RandomXS128();
-	private static final char[] hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	private static final char[] hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
+			'f' };
 
 	public final long mostSigBits;
 	public final long leastSigBits;
@@ -41,13 +42,13 @@ public class Uuid implements Comparable<Uuid> {
 		return randomBytes;
 	}
 
-	public static Uuid fromString(String name) {
-		if (name.length() != 32) {
-			throw new IllegalArgumentException("Invalid Uuid string: " + name);
+	public static Uuid fromString(String uuid) {
+		if (uuid.length() != 32) {
+			throw new IllegalArgumentException("Invalid Uuid string: " + uuid);
 		}
 
-		long mostSigBits = toLong(name.substring(0, 16));
-		long leastSigBits = toLong(name.substring(16));
+		long mostSigBits = toLong(uuid.substring(0, 16));
+		long leastSigBits = toLong(uuid.substring(16));
 		return new Uuid(mostSigBits, leastSigBits);
 	}
 
@@ -80,6 +81,21 @@ public class Uuid implements Comparable<Uuid> {
 			leastSigBits = (leastSigBits << 8) | (data[i] & 0xff);
 		}
 		return toString(mostSigBits, leastSigBits);
+	}
+
+	public static boolean isValid(String uuid) {
+		if (uuid == null || uuid.length() != 32) {
+			return false;
+		}
+
+		try {
+			toLong(uuid.substring(0, 16));
+			toLong(uuid.substring(16));
+		} catch (NumberFormatException e) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

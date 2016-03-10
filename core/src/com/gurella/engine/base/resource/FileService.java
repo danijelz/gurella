@@ -2,6 +2,7 @@ package com.gurella.engine.base.resource;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.Uuid;
+import com.gurella.engine.utils.Values;
 
 //TODO unused
 public class FileService {
@@ -11,7 +12,11 @@ public class FileService {
 	private FileService() {
 	}
 
-	public String getUuid(String path) {
+	public static String getUuid(String path) {
+		if (Values.isBlank(path)) {
+			throw new IllegalArgumentException("Path must not be null.");
+		}
+
 		String uuid = pathToUuid.get(path);
 		if (uuid == null) {
 			uuid = Uuid.randomUuidString();
