@@ -1,7 +1,11 @@
 package com.gurella.engine.base.object;
 
-//TODO create simple model
-public class PrefabReference {
+import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.base.resource.FileService;
+import com.gurella.engine.utils.Values;
+
+@ModelDescriptor(model = PrefabReferenceModel.class)
+public final class PrefabReference {
 	String fileUuid;
 	String uuid;
 	transient ManagedObject prefab;
@@ -16,8 +20,14 @@ public class PrefabReference {
 
 	public ManagedObject get() {
 		if (prefab == null) {
-			//TODO prefab = ResourceService.get(FileService.getPath(fileUuid), uuid);
+			String path = FileService.getPath(fileUuid);
+			// TODO prefab = ResourceService.get(FileService.getPath(fileUuid), uuid);
 		}
 		return prefab;
+	}
+
+	@Override
+	public String toString() {
+		return Values.isBlank(fileUuid) ? uuid : (fileUuid + " " + uuid);
 	}
 }

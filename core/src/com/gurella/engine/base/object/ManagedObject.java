@@ -9,8 +9,8 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
-import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
@@ -20,6 +20,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	@PropertyDescriptor(copyable = false)
 	String uuid;
 
+	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
 	PrefabReference prefab;
 
 	transient ManagedObjectState state = ManagedObjectState.idle;
@@ -243,7 +244,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			throw new GdxRuntimeException("Parent is disposed.");
 		}
 
-		//TODO detect cycles
+		// TODO detect cycles
 		if (newParent == this) {
 			throw new GdxRuntimeException("Parent can't be 'this'.");
 		}
