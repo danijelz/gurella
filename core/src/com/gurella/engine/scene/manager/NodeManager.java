@@ -2,7 +2,6 @@ package com.gurella.engine.scene.manager;
 
 import java.util.Comparator;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Pools;
@@ -12,6 +11,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class NodeManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
@@ -67,7 +67,7 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 
 	public ImmutableArray<SceneNode2> getNodes(SceneNodeFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
-		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.immutableNodes;
+		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.nodes.immutable();
 	}
 
 	@Override
@@ -100,8 +100,7 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 
 	private static class FamilyNodes implements Poolable {
 		private SceneNodeFamily family;
-		private final Array<SceneNode2> nodes = new Array<SceneNode2>();
-		private final ImmutableArray<SceneNode2> immutableNodes = new ImmutableArray<SceneNode2>(nodes);
+		private final ArrayExt<SceneNode2> nodes = new ArrayExt<SceneNode2>();
 
 		private void handle(SceneNode2 node) {
 			boolean belongsToFamily = family.predicate.evaluate(node);
