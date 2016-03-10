@@ -26,6 +26,7 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.base.serialization.Serializable;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.IdentityObjectIntMap;
@@ -151,6 +152,10 @@ public class ReflectionModel<T> implements Model<T> {
 			return;
 		} else if (instance == null) {
 			output.writeNull();
+		} else if (instance instanceof Serializable) {
+			@SuppressWarnings("unchecked")
+			Serializable<T> serializable = (Serializable<T>) instance;
+			serializable.serialize(instance, template, output);
 		} else {
 			Object resolvedTemplate = resolveTemplate(instance, template);
 			ImmutableArray<Property<?>> properties = getProperties();
@@ -189,10 +194,16 @@ public class ReflectionModel<T> implements Model<T> {
 			// Object resolvedTemplate = resolveTemplate(instance, template, input)
 			Object resolvedTemplate = resolveTemplate(instance, template);
 			input.pushObject(instance);
-			ImmutableArray<Property<?>> properties = getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				Property<?> property = properties.get(i);
-				property.deserialize(instance, resolvedTemplate, input);
+			if (instance instanceof Serializable) {
+				@SuppressWarnings("unchecked")
+				Serializable<T> serializable = (Serializable<T>) instance;
+				serializable.deserialize(resolvedTemplate, input);
+			} else {
+				ImmutableArray<Property<?>> properties = getProperties();
+				for (int i = 0; i < properties.size(); i++) {
+					Property<?> property = properties.get(i);
+					property.deserialize(instance, resolvedTemplate, input);
+				}
 			}
 			input.popObject();
 			return instance;

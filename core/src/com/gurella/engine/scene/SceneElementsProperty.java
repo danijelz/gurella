@@ -8,6 +8,7 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.base.serialization.Serializable;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.SequenceGenerator;
@@ -179,8 +180,22 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		}
 	}
 
-	static class SceneElements<T extends SceneElement2> {
+	static class SceneElements<T extends SceneElement2> implements Serializable<SceneElements<T>> {
 		final Array<String> removedElements = new Array<String>();
 		final Array<T> elements = new Array<T>();
+
+		@Override
+		public void serialize(SceneElements<T> instance, Object template, Output output) {
+			// TODO garbage
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public SceneElements<T> deserialize(Object template, Input input) {
+			// TODO garbage
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 }

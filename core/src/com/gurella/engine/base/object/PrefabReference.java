@@ -1,6 +1,6 @@
 package com.gurella.engine.base.object;
 
-//TODO unused
+//TODO create simple model
 public class PrefabReference {
 	String fileUuid;
 	String uuid;
