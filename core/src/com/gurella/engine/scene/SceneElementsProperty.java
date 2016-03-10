@@ -180,11 +180,11 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		}
 	}
 
-	static class SceneElements<T extends SceneElement2> implements Serializable<SceneElements<T>> {
+	static class SceneElements<T extends SceneElement2> /*TODO implements Serializable<SceneElements<T>>*/ {
 		final Array<String> removedElements = new Array<String>();
 		final Array<T> elements = new Array<T>();
 
-		@Override
+		/*@Override
 		public void serialize(SceneElements<T> instance, Object template, Output output) {
 			// TODO garbage
 			// TODO Auto-generated method stub
@@ -196,6 +196,6 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 			// TODO garbage
 			// TODO Auto-generated method stub
 			return null;
-		}
+		}*/
 	}
 }

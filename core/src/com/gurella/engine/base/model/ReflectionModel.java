@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serializable;
@@ -170,7 +171,8 @@ public class ReflectionModel<T> implements Model<T> {
 		if (template != null && type == template.getClass()) {
 			return template;
 		} else if (instance instanceof ManagedObject) {
-			return ((ManagedObject) instance).getPrefab();
+			PrefabReference prefab = ((ManagedObject) instance).getPrefab();
+			return prefab == null ? null : prefab.get();
 		} else {
 			return null;
 		}

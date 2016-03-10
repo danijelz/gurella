@@ -16,7 +16,7 @@ public final class PrefabReference {
 	}
 
 	public PrefabReference(String fileUuid, String uuid) {
-		if (fileUuid != null && !Uuid.isValid(fileUuid)) {
+		if (!Uuid.isValid(fileUuid)) {
 			throw new IllegalArgumentException("Invalid fileUuid: " + fileUuid);
 		}
 		if (!Uuid.isValid(uuid)) {
@@ -26,17 +26,9 @@ public final class PrefabReference {
 		this.uuid = uuid;
 	}
 
-	public PrefabReference(String uuid) {
-		if (!Uuid.isValid(uuid)) {
-			throw new IllegalArgumentException("Invalid uuid: " + uuid);
-		}
-		this.uuid = uuid;
-	}
-
 	public PrefabReference(ManagedObject prefab) {
 		this.prefab = prefab;
-		String path = ResourceService.getFileName(prefab);
-		fileUuid = Values.isBlank(path) ? null : FileService.getUuid(path);
+		fileUuid = FileService.getUuid(ResourceService.getFileName(prefab));
 		uuid = prefab.ensureUuid();
 	}
 
@@ -50,7 +42,7 @@ public final class PrefabReference {
 
 	public ManagedObject get() {
 		if (prefab == null) {
-			String path = FileService.getPath(fileUuid);
+			// String path = FileService.getPath(fileUuid);
 			// TODO prefab = ResourceService.get(FileService.getPath(fileUuid), uuid);
 		}
 		return prefab;
