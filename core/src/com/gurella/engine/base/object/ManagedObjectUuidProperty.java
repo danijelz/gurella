@@ -72,11 +72,10 @@ class ManagedObjectUuidProperty implements Property<String> {
 
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
-		if (!input.hasProperty(name)) {
-			return;
+		if (input.hasProperty(name)) {
+			((ManagedObject) object).uuid = input.readStringProperty(name);
 		}
 
-		((ManagedObject) object).uuid = input.readStringProperty(name);
 	}
 
 	@Override
