@@ -192,9 +192,7 @@ public class ReflectionModel<T> implements Model<T> {
 			return null;
 		} else {
 			T instance = createInstance(innerClass ? input.getObjectStack().peek() : null);
-			// TODO extract template from input if ManagedObject
-			// Object resolvedTemplate = resolveTemplate(instance, template, input)
-			Object resolvedTemplate = resolveTemplate(instance, template);
+			Object resolvedTemplate = resolveTemplate(instance, template, input);
 			input.pushObject(instance);
 			if (instance instanceof Serializable) {
 				@SuppressWarnings("unchecked")
@@ -209,6 +207,18 @@ public class ReflectionModel<T> implements Model<T> {
 			}
 			input.popObject();
 			return instance;
+		}
+	}
+
+	private Object resolveTemplate(T instance, Object template, Input input) {
+		// TODO extract template from input if ManagedObject
+		if (template != null) {
+			return template;
+		} else if (instance instanceof ManagedObject) {
+			PrefabReference prefab = ((ManagedObject) instance).getPrefab();
+			return prefab == null ? null : prefab.get();
+		} else {
+			return null;
 		}
 	}
 

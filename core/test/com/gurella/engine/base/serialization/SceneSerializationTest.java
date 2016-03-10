@@ -21,7 +21,6 @@ public class SceneSerializationTest {
 
 		JsonOutput output = new JsonOutput();
 		String string = output.serialize(Scene.class, scene);
-
 		System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 
 		JsonInput input = new JsonInput();
