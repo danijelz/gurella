@@ -59,4 +59,25 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 	public ImmutableArray<V> orderedValues() {
 		return values.immutable();
 	}
+
+	@Override
+	public int hashCode() {
+		return 31 + super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof OrderedValuesIntMap)) {
+			return false;
+		}
+		OrderedValuesIntMap<?> other = (OrderedValuesIntMap<?>) obj;
+		return values.equals(other.values);
+	}
+
 }

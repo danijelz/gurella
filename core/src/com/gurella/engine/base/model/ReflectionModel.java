@@ -283,13 +283,13 @@ public class ReflectionModel<T> implements Model<T> {
 			return true;
 		}
 
-		if (field.isPrivate() && (forcedProperties == null || Arrays.binarySearch(forcedProperties, fieldName) < 0)
-				&& Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class) == null
-				&& !isBeanProperty(field)) {
+		boolean hasPropertyAnnotation = Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class) != null;
+		boolean isForced = forcedProperties != null && Arrays.binarySearch(forcedProperties, fieldName) > -1;
+		if (field.isPrivate() && isForced && !hasPropertyAnnotation && !isBeanProperty(field)) {
 			return true;
 		}
 
-		if (!field.isFinal()) {
+		if (!field.isFinal() || hasPropertyAnnotation || isForced) {
 			return false;
 		}
 

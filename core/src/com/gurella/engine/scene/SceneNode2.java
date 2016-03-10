@@ -1,11 +1,12 @@
 package com.gurella.engine.scene;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.IdentityOrderedSet;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
@@ -13,7 +14,7 @@ import com.gurella.engine.utils.Values;
 public final class SceneNode2 extends SceneElement2 implements Poolable {
 	String name;
 
-	transient final IdentityOrderedSet<SceneNode2> _childNodes = new IdentityOrderedSet<SceneNode2>();
+	transient final OrderedIdentitySet<SceneNode2> _childNodes = new OrderedIdentitySet<SceneNode2>();
 	@PropertyDescriptor(property = NodeChildrenProperty.class)
 	public final ImmutableArray<SceneNode2> childNodes = _childNodes.orderedItems();
 
@@ -131,6 +132,26 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		node.name = name;
 		node.setParent(this);
 		return node;
+	}
+
+	public SceneNode2 getChildNode(String name) {
+		for (int i = 0; i < childNodes.size(); i++) {
+			SceneNode2 node = childNodes.get(i);
+			if (Values.isEqual(name, node.name)) {
+				return node;
+			}
+		}
+		return null;
+	}
+
+	public Array<SceneNode2> getChildNodes(String name, Array<SceneNode2> out) {
+		for (int i = 0; i < childNodes.size(); i++) {
+			SceneNode2 node = childNodes.get(i);
+			if (Values.isEqual(name, node.name)) {
+				out.add(node);
+			}
+		}
+		return out;
 	}
 
 	public void addComponent(SceneNodeComponent2 component) {

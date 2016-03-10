@@ -189,7 +189,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public Property<Boolean> newInstance(Model<?> newModel) {
-			return new ArrayOrderedProperty();
+			return this;
 		}
 
 		@Override
@@ -241,7 +241,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public Property<Object[]> newInstance(Model<?> model) {
-			return new ArrayItemsProperty();
+			return this;
 		}
 
 		@Override

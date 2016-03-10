@@ -1,17 +1,12 @@
 package com.gurella.engine.scene;
 
-import com.gurella.engine.base.model.Model;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class NodeComponentsProperty extends SceneElementsProperty<SceneNodeComponent2> {
-	public NodeComponentsProperty() {
-		super("components");
-	}
+	private static final String propertyName = "components";
 
-	@Override
-	public Property<ImmutableArray<SceneNodeComponent2>> newInstance(Model<?> model) {
-		return new NodeComponentsProperty();
+	public NodeComponentsProperty() {
+		super(propertyName);
 	}
 
 	@Override

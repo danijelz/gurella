@@ -12,9 +12,8 @@ import com.badlogic.gdx.utils.StringBuilder;
  * @author Nathan Sweet 
  * */
 public class IdentitySet<T> implements Iterable<T> {
-	private static final int PRIME1 = 0xbe1f14b1;
-	private static final int PRIME2 = 0xb4b82e39;
-	private static final int PRIME3 = 0xced1c241;
+	private static final int PRIME1 = 0xb4b82e39;
+	private static final int PRIME2 = 0xced1c241;
 
 	public int size;
 
@@ -440,12 +439,12 @@ public class IdentitySet<T> implements Iterable<T> {
 	}
 
 	private int hash2(int h) {
-		h *= PRIME2;
+		h *= PRIME1;
 		return (h ^ h >>> hashShift) & mask;
 	}
 
 	private int hash3(int h) {
-		h *= PRIME3;
+		h *= PRIME2;
 		return (h ^ h >>> hashShift) & mask;
 	}
 

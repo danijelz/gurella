@@ -36,13 +36,13 @@ public class ArrayExt<T> extends Array<T> {
 	public ArrayExt(T[] array) {
 		super(array);
 	}
-	
+
 	@Override
 	public T[] toArray() {
 		// TODO array pool
 		return super.toArray();
 	}
-	
+
 	@Override
 	protected T[] resize(int newSize) {
 		// TODO array pool
@@ -54,6 +54,22 @@ public class ArrayExt<T> extends Array<T> {
 			immutable = new ImmutableArray<T>(this);
 		}
 		return immutable;
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 + super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof ArrayExt)) {
+			return false;
+		}
+		return super.equals(obj);
 	}
 
 	static public <T> ArrayExt<T> with(T... array) {

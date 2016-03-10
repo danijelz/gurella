@@ -135,14 +135,13 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Class<Set<Entry<?, ?>>> getType() {
-			return (Class) Set.class;
+			return Values.cast(Set.class);
 		}
 
 		@Override
 		public Property<Set<Entry<?, ?>>> newInstance(Model<?> model) {
-			return new MapEntriesProperty();
+			return this;
 		}
 
 		@Override

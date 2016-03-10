@@ -9,7 +9,7 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
-import com.gurella.engine.utils.IdentityOrderedSet;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.engine.utils.Uuid;
@@ -25,10 +25,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
-	private transient final IdentityOrderedSet<ManagedObject> childrenPrivate = new IdentityOrderedSet<ManagedObject>();
+	private transient final OrderedIdentitySet<ManagedObject> childrenPrivate = new OrderedIdentitySet<ManagedObject>();
 	public transient final ImmutableArray<ManagedObject> children = childrenPrivate.orderedItems();
 
-	private final IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
+	private final transient IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
 
 	public ManagedObject() {
 		instanceId = SequenceGenerator.next();

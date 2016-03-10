@@ -16,8 +16,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
 import com.gurella.engine.input.InputService;
@@ -48,26 +48,27 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class InputSystem extends SceneSystem2 implements ComponentActivityListener, InputUpdateListener, Poolable {
-	private Array<Layer> orderedLayers = new Array<Layer>();
-	private ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
+	private transient final Array<Layer> orderedLayers = new Array<Layer>();
+	private transient final ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
 	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
 
-	//TODO double queue
-	private InputProcessorDelegate delegate = new InputProcessorDelegate();
-	private InputAdapter dummyDelegate = new InputAdapter();
-	private InputEventQueue inputQueue = new InputEventQueue(delegate);
+	// TODO double queue
+	private transient final InputProcessorDelegate delegate = new InputProcessorDelegate();
+	private transient final InputAdapter dummyDelegate = new InputAdapter();
+	private transient final InputEventQueue inputQueue = new InputEventQueue(delegate);
 
-	private IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
-	public final PointerActivitySignal pointerActivitySignal = new PointerActivitySignal();
+	private transient final IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
+	public transient final PointerActivitySignal pointerActivitySignal = new PointerActivitySignal();
 
-	private final Array<Object> tempListeners = new Array<Object>(64);
+	private transient final Array<Object> tempListeners = new Array<Object>(64);
 
-	private MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
-	private DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(tempListeners);
-	private TouchProcessor touchProcessor = new TouchProcessor(tempListeners, dragAndDropProcessor);
-	private DragProcessor dragProcessor = new DragProcessor(tempListeners);
-	private DoubleTouchProcessor doubleTouchProcessor = new DoubleTouchProcessor(tempListeners, dragAndDropProcessor);
+	private transient final MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
+	private transient final DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(tempListeners);
+	private transient final TouchProcessor touchProcessor = new TouchProcessor(tempListeners, dragAndDropProcessor);
+	private transient final DragProcessor dragProcessor = new DragProcessor(tempListeners);
+	private transient final DoubleTouchProcessor doubleTouchProcessor = new DoubleTouchProcessor(tempListeners,
+			dragAndDropProcessor);
 
 	public InputSystem() {
 		pointerActivitySignal.addListener(dragAndDropProcessor);
@@ -75,7 +76,7 @@ public class InputSystem extends SceneSystem2 implements ComponentActivityListen
 		pointerActivitySignal.addListener(doubleTouchProcessor);
 		pointerActivitySignal.addListener(dragProcessor);
 	}
-	
+
 	@Override
 	protected void onActivate() {
 		Scene scene = getScene();
@@ -89,7 +90,7 @@ public class InputSystem extends SceneSystem2 implements ComponentActivityListen
 
 		InputService.addInputProcessor(inputQueue);
 	}
-	
+
 	@Override
 	protected void onDeactivate() {
 		InputService.removeInputProcessor(inputQueue);
@@ -102,7 +103,7 @@ public class InputSystem extends SceneSystem2 implements ComponentActivityListen
 		inputQueue.drain();
 		delegate.clean();
 	}
-	
+
 	@Override
 	public void reset() {
 		// TODO update listeners and finish actions

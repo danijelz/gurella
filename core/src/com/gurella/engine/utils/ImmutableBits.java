@@ -74,12 +74,12 @@ public class ImmutableBits {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (!(obj instanceof ImmutableBits)) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
 
 		ImmutableBits other = (ImmutableBits) obj;
 		return bits.equals(other.bits);

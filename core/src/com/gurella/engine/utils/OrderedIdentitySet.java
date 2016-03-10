@@ -6,28 +6,28 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.StringBuilder;
 
-/** 
- * @author Nathan Sweet 
- * */
-public class IdentityOrderedSet<T> extends IdentitySet<T> {
+/**
+ * @author Nathan Sweet
+ */
+public class OrderedIdentitySet<T> extends IdentitySet<T> {
 	final ArrayExt<T> items;
-	private IdentityOrderedSetIterator<T> iterator1, iterator2;
+	private OrderedIdentitySetIterator<T> iterator1, iterator2;
 
-	public IdentityOrderedSet() {
+	public OrderedIdentitySet() {
 		items = new ArrayExt<T>();
 	}
 
-	public IdentityOrderedSet(int initialCapacity, float loadFactor) {
+	public OrderedIdentitySet(int initialCapacity, float loadFactor) {
 		super(initialCapacity, loadFactor);
 		items = new ArrayExt<T>(capacity);
 	}
 
-	public IdentityOrderedSet(int initialCapacity) {
+	public OrderedIdentitySet(int initialCapacity) {
 		super(initialCapacity);
 		items = new ArrayExt<T>(capacity);
 	}
 
-	public IdentityOrderedSet(IdentityOrderedSet<T> set) {
+	public OrderedIdentitySet(OrderedIdentitySet<T> set) {
 		super(set);
 		items = new ArrayExt<T>(capacity);
 		items.addAll(set.items);
@@ -70,10 +70,10 @@ public class IdentityOrderedSet<T> extends IdentitySet<T> {
 	}
 
 	@Override
-	public IdentityOrderedSetIterator<T> iterator() {
+	public OrderedIdentitySetIterator<T> iterator() {
 		if (iterator1 == null) {
-			iterator1 = new IdentityOrderedSetIterator<T>(this);
-			iterator2 = new IdentityOrderedSetIterator<T>(this);
+			iterator1 = new OrderedIdentitySetIterator<T>(this);
+			iterator2 = new OrderedIdentitySetIterator<T>(this);
 		}
 		if (!iterator1.valid) {
 			iterator1.reset();
@@ -88,26 +88,48 @@ public class IdentityOrderedSet<T> extends IdentitySet<T> {
 	}
 
 	@Override
+	public int hashCode() {
+		return 31 + items.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (obj.getClass() != OrderedIdentitySet.class) {
+			return false;
+		}
+		OrderedIdentitySet<?> other = (OrderedIdentitySet<?>) obj;
+		return items.equals(other.items);
+	}
+
+	@Override
 	public String toString() {
-		if (size == 0)
+		if (size == 0) {
 			return "{}";
+		}
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append('{');
 		Array<T> keys = this.items;
 		for (int i = 0, n = keys.size; i < n; i++) {
 			T key = keys.get(i);
-			if (i > 0)
+			if (i > 0) {
 				buffer.append(", ");
+			}
 			buffer.append(key);
 		}
 		buffer.append('}');
 		return buffer.toString();
 	}
 
-	static public class IdentityOrderedSetIterator<T> extends IdentitySetIterator<T> {
+	static public class OrderedIdentitySetIterator<T> extends IdentitySetIterator<T> {
 		private Array<T> items;
 
-		public IdentityOrderedSetIterator(IdentityOrderedSet<T> set) {
+		public OrderedIdentitySetIterator(OrderedIdentitySet<T> set) {
 			super(set);
 			items = set.items;
 		}
@@ -120,10 +142,12 @@ public class IdentityOrderedSet<T> extends IdentitySet<T> {
 
 		@Override
 		public T next() {
-			if (!hasNext)
+			if (!hasNext) {
 				throw new NoSuchElementException();
-			if (!valid)
+			}
+			if (!valid) {
 				throw new GdxRuntimeException("#iterator() cannot be used nested.");
+			}
 			T key = items.get(nextIndex);
 			nextIndex++;
 			hasNext = nextIndex < set.size;
@@ -132,8 +156,9 @@ public class IdentityOrderedSet<T> extends IdentitySet<T> {
 
 		@Override
 		public void remove() {
-			if (nextIndex < 0)
+			if (nextIndex < 0) {
 				throw new IllegalStateException("next must be called before remove.");
+			}
 			nextIndex--;
 			set.remove(items.get(nextIndex));
 		}

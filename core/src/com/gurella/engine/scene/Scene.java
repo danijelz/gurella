@@ -19,7 +19,7 @@ import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.scene.tag.TagManager;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.utils.IdentityOrderedSet;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
@@ -30,30 +30,30 @@ public final class Scene extends ManagedObject {
 	transient final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
 	@PropertyDescriptor(property = SceneSystemsProperty.class)
 	public final ImmutableArray<SceneSystem2> systems = _systems.orderedValues();
-	transient final IdentityOrderedSet<SceneSystem2> _activeSystems = new IdentityOrderedSet<SceneSystem2>();
+	transient final OrderedIdentitySet<SceneSystem2> _activeSystems = new OrderedIdentitySet<SceneSystem2>();
 	public transient final ImmutableArray<SceneSystem2> activeSystems = _activeSystems.orderedItems();
 
-	transient final IdentityOrderedSet<SceneNode2> _nodes = new IdentityOrderedSet<SceneNode2>();
+	transient final OrderedIdentitySet<SceneNode2> _nodes = new OrderedIdentitySet<SceneNode2>();
 	@PropertyDescriptor(property = SceneNodesProperty.class)
 	public final ImmutableArray<SceneNode2> nodes = _nodes.orderedItems();
-	transient final IdentityOrderedSet<SceneNode2> _activeNodes = new IdentityOrderedSet<SceneNode2>();
+	transient final OrderedIdentitySet<SceneNode2> _activeNodes = new OrderedIdentitySet<SceneNode2>();
 	public transient final ImmutableArray<SceneNode2> activeNodes = _activeNodes.orderedItems();
 
-	transient final IdentityOrderedSet<SceneNodeComponent2> _components = new IdentityOrderedSet<SceneNodeComponent2>();
+	transient final OrderedIdentitySet<SceneNodeComponent2> _components = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> components = _components.orderedItems();
-	transient final IdentityOrderedSet<SceneNodeComponent2> _activeComponents = new IdentityOrderedSet<SceneNodeComponent2>();
+	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	public final ComponentManager componentManager = new ComponentManager();
-	public final NodeManager nodeManager = new NodeManager();
+	public final transient ComponentManager componentManager = new ComponentManager();
+	public final transient NodeManager nodeManager = new NodeManager();
 
-	public final TagManager tagManager = new TagManager();
-	public final LayerManager layerManager = new LayerManager();
+	public final transient TagManager tagManager = new TagManager();
+	public final transient LayerManager layerManager = new LayerManager();
 
-	public final SpatialPartitioningSystem<?> spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
-	public final InputSystem inputSystem = new InputSystem();
-	public final RenderSystem renderSystem = new RenderSystem();
-	public final AudioSystem audioSystem = new AudioSystem();
+	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
+	public final transient InputSystem inputSystem = new InputSystem();
+	public final transient RenderSystem renderSystem = new RenderSystem();
+	public final transient AudioSystem audioSystem = new AudioSystem();
 	// TODO public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 
 	public final void start() {
@@ -193,10 +193,32 @@ public final class Scene extends ManagedObject {
 		return node;
 	}
 
+	public SceneNode2 getNode(String name) {
+		for (int i = 0; i < nodes.size(); i++) {
+			SceneNode2 node = nodes.get(i);
+			if (Values.isEqual(name, node.name)) {
+				return node;
+			}
+		}
+		return null;
+	}
+
+	public Array<SceneNode2> getNodes(String name, Array<SceneNode2> out) {
+		for (int i = 0; i < nodes.size(); i++) {
+			SceneNode2 node = nodes.get(i);
+			if (Values.isEqual(name, node.name)) {
+				out.add(node);
+			}
+		}
+		return out;
+	}
+
 	public String getDiagnostics() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Systems [");
-		for (SceneSystem2 system : _systems.values()) {
+		ImmutableArray<SceneSystem2> orderedSystems = _systems.orderedValues();
+		for (int i = 0; i < orderedSystems.size(); i++) {
+			SceneSystem2 system = orderedSystems.get(i);
 			builder.append("\n\t");
 			if (!system.isActive()) {
 				builder.append("*");
@@ -205,7 +227,8 @@ public final class Scene extends ManagedObject {
 		}
 		builder.append("]\n");
 		builder.append("Nodes [");
-		for (SceneNode2 node : nodes) {
+		for (int i = 0; i < nodes.size(); i++) {
+			SceneNode2 node = nodes.get(i);
 			builder.append("\n");
 			builder.append(node.getDiagnostics());
 		}

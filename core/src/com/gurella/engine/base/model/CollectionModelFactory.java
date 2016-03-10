@@ -185,7 +185,7 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public Property<Object[]> newInstance(Model<?> model) {
-			return new CollectionItemsProperty();
+			return this;
 		}
 
 		@Override

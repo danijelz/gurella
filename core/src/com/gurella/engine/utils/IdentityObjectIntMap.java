@@ -10,9 +10,8 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.StringBuilder;
 
 public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.Entry<K>> {
-	private static final int PRIME1 = 0xbe1f14b1;
-	private static final int PRIME2 = 0xb4b82e39;
-	private static final int PRIME3 = 0xced1c241;
+	private static final int PRIME1 = 0xb4b82e39;
+	private static final int PRIME2 = 0xced1c241;
 
 	public int size;
 
@@ -542,12 +541,12 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 	}
 
 	private int hash2(int h) {
-		h *= PRIME2;
+		h *= PRIME1;
 		return (h ^ h >>> hashShift) & mask;
 	}
 
 	private int hash3(int h) {
-		h *= PRIME3;
+		h *= PRIME2;
 		return (h ^ h >>> hashShift) & mask;
 	}
 
@@ -572,7 +571,6 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (obj == this) {
 			return true;
 		}
-
 		if (!(obj instanceof IdentityObjectIntMap)) {
 			return false;
 		}
@@ -581,7 +579,6 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		if (other.size != size) {
 			return false;
 		}
-
 		K[] keyTable = this.keyTable;
 		int[] valueTable = this.valueTable;
 		for (int i = 0, n = capacity + stashSize; i < n; i++) {

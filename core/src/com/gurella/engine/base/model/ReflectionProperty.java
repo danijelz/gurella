@@ -159,7 +159,9 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public Property<T> newInstance(Model<?> newModel) {
-		return new ReflectionProperty<T>(field, getter, setter, newModel);
+		T overriden = getValue(Defaults.getDefault(newModel.getType()));
+		return Values.isEqual(defaultValue, overriden, true) ? this
+				: new ReflectionProperty<T>(field, getter, setter, newModel);
 	}
 
 	@Override
