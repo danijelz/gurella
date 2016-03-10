@@ -26,6 +26,13 @@ public final class PrefabReference {
 		this.uuid = uuid;
 	}
 
+	public PrefabReference(String uuid) {
+		if (!Uuid.isValid(uuid)) {
+			throw new IllegalArgumentException("Invalid uuid: " + uuid);
+		}
+		this.uuid = uuid;
+	}
+
 	public PrefabReference(ManagedObject prefab) {
 		this.prefab = prefab;
 		String path = ResourceService.getFileName(prefab);
