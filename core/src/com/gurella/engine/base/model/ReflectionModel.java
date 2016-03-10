@@ -168,7 +168,7 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private Object resolveTemplate(T instance, Object template) {
-		if (template != null && type == template.getClass()) {
+		if (template != null) {
 			return template;
 		} else if (instance instanceof ManagedObject) {
 			PrefabReference prefab = ((ManagedObject) instance).getPrefab();
