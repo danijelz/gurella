@@ -235,7 +235,7 @@ public class Models {
 			if (properties.size() > 0) {
 				for (int i = 0; i < properties.size(); i++) {
 					Property<?> property = properties.get(i);
-					if (!isEqual(property.getValue(first), property.getValue(second))) {
+					if (property.isCopyable() && !isEqual(property.getValue(first), property.getValue(second))) {
 						return false;
 					}
 				}
