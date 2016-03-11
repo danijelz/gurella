@@ -174,8 +174,12 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void clear() {
-		childrenPrivate.clear();
 		clearAttachments();
+		childrenPrivate.clear();
+		if (prefab != null) {
+			prefab.free();
+			prefab = null;
+		}
 	}
 
 	protected void resetValues() {
@@ -185,7 +189,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 		instanceId = SequenceGenerator.next();
 		uuid = null;
-		prefab = null;
+		if (prefab != null) {
+			prefab.free();
+			prefab = null;
+		}
 		state = ManagedObjectState.idle;
 		parent = null;
 	}

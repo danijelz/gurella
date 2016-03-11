@@ -3,7 +3,6 @@ package com.gurella.engine.base.object;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.resource.FileService;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -106,21 +105,18 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 
 	@Override
 	public void copy(Object original, Object duplicate, CopyContext context) {
-		ManagedObject originalObject = (ManagedObject) original;
-		PrefabReference originalPrefab = originalObject.prefab;
-		if (originalPrefab == null) {
-			String fileName = ResourceService.getFileName(originalObject);
-			if (fileName == null) {
-				return;
-			}
+		ManagedObject originalObj = (ManagedObject) original;
+		PrefabReference originalPrefab = originalObj.prefab;
 
-			((ManagedObject) duplicate).prefab = new PrefabReference(FileService.getUuid(fileName),
-					originalObject.ensureUuid());
+		if (originalPrefab == null) {
+			String fileUuid = ResourceService.getFileNameUuid(originalObj);
+			if (fileUuid != null) {
+				PrefabReference prefab = PrefabReference.obtain(fileUuid, originalObj.ensureUuid());
+				((ManagedObject) duplicate).prefab = prefab;
+			}
 		} else {
-			PrefabReference copy = new PrefabReference();
-			copy.fileUuid = originalPrefab.fileUuid;
-			copy.uuid = originalPrefab.uuid;
-			((ManagedObject) duplicate).prefab = copy;
+			PrefabReference prefab = PrefabReference.obtain(originalPrefab.fileUuid, originalPrefab.uuid);
+			((ManagedObject) duplicate).prefab = prefab;
 		}
 	}
 }

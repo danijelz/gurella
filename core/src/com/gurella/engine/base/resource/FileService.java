@@ -4,41 +4,40 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
-//TODO unused
-public class FileService {
-	private static final ObjectMap<String, String> pathToUuid = new ObjectMap<String, String>();
-	private static final ObjectMap<String, String> uuidToPath = new ObjectMap<String, String>();
+public final class FileService {
+	private static final ObjectMap<String, String> fileNameToUuid = new ObjectMap<String, String>();
+	private static final ObjectMap<String, String> uuidToFileName = new ObjectMap<String, String>();
 
 	private FileService() {
 	}
 
-	public static String getUuid(String path) {
-		if (Values.isBlank(path)) {
-			throw new IllegalArgumentException("Path must not be null.");
+	public static String getUuid(String fileName) {
+		if (Values.isBlank(fileName)) {
+			throw new IllegalArgumentException("fileName must not be blank.");
 		}
 
-		String uuid = pathToUuid.get(path);
+		String uuid = fileNameToUuid.get(fileName);
 		if (uuid == null) {
 			uuid = Uuid.randomUuidString();
-			pathToUuid.put(path, uuid);
-			uuidToPath.put(uuid, path);
+			fileNameToUuid.put(fileName, uuid);
+			uuidToFileName.put(uuid, fileName);
 		}
 		return uuid;
 	}
 
-	public static String getPath(String uuid) {
-		return uuidToPath.get(uuid);
+	public static String getFileName(String uuid) {
+		return uuidToFileName.get(uuid);
 	}
 
-	public static void pathChanged(String oldPath, String newPath) {
-		String uuid = pathToUuid.remove(oldPath);
+	public static void fileNameChanged(String oldFileName, String newFileName) {
+		String uuid = fileNameToUuid.remove(oldFileName);
 		if (uuid != null) {
-			pathToUuid.put(newPath, uuid);
-			uuidToPath.put(uuid, newPath);
+			fileNameToUuid.put(newFileName, uuid);
+			uuidToFileName.put(uuid, newFileName);
 		}
 	}
 
-	public static void removePath(String path) {
-		uuidToPath.remove(pathToUuid.remove(path));
+	public static void removeFileName(String fileName) {
+		uuidToFileName.remove(fileNameToUuid.remove(fileName));
 	}
 }
