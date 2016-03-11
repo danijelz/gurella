@@ -2,6 +2,8 @@ package com.gurella.engine.base.serialization.json;
 
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveObjectType;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.valuePropertyName;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.files.FileHandle;
@@ -61,7 +63,7 @@ public class JsonInput implements Input, Poolable {
 
 	private <T> T deserialize(JsonValue jsonValue, Class<T> expectedType, Object template) {
 		Class<T> resolvedType = resolveObjectType(expectedType, jsonValue);
-		JsonValue resolvedValue = isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue;
+		JsonValue resolvedValue = isSimpleType(resolvedType) ? jsonValue.get(valuePropertyName) : jsonValue;
 		return deserializeObject(resolvedValue, resolvedType, template);
 	}
 
@@ -174,7 +176,7 @@ public class JsonInput implements Input, Poolable {
 			result = null;
 		} else if (expectedType != null && (expectedType.isPrimitive() || isSimpleType(expectedType))) {
 			if (value.isObject()) {
-				push(value.get("value"));
+				push(value.get(valuePropertyName));
 			} else {
 				push(value);
 			}
@@ -184,7 +186,7 @@ public class JsonInput implements Input, Poolable {
 			result = deserialize(value, expectedType, template);
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
-			String itemTypeName = firstItem.getString("class", null);
+			String itemTypeName = firstItem.getString(typePropertyName, null);
 			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
 				Class<?> arrayType = Reflection.forName(firstItem.getString(ArrayType.typeNameField));
 				@SuppressWarnings("unchecked")

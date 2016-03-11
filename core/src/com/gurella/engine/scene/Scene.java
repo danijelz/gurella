@@ -1,26 +1,22 @@
 package com.gurella.engine.scene;
 
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
 import com.gurella.engine.scene.manager.NodeManager;
-import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.scene.tag.TagManager;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
@@ -235,100 +231,5 @@ public final class Scene extends ManagedObject {
 		builder.append("]");
 
 		return builder.toString();
-	}
-
-	public static void main(String[] args) {
-		Scene scene = new Scene();
-		scene.newSystem(TestSystem.class);
-		SceneNode2 node1 = scene.newNode("node 1");
-		node1.newComponent(TestComponent.class);
-		System.out.println(scene.getDiagnostics());
-
-		scene.start();
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-
-		node1.removeComponent(TestComponent.class);
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-
-		TransformComponent transform1 = node1.newComponent(TransformComponent.class);
-		update();
-
-		SceneNode2 node2 = node1.newChild("node 2");
-		TransformComponent transform2 = node2.newComponent(TransformComponent.class);
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-
-		node2.activate();
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-
-		Vector3 out = new Vector3();
-		transform1.translate(1, 1, 1);
-		transform2.getWorldTranslation(out);
-		System.out.println("\n\n\n");
-		System.out.println(out);
-
-		transform1.translate(1, 1, 1);
-		transform2.getWorldTranslation(out);
-		System.out.println("\n\n\n");
-		System.out.println(out);
-
-		scene.addNode(node2);
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-
-		transform2.getWorldTranslation(out);
-		System.out.println("\n\n\n");
-		System.out.println(out);
-
-		node1.addChild(node2);
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-
-		transform2.getWorldTranslation(out);
-		System.out.println("\n\n\n");
-		System.out.println(out);
-
-		transform1.disable();
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-		transform2.getWorldTranslation(out);
-		System.out.println(out);
-
-		transform1.enable();
-		update();
-		System.out.println("\n\n\n");
-		System.out.println(scene.getDiagnostics());
-		transform2.getWorldTranslation(out);
-		System.out.println(out);
-	}
-
-	private static void update() {
-		Array<ApplicationUpdateListener> listeners = new Array<ApplicationUpdateListener>();
-		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).update();
-		}
-	}
-
-	private static class TestSystem extends SceneSystem2 implements Poolable {
-		@Override
-		public void reset() {
-		}
-	}
-
-	private static class TestComponent extends SceneNodeComponent2 implements Poolable {
-		@Override
-		public void reset() {
-		}
 	}
 }

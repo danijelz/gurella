@@ -1,5 +1,9 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.valuePropertyName;
+
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -86,7 +90,7 @@ public class JsonOutput implements Output, Poolable {
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
 				object();
-				writeStringProperty("class", ArrayType.class.getSimpleName());
+				writeStringProperty(typePropertyName, ArrayType.class.getSimpleName());
 				writeStringProperty(ArrayType.typeNameField, actualType.getName());
 				pop();
 			}
@@ -209,7 +213,7 @@ public class JsonOutput implements Output, Poolable {
 			@SuppressWarnings("unchecked")
 			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
 			model.serialize(value, null, this);
-		} else if (JsonSerialization.isSimpleType(value)) {
+		} else if (isSimpleType(value)) {
 			Model<Object> model = Models.getModel(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
@@ -217,7 +221,7 @@ public class JsonOutput implements Output, Poolable {
 			} else {
 				object();
 				type(actualType);
-				name("value");
+				name(valuePropertyName);
 				model.serialize(value, null, this);
 				pop();
 			}
@@ -380,7 +384,7 @@ public class JsonOutput implements Output, Poolable {
 		try {
 			Class<?> resolvedType = (ClassReflection.isAssignableFrom(Enum.class, type)
 					&& type.getEnumConstants() == null) ? type.getSuperclass() : type;
-			writer.set("class", resolvedType.getName());
+			writer.set(typePropertyName, resolvedType.getName());
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}

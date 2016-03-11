@@ -1,5 +1,10 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveObjectType;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.valuePropertyName;
+
 import java.io.ByteArrayInputStream;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -67,10 +72,10 @@ public class UBJsonInput implements Input, Poolable {
 	}
 
 	private <T> T deserializeObject(JsonValue jsonValue, Class<T> expectedType, Object template) {
-		Class<T> resolvedType = JsonSerialization.resolveObjectType(expectedType, jsonValue);
+		Class<T> resolvedType = resolveObjectType(expectedType, jsonValue);
 		Model<T> model = Models.getModel(resolvedType);
 
-		push(JsonSerialization.isSimpleType(resolvedType) ? jsonValue.get("value") : jsonValue);
+		push(isSimpleType(resolvedType) ? jsonValue.get(valuePropertyName) : jsonValue);
 		T object = model.deserialize(template, this);
 		pop();
 
@@ -163,10 +168,9 @@ public class UBJsonInput implements Input, Poolable {
 		T result;
 		if (value.isNull()) {
 			result = null;
-		} else if (expectedType != null
-				&& (expectedType.isPrimitive() || JsonSerialization.isSimpleType(expectedType))) {
+		} else if (expectedType != null && (expectedType.isPrimitive() || isSimpleType(expectedType))) {
 			if (value.isObject()) {
-				push(value.get("value"));
+				push(value.get(valuePropertyName));
 			} else {
 				push(value);
 			}
@@ -176,7 +180,7 @@ public class UBJsonInput implements Input, Poolable {
 			result = deserializeObject(value, expectedType, template);
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
-			String itemTypeName = firstItem.getString("class", null);
+			String itemTypeName = firstItem.getString(typePropertyName, null);
 			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
 				Class<?> arrayType = Reflection.forName(firstItem.getString(ArrayType.typeNameField));
 				@SuppressWarnings("unchecked")
