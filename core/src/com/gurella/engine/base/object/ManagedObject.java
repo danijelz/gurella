@@ -26,8 +26,8 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
-	private transient final OrderedIdentitySet<ManagedObject> childrenPrivate = new OrderedIdentitySet<ManagedObject>();
-	public transient final ImmutableArray<ManagedObject> children = childrenPrivate.orderedItems();
+	private transient final OrderedIdentitySet<ManagedObject> _children = new OrderedIdentitySet<ManagedObject>();
+	public transient final ImmutableArray<ManagedObject> children = _children.orderedItems();
 
 	private final transient IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
 
@@ -120,7 +120,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void handleDeactivation() {
-		for (int i = 0; i < childrenPrivate.size; i++) {
+		for (int i = 0; i < _children.size; i++) {
 			ManagedObject child = children.get(i);
 			if (child.state == ManagedObjectState.active) {
 				child.handleDeactivation();
@@ -150,13 +150,13 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			handleDeactivation();
 		}
 
-		for (int i = 0; i < childrenPrivate.size; i++) {
+		for (int i = 0; i < _children.size; i++) {
 			ManagedObject child = children.get(i);
 			child.handleDestruction();
 		}
 
 		if (parent != null) {
-			parent.childrenPrivate.remove(this);
+			parent._children.remove(this);
 			parent.childRemoved(this);
 			Objects.childRemoved(parent, this);
 		}
@@ -175,7 +175,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void clear() {
 		clearAttachments();
-		childrenPrivate.clear();
+		_children.clear();
 		if (prefab != null) {
 			prefab.free();
 			prefab = null;
@@ -216,17 +216,17 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 		ManagedObject oldParent = parent;
 		if (oldParent != null) {
-			oldParent.childrenPrivate.remove(this);
+			oldParent._children.remove(this);
 			oldParent.childRemoved(this);
 			Objects.childRemoved(oldParent, this);
 		}
 
 		parent = newParent;
 		if (newParent != null) {
-			newParent.childrenPrivate.add(this);
+			newParent._children.add(this);
 			newParent.childAdded(this);
-			Objects.childAdded(newParent, this);
 			updateStateByParent();
+			Objects.childAdded(newParent, this);
 		}
 
 		parentChanged(oldParent, newParent);

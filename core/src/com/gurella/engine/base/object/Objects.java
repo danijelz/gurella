@@ -56,7 +56,7 @@ final class Objects implements ApplicationUpdateListener {
 		operation.operationType = operationType;
 		operation.newParent = newParent;
 		operations.add(operation);
-		
+
 		if (subscribe) {
 			EventService.subscribe(instance);
 		}
@@ -95,39 +95,51 @@ final class Objects implements ApplicationUpdateListener {
 		tempListeners.clear();
 	}
 
-	static void childAdded(ManagedObject object, ManagedObject child) {
+	static void childAdded(ManagedObject parent, ManagedObject child) {
+		if (!parent.isActive() || !child.isActive()) {
+			return;
+		}
+
 		Array<ObjectsCompositionListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ObjectsCompositionListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).childAdded(object, child);
+			globalListeners.get(i).childAdded(parent, child);
 		}
 		tempListeners.clear();
 
 		Array<ObjectCompositionListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.instanceId, ObjectCompositionListener.class, listeners);
+		EventService.getSubscribers(parent.instanceId, ObjectCompositionListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).childAdded(object);
+			listeners.get(i).childAdded(parent);
 		}
 		tempListeners.clear();
 	}
 
-	static void childRemoved(ManagedObject object, ManagedObject child) {
+	static void childRemoved(ManagedObject parent, ManagedObject child) {
+		if (!parent.isActive() || !child.isActive()) {
+			return;
+		}
+
 		Array<ObjectsCompositionListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ObjectsCompositionListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).childRemoved(object, child);
+			globalListeners.get(i).childRemoved(parent, child);
 		}
 		tempListeners.clear();
 
 		Array<ObjectCompositionListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.instanceId, ObjectCompositionListener.class, listeners);
+		EventService.getSubscribers(parent.instanceId, ObjectCompositionListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).childRemoved(object);
+			listeners.get(i).childRemoved(parent);
 		}
 		tempListeners.clear();
 	}
 
 	static void parentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent) {
+		if (!object.isActive()) {
+			return;
+		}
+
 		Array<ObjectsParentListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ObjectsParentListener.class, globalListeners);
 		for (int i = 0; i < globalListeners.size; i++) {
