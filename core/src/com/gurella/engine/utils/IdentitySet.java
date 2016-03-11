@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.StringBuilder;
 /** 
  * @author Nathan Sweet 
  * */
+//TODO Poolable, array pool
 public class IdentitySet<T> implements Iterable<T> {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;

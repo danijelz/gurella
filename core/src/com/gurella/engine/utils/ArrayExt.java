@@ -49,6 +49,14 @@ public class ArrayExt<T> extends Array<T> {
 		return super.resize(newSize);
 	}
 
+	public void addAll(ImmutableArray<? extends T> array) {
+		array.appendAll(this);
+	}
+
+	public void addAll(ImmutableArray<? extends T> array, int start, int count) {
+		array.appendAll(this, start, count);
+	}
+
 	public ImmutableArray<T> immutable() {
 		if (immutable == null) {
 			immutable = new ImmutableArray<T>(this);

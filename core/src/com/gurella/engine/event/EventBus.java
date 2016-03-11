@@ -7,17 +7,18 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.OrderedSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.Values;
 
 public class EventBus implements Poolable {
-	private final ObjectMap<Object, OrderedSet<?>> listeners = new ObjectMap<Object, OrderedSet<?>>();
+	private final ObjectMap<Object, OrderedIdentitySet<?>> listeners = new ObjectMap<Object, OrderedIdentitySet<?>>();
 
-	private final Array<Object> eventPool = new Array<Object>();
-	private final Array<Object> workingListeners = new Array<Object>();
+	private final ArrayExt<Object> eventPool = new ArrayExt<Object>();
+	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>();
 
 	private boolean processing;
 
@@ -34,12 +35,12 @@ public class EventBus implements Poolable {
 	}
 
 	private boolean addListenerInternal(Object event, Object listener) {
-		final OrderedSet<Object> listenersByType = listenersByType(event);
+		final OrderedIdentitySet<Object> listenersByType = listenersByType(event);
 		if (listenersByType.add(listener)) {
 			Class<?> eventType = event.getClass();
 			ListenersComparator comparator = PoolService.obtain(ListenersComparator.class);
 			comparator.eventType = eventType;
-			listenersByType.orderedItems().sort(comparator);
+			listenersByType.sort(comparator);
 			PoolService.free(comparator);
 			return true;
 		} else {
@@ -56,19 +57,19 @@ public class EventBus implements Poolable {
 		SubscriberComparator comparator = PoolService.obtain(SubscriberComparator.class);
 		synchronized (listeners) {
 			for (Class<? extends EventSubscription> subscription : subscriptions) {
-				OrderedSet<Object> subscribers = listenersByType(subscription);
+				OrderedIdentitySet<Object> subscribers = listenersByType(subscription);
 				subscribers.add(subscriber);
 				comparator.subscription = subscription;
-				subscribers.orderedItems().sort(comparator);
+				subscribers.sort(comparator);
 			}
 		}
 		PoolService.free(comparator);
 	}
 
-	private <L> OrderedSet<L> listenersByType(Object eventType) {
-		OrderedSet<L> listenersByType = Values.cast(listeners.get(eventType));
+	private <L> OrderedIdentitySet<L> listenersByType(Object eventType) {
+		OrderedIdentitySet<L> listenersByType = Values.cast(listeners.get(eventType));
 		if (listenersByType == null) {
-			listenersByType = new OrderedSet<L>();
+			listenersByType = new OrderedIdentitySet<L>();
 			listeners.put(eventType, listenersByType);
 		}
 		return listenersByType;
@@ -87,7 +88,7 @@ public class EventBus implements Poolable {
 	}
 
 	private boolean removeListenerInternal(Object eventType, Object listener) {
-		OrderedSet<Object> listenersByType = Values.cast(listeners.get(eventType));
+		OrderedIdentitySet<Object> listenersByType = Values.cast(listeners.get(eventType));
 		return listenersByType == null ? false : listenersByType.remove(listener);
 	}
 
@@ -99,7 +100,7 @@ public class EventBus implements Poolable {
 
 		synchronized (listeners) {
 			for (Class<? extends EventSubscription> subscription : subscriptions) {
-				OrderedSet<Object> subscribers = Values.cast(listeners.get(subscription));
+				OrderedIdentitySet<Object> subscribers = Values.cast(listeners.get(subscription));
 				if (subscribers != null) {
 					subscribers.remove(subscriber);
 				}
@@ -148,13 +149,13 @@ public class EventBus implements Poolable {
 
 	private <L> void notifyListeners(final Event<L> event) {
 		Class<? extends Event<L>> eventType = Values.cast(event.getClass());
-		Array<L> listenersByType = Values.cast(workingListeners);
+		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
-			OrderedSet<L> temp = Values.cast(listeners.get(eventType));
+			OrderedIdentitySet<L> temp = Values.cast(listeners.get(eventType));
 			if (temp == null) {
 				return;
 			}
-			listenersByType.addAll(temp.orderedItems());
+			temp.orderedItems().appendAll(listenersByType);
 		}
 
 		for (int i = 0; i < listenersByType.size; i++) {
@@ -168,13 +169,13 @@ public class EventBus implements Poolable {
 
 	private <L extends EventSubscription> void notifyListeners(final SubscriptionEvent<L> event) {
 		Class<L> eventType = event.subscriptionType;
-		Array<L> listenersByType = Values.cast(workingListeners);
+		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
-			OrderedSet<L> temp = Values.cast(listeners.get(eventType));
+			OrderedIdentitySet<L> temp = Values.cast(listeners.get(eventType));
 			if (temp == null) {
 				return;
 			}
-			listenersByType.addAll(temp.orderedItems());
+			temp.orderedItems().appendAll(listenersByType);
 		}
 
 		for (int i = 0; i < listenersByType.size; i++) {
@@ -187,13 +188,13 @@ public class EventBus implements Poolable {
 	}
 
 	private <T> void notifyListeners(T eventType) {
-		Array<Listener1<T>> listenersByType = Values.cast(workingListeners);
+		ArrayExt<Listener1<T>> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
-			OrderedSet<Listener1<T>> temp = Values.cast(listeners.get(eventType));
+			OrderedIdentitySet<Listener1<T>> temp = Values.cast(listeners.get(eventType));
 			if (temp == null) {
 				return;
 			}
-			listenersByType.addAll(temp.orderedItems());
+			temp.orderedItems().appendAll(listenersByType);
 		}
 
 		for (int i = 0; i < listenersByType.size; i++) {
@@ -239,9 +240,9 @@ public class EventBus implements Poolable {
 
 	private <T> Array<T> getListenersInternal(Object eventType, Array<T> out) {
 		synchronized (listeners) {
-			OrderedSet<T> listenersByType = Values.cast(listeners.get(eventType));
+			OrderedIdentitySet<T> listenersByType = Values.cast(listeners.get(eventType));
 			if (listenersByType != null) {
-				out.addAll(listenersByType.orderedItems());
+				listenersByType.orderedItems().appendAll(out);
 			}
 			return out;
 		}
@@ -252,7 +253,7 @@ public class EventBus implements Poolable {
 			synchronized (eventPool) {
 				if (!processing) {
 					//TODO wrong
-					for (OrderedSet<?> listenersByType : listeners.values()) {
+					for (OrderedIdentitySet<?> listenersByType : listeners.values()) {
 						if (listenersByType.size > 0) {
 							return false;
 						}
@@ -281,6 +282,7 @@ public class EventBus implements Poolable {
 		listeners.clear();
 		eventPool.clear();
 		processing = false;
+		//TODO listeners.reset(), eventPool.reset(), workingListeners.reset()
 	}
 
 	private static class ListenersComparator implements Comparator<Object>, Poolable {

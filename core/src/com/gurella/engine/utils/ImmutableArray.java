@@ -69,6 +69,10 @@ public class ImmutableArray<T> implements Iterable<T> {
 		out.addAll(array);
 	}
 
+	public void appendAll(Array<? super T> out, int start, int count) {
+		out.addAll(array, start, count);
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if (object == this) {

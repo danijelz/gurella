@@ -2,6 +2,7 @@ package com.gurella.engine.utils;
 
 import com.badlogic.gdx.utils.IntMap;
 
+//TODO Poolable, array pool
 public class OrderedValuesIntMap<V> extends IntMap<V> {
 	private final ArrayExt<V> values;
 

@@ -1,8 +1,10 @@
 package com.gurella.engine.scene;
 
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
+import com.gurella.engine.utils.SequenceGenerator;
 
 public abstract class SceneNodeComponent2 extends SceneElement2 {
 	public final int baseComponentType;
@@ -27,12 +29,13 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 		return getNode() == null ? false : getNode().isHierarchyEnabled();
 	}
 
-	public SceneNode2 getNode() {
+	public final SceneNode2 getNode() {
 		return (SceneNode2) getParent();
 	}
 
-	public int getNodeId() {
-		return getNode().getInstanceId();
+	public final int getNodeId() {
+		ManagedObject parent = getParent();
+		return parent == null ? SequenceGenerator.invalidId : parent.getInstanceId();
 	}
 
 	@Override
@@ -48,7 +51,7 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 		onActivate();
 		scene.eventsDispatcher.componentActivated(this);
 	}
-	
+
 	protected void onActivate() {
 	}
 
@@ -65,7 +68,7 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 		onDeactivate();
 		scene._activeComponents.remove(this);
 	}
-	
+
 	protected void onDeactivate() {
 	}
 

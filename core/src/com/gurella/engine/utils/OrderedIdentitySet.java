@@ -1,5 +1,6 @@
 package com.gurella.engine.utils;
 
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 
 import com.badlogic.gdx.utils.Array;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.utils.StringBuilder;
 /**
  * @author Nathan Sweet
  */
+//TODO Poolable, array pool
 public class OrderedIdentitySet<T> extends IdentitySet<T> {
 	final ArrayExt<T> items;
 	private OrderedIdentitySetIterator<T> iterator1, iterator2;
@@ -67,6 +69,51 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 
 	public ImmutableArray<T> orderedItems() {
 		return items.immutable();
+	}
+
+	public void sort(Comparator<? super T> comparator) {
+		items.sort(comparator);
+	}
+
+	public void sort() {
+		items.sort();
+	}
+
+	@Override
+	public T first() {
+		return items.first();
+	}
+
+	public T get(int index) {
+		return items.get(index);
+	}
+
+	public T peek() {
+		return items.peek();
+	}
+
+	public int indexOf(T value) {
+		return items.indexOf(value, true);
+	}
+
+	public void reverse() {
+		items.reverse();
+	}
+
+	public T random() {
+		return items.random();
+	}
+
+	public T pop() {
+		T value = peek();
+		remove(value);
+		return value;
+	}
+
+	public T removeIndex(int index) {
+		T value = items.get(index);
+		remove(value);
+		return value;
 	}
 
 	@Override

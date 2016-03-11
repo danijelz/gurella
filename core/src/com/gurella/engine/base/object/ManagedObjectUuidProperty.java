@@ -75,7 +75,6 @@ class ManagedObjectUuidProperty implements Property<String> {
 		if (input.hasProperty(name)) {
 			((ManagedObject) object).uuid = input.readStringProperty(name);
 		}
-
 	}
 
 	@Override

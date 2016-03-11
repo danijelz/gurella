@@ -339,7 +339,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	//	protected void disposed() {
 	//	}
 
-	// OWNING NODE EVENTS TODO
+	// TODO OWNING NODE EVENTS 
 	
 	public void nodeComponentAdded(SceneNodeComponent2 component) {
 	}
