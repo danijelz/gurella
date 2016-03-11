@@ -91,7 +91,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		if (template == null) {
 			if (value.size() != 0) {
 				value.appendAll(elements.elements);
-				output.writeObjectProperty(name, SceneElements.class, null, elements);
+				output.writeObjectProperty(name, SceneElements.class, null, elements, true);
 			}
 			return;
 		}
@@ -118,7 +118,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 			}
 		}
 
-		output.writeObjectProperty(name, SceneElements.class, null, elements);
+		output.writeObjectProperty(name, SceneElements.class, null, elements, true);
 	}
 
 	private int getPrefabId(T element) {
@@ -180,22 +180,34 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		}
 	}
 
-	static class SceneElements<T extends SceneElement2> /*TODO implements Serializable<SceneElements<T>>*/ {
+	static class SceneElements<T extends SceneElement2> implements Serializable<SceneElements<T>> {
 		final Array<String> removedElements = new Array<String>();
 		final Array<T> elements = new Array<T>();
 
-		/*@Override
+		@Override
 		public void serialize(SceneElements<T> instance, Object template, Output output) {
 			// TODO garbage
-			// TODO Auto-generated method stub
-
+			if (removedElements.size > 0) {
+				output.writeObjectProperty("removedElements", String[].class, null,
+						removedElements.toArray(String.class), true);
+			}
+			if (elements.size > 0) {
+				output.writeObjectProperty("elements", SceneElement2[].class, null,
+						elements.toArray(SceneElement2.class), true);
+			}
 		}
 
 		@Override
-		public SceneElements<T> deserialize(Object template, Input input) {
+		public void deserialize(Object template, Input input) {
 			// TODO garbage
-			// TODO Auto-generated method stub
-			return null;
-		}*/
+			if (input.hasProperty("removedElements")) {
+				removedElements.addAll(input.readObjectProperty("removedElements", String[].class, null));
+			}
+
+			if (input.hasProperty("elements")) {
+				T[] values = Values.cast(input.readObjectProperty("elements", SceneElement2[].class, null));
+				elements.addAll(values);
+			}
+		}
 	}
 }

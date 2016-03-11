@@ -24,7 +24,7 @@ public abstract class ArrayPool<T> {
 		listPool = new Pool<PooledLinkedList<T[]>>() {
 			@Override
 			protected PooledLinkedList<T[]> newObject() {
-				return new PooledLinkedList<>(maxEach);
+				return new PooledLinkedList<T[]>(maxEach);
 			}
 		};
 	}

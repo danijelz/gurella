@@ -2,7 +2,7 @@ package com.gurella.engine.base.serialization;
 
 public interface Output {
 	void writeNull();
-	
+
 	void writeInt(int value);
 
 	void writeLong(long value);
@@ -18,7 +18,7 @@ public interface Output {
 	void writeDouble(double value);
 
 	void writeFloat(float value);
-	
+
 	void writeInt(Integer value);
 
 	void writeLong(Long value);
@@ -36,11 +36,13 @@ public interface Output {
 	void writeFloat(Float value);
 
 	void writeString(String value);
-	
+
 	void writeObject(Class<?> expectedType, Object template, Object value);
-	
+
+	void writeObject(Class<?> expectedType, Object template, Object value, boolean flat);
+
 	void writeNullProperty(String name);
-	
+
 	void writeIntProperty(String name, int value);
 
 	void writeLongProperty(String name, long value);
@@ -56,7 +58,7 @@ public interface Output {
 	void writeDoubleProperty(String name, double value);
 
 	void writeFloatProperty(String name, float value);
-	
+
 	void writeIntProperty(String name, Integer value);
 
 	void writeLongProperty(String name, Long value);
@@ -74,6 +76,8 @@ public interface Output {
 	void writeFloatProperty(String name, Float value);
 
 	void writeStringProperty(String name, String value);
-	
+
 	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value);
+
+	void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat);
 }

@@ -4,7 +4,6 @@ import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.resource.FileService;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.utils.Uuid;
-import com.gurella.engine.utils.Values;
 
 @ModelDescriptor(model = PrefabReferenceModel.class)
 public final class PrefabReference {
@@ -68,19 +67,11 @@ public final class PrefabReference {
 		}
 
 		PrefabReference other = (PrefabReference) obj;
-		if (fileUuid == null) {
-			if (other.fileUuid != null) {
-				return false;
-			}
-		} else if (!fileUuid.equals(other.fileUuid)) {
-			return false;
-		}
-
-		return uuid.equals(other.uuid);
+		return fileUuid.equals(other.fileUuid) && uuid.equals(other.uuid);
 	}
 
 	@Override
 	public String toString() {
-		return Values.isBlank(fileUuid) ? uuid : (fileUuid + " " + uuid);
+		return fileUuid + " " + uuid;
 	}
 }

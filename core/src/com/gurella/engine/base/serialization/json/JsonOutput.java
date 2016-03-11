@@ -22,7 +22,7 @@ public class JsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	
+
 	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
 
 	@Override
@@ -70,10 +70,10 @@ public class JsonOutput implements Output, Poolable {
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
 		String resourceFileName = ResourceService.getFileName(object);
-		if(resourceFileName != null) {
+		if (resourceFileName != null) {
 			//TODO
 		}
-		
+
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
 	}
@@ -198,6 +198,11 @@ public class JsonOutput implements Output, Poolable {
 
 	@Override
 	public void writeObject(Class<?> expectedType, Object template, Object value) {
+		writeObject(expectedType, template, value, false);
+	}
+
+	@Override
+	public void writeObject(Class<?> expectedType, Object template, Object value, boolean flat) {
 		if (value == null) {
 			writeNull();
 		} else if (expectedType != null && expectedType.isPrimitive()) {
@@ -216,6 +221,8 @@ public class JsonOutput implements Output, Poolable {
 				model.serialize(value, null, this);
 				pop();
 			}
+		} else if (flat) {
+			serializeObject(expectedType, template, value);
 		} else {
 			writeReference(expectedType, template, value);
 		}
@@ -344,7 +351,13 @@ public class JsonOutput implements Output, Poolable {
 	@Override
 	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value) {
 		name(name);
-		writeObject(expectedType, template, value);
+		writeObject(expectedType, template, value, false);
+	}
+
+	@Override
+	public void writeObjectProperty(String name, Class<?> expectedType, Object template, Object value, boolean flat) {
+		name(name);
+		writeObject(expectedType, template, value, flat);
 	}
 
 	private void value(Object value) {
