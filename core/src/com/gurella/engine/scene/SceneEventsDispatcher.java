@@ -8,6 +8,7 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
+import com.gurella.engine.subscriptions.scene.NodeRenamedListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.DebugRenderUpdateListener;
@@ -83,6 +84,15 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 		tempListeners.clear();
 	}
 
+	void nodeRenamed(SceneNode2 node, String oldName, String newName) {
+		Array<NodeRenamedListener> sceneListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(sceneId, NodeRenamedListener.class, sceneListeners);
+		for (int i = 0; i < sceneListeners.size; i++) {
+			sceneListeners.get(i).nodeRenamed(node, oldName, newName);
+		}
+		tempListeners.clear();
+	}
+
 	@Override
 	public void update() {
 		Array<IoUpdateListener> ioUpdateListeners = Values.cast(tempListeners);
@@ -127,7 +137,7 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 		}
 		tempListeners.clear();
 
-		//TODO only fire if in debug mode
+		//TODO only fire if in debug or editor mode
 		Array<DebugRenderUpdateListener> debugRenderUpdateListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(sceneId, DebugRenderUpdateListener.class, debugRenderUpdateListeners);
 		for (int i = 0; i < debugRenderUpdateListeners.size; i++) {

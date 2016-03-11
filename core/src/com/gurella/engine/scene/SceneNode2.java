@@ -6,8 +6,8 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
@@ -24,6 +24,18 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		if (Values.isEqual(this.name, name, true)) {
+			return;
+		}
+
+		String oldName = this.name;
+		this.name = name;
+		if (isActive()) {
+			scene.eventsDispatcher.nodeRenamed(this, oldName, name);
+		}
 	}
 
 	@Override
@@ -76,13 +88,11 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 
 	@Override
 	protected final void activated() {
-		super.activated();
 		scene._activeNodes.add(this);
 	}
 
 	@Override
 	protected final void deactivated() {
-		super.deactivated();
 		scene._activeNodes.remove(this);
 	}
 

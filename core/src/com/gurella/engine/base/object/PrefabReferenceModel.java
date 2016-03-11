@@ -22,17 +22,11 @@ class PrefabReferenceModel extends SimpleObjectModel<PrefabReference> {
 	protected PrefabReference readValue(Input input) {
 		String simpleValue = input.readString();
 		String[] components = simpleValue.split(" ");
-		PrefabReference prefabReference = new PrefabReference();
-		prefabReference.fileUuid = components.length == 2 ? components[0] : null;
-		prefabReference.uuid = components.length == 2 ? components[1] : components[0];
-		return prefabReference;
+		return PrefabReference.obtain(components[0], components[1]);
 	}
 
 	@Override
 	public PrefabReference copy(PrefabReference original, CopyContext context) {
-		PrefabReference copy = new PrefabReference();
-		copy.fileUuid = original.fileUuid;
-		copy.uuid = original.uuid;
-		return copy;
+		return PrefabReference.obtain(original.fileUuid, original.uuid);
 	}
 }

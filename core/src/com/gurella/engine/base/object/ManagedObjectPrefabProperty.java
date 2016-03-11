@@ -96,10 +96,8 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 				return;
 			}
 
-			PrefabReference copy = new PrefabReference();
-			copy.fileUuid = templateValue.fileUuid;
-			copy.uuid = templateValue.uuid;
-			((ManagedObject) object).prefab = copy;
+			PrefabReference prefab = PrefabReference.obtain(templateValue.fileUuid, templateValue.uuid);
+			((ManagedObject) object).prefab = prefab;
 		}
 	}
 
