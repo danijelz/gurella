@@ -3,71 +3,47 @@ package com.gurella.engine.scene.tag;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.scene.Scene;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
 
-public class TagComponent extends SceneNodeComponent2 implements Poolable {
+public final class TagComponent extends SceneNodeComponent2 implements Poolable {
 	@PropertyDescriptor(descriptiveName = "tags")
 	final Bits _tags = new Bits();
 	public final transient ImmutableBits tags = new ImmutableBits(_tags);
 
 	public void addTag(Tag tag) {
 		int tagId = tag.id;
-		if (!_tags.getAndSet(tagId)) {
-			tagAdded(tagId);
+		if (!_tags.getAndSet(tagId) && isActive()) {
+			EventService.notify(getScene().getInstanceId(), TagAddedEvent.obtain(this, tagId));
 		}
 	}
 
 	public void addTags(Tag... tags) {
+		boolean active = isActive();
 		for (Tag tag : tags) {
 			int tagId = tag.id;
-			if (!_tags.getAndSet(tagId)) {
-				tagAdded(tagId);
+			if (!_tags.getAndSet(tagId) && active) {
+				EventService.notify(getScene().getInstanceId(), TagAddedEvent.obtain(this, tagId));
 			}
 		}
-	}
-
-	private void tagAdded(int tagId) {
-		if (!isActive()) {
-			return;
-		}
-
-		Scene scene = getScene();
-		if (scene == null) {
-			return;
-		}
-
-		scene.tagManager.tagAdded(this, tagId);
 	}
 
 	public void removeTag(Tag tag) {
 		int tagId = tag.id;
-		if (_tags.getAndClear(tagId)) {
-			tagRemoved(tagId);
+		if (_tags.getAndClear(tagId) && isActive()) {
+			EventService.notify(getScene().getInstanceId(), TagRemovedEvent.obtain(this, tagId));
 		}
 	}
 
 	public void removeTags(Tag... tags) {
+		boolean active = isActive();
 		for (Tag tag : tags) {
 			int tagId = tag.id;
-			if (_tags.getAndClear(tagId)) {
-				tagRemoved(tagId);
+			if (_tags.getAndClear(tagId) && active) {
+				EventService.notify(getScene().getInstanceId(), TagRemovedEvent.obtain(this, tagId));
 			}
 		}
-	}
-
-	private void tagRemoved(int tagId) {
-		if (!isActive()) {
-			return;
-		}
-
-		Scene scene = getScene();
-		if (scene == null) {
-			return;
-		}
-
-		scene.tagManager.tagRemoved(this, tagId);
 	}
 
 	@Override

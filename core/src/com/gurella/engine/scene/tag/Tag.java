@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.ValueRegistry;
 
 public final class Tag {
-	private static final ValueRegistry<Tag> INDEXER = new ValueRegistry<Tag>();
+	private static final ValueRegistry<Tag> registry = new ValueRegistry<Tag>();
 	private static ObjectMap<String, Tag> tagsByName = new ObjectMap<String, Tag>();
 
 	public final int id;
@@ -13,17 +13,16 @@ public final class Tag {
 
 	public Tag(String name) {
 		if (tagsByName.containsKey(name)) {
-			throw new GdxRuntimeException("Layer name duplicate");
+			throw new GdxRuntimeException("Tag name duplicate");
 		}
 
-		id = INDEXER.getId(this);
+		id = registry.getId(this);
 		this.name = name;
-
 		tagsByName.put(name, this);
 	}
 
 	public static Tag getTag(int id) {
-		return INDEXER.getValue(id);
+		return registry.getValue(id);
 	}
 
 	public static Tag getTag(String name) {

@@ -164,6 +164,10 @@ public class EventBus implements Poolable {
 		}
 
 		listenersByType.clear();
+		if (event instanceof Poolable) {
+			PoolService.free(event);
+		}
+
 		processPool();
 	}
 
@@ -184,6 +188,10 @@ public class EventBus implements Poolable {
 		}
 
 		listenersByType.clear();
+		if (event instanceof Poolable) {
+			PoolService.free(event);
+		}
+
 		processPool();
 	}
 
