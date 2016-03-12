@@ -1,6 +1,5 @@
 package com.gurella.engine.scene.tag;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -18,17 +17,17 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class TagManager extends SceneSystem2 implements ComponentActivityListener, TagActivityListener, Poolable {
-	private static final ComponentFamily family = new ComponentFamily(new ComponentTypePredicate(TagComponent.class));
+	private static final ComponentFamily tagComponentfamily = new ComponentFamily(
+			new ComponentTypePredicate(TagComponent.class));
 
 	private IntMap<ArrayExt<SceneNode2>> nodesByTag = new IntMap<ArrayExt<SceneNode2>>();
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override
 	protected void onActivate() {
-		super.onActivate();
 		ComponentManager componentManager = getScene().componentManager;
-		componentManager.registerComponentFamily(family);
-		ImmutableArray<? extends TagComponent> components = componentManager.getComponents(family);
+		componentManager.registerComponentFamily(tagComponentfamily);
+		ImmutableArray<? extends TagComponent> components = componentManager.getComponents(tagComponentfamily);
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
@@ -36,8 +35,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 
 	@Override
 	protected void onDeactivate() {
-		super.onDeactivate();
-		getScene().componentManager.unregisterComponentFamily(family);
+		getScene().componentManager.unregisterComponentFamily(tagComponentfamily);
 		for (FamilyNodes familyNodes : families.values()) {
 			Pools.free(familyNodes);
 		}
@@ -91,6 +89,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 		if (families.containsKey(familyId)) {
 			return;
 		}
+
 		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
 		familyNodes.family = tagFamily;
 		families.put(familyId, familyNodes);
@@ -100,7 +99,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 			return;
 		}
 
-		ImmutableArray<TagComponent> components = scene.componentManager.getComponents(family);
+		ImmutableArray<TagComponent> components = scene.componentManager.getComponents(tagComponentfamily);
 		for (int i = 0; i < components.size(); i++) {
 			familyNodes.handle(components.get(i));
 		}
@@ -146,7 +145,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 
 	public ImmutableArray<SceneNode2> getNodes(TagFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
-		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.immutableNodes;
+		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.nodes.immutable();
 	}
 
 	public SceneNode2 getSingleNodeByTag(Tag tag) {
@@ -171,8 +170,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 
 	private static class FamilyNodes implements Poolable {
 		private TagFamily family;
-		private final Array<SceneNode2> nodes = new Array<SceneNode2>();
-		private final ImmutableArray<SceneNode2> immutableNodes = new ImmutableArray<SceneNode2>(nodes);
+		private final ArrayExt<SceneNode2> nodes = new ArrayExt<SceneNode2>();
 
 		private void handle(TagComponent component) {
 			SceneNode2 node = component.getNode();
