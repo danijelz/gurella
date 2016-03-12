@@ -1,7 +1,9 @@
 package com.gurella.engine.base.serialization.json;
 
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
@@ -9,6 +11,7 @@ import com.gurella.engine.utils.Reflection;
 public class JsonSerialization {
 	static final String typePropertyName = "#";
 	static final String valuePropertyName = "v";
+	static final String dependenciesPropertyName = "d";
 
 	private JsonSerialization() {
 	}
@@ -42,5 +45,15 @@ public class JsonSerialization {
 
 	static boolean isSimpleType(Class<?> type) {
 		return type.isPrimitive() || Models.getModel(type) instanceof SimpleModel;
+	}
+
+	static Class<?> resolveOutputType(Class<?> type) {
+		return (ClassReflection.isAssignableFrom(Enum.class, type) && type.getEnumConstants() == null)
+				? type.getSuperclass() : type;
+	}
+
+	static <T> AssetDescriptor<T> createAssetDescriptor(String fileName, String typeName) {
+		Class<T> assetType = Reflection.forName(typeName);
+		return new AssetDescriptor<T>(fileName, assetType);
 	}
 }

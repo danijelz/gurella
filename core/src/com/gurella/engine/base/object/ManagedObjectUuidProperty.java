@@ -29,6 +29,11 @@ class ManagedObjectUuidProperty implements Property<String> {
 	public boolean isNullable() {
 		return true;
 	}
+	
+	@Override
+	public boolean isFlat() {
+		return true;
+	}
 
 	@Override
 	public boolean isCopyable() {

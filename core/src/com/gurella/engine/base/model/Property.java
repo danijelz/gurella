@@ -15,6 +15,8 @@ public interface Property<T> {
 	
 	boolean isCopyable();
 	
+	boolean isFlat();
+	
 	String getDescriptiveName();
 
 	String getDescription();

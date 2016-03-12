@@ -1,5 +1,7 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.createAssetDescriptor;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.dependenciesPropertyName;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveObjectType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
@@ -18,6 +20,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.resource.FileService;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -300,7 +303,24 @@ public class UBJsonInput implements Input, Poolable {
 
 	@Override
 	public Array<AssetDescriptor<?>> getExternalDependencies() {
-		// TODO Auto-generated method stub
-		return null;
+		int size = rootValue.size;
+		if (size < 1) {
+			return null;
+		}
+
+		JsonValue lastValue = rootValue.get(size - 1);
+		if (!dependenciesPropertyName.equals(lastValue.name)) {
+			return null;
+		}
+
+		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
+		for (JsonValue value = lastValue.child; value.next != null; value = value.next) {
+			String strValue = value.asString();
+			String[] descriptorValues = strValue.split(" ");
+			String fileName = FileService.getFileName(descriptorValues[0]);
+			descriptors.add(createAssetDescriptor(fileName, descriptorValues[1]));
+		}
+
+		return descriptors;
 	}
 }

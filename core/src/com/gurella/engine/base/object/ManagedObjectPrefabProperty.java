@@ -38,6 +38,11 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	}
 
 	@Override
+	public boolean isFlat() {
+		return true;
+	}
+
+	@Override
 	public String getDescriptiveName() {
 		return name;
 	}

@@ -48,6 +48,11 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	}
 
 	@Override
+	public boolean isFlat() {
+		return true;
+	}
+
+	@Override
 	public String getDescriptiveName() {
 		return name;
 	}

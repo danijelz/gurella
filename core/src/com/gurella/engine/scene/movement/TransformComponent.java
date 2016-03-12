@@ -23,7 +23,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
 
-	@PropertyDescriptor
+	@PropertyDescriptor(flat = true)
 	private final Vector3 translation = new Vector3();
 	private final Vector3 worldTranslation = new Vector3();
 	private boolean worldTranslationDirty = true;
@@ -32,12 +32,12 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	private final Quaternion worldRotation = new Quaternion();
 	private boolean worldRotationDirty = true;
 
-	@PropertyDescriptor(descriptiveName = "rotation")
+	@PropertyDescriptor(descriptiveName = "rotation", flat = true)
 	private final Vector3 eulerRotation = new Vector3();
 	private final Vector3 worldEulerRotation = new Vector3();
 	private boolean worldEulerRotationDirty = true;
 
-	@PropertyDescriptor
+	@PropertyDescriptor(flat = true)
 	private final Vector3 scale = new Vector3(1, 1, 1);
 	private final Vector3 worldScale = new Vector3(1, 1, 1);
 	private boolean worldScaleDirty = true;

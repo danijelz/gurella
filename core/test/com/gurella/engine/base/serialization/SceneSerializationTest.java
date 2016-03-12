@@ -18,8 +18,9 @@ public class SceneSerializationTest {
 		scene.newNode("Node 2");
 		SceneNode2 node3 = scene.newNode("Node 3");
 		SceneNode2 node3_1 = node3.newChild("Node 3/1");
-		node3_1.newComponent(TransformComponent.class);
-		
+		TransformComponent component = node3_1.newComponent(TransformComponent.class);
+		component.setTranslation(1, 1, 1);
+
 		Model<Scene> model = Models.getModel(Scene.class);
 		model.getProperties();
 
@@ -30,16 +31,16 @@ public class SceneSerializationTest {
 		JsonInput input = new JsonInput();
 		Scene deserialized = input.deserialize(Scene.class, string);
 		System.out.println("deserialized: " + Models.isEqual(scene, deserialized));
-		
+
 		Scene duplicate = new CopyContext().copy(scene);
 		System.out.println("duplicate: " + Models.isEqual(scene, duplicate));
-		
+
 		Scene copied = new CopyContext().copyProperties(scene, new Scene());
 		System.out.println("copied: " + Models.isEqual(scene, copied));
-		
+
 		String string1 = output.serialize(Scene.class, scene, duplicate);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
-		
+
 		Scene deserialized1 = input.deserialize(Scene.class, string1, scene);
 		System.out.println(Models.isEqual(scene, deserialized1));
 	}

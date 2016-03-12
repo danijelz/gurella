@@ -204,6 +204,11 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isFlat() {
+			return true;
+		}
+
+		@Override
 		public String getDescriptiveName() {
 			return name;
 		}

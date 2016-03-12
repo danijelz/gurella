@@ -1,6 +1,7 @@
 package com.gurella.engine.base.serialization.json;
 
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveOutputType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.valuePropertyName;
 
@@ -8,14 +9,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.UBJsonWriter;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
 public class UBJsonOutput implements Output, Poolable {
@@ -24,6 +24,8 @@ public class UBJsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
+
+	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
 
 	@Override
 	public void reset() {
@@ -49,6 +51,16 @@ public class UBJsonOutput implements Output, Poolable {
 			name(Integer.toString(objectInfo.ordinal));
 			serializeObject(objectInfo.expectedType, objectInfo.template, objectInfo.object);
 			objectInfo.free();
+		}
+
+		int externalDependenciesSize = externalDependencies.size;
+		if (externalDependenciesSize > 0) {
+			name("d");
+			array();
+			for (String dependency : externalDependencies) {
+				value(dependency);
+			}
+			pop();
 		}
 
 		pop();
@@ -373,9 +385,7 @@ public class UBJsonOutput implements Output, Poolable {
 
 	private void type(Class<?> type) {
 		try {
-			Class<?> resolvedType = (ClassReflection.isAssignableFrom(Enum.class, type)
-					&& type.getEnumConstants() == null) ? type.getSuperclass() : type;
-			writer.set(typePropertyName, resolvedType.getName());
+			writer.set(typePropertyName, resolveOutputType(type).getName());
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}
@@ -402,34 +412,6 @@ public class UBJsonOutput implements Output, Poolable {
 			writer.name(name);
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
-		}
-	}
-
-	private static class ObjectInfo implements Poolable {
-		int ordinal;
-		Class<?> expectedType;
-		Object object;
-		Object template;
-
-		public static ObjectInfo obtain(int ordinal, Class<?> expectedType, Object template, Object object) {
-			ObjectInfo objectInfo = PoolService.obtain(ObjectInfo.class);
-			objectInfo.ordinal = ordinal;
-			objectInfo.expectedType = expectedType;
-			objectInfo.template = template;
-			objectInfo.object = object;
-			return objectInfo;
-		}
-
-		public void free() {
-			PoolService.free(this);
-		}
-
-		@Override
-		public void reset() {
-			ordinal = 0;
-			expectedType = null;
-			template = null;
-			object = null;
 		}
 	}
 }
