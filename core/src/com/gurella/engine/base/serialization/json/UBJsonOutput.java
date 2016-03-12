@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.UBJsonWriter;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
@@ -80,6 +81,11 @@ public class UBJsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
+		String fileNameUuid = ResourceService.getFileNameUuid(object);
+		if (fileNameUuid != null) {
+			//TODO
+		}
+
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
 	}

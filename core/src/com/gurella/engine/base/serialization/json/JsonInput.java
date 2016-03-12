@@ -320,7 +320,7 @@ public class JsonInput implements Input, Poolable {
 		}
 
 		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
-		for (JsonValue value = lastValue.child; value.next != null; value = value.next) {
+		for (JsonValue value = lastValue.child; value != null; value = value.next) {
 			String strValue = value.asString();
 			String[] descriptorValues = strValue.split(" ");
 			String fileName = FileService.getFileName(descriptorValues[0]);
