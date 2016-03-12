@@ -3,7 +3,7 @@ package com.gurella.engine.scene.tag;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.Pools;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -37,7 +37,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 	protected void onDeactivate() {
 		getScene().componentManager.unregisterComponentFamily(tagComponentfamily);
 		for (FamilyNodes familyNodes : families.values()) {
-			Pools.free(familyNodes);
+			PoolService.free(familyNodes);
 		}
 		families.clear();
 		nodesByTag.clear();
@@ -90,7 +90,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 			return;
 		}
 
-		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
+		FamilyNodes familyNodes = PoolService.obtain(FamilyNodes.class);
 		familyNodes.family = tagFamily;
 		families.put(familyId, familyNodes);
 
@@ -108,7 +108,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 	public void unregisterFamily(TagFamily family) {
 		FamilyNodes familyNodes = families.remove(family.id);
 		if (familyNodes != null) {
-			Pools.free(familyNodes);
+			PoolService.free(familyNodes);
 		}
 	}
 
@@ -162,7 +162,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 	@Override
 	public void reset() {
 		for (FamilyNodes familyNodes : families.values()) {
-			Pools.free(familyNodes);
+			PoolService.free(familyNodes);
 		}
 		families.clear();
 		nodesByTag.clear();

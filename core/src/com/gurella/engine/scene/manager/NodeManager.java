@@ -4,8 +4,8 @@ import java.util.Comparator;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -39,7 +39,7 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 		if (families.containsKey(familyId)) {
 			return;
 		}
-		FamilyNodes familyNodes = Pools.obtain(FamilyNodes.class);
+		FamilyNodes familyNodes = PoolService.obtain(FamilyNodes.class);
 		familyNodes.family = family;
 		families.put(familyId, familyNodes);
 
@@ -57,7 +57,7 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 	public void unregisterFamily(SceneNodeFamily family) {
 		FamilyNodes familyNodes = families.remove(family.id);
 		if (familyNodes != null) {
-			Pools.free(familyNodes);
+			PoolService.free(familyNodes);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 	@Override
 	public void reset() {
 		for (FamilyNodes familyNodes : families.values()) {
-			Pools.free(familyNodes);
+			PoolService.free(familyNodes);
 		}
 		families.clear();
 	}

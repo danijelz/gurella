@@ -3,8 +3,8 @@ package com.gurella.engine.scene.manager;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.Predicate;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
@@ -39,7 +39,7 @@ public class ComponentManager extends SceneSystem2 implements ComponentActivityL
 		}
 
 		@SuppressWarnings("unchecked")
-		FamilyComponents<T> familyComponents = Pools.obtain(FamilyComponents.class);
+		FamilyComponents<T> familyComponents = PoolService.obtain(FamilyComponents.class);
 		familyComponents.family = family;
 		families.put(family.id, familyComponents);
 
@@ -53,7 +53,7 @@ public class ComponentManager extends SceneSystem2 implements ComponentActivityL
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.remove(family.id);
 		if (familyComponents != null) {
-			Pools.free(familyComponents);
+			PoolService.free(familyComponents);
 		}
 	}
 

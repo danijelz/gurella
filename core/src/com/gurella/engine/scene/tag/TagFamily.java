@@ -21,11 +21,9 @@ public final class TagFamily {
 		if (!tags.containsAll(all)) {
 			return false;
 		}
-
 		if (!any.isEmpty() && !any.intersects(tags)) {
 			return false;
 		}
-
 		if (!exclude.isEmpty() && exclude.intersects(tags)) {
 			return false;
 		}
