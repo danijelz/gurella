@@ -61,6 +61,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			group = "";
 			nullable = isDefaultNullable();
 			copyable = true;
+			flat = isDefaultFlat();
 		} else {
 			descriptiveName = propertyDescriptor.descriptiveName();
 			if (Values.isBlank(descriptiveName)) {
@@ -70,7 +71,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			group = propertyDescriptor.group();
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 			copyable = propertyDescriptor.copyable();
-			flat = propertyDescriptor.flat();
+			flat = isDefaultFlat() ? true : propertyDescriptor.flat();
 		}
 
 		range = extractRange(Reflection.getDeclaredAnnotation(field, ValueRange.class));
@@ -79,6 +80,10 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	private boolean isDefaultNullable() {
 		return !(type.isPrimitive() || (field != null && field.isFinal()));
+	}
+
+	private boolean isDefaultFlat() {
+		return (type.isPrimitive() || (field != null && field.isFinal() && getter == null));
 	}
 
 	private Range<?> extractRange(ValueRange valueRange) {

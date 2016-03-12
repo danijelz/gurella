@@ -1,7 +1,5 @@
 package com.gurella.engine.scene.manager;
 
-import java.util.Comparator;
-
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -29,13 +27,13 @@ public class ComponentManager extends SceneSystem2 implements ComponentActivityL
 		}
 	}
 
-	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily<T> family) {
+	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily family) {
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.get(family.id);
 		return familyComponents == null ? ImmutableArray.<T> empty() : familyComponents.immutableComponents;
 	}
 
-	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily<T> family) {
+	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily family) {
 		if (families.containsKey(family.id)) {
 			return;
 		}
@@ -51,7 +49,7 @@ public class ComponentManager extends SceneSystem2 implements ComponentActivityL
 		}
 	}
 
-	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily<T> family) {
+	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily family) {
 		@SuppressWarnings("unchecked")
 		FamilyComponents<T> familyComponents = (FamilyComponents<T>) families.remove(family.id);
 		if (familyComponents != null) {
@@ -59,28 +57,20 @@ public class ComponentManager extends SceneSystem2 implements ComponentActivityL
 		}
 	}
 
-	public static final class ComponentFamily<T extends SceneNodeComponent2> {
+	public static final class ComponentFamily {
 		private static int INDEXER = 0;
 
 		public final int id;
-		public final Comparator<? super T> comparator;
 		public final Predicate<? super SceneNodeComponent2> predicate;
 
 		public ComponentFamily(Predicate<? super SceneNodeComponent2> predicate) {
 			id = INDEXER++;
-			comparator = null;
-			this.predicate = predicate;
-		}
-
-		public ComponentFamily(Predicate<? super SceneNodeComponent2> predicate, Comparator<? super T> comparator) {
-			id = INDEXER++;
-			this.comparator = comparator;
 			this.predicate = predicate;
 		}
 	}
 
 	private static class FamilyComponents<T extends SceneNodeComponent2> implements Poolable {
-		private ComponentFamily<T> family;
+		private ComponentFamily family;
 		private final Array<T> components = new Array<T>();
 		private final ImmutableArray<T> immutableComponents = new ImmutableArray<T>(components);
 
@@ -89,10 +79,6 @@ public class ComponentManager extends SceneSystem2 implements ComponentActivityL
 				@SuppressWarnings("unchecked")
 				T casted = (T) component;
 				components.add(casted);
-			}
-			Comparator<? super T> comparator = family.comparator;
-			if (comparator != null) {
-				components.sort(comparator);
 			}
 		}
 

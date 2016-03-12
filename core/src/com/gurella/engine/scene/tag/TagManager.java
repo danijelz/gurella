@@ -17,8 +17,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class TagManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
-	private static final ComponentFamily<TagComponent> family = new ComponentFamily<TagComponent>(
-			new ComponentTypePredicate(TagComponent.class));
+	private static final ComponentFamily family = new ComponentFamily(new ComponentTypePredicate(TagComponent.class));
 
 	private IntMap<ArrayExt<SceneNode2>> nodesByTag = new IntMap<ArrayExt<SceneNode2>>();
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();

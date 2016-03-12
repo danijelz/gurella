@@ -48,6 +48,37 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		any.clear();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		ComponentBitsPredicate other = (ComponentBitsPredicate) o;
+		if (!all.equals(other.all)) {
+			return false;
+		}
+		if (!exclude.equals(other.exclude)) {
+			return false;
+		}
+		if (!any.equals(other.any)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((all == null) ? 0 : all.hashCode());
+		result = prime * result + ((any == null) ? 0 : any.hashCode());
+		result = prime * result + ((exclude == null) ? 0 : exclude.hashCode());
+		return result;
+	}
+
 	@SafeVarargs
 	public static Builder all(Class<? extends SceneNodeComponent2>... types) {
 		return new Builder().all(types);
@@ -64,7 +95,6 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 	}
 
 	public static class Builder implements Poolable {
-		private boolean activeComponents;
 		private final Bits all = new Bits();
 		private final Bits exclude = new Bits();
 		private final Bits any = new Bits();
@@ -109,8 +139,6 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 
 			Builder builder = (Builder) o;
 
-			if (activeComponents != builder.activeComponents)
-				return false;
 			if (!all.equals(builder.all))
 				return false;
 			if (!exclude.equals(builder.exclude))
@@ -125,7 +153,6 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + (activeComponents ? 1231 : 1237);
 			result = prime * result + ((all == null) ? 0 : all.hashCode());
 			result = prime * result + ((any == null) ? 0 : any.hashCode());
 			result = prime * result + ((exclude == null) ? 0 : exclude.hashCode());
@@ -134,7 +161,6 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 
 		@Override
 		public void reset() {
-			activeComponents = false;
 			all.clear();
 			exclude.clear();
 			any.clear();

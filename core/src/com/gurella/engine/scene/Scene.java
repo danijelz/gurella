@@ -42,7 +42,6 @@ public final class Scene extends ManagedObject {
 
 	public final transient ComponentManager componentManager = new ComponentManager();
 	public final transient NodeManager nodeManager = new NodeManager();
-
 	public final transient TagManager tagManager = new TagManager();
 	public final transient LayerManager layerManager = new LayerManager();
 

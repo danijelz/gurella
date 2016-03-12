@@ -15,8 +15,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class LayerManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
-	private static final ComponentFamily<LayerComponent> family = new ComponentFamily<LayerComponent>(
-			new ComponentTypePredicate(LayerComponent.class));
+	private static final ComponentFamily family = new ComponentFamily(new ComponentTypePredicate(LayerComponent.class));
 
 	private IntMap<ArrayExt<SceneNode2>> nodesByLayer = new IntMap<ArrayExt<SceneNode2>>();
 	private IntIntMap nodeLayers = new IntIntMap();
@@ -31,7 +30,7 @@ public class LayerManager extends SceneSystem2 implements ComponentActivityListe
 			componentActivated(components.get(i));
 		}
 	}
-	
+
 	@Override
 	protected void onDeactivate() {
 		super.onDeactivate();

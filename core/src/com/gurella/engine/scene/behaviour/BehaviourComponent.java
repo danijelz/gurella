@@ -89,222 +89,176 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	}
 
 	// INPUT EVENTS
-	
+
 	public void onTouchDown(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onTouchUp(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onTap(IntersectionTouchEvent touchEvent, int count) {
 	}
 
-	
 	public void onDragOverStart(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDragOverMove(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDragOverEnd(TouchEvent touchEvent) {
 	}
 
-	
 	public void onDragStart(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDragMove(TouchEvent touchEvent) {
 	}
 
-	
 	public void onDragEnd(TouchEvent touchEvent) {
 	}
 
-	
 	public void onLongPress(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDoubleTouch(IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onScrolled(int screenX, int screenY, int amount, Vector3 intersection) {
 	}
 
-	
 	public void onMouseOverStart(int screenX, int screenY, Vector3 intersection) {
 	}
 
-	
 	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection) {
 	}
 
-	
 	public void onMouseOverEnd(int screenX, int screenY) {
 	}
 
 	// NODE DRAG AND DROP
-	
+
 	public DragSource getDragSource(DragStartCondition dragStartCondition) {
 		return null;
 	}
 
-	
 	public DropTarget getDropTarget(Array<DragSource> dragSources) {
 		return null;
 	}
 
 	// RESOLVED GLOBAL INPUT
-	
+
 	public void onTouchDown(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onTouchUp(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onTap(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent, int count) {
 	}
 
-	
 	public void onDragOverStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDragOverMove(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDragOverEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
-	
 	public void onDragStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDragMove(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
-	
 	public void onDragEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
 	}
 
-	
 	public void onLongPress(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onDoubleTouch(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
 	}
 
-	
 	public void onScrolled(RenderableComponent renderableComponent, int screenX, int screenY, int amount,
 			Vector3 intersection) {
 	}
 
-	
 	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
-	
 	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY,
 			Vector3 intersection) {
 	}
 
-	
 	public void onMouseOverEnd(RenderableComponent renderableComponent, int screenX, int screenY) {
 	}
 
 	// //GLOBAL INPUT
-	
+
 	public void keyDown(int keycode) {
 	}
 
-	
 	public void keyUp(int keycode) {
 	}
 
-	
 	public void keyTyped(char character) {
 	}
 
-	
 	public void touchDown(TouchEvent touchEvent) {
 	}
 
-	
 	public void doubleTouchDown(TouchEvent touchEvent) {
 	}
 
-	
 	public void touchUp(TouchEvent touchEvent) {
 	}
 
-	
 	public void touchDragged(TouchEvent touchEvent) {
 	}
 
-	
 	public void mouseMoved(int screenX, int screenY) {
 	}
 
-	
 	public void scrolled(int screenX, int screenY, int amount) {
 	}
 
-	
 	public void tap(TouchEvent touchEvent, int count) {
 	}
 
-	
 	public void longPress(TouchEvent touchEvent) {
 	}
 
 	// BULLET PHYSICS EVENTS
-	
+
 	public void onCollisionEnter(Collision collision) {
 	}
 
-	
 	public void onCollisionStay(Collision collision) {
 	}
 
-	
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent) {
 	}
 
 	// GLOBAL BULLET PHYSICS EVENTS
-	
+
 	public void onCollisionEnter(CollisionPair collision) {
 	}
 
-	
 	public void onCollisionStay(CollisionPair collision) {
 	}
 
-	
 	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent1,
 			BulletPhysicsRigidBodyComponent rigidBodyComponent2) {
 	}
 
-	
 	public void onPhysicsSimulationStart(btDynamicsWorld dynamicsWorld) {
 	}
 
-	
 	public void onPhysicsSimulationStep(btDynamicsWorld dynamicsWorld, float timeStep) {
 	}
 
-	
 	public void onPhysicsSimulationEnd(btDynamicsWorld dynamicsWorld) {
 	}
 
@@ -340,61 +294,50 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	//	}
 
 	// TODO OWNING NODE EVENTS 
-	
+
 	public void nodeComponentAdded(SceneNodeComponent2 component) {
 	}
 
-	
 	public void nodeComponentRemoved(SceneNodeComponent2 component) {
 	}
 
-	
 	public void nodeComponentActivated(SceneNodeComponent2 component) {
 	}
 
-	
 	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 	}
 
 	// TODO triggers
-	
+
 	public void nodeParentChanged(SceneNode2 newParent) {
 	}
 
-	
 	public void nodeChildAdded(SceneNode2 child) {
 	}
 
-	
 	public void nodeChildRemoved(SceneNode2 child) {
 	}
 
-	
 	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
-	
 	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
-	
 	public void componentActivated(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
-	
 	public void componentDeactivated(SceneNode2 node, SceneNodeComponent2 component) {
 	}
 
 	// TODO triggers
-	
+
 	public void parentChanged(SceneNode2 node, SceneNode2 newParent) {
 	}
 
-	
 	public void childAdded(SceneNode2 node, SceneNode2 child) {
 	}
 
-	
 	public void childRemoved(SceneNode2 node, SceneNode2 child) {
 	}
 
@@ -417,7 +360,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	}
 
 	// TODO
-	
+
 	public void onResize(int width, int height) {
 	}
 
@@ -430,16 +373,15 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	// TODO animation events
 
 	// TODO tag events
-	
+
 	public void onNodeTagged(SceneNode2 node, Tag tag) {
 	}
 
-	
 	public void onNodeUntagged(SceneNode2 node, Tag tag) {
 	}
 
 	// TODO layer events
-	
+
 	public void onNodeLayerChanged(SceneNode2 node, Layer oldLayer, Layer newLayer) {
 	}
 
@@ -562,13 +504,13 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 		return null;
 	}
 
-	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily<T> componentFamily) {
+	public <T extends SceneNodeComponent2> void registerComponentFamily(ComponentFamily componentFamily) {
 	}
 
-	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily<?> componentFamily) {
+	public <T extends SceneNodeComponent2> void unregisterComponentFamily(ComponentFamily componentFamily) {
 	}
 
-	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily<T> componentFamily) {
+	public <T extends SceneNodeComponent2> ImmutableArray<T> getComponents(ComponentFamily componentFamily) {
 		return null;
 	}
 
