@@ -8,13 +8,17 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.json.JsonInput;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.movement.TransformComponent;
 
 public class SceneSerializationTest {
 	public static void main(String[] args) {
 		Scene scene = new Scene();
 		scene.newNode("Node 1");
 		scene.newNode("Node 2");
-		scene.newNode("Node 3");
+		SceneNode2 node3 = scene.newNode("Node 3");
+		SceneNode2 node3_1 = node3.newChild("Node 3/1");
+		node3_1.newComponent(TransformComponent.class);
 		
 		Model<Scene> model = Models.getModel(Scene.class);
 		model.getProperties();

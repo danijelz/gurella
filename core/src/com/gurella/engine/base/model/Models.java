@@ -186,6 +186,16 @@ public class Models {
 		return null;
 	}
 
+	public static String getDiagnostic(Model<?> model) {
+		ImmutableArray<Property<?>> properties = model.getProperties();
+		StringBuilder builder = new StringBuilder().append(model.getName()).append("[");
+		for (int i = 0; i < properties.size(); i++) {
+			Property<?> property = properties.get(i);
+			builder.append("\n\t").append(property.getDescriptiveName());
+		}
+		return builder.append("\n]").toString();
+	}
+
 	public static boolean isEqual(Object first, Object second) {
 		if (first == second) {
 			return true;

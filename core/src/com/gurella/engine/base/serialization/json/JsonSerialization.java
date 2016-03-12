@@ -7,7 +7,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonSerialization {
-	static final String typePropertyName = "|";
+	static final String typePropertyName = "#";
 	static final String valuePropertyName = "v";
 
 	private JsonSerialization() {

@@ -308,7 +308,7 @@ public class ReflectionModel<T> implements Model<T> {
 
 		boolean hasPropertyAnnotation = Reflection.getDeclaredAnnotation(field, PropertyDescriptor.class) != null;
 		boolean isForced = forcedProperties != null && Arrays.binarySearch(forcedProperties, fieldName) > -1;
-		if (field.isPrivate() && isForced && !hasPropertyAnnotation && !isBeanProperty(field)) {
+		if (field.isPrivate() && !isForced && !hasPropertyAnnotation && !isBeanProperty(field)) {
 			return true;
 		}
 
