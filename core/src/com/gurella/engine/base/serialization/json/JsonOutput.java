@@ -32,6 +32,7 @@ public class JsonOutput implements Output, Poolable {
 		currentId = 0;
 		references.clear();
 		objectsToSerialize.clear();
+		externalDependencies.clear();
 	}
 
 	public <T> String serialize(Class<T> expectedType, T rootObject) {

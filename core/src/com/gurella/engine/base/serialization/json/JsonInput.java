@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.resource.FileService;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -321,10 +320,7 @@ public class JsonInput implements Input, Poolable {
 
 		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			String strValue = value.asString();
-			String[] descriptorValues = strValue.split(" ");
-			String fileName = FileService.getFileName(descriptorValues[0]);
-			descriptors.add(createAssetDescriptor(fileName, descriptorValues[1]));
+			descriptors.add(createAssetDescriptor(value.asString()));
 		}
 
 		return descriptors;

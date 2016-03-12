@@ -32,6 +32,7 @@ public class UBJsonOutput implements Output, Poolable {
 		currentId = 0;
 		references.clear();
 		objectsToSerialize.clear();
+		externalDependencies.clear();
 	}
 
 	public <T> byte[] serialize(Class<T> expectedType, T rootObject) {

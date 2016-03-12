@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.resource.FileService;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonSerialization {
@@ -52,7 +53,10 @@ public class JsonSerialization {
 				? type.getSuperclass() : type;
 	}
 
-	static <T> AssetDescriptor<T> createAssetDescriptor(String fileName, String typeName) {
+	static <T> AssetDescriptor<T> createAssetDescriptor(String strValue) {
+		String[] descriptorValues = strValue.split(" ");
+		String fileName = FileService.getFileName(descriptorValues[0]);
+		String typeName = descriptorValues[1];
 		Class<T> assetType = Reflection.forName(typeName);
 		return new AssetDescriptor<T>(fileName, assetType);
 	}
