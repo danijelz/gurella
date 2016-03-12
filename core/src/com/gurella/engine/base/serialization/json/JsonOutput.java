@@ -10,7 +10,6 @@ import java.io.StringWriter;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.base.model.Model;
@@ -25,8 +24,7 @@ public class JsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-
-	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
+	private Array<String> externalDependencies = new Array<String>();
 
 	@Override
 	public void reset() {
@@ -58,7 +56,8 @@ public class JsonOutput implements Output, Poolable {
 		if (externalDependenciesSize > 0) {
 			name("d");
 			array();
-			for (String dependency : externalDependencies) {
+			for (int i = 0; i < externalDependenciesSize; i++) {
+				String dependency = externalDependencies.get(i);
 				value(dependency);
 			}
 			pop();
@@ -82,8 +81,8 @@ public class JsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String resourceFileName = ResourceService.getFileName(object);
-		if (resourceFileName != null) {
+		String fileNameUuid = ResourceService.getFileNameUuid(object);
+		if (fileNameUuid != null) {
 			//TODO
 		}
 

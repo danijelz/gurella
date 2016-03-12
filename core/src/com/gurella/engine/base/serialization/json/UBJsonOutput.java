@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.UBJsonWriter;
@@ -24,8 +23,7 @@ public class UBJsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-
-	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
+	private Array<String> externalDependencies = new Array<String>();
 
 	@Override
 	public void reset() {
@@ -57,7 +55,8 @@ public class UBJsonOutput implements Output, Poolable {
 		if (externalDependenciesSize > 0) {
 			name("d");
 			array();
-			for (String dependency : externalDependencies) {
+			for (int i = 0; i < externalDependenciesSize; i++) {
+				String dependency = externalDependencies.get(i);
 				value(dependency);
 			}
 			pop();
