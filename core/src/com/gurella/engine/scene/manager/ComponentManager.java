@@ -10,6 +10,7 @@ import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
+//TODO EntitySubscription -> ComponentSubscription
 public class ComponentManager extends SceneSystem2 implements ComponentActivityListener {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 

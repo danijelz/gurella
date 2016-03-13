@@ -15,13 +15,15 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.tag.TagActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.OrderedIdentitySet;
 
+//TODO EntitySubscription -> TagSubscription
 public class TagManager extends SceneSystem2 implements ComponentActivityListener, TagActivityListener, Poolable {
 	private static final ComponentFamily tagComponentfamily = new ComponentFamily(
 			new ComponentTypePredicate(TagComponent.class));
 
-	private IntMap<ArrayExt<SceneNode2>> nodesByTag = new IntMap<ArrayExt<SceneNode2>>();
-	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
+	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
+	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override
 	protected void onActivate() {
@@ -71,7 +73,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 			Bits tags = tagComponent._tags;
 			int tagId = tags.nextSetBit(0);
 			while (tagId != -1) {
-				getNodesArray(tagId).removeValue(component.getNode(), true);
+				getNodesArray(tagId).remove(component.getNode());
 				tagId = tags.nextSetBit(tagId);
 			}
 		}
@@ -112,11 +114,11 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 		}
 	}
 
-	private ArrayExt<SceneNode2> getNodesArray(int tagId) {
-		ArrayExt<SceneNode2> nodes = nodesByTag.get(tagId);
+	private OrderedIdentitySet<SceneNode2> getNodesArray(int tagId) {
+		OrderedIdentitySet<SceneNode2> nodes = nodesByTag.get(tagId);
 
 		if (nodes == null) {
-			nodes = new ArrayExt<SceneNode2>();
+			nodes = new OrderedIdentitySet<SceneNode2>();
 			nodesByTag.put(tagId, nodes);
 		}
 
@@ -130,13 +132,13 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 
 	@Override
 	public void tagRemoved(TagComponent component, int tagId) {
-		nodesByTag.get(tagId).removeValue(component.getNode(), true);
+		nodesByTag.get(tagId).remove(component.getNode());
 	}
 
 	public ImmutableArray<SceneNode2> getNodes(Tag tag) {
 		int tagId = tag.id;
-		ArrayExt<SceneNode2> nodes = nodesByTag.get(tagId);
-		return nodes == null ? ImmutableArray.<SceneNode2> empty() : nodes.immutable();
+		OrderedIdentitySet<SceneNode2> nodes = nodesByTag.get(tagId);
+		return nodes == null ? ImmutableArray.<SceneNode2> empty() : nodes.orderedItems();
 	}
 
 	public boolean belongsToFamily(SceneNode2 node, TagFamily family) {
@@ -150,7 +152,7 @@ public class TagManager extends SceneSystem2 implements ComponentActivityListene
 
 	public SceneNode2 getSingleNodeByTag(Tag tag) {
 		int tagId = tag.id;
-		ArrayExt<SceneNode2> nodes = nodesByTag.get(tagId);
+		OrderedIdentitySet<SceneNode2> nodes = nodesByTag.get(tagId);
 
 		if (nodes == null || nodes.size == 0) {
 			return null;

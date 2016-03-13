@@ -1,7 +1,5 @@
 package com.gurella.engine.scene.manager;
 
-import java.util.Comparator;
-
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
@@ -14,6 +12,7 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
+////TODO EntitySubscription -> NodeSubscription
 public class NodeManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
@@ -82,19 +81,11 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 		private static int INDEXER = 0;
 
 		public final int id;
-		public final Comparator<SceneNode2> comparator;
 		public final Predicate<SceneNode2> predicate;
 
 		public SceneNodeFamily(Predicate<SceneNode2> predicate) {
 			id = INDEXER++;
 			this.predicate = predicate;
-			comparator = null;
-		}
-
-		public SceneNodeFamily(Predicate<SceneNode2> predicate, Comparator<SceneNode2> comparator) {
-			id = INDEXER++;
-			this.predicate = predicate;
-			this.comparator = comparator;
 		}
 	}
 
@@ -107,16 +98,9 @@ public class NodeManager extends SceneSystem2 implements ComponentActivityListen
 			boolean containsNode = nodes.contains(node, true);
 			if (belongsToFamily && !containsNode) {
 				nodes.add(node);
-				if (family.comparator != null) {
-					nodes.sort(family.comparator);
-				}
 			} else if (!belongsToFamily && containsNode) {
 				nodes.removeValue(node, true);
 			}
-		}
-
-		private void remove(SceneNode2 node) {
-			nodes.removeValue(node, true);
 		}
 
 		@Override
