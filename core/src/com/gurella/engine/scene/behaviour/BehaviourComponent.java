@@ -562,7 +562,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	}
 
-	// TODO poolable
 	public static abstract class Releasable<T> {
 		SceneElement2 owningElement;
 		T value;

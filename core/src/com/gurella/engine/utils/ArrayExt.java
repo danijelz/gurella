@@ -2,6 +2,7 @@ package com.gurella.engine.utils;
 
 import com.badlogic.gdx.utils.Array;
 
+//TODO Poolable
 public class ArrayExt<T> extends Array<T> {
 	private ImmutableArray<T> immutable;
 
