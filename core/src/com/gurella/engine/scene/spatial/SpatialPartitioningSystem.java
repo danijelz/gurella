@@ -85,6 +85,13 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	protected abstract void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask);
 
+	public void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask) {
+		updateSpatials();
+		doGetSpatials(ray, maxDistance, out, mask);
+	}
+
+	protected abstract void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask);
+
 	public final synchronized void clearSpatials() {
 		Values<T> values = allSpatials.values();
 		while (values.hasNext) {

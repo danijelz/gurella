@@ -40,31 +40,6 @@ import com.gurella.engine.utils.ImmutableArray;
 //TODO move methods to parent classes
 @SuppressWarnings("unused")
 public abstract class BehaviourComponent extends SceneNodeComponent2 {
-	private final IdentityMap<Object, Releasable<?>> releasables = new IdentityMap<Object, Releasable<?>>();
-
-	private void addReleasable(Releasable<?> releasable) {
-		releasables.put(releasable.value, releasable);
-		if (isActive()) {
-			releasable.attach();
-		}
-	}
-
-	private void removeReleasable(Object value) {
-		Releasable<?> releasable = releasables.remove(value);
-		if (releasable != null && isActive()) {
-			releasable.release();
-		}
-	}
-
-	private void clearReleasables() {
-		if (isActive()) {
-			for (Releasable<?> releasable : releasables.values()) {
-				releasable.release();
-			}
-		}
-
-		releasables.clear();
-	}
 
 	// UPDATE EVENTS
 	public void onInput() {
@@ -531,21 +506,14 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
 	}
+	
+	public void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, Layer... layers) {
+	}
 
 	public void registerListener(Object listener) {
 	}
 
 	public void unregisterListener(Object listener) {
-	}
-
-	public void addPointerActivityListener(PointerActivityListener pointerActivityListener) {
-		PointerActivityListenerReleasable releasable = new PointerActivityListenerReleasable();
-		releasable.init(this, pointerActivityListener);
-		addReleasable(releasable);
-	}
-
-	public void removePointerActivityListener(PointerActivityListener pointerActivityListener) {
-		removeReleasable(pointerActivityListener);
 	}
 
 	// TODO Gdx.input methods
@@ -560,39 +528,5 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	public abstract class Action {
 
-	}
-
-	public static abstract class Releasable<T> {
-		SceneElement2 owningElement;
-		T value;
-
-		void init(SceneElement2 owningElement, T value) {
-			this.owningElement = owningElement;
-			this.value = value;
-		}
-
-		public T getValue() {
-			return value;
-		}
-
-		public SceneElement2 getOwningElement() {
-			return owningElement;
-		}
-
-		protected abstract void attach();
-
-		protected abstract void release();
-	}
-
-	public static class PointerActivityListenerReleasable extends Releasable<PointerActivityListener> {
-		@Override
-		protected void attach() {
-			getOwningElement().getScene().inputSystem.pointerActivitySignal.addListener(getValue());
-		}
-
-		@Override
-		protected void release() {
-			getOwningElement().getScene().inputSystem.pointerActivitySignal.removeListener(getValue());
-		}
 	}
 }

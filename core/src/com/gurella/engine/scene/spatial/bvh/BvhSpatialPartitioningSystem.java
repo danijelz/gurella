@@ -54,6 +54,11 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 	}
 
 	@Override
+	protected void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask) {
+		bvh.traverseSpatials(ray, maxDistance, out, mask);
+	}
+
+	@Override
 	protected BvhSpatial createSpatial(RenderableComponent drawableComponent) {
 		return BvhSpatial.obtain(drawableComponent);
 	}

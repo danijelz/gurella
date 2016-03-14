@@ -22,7 +22,8 @@ public class Bvh {
 	/**
 	 * 
 	 * @param objects
-	 * @param LEAF_OBJ_MAX WARNING! currently this must be 1 to use dynamic BVH update
+	 * @param LEAF_OBJ_MAX
+	 *            WARNING! currently this must be 1 to use dynamic BVH update
 	 */
 	public Bvh(Array<BvhSpatial> objects, int LEAF_OBJ_MAX) {
 		this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
@@ -73,6 +74,10 @@ public class Bvh {
 
 	public void traverseSpatials(Ray ray, Array<Spatial> result, LayerMask mask) {
 		traverseSpatials(rootNode, new RayHitTest(ray), result, mask);
+	}
+
+	public void traverseSpatials(Ray ray, float maxDistance, Array<Spatial> result, LayerMask mask) {
+		traverseSpatials(rootNode, new PickRayHitTest(ray, maxDistance), result, mask);
 	}
 
 	public void traverseSpatials(Frustum frustum, Array<Spatial> result, LayerMask mask) {
@@ -153,7 +158,7 @@ public class Bvh {
 	}
 
 	public void clear() {
-		rootNode = null;//TODO add to pool
+		rootNode = null;// TODO add to pool
 	}
 
 	// TODO poolable
@@ -174,7 +179,7 @@ public class Bvh {
 		}
 	}
 
-	//TODO poolable
+	// TODO poolable
 	private static class RayHitTest implements NodeTest {
 		Ray ray;
 		final Vector3 center = new Vector3();
@@ -192,7 +197,25 @@ public class Bvh {
 		}
 	}
 
-	//TODO poolable
+	// TODO poolable
+	private static class PickRayHitTest implements NodeTest {
+		Ray ray;
+		float maxDistance2;
+		final Vector3 intersection = new Vector3();
+
+		public PickRayHitTest(Ray ray, float maxDistance) {
+			this.ray = ray;
+			this.maxDistance2 = maxDistance * maxDistance;
+		}
+
+		@Override
+		public boolean intersects(BoundingBox box) {
+			return Intersector.intersectRayBounds(ray, box, intersection)
+					&& ray.origin.dst2(intersection) <= maxDistance2;
+		}
+	}
+
+	// TODO poolable
 	private static class FrustumHitTest implements NodeTest {
 		Frustum frustum;
 		final Vector3 center = new Vector3();

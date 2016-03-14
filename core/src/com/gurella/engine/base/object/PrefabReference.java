@@ -61,8 +61,7 @@ public final class PrefabReference implements Poolable {
 
 	public ManagedObject get() {
 		if (prefab == null) {
-			// String path = FileService.getPath(fileUuid);
-			// TODO prefab = ResourceService.get(FileService.getPath(fileUuid), uuid);
+			prefab = ResourceService.get(FileService.getFileName(fileUuid)/* TODO, uuid*/);
 		}
 		return prefab;
 	}

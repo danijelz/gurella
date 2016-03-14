@@ -40,4 +40,9 @@ public final class FileService {
 	public static void removeFileName(String fileName) {
 		uuidToFileName.remove(fileNameToUuid.remove(fileName));
 	}
+
+	public static void addMapping(String fileName, String uuid) {
+		fileNameToUuid.put(fileName, uuid);
+		uuidToFileName.put(uuid, fileName);
+	}
 }
