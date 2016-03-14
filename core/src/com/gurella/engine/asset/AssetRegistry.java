@@ -116,6 +116,15 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
+	public <T> void put(T asset, String fileName) {
+		//TODO check if asset in other file
+		AssetReference reference = AssetReference.obtain();
+		reference.asset = asset;
+		fileNamesByAsset.put(asset, fileName);
+		assetsByFileName.put(fileName, reference);
+		DisposablesService.tryAdd(asset);
+	}
+
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> T get(String fileName) {

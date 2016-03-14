@@ -99,6 +99,10 @@ public class ResourceService implements ApplicationUpdateListener {
 	public static <T> T get(String fileName) {
 		return assetRegistry.get(fileName);
 	}
+	
+	public static <T> void put(T asset, String fileName) {
+		assetRegistry.put(asset, fileName);
+	}
 
 	public static <T> Array<T> find(Class<T> type, Array<T> out) {
 		// TODO ManagedObject

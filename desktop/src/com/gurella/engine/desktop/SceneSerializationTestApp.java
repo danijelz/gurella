@@ -32,7 +32,7 @@ public class SceneSerializationTestApp {
 		@Override
 		public void create() {
 			String fileName1 = "/media/danijel/data/ddd/testSceneGurella/Scene1.gsc";
-			String fileName2 = "/media/danijel/data/ddd/testSceneGurella/Scene1.gsc";
+			String fileName2 = "/media/danijel/data/ddd/testSceneGurella/Scene2.gsc";
 			
 			Scene scene = new Scene();
 			scene.newNode("Node 1");
