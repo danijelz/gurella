@@ -49,14 +49,12 @@ public class IdentitySet<T> implements Iterable<T> {
 		if (initialCapacity > 1 << 30) {
 			throw new IllegalArgumentException("initialCapacity is too large: " + initialCapacity);
 		}
-		capacity = MathUtils.nextPowerOfTwo(initialCapacity);
-
 		if (loadFactor <= 0) {
 			throw new IllegalArgumentException("loadFactor must be > 0: " + loadFactor);
 		}
 
 		this.loadFactor = loadFactor;
-
+		capacity = MathUtils.nextPowerOfTwo(initialCapacity);
 		threshold = (int) (capacity * loadFactor);
 		mask = capacity - 1;
 		hashShift = 31 - Integer.numberOfTrailingZeros(capacity);
@@ -79,6 +77,7 @@ public class IdentitySet<T> implements Iterable<T> {
 		if (key == null) {
 			throw new IllegalArgumentException("key cannot be null.");
 		}
+
 		T[] keyTable = this.keyTable;
 
 		// Check for existing keys.
