@@ -19,7 +19,7 @@ import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.IO, type = ApplicationUpdateListener.class) })
-public class ResourceService implements ApplicationUpdateListener {
+public final class ResourceService implements ApplicationUpdateListener {
 	private static final ResourceService instance = new ResourceService();
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 
@@ -145,6 +145,7 @@ public class ResourceService implements ApplicationUpdateListener {
 
 	@Override
 	public void update() {
+		//TODO remove from bus when not needed
 		assetRegistry.update();
 	}
 }

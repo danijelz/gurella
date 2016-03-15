@@ -43,6 +43,7 @@ import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.UBJsonReader;
@@ -56,6 +57,7 @@ import com.gurella.engine.base.resource.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
 import com.gurella.engine.utils.Values;
 
@@ -117,9 +119,11 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	public <T> void put(T asset, String fileName) {
-		//TODO check if asset in other file
+		// TODO check if asset in other file
 		AssetReference reference = AssetReference.obtain();
 		reference.asset = asset;
+		// TODO initial refCount, dependencies and dependents
+		reference.refCount = 1;
 		fileNamesByAsset.put(asset, fileName);
 		assetsByFileName.put(fileName, reference);
 		DisposablesService.tryAdd(asset);
@@ -407,6 +411,10 @@ public class AssetRegistry extends AssetManager {
 		DisposablesService.tryDispose(asset);
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
+		if (asset instanceof Poolable) {
+			// TODO is it OK
+			PoolService.free(asset);
+		}
 		dereferenceDependencies(fileName, reference);
 		reference.free();
 	}
