@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.ReflectionPool;
  * 
  * @author Nathan Sweet
  */
-public class PoolService {
+public final class PoolService {
 	static private final ObjectMap<Class<?>, ReflectionPool<?>> pools = new ObjectMap<Class<?>, ReflectionPool<?>>();
 
 	private PoolService() {
