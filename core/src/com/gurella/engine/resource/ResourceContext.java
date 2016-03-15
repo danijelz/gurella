@@ -18,7 +18,6 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.resource.DependencyMap.ResourceMapEntry;
 
-//TODO Pools class is not thread safe
 public class ResourceContext {
 	public static final AsyncExecutor ASYNC_EXECUTOR = DisposablesService.add(new AsyncExecutor(4));
 
@@ -67,7 +66,6 @@ public class ResourceContext {
 		return ObtainResourceCallback.run(this, resourceReference);
 	}
 
-	//TODO must be implemented vithout callback
 	public void obtainResources(IntArray resourceIds, AsyncResourceCallback<DependencyMap> callback) {
 		ConcurrentResolver.resolve(this, resourceIds, callback);
 	}
@@ -96,7 +94,6 @@ public class ResourceContext {
 		obtainedResource.count++;
 	}
 
-	// TODO make private
 	public void rollback(DependencyMap dependencyMap) {
 		Array<ResourceMapEntry<?>> entries = dependencyMap.entries;
 		for (int i = 0; i < entries.size; i++) {
@@ -315,7 +312,6 @@ public class ResourceContext {
 			}
 
 			if (resourceException != null) {
-				// TODO specialized exception
 				throw new GdxRuntimeException("Error obtaining resource: " + resourceReference.getId(),
 						resourceException);
 			} else {
@@ -430,7 +426,6 @@ public class ResourceContext {
 				AsyncResourceCallback<DependencyMap> callback) {
 			ConcurrentResolver resolver = PoolService.obtain(ConcurrentResolver.class);
 			resolver.context = context;
-			// TODO resourceMap is never freed
 			resolver.dependencyMap = DependencyMap.obtain(context, resourceIds);
 			resolver.callback = callback;
 			resolver.resolve();

@@ -39,12 +39,12 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		viewport = new CameraViewport(camera);
 	}
 
+	abstract T createCamera();
+
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
 	}
-
-	abstract T createCamera();
 
 	@Override
 	protected void onActivate() {

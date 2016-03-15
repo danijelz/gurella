@@ -45,10 +45,10 @@ public final class PrefabReference implements Poolable {
 		this.uuid = uuid;
 	}
 
-	public PrefabReference(ManagedObject prefab) {
+	PrefabReference(String fileUuid, String uuid, ManagedObject prefab) {
+		this.fileUuid = fileUuid;
+		this.uuid = uuid;
 		this.prefab = prefab;
-		fileUuid = FileService.getUuid(ResourceService.getFileName(prefab));
-		uuid = prefab.ensureUuid();
 	}
 
 	public String getFileUuid() {

@@ -27,7 +27,7 @@ public final class Prefabs {
 	}
 
 	private static <T extends ManagedObject> void setPrefabsHierarchicaly(T object, T prefab, String fileUuid) {
-		object.prefab = new PrefabReference(fileUuid, prefab.ensureUuid());
+		object.prefab = new PrefabReference(fileUuid, prefab.ensureUuid(), prefab);
 		ImmutableArray<ManagedObject> children = object.children;
 		ImmutableArray<ManagedObject> prefabChildren = prefab.children;
 		for (int i = 0; i < children.size(); i++) {
@@ -42,6 +42,7 @@ public final class Prefabs {
 		if (handle.exists()) {
 			// TODO exception
 		}
+		
 		JsonOutput output = new JsonOutput();
 		String string = output.serialize(expectedType, object);
 		OutputStream outputStream = handle.write(false);
@@ -55,7 +56,6 @@ public final class Prefabs {
 		}
 
 		System.out.println("uuid: " + object.getUuid());
-
 		ResourceService.put(object, fileName);
 	}
 }
