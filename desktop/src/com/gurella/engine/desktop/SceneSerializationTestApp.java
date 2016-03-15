@@ -30,8 +30,9 @@ public class SceneSerializationTestApp {
 	private static class TestApplicationListener extends ApplicationAdapter {
 		@Override
 		public void create() {
-			String fileName1 = "/media/danijel/data/ddd/testSceneGurella/Scene1.gsc";
-			String fileName2 = "/media/danijel/data/ddd/testSceneGurella/Scene2.gsc";
+			String domeDir = System.getProperty("user.home");
+			String fileName1 = domeDir + "/testSceneGurella/Scene1.gsc";
+			String fileName2 = domeDir + "/testSceneGurella/Scene2.gsc";
 
 			Scene scene = new Scene();
 			scene.newNode("Node 1");
