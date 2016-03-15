@@ -7,27 +7,27 @@ import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.utils.Values;
 
 public class ObjectArrayPool<T> {
-	public final Class<T> type;
+	public final Class<T> componentType;
 	public final int max;
 	private final Array<T[]> freeObjects;
 
-	public ObjectArrayPool(Class<T> type) {
-		this(type, 64, Integer.MAX_VALUE);
+	public ObjectArrayPool(Class<T> componentType) {
+		this(componentType, 64, Integer.MAX_VALUE);
 	}
 
-	public ObjectArrayPool(Class<T> type, int initialCapacity) {
-		this(type, initialCapacity, Integer.MAX_VALUE);
+	public ObjectArrayPool(Class<T> componentType, int initialCapacity) {
+		this(componentType, initialCapacity, Integer.MAX_VALUE);
 	}
 
-	public ObjectArrayPool(Class<T> type, int initialCapacity, int max) {
-		this.type = type;
+	public ObjectArrayPool(Class<T> componentType, int initialCapacity, int max) {
+		this.componentType = componentType;
 		this.max = max;
 		freeObjects = new Array<T[]>(initialCapacity);
 	}
 
 	public T[] obtain(int length, int maxLength) {
 		T[] array = find(length, maxLength);
-		return array == null ? Values.<T[]> cast(ArrayReflection.newInstance(type, length)) : array;
+		return array == null ? Values.<T[]> cast(ArrayReflection.newInstance(componentType, length)) : array;
 	}
 
 	private T[] find(int length, int maxLength) {

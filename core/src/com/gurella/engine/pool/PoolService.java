@@ -16,10 +16,6 @@ public final class PoolService {
 	private PoolService() {
 	}
 
-	/**
-	 * Returns a new or existing pool for the specified type, stored in a a Class to {@link ReflectionPool} map. The max
-	 * size of the pool used is 100.
-	 */
 	private static <T> Pool<T> get(Class<T> type) {
 		synchronized (pools) {
 			@SuppressWarnings("unchecked")
@@ -32,7 +28,6 @@ public final class PoolService {
 		}
 	}
 
-	/** Obtains an object from the {@link #get(Class) pool}. */
 	@SuppressWarnings("cast")
 	public static <T> T obtain(Class<T> type) {
 		Pool<T> pool = get(type);
@@ -41,10 +36,17 @@ public final class PoolService {
 		}
 	}
 
-	/** Frees an object from the {@link #get(Class) pool}. */
+	static <T> T obtain(Class<T> componentType, int length, int maxLength) {
+		return ArrayPools.obtain(componentType, length, maxLength);
+	}
+
 	public static <T> void free(T object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");
+		}
+
+		if (object.getClass().isArray()) {
+			ArrayPools.free(object);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -60,15 +62,12 @@ public final class PoolService {
 			// Ignore freeing an object that was never retained.
 			return;
 		}
+
 		synchronized (pool) {
 			pool.free(object);
 		}
 	}
 
-	/**
-	 * Frees the specified objects from the {@link #get(Class) pool}. Null objects within the array are silently
-	 * ignored. Objects don't need to be from the same pool.
-	 */
 	public static void freeAll(Array<?> objects) {
 		if (objects == null) {
 			return;
@@ -85,6 +84,7 @@ public final class PoolService {
 			}
 
 			Class<?> type = object.getClass();
+			//TODO arrayPool
 			if (currentType != type) {
 				synchronized (pools) {
 					@SuppressWarnings("unchecked")

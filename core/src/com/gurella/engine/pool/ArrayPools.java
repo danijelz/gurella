@@ -17,8 +17,7 @@ final class ArrayPools {
 	private ArrayPools() {
 	}
 
-	static <T> T obtain(Class<T> type, int length, int maxLength) {
-		Class<?> componentType = type.getComponentType();
+	static <T> T obtain(Class<T> componentType, int length, int maxLength) {
 		if (componentType.isPrimitive()) {
 			if (boolean.class == componentType) {
 				return Values.cast(booleanArrayPool.obtain(length, maxLength));
@@ -43,10 +42,42 @@ final class ArrayPools {
 			@SuppressWarnings("unchecked")
 			ObjectArrayPool<T> pool = (ObjectArrayPool<T>) objectPools.get(componentType);
 			if (pool == null) {
-				pool = new ObjectArrayPool<T>(type);
-				objectPools.put(type, pool);
+				pool = new ObjectArrayPool<T>(componentType);
+				objectPools.put(componentType, pool);
 			}
 			return Values.cast(pool.obtain(length, maxLength));
+		}
+	}
+
+	static void free(Object object) {
+		Class<?> componentType = object.getClass().getComponentType();
+		if (componentType.isPrimitive()) {
+			if (boolean.class == componentType) {
+				booleanArrayPool.free(Values.<boolean[]> cast(object));
+			} else if (byte.class == componentType) {
+				byteArrayPool.free(Values.<byte[]> cast(object));
+			} else if (char.class == componentType) {
+				byteArrayPool.free(Values.<byte[]> cast(object));
+			} else if (short.class == componentType) {
+				shortArrayPool.free(Values.<short[]> cast(object));
+			} else if (int.class == componentType) {
+				intArrayPool.free(Values.<int[]> cast(object));
+			} else if (long.class == componentType) {
+				longArrayPool.free(Values.<long[]> cast(object));
+			} else if (float.class == componentType) {
+				floatArrayPool.free(Values.<float[]> cast(object));
+			} else if (double.class == componentType) {
+				doubleArrayPool.free(Values.<double[]> cast(object));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		} else {
+			ObjectArrayPool<Object> pool = Values.cast(objectPools.get(componentType));
+			if (pool == null) {
+				pool = new ObjectArrayPool<Object>(Values.<Class<Object>> cast(componentType));
+				objectPools.put(componentType, pool);
+			}
+			pool.free(Values.<Object[]> cast(object));
 		}
 	}
 }
