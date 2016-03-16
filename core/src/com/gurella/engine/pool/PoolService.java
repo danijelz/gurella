@@ -75,13 +75,11 @@ public final class PoolService {
 	}
 
 	public static <T> void free(T object) {
-		ArrayExt<Object> temp = asyncPool;
-		temp.add(object);
+		asyncPool.add(object);
 	}
 
 	public static void freeAll(Array<?> objects) {
-		ArrayExt<Object> temp = asyncPool;
-		temp.addAll(objects);
+		asyncPool.addAll(objects);
 	}
 
 	private static void freeAsync(Array<?> objects) {
