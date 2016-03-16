@@ -4,16 +4,36 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ReflectionPool;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.badlogic.gdx.utils.async.AsyncTask;
+import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.TypePriorities;
+import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.Values;
 
 /**
  * Stores a map of {@link ReflectionPool}s by type for convenient static access. TODO factory pools
  * 
  * @author Nathan Sweet
  */
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
 public final class PoolService {
-	static private final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
+	private static final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
+
+	private static final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
+	private static final CleanupTask cleanupTask = new CleanupTask();
+
+	private static ArrayExt<Object> asyncPool = new ArrayExt<Object>(64);
+
+	static {
+		EventService.subscribe(cleanupTask);
+	}
 
 	private PoolService() {
 	}
@@ -55,69 +75,70 @@ public final class PoolService {
 	}
 
 	public static <T> void free(T object) {
-		if (object == null) {
-			throw new IllegalArgumentException("object cannot be null.");
-		}
-
-		// TODO do in background thread
-
-		if (object.getClass().isArray()) {
-			// TODO sync
-			ArrayPools.free(object);
-			return;
-		}
-
-		@SuppressWarnings("unchecked")
-		Class<T> type = (Class<T>) object.getClass();
-		ReflectionPool<T> pool;
-		synchronized (pools) {
-			@SuppressWarnings("unchecked")
-			ReflectionPool<T> casted = (ReflectionPool<T>) pools.get(type);
-			pool = casted;
-		}
-
-		if (pool == null) {
-			// Ignore freeing an object that was never retained.
-			return;
-		}
-
-		synchronized (pool) {
-			pool.free(object);
-		}
+		ArrayExt<Object> temp = asyncPool;
+		temp.add(object);
 	}
 
 	public static void freeAll(Array<?> objects) {
+		ArrayExt<Object> temp = asyncPool;
+		temp.addAll(objects);
+	}
+
+	private static void freeAsync(Array<?> objects) {
 		if (objects == null) {
 			return;
 		}
 
-		// TODO array pool
-
-		ReflectionPool<Object> pool = null;
+		int i = 0;
+		Pool<Object> pool = null;
 		Class<?> currentType = null;
 
-		for (int i = 0, n = objects.size; i < n; i++) {
-			Object object = objects.get(i);
-
+		while (i < objects.size) {
+			Object object = objects.get(i++);
 			if (object == null) {
 				continue;
 			}
 
 			Class<?> type = object.getClass();
-			// TODO arrayPool
-			if (currentType != type) {
-				synchronized (pools) {
-					@SuppressWarnings("unchecked")
-					ReflectionPool<Object> casted = (ReflectionPool<Object>) pools.get(type);
-					pool = casted;
-					if (pool == null) {
-						continue;
+			if (type.isArray()) {
+				// TODO sync
+				ArrayPools.free(object);
+			} else {
+				if (currentType != type) {
+					currentType = type;
+					synchronized (pools) {
+						pool = Values.cast(pools.get(type));
+					}
+				}
+
+				if (pool != null) {
+					synchronized (pool) {
+						pool.free(object);
 					}
 				}
 			}
+		}
+	}
 
-			synchronized (pool) {
-				pool.free(object);
+	private static class CleanupTask implements AsyncTask<Void>, ApplicationUpdateListener {
+		static boolean running;
+		static ArrayExt<Object> current = new ArrayExt<Object>(64);
+
+		@Override
+		public Void call() throws Exception {
+			PoolService.freeAsync(current);
+			running = false;
+			return null;
+		}
+
+		@Override
+		public void update() {
+			if (!running && asyncPool.size > 0) {
+				running = true;
+				ArrayExt<Object> temp = PoolService.asyncPool;
+				PoolService.asyncPool = current;
+				current = temp;
+				executor.submit(this);
 			}
 		}
 	}
