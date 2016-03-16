@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.StringBuilder;
 /**
  * @author Nathan Sweet
  */
-//TODO Poolable, array pool
+// TODO Poolable, array pool
 public class OrderedIdentitySet<T> extends IdentitySet<T> {
 	final ArrayExt<T> items;
 	private OrderedIdentitySetIterator<T> iterator1, iterator2;
@@ -132,6 +132,12 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 		iterator2.valid = true;
 		iterator1.valid = false;
 		return iterator2;
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		items.reset();
 	}
 
 	@Override

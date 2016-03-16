@@ -1,5 +1,6 @@
 package com.gurella.engine.pool;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
@@ -62,6 +63,7 @@ public class ObjectArrayPool<T> {
 		}
 
 		if (freeObjects.size < max) {
+			Arrays.fill(object, null);
 			freeObjects.add(object);
 			freeObjects.sort(ArrayComparable.<T> getInstance());
 		}
@@ -79,6 +81,7 @@ public class ObjectArrayPool<T> {
 		for (int i = 0; i < objects.size && freeObjects.size >= max; i++) {
 			T[] object = objects.get(i);
 			if (object != null) {
+				Arrays.fill(object, null);
 				freeObjects.add(object);
 			}
 		}

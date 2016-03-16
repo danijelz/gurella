@@ -1,5 +1,6 @@
 package com.gurella.engine.pool;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
@@ -59,6 +60,7 @@ public class CharArrayPool {
 		}
 
 		if (freeObjects.size < max) {
+			Arrays.fill(object, (char) 0);
 			freeObjects.add(object);
 			freeObjects.sort(ArrayComparable.instance);
 		}
@@ -76,6 +78,7 @@ public class CharArrayPool {
 		for (int i = 0; i < objects.size && freeObjects.size >= max; i++) {
 			char[] object = objects.get(i);
 			if (object != null) {
+				Arrays.fill(object, (char) 0);
 				freeObjects.add(object);
 			}
 		}

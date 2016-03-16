@@ -6,13 +6,15 @@ import java.util.NoSuchElementException;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.StringBuilder;
+import com.gurella.engine.pool.PoolService;
 
-/** 
- * @author Nathan Sweet 
- * */
-//TODO Poolable, array pool
-public class IdentitySet<T> implements Iterable<T> {
+/**
+ * @author Nathan Sweet
+ */
+// TODO Poolable, array pool
+public class IdentitySet<T> implements Iterable<T>, Poolable {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;
 
@@ -28,20 +30,26 @@ public class IdentitySet<T> implements Iterable<T> {
 
 	private IdentitySetIterator<T> iterator1, iterator2;
 
-	/** Creates a new set with an initial capacity of 32 and a load factor of 0.8. This set will hold 25 items before growing the
-	 * backing table. */
+	/**
+	 * Creates a new set with an initial capacity of 32 and a load factor of 0.8. This set will hold 25 items before
+	 * growing the backing table.
+	 */
 	public IdentitySet() {
 		this(32, 0.8f);
 	}
 
-	/** Creates a new set with a load factor of 0.8. This set will hold initialCapacity * 0.8 items before growing the backing
-	 * table. */
+	/**
+	 * Creates a new set with a load factor of 0.8. This set will hold initialCapacity * 0.8 items before growing the
+	 * backing table.
+	 */
 	public IdentitySet(int initialCapacity) {
 		this(initialCapacity, 0.8f);
 	}
 
-	/** Creates a new set with the specified initial capacity and load factor. This set will hold initialCapacity * loadFactor items
-	 * before growing the backing table. */
+	/**
+	 * Creates a new set with the specified initial capacity and load factor. This set will hold initialCapacity *
+	 * loadFactor items before growing the backing table.
+	 */
 	public IdentitySet(int initialCapacity, float loadFactor) {
 		if (initialCapacity < 0) {
 			throw new IllegalArgumentException("initialCapacity must be >= 0: " + initialCapacity);
@@ -52,7 +60,10 @@ public class IdentitySet<T> implements Iterable<T> {
 		if (loadFactor <= 0) {
 			throw new IllegalArgumentException("loadFactor must be > 0: " + loadFactor);
 		}
+		init(initialCapacity, loadFactor);
+	}
 
+	private void init(int initialCapacity, float loadFactor) {
 		this.loadFactor = loadFactor;
 		capacity = MathUtils.nextPowerOfTwo(initialCapacity);
 		threshold = (int) (capacity * loadFactor);
@@ -60,7 +71,7 @@ public class IdentitySet<T> implements Iterable<T> {
 		hashShift = 31 - Integer.numberOfTrailingZeros(capacity);
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Math.max(Math.min(capacity, 8), (int) Math.sqrt(capacity) / 8);
-		keyTable = Values.cast(new Object[capacity + stashCapacity]);
+		keyTable = Values.cast(PoolService.obtain(Object.class, capacity + stashCapacity, 0.3f));
 	}
 
 	/** Creates a new set identical to the specified set. */
@@ -71,8 +82,10 @@ public class IdentitySet<T> implements Iterable<T> {
 		size = set.size;
 	}
 
-	/** Returns true if the key was not already in the set. If this set already contains the key, the call leaves the set unchanged
-	 * and returns false. */
+	/**
+	 * Returns true if the key was not already in the set. If this set already contains the key, the call leaves the set
+	 * unchanged and returns false.
+	 */
 	public boolean add(T key) {
 		if (key == null) {
 			throw new IllegalArgumentException("key cannot be null.");
@@ -330,8 +343,11 @@ public class IdentitySet<T> implements Iterable<T> {
 		}
 	}
 
-	/** Reduces the size of the backing arrays to be the specified capacity or less. If the capacity is already less, nothing is
-	 * done. If the map contains more items than the specified capacity, the next highest power of two capacity is used instead. */
+	/**
+	 * Reduces the size of the backing arrays to be the specified capacity or less. If the capacity is already less,
+	 * nothing is done. If the map contains more items than the specified capacity, the next highest power of two
+	 * capacity is used instead.
+	 */
 	public void shrink(int maximumCapacity) {
 		if (maximumCapacity < 0) {
 			throw new IllegalArgumentException("maximumCapacity must be >= 0: " + maximumCapacity);
@@ -343,7 +359,7 @@ public class IdentitySet<T> implements Iterable<T> {
 			return;
 		}
 		maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
-		resize(maximumCapacity);
+		resize(maximumCapacity, 0);
 	}
 
 	/** Clears the map and reduces the size of the backing arrays to be the specified capacity if they are larger. */
@@ -353,7 +369,7 @@ public class IdentitySet<T> implements Iterable<T> {
 			return;
 		}
 		size = 0;
-		resize(maximumCapacity);
+		resize(maximumCapacity, 0);
 	}
 
 	public void clear() {
@@ -402,8 +418,10 @@ public class IdentitySet<T> implements Iterable<T> {
 		throw new IllegalStateException("ObjectSet is empty.");
 	}
 
-	/** Increases the size of the backing array to accommodate the specified number of additional items. Useful before adding many
-	 * items to avoid multiple backing array resizes. */
+	/**
+	 * Increases the size of the backing array to accommodate the specified number of additional items. Useful before
+	 * adding many items to avoid multiple backing array resizes.
+	 */
 	public void ensureCapacity(int additionalCapacity) {
 		int sizeNeeded = size + additionalCapacity;
 		if (sizeNeeded >= threshold) {
@@ -412,6 +430,10 @@ public class IdentitySet<T> implements Iterable<T> {
 	}
 
 	private void resize(int newSize) {
+		resize(newSize, 0.3f);
+	}
+
+	private void resize(int newSize, float maxDeviation) {
 		int oldEndIndex = capacity + stashSize;
 
 		capacity = newSize;
@@ -422,8 +444,7 @@ public class IdentitySet<T> implements Iterable<T> {
 		pushIterations = Math.max(Math.min(newSize, 8), (int) Math.sqrt(newSize) / 8);
 
 		T[] oldKeyTable = keyTable;
-
-		keyTable = Values.cast(new Object[newSize + stashCapacity]);
+		keyTable = Values.cast(PoolService.obtain(Object.class, newSize + stashCapacity, maxDeviation));
 
 		int oldSize = size;
 		size = 0;
@@ -436,6 +457,8 @@ public class IdentitySet<T> implements Iterable<T> {
 				}
 			}
 		}
+
+		PoolService.free(oldKeyTable);
 	}
 
 	private int hash2(int h) {
@@ -507,8 +530,11 @@ public class IdentitySet<T> implements Iterable<T> {
 		return buffer.toString();
 	}
 
-	/** Returns an iterator for the keys in the set. Remove is supported. Note that the same iterator instance is returned each time
-	 * this method is called. Use the {@link IdentitySetIterator} constructor for nested or multithreaded iteration. */
+	/**
+	 * Returns an iterator for the keys in the set. Remove is supported. Note that the same iterator instance is
+	 * returned each time this method is called. Use the {@link IdentitySetIterator} constructor for nested or
+	 * multithreaded iteration.
+	 */
 	@Override
 	public IdentitySetIterator<T> iterator() {
 		if (iterator1 == null) {
@@ -525,6 +551,13 @@ public class IdentitySet<T> implements Iterable<T> {
 		iterator2.valid = true;
 		iterator1.valid = false;
 		return iterator2;
+	}
+
+	@Override
+	public void reset() {
+		T[] oldKeyTable = keyTable;
+		init(32, 0.8f);
+		PoolService.free(oldKeyTable);
 	}
 
 	static public <T> IdentitySet<T> with(T... array) {

@@ -4,39 +4,53 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ReflectionPool;
+import com.gurella.engine.factory.Factories;
+import com.gurella.engine.factory.Factory;
 
 /**
- * Stores a map of {@link ReflectionPool}s by type for convenient static access.
+ * Stores a map of {@link ReflectionPool}s by type for convenient static access. TODO factory pools
  * 
  * @author Nathan Sweet
  */
 public final class PoolService {
-	static private final ObjectMap<Class<?>, ReflectionPool<?>> pools = new ObjectMap<Class<?>, ReflectionPool<?>>();
+	static private final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
 
 	private PoolService() {
 	}
 
-	private static <T> Pool<T> get(Class<T> type) {
+	private static <T> Pool<T> getPool(Class<T> type) {
 		synchronized (pools) {
 			@SuppressWarnings("unchecked")
-			ReflectionPool<T> pool = (ReflectionPool<T>) pools.get(type);
+			Pool<T> pool = (Pool<T>) pools.get(type);
 			if (pool == null) {
-				pool = new ReflectionPool<T>(type, 4, 100);
+				Factory<T> factory = Factories.getFactory(type);
+				pool = factory == null ? new ReflectionPool<T>(type) : new FactoryPool<T>(factory);
 				pools.put(type, pool);
 			}
 			return pool;
 		}
 	}
 
-	@SuppressWarnings("cast")
-	public static <T> T obtain(Class<T> type) {
-		Pool<T> pool = get(type);
-		synchronized (pool) {
-			return (T) pool.obtain();
+	public static <T> void setPool(Class<T> type, Pool<T> pool) {
+		synchronized (pools) {
+			pools.put(type, pool);
 		}
 	}
 
-	static <T> T obtain(Class<T> componentType, int length, int maxLength) {
+	public static <T> T obtain(Class<T> type) {
+		Pool<T> pool = getPool(type);
+		synchronized (pool) {
+			return pool.obtain();
+		}
+	}
+
+	public static <T> T obtain(Class<?> componentType, int length, float maxDeviation) {
+		// TODO sync
+		return ArrayPools.obtain(componentType, length, maxDeviation);
+	}
+
+	public static <T> T obtain(Class<?> componentType, int length, int maxLength) {
+		// TODO sync
 		return ArrayPools.obtain(componentType, length, maxLength);
 	}
 
@@ -45,8 +59,12 @@ public final class PoolService {
 			throw new IllegalArgumentException("object cannot be null.");
 		}
 
+		// TODO do in background thread
+
 		if (object.getClass().isArray()) {
+			// TODO sync
 			ArrayPools.free(object);
+			return;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -73,6 +91,8 @@ public final class PoolService {
 			return;
 		}
 
+		// TODO array pool
+
 		ReflectionPool<Object> pool = null;
 		Class<?> currentType = null;
 
@@ -84,7 +104,7 @@ public final class PoolService {
 			}
 
 			Class<?> type = object.getClass();
-			//TODO arrayPool
+			// TODO arrayPool
 			if (currentType != type) {
 				synchronized (pools) {
 					@SuppressWarnings("unchecked")

@@ -1,9 +1,13 @@
 package com.gurella.engine.utils;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.pool.PoolService;
 
 //TODO Poolable
-public class ArrayExt<T> extends Array<T> {
+public class ArrayExt<T> extends Array<T> implements Poolable {
 	private ImmutableArray<T> immutable;
 
 	public ArrayExt() {
@@ -39,15 +43,32 @@ public class ArrayExt<T> extends Array<T> {
 	}
 
 	@Override
-	public T[] toArray() {
-		// TODO array pool
-		return super.toArray();
+	public <V> V[] toArray(@SuppressWarnings("rawtypes") Class type) {
+		V[] result = PoolService.obtain(Values.cast(type), size, size);
+		System.arraycopy(items, 0, result, 0, size);
+		return result;
+	}
+
+	@Override
+	public T[] shrink() {
+		if (items.length != size) {
+			resize(size, 0);
+		}
+		return items;
 	}
 
 	@Override
 	protected T[] resize(int newSize) {
-		// TODO array pool
-		return super.resize(newSize);
+		return resize(newSize, 0.3f);
+	}
+
+	protected T[] resize(int newSize, float maxDeviation) {
+		T[] items = this.items;
+		T[] newItems = PoolService.obtain(Values.cast(items.getClass().getComponentType()), newSize, maxDeviation);
+		System.arraycopy(items, 0, newItems, 0, Math.min(size, newItems.length));
+		PoolService.free(items);
+		this.items = newItems;
+		return newItems;
 	}
 
 	public void addAll(ImmutableArray<? extends T> array) {
@@ -63,6 +84,17 @@ public class ArrayExt<T> extends Array<T> {
 			immutable = new ImmutableArray<T>(this);
 		}
 		return immutable;
+	}
+
+	@Override
+	public void reset() {
+		if (items.length > 32) {
+			resize(16);
+		} else {
+			Arrays.fill(items, null);
+		}
+		ordered = true;
+		size = 0;
 	}
 
 	@Override

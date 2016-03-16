@@ -1,5 +1,7 @@
 package com.gurella.engine.utils;
 
+import static com.gurella.engine.utils.Values.*; 
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -9,6 +11,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.StringBuilder;
 
+//TODO poolable
 public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.Entry<K>> {
 	private static final int PRIME1 = 0xb4b82e39;
 	private static final int PRIME2 = 0xced1c241;
@@ -68,9 +71,7 @@ public class IdentityObjectIntMap<K> implements Iterable<IdentityObjectIntMap.En
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Math.max(Math.min(capacity, 8), (int) Math.sqrt(capacity) / 8);
 
-		@SuppressWarnings("unchecked")
-		K[] casted = (K[]) new Object[capacity + stashCapacity];
-		keyTable = casted;
+		keyTable = cast(new Object[capacity + stashCapacity]);
 		valueTable = new int[keyTable.length];
 	}
 

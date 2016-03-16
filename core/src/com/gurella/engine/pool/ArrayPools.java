@@ -17,7 +17,11 @@ final class ArrayPools {
 	private ArrayPools() {
 	}
 
-	static <T> T obtain(Class<T> componentType, int length, int maxLength) {
+	static <T> T obtain(Class<?> componentType, int length, float maxDeviation) {
+		return obtain(componentType, length, length + (int) (length * maxDeviation));
+	}
+
+	static <T> T obtain(Class<?> componentType, int length, int maxLength) {
 		if (componentType.isPrimitive()) {
 			if (boolean.class == componentType) {
 				return Values.cast(booleanArrayPool.obtain(length, maxLength));
@@ -40,9 +44,9 @@ final class ArrayPools {
 			}
 		} else {
 			@SuppressWarnings("unchecked")
-			ObjectArrayPool<T> pool = (ObjectArrayPool<T>) objectPools.get(componentType);
+			ObjectArrayPool<Object> pool = (ObjectArrayPool<Object>) objectPools.get(componentType);
 			if (pool == null) {
-				pool = new ObjectArrayPool<T>(componentType);
+				pool = new ObjectArrayPool<Object>(Values.cast(componentType));
 				objectPools.put(componentType, pool);
 			}
 			return Values.cast(pool.obtain(length, maxLength));
@@ -57,7 +61,7 @@ final class ArrayPools {
 			} else if (byte.class == componentType) {
 				byteArrayPool.free(Values.<byte[]> cast(object));
 			} else if (char.class == componentType) {
-				byteArrayPool.free(Values.<byte[]> cast(object));
+				charArrayPool.free(Values.<char[]> cast(object));
 			} else if (short.class == componentType) {
 				shortArrayPool.free(Values.<short[]> cast(object));
 			} else if (int.class == componentType) {
