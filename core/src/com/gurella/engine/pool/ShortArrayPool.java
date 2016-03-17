@@ -6,7 +6,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.Values;
 
-public class ShortArrayPool {
+public class ShortArrayPool implements ArrayPool<short[]> {
 	public final int max;
 	private final Array<short[]> freeObjects;
 
@@ -23,6 +23,7 @@ public class ShortArrayPool {
 		freeObjects = new Array<short[]>(initialCapacity);
 	}
 
+	@Override
 	public short[] obtain(int length, int maxLength) {
 		short[] array = find(length, maxLength);
 		return array == null ? new short[length] : array;
@@ -54,6 +55,7 @@ public class ShortArrayPool {
 		return null;
 	}
 
+	@Override
 	public void free(short[] object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");

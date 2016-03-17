@@ -6,7 +6,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.Values;
 
-public class BooleanArrayPool {
+public class BooleanArrayPool implements ArrayPool<boolean[]> {
 	public final int max;
 	private final Array<boolean[]> freeObjects;
 
@@ -23,6 +23,7 @@ public class BooleanArrayPool {
 		freeObjects = new Array<boolean[]>(initialCapacity);
 	}
 
+	@Override
 	public boolean[] obtain(int length, int maxLength) {
 		boolean[] array = find(length, maxLength);
 		return array == null ? new boolean[length] : array;
@@ -54,6 +55,7 @@ public class BooleanArrayPool {
 		return null;
 	}
 
+	@Override
 	public void free(boolean[] object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");

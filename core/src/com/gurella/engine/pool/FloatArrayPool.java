@@ -6,7 +6,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.Values;
 
-public class FloatArrayPool {
+public class FloatArrayPool implements ArrayPool<float[]> {
 	public final int max;
 	private final Array<float[]> freeObjects;
 
@@ -23,6 +23,7 @@ public class FloatArrayPool {
 		freeObjects = new Array<float[]>(initialCapacity);
 	}
 
+	@Override
 	public float[] obtain(int length, int maxLength) {
 		float[] array = find(length, maxLength);
 		return array == null ? new float[length] : array;
@@ -54,6 +55,7 @@ public class FloatArrayPool {
 		return null;
 	}
 
+	@Override
 	public void free(float[] object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");

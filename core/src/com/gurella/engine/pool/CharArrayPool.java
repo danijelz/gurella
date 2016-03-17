@@ -6,7 +6,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.Values;
 
-public class CharArrayPool {
+public class CharArrayPool implements ArrayPool<char[]> {
 	public final int max;
 	private final Array<char[]> freeObjects;
 
@@ -23,6 +23,7 @@ public class CharArrayPool {
 		freeObjects = new Array<char[]>(initialCapacity);
 	}
 
+	@Override
 	public char[] obtain(int length, int maxLength) {
 		char[] array = find(length, maxLength);
 		return array == null ? new char[length] : array;
@@ -54,6 +55,7 @@ public class CharArrayPool {
 		return null;
 	}
 
+	@Override
 	public void free(char[] object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");

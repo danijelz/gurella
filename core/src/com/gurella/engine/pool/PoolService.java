@@ -1,11 +1,15 @@
 package com.gurella.engine.pool;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ReflectionPool;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
+import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
@@ -17,28 +21,33 @@ import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.Values;
 
-/**
- * Stores a map of {@link ReflectionPool}s by type for convenient static access. TODO factory pools
- * 
- * @author Nathan Sweet
- */
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
+//TODO factory pools
 public final class PoolService {
-	private static final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
-
 	private static final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
 	private static final CleanupTask cleanupTask = new CleanupTask();
 
-	private static ArrayExt<Object> asyncPool = new ArrayExt<Object>(64);
+	private static final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
+	private static final ObjectMap<Class<?>, ArrayPool<?>> arrayPools = new ObjectMap<Class<?>, ArrayPool<?>>();
+	private static ArrayExt<Object> asyncPool = new ArrayExt<Object>(128);
 
 	static {
+		arrayPools.put(boolean.class, new BooleanArrayPool());
+		arrayPools.put(byte.class, new ByteArrayPool());
+		arrayPools.put(char.class, new CharArrayPool());
+		arrayPools.put(short.class, new ShortArrayPool());
+		arrayPools.put(int.class, new IntArrayPool());
+		arrayPools.put(long.class, new LongArrayPool());
+		arrayPools.put(float.class, new FloatArrayPool());
+		arrayPools.put(double.class, new DoubleArrayPool());
+		arrayPools.put(Object.class, new ObjectArrayPool<Object>(Object.class));
+
 		EventService.subscribe(cleanupTask);
 	}
 
 	private PoolService() {
 	}
 
-	private static <T> Pool<T> getPool(Class<T> type) {
+	private static <T> Pool<T> getObjectPool(Class<T> type) {
 		synchronized (pools) {
 			@SuppressWarnings("unchecked")
 			Pool<T> pool = (Pool<T>) pools.get(type);
@@ -51,80 +60,162 @@ public final class PoolService {
 		}
 	}
 
-	public static <T> void setPool(Class<T> type, Pool<T> pool) {
-		synchronized (pools) {
-			pools.put(type, pool);
+	private static <T> ArrayPool<T> getArrayPool(Class<?> componentType) {
+		synchronized (arrayPools) {
+			@SuppressWarnings("unchecked")
+			ArrayPool<T> pool = (ArrayPool<T>) arrayPools.get(componentType);
+			if (pool == null) {
+				pool = Values.cast(new ObjectArrayPool<Object>(Values.cast(componentType)));
+				arrayPools.put(componentType, pool);
+			}
+			return pool;
 		}
 	}
 
 	public static <T> T obtain(Class<T> type) {
-		Pool<T> pool = getPool(type);
+		if (type.isArray()) {
+			throw new GdxRuntimeException("Missing array length.");
+		}
+
+		Pool<T> pool = getObjectPool(type);
 		synchronized (pool) {
 			return pool.obtain();
 		}
 	}
 
-	public static <T> T obtain(Class<?> componentType, int length, float maxDeviation) {
-		// TODO sync
-		return ArrayPools.obtain(componentType, length, maxDeviation);
+	public static boolean[] obtainBooleanArray(int length, float maxDeviation) {
+		return obtainArrayInternal(boolean.class, length, length + (int) (length * maxDeviation));
 	}
 
-	public static <T> T obtain(Class<?> componentType, int length, int maxLength) {
-		// TODO sync
-		return ArrayPools.obtain(componentType, length, maxLength);
+	public static boolean[] obtainBooleanArray(int length, int maxLength) {
+		return obtainArrayInternal(boolean.class, length, maxLength);
+	}
+
+	public static byte[] obtainByteArray(int length, float maxDeviation) {
+		return obtainArrayInternal(byte.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static byte[] obtainByteArray(int length, int maxLength) {
+		return obtainArrayInternal(byte.class, length, maxLength);
+	}
+
+	public static char[] obtainCharArray(int length, float maxDeviation) {
+		return obtainArrayInternal(char.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static char[] obtainCharArray(int length, int maxLength) {
+		return obtainArrayInternal(char.class, length, maxLength);
+	}
+
+	public static short[] obtainShortArray(int length, float maxDeviation) {
+		return obtainArrayInternal(short.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static short[] obtainShortArray(int length, int maxLength) {
+		return obtainArrayInternal(short.class, length, maxLength);
+	}
+
+	public static int[] obtainIntArray(int length, float maxDeviation) {
+		return obtainArrayInternal(int.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static int[] obtainIntArray(int length, int maxLength) {
+		return obtainArrayInternal(int.class, length, maxLength);
+	}
+
+	public static long[] obtainLongArray(int length, float maxDeviation) {
+		return obtainArrayInternal(long.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static long[] obtainLongArray(int length, int maxLength) {
+		return obtainArrayInternal(long.class, length, maxLength);
+	}
+
+	public static float[] obtainFloatArray(int length, float maxDeviation) {
+		return obtainArrayInternal(float.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static float[] obtainFloatArray(int length, int maxLength) {
+		return obtainArrayInternal(float.class, length, maxLength);
+	}
+
+	public static double[] obtainDoubleArray(int length, float maxDeviation) {
+		return obtainArrayInternal(double.class, length, length + (int) (length * maxDeviation));
+	}
+
+	public static double[] obtainDoubleArray(int length, int maxLength) {
+		return obtainArrayInternal(double.class, length, maxLength);
+	}
+
+	public static <T> T[] obtainArray(Class<T> componentType, int length, float maxDeviation) {
+		return obtainArrayInternal(componentType, length, length + (int) (length * maxDeviation));
+	}
+
+	public static <T> T[] obtainArray(Class<T> componentType, int length, int maxLength) {
+		return obtainArrayInternal(componentType, length, maxLength);
+	}
+
+	private static <T> T obtainArrayInternal(Class<?> componentType, int length, int maxLength) {
+		@SuppressWarnings("unchecked")
+		ArrayPool<T> pool = (ArrayPool<T>) getArrayPool(componentType);
+		synchronized (pool) {
+			return pool.obtain(length, maxLength);
+		}
 	}
 
 	public static <T> void free(T object) {
-		asyncPool.add(object);
+		synchronized (asyncPool) {
+			asyncPool.add(object);
+		}
 	}
 
 	public static void freeAll(Array<?> objects) {
-		asyncPool.addAll(objects);
+		synchronized (asyncPool) {
+			asyncPool.addAll(objects);
+		}
 	}
 
 	private static void freeAsync(Array<?> objects) {
-		if (objects == null) {
-			return;
-		}
-
-		int i = 0;
-		Pool<Object> pool = null;
+		Object pool = null;
 		Class<?> currentType = null;
 
-		while (i < objects.size) {
-			Object object = objects.get(i++);
+		for (int i = 0, n = objects.size; i < n; i++) {
+			Object object = objects.get(i);
 			if (object == null) {
 				continue;
 			}
 
 			Class<?> type = object.getClass();
-			if (type.isArray()) {
-				// TODO sync
-				ArrayPools.free(object);
-			} else {
-				if (currentType != type) {
-					currentType = type;
-					synchronized (pools) {
-						pool = Values.cast(pools.get(type));
-					}
-				}
+			if (currentType != type) {
+				currentType = type;
+				pool = type.isArray() ? getArrayPool(type.getComponentType()) : getObjectPool(type);
+			}
 
-				if (pool != null) {
-					synchronized (pool) {
-						pool.free(object);
-					}
+			if (pool instanceof Pool) {
+				@SuppressWarnings("unchecked")
+				Pool<Object> objectPool = (Pool<Object>) pool;
+				synchronized (objectPool) {
+					objectPool.free(object);
+				}
+			} else {
+				@SuppressWarnings("unchecked")
+				ArrayPool<Object> arrayPool = (ArrayPool<Object>) pool;
+				synchronized (arrayPool) {
+					arrayPool.free(object);
 				}
 			}
 		}
 	}
 
+	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
 	private static class CleanupTask implements AsyncTask<Void>, ApplicationUpdateListener {
 		static boolean running;
-		static ArrayExt<Object> current = new ArrayExt<Object>(64);
+		static ArrayExt<Object> current = new ArrayExt<Object>(128);
 
 		@Override
 		public Void call() throws Exception {
 			PoolService.freeAsync(current);
+			current.clear();
 			running = false;
 			return null;
 		}
@@ -132,12 +223,55 @@ public final class PoolService {
 		@Override
 		public void update() {
 			if (!running && asyncPool.size > 0) {
-				running = true;
 				ArrayExt<Object> temp = PoolService.asyncPool;
-				PoolService.asyncPool = current;
+				synchronized (asyncPool) {
+					running = true;
+					PoolService.asyncPool = current;
+				}
 				current = temp;
+				current.sort(FreeObjectsComparator.instance);
 				executor.submit(this);
 			}
 		}
+	}
+
+	private static class FreeObjectsComparator implements Comparator<Object> {
+		private static final FreeObjectsComparator instance = new FreeObjectsComparator();
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			if (o1 == null) {
+				return o2 == null ? 0 : -1;
+			} else if (o2 == null) {
+				return 1;
+			} else {
+				return o1.getClass().getSimpleName().compareTo(o2.getClass().getSimpleName());
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		int[] arr = PoolService.obtainIntArray(5, 0);
+		Object obj = PoolService.obtain(Object.class);
+		PoolService.free(arr);
+		PoolService.free(obj);
+		PoolService.cleanupTask.update();
+		while (PoolService.CleanupTask.running) {
+			ThreadUtils.yield();
+		}
+
+		ArrayPool<Object> arrayPool = PoolService.getArrayPool(int.class);
+		Pool<Object> objectPool = PoolService.getObjectPool(Object.class);
+		objectPool.getFree();
+
+		arr = PoolService.obtainIntArray(5, 0);
+		obj = PoolService.obtain(Object.class);
+		PoolService.free(arr);
+		PoolService.free(obj);
+		PoolService.cleanupTask.update();
+		while (PoolService.CleanupTask.running) {
+			ThreadUtils.yield();
+		}
+		objectPool.getFree();
 	}
 }

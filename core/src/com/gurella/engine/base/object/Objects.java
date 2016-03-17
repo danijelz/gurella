@@ -19,8 +19,15 @@ import com.gurella.engine.utils.Values;
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
 final class Objects implements ApplicationUpdateListener {
 	private static final Objects instance = new Objects();
-	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>();
+
+	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
+
 	private static final Array<Object> tempListeners = new Array<Object>(64);
+	private static final Object lock = new Object();
+
+	static {
+		EventService.subscribe(instance);
+	}
 
 	private Objects() {
 	}
@@ -50,19 +57,17 @@ final class Objects implements ApplicationUpdateListener {
 	}
 
 	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {
-		boolean subscribe = operations.size == 0;
 		ObjectOperation operation = PoolService.obtain(ObjectOperation.class);
 		operation.object = object;
 		operation.operationType = operationType;
 		operation.newParent = newParent;
-		operations.add(operation);
 
-		if (subscribe) {
-			EventService.subscribe(instance);
+		synchronized (lock) {
+			operations.add(operation);
 		}
 	}
 
-	//TODO notifications not needed
+	// TODO notifications not needed
 	static void activated(ManagedObject object) {
 		Array<ObjectsActivityListener> globalListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ObjectsActivityListener.class, globalListeners);
@@ -157,10 +162,11 @@ final class Objects implements ApplicationUpdateListener {
 
 	@Override
 	public void update() {
-		while (operations.size > 0) {
-			ObjectOperation operation = operations.removeIndex(0);
-			operation.execute();
+		synchronized (lock) {
+			for (int i = 0, n = operations.size; i < n; i++) {
+				operations.get(i).execute();
+			}
+			operations.clear();
 		}
-		EventService.unsubscribe(instance);
 	}
 }

@@ -43,8 +43,9 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 	}
 
 	@Override
+	//TODO do we need pool service
 	public <V> V[] toArray(@SuppressWarnings("rawtypes") Class type) {
-		V[] result = PoolService.obtain(Values.cast(type), size, size);
+		V[] result = PoolService.obtainArray(Values.cast(type), size, size);
 		System.arraycopy(items, 0, result, 0, size);
 		return result;
 	}
@@ -64,7 +65,7 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 
 	protected T[] resize(int newSize, float maxDeviation) {
 		T[] items = this.items;
-		T[] newItems = PoolService.obtain(Values.cast(items.getClass().getComponentType()), newSize, maxDeviation);
+		T[] newItems = PoolService.obtainArray(Values.cast(items.getClass().getComponentType()), newSize, maxDeviation);
 		System.arraycopy(items, 0, newItems, 0, Math.min(size, newItems.length));
 		PoolService.free(items);
 		this.items = newItems;

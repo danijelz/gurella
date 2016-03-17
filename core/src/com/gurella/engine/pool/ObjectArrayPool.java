@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.utils.Values;
 
-public class ObjectArrayPool<T> {
+public class ObjectArrayPool<T> implements ArrayPool<T[]> {
 	public final Class<T> componentType;
 	public final int max;
 	private final Array<T[]> freeObjects;
@@ -26,6 +26,7 @@ public class ObjectArrayPool<T> {
 		freeObjects = new Array<T[]>(initialCapacity);
 	}
 
+	@Override
 	public T[] obtain(int length, int maxLength) {
 		T[] array = find(length, maxLength);
 		return array == null ? Values.<T[]> cast(ArrayReflection.newInstance(componentType, length)) : array;
@@ -57,6 +58,7 @@ public class ObjectArrayPool<T> {
 		return null;
 	}
 
+	@Override
 	public void free(T[] object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");

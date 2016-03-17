@@ -6,7 +6,7 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.Values;
 
-public class ByteArrayPool {
+public class ByteArrayPool implements ArrayPool<byte[]> {
 	public final int max;
 	private final Array<byte[]> freeObjects;
 
@@ -23,6 +23,7 @@ public class ByteArrayPool {
 		freeObjects = new Array<byte[]>(initialCapacity);
 	}
 
+	@Override
 	public byte[] obtain(int length, int maxLength) {
 		byte[] array = find(length, maxLength);
 		return array == null ? new byte[length] : array;
@@ -54,6 +55,7 @@ public class ByteArrayPool {
 		return null;
 	}
 
+	@Override
 	public void free(byte[] object) {
 		if (object == null) {
 			throw new IllegalArgumentException("object cannot be null.");
