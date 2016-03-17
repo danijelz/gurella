@@ -29,6 +29,7 @@ import com.gurella.engine.scene.input.IntersectionTouchEvent;
 import com.gurella.engine.scene.input.PointerActivityListener;
 import com.gurella.engine.scene.input.TouchEvent;
 import com.gurella.engine.scene.layer.Layer;
+import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
 import com.gurella.engine.scene.movement.TransformComponent;
@@ -498,16 +499,16 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public void setLayer(Layer layer) {
 	}
 
-	public void getSpatials(BoundingBox bounds, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask layers) {
 	}
 
-	public void getSpatials(Frustum frustum, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(Frustum frustum, Array<Spatial> out, LayerMask layers) {
 	}
 
-	public void getSpatials(Ray ray, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(Ray ray, Array<Spatial> out, LayerMask layers) {
 	}
 	
-	public void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, Layer... layers) {
+	public void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask layers) {
 	}
 
 	public void registerListener(Object listener) {

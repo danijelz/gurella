@@ -12,6 +12,6 @@ public class Archive<T> implements Poolable {
 	@Override
 	public void reset() {
 		rootValue = null;
-		// TODO managedObjects.reset();
+		managedObjects.reset();
 	}
 }

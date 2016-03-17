@@ -3,10 +3,10 @@ package com.gurella.engine.pool;
 import java.util.Comparator;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ReflectionPool;
+import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.async.AsyncService;
@@ -24,6 +24,7 @@ import com.gurella.engine.utils.Values;
 @TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
 public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener {
 	private static final PoolService instance = new PoolService();
+	private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
 	private static final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
 	private static final ObjectMap<Class<?>, ArrayPool<?>> arrayPools = new ObjectMap<Class<?>, ArrayPool<?>>();
@@ -31,6 +32,7 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	private static boolean cleaning;
 	private static ArrayExt<Object> asyncPool = new ArrayExt<Object>(128);
 	private static ArrayExt<Object> cleaningObjects = new ArrayExt<Object>(128);
+	private static final Sort sort = new Sort();
 
 	static {
 		arrayPools.put(boolean.class, new BooleanArrayPool());
@@ -75,10 +77,6 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	}
 
 	public static <T> T obtain(Class<T> type) {
-		if (type.isArray()) {
-			throw new GdxRuntimeException("Missing array length.");
-		}
-
 		Pool<T> pool = getObjectPool(type);
 		synchronized (pool) {
 			return pool.obtain();
@@ -227,14 +225,12 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 				asyncPool = cleaningObjects;
 			}
 			cleaningObjects = temp;
-			cleaningObjects.sort(FreeObjectsComparator.comparatorInstance);
+			sort.sort(cleaningObjects, comparatorInstance);
 			AsyncService.submit(this);
 		}
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {
-		private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
-
 		@Override
 		public int compare(Object o1, Object o2) {
 			if (o1 == null) {
