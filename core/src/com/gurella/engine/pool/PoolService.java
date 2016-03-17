@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ReflectionPool;
 import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
-import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
@@ -241,31 +240,5 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 				return o1.getClass().getSimpleName().compareTo(o2.getClass().getSimpleName());
 			}
 		}
-	}
-
-	public static void main(String[] args) {
-		int[] arr = PoolService.obtainIntArray(5, 0);
-		Object obj = PoolService.obtain(Object.class);
-		PoolService.free(arr);
-		PoolService.free(obj);
-		PoolService.instance.update();
-		while (PoolService.cleaning) {
-			ThreadUtils.yield();
-		}
-
-		ArrayPool<Object> arrayPool = PoolService.getArrayPool(int.class);
-		Pool<Object> objectPool = PoolService.getObjectPool(Object.class);
-		objectPool.getFree();
-		arrayPool.toString();
-
-		arr = PoolService.obtainIntArray(5, 0);
-		obj = PoolService.obtain(Object.class);
-		PoolService.free(arr);
-		PoolService.free(obj);
-		PoolService.instance.update();
-		while (PoolService.cleaning) {
-			ThreadUtils.yield();
-		}
-		objectPool.getFree();
 	}
 }
