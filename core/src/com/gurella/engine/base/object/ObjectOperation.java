@@ -10,6 +10,11 @@ class ObjectOperation implements Poolable {
 
 	void execute() {
 		ManagedObjectState state = object.getState();
+		if (state == ManagedObjectState.disposed) {
+			free();
+			return;
+		}
+
 		switch (operationType) {
 		case activate:
 			if (state.ordinal() < ManagedObjectState.active.ordinal()) {
@@ -22,14 +27,10 @@ class ObjectOperation implements Poolable {
 			}
 			break;
 		case reparent:
-			if (state != ManagedObjectState.disposed) {
-				object.reparent(newParent);
-			}
+			object.reparent(newParent);
 			break;
 		case destroy:
-			if (state != ManagedObjectState.disposed) {
-				object.handleDestruction();
-			}
+			object.handleDestruction();
 			break;
 		default:
 			throw new IllegalArgumentException();
