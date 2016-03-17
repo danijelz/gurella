@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
+import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;

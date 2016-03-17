@@ -43,7 +43,7 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 	}
 
 	@Override
-	//TODO do we need pool service
+	// TODO is pool service needed
 	public <V> V[] toArray(@SuppressWarnings("rawtypes") Class type) {
 		V[] result = PoolService.obtainArray(Values.cast(type), size, size);
 		System.arraycopy(items, 0, result, 0, size);
@@ -90,7 +90,7 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 	@Override
 	public void reset() {
 		if (items.length > 32) {
-			resize(16);
+			resize(16, 1);
 		} else {
 			Arrays.fill(items, null);
 		}

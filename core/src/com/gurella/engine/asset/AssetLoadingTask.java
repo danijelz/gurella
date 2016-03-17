@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.AsyncTask;
-import com.gurella.engine.base.resource.AsyncCallback;
+import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Values;
 

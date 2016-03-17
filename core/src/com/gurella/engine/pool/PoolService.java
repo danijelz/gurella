@@ -7,10 +7,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ReflectionPool;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.badlogic.gdx.utils.async.ThreadUtils;
-import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
@@ -21,14 +20,17 @@ import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.Values;
 
-//TODO factory pools
-public final class PoolService {
-	private static final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
-	private static final CleanupTask cleanupTask = new CleanupTask();
+//TODO factory pools, Disposable
+@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
+public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener {
+	private static final PoolService instance = new PoolService();
 
 	private static final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
 	private static final ObjectMap<Class<?>, ArrayPool<?>> arrayPools = new ObjectMap<Class<?>, ArrayPool<?>>();
+
+	private static boolean cleaning;
 	private static ArrayExt<Object> asyncPool = new ArrayExt<Object>(128);
+	private static ArrayExt<Object> cleaningObjects = new ArrayExt<Object>(128);
 
 	static {
 		arrayPools.put(boolean.class, new BooleanArrayPool());
@@ -41,7 +43,7 @@ public final class PoolService {
 		arrayPools.put(double.class, new DoubleArrayPool());
 		arrayPools.put(Object.class, new ObjectArrayPool<Object>(Object.class));
 
-		EventService.subscribe(cleanupTask);
+		EventService.subscribe(instance);
 	}
 
 	private PoolService() {
@@ -175,12 +177,12 @@ public final class PoolService {
 		}
 	}
 
-	private static void freeAsync(Array<?> objects) {
+	private static void freeAsync() {
 		Object pool = null;
 		Class<?> currentType = null;
 
-		for (int i = 0, n = objects.size; i < n; i++) {
-			Object object = objects.get(i);
+		for (int i = 0, n = cleaningObjects.size; i < n; i++) {
+			Object object = cleaningObjects.get(i);
 			if (object == null) {
 				continue;
 			}
@@ -205,38 +207,33 @@ public final class PoolService {
 				}
 			}
 		}
+
+		cleaningObjects.clear();
+		cleaning = false;
 	}
 
-	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
-	private static class CleanupTask implements AsyncTask<Void>, ApplicationUpdateListener {
-		static boolean running;
-		static ArrayExt<Object> current = new ArrayExt<Object>(128);
+	@Override
+	public Void call() throws Exception {
+		freeAsync();
+		return null;
+	}
 
-		@Override
-		public Void call() throws Exception {
-			PoolService.freeAsync(current);
-			current.clear();
-			running = false;
-			return null;
-		}
-
-		@Override
-		public void update() {
-			if (!running && asyncPool.size > 0) {
-				ArrayExt<Object> temp = PoolService.asyncPool;
-				synchronized (asyncPool) {
-					running = true;
-					PoolService.asyncPool = current;
-				}
-				current = temp;
-				current.sort(FreeObjectsComparator.instance);
-				executor.submit(this);
+	@Override
+	public void update() {
+		if (!cleaning && asyncPool.size > 0) {
+			ArrayExt<Object> temp = asyncPool;
+			synchronized (asyncPool) {
+				cleaning = true;
+				asyncPool = cleaningObjects;
 			}
+			cleaningObjects = temp;
+			cleaningObjects.sort(FreeObjectsComparator.comparatorInstance);
+			AsyncService.submit(this);
 		}
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {
-		private static final FreeObjectsComparator instance = new FreeObjectsComparator();
+		private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
 		@Override
 		public int compare(Object o1, Object o2) {
@@ -255,21 +252,22 @@ public final class PoolService {
 		Object obj = PoolService.obtain(Object.class);
 		PoolService.free(arr);
 		PoolService.free(obj);
-		PoolService.cleanupTask.update();
-		while (PoolService.CleanupTask.running) {
+		PoolService.instance.update();
+		while (PoolService.cleaning) {
 			ThreadUtils.yield();
 		}
 
 		ArrayPool<Object> arrayPool = PoolService.getArrayPool(int.class);
 		Pool<Object> objectPool = PoolService.getObjectPool(Object.class);
 		objectPool.getFree();
+		arrayPool.toString();
 
 		arr = PoolService.obtainIntArray(5, 0);
 		obj = PoolService.obtain(Object.class);
 		PoolService.free(arr);
 		PoolService.free(obj);
-		PoolService.cleanupTask.update();
-		while (PoolService.CleanupTask.running) {
+		PoolService.instance.update();
+		while (PoolService.cleaning) {
 			ThreadUtils.yield();
 		}
 		objectPool.getFree();
