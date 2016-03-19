@@ -25,7 +25,7 @@ public class LongArrayPool implements ArrayPool<long[]> {
 
 	@Override
 	public long[] obtain(int length, int maxLength) {
-		long[] array = find(length, maxLength);
+		long[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new long[length] : array;
 	}
 

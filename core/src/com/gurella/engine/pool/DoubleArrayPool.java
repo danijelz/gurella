@@ -25,7 +25,7 @@ public class DoubleArrayPool implements ArrayPool<double[]> {
 
 	@Override
 	public double[] obtain(int length, int maxLength) {
-		double[] array = find(length, maxLength);
+		double[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new double[length] : array;
 	}
 

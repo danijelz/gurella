@@ -25,7 +25,7 @@ public class ByteArrayPool implements ArrayPool<byte[]> {
 
 	@Override
 	public byte[] obtain(int length, int maxLength) {
-		byte[] array = find(length, maxLength);
+		byte[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new byte[length] : array;
 	}
 

@@ -42,7 +42,12 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 		arrayPools.put(long.class, new LongArrayPool());
 		arrayPools.put(float.class, new FloatArrayPool());
 		arrayPools.put(double.class, new DoubleArrayPool());
-		arrayPools.put(Object.class, new ObjectArrayPool<Object>(Object.class));
+		arrayPools.put(Object.class, new ObjectArrayPool<Object>(Object.class) {
+			@Override
+			protected Object[] newInstance(int length) {
+				return new Object[length];
+			}
+		});
 
 		EventService.subscribe(instance);
 	}
@@ -68,7 +73,7 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 			@SuppressWarnings("unchecked")
 			ArrayPool<T> pool = (ArrayPool<T>) arrayPools.get(componentType);
 			if (pool == null) {
-				pool = Values.cast(new ObjectArrayPool<Object>(Values.cast(componentType)));
+				pool = Values.cast(new ObjectArrayPool<Object>(Values.<Class<Object>> cast(componentType)));
 				arrayPools.put(componentType, pool);
 			}
 			return pool;
@@ -165,6 +170,12 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	public static <T> void free(T object) {
 		synchronized (asyncPool) {
 			asyncPool.add(object);
+		}
+	}
+
+	public static void freeAll(Object... objects) {
+		synchronized (asyncPool) {
+			asyncPool.addAll(objects);
 		}
 	}
 

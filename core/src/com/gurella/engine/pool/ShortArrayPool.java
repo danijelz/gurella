@@ -25,7 +25,7 @@ public class ShortArrayPool implements ArrayPool<short[]> {
 
 	@Override
 	public short[] obtain(int length, int maxLength) {
-		short[] array = find(length, maxLength);
+		short[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new short[length] : array;
 	}
 

@@ -25,7 +25,7 @@ public class IntArrayPool implements ArrayPool<int[]> {
 
 	@Override
 	public int[] obtain(int length, int maxLength) {
-		int[] array = find(length, maxLength);
+		int[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new int[length] : array;
 	}
 

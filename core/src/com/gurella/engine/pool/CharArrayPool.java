@@ -25,7 +25,7 @@ public class CharArrayPool implements ArrayPool<char[]> {
 
 	@Override
 	public char[] obtain(int length, int maxLength) {
-		char[] array = find(length, maxLength);
+		char[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new char[length] : array;
 	}
 

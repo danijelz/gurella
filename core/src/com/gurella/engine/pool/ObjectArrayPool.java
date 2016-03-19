@@ -28,8 +28,12 @@ public class ObjectArrayPool<T> implements ArrayPool<T[]> {
 
 	@Override
 	public T[] obtain(int length, int maxLength) {
-		T[] array = find(length, maxLength);
-		return array == null ? Values.<T[]> cast(ArrayReflection.newInstance(componentType, length)) : array;
+		T[] array = find(length, Math.max(length, maxLength));
+		return array == null ? newInstance(length) : array;
+	}
+
+	protected T[] newInstance(int length) {
+		return Values.<T[]> cast(ArrayReflection.newInstance(componentType, length));
 	}
 
 	private T[] find(int length, int maxLength) {

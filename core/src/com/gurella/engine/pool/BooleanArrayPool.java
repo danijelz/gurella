@@ -25,7 +25,7 @@ public class BooleanArrayPool implements ArrayPool<boolean[]> {
 
 	@Override
 	public boolean[] obtain(int length, int maxLength) {
-		boolean[] array = find(length, maxLength);
+		boolean[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new boolean[length] : array;
 	}
 

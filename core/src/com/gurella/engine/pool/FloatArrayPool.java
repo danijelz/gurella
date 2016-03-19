@@ -25,7 +25,7 @@ public class FloatArrayPool implements ArrayPool<float[]> {
 
 	@Override
 	public float[] obtain(int length, int maxLength) {
-		float[] array = find(length, maxLength);
+		float[] array = find(length, Math.max(length, maxLength));
 		return array == null ? new float[length] : array;
 	}
 
