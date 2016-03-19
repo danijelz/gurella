@@ -83,13 +83,13 @@ public class Models {
 		resolvedModels.put(boolean[].class, BooleanArrayModel.instance);
 		resolvedModels.put(double[].class, DoubleArrayModel.instance);
 		resolvedModels.put(float[].class, FloatArrayModel.instance);
-		//TODO ImmutableArray
 
 		modelFactories.add(ObjectArrayModelFactory.instance);
 		modelFactories.add(EnumModelFactory.instance);
 		modelFactories.add(GdxArrayModelFactory.instance);
 		modelFactories.add(CollectionModelFactory.instance);
 		modelFactories.add(MapModelFactory.instance);
+		modelFactories.add(ImmutableArrayModelFactory.instance);
 	}
 
 	private Models() {
