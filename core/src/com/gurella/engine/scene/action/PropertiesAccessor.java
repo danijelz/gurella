@@ -3,12 +3,13 @@ package com.gurella.engine.scene.action;
 import java.util.Date;
 
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class PropertiesAccessor<T> {
+public class PropertiesAccessor<T> implements Poolable {
 	private static final ArrayExt<Class<?>> tweenableTypes = ArrayExt.with(byte.class, Byte.class, char.class,
 			Character.class, short.class, Short.class, int.class, Integer.class, long.class, Long.class, float.class,
 			Float.class, double.class, Double.class, Date.class);
@@ -33,10 +34,10 @@ public class PropertiesAccessor<T> {
 
 	private T target;
 
-	private ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
-	private ArrayExt<Accessor<?>> accessors = new ArrayExt<Accessor<?>>();
-	private ArrayExt<Object> startValues = new ArrayExt<Object>();
-	private ArrayExt<Object> endValues = new ArrayExt<Object>();
+	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
+	private final ArrayExt<Accessor<?>> accessors = new ArrayExt<Accessor<?>>();
+	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
+	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
 
 	public PropertiesAccessor(T target, T end) {
 		this(target, target, end);
@@ -180,5 +181,14 @@ public class PropertiesAccessor<T> {
 			long end = endValue.getTime();
 			property.getValue(target).setTime((long) (start + (end - start) * percent));
 		}
+	}
+
+	@Override
+	public void reset() {
+		target = null;
+		properties.reset();
+		accessors.reset();
+		startValues.reset();
+		endValues.reset();
 	}
 }
