@@ -40,7 +40,7 @@ public class TweenActionTestApp {
 		public void render() {
 			super.render();
 			if (!action.isComplete()) {
-				action.act(Gdx.graphics.getDeltaTime());
+				action.act();
 			}
 		}
 	}

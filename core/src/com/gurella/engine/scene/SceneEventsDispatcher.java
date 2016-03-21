@@ -17,6 +17,7 @@ import com.gurella.engine.subscriptions.scene.update.LogicUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.UpdateListener;
 import com.gurella.engine.utils.Values;
 
 @TypePriority(priority = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
@@ -118,7 +119,14 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 		Array<PhysicsUpdateListener> physicsUpdateListeners = Values.cast(tempListeners);
 		EventService.getSubscribers(sceneId, PhysicsUpdateListener.class, physicsUpdateListeners);
 		for (int i = 0; i < physicsUpdateListeners.size; i++) {
-			physicsUpdateListeners.get(i).onPhisycsUpdate();
+			physicsUpdateListeners.get(i).onPhysicsUpdate();
+		}
+		tempListeners.clear();
+
+		Array<UpdateListener> updateListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(sceneId, UpdateListener.class, updateListeners);
+		for (int i = 0; i < updateListeners.size; i++) {
+			updateListeners.get(i).onUpdate();
 		}
 		tempListeners.clear();
 

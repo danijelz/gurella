@@ -83,7 +83,7 @@ public class BulletPhysicsSystem extends SceneSystem2
 	}
 
 	@Override
-	public void onPhisycsUpdate() {
+	public void onPhysicsUpdate() {
 		if (paused && stopSimulationOnPause) {
 			return;
 		}

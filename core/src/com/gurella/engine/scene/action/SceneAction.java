@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 
 //TODO unused
 public abstract class SceneAction implements Poolable {
-	abstract public boolean act(float delta);
+	abstract public boolean act();
 
 	public void restart() {
 	}

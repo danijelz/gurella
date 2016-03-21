@@ -60,6 +60,10 @@ public class Values {
 		return isEqual(first, second, true);
 	}
 
+	public static boolean isNotEqual(Object first, Object second) {
+		return !isEqual(first, second, true);
+	}
+
 	public static boolean isEqual(Object first, Object second, boolean mustEqualClass) {
 		if (first == second) {
 			return true;
@@ -108,6 +112,10 @@ public class Values {
 		} else {
 			return first.equals(second);
 		}
+	}
+
+	public static boolean isNotEqual(Object first, Object second, boolean mustEqualClass) {
+		return !isEqual(first, second, mustEqualClass);
 	}
 
 	@SuppressWarnings("unchecked")

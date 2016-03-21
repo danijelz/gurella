@@ -8,12 +8,14 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Values;
 
 public class PropertiesAccessor<T> implements Poolable {
-	private static final ArrayExt<Class<?>> tweenableTypes = ArrayExt.with(byte.class, Byte.class, char.class,
-			Character.class, short.class, Short.class, int.class, Integer.class, long.class, Long.class, float.class,
-			Float.class, double.class, Double.class, Date.class);
+	private static final ArrayExt<Class<?>> tweenableTypes = ArrayExt.<Class<?>> with(byte.class, Byte.class,
+			char.class, Character.class, short.class, Short.class, int.class, Integer.class, long.class, Long.class,
+			float.class, Float.class, double.class, Double.class, Date.class);
 	private static final IdentityMap<Class<?>, Accessor<?>> accessorsByType = new IdentityMap<Class<?>, Accessor<?>>();
+
 	static {
 		accessorsByType.put(byte.class, ByteAccessor.instance);
 		accessorsByType.put(Byte.class, ByteAccessor.instance);
@@ -51,10 +53,14 @@ public class PropertiesAccessor<T> implements Poolable {
 			Property<?> property = allProperties.get(i);
 			Class<?> type = property.getType();
 			if (tweenableTypes.contains(type, true)) {
-				properties.add(property);
-				accessors.add(accessorsByType.get(type));
-				startValues.add(property.getValue(start));
-				endValues.add(property.getValue(end));
+				Object startValue = property.getValue(start);
+				Object endValue = property.getValue(end);
+				if (Values.isNotEqual(startValue, endValue)) {
+					properties.add(property);
+					accessors.add(accessorsByType.get(type));
+					startValues.add(startValue);
+					endValues.add(endValue);
+				}
 			}
 		}
 	}
