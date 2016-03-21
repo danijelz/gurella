@@ -47,6 +47,14 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		switch (updatePriority) {
 		case IO:
 			return PoolService.obtain(IoActionAttachment.class);
+		case INPUT:
+			return PoolService.obtain(InputActionAttachment.class);
+		case LOGIC:
+			return PoolService.obtain(LogicActionAttachment.class);
+		case PHYSICS:
+			return PoolService.obtain(PhysicsActionAttachment.class);
+		case UPDATE:
+			return PoolService.obtain(UpdateActionAttachment.class);
 		default:
 			throw new IllegalArgumentException("Unhandled updatePriority.");
 		}
