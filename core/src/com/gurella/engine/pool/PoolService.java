@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
@@ -20,7 +19,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.Values;
 
 //TODO factory pools, Disposable
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.CLEANUP, type = ApplicationUpdateListener.class) })
+@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class)
 public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener {
 	private static final PoolService instance = new PoolService();
 	private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
@@ -44,7 +43,7 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 		arrayPools.put(double.class, new DoubleArrayPool());
 		arrayPools.put(Object.class, new ObjectArrayPool<Object>(Object.class) {
 			@Override
-			protected Object[] newInstance(int length) {
+			protected Object[] newObject(int length) {
 				return new Object[length];
 			}
 		});

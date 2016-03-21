@@ -21,13 +21,20 @@ class Listeners {
 		Class<?> type = listenerType;
 		while (type != null && type != Object.class) {
 			ObjectIntMap<Class<?>> prioritiesByType = priorities.get(eventType);
-			if (prioritiesByType != null && prioritiesByType.containsKey(listenerType)) {
+			if (prioritiesByType != null && prioritiesByType.containsKey(type)) {
 				int value = prioritiesByType.get(listenerType, 0);
 				prioritiesByEvent.put(listenerType, value);
 				return value;
 			}
 
-			TypePriorities typePriorities = getAnnotation(listenerType, TypePriorities.class);
+			TypePriority typePriority = getAnnotation(type, TypePriority.class);
+			if (typePriority != null && eventType.getClass().equals(typePriority.type())) {
+				int value = typePriority.priority();
+				prioritiesByEvent.put(listenerType, value);
+				return value;
+			}
+
+			TypePriorities typePriorities = getAnnotation(type, TypePriorities.class);
 			if (typePriorities != null) {
 				TypePriority listenerPriority = findListenerPriority(typePriorities, eventType);
 				if (listenerPriority != null) {

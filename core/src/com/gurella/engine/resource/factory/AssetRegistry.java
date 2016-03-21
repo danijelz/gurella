@@ -10,7 +10,7 @@ import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.IO, type = ApplicationUpdateListener.class) })
+@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
 public class AssetRegistry implements ApplicationUpdateListener, Disposable {
 	private final AssetManager assetManager = new AssetManager();
 	private final ObjectIntMap<String> managedAssets = new ObjectIntMap<String>();

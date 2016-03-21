@@ -64,14 +64,19 @@ public final class Subscriptions {
 		}
 
 		Priority priority = getAnnotation(listenerType, Priority.class);
+		TypePriority typePriority = getAnnotation(listenerType, TypePriority.class);
 		TypePriorities typePriorities = getAnnotation(listenerType, TypePriorities.class);
-		if (priority != null || typePriorities != null) {
+		if (priority != null || typePriority != null || typePriorities != null) {
 			for (Class<? extends EventSubscription> subscription : listenerSubscriptions) {
-				TypePriority subscriptionPriority = findSubscriptionPriority(typePriorities, subscription);
-				if (subscriptionPriority != null) {
-					listenerPriorities.put(subscription, subscriptionPriority.priority());
-				} else if (priority != null) {
-					listenerPriorities.put(subscription, priority.value());
+				if (typePriority != null && subscription.getClass().equals(typePriority.type())) {
+					listenerPriorities.put(subscription, typePriority.priority());
+				} else {
+					TypePriority subscriptionPriority = findSubscriptionPriority(typePriorities, subscription);
+					if (subscriptionPriority != null) {
+						listenerPriorities.put(subscription, subscriptionPriority.priority());
+					} else if (priority != null) {
+						listenerPriorities.put(subscription, priority.value());
+					}
 				}
 			}
 		}

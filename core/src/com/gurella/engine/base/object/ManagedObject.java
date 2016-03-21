@@ -29,6 +29,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	private transient final OrderedIdentitySet<ManagedObject> _children = new OrderedIdentitySet<ManagedObject>();
 	public transient final ImmutableArray<ManagedObject> children = _children.orderedItems();
 
+	//TODO move attachments to static map so it consumes less memory
 	private final transient IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
 
 	public ManagedObject() {

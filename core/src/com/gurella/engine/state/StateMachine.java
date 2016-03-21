@@ -3,13 +3,12 @@ package com.gurella.engine.state;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
-import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.state.StateTransition.SimpleStateTransition;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.LOGIC, type = ApplicationUpdateListener.class) })
+@TypePriority(priority = CommonUpdatePriority.logicPriority, type = ApplicationUpdateListener.class)
 public class StateMachine<STATE> extends Signal<StateMachine.StateChangedListener<STATE>>
 		implements ApplicationUpdateListener {
 	private STATE previousState;

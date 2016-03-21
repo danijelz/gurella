@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.resource.AsyncResourceCallback;
 import com.gurella.engine.resource.DependencyMap;
@@ -48,9 +47,10 @@ public class SceneManager {
 	}
 
 	private static String getSceneGroup(Scene scene) {
-		/*String group = scene.getGroup();
-		group = Values.isBlank(group) ? DEFAULT_TRANSITION_GROUP : group;
-		return group;*/
+		/*
+		 * String group = scene.getGroup(); group = Values.isBlank(group) ? DEFAULT_TRANSITION_GROUP : group; return
+		 * group;
+		 */
 		return null;
 	}
 
@@ -67,7 +67,7 @@ public class SceneManager {
 			throw new IllegalStateException("Scene transition already in progress.");
 		}
 
-		Scene destinationScene = null;//scenes.get(sceneId);
+		Scene destinationScene = null;// scenes.get(sceneId);
 		if (destinationScene == null) {
 			throw new IllegalArgumentException("Invalid sceneId: " + sceneId);
 		}
@@ -87,7 +87,7 @@ public class SceneManager {
 		return currentSceneGroup;
 	}
 
-	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.IO, type = ApplicationUpdateListener.class) })
+	@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
 	private class TransitionWorker implements AsyncResourceCallback<DependencyMap>, ApplicationUpdateListener {
 		private TransitionStateManager transitionStateManager = new TransitionStateManager();
 
@@ -107,9 +107,9 @@ public class SceneManager {
 			this.destinationScene = destinationScene;
 			this.transition = transition;
 			this.transition.init(currentScene, destinationScene);
-			//dependentResourceIds.addAll(destinationScene.getInitialSystems());
-			//dependentResourceIds.addAll(destinationScene.getInitialNodes());
-			//destinationScene.obtainResourcesAsync(dependentResourceIds, this);
+			// dependentResourceIds.addAll(destinationScene.getInitialSystems());
+			// dependentResourceIds.addAll(destinationScene.getInitialNodes());
+			// destinationScene.obtainResourcesAsync(dependentResourceIds, this);
 			transition.beforeTransitionOut();
 			EventService.subscribe(this);
 		}
@@ -170,7 +170,7 @@ public class SceneManager {
 			try {
 				if (transition.onTransitionHold(initializationProgress) && destinationSceneResources != null) {
 					transition.afterTransitionHold();
-					//destinationScene.start(destinationSceneResources);
+					// destinationScene.start(destinationSceneResources);
 					transition.beforeTransitionIn();
 					transitionStateManager.apply(SceneTransitionState.IN);
 				}
@@ -205,7 +205,7 @@ public class SceneManager {
 				stopCurrentScene();
 
 				if (destinationSceneResources != null) {
-					//destinationScene.rollback(destinationSceneResources);
+					// destinationScene.rollback(destinationSceneResources);
 					destinationSceneResources.free();
 					destinationSceneResources = null;
 				}

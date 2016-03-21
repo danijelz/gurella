@@ -13,13 +13,12 @@ import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 
-@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.IO, type = ApplicationUpdateListener.class) })
+@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
 public final class ResourceService implements ApplicationUpdateListener {
 	private static final ResourceService instance = new ResourceService();
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
@@ -100,7 +99,7 @@ public final class ResourceService implements ApplicationUpdateListener {
 	public static <T> T get(String fileName) {
 		return assetRegistry.get(fileName);
 	}
-	
+
 	public static <T> void put(T asset, String fileName) {
 		assetRegistry.put(asset, fileName);
 	}
@@ -146,7 +145,7 @@ public final class ResourceService implements ApplicationUpdateListener {
 
 	@Override
 	public void update() {
-		//TODO remove from bus when not needed
+		// TODO remove from bus when not needed
 		assetRegistry.update();
 	}
 }
