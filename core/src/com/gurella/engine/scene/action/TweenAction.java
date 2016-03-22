@@ -26,10 +26,12 @@ public abstract class TweenAction extends SceneAction {
 		if (complete) {
 			return true;
 		}
+
 		if (!began) {
 			begin();
 			began = true;
 		}
+
 		time += delta;
 		complete = time >= duration;
 		float percent;
@@ -41,10 +43,12 @@ public abstract class TweenAction extends SceneAction {
 				percent = interpolation.apply(percent);
 			}
 		}
+
 		update(reverse ? 1 - percent : percent);
 		if (complete) {
 			end();
 		}
+
 		return complete;
 	}
 
@@ -107,6 +111,7 @@ public abstract class TweenAction extends SceneAction {
 		this.reverse = reverse;
 	}
 
+	@Override
 	public boolean isComplete() {
 		return complete;
 	}
