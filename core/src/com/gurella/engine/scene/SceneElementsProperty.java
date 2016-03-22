@@ -2,6 +2,7 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
@@ -9,6 +10,7 @@ import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.base.serialization.Serializable;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.SequenceGenerator;
@@ -90,13 +92,14 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	@Override
 	public void serialize(Object object, Object template, Output output) {
 		// TODO garbage
-		SceneElements<T> elements = new SceneElements<T>();
+		@SuppressWarnings("unchecked")
+		SceneElements<T> sceneElements = PoolService.obtain(SceneElements.class);
 
 		ImmutableArray<T> value = getValue(object);
 		if (template == null) {
 			if (value.size() != 0) {
-				value.appendAll(elements.elements);
-				output.writeObjectProperty(name, SceneElements.class, null, elements, true);
+				value.appendAll(sceneElements.elements);
+				output.writeObjectProperty(name, SceneElements.class, null, sceneElements, true);
 			}
 			return;
 		}
@@ -113,17 +116,18 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 			if (SequenceGenerator.invalidId != prefabId) {
 				templateIds.add(prefabId);
 			}
-			elements.elements.add(element);
+			sceneElements.elements.add(element);
 		}
 
 		for (int i = 0; i < templateValue.size(); i++) {
 			T element = templateValue.get(i);
 			if (!templateIds.contains(element.getInstanceId())) {
-				elements.removedElements.add(element.ensureUuid());
+				sceneElements.removedElements.add(element.ensureUuid());
 			}
 		}
 
-		output.writeObjectProperty(name, SceneElements.class, null, elements, true);
+		output.writeObjectProperty(name, SceneElements.class, null, sceneElements, true);
+		PoolService.free(sceneElements);
 	}
 
 	private int getPrefabId(T element) {
@@ -168,6 +172,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 					addElement(object, input.copyObject(removedElement));
 				}
 			}
+			PoolService.free(sceneElements);
 		} else if (template != null) {
 			ImmutableArray<T> templateElements = getValue(template);
 			for (int i = 0; i < templateElements.size(); i++) {
@@ -185,7 +190,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		}
 	}
 
-	static class SceneElements<T extends SceneElement2> implements Serializable<SceneElements<T>> {
+	static class SceneElements<T extends SceneElement2> implements Serializable<SceneElements<T>>, Poolable {
 		final Array<String> removedElements = new Array<String>();
 		final Array<T> elements = new Array<T>();
 
@@ -213,6 +218,12 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 				T[] values = Values.cast(input.readObjectProperty("elements", SceneElement2[].class, null));
 				elements.addAll(values);
 			}
+		}
+
+		@Override
+		public void reset() {
+			removedElements.clear();
+			elements.clear();
 		}
 	}
 }

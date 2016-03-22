@@ -176,7 +176,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 	protected void clear() {
 		clearAttachments();
-		_children.clear();
+		_children.reset();
 		if (prefab != null) {
 			prefab.free();
 			prefab = null;

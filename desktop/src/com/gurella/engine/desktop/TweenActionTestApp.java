@@ -8,7 +8,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
-import com.gurella.engine.scene.action.PropertiesAccessor;
+import com.gurella.engine.scene.action.PropertiesTween;
 import com.gurella.engine.scene.action.TweenAction;
 
 public class TweenActionTestApp {
@@ -27,12 +27,13 @@ public class TweenActionTestApp {
 	}
 
 	private static class TestApplicationListener extends ApplicationAdapter {
-		TestTweenAction action;
+		TweenAction action;
 
 		@Override
 		public void create() {
-			action = new TestTweenAction(0.3f, Interpolation.linear,
-					new PropertiesAccessor<Color>(new Color(), Color.BLACK, Color.WHITE));
+			action = new TweenAction(new PropertiesTween<Color>(new Color(), Color.BLACK, Color.WHITE), 0.3f,
+					Interpolation.linear);
+			action.setReverse(true);
 		}
 
 		@Override
@@ -42,21 +43,5 @@ public class TweenActionTestApp {
 				action.act();
 			}
 		}
-	}
-
-	private static class TestTweenAction extends TweenAction {
-		private PropertiesAccessor<Color> accessor;
-
-		public TestTweenAction(float duration, Interpolation interpolation, PropertiesAccessor<Color> accessor) {
-			super(duration, interpolation);
-			this.accessor = accessor;
-		}
-
-		@Override
-		protected void update(float percent) {
-			accessor.update(percent);
-			System.out.println(accessor.getDiagnostics());
-		}
-
 	}
 }

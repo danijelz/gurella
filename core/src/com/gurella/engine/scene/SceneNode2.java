@@ -65,7 +65,7 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 	@Override
 	protected final void clear() {
 		super.clear();
-		_childNodes.clear();
+		_childNodes.reset();
 		_components.clear();
 	}
 

@@ -3,19 +3,23 @@ package com.gurella.engine.scene.action;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Interpolation;
 
-public abstract class TweenAction extends SceneAction {
+public class TweenAction extends SceneAction {
+	private Tween tween;
 	private float duration, time;
 	private Interpolation interpolation;
 	private boolean reverse, began, complete;
 
-	public TweenAction() {
+	public TweenAction(Tween tween) {
+		this.tween = tween;
 	}
 
-	public TweenAction(float duration) {
+	public TweenAction(Tween tween, float duration) {
+		this.tween = tween;
 		this.duration = duration;
 	}
 
-	public TweenAction(float duration, Interpolation interpolation) {
+	public TweenAction(Tween tween, float duration, Interpolation interpolation) {
+		this.tween = tween;
 		this.duration = duration;
 		this.interpolation = interpolation;
 	}
@@ -44,7 +48,7 @@ public abstract class TweenAction extends SceneAction {
 			}
 		}
 
-		update(reverse ? 1 - percent : percent);
+		tween.update(reverse ? 1 - percent : percent);
 		if (complete) {
 			end();
 		}
@@ -57,8 +61,6 @@ public abstract class TweenAction extends SceneAction {
 
 	protected void end() {
 	}
-
-	protected abstract void update(float percent);
 
 	public void finish() {
 		time = duration;

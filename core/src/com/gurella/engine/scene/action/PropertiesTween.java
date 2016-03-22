@@ -11,7 +11,7 @@ import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class PropertiesAccessor<T> implements Poolable {
+public class PropertiesTween<T> implements Tween, Poolable {
 	private static final ArrayExt<Class<?>> tweenableTypes = ArrayExt.<Class<?>> with(byte.class, Byte.class,
 			char.class, Character.class, short.class, Short.class, int.class, Integer.class, long.class, Long.class,
 			float.class, Float.class, double.class, Double.class, Date.class);
@@ -42,15 +42,15 @@ public class PropertiesAccessor<T> implements Poolable {
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
 	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
 
-	public PropertiesAccessor(T target, T end) {
+	public PropertiesTween(T target, T end) {
 		this(target, target, end, Models.getCommonModel(target, end));
 	}
 
-	public PropertiesAccessor(T target, T start, T end) {
+	public PropertiesTween(T target, T start, T end) {
 		this(target, start, end, Models.getCommonModel(target, start, end));
 	}
-	
-	private PropertiesAccessor(T target, T start, T end, Model<T> model) {
+
+	private PropertiesTween(T target, T start, T end, Model<T> model) {
 		this.target = target;
 		ImmutableArray<Property<?>> allProperties = model.getProperties();
 		for (int i = 0, n = allProperties.size(); i < n; i++) {
@@ -69,10 +69,12 @@ public class PropertiesAccessor<T> implements Poolable {
 		}
 	}
 
+	@Override
 	public void update(float percent) {
 		for (int i = 0, n = properties.size; i < n; i++) {
 			update(percent, i);
 		}
+		System.out.println(getDiagnostics());
 	}
 
 	@SuppressWarnings("unchecked")
