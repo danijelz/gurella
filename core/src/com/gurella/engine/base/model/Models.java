@@ -192,27 +192,27 @@ public class Models {
 		if (Values.isEmpty(objects)) {
 			return null;
 		}
-		return getModel(Reflection.getCommonClass(objects));
+		return getModel(Reflection.<T>getCommonClass(objects));
 	}
 
 	public static <T> Model<T> getCommonModel(final Object first, final Object second, final Object third) {
-		return getModel(Reflection.getCommonClass(first, second, third));
+		return getModel(Reflection.<T>getCommonClass(first, second, third));
 	}
 
 	public static <T> Model<T> getCommonModel(final Object first, final Object second) {
-		return getModel(Reflection.getCommonClass(first, second));
+		return getModel(Reflection.<T>getCommonClass(first, second));
 	}
 
 	public static <T> Model<T> getCommonModel(Class<?>... classes) {
-		return getModel(Reflection.getCommonClass(classes));
+		return getModel(Reflection.<T>getCommonClass(classes));
 	}
 
 	public static <T> Model<T> getCommonModel(final Class<?> first, final Class<?> second, final Class<?> third) {
-		return getModel(Reflection.getCommonClass(first, second, third));
+		return getModel(Reflection.<T>getCommonClass(first, second, third));
 	}
 
 	public static <T> Model<T> getCommonModel(final Class<?> first, final Class<?> second) {
-		return getModel(Reflection.getCommonClass(first, second));
+		return getModel(Reflection.<T>getCommonClass(first, second));
 	}
 
 	public static String getDiagnostic(Model<?> model) {

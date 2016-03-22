@@ -43,11 +43,11 @@ public class PropertiesTween<T> implements Tween, Poolable {
 	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
 
 	public PropertiesTween(T target, T end) {
-		this(target, target, end, Models.getCommonModel(target, end));
+		this(target, target, end, Models.<T>getCommonModel(target, end));
 	}
 
 	public PropertiesTween(T target, T start, T end) {
-		this(target, start, end, Models.getCommonModel(target, start, end));
+		this(target, start, end, Models.<T>getCommonModel(target, start, end));
 	}
 
 	private PropertiesTween(T target, T start, T end, Model<T> model) {

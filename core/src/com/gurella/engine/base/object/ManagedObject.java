@@ -272,7 +272,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	//// ATTACHMENTS
-	protected void attach(Attachment<?> attachment) {
+	public void attach(Attachment<?> attachment) {
 		Object value = attachment.value;
 		if (value == null) {
 			throw new GdxRuntimeException("Attachment value must be non null.");
@@ -290,7 +290,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 	
-	protected void detach(Attachment<?> attachment) {
+	public void detach(Attachment<?> attachment) {
 		detach(attachment.value);
 	}
 

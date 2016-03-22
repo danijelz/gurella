@@ -79,7 +79,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onIoUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -88,7 +88,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onInputUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -97,7 +97,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onLogicUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -106,7 +106,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onPhysicsUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -115,7 +115,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -124,7 +124,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onPreRenderUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -133,7 +133,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onRenderUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -142,7 +142,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onDebugRenderUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -151,7 +151,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onPostRenderUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}
@@ -160,7 +160,7 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 		@Override
 		public void onCleanupUpdate() {
 			if (value.act()) {
-				owner.detach(value);
+				owner.detach(this);
 			}
 		}
 	}

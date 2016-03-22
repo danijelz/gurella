@@ -4,10 +4,12 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
+import com.gurella.engine.application.Application;
 import com.gurella.engine.scene.action.PropertiesTween;
 import com.gurella.engine.scene.action.TweenAction;
 
@@ -38,6 +40,7 @@ public class TweenActionTestApp {
 
 		@Override
 		public void render() {
+			Application.deltaTime = Gdx.graphics.getDeltaTime();
 			super.render();
 			if (!action.isComplete()) {
 				action.act();

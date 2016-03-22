@@ -18,6 +18,8 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Values;
 
 public final class Application implements ApplicationListener {
+	public static float deltaTime;
+	
 	private String initialScenePath;
 	private Color backgroundColor;
 
@@ -68,6 +70,7 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public final void render() {
+		deltaTime = Gdx.graphics.getDeltaTime();
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
