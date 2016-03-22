@@ -15,6 +15,7 @@ import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.IoUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.LogicUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.PostRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.UpdateListener;
@@ -149,6 +150,13 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 		EventService.getSubscribers(sceneId, DebugRenderUpdateListener.class, debugRenderUpdateListeners);
 		for (int i = 0; i < debugRenderUpdateListeners.size; i++) {
 			debugRenderUpdateListeners.get(i).onDebugRenderUpdate();
+		}
+		tempListeners.clear();
+
+		Array<PostRenderUpdateListener> postRenderUpdateListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(sceneId, PostRenderUpdateListener.class, postRenderUpdateListeners);
+		for (int i = 0; i < renderUpdateListeners.size; i++) {
+			postRenderUpdateListeners.get(i).onPostRenderUpdate();
 		}
 		tempListeners.clear();
 

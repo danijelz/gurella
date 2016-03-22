@@ -50,17 +50,17 @@ public enum CommonUpdatePriority {
 		}
 	},
 
-	POST_RENDER() {
-		@Override
-		public int getPriority() {
-			return postRenderPriority;
-		}
-	},
-
 	DEBUG_RENDER() {
 		@Override
 		public int getPriority() {
 			return debugRenderPriority;
+		}
+	},
+
+	POST_RENDER() {
+		@Override
+		public int getPriority() {
+			return postRenderPriority;
 		}
 	},
 
@@ -78,8 +78,8 @@ public enum CommonUpdatePriority {
 	public static final int updatePriority = 0;
 	public static final int preRenderPriority = 100;
 	public static final int renderPriority = 200;
-	public static final int postRenderPriority = 300;
-	public static final int debugRenderPriority = 400;
+	public static final int debugRenderPriority = 300;
+	public static final int postRenderPriority = 400;
 	public static final int cleanupPriority = 500;
 
 	public abstract int getPriority();

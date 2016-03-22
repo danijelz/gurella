@@ -44,6 +44,7 @@ import com.gurella.engine.base.model.DefaultModels.VoidModel;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
+import com.gurella.engine.utils.Values;
 
 public class Models {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
@@ -185,6 +186,33 @@ public class Models {
 		}
 
 		return null;
+	}
+
+	public static <T> Model<T> getCommonModel(Object... objects) {
+		if (Values.isEmpty(objects)) {
+			return null;
+		}
+		return getModel(Reflection.getCommonClass(objects));
+	}
+
+	public static <T> Model<T> getCommonModel(final Object first, final Object second, final Object third) {
+		return getModel(Reflection.getCommonClass(first, second, third));
+	}
+
+	public static <T> Model<T> getCommonModel(final Object first, final Object second) {
+		return getModel(Reflection.getCommonClass(first, second));
+	}
+
+	public static <T> Model<T> getCommonModel(Class<?>... classes) {
+		return getModel(Reflection.getCommonClass(classes));
+	}
+
+	public static <T> Model<T> getCommonModel(final Class<?> first, final Class<?> second, final Class<?> third) {
+		return getModel(Reflection.getCommonClass(first, second, third));
+	}
+
+	public static <T> Model<T> getCommonModel(final Class<?> first, final Class<?> second) {
+		return getModel(Reflection.getCommonClass(first, second));
 	}
 
 	public static String getDiagnostic(Model<?> model) {

@@ -289,6 +289,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			attachment.attach();
 		}
 	}
+	
+	protected void detach(Attachment<?> attachment) {
+		detach(attachment.value);
+	}
 
 	protected void detach(Object value) {
 		Attachment<?> attachment = attachments.remove(value);

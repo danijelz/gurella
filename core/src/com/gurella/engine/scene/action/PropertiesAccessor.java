@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ArrayExt;
@@ -42,13 +43,16 @@ public class PropertiesAccessor<T> implements Poolable {
 	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
 
 	public PropertiesAccessor(T target, T end) {
-		this(target, target, end);
+		this(target, target, end, Models.getCommonModel(target, end));
 	}
 
 	public PropertiesAccessor(T target, T start, T end) {
+		this(target, start, end, Models.getCommonModel(target, start, end));
+	}
+	
+	private PropertiesAccessor(T target, T start, T end, Model<T> model) {
 		this.target = target;
-		Class<?> commonClass = target.getClass();// TODO
-		ImmutableArray<Property<?>> allProperties = Models.getModel(commonClass).getProperties();
+		ImmutableArray<Property<?>> allProperties = model.getProperties();
 		for (int i = 0, n = allProperties.size(); i < n; i++) {
 			Property<?> property = allProperties.get(i);
 			Class<?> type = property.getType();

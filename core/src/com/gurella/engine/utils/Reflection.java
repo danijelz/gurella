@@ -2,6 +2,10 @@ package com.gurella.engine.utils;
 
 import java.lang.annotation.Annotation;
 
+import com.badlogic.gdx.scenes.scene2d.actions.AddAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ScaleByAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SizeByAction;
+import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -290,5 +294,71 @@ public class Reflection {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public static <T> Class<T> getCommonClass(Object... objects) {
+		if (Values.isEmpty(objects)) {
+			return null;
+		}
+
+		Class<?> currentCommon = objects[0].getClass();
+		for (int i = 1, n = objects.length; i < n && currentCommon != Object.class; i++) {
+			Class<?> next = objects[i].getClass();
+			currentCommon = getCommonClass(currentCommon, next);
+		}
+
+		return Values.cast(currentCommon);
+	}
+
+	public static <T> Class<T> getCommonClass(final Object first, final Object second, final Object third) {
+		return getCommonClass(getCommonClass(first.getClass(), second.getClass()), third.getClass());
+	}
+
+	public static <T> Class<T> getCommonClass(final Object first, final Object second) {
+		return getCommonClass(first.getClass(), second.getClass());
+	}
+
+	public static <T> Class<T> getCommonClass(Class<?>... classes) {
+		if (Values.isEmpty(classes)) {
+			return null;
+		}
+
+		Class<?> currentCommon = classes[0];
+		for (int i = 1, n = classes.length; i < n && currentCommon != Object.class; i++) {
+			Class<?> next = classes[i];
+			currentCommon = getCommonClass(currentCommon, next);
+		}
+
+		return Values.cast(currentCommon);
+	}
+
+	public static <T> Class<T> getCommonClass(final Class<?> first, final Class<?> second, final Class<?> third) {
+		return getCommonClass(getCommonClass(first, second), third);
+	}
+
+	public static <T> Class<T> getCommonClass(final Class<?> first, final Class<?> second) {
+		if (first == null || second == null) {
+			return Values.cast(Object.class);
+		}
+
+		if (first == second) {
+			return Values.cast(first);
+		}
+
+		Class<?> temp = first;
+		while (temp != null && temp != Object.class) {
+			if (temp == second) {
+				return Values.cast(temp);
+			}
+			temp = temp.getSuperclass();
+		}
+
+		return getCommonClass(first, second.getSuperclass());
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getCommonClass(SizeByAction.class, ScaleByAction.class).getSimpleName());
+		System.out.println(getCommonClass(SizeByAction.class, TemporalAction.class).getSimpleName());
+		System.out.println(getCommonClass(SizeByAction.class, AddAction.class).getSimpleName());
 	}
 }
