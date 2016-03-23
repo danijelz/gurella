@@ -7,6 +7,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.object.Prefabs;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -44,6 +45,8 @@ public class SceneSerializationTestApp {
 
 			Prefabs.saveAsPrefab(scene, Scene.class, fileName1);
 			Prefabs.save(scene, Scene.class, fileName2);
+			
+			System.out.println("copied: " + Models.isEqual(scene, scene.getPrefab().get()));
 		}
 	}
 }

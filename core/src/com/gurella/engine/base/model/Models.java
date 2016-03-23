@@ -41,6 +41,7 @@ import com.gurella.engine.base.model.DefaultModels.ShortPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.StringModel;
 import com.gurella.engine.base.model.DefaultModels.UuidModel;
 import com.gurella.engine.base.model.DefaultModels.VoidModel;
+import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
@@ -192,27 +193,27 @@ public class Models {
 		if (Values.isEmpty(objects)) {
 			return null;
 		}
-		return getModel(Reflection.<T>getCommonClass(objects));
+		return getModel(Reflection.<T> getCommonClass(objects));
 	}
 
 	public static <T> Model<T> getCommonModel(final Object first, final Object second, final Object third) {
-		return getModel(Reflection.<T>getCommonClass(first, second, third));
+		return getModel(Reflection.<T> getCommonClass(first, second, third));
 	}
 
 	public static <T> Model<T> getCommonModel(final Object first, final Object second) {
-		return getModel(Reflection.<T>getCommonClass(first, second));
+		return getModel(Reflection.<T> getCommonClass(first, second));
 	}
 
 	public static <T> Model<T> getCommonModel(Class<?>... classes) {
-		return getModel(Reflection.<T>getCommonClass(classes));
+		return getModel(Reflection.<T> getCommonClass(classes));
 	}
 
 	public static <T> Model<T> getCommonModel(final Class<?> first, final Class<?> second, final Class<?> third) {
-		return getModel(Reflection.<T>getCommonClass(first, second, third));
+		return getModel(Reflection.<T> getCommonClass(first, second, third));
 	}
 
 	public static <T> Model<T> getCommonModel(final Class<?> first, final Class<?> second) {
-		return getModel(Reflection.<T>getCommonClass(first, second));
+		return getModel(Reflection.<T> getCommonClass(first, second));
 	}
 
 	public static String getDiagnostic(Model<?> model) {
@@ -274,7 +275,7 @@ public class Models {
 			if (properties.size() > 0) {
 				for (int i = 0; i < properties.size(); i++) {
 					Property<?> property = properties.get(i);
-					if (property.isCopyable() && !isEqual(property.getValue(first), property.getValue(second))) {
+					if (property.isCopyable() && !isEqualPropertyValue(property, first, second)) {
 						return false;
 					}
 				}
@@ -284,5 +285,21 @@ public class Models {
 		}
 
 		return true;
+	}
+
+	private static boolean isEqualPropertyValue(Property<?> property, Object first, Object second) {
+		if (property.getType() == PrefabReference.class) {
+			PrefabReference firstPrefabReference = (PrefabReference) property.getValue(first);
+			if (firstPrefabReference != null && firstPrefabReference.get() == second) {
+				return true;
+			}
+			PrefabReference secondPrefabReference = (PrefabReference) property.getValue(second);
+			if (secondPrefabReference != null && secondPrefabReference.get() == first) {
+				return true;
+			}
+			return firstPrefabReference == null && secondPrefabReference == null;
+		} else {
+			return isEqual(property.getValue(first), property.getValue(second));
+		}
 	}
 }

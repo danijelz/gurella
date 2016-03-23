@@ -27,6 +27,7 @@ public final class Prefabs {
 	}
 
 	private static <T extends ManagedObject> void setPrefabsHierarchicaly(T object, T prefab, String fileUuid) {
+		prefab.prefab = null;
 		object.prefab = new PrefabReference(fileUuid, prefab.ensureUuid(), prefab);
 		ImmutableArray<ManagedObject> children = object.children;
 		ImmutableArray<ManagedObject> prefabChildren = prefab.children;
