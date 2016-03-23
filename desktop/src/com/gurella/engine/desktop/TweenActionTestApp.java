@@ -9,9 +9,9 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
+import com.gurella.engine.action.PropertiesTween;
+import com.gurella.engine.action.TweenAction;
 import com.gurella.engine.application.Application;
-import com.gurella.engine.scene.action.PropertiesTween;
-import com.gurella.engine.scene.action.TweenAction;
 
 public class TweenActionTestApp {
 	@SuppressWarnings("unused")

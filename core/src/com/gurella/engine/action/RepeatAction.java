@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.action;
+package com.gurella.engine.action;
 
 public class RepeatAction extends SceneAction {
 	public static final int FOREVER = -1;

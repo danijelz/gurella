@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.action;
+package com.gurella.engine.action;
 
 public class ParalelAction extends CompositeAction {
 	boolean complete = false;

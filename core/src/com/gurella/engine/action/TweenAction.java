@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.action;
+package com.gurella.engine.action;
 
 import com.badlogic.gdx.math.Interpolation;
 import com.gurella.engine.application.Application;
