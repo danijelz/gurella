@@ -10,13 +10,13 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.serialization.json.JsonInput;
 import com.gurella.engine.utils.Values;
 
-public class ArchiveLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderParameters<T>> {
+public class JsonArchiveLoader<T> extends AsynchronousAssetLoader<T, AssetLoaderParameters<T>> {
 	private final JsonInput input = new JsonInput();
 	private final Class<T> expectedType;
 
 	T result;
 
-	public ArchiveLoader(FileHandleResolver resolver, Class<T> expectedType) {
+	public JsonArchiveLoader(FileHandleResolver resolver, Class<T> expectedType) {
 		super(resolver);
 		this.expectedType = expectedType;
 	}

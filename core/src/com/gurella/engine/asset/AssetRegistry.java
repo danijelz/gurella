@@ -1,6 +1,7 @@
 package com.gurella.engine.asset;
 
 import static com.gurella.engine.asset.AssetLoadingTask.obtain;
+import static com.gurella.engine.utils.Values.cast;
 
 import java.util.Iterator;
 
@@ -43,8 +44,8 @@ import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectMap.Entries;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
@@ -54,6 +55,8 @@ import com.gurella.engine.asset.AssetLoadingTask.LoadingState;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.loader.SoundClip;
 import com.gurella.engine.audio.loader.SoundClipLoader;
+import com.gurella.engine.base.resource.Archive;
+import com.gurella.engine.base.resource.JsonArchiveLoader;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
@@ -61,11 +64,6 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
 import com.gurella.engine.utils.Values;
 
-/**
- * Loads and stores assets like textures, bitmapfonts, tile maps, sounds, music and so on.
- * 
- * @author mzechner
- */
 public class AssetRegistry extends AssetManager {
 	private static final String clearRequestedMessage = "Clear requested on AssetManager.";
 	private static final String assetUnloadedMessage = "Asset unloaded.";
@@ -115,6 +113,7 @@ public class AssetRegistry extends AssetManager {
 			setLoader(Model.class, ".g3db", new G3dModelLoader(new UBJsonReader(), resolver));
 			setLoader(Model.class, ".obj", new ObjLoader(resolver));
 			setLoader(SoundClip.class, ".obj", new SoundClipLoader(resolver));
+			setLoader(Archive.class, cast(new JsonArchiveLoader<Archive<?>>(resolver, cast(Archive.class))));
 		}
 	}
 
