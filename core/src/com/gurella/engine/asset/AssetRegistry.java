@@ -86,7 +86,7 @@ public class AssetRegistry extends AssetManager {
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
-	private final Object lock = new Object();
+	private final Object mutex = new Object();
 
 	public AssetRegistry() {
 		this(new InternalFileHandleResolver(), true);
@@ -144,7 +144,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> T get(String fileName, Class<T> type) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			AssetReference reference = assetsByFileName.get(fileName);
 			if (reference == null) {
 				throw new GdxRuntimeException("Asset not loaded: " + fileName);
@@ -162,7 +162,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> Array<T> getAll(Class<T> type, Array<T> out) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			boolean all = type == null || type == Object.class;
 			for (Object asset : fileNamesByAsset.keys()) {
 				if (all || ClassReflection.isAssignableFrom(type, asset.getClass())) {
@@ -179,7 +179,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> boolean containsAsset(T asset) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return fileNamesByAsset.containsKey(asset);
 		}
 	}
@@ -187,7 +187,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> String getAssetFileName(T asset) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return fileNamesByAsset.get(asset);
 		}
 	}
@@ -195,7 +195,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public boolean isLoaded(String fileName) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return assetsByFileName.containsKey(fileName);
 		}
 	}
@@ -203,7 +203,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public boolean isLoaded(String fileName, @SuppressWarnings("rawtypes") Class type) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return assetsByFileName.containsKey(fileName);
 		}
 	}
@@ -215,7 +215,7 @@ public class AssetRegistry extends AssetManager {
 
 	@Override
 	public <T> AssetLoader<T, AssetLoaderParameters<T>> getLoader(final Class<T> type, final String fileName) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			final ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
 			if (loadersByType == null || loadersByType.size < 1) {
 				return null;
@@ -243,7 +243,7 @@ public class AssetRegistry extends AssetManager {
 	@SuppressWarnings("sync-override")
 	public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, String extension,
 			AssetLoader<T, P> loader) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			if (type == null) {
 				throw new IllegalArgumentException("type cannot be null.");
 			}
@@ -282,7 +282,7 @@ public class AssetRegistry extends AssetManager {
 
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameters, AsyncCallback<T> callback,
 			int priority, boolean sticky) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			AssetReference reference = assetsByFileName.get(fileName);
 			if (reference == null) {
 				addToQueue(fileName, type, parameters, callback, priority, sticky);
@@ -378,7 +378,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public void unload(String fileName) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			AssetLoadingTask<?> task = findTaskInQueues(fileName);
 			if (task == null) {
 				unloadAsset(fileName);
@@ -463,7 +463,7 @@ public class AssetRegistry extends AssetManager {
 
 	public <T> void reload(String fileName, AsyncCallback<T> callback, int priority) {
 		AssetLoadingTask<T> queuedTask;
-		synchronized (lock) {
+		synchronized (mutex) {
 			queuedTask = Values.cast(findTaskInQueues(fileName));
 		}
 
@@ -471,7 +471,7 @@ public class AssetRegistry extends AssetManager {
 			finishLoadingAsset(fileName);
 		}
 
-		synchronized (lock) {
+		synchronized (mutex) {
 			AssetReference reference = assetsByFileName.remove(fileName);
 			if (reference == null) {
 				return;
@@ -496,7 +496,7 @@ public class AssetRegistry extends AssetManager {
 
 	public void reloadInvalidated() {
 		finishLoading();
-		synchronized (lock) {
+		synchronized (mutex) {
 			Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
 			EventService.getSubscribers(ResourceActivityListener.class, listeners);
 
@@ -540,7 +540,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public boolean update() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			processSyncQueue();
 			processNextAsyncTask();
 			return asyncQueue.size == 0 && syncQueue.size == 0 && waitingQueue.size == 0;
@@ -574,7 +574,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	void waitingForDependencies(AssetLoadingTask<?> task) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			currentTask = null;
 			task.setLoadingState(LoadingState.waitingForDependencies);
 			Array<AssetLoadingTask<?>> dependencies = task.dependencies;
@@ -628,7 +628,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	<T> void readyForAsyncLoading(AssetLoadingTask<T> task) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			if (!waitingQueue.removeValue(task, true)) {
 				throw new IllegalStateException();
 			}
@@ -642,7 +642,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	<T> void readyForSyncLoading(AssetLoadingTask<T> task) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
 				throw new IllegalStateException();
 			}
@@ -656,7 +656,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	<T> void finished(AssetLoadingTask<T> task) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
 				throw new IllegalStateException();
 			}
@@ -699,7 +699,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	void exception(AssetLoadingTask<?> task) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			if (!waitingQueue.removeValue(task, true) || currentTask != task) {
 				throw new IllegalStateException();
 			}
@@ -794,7 +794,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public int getLoadedAssets() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return assetsByFileName.size;
 		}
 	}
@@ -802,7 +802,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public int getQueuedAssets() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return asyncQueue.size + waitingQueue.size + syncQueue.size;
 		}
 	}
@@ -822,7 +822,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public void dispose() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			clear();
 			DisposablesService.dispose(executor);
 		}
@@ -831,7 +831,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public void clear() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			clearQueue(asyncQueue);
 			clearQueue(waitingQueue);
 			clearQueue(syncQueue);
@@ -885,7 +885,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public int getReferenceCount(String fileName) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return assetsByFileName.get(fileName).refCount;
 		}
 	}
@@ -893,7 +893,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public void setReferenceCount(String fileName, int refCount) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			assetsByFileName.get(fileName).refCount = refCount;
 		}
 	}
@@ -901,7 +901,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public String getDiagnostics() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			StringBuilder builder = new StringBuilder();
 			for (String fileName : assetsByFileName.keys()) {
 				AssetReference reference = assetsByFileName.get(fileName);
@@ -950,7 +950,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public Array<String> getAssetNames() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return assetsByFileName.keys().toArray();
 		}
 	}
@@ -958,7 +958,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public Array<String> getDependencies(String fileName) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			AssetReference reference = assetsByFileName.get(fileName);
 			return reference == null ? null : reference.dependencies.iterator().toArray();
 		}
@@ -967,7 +967,7 @@ public class AssetRegistry extends AssetManager {
 	@Override
 	@SuppressWarnings("sync-override")
 	public Class<?> getAssetType(String fileName) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			return assetsByFileName.get(fileName).getClass();
 		}
 	}

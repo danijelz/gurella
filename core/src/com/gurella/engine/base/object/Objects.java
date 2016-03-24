@@ -22,7 +22,7 @@ final class Objects implements ApplicationUpdateListener {
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 
 	private static final Array<Object> tempListeners = new Array<Object>(64);
-	private static final Object lock = new Object();
+	private static final Object mutex = new Object();
 
 	static {
 		EventService.subscribe(instance);
@@ -61,7 +61,7 @@ final class Objects implements ApplicationUpdateListener {
 		operation.operationType = operationType;
 		operation.newParent = newParent;
 
-		synchronized (lock) {
+		synchronized (mutex) {
 			operations.add(operation);
 		}
 	}
@@ -161,7 +161,7 @@ final class Objects implements ApplicationUpdateListener {
 
 	@Override
 	public void update() {
-		synchronized (lock) {
+		synchronized (mutex) {
 			for (int i = 0, n = operations.size; i < n; i++) {
 				operations.get(i).execute();
 			}

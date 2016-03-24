@@ -15,7 +15,7 @@ public final class Subscriptions {
 	private static final ObjectMap<Class<?>, ObjectSet<Class<? extends EventSubscription>>> subscriptions = new ObjectMap<Class<?>, ObjectSet<Class<? extends EventSubscription>>>();
 	private static final ObjectMap<Class<?>, ObjectIntMap<Class<?>>> priorities = new ObjectMap<Class<?>, ObjectIntMap<Class<?>>>();
 
-	private static final Object lock = new Object();
+	private static final Object mutex = new Object();
 
 	static {
 		subscriptions.put(Object.class, new ObjectSet<Class<? extends EventSubscription>>());
@@ -28,7 +28,7 @@ public final class Subscriptions {
 	}
 
 	static ObjectSet<Class<? extends EventSubscription>> getSubscriptions(Class<?> listenerType) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			ObjectSet<Class<? extends EventSubscription>> impementedSubscribers = subscriptions.get(listenerType);
 			if (impementedSubscribers != null) {
 				return impementedSubscribers;

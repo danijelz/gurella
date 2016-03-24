@@ -17,7 +17,7 @@ import com.gurella.engine.utils.ImmutableArray;
 
 public class TransformComponent extends SceneNodeComponent2 implements Poolable {
 	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
-	private static final Object lock = new Object();
+	private static final Object mutex = new Object();
 
 	private transient int nodeId;
 
@@ -80,7 +80,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	private static void notifyChanged(TransformComponent component) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			// if (!component.changeDispatched) {
 			component.changeDispatched = true;
 			EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);

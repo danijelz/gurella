@@ -21,7 +21,7 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 public abstract class RenderableComponent extends SceneNodeComponent2
 		implements NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
 	private static final Array<SceneRenderableChangedListener> listeners = new Array<SceneRenderableChangedListener>();
-	private static final Object lock = new Object();
+	private static final Object mutex = new Object();
 
 	private transient int nodeId;
 
@@ -44,7 +44,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	}
 
 	static void notifyChanged(RenderableComponent component) {
-		synchronized (lock) {
+		synchronized (mutex) {
 			if (!component.changeDispatched) {
 				component.changeDispatched = true;
 				EventService.getSubscribers(component.nodeId, SceneRenderableChangedListener.class, listeners);

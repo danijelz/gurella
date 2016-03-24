@@ -289,6 +289,7 @@ public class EventBus implements Poolable {
 	private void resetInternal() {
 		listeners.clear();
 		eventPool.clear();
+		workingListeners.clear();
 		processing = false;
 		//TODO listeners.reset(), eventPool.reset(), workingListeners.reset()
 	}

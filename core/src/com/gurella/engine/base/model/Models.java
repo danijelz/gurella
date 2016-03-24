@@ -289,6 +289,7 @@ public class Models {
 
 	private static boolean isEqualPropertyValue(Property<?> property, Object first, Object second) {
 		if (property.getType() == PrefabReference.class) {
+			//TODO handle with EqualsFunction implementation in PropertyDescriptor 
 			PrefabReference firstPrefabReference = (PrefabReference) property.getValue(first);
 			if (firstPrefabReference != null && firstPrefabReference.get() == second) {
 				return true;
