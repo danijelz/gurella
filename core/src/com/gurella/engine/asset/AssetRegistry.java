@@ -117,8 +117,9 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
+	//TODO make package private and only accessible for prefabs and bundles
 	public <T> void put(T asset, String fileName) {
-		// TODO check if asset in other file
+		// TODO check if asset in other file -> renamed(oldFileName, newFileName);
 		AssetReference reference = AssetReference.obtain();
 		reference.asset = asset;
 		// TODO initial refCount, dependencies and dependents
