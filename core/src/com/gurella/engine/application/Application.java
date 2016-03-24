@@ -3,9 +3,9 @@ package com.gurella.engine.application;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
@@ -18,43 +18,30 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Values;
 
 public final class Application implements ApplicationListener {
+	private static boolean initialized;
+
 	public static float deltaTime;
-	
-	private String initialScenePath;
-	private Color backgroundColor;
+	private static boolean paused;
 
-	private boolean paused;
-	private final SceneManager sceneManager = new SceneManager(this);
+	private static ApplicationConfig config;
+	private static String initialScenePath;
+	private static final SceneManager sceneManager = new SceneManager(null);
 
-	private final Array<Object> tempListeners = new Array<Object>(64);
+	private static final Array<Object> tempListeners = new Array<Object>(64);
 
-	private final ApplicationInitializer initializer;
-
-	public static Application fromJson(String projectFileName) {
-		return new Application(new JsonApplicationInitializer(projectFileName));
-	}
-
-	Application() {
-		this.initializer = null;
-	}
-
-	public Application(ApplicationInitializer initializer) {
-		this.initializer = initializer;
-	}
-
-	public void addScene(Scene scene) {
-		sceneManager.addScene(scene);
-	}
-
-	public void setInitialScene(String initialScenePath) {
-		this.initialScenePath = initialScenePath;
+	Application(ApplicationConfig config) {
+		this.config = config;
 	}
 
 	@Override
 	public final void create() {
+		if (initialized) {
+			throw new GdxRuntimeException("Application already initialized.");
+		}
+
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
-		initializer.init(this);
+		//TODO config.init(this);
 		// TODO add init scripts to initializer
 		sceneManager.showScene(initialScenePath);
 	}
@@ -72,7 +59,7 @@ public final class Application implements ApplicationListener {
 	public final void render() {
 		deltaTime = Gdx.graphics.getDeltaTime();
 		// TODO clear must be handled by RenderSystem with spec from camera
-		Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Array<ApplicationUpdateListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);

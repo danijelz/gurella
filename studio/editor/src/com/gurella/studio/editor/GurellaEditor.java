@@ -20,9 +20,12 @@ import org.eclipse.ui.part.EditorPart;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.gurella.engine.base.serialization.json.JsonInput;
+import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart {
+	private SwtLwjglApplication application;
 	private GLCanvas center;
 
 	public GurellaEditor() {
@@ -42,6 +45,7 @@ public class GurellaEditor extends EditorPart {
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
 		setInput(input);
+		Scene scene = new JsonInput().deserialize(expectedType, json)
 	}
 
 	@Override
@@ -57,7 +61,7 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		SwtLwjglApplication application = new SwtLwjglApplication(new ApplicationAdapter() {
+		application = new SwtLwjglApplication(new ApplicationAdapter() {
 			@Override
 			public void render() {
 				Gdx.gl.glClearColor(0, 1, 0, 1);

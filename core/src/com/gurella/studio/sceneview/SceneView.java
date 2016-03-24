@@ -103,7 +103,7 @@ public class SceneView extends Container<Image> {
 		});
 		setActor(image);
 
-		application = new Application(null);
+		application = null;//new Application(null);
 		view = null;//new Scene(application, "");
 		view.start();
 		addPlane();
