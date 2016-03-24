@@ -45,7 +45,7 @@ public class GurellaEditor extends EditorPart {
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
 		setInput(input);
-		Scene scene = new JsonInput().deserialize(expectedType, json)
+		//Scene scene = new JsonInput().deserialize(expectedType, json)
 	}
 
 	@Override
