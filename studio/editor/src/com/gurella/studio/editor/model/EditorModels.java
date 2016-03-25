@@ -8,12 +8,12 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.ModelFactory;
 import com.gurella.engine.base.model.ReflectionModel;
-import com.gurella.engine.utils.ReflectionUtils;
+import com.gurella.engine.utils.Reflection;
 
 public class EditorModels {
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	private static final Array<ModelFactory> modelFactories = new Array<ModelFactory>();
-	
+
 	public static <T> Model<T> getModel(T object) {
 		@SuppressWarnings("unchecked")
 		Class<T> casted = (Class<T>) object.getClass();
@@ -43,7 +43,7 @@ public class EditorModels {
 	}
 
 	private static <T> Model<T> resolveModelByDescriptor(Class<T> type) {
-		ModelDescriptor descriptor = ReflectionUtils.getDeclaredAnnotation(type, ModelDescriptor.class);
+		ModelDescriptor descriptor = Reflection.getDeclaredAnnotation(type, ModelDescriptor.class);
 		if (descriptor == null) {
 			return null;
 		}
@@ -58,13 +58,13 @@ public class EditorModels {
 			return ReflectionModel.<T> getInstance(type);
 		} else {
 			Model<T> model = instantiateModelByFactoryMethod(modelType);
-			return model == null ? ReflectionUtils.newInstance(modelType) : model;
+			return model == null ? Reflection.newInstance(modelType) : model;
 		}
 	}
 
 	private static <T> Model<T> instantiateModelByFactoryMethod(Class<Model<T>> modelType) {
 		// TODO should be annotation based
-		Method factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance");
+		Method factoryMethod = Reflection.getDeclaredMethodSilently(modelType, "getInstance");
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -76,7 +76,7 @@ public class EditorModels {
 		}
 
 		// TODO should be annotation based
-		factoryMethod = ReflectionUtils.getDeclaredMethodSilently(modelType, "getInstance", Class.class);
+		factoryMethod = Reflection.getDeclaredMethodSilently(modelType, "getInstance", Class.class);
 		if (isValidFactoryMethod(modelType, factoryMethod)) {
 			try {
 				@SuppressWarnings("unchecked")
