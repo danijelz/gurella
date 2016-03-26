@@ -1,7 +1,6 @@
 package com.gurella.engine.asset;
 
 import static com.gurella.engine.asset.AssetLoadingTask.obtain;
-import static com.gurella.engine.utils.Values.cast;
 
 import java.util.Iterator;
 
