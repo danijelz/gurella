@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.vector.svg.element;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.gurella.engine.graphics.vector.svg.SvgRenderContext;
 import com.gurella.engine.graphics.vector.svg.property.PropertyType;
 import com.gurella.engine.graphics.vector.svg.property.value.Length;
 import com.gurella.engine.graphics.vector.svg.property.value.Overflow;
@@ -37,5 +38,11 @@ public class SvgElement extends KnownElement implements RenderableElement {
 
 	public float getHeight() {
 		return this.<Length> getProperty(PropertyType.height).getPixels();
+	}
+
+	@Override
+	public void renderGeometry(SvgRenderContext state) {
+		// TODO Auto-generated method stub
+		
 	}
 }

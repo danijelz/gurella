@@ -113,8 +113,7 @@ public class AssetRegistry extends AssetManager {
 			setLoader(Model.class, ".g3db", new G3dModelLoader(new UBJsonReader(), resolver));
 			setLoader(Model.class, ".obj", new ObjLoader(resolver));
 			setLoader(SoundClip.class, ".obj", new SoundClipLoader(resolver));
-			setLoader(cast(Archive.class),
-					cast(new JsonArchiveLoader<Archive<?>>(resolver, Values.<Class<Archive<?>>> cast(Archive.class))));
+			setLoader(Archive.class, new JsonArchiveLoader<Archive>(resolver, Archive.class));
 		}
 	}
 

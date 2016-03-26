@@ -1,5 +1,6 @@
 package com.gurella.engine.graphics.vector.svg.element;
 
+import com.gurella.engine.graphics.vector.svg.SvgRenderContext;
 import com.gurella.engine.graphics.vector.svg.property.PropertyType;
 import com.gurella.engine.graphics.vector.svg.property.value.Length;
 
@@ -26,5 +27,11 @@ public class UseElement extends KnownElement implements RenderableElement {
 
 	public float getHeight() {
 		return this.<Length> getProperty(PropertyType.height).getPixels();
+	}
+
+	@Override
+	public void renderGeometry(SvgRenderContext state) {
+		// TODO Auto-generated method stub
+		
 	}
 }
