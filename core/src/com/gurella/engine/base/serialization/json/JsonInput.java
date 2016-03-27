@@ -43,6 +43,9 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	public <T> T deserialize(Class<T> expectedType) {
+		if(rootValue == null) {
+			return null;
+		}
 		JsonValue referenceValue = rootValue.get(0);
 		referenceValues.put(referenceValue, 0);
 		T result = deserialize(referenceValue, expectedType, null);
@@ -308,7 +311,7 @@ public class JsonInput implements Input, Poolable {
 
 	@Override
 	public Array<AssetDescriptor<?>> getExternalDependencies() {
-		int size = rootValue.size;
+		int size = rootValue == null ? 0 : rootValue.size;
 		if (size < 1) {
 			return null;
 		}

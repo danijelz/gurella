@@ -60,6 +60,7 @@ import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
 import com.gurella.engine.utils.Values;
 
@@ -108,11 +109,12 @@ public class AssetRegistry extends AssetManager {
 					new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
 			setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
 			setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
-			setLoader(Model.class, ".g3dj", new G3dModelLoader(new JsonReader(), resolver));
-			setLoader(Model.class, ".g3db", new G3dModelLoader(new UBJsonReader(), resolver));
-			setLoader(Model.class, ".obj", new ObjLoader(resolver));
-			setLoader(SoundClip.class, ".obj", new SoundClipLoader(resolver));
+			setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
+			setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
+			setLoader(Model.class, "obj", new ObjLoader(resolver));
+			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 			setLoader(Archive.class, new JsonArchiveLoader<Archive>(resolver, Archive.class));
+			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));//TODO
 		}
 	}
 

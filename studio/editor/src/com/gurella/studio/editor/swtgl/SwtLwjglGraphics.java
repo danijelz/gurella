@@ -36,7 +36,7 @@ public class SwtLwjglGraphics implements Graphics {
 	int frames = 0;
 	int fps;
 	long lastTime = System.nanoTime();
-	Composite canvas;
+	Composite parentComposite;
 	boolean vsync = false;
 	boolean resize = false;
 	SwtLwjglApplicationConfiguration config;
@@ -48,9 +48,9 @@ public class SwtLwjglGraphics implements Graphics {
 
 	private final GLCanvas glCanvas;
 
-	SwtLwjglGraphics(Composite canvas, SwtLwjglApplicationConfiguration config) {
+	SwtLwjglGraphics(Composite parentComposite, SwtLwjglApplicationConfiguration config) {
+		this.parentComposite = parentComposite;
 		this.config = config;
-		this.canvas = canvas;
 		GLData glData = new GLData();
 		glData.redSize = config.r;
 		glData.greenSize = config.g;
@@ -61,8 +61,8 @@ public class SwtLwjglGraphics implements Graphics {
 		glData.samples = config.samples;
 		glData.doubleBuffer = true;
 
-		glCanvas = new GLCanvas(canvas, SWT.FLAT, glData);
-		if (canvas.getLayout() instanceof GridLayout) {
+		glCanvas = new GLCanvas(parentComposite, SWT.FLAT, glData);
+		if (parentComposite.getLayout() instanceof GridLayout) {
 			glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		}
 
@@ -100,12 +100,12 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public int getHeight() {
-		return Math.max(1, canvas.getSize().y);
+		return Math.max(1, parentComposite.getSize().y);
 	}
 
 	@Override
 	public int getWidth() {
-		return Math.max(1, canvas.getSize().x);
+		return Math.max(1, parentComposite.getSize().x);
 	}
 
 	@Override

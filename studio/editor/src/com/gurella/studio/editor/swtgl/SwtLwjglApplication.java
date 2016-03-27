@@ -2,6 +2,7 @@ package com.gurella.studio.editor.swtgl;
 
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
 import org.lwjgl.LWJGLException;
 
@@ -45,13 +46,13 @@ public class SwtLwjglApplication implements Application {
 	protected int lastHeight;
 	protected boolean wasActive = true;
 
-	public SwtLwjglApplication(ApplicationListener listener, Composite canvas) {
-		this(listener, createConfig(canvas.getSize().x, canvas.getSize().y), canvas);
+	public SwtLwjglApplication(ApplicationListener listener, Composite parentComposite) {
+		this(listener, createConfig(parentComposite.getSize().x, parentComposite.getSize().y), parentComposite);
 	}
 
 	public SwtLwjglApplication(ApplicationListener listener, SwtLwjglApplicationConfiguration config,
-			Composite canvas) {
-		this(listener, config, new SwtLwjglGraphics(canvas, config));
+			Composite parentComposite) {
+		this(listener, config, new SwtLwjglGraphics(parentComposite, config));
 	}
 
 	public SwtLwjglApplication(ApplicationListener listener, SwtLwjglApplicationConfiguration config,
@@ -101,7 +102,8 @@ public class SwtLwjglApplication implements Application {
 
 		graphics.lastTime = System.nanoTime();
 
-		graphics.getGlCanvas().addDisposeListener(new DisposeListener() {
+		GLCanvas glCanvas = graphics.getGlCanvas();
+		glCanvas.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				running = false;
@@ -117,7 +119,7 @@ public class SwtLwjglApplication implements Application {
 			}
 		});
 
-		graphics.getGlCanvas().getDisplay().asyncExec(new Runnable() {
+		glCanvas.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				graphics.setVSync(graphics.config.vSyncEnabled);
@@ -134,13 +136,15 @@ public class SwtLwjglApplication implements Application {
 			}
 		});
 
-		graphics.getGlCanvas().getDisplay().asyncExec(new Runnable() {
+		glCanvas.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (running && !graphics.getGlCanvas().isDisposed())
+				if (running && !glCanvas.isDisposed()) {
 					mainLoop();
-				if (running && !graphics.getGlCanvas().isDisposed())
-					graphics.getGlCanvas().getDisplay().asyncExec(this);
+				}
+				if (running && !glCanvas.isDisposed()) {
+					glCanvas.getDisplay().asyncExec(this);
+				}
 			}
 		});
 	}

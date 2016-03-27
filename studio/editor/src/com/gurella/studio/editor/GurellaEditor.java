@@ -10,23 +10,30 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.opengl.GLCanvas;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonInput;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart {
 	private SwtLwjglApplication application;
-	private GLCanvas center;
+	private SceneEditorMainContainer mainContainer;
 
 	public GurellaEditor() {
 	}
@@ -45,7 +52,6 @@ public class GurellaEditor extends EditorPart {
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
 		setInput(input);
-		//Scene scene = new JsonInput().deserialize(expectedType, json)
 	}
 
 	@Override
@@ -61,44 +67,86 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		application = new SwtLwjglApplication(new ApplicationAdapter() {
-			@Override
-			public void render() {
-				Gdx.gl.glClearColor(0, 1, 0, 1);
-				Gdx.gl.glClearStencil(0);
-				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-			}
-
-			@Override
-			public void dispose() {
-			}
-
-			@Override
-			public void create() {
-			}
-		}, parent);
-
-		center = application.getGraphics().getGlCanvas();
-		center.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
+		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Composite center = mainContainer.getCenter();
+		center.setLayout(new GridLayout());
+		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		IProject project = resource.getProject();
 
 		IJavaProject javaProject = JavaCore.create(project);
-		IType lwType = null;
-		IField[] fields = null;
 		try {
-			lwType = javaProject.findType("java.util.ArrayList");
-			fields = lwType.getFields();
+			IType lwType = javaProject.findType("java.util.ArrayList");
+			IField[] fields = lwType.getFields();
+			for (IField iField : fields) {
+				iField.getElementName();
+			}
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
+		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallback<Scene>() {
+
+			@Override
+			public void onSuccess(Scene scene) {
+				presentScene(scene);
+			}
+
+			@Override
+			public void onException(Throwable exception) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onCancled(String message) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onProgress(float progress) {
+				// TODO Auto-generated method stub
+			}
+		}, 0);
+	}
+	
+	private void presentScene(Scene scene) {
+		System.out.println("loaded");
 	}
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		//TODO center.dispose();
+	}
+
+	private final class SceneEditorApplicationAdapter extends ApplicationAdapter {
+		@Override
+		public void render() {
+			Array<ApplicationUpdateListener> listeners = new Array<ApplicationUpdateListener>();
+			EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).update();
+			}
+			Gdx.gl.glClearColor(0, 1, 0, 1);
+			Gdx.gl.glClearStencil(0);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		}
+
+		@Override
+		public void dispose() {
+		}
+
+		@Override
+		public void create() {
+		}
 	}
 }
