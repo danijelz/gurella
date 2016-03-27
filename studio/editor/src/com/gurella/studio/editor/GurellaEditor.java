@@ -10,7 +10,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -24,16 +23,19 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
-import com.gurella.engine.base.serialization.json.JsonInput;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
+import com.gurella.studio.editor.scene.SceneGraphComponent;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart {
 	private SwtLwjglApplication application;
+
 	private SceneEditorMainContainer mainContainer;
+
+	private SceneGraphComponent sceneGraphComponent;
 
 	public GurellaEditor() {
 	}
@@ -69,8 +71,8 @@ public class GurellaEditor extends EditorPart {
 	public void createPartControl(Composite parent) {
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sceneGraphComponent = new SceneGraphComponent(mainContainer, SWT.RIGHT);
 		Composite center = mainContainer.getCenter();
-		center.setLayout(new GridLayout());
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
 		IResource resource = getEditorInput().getAdapter(IResource.class);
@@ -87,7 +89,7 @@ public class GurellaEditor extends EditorPart {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallback<Scene>() {
 
@@ -112,9 +114,10 @@ public class GurellaEditor extends EditorPart {
 			}
 		}, 0);
 	}
-	
+
 	private void presentScene(Scene scene) {
 		System.out.println("loaded");
+		sceneGraphComponent.present(scene);
 	}
 
 	@Override

@@ -42,12 +42,12 @@ import org.eclipse.swt.widgets.Tracker;
 
 public class SceneEditorMainContainer extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 32;
-	private Composite center;
-	private DockComponent east;
-	private DockComponent south;
-	private DockComponent west;
+	Composite center;
+	DockComponent east;
+	DockComponent south;
+	DockComponent west;
 
-	private Image testImage;
+	private Image defaultImage;
 	private Cursor dragEast;
 	private Cursor dragSouth;
 	private Cursor dragWest;
@@ -56,7 +56,7 @@ public class SceneEditorMainContainer extends Composite {
 		super(parent, style);
 
 		Display display = getDisplay();
-		testImage = new Image(display,
+		defaultImage = new Image(display,
 				ImageDescriptor.createFromFile(MainView2.class, "palette_view.gif").getImageData());
 
 		dragEast = createCursor("right_source.bmp");
@@ -64,6 +64,7 @@ public class SceneEditorMainContainer extends Composite {
 		dragWest = createCursor("left_source.bmp");
 
 		center = new Composite(this, SWT.BORDER);
+		center.setLayout(new GridLayout());
 		center.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
@@ -81,7 +82,7 @@ public class SceneEditorMainContainer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				int itemCount = west.getItemCount();
 				String title = "Test " + itemCount;
-				west.addItem(title, testImage, new Composite(west.tabFolder, 0));
+				west.addItem(title, defaultImage, new Composite(west.tabFolder, 0));
 			}
 		});
 
@@ -92,7 +93,7 @@ public class SceneEditorMainContainer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				int itemCount = east.getItemCount();
 				String title = "Test " + itemCount;
-				east.addItem(title, testImage, new Composite(east.tabFolder, 0));
+				east.addItem(title, defaultImage, new Composite(east.tabFolder, 0));
 			}
 		});
 
@@ -103,7 +104,7 @@ public class SceneEditorMainContainer extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				int itemCount = south.getItemCount();
 				String title = "Test " + itemCount;
-				south.addItem(title, testImage, new Composite(south.tabFolder, 0));
+				south.addItem(title, defaultImage, new Composite(south.tabFolder, 0));
 			}
 		});
 
@@ -122,19 +123,58 @@ public class SceneEditorMainContainer extends Composite {
 		addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				testImage.dispose();
+				defaultImage.dispose();
 				dragEast.dispose();
 				dragSouth.dispose();
 				dragWest.dispose();
 			}
 		});
-		
-		west.addItem("Scene tree", testImage, new Composite(west.tabFolder, 0));
-		east.addItem("Inspector", testImage, new Composite(east.tabFolder, 0));
 	}
-	
+
+	public void setCenterControl(Control centerControl) {
+		Control[] children = center.getChildren();
+		for (Control control : children) {
+			control.dispose();
+		}
+
+		centerControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		centerControl.setParent(center);
+	}
+
 	public Composite getCenter() {
 		return center;
+	}
+
+	public void addItem(int position, String title, Image image, Control control) {
+		getDockComponent(position).addItem(title, image == null ? defaultImage : image, control);
+	}
+
+	public void addItem(int position, String title, Image image, Control control, int index) {
+		getDockComponent(position).addItem(title, image == null ? defaultImage : image, control, index);
+	}
+
+	private DockComponent getDockComponent(int position) {
+		if ((position | SWT.RIGHT) != 0) {
+			return east;
+		} else if ((position | SWT.LEFT) != 0) {
+			return west;
+		} else if ((position | SWT.BOTTOM) != 0) {
+			return south;
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	Composite getDockItemParent(int position) {
+		if ((position | SWT.RIGHT) != 0) {
+			return east.tabFolder;
+		} else if ((position | SWT.LEFT) != 0) {
+			return west.tabFolder;
+		} else if ((position | SWT.BOTTOM) != 0) {
+			return south.tabFolder;
+		} else {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	private Cursor createCursor(String fileName) {
@@ -237,7 +277,7 @@ public class SceneEditorMainContainer extends Composite {
 		display.dispose();
 	}
 
-	private static class DockComponent extends Composite {
+	static class DockComponent extends Composite {
 		private CTabFolder tabFolder;
 		private CTabFolderRendererImpl renderer;
 		private Composite sash;

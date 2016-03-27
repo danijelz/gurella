@@ -11,7 +11,7 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
-public final class SceneNode2 extends SceneElement2 implements Poolable {
+public final class SceneNode2 extends SceneElement2 implements NodeContainer, Poolable {
 	String name;
 
 	transient final OrderedIdentitySet<SceneNode2> _childNodes = new OrderedIdentitySet<SceneNode2>();
@@ -36,6 +36,11 @@ public final class SceneNode2 extends SceneElement2 implements Poolable {
 		if (isActive()) {
 			scene.eventsDispatcher.nodeRenamed(this, oldName, name);
 		}
+	}
+
+	@Override
+	public ImmutableArray<SceneNode2> getNodes() {
+		return childNodes;
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
 //TODO Poolable, EntityTransmuter
-public final class Scene extends ManagedObject {
+public final class Scene extends ManagedObject implements NodeContainer {
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
 	transient final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
@@ -51,6 +51,11 @@ public final class Scene extends ManagedObject {
 	public final transient RenderSystem renderSystem = new RenderSystem();
 	public final transient AudioSystem audioSystem = new AudioSystem();
 	// TODO public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
+	
+	@Override
+	public ImmutableArray<SceneNode2> getNodes() {
+		return nodes;
+	}
 
 	public final void start() {
 		if (isActive()) {
