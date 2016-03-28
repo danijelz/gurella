@@ -810,12 +810,8 @@ public class SceneEditorMainContainer extends Composite {
 
 				tabFolder.setSingle(tabFolder.getItemCount() < 2);
 				dockComponent.layout(true);
+				itemControl.setVisible(true);
 				layoutParent();
-				
-				itemControl.getParent().layout(true, true);
-				if (itemControl instanceof Composite) {
-					((Composite)itemControl).layout(true, true);
-				}
 			}
 
 			private DockComponent findDockComponent() {
