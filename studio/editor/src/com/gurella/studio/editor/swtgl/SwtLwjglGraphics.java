@@ -81,8 +81,9 @@ public class SwtLwjglGraphics implements Graphics {
 	}
 
 	void swapBuffer() {
-		if (!glCanvas.isDisposed())
+		if (!glCanvas.isDisposed()) {
 			glCanvas.swapBuffers();
+		}
 	}
 
 	public final GLCanvas getGlCanvas() {
@@ -206,7 +207,7 @@ public class SwtLwjglGraphics implements Graphics {
 		if (glCanvas.isDisposed()) {
 			return 0;
 		}
-		return glCanvas.getDisplay().getDPI().x;
+		return glCanvas.getDisplay().getDPI().y;
 	}
 
 	@Override
@@ -221,8 +222,9 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public float getDensity() {
-		if (config.overrideDensity != -1)
+		if (config.overrideDensity != -1) {
 			return config.overrideDensity / 160f;
+		}
 		return getPpiX() / 160.0f;
 	}
 

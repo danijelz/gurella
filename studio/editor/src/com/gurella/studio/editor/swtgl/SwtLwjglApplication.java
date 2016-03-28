@@ -126,12 +126,14 @@ public class SwtLwjglApplication implements Application {
 				try {
 					SwtLwjglApplication.this.mainLoop();
 				} catch (Throwable t) {
-					if (audio != null)
+					if (audio != null) {
 						audio.dispose();
-					if (t instanceof RuntimeException)
+					}
+					if (t instanceof RuntimeException) {
 						throw (RuntimeException) t;
-					else
+					} else {
 						throw new GdxRuntimeException(t);
+					}
 				}
 			}
 		});
@@ -143,7 +145,7 @@ public class SwtLwjglApplication implements Application {
 					mainLoop();
 				}
 				if (running && !glCanvas.isDisposed()) {
-					glCanvas.getDisplay().asyncExec(this);
+					glCanvas.getDisplay().timerExec(35, this);
 				}
 			}
 		});
@@ -155,8 +157,9 @@ public class SwtLwjglApplication implements Application {
 		if (wasActive && !isActive) {
 			wasActive = false;
 			synchronized (lifecycleListeners) {
-				for (LifecycleListener lifecycleListener : lifecycleListeners)
+				for (LifecycleListener lifecycleListener : lifecycleListeners) {
 					lifecycleListener.pause();
+				}
 			}
 			listener.pause();
 		}
@@ -164,8 +167,9 @@ public class SwtLwjglApplication implements Application {
 			wasActive = true;
 			listener.resume();
 			synchronized (lifecycleListeners) {
-				for (LifecycleListener lifecycleListener : lifecycleListeners)
+				for (LifecycleListener lifecycleListener : lifecycleListeners) {
 					lifecycleListener.resume();
+				}
 			}
 		}
 
@@ -188,26 +192,19 @@ public class SwtLwjglApplication implements Application {
 
 		input.update();
 		shouldRender |= graphics.shouldRender();
-		if (audio != null)
+		if (audio != null) {
 			audio.update();
+		}
 
 		if (!isActive && graphics.config.backgroundFPS == -1) {
 			shouldRender = false;
 		}
-		int frameRate = isActive ? graphics.config.foregroundFPS : graphics.config.backgroundFPS;
+
 		if (shouldRender) {
 			graphics.setCurrent();
 			graphics.updateTime();
 			listener.render();
 			graphics.swapBuffer();
-		} else {
-			// Sleeps to avoid wasting CPU in an empty loop.
-			if (frameRate == -1)
-				frameRate = 10;
-			if (frameRate == 0)
-				frameRate = graphics.config.backgroundFPS;
-			if (frameRate == 0)
-				frameRate = 30;
 		}
 	}
 

@@ -810,8 +810,12 @@ public class SceneEditorMainContainer extends Composite {
 
 				tabFolder.setSingle(tabFolder.getItemCount() < 2);
 				dockComponent.layout(true);
-
 				layoutParent();
+				
+				itemControl.getParent().layout(true, true);
+				if (itemControl instanceof Composite) {
+					((Composite)itemControl).layout(true, true);
+				}
 			}
 
 			private DockComponent findDockComponent() {
@@ -913,58 +917,6 @@ public class SceneEditorMainContainer extends Composite {
 		@Override
 		protected Rectangle computeTrim(int part, int state, int x, int y, int width, int height) {
 			return super.computeTrim(part, state, x, y, width, height);
-		}
-	}
-
-	public static class DockItem {
-		private String title;
-		private Image image;
-		private boolean closeable;
-		private int index;
-
-		private DockComponent dock;
-		private CTabItem tabItem;
-		private ToolItem toolItem;
-		private Control control;
-
-		public String getTitle() {
-			return title;
-		}
-
-		public void setTitle(String title) {
-			this.title = title;
-		}
-
-		public Image getImage() {
-			return image;
-		}
-
-		public void setImage(Image image) {
-			this.image = image;
-		}
-
-		public boolean isCloseable() {
-			return closeable;
-		}
-
-		public void setCloseable(boolean closeable) {
-			this.closeable = closeable;
-		}
-
-		public int getIndex() {
-			return index;
-		}
-
-		public void setIndex(int index) {
-			this.index = index;
-		}
-
-		public Control getControl() {
-			return control;
-		}
-
-		public void setControl(Control control) {
-			this.control = control;
 		}
 	}
 }

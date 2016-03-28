@@ -3,6 +3,7 @@ package com.gurella.studio.editor.scene;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Menu;
@@ -24,6 +25,7 @@ public class SceneGraphView extends SceneEditorView {
 		graph = new Tree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(true);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		graph.setBackground(new Color(getDisplay(), 100, 100, 100));
 
 		menu = new Menu(graph);
 		MenuItem item = new MenuItem(menu, 0);
