@@ -16,9 +16,11 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
@@ -55,8 +57,8 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
-		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
-		IPath path = pathEditorInput.getPath();
+		IFileEditorInput input = (IFileEditorInput) getEditorInput();
+		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
 		String string = output.serialize(Scene.class, scene);
 		try {
@@ -72,12 +74,10 @@ public class GurellaEditor extends EditorPart {
 		} finally {
 			monitor.done();
 		}
-
 	}
 
 	@Override
 	public void doSaveAs() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -99,9 +99,10 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		parent.setLayout(new GridLayout());
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		sceneGraphView = new SceneGraphView(mainContainer, SWT.RIGHT);
+		sceneGraphView = new SceneGraphView(mainContainer, SWT.LEFT);
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
@@ -131,6 +132,7 @@ public class GurellaEditor extends EditorPart {
 			@Override
 			public void onException(Throwable exception) {
 				// TODO Auto-generated method stub
+				exception.printStackTrace();
 			}
 
 			@Override

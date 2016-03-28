@@ -57,7 +57,7 @@ public class SceneEditorMainContainer extends Composite {
 
 		Display display = getDisplay();
 		defaultImage = new Image(display,
-				ImageDescriptor.createFromFile(MainView2.class, "palette_view.gif").getImageData());
+				ImageDescriptor.createFromFile(SceneEditorMainContainer.class, "palette_view.gif").getImageData());
 
 		dragEast = createCursor("right_source.bmp");
 		dragSouth = createCursor("bottom_source.bmp");
@@ -154,11 +154,11 @@ public class SceneEditorMainContainer extends Composite {
 	}
 
 	private DockComponent getDockComponent(int position) {
-		if ((position | SWT.RIGHT) != 0) {
+		if ((position & SWT.RIGHT) != 0) {
 			return east;
-		} else if ((position | SWT.LEFT) != 0) {
+		} else if ((position & SWT.LEFT) != 0) {
 			return west;
-		} else if ((position | SWT.BOTTOM) != 0) {
+		} else if ((position & SWT.BOTTOM) != 0) {
 			return south;
 		} else {
 			throw new IllegalArgumentException();
@@ -166,11 +166,11 @@ public class SceneEditorMainContainer extends Composite {
 	}
 
 	Composite getDockItemParent(int position) {
-		if ((position | SWT.RIGHT) != 0) {
+		if ((position & SWT.RIGHT) != 0) {
 			return east.tabFolder;
-		} else if ((position | SWT.LEFT) != 0) {
+		} else if ((position & SWT.LEFT) != 0) {
 			return west.tabFolder;
-		} else if ((position | SWT.BOTTOM) != 0) {
+		} else if ((position & SWT.BOTTOM) != 0) {
 			return south.tabFolder;
 		} else {
 			throw new IllegalArgumentException();
@@ -178,7 +178,7 @@ public class SceneEditorMainContainer extends Composite {
 	}
 
 	private Cursor createCursor(String fileName) {
-		ImageData imageData = ImageDescriptor.createFromFile(MainView2.class, fileName).getImageData();
+		ImageData imageData = ImageDescriptor.createFromFile(SceneEditorMainContainer.class, fileName).getImageData();
 		imageData.transparentPixel = imageData.palette.getPixel(new RGB(255, 255, 255));
 		return new Cursor(getDisplay(), imageData, 16, 16);
 	}
@@ -258,7 +258,7 @@ public class SceneEditorMainContainer extends Composite {
 		shell.setLayout(new GridLayout(1, false));
 		shell.setText("Composite Example");
 
-		final MainView2 composite = new MainView2(shell, SWT.NONE);
+		final SceneEditorMainContainer composite = new SceneEditorMainContainer(shell, SWT.NONE);
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.FILL;
 		data.horizontalAlignment = SWT.FILL;
