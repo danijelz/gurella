@@ -45,9 +45,7 @@ public class GurellaEditor extends EditorPart {
 	private SwtLwjglApplication application;
 
 	private SceneEditorMainContainer mainContainer;
-
 	private SceneGraphView sceneGraphView;
-	private SceneGraphView sceneGraphView2;
 
 	private Scene scene;
 
@@ -103,7 +101,6 @@ public class GurellaEditor extends EditorPart {
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		sceneGraphView = new SceneGraphView(mainContainer, SWT.LEFT);
-		sceneGraphView2 = new SceneGraphView(mainContainer, SWT.LEFT);
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
@@ -152,7 +149,6 @@ public class GurellaEditor extends EditorPart {
 		this.scene = scene;
 		System.out.println("loaded");
 		sceneGraphView.present(scene);
-		sceneGraphView2.present(scene);
 	}
 
 	@Override
