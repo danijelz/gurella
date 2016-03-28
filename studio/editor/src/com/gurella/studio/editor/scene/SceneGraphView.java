@@ -74,4 +74,11 @@ public class SceneGraphView extends SceneEditorView {
 			addNodes(nodeItem, node);
 		}
 	}
+	
+	@Override
+	public void layout(boolean changed, boolean all) {
+		super.layout(changed, all);
+		graph.layout(true, true);
+		System.out.println("layout");
+	}
 }
