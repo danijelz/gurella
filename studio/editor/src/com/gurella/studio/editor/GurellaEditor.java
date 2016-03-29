@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -23,6 +24,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -37,6 +39,7 @@ import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
+import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
@@ -46,6 +49,10 @@ public class GurellaEditor extends EditorPart {
 
 	private SceneEditorMainContainer mainContainer;
 	private SceneHierarchyView sceneHierarchyView;
+	private InspectorView inspectorView;
+
+	private LocalResourceManager resourceManager;
+	private FormToolkit toolkit;
 
 	private Scene scene;
 	boolean dirty;
@@ -100,9 +107,12 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout());
+		toolkit = new FormToolkit(parent.getDisplay());
+		resourceManager = new LocalResourceManager(null, parent);
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		sceneHierarchyView = new SceneHierarchyView(this, mainContainer, SWT.LEFT);
+		sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
+		inspectorView = new InspectorView(this, SWT.RIGHT);
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
@@ -152,6 +162,18 @@ public class GurellaEditor extends EditorPart {
 		sceneHierarchyView.present(scene);
 	}
 
+	public FormToolkit getToolkit() {
+		return toolkit;
+	}
+
+	public LocalResourceManager getResourceManager() {
+		return resourceManager;
+	}
+
+	public SceneEditorMainContainer getMainContainer() {
+		return mainContainer;
+	}
+
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
@@ -160,6 +182,8 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void dispose() {
 		super.dispose();
+		toolkit.dispose();
+		resourceManager.dispose();
 		//TODO center.dispose();
 	}
 

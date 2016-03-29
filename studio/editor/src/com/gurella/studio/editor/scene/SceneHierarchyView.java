@@ -22,10 +22,11 @@ public class SceneHierarchyView extends SceneEditorView {
 	private Tree graph;
 	private Menu menu;
 
-	public SceneHierarchyView(GurellaEditor editor, SceneEditorMainContainer mainContainer, int style) {
-		super(editor, mainContainer, "Hierarchy", null, style);
+	public SceneHierarchyView(GurellaEditor editor, int style) {
+		super(editor, "Hierarchy", null, style);
 		setLayout(new GridLayout());
-		graph = new Tree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		editor.getToolkit().adapt(this);
+		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(true);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -93,7 +94,6 @@ public class SceneHierarchyView extends SceneEditorView {
 		return (Scene) graph.getData();
 	}
 
-	@Override
 	public void present(Scene scene) {
 		graph.removeAll();
 		graph.setData(scene);
