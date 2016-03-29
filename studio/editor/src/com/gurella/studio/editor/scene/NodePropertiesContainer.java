@@ -1,6 +1,8 @@
 package com.gurella.studio.editor.scene;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -21,12 +23,14 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	@Override
 	protected void init(FormToolkit toolkit, SceneNode2 node) {
-		GridLayout layout = new GridLayout();
-		getBody().setLayout(layout);
-		nameText = toolkit.createText(this, node.getName());
-		enabledCheck = toolkit.createButton(this, "Enabled", SWT.CHECK);
+		toolkit.adapt(this);
+		getBody().setLayout(new GridLayout(3, false));
+		toolkit.createLabel(getBody(), "Name: ");
+		nameText = toolkit.createText(getBody(), node.getName());
+		enabledCheck = toolkit.createButton(getBody(), "Enabled", SWT.CHECK);
 		enabledCheck.setSelection(node.isEnabled());
-		componentsPropertiesComposite = toolkit.createComposite(this);
+		componentsPropertiesComposite = toolkit.createComposite(getBody());
+		componentsPropertiesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 	}
 
 }

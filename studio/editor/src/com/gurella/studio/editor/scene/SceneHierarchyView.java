@@ -8,15 +8,21 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.scene.InspectorView.Inspectable;
+import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class SceneHierarchyView extends SceneEditorView {
 	private Tree graph;
@@ -29,6 +35,16 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(true);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		graph.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				TreeItem[] selection = graph.getSelection();
+				if (selection.length > 0) {
+					NodeInspectable inspectable = new NodeInspectable((SceneNode2) selection[0].getData());
+					postMessage(new SelectionMessage(inspectable));
+				}
+			}
+		});
 
 		menu = new Menu(graph);
 		MenuItem item = new MenuItem(menu, 0);
@@ -117,5 +133,23 @@ public class SceneHierarchyView extends SceneEditorView {
 		super.layout(changed, all);
 		graph.layout(true, true);
 		System.out.println("layout");
+	}
+
+	private static class NodeInspectable implements Inspectable {
+		SceneNode2 target;
+
+		public NodeInspectable(SceneNode2 target) {
+			this.target = target;
+		}
+
+		@Override
+		public Object getTarget() {
+			return target;
+		}
+
+		@Override
+		public PropertiesContainer<?> createPropertiesContainer(Composite parent, FormToolkit toolkit) {
+			return new NodePropertiesContainer(parent, SWT.NONE);
+		}
 	}
 }

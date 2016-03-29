@@ -1,5 +1,8 @@
 package com.gurella.studio.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -41,6 +44,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
+import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
@@ -50,6 +54,7 @@ public class GurellaEditor extends EditorPart {
 	private SceneEditorMainContainer mainContainer;
 	private SceneHierarchyView sceneHierarchyView;
 	private InspectorView inspectorView;
+	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
 	private LocalResourceManager resourceManager;
 	private FormToolkit toolkit;
@@ -112,7 +117,9 @@ public class GurellaEditor extends EditorPart {
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
+		registeredViews.add(sceneHierarchyView);
 		inspectorView = new InspectorView(this, SWT.RIGHT);
+		registeredViews.add(inspectorView);
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
@@ -204,5 +211,13 @@ public class GurellaEditor extends EditorPart {
 	public void setDirty() {
 		dirty = true;
 		firePropertyChange(PROP_DIRTY);
+	}
+
+	public void postMessage(SceneEditorView source, Object message, Object[] additionalData) {
+		for (SceneEditorView view : registeredViews) {
+			if (source != view) {
+				view.handleMessage(source, message, additionalData);
+			}
+		}
 	}
 }
