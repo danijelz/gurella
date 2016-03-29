@@ -38,16 +38,17 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
-import com.gurella.studio.editor.scene.SceneGraphView;
+import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart {
 	private SwtLwjglApplication application;
 
 	private SceneEditorMainContainer mainContainer;
-	private SceneGraphView sceneGraphView;
+	private SceneHierarchyView sceneHierarchyView;
 
 	private Scene scene;
+	boolean dirty;
 
 	public GurellaEditor() {
 	}
@@ -67,6 +68,8 @@ public class GurellaEditor extends EditorPart {
 			buffer.getDocument().set(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 			buffer.commit(monitor, true);
 			manager.disconnect(path, LocationKind.IFILE, monitor);
+			dirty = false;
+			firePropertyChange(PROP_DIRTY);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		} finally {
@@ -86,8 +89,7 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public boolean isDirty() {
-		// TODO Auto-generated method stub
-		return true;
+		return dirty;
 	}
 
 	@Override
@@ -100,7 +102,7 @@ public class GurellaEditor extends EditorPart {
 		parent.setLayout(new GridLayout());
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		sceneGraphView = new SceneGraphView(mainContainer, SWT.LEFT);
+		sceneHierarchyView = new SceneHierarchyView(this, mainContainer, SWT.LEFT);
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
@@ -121,7 +123,6 @@ public class GurellaEditor extends EditorPart {
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallback<Scene>() {
-
 			@Override
 			public void onSuccess(Scene scene) {
 				presentScene(scene);
@@ -147,8 +148,8 @@ public class GurellaEditor extends EditorPart {
 
 	private void presentScene(Scene scene) {
 		this.scene = scene;
-		System.out.println("loaded");
-		sceneGraphView.present(scene);
+		dirty = false;
+		sceneHierarchyView.present(scene);
 	}
 
 	@Override
@@ -174,5 +175,10 @@ public class GurellaEditor extends EditorPart {
 			Gdx.gl.glClearStencil(0);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		}
+	}
+
+	public void setDirty() {
+		dirty = true;
+		firePropertyChange(PROP_DIRTY);
 	}
 }
