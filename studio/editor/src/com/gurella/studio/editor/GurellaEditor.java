@@ -62,6 +62,10 @@ public class GurellaEditor extends EditorPart {
 	private Scene scene;
 	boolean dirty;
 
+	private IProject project;
+
+	private IJavaProject javaProject;
+
 	public GurellaEditor() {
 	}
 
@@ -124,9 +128,9 @@ public class GurellaEditor extends EditorPart {
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
 		IResource resource = getEditorInput().getAdapter(IResource.class);
-		IProject project = resource.getProject();
-
-		IJavaProject javaProject = JavaCore.create(project);
+		project = resource.getProject();
+		javaProject = JavaCore.create(project);
+		
 		try {
 			IType lwType = javaProject.findType("java.util.ArrayList");
 			IField[] fields = lwType.getFields();

@@ -135,6 +135,34 @@ public class SceneHierarchyView extends SceneEditorView {
 		System.out.println("layout");
 	}
 
+	@Override
+	public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
+		if (message instanceof NodeNameChangedMessage) {
+			SceneNode2 node = ((NodeNameChangedMessage) message).node;
+			for (TreeItem item : graph.getItems()) {
+				TreeItem found = findItem(item, node);
+				if (found != null) {
+					found.setText(node.getName());
+				}
+			}
+		}
+	}
+
+	private TreeItem findItem(TreeItem item, SceneNode2 node) {
+		if (item.getData() == node) {
+			return item;
+		}
+
+		for (TreeItem child : item.getItems()) {
+			TreeItem found = findItem(child, node);
+			if (found != null) {
+				return found;
+			}
+		}
+
+		return null;
+	}
+
 	private static class NodeInspectable implements Inspectable {
 		SceneNode2 target;
 
@@ -148,8 +176,9 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		@Override
-		public PropertiesContainer<?> createPropertiesContainer(Composite parent, FormToolkit toolkit) {
-			return new NodePropertiesContainer(parent, SWT.NONE);
+		public PropertiesContainer<?> createPropertiesContainer(GurellaEditor editor, Composite parent,
+				FormToolkit toolkit) {
+			return new NodePropertiesContainer(editor, parent, SWT.NONE);
 		}
 	}
 }
