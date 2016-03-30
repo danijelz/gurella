@@ -88,7 +88,7 @@ public class GurellaEditor extends EditorPart {
 		JsonOutput output = new JsonOutput();
 		String string = output.serialize(Scene.class, scene);
 		try {
-			monitor.beginTask("", 2000);
+			monitor.beginTask("Saving", 2000);
 			ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 			manager.connect(path, LocationKind.IFILE, monitor);
 			ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);
@@ -151,7 +151,7 @@ public class GurellaEditor extends EditorPart {
 			for (int i = 0; i < classPathEntries.length; i++) {
 			 String entry = classPathEntries[i];
 			 IPath path = new Path(entry);
-			 URL url = url = path.toFile().toURI().toURL();
+			 URL url = path.toFile().toURI().toURL();
 			 urlList.add(url);
 			}
 			
