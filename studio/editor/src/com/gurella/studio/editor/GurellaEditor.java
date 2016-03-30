@@ -158,7 +158,7 @@ public class GurellaEditor extends EditorPart {
 			JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
 			//CompilationResult result = compiler.compile(null, new FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
 			ClassLoader parentClassLoader = project.getClass().getClassLoader();
-			URL[] urls = (URL[]) urlList.toArray(new URL[urlList.size()]);
+			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			URLClassLoader classLoader = new URLClassLoader(urls, parentClassLoader);
 			//classLoader.loadClass("test.Test");
 			IType lwType = javaProject.findType("test.Test");
