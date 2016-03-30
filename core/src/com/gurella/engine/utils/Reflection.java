@@ -34,9 +34,7 @@ public class Reflection {
 
 	public static <T> Class<T> forNameSilently(String className) {
 		try {
-			@SuppressWarnings("unchecked")
-			Class<T> resourceType = ClassReflection.forName(className);
-			return resourceType;
+			return forName(className);
 		} catch (Exception e) {
 			return null;
 		}

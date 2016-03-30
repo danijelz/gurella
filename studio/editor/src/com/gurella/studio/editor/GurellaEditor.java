@@ -1,8 +1,16 @@
 package com.gurella.studio.editor;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.jci.compilers.CompilationResult;
+import org.apache.commons.jci.compilers.JavaCompiler;
+import org.apache.commons.jci.compilers.JavaCompilerFactory;
+import org.apache.commons.jci.readers.FileResourceReader;
+import org.apache.commons.jci.stores.MemoryResourceStore;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -12,11 +20,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -132,12 +143,32 @@ public class GurellaEditor extends EditorPart {
 		javaProject = JavaCore.create(project);
 		
 		try {
-			IType lwType = javaProject.findType("java.util.ArrayList");
+			IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
+			IPackageFragmentRoot root = roots[0];
+			
+			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
+			List<URL> urlList = new ArrayList<URL>();
+			for (int i = 0; i < classPathEntries.length; i++) {
+			 String entry = classPathEntries[i];
+			 IPath path = new Path(entry);
+			 URL url = url = path.toFile().toURI().toURL();
+			 urlList.add(url);
+			}
+			
+			JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
+			//CompilationResult result = compiler.compile(null, new FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
+			ClassLoader parentClassLoader = project.getClass().getClassLoader();
+			URL[] urls = (URL[]) urlList.toArray(new URL[urlList.size()]);
+			URLClassLoader classLoader = new URLClassLoader(urls, parentClassLoader);
+			//classLoader.loadClass("test.Test");
+			IType lwType = javaProject.findType("test.Test");
+			
+			//Class.forName("test.Test")
 			IField[] fields = lwType.getFields();
 			for (IField iField : fields) {
 				iField.getElementName();
 			}
-		} catch (JavaModelException e) {
+		} catch (MalformedURLException | CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
