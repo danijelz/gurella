@@ -206,7 +206,7 @@ public class GurellaEditor extends EditorPart {
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).update();
 			}
-			Gdx.gl.glClearColor(0, 1, 0, 1);
+			Gdx.gl.glClearColor(1, 1, 1, 1);
 			Gdx.gl.glClearStencil(0);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		}
