@@ -102,7 +102,7 @@ public class SwtLwjglApplication implements Application {
 
 		graphics.lastTime = System.nanoTime();
 
-		GLCanvas glCanvas = graphics.getGlCanvas();
+		final GLCanvas glCanvas = graphics.getGlCanvas();
 		glCanvas.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
