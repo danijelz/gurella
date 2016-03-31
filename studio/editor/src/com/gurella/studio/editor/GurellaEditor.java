@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
@@ -146,8 +145,8 @@ public class GurellaEditor extends EditorPart {
 		javaProject = JavaCore.create(project);
 
 		try {
-			IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
-			IPackageFragmentRoot root = roots[0];
+			/*IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
+			IPackageFragmentRoot root = roots[0];*/
 
 			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
 			List<URL> urlList = new ArrayList<URL>();

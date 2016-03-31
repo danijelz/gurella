@@ -5,11 +5,15 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -26,6 +30,7 @@ import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Text nameText;
 	private Button enabledCheck;
+	private Button menuButton;
 	private Composite componentsPropertiesComposite;
 	private Array<ModelPropertiesContainer<?>> componentContainers = new Array<>();
 
@@ -38,7 +43,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	private void init(FormToolkit toolkit, final SceneNode2 node) {
 		toolkit.adapt(this);
-		GridLayout layout = new GridLayout(3, false);
+		GridLayout layout = new GridLayout(4, false);
 		layout.marginWidth = 0;
 		getBody().setLayout(layout);
 
@@ -67,12 +72,27 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			}
 		});
 
+		menuButton = toolkit.createButton(getBody(), "", SWT.ARROW | SWT.DOWN);
+		menuButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Menu menu = new Menu(getShell(), SWT.POP_UP);
+				MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+				item1.setText("Add component");
+				Point loc = menuButton.getLocation();
+				Rectangle rect = menuButton.getBounds();
+				Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
+				menu.setLocation(getDisplay().map(menuButton.getParent(), null, mLoc));
+				menu.setVisible(true);
+			}
+		});
+
 		componentsPropertiesComposite = toolkit.createComposite(getBody());
 		GridLayout componentsLayout = new GridLayout(1, false);
 		componentsLayout.marginHeight = 0;
 		componentsLayout.marginWidth = 0;
 		componentsPropertiesComposite.setLayout(componentsLayout);
-		componentsPropertiesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+		componentsPropertiesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 		initComponentContainers(toolkit);
 		layout(true, true);
 	}
