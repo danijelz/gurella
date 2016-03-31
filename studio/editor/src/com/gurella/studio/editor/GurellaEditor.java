@@ -49,7 +49,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.InspectorView;
-import com.gurella.studio.editor.scene.ProjectView;
+import com.gurella.studio.editor.scene.ProjectExplorerView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
@@ -61,7 +61,7 @@ public class GurellaEditor extends EditorPart {
 	private SceneEditorMainContainer mainContainer;
 	private SceneHierarchyView sceneHierarchyView;
 	private InspectorView inspectorView;
-	private ProjectView projectView;
+	private ProjectExplorerView projectExplorerView;
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
 	private LocalResourceManager resourceManager;
@@ -71,7 +71,6 @@ public class GurellaEditor extends EditorPart {
 	boolean dirty;
 
 	private IProject project;
-
 	private IJavaProject javaProject;
 
 	public GurellaEditor() {
@@ -127,22 +126,22 @@ public class GurellaEditor extends EditorPart {
 		toolkit = new FormToolkit(parent.getDisplay());
 		resourceManager = new LocalResourceManager(null, parent);
 
+		IResource resource = getEditorInput().getAdapter(IResource.class);
+		project = resource.getProject();
+		javaProject = JavaCore.create(project);
+
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
-		projectView = new ProjectView(this, SWT.LEFT);
-		registeredViews.add(projectView);
+		projectExplorerView = new ProjectExplorerView(this, SWT.LEFT);
+		registeredViews.add(projectExplorerView);
 		inspectorView = new InspectorView(this, SWT.RIGHT);
 		registeredViews.add(inspectorView);
 
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
-
-		IResource resource = getEditorInput().getAdapter(IResource.class);
-		project = resource.getProject();
-		javaProject = JavaCore.create(project);
 
 		try {
 			/*IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
@@ -216,6 +215,14 @@ public class GurellaEditor extends EditorPart {
 
 	public SceneEditorMainContainer getMainContainer() {
 		return mainContainer;
+	}
+
+	public IProject getProject() {
+		return project;
+	}
+
+	public IJavaProject getJavaProject() {
+		return javaProject;
 	}
 
 	@Override
