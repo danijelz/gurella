@@ -4,6 +4,8 @@ import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -18,6 +20,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
@@ -38,13 +41,29 @@ public class SceneHierarchyView extends SceneEditorView {
 			public void handleEvent(Event e) {
 				TreeItem[] selection = graph.getSelection();
 				if (selection.length > 0) {
-					NodeInspectable inspectable = new NodeInspectable((SceneNode2) selection[0].getData());
-					postMessage(new SelectionMessage(inspectable));
+					Object data = selection[0].getData();
+					if (data instanceof SceneNode2) {
+						postMessage(new SelectionMessage(new NodeInspectable((SceneNode2) data)));
+					} else {
+						postMessage(new SelectionMessage(new ComponentInspectable((SceneNodeComponent2) data)));
+					}
 				}
 			}
 		});
 
 		menu = new Menu(graph);
+		menu.addMenuListener(new MenuAdapter() {
+			@Override
+			public void menuShown(MenuEvent e) {
+				TreeItem[] selection = graph.getSelection();
+				if (selection.length > 0) {
+					TreeItem treeItem = selection[0];
+					menu.setEnabled(treeItem.getData() instanceof SceneNode2);
+				} else {
+					menu.setEnabled(false);
+				}
+			}
+		});
 		MenuItem item = new MenuItem(menu, 0);
 		item.setText("Add Node");
 		item.addSelectionListener(new SelectionAdapter() {
@@ -71,7 +90,8 @@ public class SceneHierarchyView extends SceneEditorView {
 						nodeItem.setText(node.getName());
 					} else {
 						TreeItem seectedItem = selection[0];
-						SceneNode2 node = (SceneNode2) seectedItem.getData();
+						Object data = seectedItem.getData();
+						SceneNode2 node = (SceneNode2) data;
 						SceneNode2 child = node.newChild(dlg.getValue());
 						TreeItem nodeItem = new TreeItem(seectedItem, 0);
 						nodeItem.setData(child);
@@ -122,7 +142,16 @@ public class SceneHierarchyView extends SceneEditorView {
 			TreeItem nodeItem = parentItem == null ? new TreeItem(graph, 0) : new TreeItem(parentItem, 0);
 			nodeItem.setText(node.getName());
 			nodeItem.setData(node);
+			addComponents(nodeItem, node);
 			addNodes(nodeItem, node);
+		}
+	}
+
+	private static void addComponents(TreeItem parentItem, SceneNode2 node) {
+		for (SceneNodeComponent2 component : node.components) {
+			TreeItem nodeItem = new TreeItem(parentItem, 0);
+			nodeItem.setText(component.getClass().getSimpleName());
+			nodeItem.setData(component);
 		}
 	}
 
@@ -176,6 +205,25 @@ public class SceneHierarchyView extends SceneEditorView {
 		@Override
 		public PropertiesContainer<SceneNode2> createPropertiesContainer(InspectorView parent, SceneNode2 target) {
 			return new NodePropertiesContainer(parent, target);
+		}
+	}
+
+	private static class ComponentInspectable implements Inspectable<SceneNodeComponent2> {
+		SceneNodeComponent2 target;
+
+		public ComponentInspectable(SceneNodeComponent2 target) {
+			this.target = target;
+		}
+
+		@Override
+		public SceneNodeComponent2 getTarget() {
+			return target;
+		}
+
+		@Override
+		public PropertiesContainer<SceneNodeComponent2> createPropertiesContainer(InspectorView parent,
+				SceneNodeComponent2 target) {
+			return new ComponentPropertiesContainer(parent, target);
 		}
 	}
 }
