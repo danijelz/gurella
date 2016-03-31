@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
@@ -15,6 +16,7 @@ import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.utils.ImmutableArray;
 
+@ModelDescriptor(descriptiveName = "Transform")
 public class TransformComponent extends SceneNodeComponent2 implements Poolable {
 	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
 	private static final Object mutex = new Object();
