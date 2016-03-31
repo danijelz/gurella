@@ -56,11 +56,9 @@ public class SceneHierarchyView extends SceneEditorView {
 			@Override
 			public void menuShown(MenuEvent e) {
 				TreeItem[] selection = graph.getSelection();
-				if (selection.length > 0) {
-					TreeItem treeItem = selection[0];
-					menu.setEnabled(treeItem.getData() instanceof SceneNode2);
-				} else {
-					menu.setEnabled(false);
+				boolean enabled = selection.length > 0 ? selection[0].getData() instanceof SceneNode2 : true;
+				for(MenuItem item : menu.getItems()) {
+					item.setEnabled(enabled);
 				}
 			}
 		});
