@@ -8,14 +8,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
@@ -54,15 +52,15 @@ public class SceneHierarchyView extends SceneEditorView {
 			public void widgetSelected(SelectionEvent e) {
 				InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
 						new IInputValidator() {
-					@Override
-					public String isValid(String newText) {
-						if (newText.length() < 3) {
-							return "Too short";
-						} else {
-							return null;
-						}
-					}
-				});
+							@Override
+							public String isValid(String newText) {
+								if (newText.length() < 3) {
+									return "Too short";
+								} else {
+									return null;
+								}
+							}
+						});
 
 				if (dlg.open() == Window.OK) {
 					TreeItem[] selection = graph.getSelection();
@@ -163,7 +161,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		return null;
 	}
 
-	private static class NodeInspectable implements Inspectable {
+	private static class NodeInspectable implements Inspectable<SceneNode2> {
 		SceneNode2 target;
 
 		public NodeInspectable(SceneNode2 target) {
@@ -171,14 +169,13 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		@Override
-		public Object getTarget() {
+		public SceneNode2 getTarget() {
 			return target;
 		}
 
 		@Override
-		public PropertiesContainer<?> createPropertiesContainer(GurellaEditor editor, Composite parent,
-				FormToolkit toolkit) {
-			return new NodePropertiesContainer(editor, parent, SWT.NONE);
+		public PropertiesContainer<SceneNode2> createPropertiesContainer(InspectorView parent, SceneNode2 target) {
+			return new NodePropertiesContainer(parent, target);
 		}
 	}
 }

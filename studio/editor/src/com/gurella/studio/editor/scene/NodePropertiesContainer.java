@@ -12,40 +12,48 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.Section;
 
+import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Text nameText;
 	private Button enabledCheck;
 	private Composite componentsPropertiesComposite;
+	private Array<ModelPropertiesContainer<?>> componentContainers = new Array<>();
 
-	public NodePropertiesContainer(GurellaEditor editor, Composite parent, int style) {
-		super(editor, parent, style);
+	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
+		super(parent, target);
+		setExpandHorizontal(true);
+		setMinWidth(200);
+		init(getToolkit(), target);
 	}
 
-	@Override
-	protected void init(FormToolkit toolkit, final SceneNode2 node) {
+	private void init(FormToolkit toolkit, final SceneNode2 node) {
 		toolkit.adapt(this);
 		getBody().setLayout(new GridLayout(3, false));
-		
+
 		Label nameLabel = toolkit.createLabel(getBody(), "Name: ");
 		nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
-		
+
 		nameText = toolkit.createText(getBody(), node.getName());
 		nameText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, true));
 		nameText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				node.setName(nameText.getText());
-				editor.setDirty();
+				setDirty();
 				postMessage(new NodeNameChangedMessage(node));
 			}
 		});
-		
+
 		enabledCheck = toolkit.createButton(getBody(), "Enabled", SWT.CHECK);
 		enabledCheck.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 		enabledCheck.setSelection(node.isEnabled());
@@ -53,18 +61,31 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				node.setEnabled(enabledCheck.getSelection());
-				editor.setDirty();
+				setDirty();
 			}
 		});
-		
+
 		componentsPropertiesComposite = toolkit.createComposite(getBody());
+		componentsPropertiesComposite.setLayout(new GridLayout(1, false));
 		componentsPropertiesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 		componentsPropertiesComposite.setBackground(new Color(getDisplay(), 100, 0, 100));
+		initComponentContainers(toolkit);
+		layout(true, true);
 	}
 
-	@Override
-	public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
-		// TODO Auto-generated method stub
-		super.handleMessage(source, message, additionalData);
+	private void initComponentContainers(FormToolkit toolkit) {
+		ImmutableArray<SceneNodeComponent2> components = target.components;
+		for (int i = 0; i < components.size(); i++) {
+			SceneNodeComponent2 component = components.get(i);
+			Section componentSection = toolkit.createSection(componentsPropertiesComposite,
+					ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
+			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+			componentSection.setExpanded(true);
+			componentSection.setText(component.getClass().getSimpleName());
+			ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<SceneNodeComponent2>(
+					getGurellaEditor(), componentSection, component);
+			componentSection.setClient(propertiesContainer);
+			componentContainers.add(propertiesContainer);
+		}
 	}
 }

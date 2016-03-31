@@ -12,7 +12,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaEditor;
 
 public class InspectorView extends SceneEditorView {
-	private Object current;
+	private Object currentTarget;
 	private PropertiesContainer<Object> currentContainer;
 
 	public InspectorView(GurellaEditor editor, int style) {
@@ -26,52 +26,83 @@ public class InspectorView extends SceneEditorView {
 		if (message instanceof SelectionMessage) {
 			Object seclection = ((SelectionMessage) message).seclection;
 			if (seclection instanceof Inspectable) {
-				Inspectable inspectable = (Inspectable) seclection;
-				if (current != inspectable.getTarget()) {
-					if (currentContainer != null) {
-						currentContainer.dispose();
-						currentContainer = null;
-					}
+				presentInspectable(Values.cast(seclection));
+			} else {
+				clearCurrentSelection();
+			}
+		}
+	}
 
-					current = inspectable.getTarget();
-					if (current != null) {
-						currentContainer = Values
-								.cast(inspectable.createPropertiesContainer(editor, this, editor.getToolkit()));
-						if (currentContainer != null) {
-							currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-							currentContainer.init(editor.getToolkit(), current);
-							layout(true, true);
-							currentContainer.layout(true, true);
-						}
-					}
+	private <T> void presentInspectable(Inspectable<T> inspectable) {
+		if (currentTarget != inspectable.getTarget()) {
+			clearCurrentSelection();
+			currentTarget = inspectable.getTarget();
+			
+			if (currentTarget != null) {
+				currentContainer = Values.cast(inspectable.createPropertiesContainer(this, inspectable.getTarget()));
+				if (currentContainer != null) {
+					currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+					layout(true, true);
+					currentContainer.layout(true, true);
 				}
 			}
 		}
 	}
 
-	public interface Inspectable {
-		Object getTarget();
+	private void clearCurrentSelection() {
+		currentTarget = null;
+		if (currentContainer != null) {
+			currentContainer.dispose();
+			currentContainer = null;
+		}
+	}
 
-		PropertiesContainer<?> createPropertiesContainer(GurellaEditor editor, Composite parent, FormToolkit toolkit);
+	public interface Inspectable<T> {
+		T getTarget();
+
+		PropertiesContainer<T> createPropertiesContainer(InspectorView parent, T target);
 	}
 
 	public static abstract class PropertiesContainer<T> extends ScrolledForm {
-		protected GurellaEditor editor;
-		protected InspectorView inspectorView;
+		protected T target;
 
-		public PropertiesContainer(GurellaEditor editor, Composite parent, int style) {
-			super(parent, style);
-			this.editor = editor;
+		public PropertiesContainer(InspectorView parent, T target) {
+			super(parent, SWT.NONE);
+			this.target = target;
+		}
+
+		@Override
+		public InspectorView getParent() {
+			return (InspectorView) super.getParent();
+		}
+
+		@Override
+		public boolean setParent(Composite parent) {
+			if (parent instanceof InspectorView) {
+				return super.setParent(parent);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+		public GurellaEditor getGurellaEditor() {
+			return getParent().editor;
 		}
 
 		protected final void postMessage(Object message, Object... additionalData) {
-			editor.postMessage(inspectorView, message, additionalData);
+			getParent().postMessage(message, additionalData);
 		}
-		
+
 		@SuppressWarnings("unused")
 		public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
 		}
 
-		protected abstract void init(FormToolkit toolkit, T object);
+		protected void setDirty() {
+			getGurellaEditor().setDirty();
+		}
+
+		protected FormToolkit getToolkit() {
+			return getGurellaEditor().getToolkit();
+		}
 	}
 }

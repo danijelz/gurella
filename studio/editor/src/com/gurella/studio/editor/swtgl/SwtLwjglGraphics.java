@@ -390,4 +390,8 @@ public class SwtLwjglGraphics implements Graphics {
 			super(virtualX, virtualY, name);
 		}
 	}
+
+	public void dispose() {
+		glCanvas.dispose();
+	}
 }

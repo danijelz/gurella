@@ -114,8 +114,11 @@ public class SwtLwjglApplication implements Application {
 					l.dispose();
 				}
 
-				if (audio != null)
+				if (audio != null) {
 					audio.dispose();
+				}
+				
+				graphics.dispose();
 			}
 		});
 

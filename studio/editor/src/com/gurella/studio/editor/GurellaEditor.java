@@ -226,7 +226,7 @@ public class GurellaEditor extends EditorPart {
 		super.dispose();
 		toolkit.dispose();
 		resourceManager.dispose();
-		//TODO center.dispose();
+		application.exit();
 	}
 
 	private final class SceneEditorApplicationAdapter extends ApplicationAdapter {
