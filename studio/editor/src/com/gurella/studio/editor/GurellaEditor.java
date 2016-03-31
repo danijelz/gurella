@@ -6,11 +6,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.jci.compilers.CompilationResult;
 import org.apache.commons.jci.compilers.JavaCompiler;
 import org.apache.commons.jci.compilers.JavaCompilerFactory;
-import org.apache.commons.jci.readers.FileResourceReader;
-import org.apache.commons.jci.stores.MemoryResourceStore;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -26,7 +23,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.SWT;
@@ -54,6 +50,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.InspectorView;
+import com.gurella.studio.editor.scene.ProjectView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
@@ -65,6 +62,7 @@ public class GurellaEditor extends EditorPart {
 	private SceneEditorMainContainer mainContainer;
 	private SceneHierarchyView sceneHierarchyView;
 	private InspectorView inspectorView;
+	private ProjectView projectView;
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
 	private LocalResourceManager resourceManager;
@@ -129,32 +127,37 @@ public class GurellaEditor extends EditorPart {
 		parent.setLayout(new GridLayout());
 		toolkit = new FormToolkit(parent.getDisplay());
 		resourceManager = new LocalResourceManager(null, parent);
+
 		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
 		sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
+		projectView = new ProjectView(this, SWT.LEFT);
+		registeredViews.add(projectView);
 		inspectorView = new InspectorView(this, SWT.RIGHT);
 		registeredViews.add(inspectorView);
+
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		project = resource.getProject();
 		javaProject = JavaCore.create(project);
-		
+
 		try {
 			IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
 			IPackageFragmentRoot root = roots[0];
-			
+
 			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
 			List<URL> urlList = new ArrayList<URL>();
 			for (int i = 0; i < classPathEntries.length; i++) {
-			 String entry = classPathEntries[i];
-			 IPath path = new Path(entry);
-			 URL url = path.toFile().toURI().toURL();
-			 urlList.add(url);
+				String entry = classPathEntries[i];
+				IPath path = new Path(entry);
+				URL url = path.toFile().toURI().toURL();
+				urlList.add(url);
 			}
-			
+
 			JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
 			//CompilationResult result = compiler.compile(null, new FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
 			ClassLoader parentClassLoader = project.getClass().getClassLoader();
@@ -162,7 +165,7 @@ public class GurellaEditor extends EditorPart {
 			URLClassLoader classLoader = new URLClassLoader(urls, parentClassLoader);
 			//classLoader.loadClass("test.Test");
 			IType lwType = javaProject.findType("test.Test");
-			
+
 			//Class.forName("test.Test")
 			IField[] fields = lwType.getFields();
 			for (IField iField : fields) {
@@ -224,6 +227,7 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void dispose() {
 		super.dispose();
+		ResourceService.unload(scene);
 		toolkit.dispose();
 		resourceManager.dispose();
 		application.exit();
