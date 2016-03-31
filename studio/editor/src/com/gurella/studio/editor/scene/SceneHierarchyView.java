@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -34,7 +35,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
 		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		graph.setHeaderVisible(true);
+		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -148,7 +149,7 @@ public class SceneHierarchyView extends SceneEditorView {
 	private static void addComponents(TreeItem parentItem, SceneNode2 node) {
 		for (SceneNodeComponent2 component : node.components) {
 			TreeItem nodeItem = new TreeItem(parentItem, 0);
-			nodeItem.setText(component.getClass().getSimpleName());
+			nodeItem.setText(Models.getModel(component).getName());
 			nodeItem.setData(component);
 		}
 	}

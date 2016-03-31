@@ -4,6 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.badlogic.gdx.utils.Array;
@@ -27,7 +28,10 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 		this.model = Models.getModel(instance);
 		setExpandHorizontal(true);
 		editor.getToolkit().adapt(this);
-		getBody().setLayout(new GridLayout(2, false));
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		getBody().setLayout(layout);
 		initEditors();
 		layout(true, true);
 	}
@@ -36,15 +40,13 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 		ImmutableArray<Property<?>> properties = model.getProperties();
 		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			editor.getToolkit().createLabel(getBody(), property.getDescriptiveName() + ":");
-			PropertyEditor<?> propertyEditor = createEditor(property);
+			Label label = editor.getToolkit().createLabel(getBody(), property.getDescriptiveName() + ":");
+			label.setAlignment(SWT.RIGHT);
+			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
+			PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(this, property);
 			propertyEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 			propertyEditor.pack();
 			editors.add(propertyEditor);
 		}
-	}
-
-	private <V> PropertyEditor<V> createEditor(Property<V> property) {
-		return new DefaultPropertyEditor<>(this, property);
 	}
 }

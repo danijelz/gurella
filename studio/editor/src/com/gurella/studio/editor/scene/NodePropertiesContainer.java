@@ -5,7 +5,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -17,6 +16,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableArray;
@@ -38,12 +38,14 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	private void init(FormToolkit toolkit, final SceneNode2 node) {
 		toolkit.adapt(this);
-		getBody().setLayout(new GridLayout(3, false));
+		GridLayout layout = new GridLayout(3, false);
+		layout.marginWidth = 0;
+		getBody().setLayout(layout);
 
 		Label nameLabel = toolkit.createLabel(getBody(), "Name: ");
 		nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
-		nameText = toolkit.createText(getBody(), node.getName());
+		nameText = toolkit.createText(getBody(), node.getName(), SWT.BORDER);
 		nameText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, true));
 		nameText.addModifyListener(new ModifyListener() {
 			@Override
@@ -66,9 +68,11 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		});
 
 		componentsPropertiesComposite = toolkit.createComposite(getBody());
-		componentsPropertiesComposite.setLayout(new GridLayout(1, false));
+		GridLayout componentsLayout = new GridLayout(1, false);
+		componentsLayout.marginHeight = 0;
+		componentsLayout.marginWidth = 0;
+		componentsPropertiesComposite.setLayout(componentsLayout);
 		componentsPropertiesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
-		componentsPropertiesComposite.setBackground(new Color(getDisplay(), 100, 0, 100));
 		initComponentContainers(toolkit);
 		layout(true, true);
 	}
@@ -81,8 +85,8 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 					ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
 			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 			componentSection.setExpanded(true);
-			componentSection.setText(component.getClass().getSimpleName());
-			ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<SceneNodeComponent2>(
+			componentSection.setText(Models.getModel(component).getName());
+			ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<>(
 					getGurellaEditor(), componentSection, component);
 			componentSection.setClient(propertiesContainer);
 			componentContainers.add(propertiesContainer);

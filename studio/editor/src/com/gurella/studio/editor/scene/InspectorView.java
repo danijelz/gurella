@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.scene;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -17,8 +16,10 @@ public class InspectorView extends SceneEditorView {
 
 	public InspectorView(GurellaEditor editor, int style) {
 		super(editor, "Inspector", null, style);
-		setLayout(new GridLayout());
-		setBackground(new Color(getDisplay(), 0, 100, 100));
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		setLayout(layout);
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class InspectorView extends SceneEditorView {
 		if (message instanceof SelectionMessage) {
 			Object seclection = ((SelectionMessage) message).seclection;
 			if (seclection instanceof Inspectable) {
-				presentInspectable(Values.cast(seclection));
+				presentInspectable(Values.<Inspectable<Object>> cast(seclection));
 			} else {
 				clearCurrentSelection();
 			}
@@ -37,7 +38,7 @@ public class InspectorView extends SceneEditorView {
 		if (currentTarget != inspectable.getTarget()) {
 			clearCurrentSelection();
 			currentTarget = inspectable.getTarget();
-			
+
 			if (currentTarget != null) {
 				currentContainer = Values.cast(inspectable.createPropertiesContainer(this, inspectable.getTarget()));
 				if (currentContainer != null) {
@@ -67,7 +68,7 @@ public class InspectorView extends SceneEditorView {
 		protected T target;
 
 		public PropertiesContainer(InspectorView parent, T target) {
-			super(parent, SWT.NONE);
+			super(parent, SWT.BORDER);
 			this.target = target;
 		}
 
