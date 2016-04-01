@@ -16,8 +16,6 @@ public class ComponentPropertiesContainer extends PropertiesContainer<SceneNodeC
 	public ComponentPropertiesContainer(InspectorView parent, SceneNodeComponent2 target) {
 		super(parent, target);
 		setText(Models.getModel(target).getName());
-		setExpandHorizontal(true);
-		setMinWidth(200);
 		getToolkit().adapt(this);
 		getBody().setLayout(new GridLayout(3, false));
 		Label separator = getToolkit().createSeparator(getBody(), SWT.NONE | SWT.HORIZONTAL);

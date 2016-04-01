@@ -8,13 +8,20 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.inspector.TexturePropertiesContainer;
+import com.gurella.studio.editor.inspector.TexturePropertiesContainer.TextureResource;
+import com.gurella.studio.editor.scene.InspectorView.Inspectable;
+import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class ProjectExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -22,7 +29,8 @@ public class ProjectExplorerView extends SceneEditorView {
 	private Tree graph;
 
 	public ProjectExplorerView(GurellaEditor editor, int style) {
-		super(editor, "Project explorer", PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER), style);
+		super(editor, "Project explorer",
+				PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER), style);
 
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
@@ -40,6 +48,22 @@ public class ProjectExplorerView extends SceneEditorView {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		graph.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				TreeItem[] selection = graph.getSelection();
+				if (selection.length > 0) {
+					Object data = selection[0].getData();
+					if (data instanceof IFile) {
+						IFile file = (IFile) data;
+						if (AssetType.texture.containsExtension(file.getFileExtension())) {
+							postMessage(new SelectionMessage(new TextureInspectable(file)));
+						}
+					}
+				}
+			}
+		});
 	}
 
 	private IPath getAssetsRoot() throws CoreException {
@@ -79,6 +103,25 @@ public class ProjectExplorerView extends SceneEditorView {
 			}
 		} else {
 			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
+		}
+	}
+
+	private static class TextureInspectable implements Inspectable<TextureResource> {
+		TextureResource target;
+
+		public TextureInspectable(IFile file) {
+			this.target = new TextureResource(file);
+		}
+
+		@Override
+		public TextureResource getTarget() {
+			return target;
+		}
+
+		@Override
+		public PropertiesContainer<TextureResource> createPropertiesContainer(InspectorView parent,
+				TextureResource target) {
+			return new TexturePropertiesContainer(parent, target);
 		}
 	}
 }

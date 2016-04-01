@@ -77,6 +77,8 @@ public class InspectorView extends SceneEditorView {
 		public PropertiesContainer(InspectorView parent, T target) {
 			super(parent, SWT.BORDER);
 			this.target = target;
+			setExpandHorizontal(true);
+			setMinWidth(200);
 		}
 
 		@Override

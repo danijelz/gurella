@@ -45,4 +45,13 @@ public enum AssetType {
 		this.extensions = extensions;
 		Arrays.sort(this.extensions);
 	}
+
+	public boolean containsExtension(String extension) {
+		for (int i = 0, n = extensions.length; i < n; i++) {
+			if (extensions[i].equals(extension)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

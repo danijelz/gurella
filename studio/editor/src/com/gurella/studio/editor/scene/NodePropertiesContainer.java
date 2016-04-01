@@ -36,8 +36,6 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
-		setExpandHorizontal(true);
-		setMinWidth(200);
 		init(getToolkit(), target);
 	}
 
