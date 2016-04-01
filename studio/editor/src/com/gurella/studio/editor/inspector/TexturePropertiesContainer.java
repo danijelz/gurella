@@ -1,0 +1,94 @@
+package com.gurella.studio.editor.inspector;
+
+import java.io.InputStream;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+
+import com.gurella.studio.editor.scene.InspectorView;
+import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
+
+public class TexturePropertiesContainer extends PropertiesContainer<TexturePropertiesContainer.TextureResource> {
+	private Composite imageComposite;
+	private Image image;
+
+	public TexturePropertiesContainer(InspectorView parent, TextureResource target) {
+		super(parent, target);
+		IFile file = target.file;
+		setText(file.getName());
+		FormToolkit toolkit = getToolkit();
+		Label separator = toolkit.createSeparator(getBody(), SWT.NONE | SWT.HORIZONTAL);
+		getBody().setLayout(new GridLayout(1, false));
+		separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+
+		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER_SOLID);
+		imageComposite.setLayoutData(new GridData(SWT.CENTER, SWT.BEGINNING, false, false));
+		imageComposite.setSize(195, 195);
+		imageComposite.addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				if (image == null) {
+					gc.drawString("No image", 0, 0);
+				} else {
+
+					int imageWidth = image.getBounds().width;
+					int imageHeight = image.getBounds().height;
+					int paneWidth = 200;
+					int paneHeight = 200;
+
+					float widthRatio = (float) imageWidth / (float) paneWidth;
+					float heightRatio = (float) imageHeight / (float) paneHeight;
+
+					if (widthRatio <= 1 && heightRatio <= 1) {
+						gc.drawImage(image, 0, 0);
+					} else {
+						float ratio = Math.max(widthRatio, heightRatio);
+						gc.drawImage(image, 0, 0, imageWidth, imageHeight, 0, 0, (int) (imageWidth * ratio),
+								(int) (imageHeight * ratio));
+					}
+				}
+			}
+		});
+
+		try {
+			InputStream contents = file.getContents(true);
+			image = new Image(getDisplay(), contents);
+			addDisposeListener(new DisposeListener() {
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					if (image != null) {
+						image.dispose();
+					}
+				}
+			});
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		layout(true, true);
+
+	}
+
+	public static class TextureResource {
+		IFile file;
+
+		public TextureResource(IFile file) {
+			super();
+			this.file = file;
+		}
+	}
+}
