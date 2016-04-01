@@ -23,7 +23,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.DeviceResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -64,7 +65,7 @@ public class GurellaEditor extends EditorPart {
 	private ProjectExplorerView projectExplorerView;
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
-	private LocalResourceManager resourceManager;
+	private DeviceResourceManager resourceManager;
 	private FormToolkit toolkit;
 
 	private Scene scene;
@@ -124,7 +125,7 @@ public class GurellaEditor extends EditorPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout());
 		toolkit = new FormToolkit(parent.getDisplay());
-		resourceManager = new LocalResourceManager(null, parent);
+		resourceManager = new DeviceResourceManager(parent.getDisplay());
 
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		project = resource.getProject();
@@ -140,12 +141,16 @@ public class GurellaEditor extends EditorPart {
 		inspectorView = new InspectorView(this, SWT.RIGHT);
 		registeredViews.add(inspectorView);
 
+		mainContainer.setSelection(sceneHierarchyView);
+
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
 		try {
-			/*IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
-			IPackageFragmentRoot root = roots[0];*/
+			/*
+			 * IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots(); IPackageFragmentRoot root =
+			 * roots[0];
+			 */
 
 			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
 			List<URL> urlList = new ArrayList<URL>();
@@ -157,14 +162,15 @@ public class GurellaEditor extends EditorPart {
 			}
 
 			JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
-			//CompilationResult result = compiler.compile(null, new FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
+			// CompilationResult result = compiler.compile(null, new
+			// FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
 			ClassLoader parentClassLoader = project.getClass().getClassLoader();
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			URLClassLoader classLoader = new URLClassLoader(urls, parentClassLoader);
-			//classLoader.loadClass("test.Test");
+			// classLoader.loadClass("test.Test");
 			IType lwType = javaProject.findType("test.Test");
 
-			//Class.forName("test.Test")
+			// Class.forName("test.Test")
 			IField[] fields = lwType.getFields();
 			for (IField iField : fields) {
 				iField.getElementName();
@@ -209,7 +215,7 @@ public class GurellaEditor extends EditorPart {
 		return toolkit;
 	}
 
-	public LocalResourceManager getResourceManager() {
+	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
 

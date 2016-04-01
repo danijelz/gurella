@@ -11,6 +11,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 
 import com.gurella.studio.editor.GurellaEditor;
 
@@ -20,7 +22,7 @@ public class ProjectExplorerView extends SceneEditorView {
 	private Tree graph;
 
 	public ProjectExplorerView(GurellaEditor editor, int style) {
-		super(editor, "Project explorer", null, style);
+		super(editor, "Project explorer", PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER), style);
 
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
@@ -31,9 +33,7 @@ public class ProjectExplorerView extends SceneEditorView {
 			IPath assetsRoot = getAssetsRoot().makeRelativeTo(editor.getProject().getLocation());
 			IResource resource = editor.getProject().findMember(assetsRoot);
 			if (resource instanceof IContainer) {
-				for (IResource member : ((IContainer) resource).members()) {
-					createItems(null, member);
-				}
+				createItems(null, resource);
 			}
 		} catch (CoreException e) {
 			graph.dispose();
@@ -73,9 +73,12 @@ public class ProjectExplorerView extends SceneEditorView {
 		nodeItem.setData(resource);
 
 		if (resource instanceof IContainer) {
+			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
 			for (IResource member : ((IContainer) resource).members()) {
 				createItems(nodeItem, member);
 			}
+		} else {
+			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 		}
 	}
 }

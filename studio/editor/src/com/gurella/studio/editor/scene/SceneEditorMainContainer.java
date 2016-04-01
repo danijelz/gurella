@@ -251,6 +251,12 @@ public class SceneEditorMainContainer extends Composite {
 		}
 	}
 
+	public void setSelection(Control control) {
+		east.setSelection(control);
+		west.setSelection(control);
+		south.setSelection(control);
+	}
+
 	public static void main(String[] args) {
 		Display display = new Display();
 		final Shell shell = new Shell(display);
@@ -672,6 +678,14 @@ public class SceneEditorMainContainer extends Composite {
 			layoutParent();
 
 			return index;
+		}
+
+		private void setSelection(Control control) {
+			for (CTabItem item : tabFolder.getItems()) {
+				if (item.getControl() == control) {
+					tabFolder.setSelection(item);
+				}
+			}
 		}
 
 		private final class DragListener implements Listener {

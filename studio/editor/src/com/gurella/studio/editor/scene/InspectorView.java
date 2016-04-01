@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.scene;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -9,17 +10,23 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class InspectorView extends SceneEditorView {
 	private Object currentTarget;
 	private PropertiesContainer<Object> currentContainer;
 
 	public InspectorView(GurellaEditor editor, int style) {
-		super(editor, "Inspector", null, style);
+		super(editor, "Inspector", getImage(editor), style);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
+	}
+
+	private static Image getImage(GurellaEditor editor) {
+		return editor.getResourceManager()
+				.createImage(GurellaStudioPlugin.getImageDescriptor("icons/showproperties_obj.gif"));
 	}
 
 	@Override

@@ -7,18 +7,18 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.gurella.studio.editor"; //$NON-NLS-1$
 
 	// The shared instance
-	private static Activator plugin;
+	private static GurellaStudioPlugin plugin;
 	
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public GurellaStudioPlugin() {
 	}
 
 	/*
@@ -46,7 +46,7 @@ public class Activator extends AbstractUIPlugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static GurellaStudioPlugin getDefault() {
 		return plugin;
 	}
 
