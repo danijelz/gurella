@@ -204,6 +204,9 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 					Object[] types = dialog.getResult();
 					if (types != null && types.length > 0) {
 						IType type = (IType) types[0];
+						//String.class
+						//getGurellaEditor().getClassLoader().loadClass("test.Test").newInstance()
+						getGurellaEditor().getClassLoader().loadClass(type.getFullyQualifiedName()).getMethods();
 						SceneNodeComponent2 component = Values.cast(getGurellaEditor().getClassLoader()
 								.loadClass(type.getFullyQualifiedName()).newInstance());
 						target.addComponent(component);
