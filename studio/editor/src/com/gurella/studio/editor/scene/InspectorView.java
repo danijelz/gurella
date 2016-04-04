@@ -51,7 +51,6 @@ public class InspectorView extends SceneEditorView {
 				if (currentContainer != null) {
 					currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 					layout(true, true);
-					currentContainer.layout(true, true);
 				}
 			}
 		}

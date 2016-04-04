@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -18,19 +19,19 @@ import org.eclipse.ui.PlatformUI;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer.TextureResource;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
-public class ProjectExplorerView extends SceneEditorView {
+public class AssetsExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
 	private Tree graph;
 
-	public ProjectExplorerView(GurellaEditor editor, int style) {
-		super(editor, "Project explorer",
-				PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER), style);
+	public AssetsExplorerView(GurellaEditor editor, int style) {
+		super(editor, "Assets", getImage(editor), style);
 
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
@@ -64,6 +65,11 @@ public class ProjectExplorerView extends SceneEditorView {
 				}
 			}
 		});
+	}
+
+	private static Image getImage(GurellaEditor editor) {
+		return editor.getResourceManager()
+				.createImage(GurellaStudioPlugin.getImageDescriptor("icons/resource_persp.gif"));
 	}
 
 	private IPath getAssetsRoot() throws CoreException {

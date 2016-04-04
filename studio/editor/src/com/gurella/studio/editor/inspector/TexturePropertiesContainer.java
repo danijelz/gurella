@@ -5,6 +5,8 @@ import java.io.InputStream;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -14,7 +16,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.studio.editor.scene.InspectorView;
@@ -29,13 +30,22 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 		IFile file = target.file;
 		setText(file.getName());
 		FormToolkit toolkit = getToolkit();
-		Label separator = toolkit.createSeparator(getBody(), SWT.NONE | SWT.HORIZONTAL);
+		toolkit.adapt(this);
+		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(1, false));
-		separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 
-		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER_SOLID);
-		imageComposite.setLayoutData(new GridData(SWT.CENTER, SWT.BEGINNING, false, false));
-		imageComposite.setSize(195, 195);
+		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER);
+		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		layoutData.minimumWidth = 200;
+		layoutData.minimumHeight = 300;
+		imageComposite.setLayoutData(layoutData);
+		getBody().addControlListener(new ControlAdapter() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				getBody().layout(true, true);
+			}
+		});
+
 		imageComposite.addPaintListener(new PaintListener() {
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -43,22 +53,29 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 				if (image == null) {
 					gc.drawString("No image", 0, 0);
 				} else {
-
 					int imageWidth = image.getBounds().width;
 					int imageHeight = image.getBounds().height;
-					int paneWidth = 200;
-					int paneHeight = 200;
+					int paneWidth = imageComposite.getSize().x - 4;
+					int paneHeight = imageComposite.getSize().y - 4;
 
 					float widthRatio = (float) imageWidth / (float) paneWidth;
 					float heightRatio = (float) imageHeight / (float) paneHeight;
+					float ratio;
 
 					if (widthRatio <= 1 && heightRatio <= 1) {
-						gc.drawImage(image, 0, 0);
+						ratio = 1;
 					} else {
-						float ratio = Math.max(widthRatio, heightRatio);
-						gc.drawImage(image, 0, 0, imageWidth, imageHeight, 0, 0, (int) (imageWidth * ratio),
-								(int) (imageHeight * ratio));
+						ratio = 1 / Math.max(widthRatio, heightRatio);
+
 					}
+
+					int left = (int) ((paneWidth - imageWidth * ratio) / 2) + 1;
+					int top = (int) ((paneHeight - imageHeight * ratio) / 2) + 1;
+
+					int destWidth = (int) (imageWidth * ratio);
+					int destHeight = (int) (imageHeight * ratio);
+					gc.drawRectangle(left - 1,  top -1, destWidth + 1, destHeight + 1);
+					gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
 				}
 			}
 		});
@@ -78,9 +95,6 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		layout(true, true);
-
 	}
 
 	public static class TextureResource {

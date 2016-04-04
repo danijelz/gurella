@@ -46,7 +46,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		getBody().setLayout(layout);
 
 		Label nameLabel = toolkit.createLabel(getBody(), "Name: ");
-		nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
+		nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		nameText = toolkit.createText(getBody(), node.getName(), SWT.BORDER);
 		nameText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, true));
@@ -60,7 +60,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		});
 
 		enabledCheck = toolkit.createButton(getBody(), "Enabled", SWT.CHECK);
-		enabledCheck.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
+		enabledCheck.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		enabledCheck.setSelection(node.isEnabled());
 		enabledCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -71,6 +71,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		});
 
 		menuButton = toolkit.createButton(getBody(), "", SWT.ARROW | SWT.DOWN);
+		menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		menuButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

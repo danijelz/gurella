@@ -50,7 +50,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.InspectorView;
-import com.gurella.studio.editor.scene.ProjectExplorerView;
+import com.gurella.studio.editor.scene.AssetsExplorerView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
@@ -62,7 +62,7 @@ public class GurellaEditor extends EditorPart {
 	private SceneEditorMainContainer mainContainer;
 	private SceneHierarchyView sceneHierarchyView;
 	private InspectorView inspectorView;
-	private ProjectExplorerView projectExplorerView;
+	private AssetsExplorerView assetsExplorerView;
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
 	private DeviceResourceManager resourceManager;
@@ -136,8 +136,8 @@ public class GurellaEditor extends EditorPart {
 
 		sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
-		projectExplorerView = new ProjectExplorerView(this, SWT.LEFT);
-		registeredViews.add(projectExplorerView);
+		assetsExplorerView = new AssetsExplorerView(this, SWT.LEFT);
+		registeredViews.add(assetsExplorerView);
 		inspectorView = new InspectorView(this, SWT.RIGHT);
 		registeredViews.add(inspectorView);
 

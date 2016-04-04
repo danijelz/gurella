@@ -8,6 +8,7 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -23,6 +24,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
@@ -31,7 +33,7 @@ public class SceneHierarchyView extends SceneEditorView {
 	private Menu menu;
 
 	public SceneHierarchyView(GurellaEditor editor, int style) {
-		super(editor, "Hierarchy", null, style);
+		super(editor, "Scene", getImage(editor), style);
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
 		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -58,7 +60,7 @@ public class SceneHierarchyView extends SceneEditorView {
 			public void menuShown(MenuEvent e) {
 				TreeItem[] selection = graph.getSelection();
 				boolean enabled = selection.length > 0 ? selection[0].getData() instanceof SceneNode2 : true;
-				for(MenuItem item : menu.getItems()) {
+				for (MenuItem item : menu.getItems()) {
 					item.setEnabled(enabled);
 				}
 			}
@@ -121,6 +123,10 @@ public class SceneHierarchyView extends SceneEditorView {
 			}
 		});
 		graph.setMenu(menu);
+	}
+
+	private static Image getImage(GurellaEditor editor) {
+		return editor.getResourceManager().createImage(GurellaStudioPlugin.getImageDescriptor("icons/outline_co.png"));
 	}
 
 	private Scene getScene() {
