@@ -23,9 +23,26 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.audio.AudioListenerComponent;
+import com.gurella.engine.scene.audio.AudioSourceComponent;
+import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
+import com.gurella.engine.scene.camera.OrtographicCameraComponent;
+import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
+import com.gurella.engine.scene.light.DirectionalLightComponent;
+import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.renderable.AtlasRegionComponent;
+import com.gurella.engine.scene.renderable.ModelComponent;
+import com.gurella.engine.scene.renderable.SolidComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
+import com.gurella.engine.scene.renderable.TextureRegionComponent;
+import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
+import com.gurella.studio.nodes.SceneNodePropertiesContainer.TestComponnent;
+import com.gurella.studio.nodes.TestInputComponent;
 
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Text nameText;
@@ -76,8 +93,25 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Menu menu = new Menu(getShell(), SWT.POP_UP);
-				MenuItem item1 = new MenuItem(menu, SWT.PUSH);
-				item1.setText("Add component");
+
+				addMenuItem(menu, TransformComponent.class);
+				//addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
+				addMenuItem(menu, OrtographicCameraComponent.class);
+				addMenuItem(menu, PerspectiveCameraComponent.class);
+				addMenuItem(menu, PointLightComponent.class);
+				addMenuItem(menu, DirectionalLightComponent.class);
+				addMenuItem(menu, AudioListenerComponent.class);
+				addMenuItem(menu, AudioSourceComponent.class);
+				addMenuItem(menu, TagComponent.class);
+				// addItem("Layer", LayerComponent.class);
+				addMenuItem(menu, TextureComponent.class);
+				addMenuItem(menu, TextureRegionComponent.class);
+				addMenuItem(menu, AtlasRegionComponent.class);
+				addMenuItem(menu, ModelComponent.class);
+				addMenuItem(menu, SolidComponent.class);
+				addMenuItem(menu, TestComponnent.class);
+				addMenuItem(menu, TestInputComponent.class);
+
 				Point loc = menuButton.getLocation();
 				Rectangle rect = menuButton.getBounds();
 				Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
@@ -110,5 +144,32 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			componentSection.setClient(propertiesContainer);
 			componentContainers.add(propertiesContainer);
 		}
+	}
+
+	private void addComponent(SceneNodeComponent2 component) {
+		Section componentSection = getGurellaEditor().getToolkit().createSection(componentsPropertiesComposite,
+				ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
+		componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		componentSection.setText(Models.getModel(component).getName());
+		ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<>(
+				getGurellaEditor(), componentSection, component);
+		componentSection.setClient(propertiesContainer);
+		propertiesContainer.layout(true, true);
+		componentSection.setExpanded(true);
+		componentContainers.add(propertiesContainer);
+		postMessage(new ComponentAddedMessage(component));
+		getGurellaEditor().setDirty();
+	}
+
+	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
+		MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+		item1.setText(Models.getModel(componentType).getName());
+		item1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				addComponent(target.newComponent(Values.cast(componentType)));
+			}
+		});
+		item1.setEnabled(target.getComponent(componentType) == null);
 	}
 }

@@ -150,13 +150,17 @@ public class SceneHierarchyView extends SceneEditorView {
 
 	private void addComponents(TreeItem parentItem, SceneNode2 node) {
 		for (SceneNodeComponent2 component : node.components) {
-			TreeItem componentItem = new TreeItem(parentItem, 0);
-			if(component instanceof TransformComponent) {
-				componentItem.setImage(editor.createImage("icons/transform.png"));
-			}
-			componentItem.setText(Models.getModel(component).getName());
-			componentItem.setData(component);
+			createComponentItem(parentItem, component);
 		}
+	}
+
+	private void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
+		TreeItem componentItem = new TreeItem(parentItem, 0);
+		if (component instanceof TransformComponent) {
+			componentItem.setImage(editor.createImage("icons/transform.png"));
+		}
+		componentItem.setText(Models.getModel(component).getName());
+		componentItem.setData(component);
 	}
 
 	@Override
@@ -174,6 +178,16 @@ public class SceneHierarchyView extends SceneEditorView {
 				TreeItem found = findItem(item, node);
 				if (found != null) {
 					found.setText(node.getName());
+				}
+			}
+		} else if (message instanceof ComponentAddedMessage) {
+			ComponentAddedMessage componentAddedMessage = (ComponentAddedMessage) message;
+			SceneNodeComponent2 component = componentAddedMessage.component;
+			SceneNode2 node = component.getNode();
+			for (TreeItem item : graph.getItems()) {
+				TreeItem found = findItem(item, node);
+				if (found != null) {
+					createComponentItem(found, component);
 				}
 			}
 		}

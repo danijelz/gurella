@@ -13,7 +13,7 @@ abstract class PropertyEditor<T> extends Composite {
 	protected Property<T> property;
 
 	public PropertyEditor(ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
-		super(propertiesContainer.getBody(), SWT.BORDER);
+		super(propertiesContainer.getBody(), SWT.NONE);
 		this.propertiesContainer = propertiesContainer;
 		this.property = property;
 		getGurellaEditor().getToolkit().adapt(this);

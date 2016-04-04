@@ -17,13 +17,13 @@ public abstract class SceneEditorView extends Composite {
 	protected void setDirty() {
 		editor.setDirty();
 	}
-	
+
 	protected final void postMessage(Object message, Object... additionalData) {
 		editor.postMessage(this, message, additionalData);
 	}
-	
+
 	@SuppressWarnings("unused")
 	public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
-		
+
 	}
 }

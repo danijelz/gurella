@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.audio.loader.SoundClip;
 
 public enum AssetType {
-	texture(Texture.class, "png"),
+	texture(Texture.class, "bmp", "jpg", "jpeg", "png"),
 	textureAtlas(TextureAtlas.class),
 	cubemap(Cubemap.class),
 	bitmapFont(BitmapFont.class),

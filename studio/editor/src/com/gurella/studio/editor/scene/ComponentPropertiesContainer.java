@@ -1,8 +1,10 @@
 package com.gurella.studio.editor.scene;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Models;
@@ -15,6 +17,9 @@ public class ComponentPropertiesContainer extends PropertiesContainer<SceneNodeC
 
 	public ComponentPropertiesContainer(InspectorView parent, SceneNodeComponent2 target) {
 		super(parent, target);
+		Composite head = getForm().getHead();
+		FontDescriptor boldDescriptor = FontDescriptor.createFrom(head.getFont()).setStyle(SWT.BOLD);//TODO
+		head.setFont(boldDescriptor.createFont(getDisplay()));
 		setText(Models.getModel(target).getName());
 		FormToolkit toolkit = getToolkit();
 		toolkit.adapt(this);
