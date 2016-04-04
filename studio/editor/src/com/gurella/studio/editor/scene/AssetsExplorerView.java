@@ -58,9 +58,11 @@ public class AssetsExplorerView extends SceneEditorView {
 						IFile file = (IFile) data;
 						if (AssetType.texture.containsExtension(file.getFileExtension())) {
 							postMessage(new SelectionMessage(new TextureInspectable(file)));
+							return;
 						}
 					}
 				}
+				postMessage(new SelectionMessage(null));
 			}
 		});
 	}

@@ -1,5 +1,12 @@
 package com.gurella.studio.editor.scene;
 
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.ui.IJavaElementSearchConstants;
+import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -15,6 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
@@ -25,7 +33,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
-import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
@@ -38,6 +45,7 @@ import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
@@ -112,6 +120,8 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 				addMenuItem(menu, TestComponnent.class);
 				addMenuItem(menu, TestInputComponent.class);
 
+				addScriptMenuItem(menu);
+
 				Point loc = menuButton.getLocation();
 				Rectangle rect = menuButton.getBounds();
 				Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
@@ -167,9 +177,43 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		item1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				addComponent(target.newComponent(Values.cast(componentType)));
+				SceneNodeComponent2 component = Reflection.newInstance(componentType);
+				target.addComponent(component);
+				addComponent(component);
 			}
 		});
 		item1.setEnabled(target.getComponent(componentType) == null);
+	}
+
+	private void addScriptMenuItem(Menu menu) {
+		MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+		item1.setText("Script");
+		item1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					IJavaSearchScope scope = SearchEngine.createHierarchyScope(getGurellaEditor().getJavaProject()
+							.findType("com.gurella.engine.scene.SceneNodeComponent2"));
+					SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), new ProgressMonitorDialog(getShell()),
+							scope, IJavaElementSearchConstants.CONSIDER_CLASSES, false);
+					int result = dialog.open();
+					if (result != IDialogConstants.OK_ID) {
+						return;
+					}
+
+					Object[] types = dialog.getResult();
+					if (types != null && types.length > 0) {
+						IType type = (IType) types[0];
+						SceneNodeComponent2 component = Values.cast(getGurellaEditor().getClassLoader()
+								.loadClass(type.getFullyQualifiedName()).newInstance());
+						target.addComponent(component);
+						addComponent(component);
+					}
+				} catch (Exception e2) {
+					// TODO: handle exception
+					e2.printStackTrace();
+				}
+			}
+		});
 	}
 }

@@ -75,6 +75,8 @@ public class GurellaEditor extends EditorPart {
 	private IProject project;
 	private IJavaProject javaProject;
 
+	private URLClassLoader classLoader;
+
 	public GurellaEditor() {
 	}
 
@@ -167,7 +169,7 @@ public class GurellaEditor extends EditorPart {
 			// FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
 			ClassLoader parentClassLoader = project.getClass().getClassLoader();
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			URLClassLoader classLoader = new URLClassLoader(urls, parentClassLoader);
+			classLoader = new URLClassLoader(urls, parentClassLoader);
 			// classLoader.loadClass("test.Test");
 			IType lwType = javaProject.findType("test.Test");
 
@@ -234,6 +236,10 @@ public class GurellaEditor extends EditorPart {
 
 	public IJavaProject getJavaProject() {
 		return javaProject;
+	}
+	
+	public URLClassLoader getClassLoader() {
+		return classLoader;
 	}
 
 	@Override
