@@ -158,6 +158,8 @@ public class SceneHierarchyView extends SceneEditorView {
 		TreeItem componentItem = new TreeItem(parentItem, 0);
 		if (component instanceof TransformComponent) {
 			componentItem.setImage(editor.createImage("icons/transform.png"));
+		} else {
+			componentItem.setImage(editor.createImage("icons/16-cube-green_16x16.png"));
 		}
 		componentItem.setText(Models.getModel(component).getName());
 		componentItem.setData(component);
