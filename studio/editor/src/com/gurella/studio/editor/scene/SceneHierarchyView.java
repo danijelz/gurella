@@ -8,7 +8,6 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -23,8 +22,8 @@ import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.studio.editor.GurellaEditor;
-import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
@@ -33,7 +32,7 @@ public class SceneHierarchyView extends SceneEditorView {
 	private Menu menu;
 
 	public SceneHierarchyView(GurellaEditor editor, int style) {
-		super(editor, "Scene", getImage(editor), style);
+		super(editor, "Scene", editor.createImage("icons/outline_co.png"), style);
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
 		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -125,10 +124,6 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph.setMenu(menu);
 	}
 
-	private static Image getImage(GurellaEditor editor) {
-		return editor.getResourceManager().createImage(GurellaStudioPlugin.getImageDescriptor("icons/outline_co.png"));
-	}
-
 	private Scene getScene() {
 		return (Scene) graph.getData();
 	}
@@ -146,17 +141,21 @@ public class SceneHierarchyView extends SceneEditorView {
 		for (SceneNode2 node : nodeContainer.getNodes()) {
 			TreeItem nodeItem = parentItem == null ? new TreeItem(graph, 0) : new TreeItem(parentItem, 0);
 			nodeItem.setText(node.getName());
+			nodeItem.setImage(editor.createImage("icons/ice_cube.png"));
 			nodeItem.setData(node);
 			addComponents(nodeItem, node);
 			addNodes(nodeItem, node);
 		}
 	}
 
-	private static void addComponents(TreeItem parentItem, SceneNode2 node) {
+	private void addComponents(TreeItem parentItem, SceneNode2 node) {
 		for (SceneNodeComponent2 component : node.components) {
-			TreeItem nodeItem = new TreeItem(parentItem, 0);
-			nodeItem.setText(Models.getModel(component).getName());
-			nodeItem.setData(component);
+			TreeItem componentItem = new TreeItem(parentItem, 0);
+			if(component instanceof TransformComponent) {
+				componentItem.setImage(editor.createImage("icons/transform.png"));
+			}
+			componentItem.setText(Models.getModel(component).getName());
+			componentItem.setData(component);
 		}
 	}
 

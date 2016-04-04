@@ -6,7 +6,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -19,7 +18,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
-import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer.TextureResource;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
@@ -28,16 +26,16 @@ import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 public class AssetsExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
-	private Tree graph;
+	private Tree tree;
 
 	public AssetsExplorerView(GurellaEditor editor, int style) {
-		super(editor, "Assets", getImage(editor), style);
+		super(editor, "Assets", editor.createImage("icons/resource_persp.gif"), style);
 
 		setLayout(new GridLayout());
 		editor.getToolkit().adapt(this);
-		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		graph.setHeaderVisible(false);
-		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		tree = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		tree.setHeaderVisible(false);
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		try {
 			IPath assetsRoot = getAssetsRoot().makeRelativeTo(editor.getProject().getLocation());
 			IResource resource = editor.getProject().findMember(assetsRoot);
@@ -45,15 +43,15 @@ public class AssetsExplorerView extends SceneEditorView {
 				createItems(null, resource);
 			}
 		} catch (CoreException e) {
-			graph.dispose();
+			tree.dispose();
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		graph.addListener(SWT.Selection, new Listener() {
+		tree.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
-				TreeItem[] selection = graph.getSelection();
+				TreeItem[] selection = tree.getSelection();
 				if (selection.length > 0) {
 					Object data = selection[0].getData();
 					if (data instanceof IFile) {
@@ -65,11 +63,6 @@ public class AssetsExplorerView extends SceneEditorView {
 				}
 			}
 		});
-	}
-
-	private static Image getImage(GurellaEditor editor) {
-		return editor.getResourceManager()
-				.createImage(GurellaStudioPlugin.getImageDescriptor("icons/resource_persp.gif"));
 	}
 
 	private IPath getAssetsRoot() throws CoreException {
@@ -98,7 +91,7 @@ public class AssetsExplorerView extends SceneEditorView {
 	}
 
 	private void createItems(TreeItem parentItem, IResource resource) throws CoreException {
-		TreeItem nodeItem = parentItem == null ? new TreeItem(graph, 0) : new TreeItem(parentItem, 0);
+		TreeItem nodeItem = parentItem == null ? new TreeItem(tree, 0) : new TreeItem(parentItem, 0);
 		nodeItem.setText(resource.getName());
 		nodeItem.setData(resource);
 
@@ -108,7 +101,12 @@ public class AssetsExplorerView extends SceneEditorView {
 				createItems(nodeItem, member);
 			}
 		} else {
-			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
+			IFile file = (IFile) resource;
+			if (AssetType.texture.containsExtension(file.getFileExtension())) {
+				nodeItem.setImage(editor.createImage("icons/picture.png"));
+			} else {
+				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
+			}
 		}
 	}
 

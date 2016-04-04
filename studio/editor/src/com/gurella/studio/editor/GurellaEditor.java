@@ -26,6 +26,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.resource.DeviceResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -217,6 +218,10 @@ public class GurellaEditor extends EditorPart {
 
 	public ResourceManager getResourceManager() {
 		return resourceManager;
+	}
+	
+	public Image createImage(String path) {
+		return resourceManager.createImage(GurellaStudioPlugin.getImageDescriptor(path));
 	}
 
 	public SceneEditorMainContainer getMainContainer() {
