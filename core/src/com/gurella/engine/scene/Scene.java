@@ -7,6 +7,7 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.audio.AudioSystem;
+import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
@@ -50,7 +51,7 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	public final transient InputSystem inputSystem = new InputSystem();
 	public final transient RenderSystem renderSystem = new RenderSystem();
 	public final transient AudioSystem audioSystem = new AudioSystem();
-	// TODO public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
+	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 	
 	@Override
 	public ImmutableArray<SceneNode2> getNodes() {
