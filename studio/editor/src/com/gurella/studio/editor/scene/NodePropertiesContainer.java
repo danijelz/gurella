@@ -33,6 +33,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
+import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
@@ -44,13 +45,13 @@ import com.gurella.engine.scene.renderable.SolidComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
+import com.gurella.engine.test.TestInputComponent;
+import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
-import com.gurella.studio.nodes.SceneNodePropertiesContainer.TestComponnent;
-import com.gurella.studio.nodes.TestInputComponent;
 
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Text nameText;
@@ -74,7 +75,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		nameText = toolkit.createText(getBody(), node.getName(), SWT.BORDER);
-		nameText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, true));
+		nameText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		nameText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -103,7 +104,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 				Menu menu = new Menu(getShell(), SWT.POP_UP);
 
 				addMenuItem(menu, TransformComponent.class);
-				// addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
+				addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
 				addMenuItem(menu, OrtographicCameraComponent.class);
 				addMenuItem(menu, PerspectiveCameraComponent.class);
 				addMenuItem(menu, PointLightComponent.class);
@@ -117,7 +118,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 				addMenuItem(menu, AtlasRegionComponent.class);
 				addMenuItem(menu, ModelComponent.class);
 				addMenuItem(menu, SolidComponent.class);
-				addMenuItem(menu, TestComponnent.class);
+				addMenuItem(menu, TestPropertyEditorsComponnent.class);
 				addMenuItem(menu, TestInputComponent.class);
 
 				addScriptMenuItem(menu);
@@ -146,7 +147,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			SceneNodeComponent2 component = components.get(i);
 			Section componentSection = toolkit.createSection(componentsPropertiesComposite,
 					ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
-			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 			componentSection.setExpanded(true);
 			componentSection.setText(Models.getModel(component).getName());
 			ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<>(
@@ -169,6 +170,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		componentContainers.add(propertiesContainer);
 		postMessage(new ComponentAddedMessage(component));
 		getGurellaEditor().setDirty();
+		reflow(true);
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {

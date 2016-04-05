@@ -1,6 +1,8 @@
 package com.gurella.studio.editor.scene;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -70,7 +72,14 @@ public class InspectorView extends SceneEditorView {
 			super(parent, SWT.BORDER);
 			this.target = target;
 			setExpandHorizontal(true);
+			setExpandVertical(true);
 			setMinWidth(200);
+			addControlListener(new ControlAdapter() {
+				@Override
+				public void controlResized(ControlEvent e) {
+					reflow(true);
+				}
+			});
 		}
 
 		@Override

@@ -18,10 +18,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.gurella.engine.asset.properties.TextureProperties;
+import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class TexturePropertiesContainer extends PropertiesContainer<TexturePropertiesContainer.TextureResource> {
+	private ModelPropertiesContainer<TextureProperties> loaderProperties;
 	private Composite imageComposite;
 	private Image image;
 
@@ -34,8 +37,13 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(1, false));
 
+		loaderProperties = new ModelPropertiesContainer<TextureProperties>(getGurellaEditor(), getBody(),
+				findTextureProperties(target.file));
+		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		loaderProperties.setLayoutData(layoutData);
+
 		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER);
-		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		layoutData.minimumWidth = 200;
 		layoutData.minimumHeight = 300;
 		imageComposite.setLayoutData(layoutData);
@@ -74,7 +82,7 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 
 					int destWidth = (int) (imageWidth * ratio);
 					int destHeight = (int) (imageHeight * ratio);
-					gc.drawRectangle(left - 1,  top -1, destWidth + 1, destHeight + 1);
+					gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
 					gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
 				}
 			}
@@ -95,6 +103,13 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		reflow(true);
+	}
+
+	private TextureProperties findTextureProperties(IFile file) {
+		// TODO Auto-generated method stub
+		return new TextureProperties();
 	}
 
 	public static class TextureResource {

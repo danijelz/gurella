@@ -8,7 +8,7 @@
             name="Gurella Editor"
             extensions="gscn"
             icon="icons/sample.gif"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            contributorClass="com.gurella.studio.editor.GurellaEditorActionBarContributor"
             class="com.gurella.studio.editor.GurellaEditor"
             id="com.gurella.studio.editor.GurellaEditor">
       </editor>

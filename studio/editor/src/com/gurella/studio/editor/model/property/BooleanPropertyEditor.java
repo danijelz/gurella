@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.model;
+package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -9,6 +9,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.studio.editor.model.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	private Button check;

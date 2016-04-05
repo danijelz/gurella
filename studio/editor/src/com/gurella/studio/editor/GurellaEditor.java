@@ -44,7 +44,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
@@ -52,7 +51,6 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.engine.utils.Reflection.ClassResolver;
 import com.gurella.studio.editor.scene.AssetsExplorerView;
 import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
@@ -155,12 +153,7 @@ public class GurellaEditor extends EditorPart {
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
 		createClassLoader();
-		Reflection.classResolver = new ClassResolver() {
-			@Override
-			public Class<?> forName(String className) throws Exception {
-				return classLoader.loadClass(className);
-			}
-		};
+		Reflection.classResolver = classLoader::loadClass;
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallback<Scene>() {

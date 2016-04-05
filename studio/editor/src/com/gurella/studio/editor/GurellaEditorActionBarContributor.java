@@ -5,15 +5,17 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.part.EditorActionBarContributor;
+import org.eclipse.ui.texteditor.BasicTextEditorActionContributor;
 
-public class TestEditorActionBarContributor extends EditorActionBarContributor {
-	private IEditorPart targetEditor;
+public class GurellaEditorActionBarContributor extends BasicTextEditorActionContributor {
+	private GurellaEditor targetEditor;
 
 	@Override
 	public void contributeToMenu(IMenuManager menuManager) {
-		IMenuManager menu = new MenuManager("Test &Menu");
+		super.contributeToMenu(menuManager);
+		IMenuManager menu = new MenuManager("&Gurella");
 		menuManager.prependToGroup(IWorkbenchActionConstants.MB_ADDITIONS, menu);
+		
 		menu.add(new Action("Action 1") {
 			@Override
 			public void run() {
@@ -29,10 +31,10 @@ public class TestEditorActionBarContributor extends EditorActionBarContributor {
 			}
 		});
 	}
-	
+
 	@Override
 	public void setActiveEditor(IEditorPart targetEditor) {
 		super.setActiveEditor(targetEditor);
-		this.targetEditor = targetEditor;
+		this.targetEditor = (GurellaEditor) targetEditor;
 	}
 }
