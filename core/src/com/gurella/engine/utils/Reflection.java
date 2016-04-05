@@ -19,15 +19,24 @@ public class Reflection {
 	private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
 	private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>, Constructor>();
 
+	public static ClassResolver classResolver = new ClassResolver() {
+		@Override
+		public Class<?> forName(String className) throws Exception {
+			return ClassReflection.forName(className);
+		}
+	};
+
 	private Reflection() {
 	}
 
 	public static <T> Class<T> forName(String className) {
 		try {
 			@SuppressWarnings("unchecked")
-			Class<T> resourceType = ClassReflection.forName(className);
+			Class<T> resourceType = (Class<T>) classResolver.forName(className);
 			return resourceType;
 		} catch (ReflectionException e) {
+			throw new GdxRuntimeException(e);
+		} catch (Exception e) {
 			throw new GdxRuntimeException(e);
 		}
 	}
@@ -358,5 +367,9 @@ public class Reflection {
 		System.out.println(getCommonClass(SizeByAction.class, ScaleByAction.class).getSimpleName());
 		System.out.println(getCommonClass(SizeByAction.class, TemporalAction.class).getSimpleName());
 		System.out.println(getCommonClass(SizeByAction.class, AddAction.class).getSimpleName());
+	}
+
+	public interface ClassResolver {
+		Class<?> forName(String className) throws Exception;
 	}
 }
