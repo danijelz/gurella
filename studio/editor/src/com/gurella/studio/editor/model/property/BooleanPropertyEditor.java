@@ -31,7 +31,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		check.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				property.setValue(getModelInstance(), check.getSelection());
+				property.setValue(getModelInstance(), Boolean.valueOf(check.getSelection()));
 				setDirty();
 			}
 		});
@@ -39,6 +39,9 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 
 	@Override
 	protected void present(Object modelInstance) {
-		check.setSelection(property.getValue(modelInstance));
+		Boolean value = property.getValue(modelInstance);
+		if (value != null) {
+			check.setSelection(value.booleanValue());
+		}
 	}
 }

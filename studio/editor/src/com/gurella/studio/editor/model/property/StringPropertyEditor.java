@@ -37,6 +37,9 @@ public class StringPropertyEditor extends SimplePropertyEditor<String> {
 
 	@Override
 	protected void present(Object modelInstance) {
-		text.setText(property.getValue(modelInstance));
+		String value = property.getValue(modelInstance);
+		if (value != null) {
+			text.setText(value);
+		}
 	}
 }
