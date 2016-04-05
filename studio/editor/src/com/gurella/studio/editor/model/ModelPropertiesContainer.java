@@ -6,8 +6,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Model;
@@ -45,18 +47,39 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 
 		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			Label label = toolkit.createLabel(body, property.getDescriptiveName() + ":");
-			label.setAlignment(SWT.RIGHT);
-			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
-			FontDescriptor boldDescriptor = FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD);// TODO
-			label.setFont(boldDescriptor.createFont(label.getDisplay()));
+
 			PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(this, property);
-			propertyEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+			GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+			propertyEditor.setLayoutData(layoutData);
 			propertyEditor.pack();
 			editors.add(propertyEditor);
+
+			if (propertyEditor instanceof SimplePropertyEditor) {
+				Label label = toolkit.createLabel(body, property.getDescriptiveName() + ":");
+				label.setAlignment(SWT.RIGHT);
+				label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
+				FontDescriptor boldDescriptor = FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD);// TODO
+				label.setFont(boldDescriptor.createFont(label.getDisplay()));
+				label.moveAbove(propertyEditor);
+			} else {
+				layoutData.horizontalSpan = 2;
+
+				Section componentSection = toolkit.createSection(body,
+						ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
+				componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+				componentSection.setText(propertyEditor.property.getDescriptiveName());
+				propertyEditor.setParent(componentSection);
+				componentSection.setClient(propertyEditor);
+				propertyEditor.layout(true, true);
+				componentSection.setExpanded(true);
+			}
 
 			Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);
 			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 		}
+	}
+
+	public T getModelInstance() {
+		return modelInstance;
 	}
 }
