@@ -3,24 +3,24 @@ package com.gurella.studio.editor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.jci.compilers.JavaCompiler;
-import org.apache.commons.jci.compilers.JavaCompilerFactory;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IField;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.resource.DeviceResourceManager;
@@ -50,8 +50,8 @@ import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.AssetsExplorerView;
+import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
@@ -72,6 +72,7 @@ public class GurellaEditor extends EditorPart {
 	private Scene scene;
 	boolean dirty;
 
+	private IWorkspace workspace;
 	private IProject project;
 	private IJavaProject javaProject;
 
@@ -130,6 +131,7 @@ public class GurellaEditor extends EditorPart {
 		toolkit = new FormToolkit(parent.getDisplay());
 		resourceManager = new DeviceResourceManager(parent.getDisplay());
 
+		workspace = ResourcesPlugin.getWorkspace();
 		IResource resource = getEditorInput().getAdapter(IResource.class);
 		project = resource.getProject();
 		javaProject = JavaCore.create(project);
@@ -149,39 +151,7 @@ public class GurellaEditor extends EditorPart {
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
 
-		try {
-			/*
-			 * IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots(); IPackageFragmentRoot root =
-			 * roots[0];
-			 */
-
-			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
-			List<URL> urlList = new ArrayList<URL>();
-			for (int i = 0; i < classPathEntries.length; i++) {
-				String entry = classPathEntries[i];
-				IPath path = new Path(entry);
-				URL url = path.toFile().toURI().toURL();
-				urlList.add(url);
-			}
-
-			JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
-			// CompilationResult result = compiler.compile(null, new
-			// FileResourceReader(root.getCorrespondingResource().getFullPath().toFile()), new MemoryResourceStore());
-			ClassLoader parentClassLoader = project.getClass().getClassLoader();
-			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			classLoader = new URLClassLoader(urls, parentClassLoader);
-			// classLoader.loadClass("test.Test");
-			IType lwType = javaProject.findType("test.Test");
-
-			// Class.forName("test.Test")
-			IField[] fields = lwType.getFields();
-			for (IField iField : fields) {
-				iField.getElementName();
-			}
-		} catch (MalformedURLException | CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		createClassLoader();
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallback<Scene>() {
@@ -208,6 +178,26 @@ public class GurellaEditor extends EditorPart {
 		}, 0);
 	}
 
+	private void createClassLoader() {
+		try {
+			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
+			List<URL> urlList = new ArrayList<URL>();
+			for (int i = 0; i < classPathEntries.length; i++) {
+				String entry = classPathEntries[i];
+				IPath path = new Path(entry);
+				URL url = path.toFile().toURI().toURL();
+				urlList.add(url);
+			}
+
+			ClassLoader parentClassLoader = project.getClass().getClassLoader();
+			URL[] urls = urlList.toArray(new URL[urlList.size()]);
+			classLoader = new MyURLClassLoader(urls, parentClassLoader);
+		} catch (MalformedURLException | CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void presentScene(Scene scene) {
 		this.scene = scene;
 		dirty = false;
@@ -221,13 +211,17 @@ public class GurellaEditor extends EditorPart {
 	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
-	
+
 	public Image createImage(String path) {
 		return resourceManager.createImage(GurellaStudioPlugin.getImageDescriptor(path));
 	}
 
 	public SceneEditorMainContainer getMainContainer() {
 		return mainContainer;
+	}
+
+	public IWorkspace getWorkspace() {
+		return workspace;
 	}
 
 	public IProject getProject() {
@@ -237,7 +231,7 @@ public class GurellaEditor extends EditorPart {
 	public IJavaProject getJavaProject() {
 		return javaProject;
 	}
-	
+
 	public URLClassLoader getClassLoader() {
 		return classLoader;
 	}
@@ -256,7 +250,20 @@ public class GurellaEditor extends EditorPart {
 		application.exit();
 	}
 
-	private final class SceneEditorApplicationAdapter extends ApplicationAdapter {
+	public void setDirty() {
+		dirty = true;
+		firePropertyChange(PROP_DIRTY);
+	}
+
+	public void postMessage(SceneEditorView source, Object message, Object[] additionalData) {
+		for (SceneEditorView view : registeredViews) {
+			if (source != view) {
+				view.handleMessage(source, message, additionalData);
+			}
+		}
+	}
+
+	private static final class SceneEditorApplicationAdapter extends ApplicationAdapter {
 		@Override
 		public void render() {
 			Array<ApplicationUpdateListener> listeners = new Array<ApplicationUpdateListener>();
@@ -270,15 +277,25 @@ public class GurellaEditor extends EditorPart {
 		}
 	}
 
-	public void setDirty() {
-		dirty = true;
-		firePropertyChange(PROP_DIRTY);
-	}
+	private static class MyURLClassLoader extends URLClassLoader {
+		public MyURLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+			super(urls, parent, factory);
+		}
 
-	public void postMessage(SceneEditorView source, Object message, Object[] additionalData) {
-		for (SceneEditorView view : registeredViews) {
-			if (source != view) {
-				view.handleMessage(source, message, additionalData);
+		public MyURLClassLoader(URL[] urls, ClassLoader parent) {
+			super(urls, parent);
+		}
+
+		public MyURLClassLoader(URL[] urls) {
+			super(urls);
+		}
+
+		@Override
+		public Class<?> loadClass(String className) throws ClassNotFoundException {
+			try {
+				return Platform.getBundle(GurellaStudioPlugin.PLUGIN_ID).loadClass(className);
+			} catch (ClassNotFoundException exception) {
+				return super.loadClass(className);
 			}
 		}
 	}

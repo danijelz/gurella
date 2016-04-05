@@ -103,7 +103,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 				Menu menu = new Menu(getShell(), SWT.POP_UP);
 
 				addMenuItem(menu, TransformComponent.class);
-				//addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
+				// addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
 				addMenuItem(menu, OrtographicCameraComponent.class);
 				addMenuItem(menu, PerspectiveCameraComponent.class);
 				addMenuItem(menu, PointLightComponent.class);
@@ -191,7 +191,10 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		item1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				Thread current = Thread.currentThread();
+				ClassLoader contextClassLoader = current.getContextClassLoader();
 				try {
+					current.setContextClassLoader(getGurellaEditor().getClassLoader());
 					IJavaSearchScope scope = SearchEngine.createHierarchyScope(getGurellaEditor().getJavaProject()
 							.findType("com.gurella.engine.scene.SceneNodeComponent2"));
 					SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), new ProgressMonitorDialog(getShell()),
@@ -204,9 +207,6 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 					Object[] types = dialog.getResult();
 					if (types != null && types.length > 0) {
 						IType type = (IType) types[0];
-						//String.class
-						//getGurellaEditor().getClassLoader().loadClass("test.Test").newInstance()
-						getGurellaEditor().getClassLoader().loadClass(type.getFullyQualifiedName()).getMethods();
 						SceneNodeComponent2 component = Values.cast(getGurellaEditor().getClassLoader()
 								.loadClass(type.getFullyQualifiedName()).newInstance());
 						target.addComponent(component);
@@ -215,6 +215,8 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 				} catch (Exception e2) {
 					// TODO: handle exception
 					e2.printStackTrace();
+				} finally {
+					current.setContextClassLoader(contextClassLoader);
 				}
 			}
 		});
