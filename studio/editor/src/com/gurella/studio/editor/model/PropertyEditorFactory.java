@@ -3,6 +3,7 @@ package com.gurella.studio.editor.model;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.BooleanPropertyEditor;
+import com.gurella.studio.editor.model.property.EnumPropertyEditor;
 import com.gurella.studio.editor.model.property.FloatPropertyEditor;
 import com.gurella.studio.editor.model.property.IntegerPropertyEditor;
 import com.gurella.studio.editor.model.property.StringPropertyEditor;
@@ -19,6 +20,14 @@ public class PropertyEditorFactory {
 			return Values.cast(new FloatPropertyEditor(parent, Values.<Property<Float>> cast(property)));
 		} else if (propertyType == String.class) {
 			return Values.cast(new StringPropertyEditor(parent, Values.<Property<String>> cast(property)));
+		}
+
+		/////
+
+		else if (propertyType.isEnum()) {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			PropertyEditor<T> editor = Values.cast(new EnumPropertyEditor(parent, Values.<Property> cast(property)));
+			return editor;
 		}
 
 		return new DefaultPropertyEditor<>(parent, property);
