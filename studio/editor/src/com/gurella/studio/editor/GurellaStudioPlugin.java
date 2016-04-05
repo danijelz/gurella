@@ -8,13 +8,12 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class GurellaStudioPlugin extends AbstractUIPlugin {
-
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.gurella.studio.editor"; //$NON-NLS-1$
 
 	// The shared instance
 	private static GurellaStudioPlugin plugin;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -23,6 +22,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
 	@Override
@@ -33,6 +33,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
 	@Override
@@ -51,10 +52,10 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
+	 * Returns an image descriptor for the image file at the given plug-in relative path
 	 *
-	 * @param path the path
+	 * @param path
+	 *            the path
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
