@@ -69,7 +69,7 @@ public class InspectorView extends SceneEditorView {
 		protected T target;
 
 		public PropertiesContainer(InspectorView parent, T target) {
-			super(parent, SWT.BORDER);
+			super(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 			this.target = target;
 			setExpandHorizontal(true);
 			setExpandVertical(true);
