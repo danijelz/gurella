@@ -6,8 +6,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriority;
-import com.gurella.engine.resource.AsyncResourceCallback;
-import com.gurella.engine.resource.DependencyMap;
+
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.state.StateMachine;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
@@ -88,7 +87,7 @@ public class SceneManager {
 	}
 
 	@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
-	private class TransitionWorker implements AsyncResourceCallback<DependencyMap>, ApplicationUpdateListener {
+	private class TransitionWorker implements /*AsyncCallback<DependencyMap>,*/ ApplicationUpdateListener {
 		private TransitionStateManager transitionStateManager = new TransitionStateManager();
 
 		private boolean active;
@@ -98,7 +97,7 @@ public class SceneManager {
 
 		private float initializationProgress;
 		private Throwable initializationException;
-		private DependencyMap destinationSceneResources;
+		//private DependencyMap destinationSceneResources;
 
 		private final IntArray dependentResourceIds = new IntArray();
 
@@ -114,7 +113,7 @@ public class SceneManager {
 			EventService.subscribe(this);
 		}
 
-		@Override
+		/*@Override
 		public void handleResource(DependencyMap resource) {
 			destinationSceneResources = resource;
 		}
@@ -127,7 +126,7 @@ public class SceneManager {
 		@Override
 		public void handleProgress(float progress) {
 			initializationProgress = progress;
-		}
+		}*/
 
 		@Override
 		public void update() {
@@ -168,12 +167,12 @@ public class SceneManager {
 
 		private void onTransitionHold() {
 			try {
-				if (transition.onTransitionHold(initializationProgress) && destinationSceneResources != null) {
-					transition.afterTransitionHold();
-					// destinationScene.start(destinationSceneResources);
-					transition.beforeTransitionIn();
-					transitionStateManager.apply(SceneTransitionState.IN);
-				}
+//				if (transition.onTransitionHold(initializationProgress) && destinationSceneResources != null) {
+//					transition.afterTransitionHold();
+//					// destinationScene.start(destinationSceneResources);
+//					transition.beforeTransitionIn();
+//					transitionStateManager.apply(SceneTransitionState.IN);
+//				}
 			} catch (Exception exception) {
 				cacheException(exception);
 			}
@@ -204,11 +203,11 @@ public class SceneManager {
 				transition.onTransitionException(initializationException);
 				stopCurrentScene();
 
-				if (destinationSceneResources != null) {
-					// destinationScene.rollback(destinationSceneResources);
-					destinationSceneResources.free();
-					destinationSceneResources = null;
-				}
+//				if (destinationSceneResources != null) {
+//					// destinationScene.rollback(destinationSceneResources);
+//					destinationSceneResources.free();
+//					destinationSceneResources = null;
+//				}
 			} catch (Exception ignored) {
 			}
 
@@ -229,8 +228,8 @@ public class SceneManager {
 
 			initializationProgress = 0;
 			initializationException = null;
-			destinationSceneResources.free();
-			destinationSceneResources = null;
+//			destinationSceneResources.free();
+//			destinationSceneResources = null;
 
 			dependentResourceIds.clear();
 
