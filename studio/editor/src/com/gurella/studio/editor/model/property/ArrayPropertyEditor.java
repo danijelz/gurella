@@ -32,7 +32,6 @@ public class ArrayPropertyEditor<T> extends ComplexPropertyEditor<T> {
 			// PropertyEditorFactory.createEditor(parent, property);
 		}
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
