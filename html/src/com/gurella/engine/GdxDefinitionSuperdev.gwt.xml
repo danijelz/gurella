@@ -6,9 +6,7 @@
 	<inherits name='com.badlogic.gdx.controllers.controllers-gwt' />
 	<inherits name='Box2DLights' />
 	<inherits name='com.badlogic.gdx.ai' />
-	<inherits name='com.kotcrab.vis.vis-ui' />
 	<inherits name='libgdx-utils' />
-	<inherits name='com.kotcrab.vis.vis-runtime' />
 	<inherits name='libgdx-utils-box2d' />
 	<inherits name='com.badlogic.ashley_gwt' />
 

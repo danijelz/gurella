@@ -51,20 +51,23 @@ public class AssetsExplorerView extends SceneEditorView {
 		tree.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
-				TreeItem[] selection = tree.getSelection();
-				if (selection.length > 0) {
-					Object data = selection[0].getData();
-					if (data instanceof IFile) {
-						IFile file = (IFile) data;
-						if (AssetType.texture.containsExtension(file.getFileExtension())) {
-							postMessage(new SelectionMessage(new TextureInspectable(file)));
-							return;
-						}
-					}
-				}
-				postMessage(new SelectionMessage(null));
+				postMessage(new SelectionMessage(getInspectable()));
 			}
 		});
+	}
+
+	private Inspectable<?> getInspectable() {
+		TreeItem[] selection = tree.getSelection();
+		if (selection.length > 0) {
+			Object data = selection[0].getData();
+			if (data instanceof IFile) {
+				IFile file = (IFile) data;
+				if (AssetType.texture.containsExtension(file.getFileExtension())) {
+					return new TextureInspectable(file);
+				}
+			}
+		}
+		return null;
 	}
 
 	private IPath getAssetsRoot() throws CoreException {
