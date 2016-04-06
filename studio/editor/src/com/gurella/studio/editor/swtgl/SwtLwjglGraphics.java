@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
@@ -45,6 +46,9 @@ public class SwtLwjglGraphics implements Graphics {
 	volatile boolean isContinuous = true;
 	volatile boolean requestRendering = false;
 	boolean softwareMode;
+	
+	int sizeX;
+	int sizeY;
 
 	private final GLCanvas glCanvas;
 
@@ -60,6 +64,19 @@ public class SwtLwjglGraphics implements Graphics {
 		glData.stencilSize = config.stencil;
 		glData.samples = config.samples;
 		glData.doubleBuffer = true;
+		
+		Point size = this.parentComposite.getSize();
+		sizeX = size.x;
+		sizeY = size.y;
+		
+		parentComposite.addControlListener(new ControlAdapter() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				Point size = SwtLwjglGraphics.this.parentComposite.getSize();
+				sizeX = size.x;
+				sizeY = size.y;
+			}
+		});
 
 		glCanvas = new GLCanvas(parentComposite, SWT.FLAT, glData);
 		if (parentComposite.getLayout() instanceof GridLayout) {
@@ -100,13 +117,13 @@ public class SwtLwjglGraphics implements Graphics {
 	}
 
 	@Override
-	public int getHeight() {
-		return Math.max(1, parentComposite.getSize().y);
+	public int getWidth() {
+		return Math.max(1, sizeX);
 	}
 
 	@Override
-	public int getWidth() {
-		return Math.max(1, parentComposite.getSize().x);
+	public int getHeight() {
+		return Math.max(1, sizeY);
 	}
 
 	@Override
