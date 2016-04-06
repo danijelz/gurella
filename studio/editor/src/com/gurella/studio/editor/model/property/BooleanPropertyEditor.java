@@ -7,16 +7,16 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	private Button check;
 
-	public BooleanPropertyEditor(ModelPropertiesContainer<?> parent, Property<Boolean> property) {
-		super(parent, property);
+	public BooleanPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Boolean> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 		Boolean value = property.getValue(modelInstance);
 		if (value != null) {
 			check.setSelection(value.booleanValue());

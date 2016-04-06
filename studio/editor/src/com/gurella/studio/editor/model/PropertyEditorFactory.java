@@ -1,6 +1,9 @@
 package com.gurella.studio.editor.model;
 
+import org.eclipse.swt.widgets.Composite;
+
 import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.ArrayPropertyEditor;
@@ -12,45 +15,50 @@ import com.gurella.studio.editor.model.property.EnumPropertyEditor;
 import com.gurella.studio.editor.model.property.FloatPropertyEditor;
 import com.gurella.studio.editor.model.property.IntegerPropertyEditor;
 import com.gurella.studio.editor.model.property.LongPropertyEditor;
+import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.ReflectionPropertyEditor;
 import com.gurella.studio.editor.model.property.ShortPropertyEditor;
+import com.gurella.studio.editor.model.property.SimpleObjectPropertyEditor;
 import com.gurella.studio.editor.model.property.StringPropertyEditor;
 import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
 
 public class PropertyEditorFactory {
-	public static <T> PropertyEditor<T> createEditor(ModelPropertiesContainer<?> parent, Property<T> property) {
+	public static <T> PropertyEditor<T> createEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
 		Class<?> propertyType = property.getType();
 
 		if (propertyType == Boolean.class || propertyType == boolean.class) {
-			return Values.cast(new BooleanPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new BooleanPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Integer.class || propertyType == int.class) {
-			return Values.cast(new IntegerPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new IntegerPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Long.class || propertyType == long.class) {
-			return Values.cast(new LongPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new LongPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Float.class || propertyType == float.class) {
-			return Values.cast(new FloatPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new FloatPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Byte.class || propertyType == byte.class) {
-			return Values.cast(new BytePropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new BytePropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Short.class || propertyType == short.class) {
-			return Values.cast(new ShortPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new ShortPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Character.class || propertyType == char.class) {
-			return Values.cast(new CharacterPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new CharacterPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Double.class || propertyType == double.class) {
-			return Values.cast(new DoublePropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new DoublePropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == String.class) {
-			return Values.cast(new StringPropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new StringPropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType == Vector3.class) {
-			return Values.cast(new Vector3PropertyEditor(parent, Values.cast(property)));
+			return Values.cast(new Vector3PropertyEditor(parent, propertiesContainer, Values.cast(property)));
 		} else if (propertyType.isArray()) {
-			return Values.cast(new ArrayPropertyEditor<>(parent, Values.cast(property)));
+			return Values.cast(new ArrayPropertyEditor<>(parent, propertiesContainer, Values.cast(property)));
 		}
 
 		/////
 
 		else if (propertyType.isEnum()) {
-			return Values.cast(new EnumPropertyEditor<>(parent, Values.cast(property)));
+			return Values.cast(new EnumPropertyEditor<>(parent, propertiesContainer, Values.cast(property)));
+		} else if (Models.getModel(propertyType).getProperties().size() < 2) {
+			return Values.cast(new SimpleObjectPropertyEditor<>(parent, propertiesContainer, Values.cast(property)));
 		} else {
-			return new ReflectionPropertyEditor<T>(parent, property);
+			return new ReflectionPropertyEditor<T>(parent, propertiesContainer, property);
 		}
 
 		// return new DefaultPropertyEditor<>(parent, property);

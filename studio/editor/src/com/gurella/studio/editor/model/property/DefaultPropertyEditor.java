@@ -1,15 +1,17 @@
-package com.gurella.studio.editor.model;
+package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class DefaultPropertyEditor<T> extends SimplePropertyEditor<T> {
-	public DefaultPropertyEditor(ModelPropertiesContainer<?> parent, Property<T> property) {
-		super(parent, property);
+	public DefaultPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -23,6 +25,6 @@ public class DefaultPropertyEditor<T> extends SimplePropertyEditor<T> {
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 	}
 }

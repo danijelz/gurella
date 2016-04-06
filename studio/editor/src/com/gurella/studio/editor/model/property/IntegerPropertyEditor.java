@@ -7,17 +7,17 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 	private Text text;
 
-	public IntegerPropertyEditor(ModelPropertiesContainer<?> parent, Property<Integer> property) {
-		super(parent, property);
+	public IntegerPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Integer> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 		Integer value = property.getValue(modelInstance);
 		if (value != null) {
 			text.setText(value.toString());

@@ -50,7 +50,7 @@ import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {

@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.properties.TextureProperties;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 

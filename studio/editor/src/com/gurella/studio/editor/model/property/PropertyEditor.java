@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.model;
+package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -12,8 +12,8 @@ public abstract class PropertyEditor<T> extends Composite {
 	protected ModelPropertiesContainer<?> propertiesContainer;
 	protected Property<T> property;
 
-	public PropertyEditor(ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
-		super(propertiesContainer.getBody(), SWT.NONE);
+	public PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
+		super(parent, SWT.NONE);
 		this.propertiesContainer = propertiesContainer;
 		this.property = property;
 		getGurellaEditor().getToolkit().adapt(this);
@@ -21,10 +21,14 @@ public abstract class PropertyEditor<T> extends Composite {
 		present(propertiesContainer.modelInstance);
 		layout(true, true);
 	}
+	
+	public String getDescriptiveName() {
+		return property.getDescriptiveName();
+	}
 
 	protected abstract void buildUi();
 
-	protected abstract void present(Object modelInstance);
+	public abstract void present(Object modelInstance);
 
 	protected GurellaEditor getGurellaEditor() {
 		return propertiesContainer.editor;

@@ -9,10 +9,15 @@ public class Volume implements Poolable {
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float volume = 1;
 
+	public Volume() {
+	}
+
+	public Volume(float volume) {
+		setVolume(volume);
+	}
+
 	public static Volume getInstance(float volume) {
-		Volume volumeObj = new Volume();
-		volumeObj.setVolume(volume);
-		return volumeObj;
+		return new Volume(volume);
 	}
 
 	public float getVolume() {

@@ -7,17 +7,17 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 	private Text text;
 
-	public BytePropertyEditor(ModelPropertiesContainer<?> parent, Property<Byte> property) {
-		super(parent, property);
+	public BytePropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Byte> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 		Byte value = property.getValue(modelInstance);
 		if (value != null) {
 			text.setText(value.toString());

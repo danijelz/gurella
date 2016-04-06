@@ -3,17 +3,17 @@ package com.gurella.studio.editor.model.property;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.ComplexPropertyEditor;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
 
 public class ReflectionPropertyEditor<T> extends ComplexPropertyEditor<T> {
 	private ModelPropertiesContainer<T> objectPropertiesContainer;
 
-	public ReflectionPropertyEditor(ModelPropertiesContainer<?> parent, Property<T> property) {
-		super(parent, property);
+	public ReflectionPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class ReflectionPropertyEditor<T> extends ComplexPropertyEditor<T> {
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 		// TODO Auto-generated method stub
 	}
 }

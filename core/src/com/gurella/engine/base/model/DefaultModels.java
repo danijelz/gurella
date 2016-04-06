@@ -5,8 +5,12 @@ import java.math.BigInteger;
 import java.util.Date;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.gurella.engine.audio.Pan;
+import com.gurella.engine.audio.Pitch;
+import com.gurella.engine.audio.Volume;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
@@ -411,6 +415,78 @@ public class DefaultModels {
 		@Override
 		public Float readValue(Input input) {
 			return Float.valueOf(input.readFloat());
+		}
+	}
+
+	public static final class PitchModel extends SimpleObjectModel<Pitch> {
+		public static final PitchModel instance = new PitchModel();
+
+		private PitchModel() {
+			super(Pitch.class);
+		}
+
+		@Override
+		public void writeValue(Pitch value, Output output) {
+			output.writeFloat(value.getPitch());
+		}
+
+		@Override
+		public Pitch readValue(Input input) {
+			return new Pitch(input.readFloat());// TODO pool
+		}
+	}
+
+	public static final class PanModel extends SimpleObjectModel<Pan> {
+		public static final PanModel instance = new PanModel();
+
+		private PanModel() {
+			super(Pan.class);
+		}
+
+		@Override
+		public void writeValue(Pan value, Output output) {
+			output.writeFloat(value.getPan());
+		}
+
+		@Override
+		public Pan readValue(Input input) {
+			return new Pan(input.readFloat());// TODO pool
+		}
+	}
+
+	public static final class VolumeModel extends SimpleObjectModel<Volume> {
+		public static final VolumeModel instance = new VolumeModel();
+
+		private VolumeModel() {
+			super(Volume.class);
+		}
+
+		@Override
+		public void writeValue(Volume value, Output output) {
+			output.writeFloat(value.getVolume());
+		}
+
+		@Override
+		public Volume readValue(Input input) {
+			return new Volume(input.readFloat());// TODO pool
+		}
+	}
+
+	public static final class AngleModel extends SimpleObjectModel<Angle> {
+		public static final AngleModel instance = new AngleModel();
+
+		private AngleModel() {
+			super(Angle.class);
+		}
+
+		@Override
+		public void writeValue(Angle value, Output output) {
+			output.writeFloat(value.getDegrees());
+		}
+
+		@Override
+		public Angle readValue(Input input) {
+			return Angle.getFromDegrees(input.readFloat());// TODO pool
 		}
 	}
 

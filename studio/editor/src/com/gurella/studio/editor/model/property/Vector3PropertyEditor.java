@@ -7,6 +7,7 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -14,7 +15,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
@@ -23,8 +23,8 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private Text zField;
 	private Model<Vector3> vector3Model;
 
-	public Vector3PropertyEditor(ModelPropertiesContainer<?> parent, Property<Vector3> property) {
-		super(parent, property);
+	public Vector3PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Vector3> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 		Vector3 vector = getValue();
 		if (vector == null) {
 			return;

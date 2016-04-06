@@ -9,7 +9,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class ComponentPropertiesContainer extends PropertiesContainer<SceneNodeComponent2> {

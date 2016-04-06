@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.model;
+package com.gurella.studio.editor.model.property;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -17,6 +17,8 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.model.PropertyEditorFactory;
+import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class ModelPropertiesContainer<T> extends ScrolledForm {
 	protected GurellaEditor editor;
@@ -57,14 +59,14 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 	private void addEditor(Property<?> property) {
 		FormToolkit toolkit = editor.getToolkit();
 		Composite body = getBody();
-		PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(this, property);
+		PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(getBody(), this, property);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertyEditor.setLayoutData(layoutData);
 		propertyEditor.pack();
 		editors.add(propertyEditor);
 
 		if (propertyEditor instanceof SimplePropertyEditor) {
-			Label label = toolkit.createLabel(body, property.getDescriptiveName() + ":");
+			Label label = toolkit.createLabel(body, propertyEditor.getDescriptiveName() + ":");
 			label.setAlignment(SWT.RIGHT);
 			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 			FontDescriptor boldDescriptor = FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD);// TODO
@@ -74,7 +76,7 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 			Section componentSection = toolkit.createSection(body,
 					ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
 			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
-			componentSection.setText(propertyEditor.property.getDescriptiveName());
+			componentSection.setText(propertyEditor.getDescriptiveName());
 			propertyEditor.setParent(componentSection);
 			componentSection.setClient(propertyEditor);
 			propertyEditor.layout(true, true);

@@ -6,6 +6,13 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public class Pan implements Poolable {
 	private float pan;
 
+	public Pan() {
+	}
+
+	public Pan(float pan) {
+		setPan(pan);
+	}
+
 	public float getPan() {
 		return pan;
 	}

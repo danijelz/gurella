@@ -6,6 +6,13 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public class Pitch implements Poolable {
 	private float pitch = 1;
 
+	public Pitch() {
+	}
+
+	public Pitch(float pitch) {
+		setPitch(pitch);
+	}
+
 	public float getPitch() {
 		return pitch;
 	}

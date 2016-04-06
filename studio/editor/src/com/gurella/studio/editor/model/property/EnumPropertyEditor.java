@@ -12,18 +12,18 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.model.ModelPropertiesContainer;
 import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<T> {
 	private Combo combo;
 	private ComboViewer comboViewer;
 
-	public EnumPropertyEditor(ModelPropertiesContainer<?> parent, Property<T> property) {
-		super(parent, property);
+	public EnumPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
+		super(parent, propertiesContainer, property);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<
 	}
 
 	@Override
-	protected void present(Object modelInstance) {
+	public void present(Object modelInstance) {
 		T value = property.getValue(modelInstance);
 		if (value == null) {
 			combo.clearSelection();
