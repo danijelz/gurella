@@ -18,4 +18,9 @@ class SceneNodesProperty extends SceneElementsProperty<SceneNode2> {
 	protected void addElement(Object object, SceneNode2 element) {
 		((Scene) object).addNode(element);
 	}
+
+	@Override
+	public boolean isEditorEnabled() {
+		return false;
+	}
 }
