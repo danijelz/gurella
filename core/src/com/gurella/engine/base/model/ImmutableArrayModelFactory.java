@@ -131,6 +131,11 @@ public class ImmutableArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isEditorEnabled() {
+			return false;
+		}
+
+		@Override
 		public Object[] getValue(Object object) {
 			ImmutableArray<?> array = (ImmutableArray<?>) object;
 			return array.toArray(Object.class);

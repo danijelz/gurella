@@ -8,7 +8,7 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaEditor;
 
-abstract class PropertyEditor<T> extends Composite {
+public abstract class PropertyEditor<T> extends Composite {
 	protected ModelPropertiesContainer<?> propertiesContainer;
 	protected Property<T> property;
 
@@ -36,6 +36,14 @@ abstract class PropertyEditor<T> extends Composite {
 
 	protected Object getModelInstance() {
 		return propertiesContainer.modelInstance;
+	}
+
+	protected T getValue() {
+		return property.getValue(propertiesContainer.modelInstance);
+	}
+
+	protected void setValue(T value) {
+		property.setValue(propertiesContainer.modelInstance, value);
 	}
 
 	protected void setDirty() {

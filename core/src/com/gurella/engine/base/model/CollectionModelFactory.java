@@ -224,6 +224,11 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isEditorEnabled() {
+			return true;
+		}
+
+		@Override
 		public Object[] getValue(Object object) {
 			@SuppressWarnings("unchecked")
 			Collection<Object> collection = (Collection<Object>) object;

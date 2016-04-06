@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.base.model.PropertyEditor;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
@@ -18,9 +19,11 @@ import com.gurella.engine.utils.Values;
 public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient int instanceId;
 	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
+	@PropertyEditor(editorEnabled = false)
 	String uuid;
 
 	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
+	@PropertyEditor(editorEnabled = false)
 	PrefabReference prefab;
 
 	transient ManagedObjectState state = ManagedObjectState.idle;

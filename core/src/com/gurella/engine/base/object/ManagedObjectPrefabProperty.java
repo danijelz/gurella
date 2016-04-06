@@ -56,6 +56,11 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	public String getGroup() {
 		return null;
 	}
+	
+	@Override
+	public boolean isEditorEnabled() {
+		return false;
+	}
 
 	@Override
 	public Property<PrefabReference> newInstance(Model<?> model) {

@@ -29,7 +29,7 @@ class ManagedObjectUuidProperty implements Property<String> {
 	public boolean isNullable() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isFlat() {
 		return true;
@@ -53,6 +53,11 @@ class ManagedObjectUuidProperty implements Property<String> {
 	@Override
 	public String getGroup() {
 		return null;
+	}
+
+	@Override
+	public boolean isEditorEnabled() {
+		return false;
 	}
 
 	@Override

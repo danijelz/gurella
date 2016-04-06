@@ -31,7 +31,7 @@ public class CharacterPropertyEditor extends SimplePropertyEditor<Character> {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
-				property.setValue(getModelInstance(), text.getText().charAt(0));
+				property.setValue(getModelInstance(), Character.valueOf(text.getText().charAt(0)));
 				setDirty();
 			}
 		});

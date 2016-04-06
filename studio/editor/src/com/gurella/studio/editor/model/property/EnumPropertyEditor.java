@@ -47,7 +47,7 @@ public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<
 			enumType = casted;
 			constants = enumType.getEnumConstants();
 		}
-		comboViewer.setInput(enumType);
+		comboViewer.setInput(constants);
 
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override

@@ -22,6 +22,8 @@ public interface Property<T> {
 	String getDescription();
 
 	String getGroup();
+	
+	boolean isEditorEnabled();
 
 	Property<T> newInstance(Model<?> model);
 

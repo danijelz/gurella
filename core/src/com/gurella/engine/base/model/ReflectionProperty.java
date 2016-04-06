@@ -21,6 +21,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private String descriptiveName;
 	private String description;
 	private String group;
+	private boolean editorEnabled;
 	private Class<T> type;
 	private Range<?> range;
 	private boolean nullable;
@@ -58,7 +59,6 @@ public class ReflectionProperty<T> implements Property<T> {
 		if (propertyDescriptor == null) {
 			descriptiveName = name;
 			description = "";
-			group = "";
 			nullable = isDefaultNullable();
 			copyable = true;
 			flat = isDefaultFlat();
@@ -68,13 +68,21 @@ public class ReflectionProperty<T> implements Property<T> {
 				descriptiveName = name;
 			}
 			description = propertyDescriptor.description();
-			group = propertyDescriptor.group();
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 			copyable = propertyDescriptor.copyable();
 			flat = isDefaultFlat() ? true : propertyDescriptor.flat();
 		}
 
 		range = extractRange(Reflection.getDeclaredAnnotation(field, ValueRange.class));
+		PropertyEditor propertyEditor = Reflection.getDeclaredAnnotation(field, PropertyEditor.class);
+		if (propertyEditor == null) {
+			group = "";
+			editorEnabled = true;
+		} else {
+			group = propertyEditor.group();
+			editorEnabled = propertyEditor.editorEnabled();
+		}
+
 		defaultValue = getValue(Defaults.getDefault(model.getType()));
 	}
 
@@ -167,6 +175,11 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public String getGroup() {
 		return group;
+	}
+
+	@Override
+	public boolean isEditorEnabled() {
+		return editorEnabled;
 	}
 
 	@Override

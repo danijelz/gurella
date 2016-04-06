@@ -21,6 +21,4 @@ public @interface PropertyDescriptor {
 	String descriptiveName() default "";
 
 	String description() default "";
-
-	String group() default "";
 }

@@ -193,6 +193,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isEditorEnabled() {
+			return true;
+		}
+
+		@Override
 		public Property<Boolean> newInstance(Model<?> newModel) {
 			return this;
 		}
@@ -282,6 +287,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		@Override
 		public String getGroup() {
 			return null;
+		}
+
+		@Override
+		public boolean isEditorEnabled() {
+			return true;
 		}
 
 		@Override

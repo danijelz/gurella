@@ -180,6 +180,11 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isEditorEnabled() {
+			return true;
+		}
+
+		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Set<Entry<?, ?>> getValue(Object object) {
 			return ((Map) object).entrySet();
