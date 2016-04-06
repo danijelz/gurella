@@ -14,8 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntArray;
 import com.gurella.engine.application.SceneTransition;
-import com.gurella.engine.resource.AsyncResourceCallback;
-import com.gurella.engine.resource.DependencyMap;
+import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -436,21 +435,14 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 		return null;
 	}
 
-	public DependencyMap obtainResources(IntArray resourceIds) {
-		return null;
-	}
-
-	public <T> void obtainResourceAsync(int resourceId, AsyncResourceCallback<T> callback) {
-	}
-
-	public void obtainResourcesAsync(IntArray resourceIds, AsyncResourceCallback<DependencyMap> callback) {
+	public <T> void obtainResourceAsync(int resourceId, AsyncCallback<T> callback) {
 	}
 
 	public <T> T load(String fileName, Class<T> type) {
 		return null;
 	}
 
-	public <T> void loadAsync(String fileName, Class<T> type, AsyncResourceCallback<T> callback) {
+	public <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback) {
 	}
 
 	public boolean releaseResource(Object resource) {

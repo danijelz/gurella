@@ -11,6 +11,8 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -18,8 +20,6 @@ import com.gurella.engine.desktop.gdxcanvastest.CanvasTestCase;
 import com.gurella.engine.graphics.vector.Canvas;
 import com.gurella.engine.graphics.vector.CanvasFlags.CanvasFlag;
 import com.gurella.engine.utils.Reflection;
-import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisSelectBox;
 
 public class GdxCanvasTestApp {
 	private static final String TEST_CLASSES_PACKAGE = "com.gurella.engine.desktop.gdxcanvastest";
@@ -38,10 +38,11 @@ public class GdxCanvasTestApp {
 	private static class TestApp extends ApplicationAdapter {
 		private Stage stage;
 		private ScreenViewport screenViewport;
-		private VisSelectBox<TestItem> testItems;
+		private SelectBox<TestItem> testItems;
 		private boolean uiVisible = true;
 		private CanvasTestCase selectedTestCase;
 		private Canvas canvas;
+		private Skin skin;
 
 		@Override
 		public void create() {
@@ -62,9 +63,9 @@ public class GdxCanvasTestApp {
 			};
 
 			Gdx.input.setInputProcessor(stage);
-			VisUI.load();
+			skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-			testItems = new VisSelectBox<TestItem>();
+			testItems = new SelectBox<TestItem>(skin);
 			testItems.setBounds(30, screenViewport.getScreenHeight() - 50, 350, 30);
 			testItems.setDisabled(false);
 			testItems.addListener(new ChangeListener() {
@@ -119,7 +120,6 @@ public class GdxCanvasTestApp {
 
 		@Override
 		public void dispose() {
-			VisUI.dispose();
 			stage.dispose();
 			canvas.dispose();
 		}
