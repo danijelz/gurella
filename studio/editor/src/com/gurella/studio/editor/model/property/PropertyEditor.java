@@ -11,17 +11,20 @@ import com.gurella.studio.editor.GurellaEditor;
 public abstract class PropertyEditor<T> extends Composite {
 	protected ModelPropertiesContainer<?> propertiesContainer;
 	protected Property<T> property;
+	protected Object modelInstance;
 
-	public PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
+	public PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property,
+			Object modelInstance) {
 		super(parent, SWT.NONE);
 		this.propertiesContainer = propertiesContainer;
 		this.property = property;
+		this.modelInstance = modelInstance;
 		getGurellaEditor().getToolkit().adapt(this);
 		buildUi();
-		present(propertiesContainer.modelInstance);
+		present(modelInstance);
 		layout(true, true);
 	}
-	
+
 	public String getDescriptiveName() {
 		return property.getDescriptiveName();
 	}
@@ -39,15 +42,15 @@ public abstract class PropertyEditor<T> extends Composite {
 	}
 
 	protected Object getModelInstance() {
-		return propertiesContainer.modelInstance;
+		return modelInstance;
 	}
 
 	protected T getValue() {
-		return property.getValue(propertiesContainer.modelInstance);
+		return property.getValue(modelInstance);
 	}
 
 	protected void setValue(T value) {
-		property.setValue(propertiesContainer.modelInstance, value);
+		property.setValue(modelInstance, value);
 	}
 
 	protected void setDirty() {

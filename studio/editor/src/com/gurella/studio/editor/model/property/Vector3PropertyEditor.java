@@ -15,7 +15,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private Text xField;
@@ -23,8 +22,9 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private Text zField;
 	private Model<Vector3> vector3Model;
 
-	public Vector3PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Vector3> property) {
-		super(parent, propertiesContainer, property);
+	public Vector3PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
+			Property<Vector3> property, Object modelInstance) {
+		super(parent, propertiesContainer, property, modelInstance);
 	}
 
 	@Override

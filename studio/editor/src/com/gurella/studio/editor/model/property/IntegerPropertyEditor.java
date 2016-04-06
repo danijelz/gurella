@@ -11,13 +11,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 	private Text text;
 
-	public IntegerPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Integer> property) {
-		super(parent, propertiesContainer, property);
+	public IntegerPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
+			Property<Integer> property, Object modelInstance) {
+		super(parent, propertiesContainer, property, modelInstance);
 	}
 
 	@Override

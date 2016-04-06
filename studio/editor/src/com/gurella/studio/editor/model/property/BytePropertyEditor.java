@@ -11,13 +11,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 	private Text text;
 
-	public BytePropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Byte> property) {
-		super(parent, propertiesContainer, property);
+	public BytePropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
+			Property<Byte> property, Object modelInstance) {
+		super(parent, propertiesContainer, property, modelInstance);
 	}
 
 	@Override

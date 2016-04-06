@@ -13,7 +13,7 @@ import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class AudioSourceComponent extends SceneNodeComponent2 implements Poolable {
-	AudioSystem audioProcessor;
+	transient AudioSystem audioProcessor;
 	public AudioClip audioClip;
 
 	public boolean spatial = true;

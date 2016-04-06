@@ -10,13 +10,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	private Button check;
 
-	public BooleanPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Boolean> property) {
-		super(parent, propertiesContainer, property);
+	public BooleanPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
+			Property<Boolean> property, Object modelInstance) {
+		super(parent, propertiesContainer, property, modelInstance);
 	}
 
 	@Override

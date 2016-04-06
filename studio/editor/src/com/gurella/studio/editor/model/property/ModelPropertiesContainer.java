@@ -18,11 +18,10 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.model.PropertyEditorFactory;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class ModelPropertiesContainer<T> extends ScrolledForm {
 	protected GurellaEditor editor;
-	protected T modelInstance;
+	private T modelInstance;
 	protected Model<T> model;
 
 	private Array<PropertyEditor<?>> editors = new Array<>();
@@ -59,7 +58,7 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 	private void addEditor(Property<?> property) {
 		FormToolkit toolkit = editor.getToolkit();
 		Composite body = getBody();
-		PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(getBody(), this, property);
+		PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(getBody(), this, property, modelInstance);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertyEditor.setLayoutData(layoutData);
 		propertyEditor.pack();

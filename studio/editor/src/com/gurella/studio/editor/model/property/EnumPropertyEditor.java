@@ -16,14 +16,14 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<T> {
 	private Combo combo;
 	private ComboViewer comboViewer;
 
-	public EnumPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property) {
-		super(parent, propertiesContainer, property);
+	public EnumPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property,
+			Object modelInstance) {
+		super(parent, propertiesContainer, property, modelInstance);
 	}
 
 	@Override

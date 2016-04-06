@@ -11,13 +11,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.SimplePropertyEditor;
 
 public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 	private Text text;
 
-	public LongPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<Long> property) {
-		super(parent, propertiesContainer, property);
+	public LongPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
+			Property<Long> property, Object modelInstance) {
+		super(parent, propertiesContainer, property, modelInstance);
 	}
 
 	@Override

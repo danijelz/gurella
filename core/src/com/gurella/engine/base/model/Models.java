@@ -10,9 +10,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-import com.gurella.engine.audio.Pan;
-import com.gurella.engine.audio.Pitch;
-import com.gurella.engine.audio.Volume;
 import com.gurella.engine.base.model.DefaultArrayModels.BooleanArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.ByteArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.CharArrayModel;
@@ -21,7 +18,6 @@ import com.gurella.engine.base.model.DefaultArrayModels.FloatArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.IntArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.LongArrayModel;
 import com.gurella.engine.base.model.DefaultArrayModels.ShortArrayModel;
-import com.gurella.engine.base.model.DefaultModels.AngleModel;
 import com.gurella.engine.base.model.DefaultModels.BigDecimalModel;
 import com.gurella.engine.base.model.DefaultModels.BigIntegerModel;
 import com.gurella.engine.base.model.DefaultModels.BooleanModel;
@@ -40,16 +36,12 @@ import com.gurella.engine.base.model.DefaultModels.IntegerModel;
 import com.gurella.engine.base.model.DefaultModels.IntegerPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.LongModel;
 import com.gurella.engine.base.model.DefaultModels.LongPrimitiveModel;
-import com.gurella.engine.base.model.DefaultModels.PanModel;
-import com.gurella.engine.base.model.DefaultModels.PitchModel;
 import com.gurella.engine.base.model.DefaultModels.ShortModel;
 import com.gurella.engine.base.model.DefaultModels.ShortPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.StringModel;
 import com.gurella.engine.base.model.DefaultModels.UuidModel;
 import com.gurella.engine.base.model.DefaultModels.VoidModel;
-import com.gurella.engine.base.model.DefaultModels.VolumeModel;
 import com.gurella.engine.base.object.PrefabReference;
-import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
@@ -85,10 +77,6 @@ public class Models {
 		resolvedModels.put(Date.class, DateModel.instance);
 		resolvedModels.put(Uuid.class, UuidModel.instance);
 		resolvedModels.put(Locale.class, LocaleModel.instance);
-		resolvedModels.put(Pitch.class, PitchModel.instance);
-		resolvedModels.put(Pan.class, PanModel.instance);
-		resolvedModels.put(Volume.class, VolumeModel.instance);
-		resolvedModels.put(Angle.class, AngleModel.instance);
 		resolvedModels.put(int[].class, IntArrayModel.instance);
 		resolvedModels.put(long[].class, LongArrayModel.instance);
 		resolvedModels.put(short[].class, ShortArrayModel.instance);
@@ -301,7 +289,7 @@ public class Models {
 
 	private static boolean isEqualPropertyValue(Property<?> property, Object first, Object second) {
 		if (property.getType() == PrefabReference.class) {
-			//TODO handle with EqualsFunction implementation in PropertyDescriptor 
+			// TODO handle with EqualsFunction implementation in PropertyDescriptor
 			PrefabReference firstPrefabReference = (PrefabReference) property.getValue(first);
 			if (firstPrefabReference != null && firstPrefabReference.get() == second) {
 				return true;
