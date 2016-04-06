@@ -42,18 +42,18 @@ public class AssetsExplorerView extends SceneEditorView {
 			if (resource instanceof IContainer) {
 				createItems(null, resource);
 			}
+
+			tree.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event e) {
+					postMessage(new SelectionMessage(getInspectable()));
+				}
+			});
 		} catch (CoreException e) {
 			tree.dispose();
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		tree.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				postMessage(new SelectionMessage(getInspectable()));
-			}
-		});
 	}
 
 	private Inspectable<?> getInspectable() {
