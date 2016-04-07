@@ -80,7 +80,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			editorEnabled = true;
 		} else {
 			group = propertyEditor.group();
-			editorEnabled = propertyEditor.editorEnabled();
+			editorEnabled = propertyEditor.editable();
 		}
 
 		defaultValue = getValue(Defaults.getDefault(model.getType()));
@@ -178,7 +178,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public boolean isEditorEnabled() {
+	public boolean isEditable() {
 		return editorEnabled;
 	}
 

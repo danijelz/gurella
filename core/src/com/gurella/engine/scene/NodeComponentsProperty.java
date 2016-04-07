@@ -20,7 +20,7 @@ public class NodeComponentsProperty extends SceneElementsProperty<SceneNodeCompo
 	}
 
 	@Override
-	public boolean isEditorEnabled() {
+	public boolean isEditable() {
 		return false;
 	}
 }

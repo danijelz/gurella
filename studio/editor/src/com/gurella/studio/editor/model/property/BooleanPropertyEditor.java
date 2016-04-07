@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	private Button check;
@@ -25,8 +26,8 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
-		check = getToolkit().createButton(this, "", SWT.CHECK);
-		check.setBackground(getGurellaEditor().getResourceManager().createColor(new RGB(240, 240, 240)));
+		check = GurellaStudioPlugin.getToolkit().createButton(this, "", SWT.CHECK);
+		check.setBackground(GurellaStudioPlugin.getResourceManager().createColor(new RGB(240, 240, 240)));
 		check.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 		check.addSelectionListener(new SelectionAdapter() {
 			@Override

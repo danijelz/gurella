@@ -17,6 +17,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.PropertyEditorFactory;
 
 public class ModelPropertiesContainer<T> extends ScrolledForm {
@@ -32,7 +33,7 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 		this.modelInstance = instance;
 		this.model = Models.getModel(instance);
 		setExpandHorizontal(true);
-		editor.getToolkit().adapt(this);
+		GurellaStudioPlugin.getToolkit().adapt(this);
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -46,7 +47,7 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 
 		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			if (property.isEditorEnabled()) {
+			if (property.isEditable()) {
 
 				addEditor(property);
 			}
@@ -56,7 +57,7 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 	}
 
 	private void addEditor(Property<?> property) {
-		FormToolkit toolkit = editor.getToolkit();
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Composite body = getBody();
 		PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(getBody(), this, property, modelInstance);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);

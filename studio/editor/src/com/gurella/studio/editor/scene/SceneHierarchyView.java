@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.NodeContainer;
@@ -24,6 +25,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
@@ -32,10 +34,11 @@ public class SceneHierarchyView extends SceneEditorView {
 	private Menu menu;
 
 	public SceneHierarchyView(GurellaEditor editor, int style) {
-		super(editor, "Scene", editor.createImage("icons/outline_co.png"), style);
+		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
 		setLayout(new GridLayout());
-		editor.getToolkit().adapt(this);
-		graph = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		toolkit.adapt(this);
+		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, new Listener() {
@@ -141,7 +144,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		for (SceneNode2 node : nodeContainer.getNodes()) {
 			TreeItem nodeItem = parentItem == null ? new TreeItem(graph, 0) : new TreeItem(parentItem, 0);
 			nodeItem.setText(node.getName());
-			nodeItem.setImage(editor.createImage("icons/ice_cube.png"));
+			nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
 			nodeItem.setData(node);
 			addComponents(nodeItem, node);
 			addNodes(nodeItem, node);
@@ -154,12 +157,12 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
+	private static void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
 		TreeItem componentItem = new TreeItem(parentItem, 0);
 		if (component instanceof TransformComponent) {
-			componentItem.setImage(editor.createImage("icons/transform.png"));
+			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
 		} else {
-			componentItem.setImage(editor.createImage("icons/16-cube-green_16x16.png"));
+			componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
 		}
 		componentItem.setText(Models.getModel(component).getName());
 		componentItem.setData(component);

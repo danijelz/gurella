@@ -56,7 +56,7 @@ class ManagedObjectUuidProperty implements Property<String> {
 	}
 
 	@Override
-	public boolean isEditorEnabled() {
+	public boolean isEditable() {
 		return false;
 	}
 

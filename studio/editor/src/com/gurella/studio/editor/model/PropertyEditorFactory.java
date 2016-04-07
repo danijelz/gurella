@@ -3,8 +3,10 @@ package com.gurella.studio.editor.model;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.ArrayPropertyEditor;
 import com.gurella.studio.editor.model.property.BooleanPropertyEditor;
@@ -68,7 +70,7 @@ public class PropertyEditorFactory {
 		else if (propertyType.isEnum()) {
 			return Values
 					.cast(new EnumPropertyEditor<>(parent, propertiesContainer, Values.cast(property), modelInstance));
-		} else if (Models.getModel(propertyType).getProperties().size() < 2) {
+		} else if (isSimpleProperty(propertyType)) {
 			return Values.cast(new SimpleObjectPropertyEditor<>(parent, propertiesContainer, Values.cast(property),
 					modelInstance));
 		} else {
@@ -76,5 +78,25 @@ public class PropertyEditorFactory {
 		}
 
 		// return new DefaultPropertyEditor<>(parent, property);
+	}
+
+	private static boolean isSimpleProperty(Class<?> propertyType) {
+		ImmutableArray<Property<?>> properties = Models.getModel(propertyType).getProperties();
+		Property<?> editableProperty = null;
+		for (Property<?> property : properties) {
+			if (property.isEditable()) {
+				if (editableProperty == null) {
+					editableProperty = property;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		if (editableProperty == null) {
+			return true;
+		} else {
+			return Models.getModel(editableProperty.getType()) instanceof SimpleModel;
+		}
 	}
 }

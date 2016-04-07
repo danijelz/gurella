@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.properties.TextureProperties;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
@@ -32,7 +33,7 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 		super(parent, target);
 		IFile file = target.file;
 		setText(file.getName());
-		FormToolkit toolkit = getToolkit();
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(1, false));
@@ -103,7 +104,7 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		reflow(true);
 	}
 

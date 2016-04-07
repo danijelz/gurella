@@ -193,7 +193,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isEditorEnabled() {
+		public boolean isEditable() {
 			return true;
 		}
 
@@ -290,7 +290,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isEditorEnabled() {
+		public boolean isEditable() {
 			return true;
 		}
 

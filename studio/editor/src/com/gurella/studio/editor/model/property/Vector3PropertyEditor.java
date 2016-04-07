@@ -10,11 +10,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private Text xField;
@@ -40,10 +42,12 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	}
 
 	private Text createField(final Property<Float> attributeProperty) {
-		Label label = getToolkit().createLabel(this, attributeProperty.getDescriptiveName());
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+
+		Label label = toolkit.createLabel(this, attributeProperty.getDescriptiveName());
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
-		Text text = getToolkit().createText(this, "", SWT.BORDER);
+		Text text = toolkit.createText(this, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 		text.addModifyListener(new ModifyListener() {
 			@Override

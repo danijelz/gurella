@@ -23,10 +23,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jface.resource.DeviceResourceManager;
-import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -35,7 +32,6 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -66,9 +62,6 @@ public class GurellaEditor extends EditorPart {
 	private InspectorView inspectorView;
 	private AssetsExplorerView assetsExplorerView;
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
-
-	private DeviceResourceManager resourceManager;
-	private FormToolkit toolkit;
 
 	private Scene scene;
 	boolean dirty;
@@ -129,8 +122,6 @@ public class GurellaEditor extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout());
-		toolkit = new FormToolkit(parent.getDisplay());
-		resourceManager = new DeviceResourceManager(parent.getDisplay());
 
 		workspace = ResourcesPlugin.getWorkspace();
 		IResource resource = getEditorInput().getAdapter(IResource.class);
@@ -193,7 +184,7 @@ public class GurellaEditor extends EditorPart {
 
 			ClassLoader parentClassLoader = project.getClass().getClassLoader();
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			classLoader = new MyURLClassLoader(urls, parentClassLoader);
+			classLoader = new DynamicURLClassLoader(urls, parentClassLoader);
 		} catch (MalformedURLException | CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -204,18 +195,6 @@ public class GurellaEditor extends EditorPart {
 		this.scene = scene;
 		dirty = false;
 		sceneHierarchyView.present(scene);
-	}
-
-	public FormToolkit getToolkit() {
-		return toolkit;
-	}
-
-	public ResourceManager getResourceManager() {
-		return resourceManager;
-	}
-
-	public Image createImage(String path) {
-		return resourceManager.createImage(GurellaStudioPlugin.getImageDescriptor(path));
 	}
 
 	public SceneEditorMainContainer getMainContainer() {
@@ -247,8 +226,6 @@ public class GurellaEditor extends EditorPart {
 	public void dispose() {
 		super.dispose();
 		ResourceService.unload(scene);
-		toolkit.dispose();
-		resourceManager.dispose();
 		application.exit();
 	}
 
@@ -279,16 +256,16 @@ public class GurellaEditor extends EditorPart {
 		}
 	}
 
-	private static class MyURLClassLoader extends URLClassLoader {
-		public MyURLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+	private static class DynamicURLClassLoader extends URLClassLoader {
+		public DynamicURLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
 			super(urls, parent, factory);
 		}
 
-		public MyURLClassLoader(URL[] urls, ClassLoader parent) {
+		public DynamicURLClassLoader(URL[] urls, ClassLoader parent) {
 			super(urls, parent);
 		}
 
-		public MyURLClassLoader(URL[] urls) {
+		public DynamicURLClassLoader(URL[] urls) {
 			super(urls);
 		}
 

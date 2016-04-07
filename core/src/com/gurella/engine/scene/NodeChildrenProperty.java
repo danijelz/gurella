@@ -20,7 +20,7 @@ class NodeChildrenProperty extends SceneElementsProperty<SceneNode2> {
 	}
 
 	@Override
-	public boolean isEditorEnabled() {
+	public boolean isEditable() {
 		return false;
 	}
 }

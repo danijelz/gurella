@@ -131,7 +131,7 @@ public class ImmutableArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isEditorEnabled() {
+		public boolean isEditable() {
 			return false;
 		}
 

@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 	private Text text;
@@ -26,7 +27,7 @@ public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
-		text = getToolkit().createText(this, "", SWT.BORDER);
+		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 		text.addModifyListener(new ModifyListener() {
 			@Override

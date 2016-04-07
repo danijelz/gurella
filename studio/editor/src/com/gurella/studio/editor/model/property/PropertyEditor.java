@@ -2,11 +2,11 @@ package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public abstract class PropertyEditor<T> extends Composite {
 	protected ModelPropertiesContainer<?> propertiesContainer;
@@ -19,7 +19,7 @@ public abstract class PropertyEditor<T> extends Composite {
 		this.propertiesContainer = propertiesContainer;
 		this.property = property;
 		this.modelInstance = modelInstance;
-		getGurellaEditor().getToolkit().adapt(this);
+		GurellaStudioPlugin.getToolkit().adapt(this);
 		buildUi();
 		present(modelInstance);
 		layout(true, true);
@@ -55,9 +55,5 @@ public abstract class PropertyEditor<T> extends Composite {
 
 	protected void setDirty() {
 		getGurellaEditor().setDirty();
-	}
-
-	protected FormToolkit getToolkit() {
-		return getGurellaEditor().getToolkit();
 	}
 }

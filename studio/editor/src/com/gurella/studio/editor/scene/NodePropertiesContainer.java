@@ -50,6 +50,7 @@ import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
@@ -62,10 +63,11 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
-		init(getToolkit(), target);
+		init(target);
 	}
 
-	private void init(FormToolkit toolkit, final SceneNode2 node) {
+	private void init(final SceneNode2 node) {
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		GridLayout layout = new GridLayout(4, false);
 		layout.marginWidth = 0;
@@ -158,7 +160,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
-		Section componentSection = getGurellaEditor().getToolkit().createSection(componentsPropertiesComposite,
+		Section componentSection = GurellaStudioPlugin.getToolkit().createSection(componentsPropertiesComposite,
 				ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
 		componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		componentSection.setText(Models.getModel(component).getName());

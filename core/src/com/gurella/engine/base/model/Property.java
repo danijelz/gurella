@@ -23,7 +23,7 @@ public interface Property<T> {
 
 	String getGroup();
 	
-	boolean isEditorEnabled();
+	boolean isEditable();
 
 	Property<T> newInstance(Model<?> model);
 

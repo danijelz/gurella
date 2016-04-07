@@ -9,6 +9,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
@@ -18,10 +19,10 @@ public class ComponentPropertiesContainer extends PropertiesContainer<SceneNodeC
 	public ComponentPropertiesContainer(InspectorView parent, SceneNodeComponent2 target) {
 		super(parent, target);
 		Composite head = getForm().getHead();
-		FontDescriptor boldDescriptor = FontDescriptor.createFrom(head.getFont()).setStyle(SWT.BOLD);//TODO
+		FontDescriptor boldDescriptor = FontDescriptor.createFrom(head.getFont()).setStyle(SWT.BOLD);// TODO
 		head.setFont(boldDescriptor.createFont(getDisplay()));
 		setText(Models.getModel(target).getName());
-		FormToolkit toolkit = getToolkit();
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(3, false));

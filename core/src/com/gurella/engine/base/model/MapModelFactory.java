@@ -180,7 +180,7 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isEditorEnabled() {
+		public boolean isEditable() {
 			return true;
 		}
 

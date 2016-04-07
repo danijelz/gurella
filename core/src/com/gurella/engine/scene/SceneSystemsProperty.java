@@ -20,7 +20,7 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 	}
 
 	@Override
-	public boolean isEditorEnabled() {
+	public boolean isEditable() {
 		return false;
 	}
 }

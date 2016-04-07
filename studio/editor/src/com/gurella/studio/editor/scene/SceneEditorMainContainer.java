@@ -1,6 +1,5 @@
 package com.gurella.studio.editor.scene;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -40,6 +39,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
+import com.gurella.studio.editor.GurellaStudioPlugin;
+
 public class SceneEditorMainContainer extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 32;
 	Composite center;
@@ -55,13 +56,11 @@ public class SceneEditorMainContainer extends Composite {
 	public SceneEditorMainContainer(Composite parent, int style) {
 		super(parent, style);
 
-		Display display = getDisplay();
-		defaultImage = new Image(display,
-				ImageDescriptor.createFromFile(SceneEditorMainContainer.class, "palette_view.gif").getImageData());
+		defaultImage = GurellaStudioPlugin.createImage("icons/palette_view.gif");
 
-		dragEast = createCursor("right_source.bmp");
-		dragSouth = createCursor("bottom_source.bmp");
-		dragWest = createCursor("left_source.bmp");
+		dragEast = createCursor("icons/right_source.bmp");
+		dragSouth = createCursor("icons/bottom_source.bmp");
+		dragWest = createCursor("icons/left_source.bmp");
 
 		center = new Composite(this, SWT.BORDER);
 		center.setLayout(new GridLayout());
@@ -178,7 +177,7 @@ public class SceneEditorMainContainer extends Composite {
 	}
 
 	private Cursor createCursor(String fileName) {
-		ImageData imageData = ImageDescriptor.createFromFile(SceneEditorMainContainer.class, fileName).getImageData();
+		ImageData imageData = GurellaStudioPlugin.getImageDescriptor(fileName).getImageData();
 		imageData.transparentPixel = imageData.palette.getPixel(new RGB(255, 255, 255));
 		return new Cursor(getDisplay(), imageData, 16, 16);
 	}

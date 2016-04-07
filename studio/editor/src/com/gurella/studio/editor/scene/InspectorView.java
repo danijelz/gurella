@@ -6,18 +6,18 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class InspectorView extends SceneEditorView {
 	private Object currentTarget;
 	private PropertiesContainer<Object> currentContainer;
 
 	public InspectorView(GurellaEditor editor, int style) {
-		super(editor, "Inspector", editor.createImage("icons/showproperties_obj.gif"), style);
+		super(editor, "Inspector", GurellaStudioPlugin.createImage("icons/showproperties_obj.gif"), style);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -110,10 +110,6 @@ public class InspectorView extends SceneEditorView {
 
 		protected void setDirty() {
 			getGurellaEditor().setDirty();
-		}
-
-		protected FormToolkit getToolkit() {
-			return getGurellaEditor().getToolkit();
 		}
 	}
 }

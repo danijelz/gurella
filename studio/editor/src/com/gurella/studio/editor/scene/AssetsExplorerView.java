@@ -15,9 +15,11 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer.TextureResource;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
@@ -29,11 +31,12 @@ public class AssetsExplorerView extends SceneEditorView {
 	private Tree tree;
 
 	public AssetsExplorerView(GurellaEditor editor, int style) {
-		super(editor, "Assets", editor.createImage("icons/resource_persp.gif"), style);
+		super(editor, "Assets", GurellaStudioPlugin.createImage("icons/resource_persp.gif"), style);
 
 		setLayout(new GridLayout());
-		editor.getToolkit().adapt(this);
-		tree = editor.getToolkit().createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		toolkit.adapt(this);
+		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		try {
@@ -108,7 +111,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		} else {
 			IFile file = (IFile) resource;
 			if (AssetType.texture.containsExtension(file.getFileExtension())) {
-				nodeItem.setImage(editor.createImage("icons/picture.png"));
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/picture.png"));
 			} else {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 			}

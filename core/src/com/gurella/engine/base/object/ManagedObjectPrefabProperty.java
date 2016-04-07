@@ -58,7 +58,7 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	}
 	
 	@Override
-	public boolean isEditorEnabled() {
+	public boolean isEditable() {
 		return false;
 	}
 

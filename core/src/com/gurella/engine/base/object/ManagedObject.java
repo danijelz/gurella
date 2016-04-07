@@ -19,11 +19,11 @@ import com.gurella.engine.utils.Values;
 public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient int instanceId;
 	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
-	@PropertyEditor(editorEnabled = false)
+	@PropertyEditor(editable = false)
 	String uuid;
 
 	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
-	@PropertyEditor(editorEnabled = false)
+	@PropertyEditor(editable = false)
 	PrefabReference prefab;
 
 	transient ManagedObjectState state = ManagedObjectState.idle;
