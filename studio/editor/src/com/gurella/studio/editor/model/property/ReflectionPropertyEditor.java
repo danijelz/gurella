@@ -17,9 +17,9 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
+		body.setLayout(layout);
 
-		objectPropertiesContainer = new ModelEditorContainer<P>(this, getValueContext());
+		objectPropertiesContainer = new ModelEditorContainer<P>(body, getValueContext());
 		objectPropertiesContainer.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 	}
 

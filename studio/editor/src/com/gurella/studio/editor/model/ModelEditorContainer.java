@@ -65,8 +65,9 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		PropertyEditor<V> editor = createEditor(getBody(),
 				new PropertyEditorContext<>(context, context.model, context.modelInstance, property));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		editor.setLayoutData(layoutData);
-		editor.pack();
+		Composite composite = editor.getComposite();
+		composite.setLayoutData(layoutData);
+		composite.pack();
 		editors.add(editor);
 
 		if (editor instanceof SimplePropertyEditor) {
@@ -75,14 +76,14 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 			label.setFont(
 					GurellaStudioPlugin.createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-			label.moveAbove(editor);
+			label.moveAbove(composite);
 		} else {
 			Section componentSection = toolkit.createSection(body, TWISTIE | TITLE_BAR);
 			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 			componentSection.setText(editor.getDescriptiveName());
-			editor.setParent(componentSection);
-			componentSection.setClient(editor);
-			editor.layout(true, true);
+			composite.setParent(componentSection);
+			componentSection.setClient(composite);
+			composite.layout(true, true);
 			componentSection.setExpanded(true);
 		}
 

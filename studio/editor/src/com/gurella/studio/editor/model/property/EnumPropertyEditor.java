@@ -26,8 +26,8 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
-		combo = new Combo(this, SWT.READ_ONLY);
+		body.setLayout(layout);
+		combo = new Combo(body, SWT.READ_ONLY);
 		combo.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 
 		comboViewer = new ComboViewer(combo);

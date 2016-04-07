@@ -16,7 +16,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
+		body.setLayout(layout);
 		P values = getValue();
 		if (values == null) {
 			return;

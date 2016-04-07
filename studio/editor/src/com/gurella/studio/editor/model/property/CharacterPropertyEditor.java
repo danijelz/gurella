@@ -19,8 +19,8 @@ public class CharacterPropertyEditor extends SimplePropertyEditor<Character> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
-		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
+		body.setLayout(layout);
+		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 
 		Character value = getValue();

@@ -20,8 +20,8 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
-		check = GurellaStudioPlugin.getToolkit().createButton(this, "", SWT.CHECK);
+		body.setLayout(layout);
+		check = GurellaStudioPlugin.getToolkit().createButton(body, "", SWT.CHECK);
 		check.setBackground(GurellaStudioPlugin.getResourceManager().createColor(new RGB(240, 240, 240)));
 		check.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 

@@ -15,8 +15,8 @@ public class DefaultPropertyEditor<P> extends SimplePropertyEditor<P> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
-		Label label = GurellaStudioPlugin.getToolkit().createLabel(this, "Missing editor");
+		body.setLayout(layout);
+		Label label = GurellaStudioPlugin.getToolkit().createLabel(body, "Missing editor");
 		label.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 	}
 }

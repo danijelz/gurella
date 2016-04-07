@@ -24,9 +24,9 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		setLayout(layout);
+		body.setLayout(layout);
 		P value = getValue();
-		delegate = createEditor(this, new PropertyEditorContext<>(context, model, value, delegateProperty));
-		delegate.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		delegate = createEditor(body, new PropertyEditorContext<>(context, model, value, delegateProperty));
+		delegate.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 	}
 }
