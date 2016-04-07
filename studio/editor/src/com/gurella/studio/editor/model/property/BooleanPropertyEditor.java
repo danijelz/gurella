@@ -16,10 +16,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 
 	public BooleanPropertyEditor(Composite parent, PropertyEditorContext<?, Boolean> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -27,19 +24,16 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		check = GurellaStudioPlugin.getToolkit().createButton(this, "", SWT.CHECK);
 		check.setBackground(GurellaStudioPlugin.getResourceManager().createColor(new RGB(240, 240, 240)));
 		check.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+
+		Boolean value = getValue();
+		if (value != null) {
+			check.setSelection(value.booleanValue());
+		}
 		check.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setValue(Boolean.valueOf(check.getSelection()));
 			}
 		});
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		Boolean value = getValue();
-		if (value != null) {
-			check.setSelection(value.booleanValue());
-		}
 	}
 }

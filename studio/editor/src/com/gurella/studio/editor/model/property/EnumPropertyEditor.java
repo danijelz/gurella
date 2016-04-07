@@ -22,10 +22,7 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 
 	public EnumPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -47,6 +44,14 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		}
 		comboViewer.setInput(constants);
 
+		P value = getValue();
+		if (value == null) {
+			combo.clearSelection();
+		} else {
+			final ISelection selection = new StructuredSelection(value);
+			comboViewer.setSelection(selection);
+		}
+
 		combo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -59,16 +64,5 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 				}
 			}
 		});
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		P value = getValue();
-		if (value == null) {
-			combo.clearSelection();
-		} else {
-			final ISelection selection = new StructuredSelection(value);
-			comboViewer.setSelection(selection);
-		}
 	}
 }

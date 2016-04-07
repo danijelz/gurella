@@ -15,16 +15,19 @@ public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 
 	public LongPropertyEditor(Composite parent, PropertyEditorContext<?, Long> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
 		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+
+		Long value = getValue();
+		if (value != null) {
+			text.setText(value.toString());
+		}
+
 		text.addModifyListener((e) -> setValue(Long.valueOf(text.getText())));
 		text.addVerifyListener(new VerifyListener() {
 			@Override
@@ -40,13 +43,5 @@ public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 				}
 			}
 		});
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		Long value = getValue();
-		if (value != null) {
-			text.setText(value.toString());
-		}
 	}
 }

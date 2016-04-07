@@ -1,8 +1,6 @@
 package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -17,22 +15,20 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 
 	public IntegerPropertyEditor(Composite parent, PropertyEditorContext<?, Integer> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
 		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
-		text.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent event) {
-				setValue(Integer.valueOf(text.getText()));
-			}
-		});
+
+		Integer value = getValue();
+		if (value != null) {
+			text.setText(value.toString());
+		}
+
+		text.addModifyListener((e) -> setValue(Integer.valueOf(text.getText())));
 		text.addVerifyListener(new VerifyListener() {
 			@Override
 			public void verifyText(VerifyEvent e) {
@@ -47,13 +43,5 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 				}
 			}
 		});
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		Integer value = getValue();
-		if (value != null) {
-			text.setText(value.toString());
-		}
 	}
 }

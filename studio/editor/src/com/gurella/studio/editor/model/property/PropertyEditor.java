@@ -17,20 +17,12 @@ public abstract class PropertyEditor<P> extends Composite {
 		this.context = context;
 		GurellaStudioPlugin.getToolkit().adapt(this);
 		cachedValue = getValue();
-
-		buildUi();
-		present(context.modelInstance);
-		layout(true, true);
 	}
-
-	protected abstract void buildUi();
-
-	public abstract void present(Object modelInstance);
 
 	public String getDescriptiveName() {
 		return context.property.getDescriptiveName();
 	}
-	
+
 	public Property<P> getProperty() {
 		return context.property;
 	}

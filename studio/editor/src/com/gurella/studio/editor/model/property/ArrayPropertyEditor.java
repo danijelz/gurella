@@ -12,10 +12,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 	public ArrayPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -29,11 +26,5 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			// PropertyEditorFactory.createEditor(parent, property);
 		}
 		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		// TODO Auto-generated method stub
-
 	}
 }

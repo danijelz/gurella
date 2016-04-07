@@ -14,16 +14,18 @@ public class ShortPropertyEditor extends SimplePropertyEditor<Short> {
 
 	public ShortPropertyEditor(Composite parent, PropertyEditorContext<?, Short> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
 		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+
+		Short value = getValue();
+		if (value != null) {
+			text.setText(value.toString());
+		}
 		text.addModifyListener((event) -> setValue(Short.valueOf(text.getText())));
 		text.addVerifyListener(this::verifyText);
 	}
@@ -37,14 +39,6 @@ public class ShortPropertyEditor extends SimplePropertyEditor<Short> {
 			}
 		} catch (Exception e2) {
 			e.doit = false;
-		}
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		Short value = getValue();
-		if (value != null) {
-			text.setText(value.toString());
 		}
 	}
 }

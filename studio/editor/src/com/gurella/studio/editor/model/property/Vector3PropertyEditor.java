@@ -18,10 +18,7 @@ import com.gurella.studio.editor.GurellaStudioPlugin;
 public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	public Vector3PropertyEditor(Composite parent, PropertyEditorContext<?, Vector3> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(6, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -38,9 +35,5 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		Label label = toolkit.createLabel(this, childProperty.getDescriptiveName());
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 		return createEditor(this, new PropertyEditorContext<>(context, vector3Model, getValue(), childProperty));
-	}
-
-	@Override
-	public void present(Object modelInstance) {
 	}
 }

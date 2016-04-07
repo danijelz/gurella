@@ -13,10 +13,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 	public ReflectionPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
-	}
 
-	@Override
-	protected void buildUi() {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -33,10 +30,5 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		} else {
 			return new ModelEditorContext<>(context, value);
 		}
-	}
-
-	@Override
-	public void present(Object modelInstance) {
-		// TODO Auto-generated method stub
 	}
 }
