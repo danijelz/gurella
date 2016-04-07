@@ -39,8 +39,8 @@ public abstract class PropertyEditor<P> {
 		menuButton.setVisible(false);
 
 		cachedValue = getValue();
-		composite.addListener(SWT.MouseEnter, (e) -> mouseEnter());
-		composite.addListener(SWT.MouseExit, (e) -> mouseExit());
+		//composite.addListener(SWT.MouseEnter, (e) -> mouseEnter());
+		//composite.addListener(SWT.MouseExit, (e) -> mouseExit());
 	}
 
 	public Composite getComposite() {
@@ -89,5 +89,9 @@ public abstract class PropertyEditor<P> {
 			context.propertyValueChanged(cachedValue, value);
 			cachedValue = value;
 		}
+	}
+	
+	public void setHover(boolean hover) {
+		menuButton.setVisible(hover);
 	}
 }

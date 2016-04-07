@@ -320,13 +320,12 @@ public class SceneEditorMainContainer extends Composite {
 				sash.moveAbove(tabFolder);
 			}
 
-			addDisposeListener(new DisposeListener() {
-				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					maxImage.dispose();
-					maxImage = null;
-				}
-			});
+			addDisposeListener((e) -> disposeMaxImage());
+		}
+
+		private void disposeMaxImage() {
+			maxImage.dispose();
+			maxImage = null;
 		}
 
 		@Override

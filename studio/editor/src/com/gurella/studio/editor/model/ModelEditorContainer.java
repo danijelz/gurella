@@ -1,20 +1,28 @@
 package com.gurella.studio.editor.model;
 
+import static com.gurella.studio.editor.GurellaStudioPlugin.createFont;
+import static com.gurella.studio.editor.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.GurellaStudioPlugin;
@@ -25,8 +33,9 @@ import com.gurella.studio.editor.model.property.SimplePropertyEditor;
 
 public class ModelEditorContainer<T> extends ScrolledForm {
 	private ModelEditorContext<T> context;
+	private List<PropertyEditor<?>> editors = new ArrayList<>();
 
-	private Array<PropertyEditor<?>> editors = new Array<>();
+	private PropertyEditor<?> hoverEditor;
 
 	public ModelEditorContainer(Composite parent, T modelInstance) {
 		this(parent, new ModelEditorContext<>(modelInstance));
@@ -43,6 +52,10 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		getBody().setLayout(layout);
 		initEditors();
 		layout(true, true);
+		Listener mouseMoveListener = (e) -> mouseMoved(e);
+		Display display = getDisplay();
+		display.addFilter(SWT.MouseMove, mouseMoveListener);
+		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
 	}
 
 	private void initEditors() {
@@ -60,7 +73,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 	}
 
 	private <V> void addEditor(Property<V> property) {
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		FormToolkit toolkit = getToolkit();
 		Composite body = getBody();
 		PropertyEditor<V> editor = createEditor(getBody(),
 				new PropertyEditorContext<>(context, context.model, context.modelInstance, property));
@@ -74,8 +87,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			Label label = toolkit.createLabel(body, editor.getDescriptiveName() + ":");
 			label.setAlignment(SWT.RIGHT);
 			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
-			label.setFont(
-					GurellaStudioPlugin.createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
 		} else {
 			Section componentSection = toolkit.createSection(body, TWISTIE | TITLE_BAR);
@@ -89,5 +101,32 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 
 		Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);
 		separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
+	}
+
+	protected void mouseMoved(Event event) {
+		Point location = getDisplay().getCursorLocation();
+		PropertyEditor<?> editor = getPropertyEditor(location.x, location.y);
+		if (editor == hoverEditor) {
+			return;
+		}
+
+		if (hoverEditor != null) {
+			hoverEditor.setHover(false);
+		}
+
+		hoverEditor = editor;
+		if (editor != null) {
+			editor.setHover(true);
+		}
+
+	}
+
+	private PropertyEditor<?> getPropertyEditor(int x, int y) {
+		if (!getBody().getBounds().contains(getBody().toControl(x, y))) {
+			return null;
+		}
+
+		return editors.stream().filter(e -> e.getComposite().getBounds().contains(e.getComposite().toControl(x, y)))
+				.findFirst().orElse(null);
 	}
 }
