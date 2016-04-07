@@ -29,6 +29,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		if (value != null) {
 			check.setSelection(value.booleanValue());
 		}
+
 		check.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
