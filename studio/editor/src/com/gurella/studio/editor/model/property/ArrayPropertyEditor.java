@@ -5,15 +5,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.utils.Array;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
-public class ArrayPropertyEditor<T> extends ComplexPropertyEditor<T> {
+public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	private Button addButton;
-	private Array<PropertyEditor<T>> itemEditors = new Array<>();
+	private Array<PropertyEditor<?>> itemEditors = new Array<>();
 
-	public ArrayPropertyEditor(Composite parent, PropertyEditorContext<T> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public ArrayPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -22,8 +20,7 @@ public class ArrayPropertyEditor<T> extends ComplexPropertyEditor<T> {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
-		property.getType().getComponentType();
-		T values = getValue();
+		P values = getValue();
 		if (values == null) {
 			return;
 		}

@@ -1,5 +1,18 @@
 package com.gurella.studio.editor.scene;
 
+import static org.eclipse.swt.SWT.ARROW;
+import static org.eclipse.swt.SWT.BEGINNING;
+import static org.eclipse.swt.SWT.BORDER;
+import static org.eclipse.swt.SWT.CENTER;
+import static org.eclipse.swt.SWT.CHECK;
+import static org.eclipse.swt.SWT.DOWN;
+import static org.eclipse.swt.SWT.END;
+import static org.eclipse.swt.SWT.FILL;
+import static org.eclipse.swt.SWT.POP_UP;
+import static org.eclipse.swt.SWT.PUSH;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
+
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -7,7 +20,6 @@ import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,7 +35,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
@@ -52,13 +63,14 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
+import com.gurella.studio.editor.model.property.ModelEditorContext;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Text nameText;
 	private Button enabledCheck;
 	private Button menuButton;
-	private Composite componentsPropertiesComposite;
+	private Composite componentsComposite;
 	private Array<ModelEditorContainer<?>> componentContainers = new Array<>();
 
 	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
@@ -74,10 +86,10 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		getBody().setLayout(layout);
 
 		Label nameLabel = toolkit.createLabel(getBody(), "Name: ");
-		nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
 
-		nameText = toolkit.createText(getBody(), node.getName(), SWT.BORDER);
-		nameText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		nameText = toolkit.createText(getBody(), node.getName(), BORDER);
+		nameText.setLayoutData(new GridData(FILL, BEGINNING, true, false));
 		nameText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -87,8 +99,8 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			}
 		});
 
-		enabledCheck = toolkit.createButton(getBody(), "Enabled", SWT.CHECK);
-		enabledCheck.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		enabledCheck = toolkit.createButton(getBody(), "Enabled", CHECK);
+		enabledCheck.setLayoutData(new GridData(END, CENTER, false, false));
 		enabledCheck.setSelection(node.isEnabled());
 		enabledCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -98,12 +110,12 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			}
 		});
 
-		menuButton = toolkit.createButton(getBody(), "", SWT.ARROW | SWT.DOWN);
-		menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		menuButton = toolkit.createButton(getBody(), "", ARROW | DOWN);
+		menuButton.setLayoutData(new GridData(END, CENTER, false, false));
 		menuButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Menu menu = new Menu(getShell(), SWT.POP_UP);
+				Menu menu = new Menu(getShell(), POP_UP);
 
 				addMenuItem(menu, TransformComponent.class);
 				addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
@@ -133,50 +145,51 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			}
 		});
 
-		componentsPropertiesComposite = toolkit.createComposite(getBody());
+		componentsComposite = toolkit.createComposite(getBody());
 		GridLayout componentsLayout = new GridLayout(1, false);
 		componentsLayout.marginHeight = 0;
 		componentsLayout.marginWidth = 0;
-		componentsPropertiesComposite.setLayout(componentsLayout);
-		componentsPropertiesComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
-		initComponentContainers(toolkit);
+		componentsComposite.setLayout(componentsLayout);
+		componentsComposite.setLayoutData(new GridData(FILL, FILL, true, true, 4, 1));
+		initComponentContainers();
 		layout(true, true);
 	}
 
-	private void initComponentContainers(FormToolkit toolkit) {
+	private void initComponentContainers() {
 		ImmutableArray<SceneNodeComponent2> components = target.components;
 		for (int i = 0; i < components.size(); i++) {
 			SceneNodeComponent2 component = components.get(i);
-			Section componentSection = toolkit.createSection(componentsPropertiesComposite,
-					ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
-			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-			componentSection.setExpanded(true);
-			componentSection.setText(Models.getModel(component).getName());
-			ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(
-					getGurellaEditor(), componentSection, component);
-			componentSection.setClient(propertiesContainer);
+			ModelEditorContainer<SceneNodeComponent2> propertiesContainer = createSection(component);
 			componentContainers.add(propertiesContainer);
 		}
 	}
 
+	private ModelEditorContainer<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		Section section = toolkit.createSection(componentsComposite, TWISTIE | TITLE_BAR);
+		section.setText(Models.getModel(component).getName());
+		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
+		section.setExpanded(true);
+
+		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(component);
+		context.signal.addListener((event) -> setDirty());
+
+		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(section, context);
+		section.setClient(propertiesContainer);
+		return propertiesContainer;
+	}
+
 	private void addComponent(SceneNodeComponent2 component) {
-		Section componentSection = GurellaStudioPlugin.getToolkit().createSection(componentsPropertiesComposite,
-				ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
-		componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		componentSection.setText(Models.getModel(component).getName());
-		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(
-				getGurellaEditor(), componentSection, component);
-		componentSection.setClient(propertiesContainer);
+		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = createSection(component);
 		propertiesContainer.layout(true, true);
-		componentSection.setExpanded(true);
 		componentContainers.add(propertiesContainer);
 		postMessage(new ComponentAddedMessage(component));
-		getGurellaEditor().setDirty();
+		setDirty();
 		reflow(true);
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
-		MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(Models.getModel(componentType).getName());
 		item1.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -190,7 +203,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	}
 
 	private void addScriptMenuItem(Menu menu) {
-		MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText("Script");
 		item1.addSelectionListener(new SelectionAdapter() {
 			@Override

@@ -11,14 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 	private Text text;
 
-	public IntegerPropertyEditor(Composite parent, PropertyEditorContext<Integer> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public IntegerPropertyEditor(Composite parent, PropertyEditorContext<?, Integer> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -32,8 +30,7 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
-				property.setValue(getModelInstance(), Integer.valueOf(text.getText()));
-				setDirty();
+				setValue(Integer.valueOf(text.getText()));
 			}
 		});
 		text.addVerifyListener(new VerifyListener() {
@@ -54,7 +51,7 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 
 	@Override
 	public void present(Object modelInstance) {
-		Integer value = property.getValue(modelInstance);
+		Integer value = getValue();
 		if (value != null) {
 			text.setText(value.toString());
 		}

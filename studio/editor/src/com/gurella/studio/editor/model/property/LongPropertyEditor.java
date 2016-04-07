@@ -1,8 +1,6 @@
 package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -11,14 +9,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 	private Text text;
 
-	public LongPropertyEditor(Composite parent, PropertyEditorContext<Long> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public LongPropertyEditor(Composite parent, PropertyEditorContext<?, Long> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -29,13 +25,7 @@ public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 		setLayout(layout);
 		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
-		text.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent event) {
-				property.setValue(getModelInstance(), Long.valueOf(text.getText()));
-				setDirty();
-			}
-		});
+		text.addModifyListener((e) -> setValue(Long.valueOf(text.getText())));
 		text.addVerifyListener(new VerifyListener() {
 			@Override
 			public void verifyText(VerifyEvent e) {
@@ -54,7 +44,7 @@ public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 
 	@Override
 	public void present(Object modelInstance) {
-		Long value = property.getValue(modelInstance);
+		Long value = getValue();
 		if (value != null) {
 			text.setText(value.toString());
 		}

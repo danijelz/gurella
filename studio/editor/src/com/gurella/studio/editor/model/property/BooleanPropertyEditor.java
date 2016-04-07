@@ -10,14 +10,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	private Button check;
 
-	public BooleanPropertyEditor(Composite parent, PropertyEditorContext<Boolean> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public BooleanPropertyEditor(Composite parent, PropertyEditorContext<?, Boolean> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -32,15 +30,14 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		check.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				property.setValue(getModelInstance(), Boolean.valueOf(check.getSelection()));
-				setDirty();
+				setValue(Boolean.valueOf(check.getSelection()));
 			}
 		});
 	}
 
 	@Override
 	public void present(Object modelInstance) {
-		Boolean value = property.getValue(modelInstance);
+		Boolean value = getValue();
 		if (value != null) {
 			check.setSelection(value.booleanValue());
 		}

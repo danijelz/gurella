@@ -7,12 +7,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
-public class DefaultPropertyEditor<T> extends SimplePropertyEditor<T> {
-	public DefaultPropertyEditor(Composite parent, PropertyEditorContext<T> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+public class DefaultPropertyEditor<P> extends SimplePropertyEditor<P> {
+	public DefaultPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
+		super(parent, context);
 	}
 
 	@Override

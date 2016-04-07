@@ -15,15 +15,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
-public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<T> {
+public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<P> {
 	private Combo combo;
 	private ComboViewer comboViewer;
 
-	public EnumPropertyEditor(Composite parent, PropertyEditorContext<T> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public EnumPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -39,11 +37,11 @@ public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 
-		Class<T> enumType = property.getType();
-		T[] constants = enumType.getEnumConstants();
+		Class<P> enumType = getProperty().getType();
+		P[] constants = enumType.getEnumConstants();
 		if (constants == null) {
 			@SuppressWarnings("unchecked")
-			Class<T> casted = (Class<T>) enumType.getSuperclass();
+			Class<P> casted = (Class<P>) enumType.getSuperclass();
 			enumType = casted;
 			constants = enumType.getEnumConstants();
 		}
@@ -55,18 +53,17 @@ public class EnumPropertyEditor<T extends Enum<T>> extends SimplePropertyEditor<
 				ISelection selection = comboViewer.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-					property.setValue(getModelInstance(), Values.cast(structuredSelection.getFirstElement()));
+					setValue(Values.cast(structuredSelection.getFirstElement()));
 				} else {
-					property.setValue(getModelInstance(), null);
+					setValue(null);
 				}
-				setDirty();
 			}
 		});
 	}
 
 	@Override
 	public void present(Object modelInstance) {
-		T value = property.getValue(modelInstance);
+		P value = getValue();
 		if (value == null) {
 			combo.clearSelection();
 		} else {

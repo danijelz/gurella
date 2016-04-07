@@ -11,14 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 	private Text text;
 
-	public BytePropertyEditor(Composite parent, PropertyEditorContext<Byte> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public BytePropertyEditor(Composite parent, PropertyEditorContext<?, Byte> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -32,8 +30,7 @@ public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
-				property.setValue(getModelInstance(), Byte.valueOf(text.getText()));
-				setDirty();
+				setValue(Byte.valueOf(text.getText()));
 			}
 		});
 		text.addVerifyListener(new VerifyListener() {
@@ -54,7 +51,7 @@ public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 
 	@Override
 	public void present(Object modelInstance) {
-		Byte value = property.getValue(modelInstance);
+		Byte value = getValue();
 		if (value != null) {
 			text.setText(value.toString());
 		}

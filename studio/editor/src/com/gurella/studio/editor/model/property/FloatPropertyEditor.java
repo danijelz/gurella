@@ -11,14 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 	private Text text;
 
-	public FloatPropertyEditor(Composite parent, PropertyEditorContext<Float> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public FloatPropertyEditor(Composite parent, PropertyEditorContext<?, Float> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -32,8 +30,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
-				property.setValue(getModelInstance(), Float.valueOf(text.getText()));
-				setDirty();
+				setValue(Float.valueOf(text.getText()));
 			}
 		});
 		text.addVerifyListener(new VerifyListener() {
@@ -54,7 +51,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 
 	@Override
 	public void present(Object modelInstance) {
-		Float value = property.getValue(modelInstance);
+		Float value = getValue();
 		if (value != null) {
 			text.setText(value.toString());
 		}

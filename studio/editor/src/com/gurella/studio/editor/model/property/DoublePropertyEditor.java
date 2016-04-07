@@ -11,14 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class DoublePropertyEditor extends SimplePropertyEditor<Double> {
 	private Text text;
 
-	public DoublePropertyEditor(Composite parent, PropertyEditorContext<Double> context,
-			ModelEditorContainer<?> propertiesContainer) {
-		super(parent, context, propertiesContainer);
+	public DoublePropertyEditor(Composite parent, PropertyEditorContext<?, Double> context) {
+		super(parent, context);
 	}
 
 	@Override
@@ -32,8 +30,7 @@ public class DoublePropertyEditor extends SimplePropertyEditor<Double> {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
-				property.setValue(getModelInstance(), Double.valueOf(text.getText()));
-				setDirty();
+				setValue(Double.valueOf(text.getText()));
 			}
 		});
 		text.addVerifyListener(new VerifyListener() {
@@ -54,7 +51,7 @@ public class DoublePropertyEditor extends SimplePropertyEditor<Double> {
 
 	@Override
 	public void present(Object modelInstance) {
-		Double value = property.getValue(modelInstance);
+		Double value = getValue();
 		if (value != null) {
 			text.setText(value.toString());
 		}
