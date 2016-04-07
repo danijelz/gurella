@@ -1,13 +1,15 @@
 package com.gurella.studio.editor.model;
 
-import static com.gurella.studio.editor.model.PropertyEditorFactory.*;
+import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
+
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
@@ -71,8 +73,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 					GurellaStudioPlugin.createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(editor);
 		} else {
-			Section componentSection = toolkit.createSection(body,
-					ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
+			Section componentSection = toolkit.createSection(body, TWISTIE | TITLE_BAR);
 			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 			componentSection.setText(editor.getDescriptiveName());
 			editor.setParent(componentSection);

@@ -14,14 +14,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-/**
- * The activator class controls the plug-in life cycle
- */
 public class GurellaStudioPlugin extends AbstractUIPlugin {
-	// The plug-in ID
 	public static final String PLUGIN_ID = "com.gurella.studio.editor"; //$NON-NLS-1$
 
-	// The shared instance
 	private static GurellaStudioPlugin plugin;
 
 	private static DeviceResourceManager resourceManager;
@@ -54,8 +49,6 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance
-	 *
-	 * @return the shared instance
 	 */
 	public static GurellaStudioPlugin getDefault() {
 		return plugin;
@@ -107,11 +100,11 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public static Color createColor(RGB descriptor) {
 		return resourceManager.createColor(descriptor);
 	}
-	
+
 	public static Color createColor(int red, int green, int blue) {
 		return resourceManager.createColor(new RGB(red, green, blue));
 	}
-	
+
 	public static Color createColor(int red, int green, int blue, int alpha) {
 		return resourceManager.createColor(new RGBAColorDescriptor(red, green, blue, alpha));
 	}
@@ -119,11 +112,11 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public static void destroyColor(RGB descriptor) {
 		resourceManager.destroyColor(descriptor);
 	}
-	
+
 	public static void destroyColor(int red, int green, int blue) {
 		resourceManager.destroyColor(new RGB(red, green, blue));
 	}
-	
+
 	public static void destroyColor(int red, int green, int blue, int alpha) {
 		resourceManager.destroyColor(new RGBAColorDescriptor(red, green, blue, alpha));
 	}
