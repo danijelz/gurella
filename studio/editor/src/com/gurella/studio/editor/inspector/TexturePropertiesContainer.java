@@ -20,12 +20,12 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.scene.InspectorView;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class TexturePropertiesContainer extends PropertiesContainer<TexturePropertiesContainer.TextureResource> {
-	private ModelPropertiesContainer<TextureProperties> loaderProperties;
+	private ModelEditorContainer<TextureProperties> loaderProperties;
 	private Composite imageComposite;
 	private Image image;
 
@@ -38,7 +38,7 @@ public class TexturePropertiesContainer extends PropertiesContainer<TexturePrope
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(1, false));
 
-		loaderProperties = new ModelPropertiesContainer<TextureProperties>(getGurellaEditor(), getBody(),
+		loaderProperties = new ModelEditorContainer<TextureProperties>(getGurellaEditor(), getBody(),
 				findTextureProperties(target.file));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		loaderProperties.setLayoutData(layoutData);

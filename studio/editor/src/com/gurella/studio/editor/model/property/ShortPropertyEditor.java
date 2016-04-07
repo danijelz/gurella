@@ -10,15 +10,15 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class ShortPropertyEditor extends SimplePropertyEditor<Short> {
 	private Text text;
 
-	public ShortPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
-			Property<Short> property, Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public ShortPropertyEditor(Composite parent, PropertyEditorContext<Short> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override

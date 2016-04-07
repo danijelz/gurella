@@ -10,15 +10,15 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 	private Text text;
 
-	public FloatPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
-			Property<Float> property, Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public FloatPropertyEditor(Composite parent, PropertyEditorContext<Float> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override

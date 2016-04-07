@@ -51,7 +51,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.property.ModelPropertiesContainer;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
@@ -59,7 +59,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Button enabledCheck;
 	private Button menuButton;
 	private Composite componentsPropertiesComposite;
-	private Array<ModelPropertiesContainer<?>> componentContainers = new Array<>();
+	private Array<ModelEditorContainer<?>> componentContainers = new Array<>();
 
 	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
@@ -152,7 +152,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 			componentSection.setExpanded(true);
 			componentSection.setText(Models.getModel(component).getName());
-			ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<>(
+			ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(
 					getGurellaEditor(), componentSection, component);
 			componentSection.setClient(propertiesContainer);
 			componentContainers.add(propertiesContainer);
@@ -164,7 +164,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 				ExpandableComposite.TWISTIE | ExpandableComposite.TITLE_BAR);
 		componentSection.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		componentSection.setText(Models.getModel(component).getName());
-		ModelPropertiesContainer<SceneNodeComponent2> propertiesContainer = new ModelPropertiesContainer<>(
+		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(
 				getGurellaEditor(), componentSection, component);
 		componentSection.setClient(propertiesContainer);
 		propertiesContainer.layout(true, true);

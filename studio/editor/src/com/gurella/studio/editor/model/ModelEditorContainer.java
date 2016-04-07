@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.model.property;
+package com.gurella.studio.editor.model;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -18,16 +18,18 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.PropertyEditorFactory;
+import com.gurella.studio.editor.model.property.PropertyEditor;
+import com.gurella.studio.editor.model.property.PropertyEditorContext;
+import com.gurella.studio.editor.model.property.SimplePropertyEditor;
 
-public class ModelPropertiesContainer<T> extends ScrolledForm {
-	protected GurellaEditor editor;
+public class ModelEditorContainer<T> extends ScrolledForm {
+	public GurellaEditor editor;
 	private T modelInstance;
 	protected Model<T> model;
 
 	private Array<PropertyEditor<?>> editors = new Array<>();
 
-	public ModelPropertiesContainer(GurellaEditor editor, Composite parent, T instance) {
+	public ModelEditorContainer(GurellaEditor editor, Composite parent, T instance) {
 		super(parent, SWT.NONE);
 		this.editor = editor;
 		this.modelInstance = instance;
@@ -56,10 +58,11 @@ public class ModelPropertiesContainer<T> extends ScrolledForm {
 		layout(true, true);
 	}
 
-	private void addEditor(Property<?> property) {
+	private <V> void addEditor(Property<V> property) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Composite body = getBody();
-		PropertyEditor<?> propertyEditor = PropertyEditorFactory.createEditor(getBody(), this, property, modelInstance);
+		PropertyEditor<V> propertyEditor = PropertyEditorFactory.createEditor(getBody(),
+				new PropertyEditorContext<>(model, property, modelInstance), this);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertyEditor.setLayoutData(layoutData);
 		propertyEditor.pack();

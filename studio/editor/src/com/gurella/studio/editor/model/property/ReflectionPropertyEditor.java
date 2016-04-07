@@ -5,15 +5,15 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class ReflectionPropertyEditor<T> extends ComplexPropertyEditor<T> {
-	private ModelPropertiesContainer<T> objectPropertiesContainer;
+	private ModelEditorContainer<T> objectPropertiesContainer;
 
-	public ReflectionPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
-			Property<T> property, Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public ReflectionPropertyEditor(Composite parent, PropertyEditorContext<T> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override
@@ -24,8 +24,8 @@ public class ReflectionPropertyEditor<T> extends ComplexPropertyEditor<T> {
 		setLayout(layout);
 		T value = getValue();
 		objectPropertiesContainer = value == null
-				? new ModelPropertiesContainer<T>(getGurellaEditor(), this, Values.cast(new Object()))
-				: new ModelPropertiesContainer<T>(getGurellaEditor(), this, value);
+				? new ModelEditorContainer<T>(getGurellaEditor(), this, Values.cast(new Object()))
+				: new ModelEditorContainer<T>(getGurellaEditor(), this, value);
 		objectPropertiesContainer.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 	}
 

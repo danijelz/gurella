@@ -17,6 +17,7 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private Text xField;
@@ -24,9 +25,9 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private Text zField;
 	private Model<Vector3> vector3Model;
 
-	public Vector3PropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
-			Property<Vector3> property, Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public Vector3PropertyEditor(Composite parent, PropertyEditorContext<Vector3> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override

@@ -10,15 +10,15 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 	private Text text;
 
-	public BytePropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
-			Property<Byte> property, Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public BytePropertyEditor(Composite parent, PropertyEditorContext<Byte> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override

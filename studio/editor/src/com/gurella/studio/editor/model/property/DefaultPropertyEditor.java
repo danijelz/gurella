@@ -6,13 +6,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class DefaultPropertyEditor<T> extends SimplePropertyEditor<T> {
-	public DefaultPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer,
-			Property<T> property, Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public DefaultPropertyEditor(Composite parent, PropertyEditorContext<T> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override

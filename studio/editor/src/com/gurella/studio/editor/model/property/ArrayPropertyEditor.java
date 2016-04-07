@@ -5,15 +5,15 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.base.model.Property;
+import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class ArrayPropertyEditor<T> extends ComplexPropertyEditor<T> {
 	private Button addButton;
 	private Array<PropertyEditor<T>> itemEditors = new Array<>();
 
-	public ArrayPropertyEditor(Composite parent, ModelPropertiesContainer<?> propertiesContainer, Property<T> property,
-			Object modelInstance) {
-		super(parent, propertiesContainer, property, modelInstance);
+	public ArrayPropertyEditor(Composite parent, PropertyEditorContext<T> context,
+			ModelEditorContainer<?> propertiesContainer) {
+		super(parent, context, propertiesContainer);
 	}
 
 	@Override
@@ -39,5 +39,4 @@ public class ArrayPropertyEditor<T> extends ComplexPropertyEditor<T> {
 		// TODO Auto-generated method stub
 
 	}
-
 }
