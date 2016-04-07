@@ -46,12 +46,7 @@ public class AssetsExplorerView extends SceneEditorView {
 				createItems(null, resource);
 			}
 
-			tree.addListener(SWT.Selection, new Listener() {
-				@Override
-				public void handleEvent(Event e) {
-					postMessage(new SelectionMessage(getInspectable()));
-				}
-			});
+			tree.addListener(SWT.Selection, (e) -> postMessage(new SelectionMessage(getInspectable())));
 		} catch (CoreException e) {
 			tree.dispose();
 			// TODO Auto-generated catch block

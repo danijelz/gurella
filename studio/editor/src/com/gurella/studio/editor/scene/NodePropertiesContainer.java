@@ -14,16 +14,14 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -75,10 +73,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
-		init(target);
-	}
 
-	private void init(final SceneNode2 node) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		GridLayout layout = new GridLayout(4, false);
@@ -88,62 +83,18 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		Label nameLabel = toolkit.createLabel(getBody(), "Name: ");
 		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
 
-		nameText = toolkit.createText(getBody(), node.getName(), BORDER);
+		nameText = toolkit.createText(getBody(), target.getName(), BORDER);
 		nameText.setLayoutData(new GridData(FILL, BEGINNING, true, false));
-		nameText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				node.setName(nameText.getText());
-				setDirty();
-				postMessage(new NodeNameChangedMessage(node));
-			}
-		});
+		nameText.addListener(SWT.Modify, (e) -> nodeNameChanged());
 
 		enabledCheck = toolkit.createButton(getBody(), "Enabled", CHECK);
 		enabledCheck.setLayoutData(new GridData(END, CENTER, false, false));
-		enabledCheck.setSelection(node.isEnabled());
-		enabledCheck.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				node.setEnabled(enabledCheck.getSelection());
-				setDirty();
-			}
-		});
+		enabledCheck.setSelection(target.isEnabled());
+		enabledCheck.addListener(SWT.Selection, (e) -> nodeEnabledChanged());
 
 		menuButton = toolkit.createButton(getBody(), "", ARROW | DOWN);
 		menuButton.setLayoutData(new GridData(END, CENTER, false, false));
-		menuButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Menu menu = new Menu(getShell(), POP_UP);
-
-				addMenuItem(menu, TransformComponent.class);
-				addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
-				addMenuItem(menu, OrtographicCameraComponent.class);
-				addMenuItem(menu, PerspectiveCameraComponent.class);
-				addMenuItem(menu, PointLightComponent.class);
-				addMenuItem(menu, DirectionalLightComponent.class);
-				addMenuItem(menu, AudioListenerComponent.class);
-				addMenuItem(menu, AudioSourceComponent.class);
-				addMenuItem(menu, TagComponent.class);
-				// addItem("Layer", LayerComponent.class);
-				addMenuItem(menu, TextureComponent.class);
-				addMenuItem(menu, TextureRegionComponent.class);
-				addMenuItem(menu, AtlasRegionComponent.class);
-				addMenuItem(menu, ModelComponent.class);
-				addMenuItem(menu, SolidComponent.class);
-				addMenuItem(menu, TestPropertyEditorsComponnent.class);
-				addMenuItem(menu, TestInputComponent.class);
-
-				addScriptMenuItem(menu);
-
-				Point loc = menuButton.getLocation();
-				Rectangle rect = menuButton.getBounds();
-				Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
-				menu.setLocation(getDisplay().map(menuButton.getParent(), null, mLoc));
-				menu.setVisible(true);
-			}
-		});
+		menuButton.addListener(SWT.Selection, (e) -> showMenu());
 
 		componentsComposite = toolkit.createComposite(getBody());
 		GridLayout componentsLayout = new GridLayout(1, false);
@@ -153,6 +104,45 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		componentsComposite.setLayoutData(new GridData(FILL, FILL, true, true, 4, 1));
 		initComponentContainers();
 		layout(true, true);
+	}
+
+	private void nodeNameChanged() {
+		target.setName(nameText.getText());
+		setDirty();
+		postMessage(new NodeNameChangedMessage(target));
+	}
+
+	private void nodeEnabledChanged() {
+		target.setEnabled(enabledCheck.getSelection());
+		setDirty();
+	}
+
+	private void showMenu() {
+		Menu menu = new Menu(getShell(), POP_UP);
+		addMenuItem(menu, TransformComponent.class);
+		addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
+		addMenuItem(menu, OrtographicCameraComponent.class);
+		addMenuItem(menu, PerspectiveCameraComponent.class);
+		addMenuItem(menu, PointLightComponent.class);
+		addMenuItem(menu, DirectionalLightComponent.class);
+		addMenuItem(menu, AudioListenerComponent.class);
+		addMenuItem(menu, AudioSourceComponent.class);
+		addMenuItem(menu, TagComponent.class);
+		// addItem("Layer", LayerComponent.class);
+		addMenuItem(menu, TextureComponent.class);
+		addMenuItem(menu, TextureRegionComponent.class);
+		addMenuItem(menu, AtlasRegionComponent.class);
+		addMenuItem(menu, ModelComponent.class);
+		addMenuItem(menu, SolidComponent.class);
+		addMenuItem(menu, TestPropertyEditorsComponnent.class);
+		addMenuItem(menu, TestInputComponent.class);
+		addScriptMenuItem(menu);
+
+		Point loc = menuButton.getLocation();
+		Rectangle rect = menuButton.getBounds();
+		Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
+		menu.setLocation(getDisplay().map(menuButton.getParent(), null, mLoc));
+		menu.setVisible(true);
 	}
 
 	private void initComponentContainers() {
@@ -180,6 +170,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
+		target.addComponent(component);
 		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = createSection(component);
 		propertiesContainer.layout(true, true);
 		componentContainers.add(propertiesContainer);
@@ -191,51 +182,46 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(Models.getModel(componentType).getName());
-		item1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				SceneNodeComponent2 component = Reflection.newInstance(componentType);
-				target.addComponent(component);
-				addComponent(component);
-			}
-		});
+		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
 		item1.setEnabled(target.getComponent(componentType) == null);
 	}
 
 	private void addScriptMenuItem(Menu menu) {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText("Script");
-		item1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Thread current = Thread.currentThread();
-				ClassLoader contextClassLoader = current.getContextClassLoader();
-				try {
-					current.setContextClassLoader(getGurellaEditor().getClassLoader());
-					IJavaSearchScope scope = SearchEngine.createHierarchyScope(getGurellaEditor().getJavaProject()
-							.findType("com.gurella.engine.scene.SceneNodeComponent2"));
-					SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), new ProgressMonitorDialog(getShell()),
-							scope, IJavaElementSearchConstants.CONSIDER_CLASSES, false);
-					int result = dialog.open();
-					if (result != IDialogConstants.OK_ID) {
-						return;
-					}
+		item1.addListener(SWT.Selection, (e) -> scriptMenuSeleted());
+	}
 
-					Object[] types = dialog.getResult();
-					if (types != null && types.length > 0) {
-						IType type = (IType) types[0];
-						SceneNodeComponent2 component = Values.cast(getGurellaEditor().getClassLoader()
-								.loadClass(type.getFullyQualifiedName()).newInstance());
-						target.addComponent(component);
-						addComponent(component);
-					}
-				} catch (Exception e2) {
-					// TODO: handle exception
-					e2.printStackTrace();
-				} finally {
-					current.setContextClassLoader(contextClassLoader);
-				}
-			}
-		});
+	private void scriptMenuSeleted() {
+		Thread current = Thread.currentThread();
+		ClassLoader contextClassLoader = current.getContextClassLoader();
+		try {
+			current.setContextClassLoader(getGurellaEditor().getClassLoader());
+			addScriptComponent();
+		} catch (Exception e2) {
+			// TODO: handle exception
+			e2.printStackTrace();
+		} finally {
+			current.setContextClassLoader(contextClassLoader);
+		}
+	}
+
+	private void addScriptComponent()
+			throws JavaModelException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		IJavaSearchScope scope = SearchEngine.createHierarchyScope(
+				getGurellaEditor().getJavaProject().findType("com.gurella.engine.scene.SceneNodeComponent2"));
+		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), new ProgressMonitorDialog(getShell()), scope,
+				IJavaElementSearchConstants.CONSIDER_CLASSES, false);
+		if (dialog.open() != IDialogConstants.OK_ID) {
+			return;
+		}
+
+		Object[] types = dialog.getResult();
+		if (types != null && types.length > 0) {
+			IType type = (IType) types[0];
+			SceneNodeComponent2 component = Values
+					.cast(getGurellaEditor().getClassLoader().loadClass(type.getFullyQualifiedName()).newInstance());
+			addComponent(component);
+		}
 	}
 }

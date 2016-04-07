@@ -28,6 +28,10 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 
 	private Array<PropertyEditor<?>> editors = new Array<>();
 
+	public ModelEditorContainer(Composite parent, T modelInstance) {
+		this(parent, new ModelEditorContext<>(modelInstance));
+	}
+
 	public ModelEditorContainer(Composite parent, ModelEditorContext<T> context) {
 		super(parent, SWT.NONE);
 		this.context = context;

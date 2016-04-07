@@ -1,6 +1,5 @@
 package com.gurella.studio.editor.scene;
 
-import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -10,8 +9,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
@@ -41,20 +38,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		graph.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				TreeItem[] selection = graph.getSelection();
-				if (selection.length > 0) {
-					Object data = selection[0].getData();
-					if (data instanceof SceneNode2) {
-						postMessage(new SelectionMessage(new NodeInspectable((SceneNode2) data)));
-					} else {
-						postMessage(new SelectionMessage(new ComponentInspectable((SceneNodeComponent2) data)));
-					}
-				}
-			}
-		});
+		graph.addListener(SWT.Selection, (e) -> graphSelectionChanged());
 
 		menu = new Menu(graph);
 		menu.addMenuListener(new MenuAdapter() {
@@ -67,22 +51,14 @@ public class SceneHierarchyView extends SceneEditorView {
 				}
 			}
 		});
+
 		MenuItem item = new MenuItem(menu, 0);
 		item.setText("Add Node");
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
-						new IInputValidator() {
-							@Override
-							public String isValid(String newText) {
-								if (newText.length() < 3) {
-									return "Too short";
-								} else {
-									return null;
-								}
-							}
-						});
+						(newText) -> newText.length() < 3 ? "Too short" : null);
 
 				if (dlg.open() == Window.OK) {
 					TreeItem[] selection = graph.getSelection();
@@ -127,6 +103,18 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph.setMenu(menu);
 	}
 
+	private void graphSelectionChanged() {
+		TreeItem[] selection = graph.getSelection();
+		if (selection.length > 0) {
+			Object data = selection[0].getData();
+			if (data instanceof SceneNode2) {
+				postMessage(new SelectionMessage(new NodeInspectable((SceneNode2) data)));
+			} else {
+				postMessage(new SelectionMessage(new ComponentInspectable((SceneNodeComponent2) data)));
+			}
+		}
+	}
+
 	private Scene getScene() {
 		return (Scene) graph.getData();
 	}
@@ -151,7 +139,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private void addComponents(TreeItem parentItem, SceneNode2 node) {
+	private static void addComponents(TreeItem parentItem, SceneNode2 node) {
 		for (SceneNodeComponent2 component : node.components) {
 			createComponentItem(parentItem, component);
 		}

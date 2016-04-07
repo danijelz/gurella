@@ -1,8 +1,6 @@
 package com.gurella.studio.editor.scene;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -40,13 +38,14 @@ public class InspectorView extends SceneEditorView {
 		if (currentTarget != inspectable.getTarget()) {
 			clearCurrentSelection();
 			currentTarget = inspectable.getTarget();
+			if (currentTarget == null) {
+				return;
+			}
 
-			if (currentTarget != null) {
-				currentContainer = Values.cast(inspectable.createPropertiesContainer(this, inspectable.getTarget()));
-				if (currentContainer != null) {
-					currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-					layout(true, true);
-				}
+			currentContainer = Values.cast(inspectable.createPropertiesContainer(this, inspectable.getTarget()));
+			if (currentContainer != null) {
+				currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+				layout(true, true);
 			}
 		}
 	}
@@ -74,12 +73,7 @@ public class InspectorView extends SceneEditorView {
 			setExpandHorizontal(true);
 			setExpandVertical(true);
 			setMinWidth(200);
-			addControlListener(new ControlAdapter() {
-				@Override
-				public void controlResized(ControlEvent e) {
-					reflow(true);
-				}
-			});
+			addListener(SWT.Resize, (e) -> reflow(true));
 		}
 
 		@Override
