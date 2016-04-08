@@ -1,13 +1,12 @@
 package com.gurella.studio.editor.scene;
 
-import static org.eclipse.swt.SWT.ARROW;
 import static org.eclipse.swt.SWT.BEGINNING;
 import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.CENTER;
 import static org.eclipse.swt.SWT.CHECK;
-import static org.eclipse.swt.SWT.DOWN;
 import static org.eclipse.swt.SWT.END;
 import static org.eclipse.swt.SWT.FILL;
+import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
@@ -67,7 +66,7 @@ import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private Text nameText;
 	private Button enabledCheck;
-	private Button menuButton;
+	private Label menuButton;
 	private Composite componentsComposite;
 	private Array<ModelEditorContainer<?>> componentContainers = new Array<>();
 
@@ -80,7 +79,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		layout.marginWidth = 0;
 		getBody().setLayout(layout);
 
-		Label nameLabel = toolkit.createLabel(getBody(), "Name: ");
+		Label nameLabel = toolkit.createLabel(getBody(), " Name: ");
 		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
 
 		nameText = toolkit.createText(getBody(), target.getName(), BORDER);
@@ -92,9 +91,10 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		enabledCheck.setSelection(target.isEnabled());
 		enabledCheck.addListener(SWT.Selection, (e) -> nodeEnabledChanged());
 
-		menuButton = toolkit.createButton(getBody(), "", ARROW | DOWN);
+		menuButton = toolkit.createLabel(getBody(), " ", NONE);
+		menuButton.setImage(GurellaStudioPlugin.createImage("icons/popup_menu.gif"));
 		menuButton.setLayoutData(new GridData(END, CENTER, false, false));
-		menuButton.addListener(SWT.Selection, (e) -> showMenu());
+		menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
 
 		componentsComposite = toolkit.createComposite(getBody());
 		GridLayout componentsLayout = new GridLayout(1, false);
@@ -141,6 +141,8 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		Point loc = menuButton.getLocation();
 		Rectangle rect = menuButton.getBounds();
 		Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
+		
+		menu.addListener(SWT.Hide, e -> menu.dispose());
 		menu.setLocation(getDisplay().map(menuButton.getParent(), null, mLoc));
 		menu.setVisible(true);
 	}
@@ -172,6 +174,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 	private void addComponent(SceneNodeComponent2 component) {
 		target.addComponent(component);
 		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = createSection(component);
+		propertiesContainer.pack(true);
 		propertiesContainer.layout(true, true);
 		componentContainers.add(propertiesContainer);
 		postMessage(new ComponentAddedMessage(component));

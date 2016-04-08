@@ -11,12 +11,11 @@ import java.util.List;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -51,11 +50,11 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		layout.marginHeight = 0;
 		getBody().setLayout(layout);
 		initEditors();
-		layout(true, true);
-		Listener mouseMoveListener = (e) -> mouseMoved(e);
+		Listener mouseMoveListener = e -> mouseMoved();
 		Display display = getDisplay();
 		display.addFilter(SWT.MouseMove, mouseMoveListener);
 		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
+		layout(true, true);
 	}
 
 	private void initEditors() {
@@ -80,7 +79,6 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
-		composite.pack();
 		editors.add(editor);
 
 		if (editor instanceof SimplePropertyEditor) {
@@ -103,9 +101,8 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 	}
 
-	protected void mouseMoved(Event event) {
-		Point location = getDisplay().getCursorLocation();
-		PropertyEditor<?> editor = getPropertyEditor(location.x, location.y);
+	protected void mouseMoved() {
+		PropertyEditor<?> editor = getPropertyEditor();
 		if (editor == hoverEditor) {
 			return;
 		}
@@ -118,15 +115,27 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		if (editor != null) {
 			editor.setHover(true);
 		}
-
 	}
 
-	private PropertyEditor<?> getPropertyEditor(int x, int y) {
-		if (!getBody().getBounds().contains(getBody().toControl(x, y))) {
+	private PropertyEditor<?> getPropertyEditor() {
+		Control cursorControl = getDisplay().getCursorControl();
+		if (cursorControl == null) {
 			return null;
 		}
 
-		return editors.stream().filter(e -> e.getComposite().getBounds().contains(e.getComposite().toControl(x, y)))
-				.findFirst().orElse(null);
+		Composite parent = cursorControl.getParent();
+		Composite editor = null;
+
+		while (parent != null && parent != getBody()) {
+			editor = parent;
+			parent = parent.getParent();
+		}
+
+		if (parent == null) {
+			return null;
+		}
+
+		final Composite temp = editor;
+		return editors.stream().filter(e -> e.getComposite() == temp).findFirst().orElse(null);
 	}
 }
