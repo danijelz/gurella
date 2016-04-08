@@ -37,9 +37,10 @@ public abstract class PropertyEditor<P> {
 
 	public PropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		this.context = context;
+
 		FormToolkit toolkit = getToolkit();
 		composite = toolkit.createComposite(parent);
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout(1, false);
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		layout.marginHeight = 0;
@@ -48,14 +49,11 @@ public abstract class PropertyEditor<P> {
 		body = toolkit.createComposite(composite);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 
-		menuButton = toolkit.createLabel(composite, "     ", NONE);
 		menuImage = GurellaStudioPlugin.createImage("icons/popup_menu.gif");
-		menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
-		menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
 
 		cachedValue = getValue();
 		
-		if(context.property.isNullable() && cachedValue != null) {
+		if (context.property.isNullable() && cachedValue != null) {
 			addMenuItem("Set null", () -> setValue(null));
 		}
 	}
@@ -101,6 +99,10 @@ public abstract class PropertyEditor<P> {
 	}
 
 	public void setHover(boolean hover) {
+		if (menuButton == null) {
+			return;
+		}
+
 		if (hover && !menuItems.isEmpty()) {
 			menuButton.setImage(menuImage);
 		} else {
@@ -110,10 +112,27 @@ public abstract class PropertyEditor<P> {
 
 	public void addMenuItem(String text, Runnable action) {
 		menuItems.put(text, action);
+		updateMenu();
 	}
 
-	public void remobeMenuItem(String text) {
+	public void removeMenuItem(String text) {
 		menuItems.remove(text);
+		updateMenu();
+	}
+
+	private void updateMenu() {
+		boolean empty = menuItems.isEmpty();
+		if (empty && menuButton != null) {
+			((GridLayout) composite.getLayout()).numColumns = 1;
+			menuButton.dispose();
+			composite.layout(true, true);
+		} else if (!empty && menuButton == null) {
+			((GridLayout) composite.getLayout()).numColumns = 2;
+			menuButton = getToolkit().createLabel(composite, "     ", NONE);
+			menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+			menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
+			composite.layout(true, true);
+		}
 	}
 
 	private void showMenu() {
@@ -126,7 +145,6 @@ public abstract class PropertyEditor<P> {
 		Point loc = menuButton.getLocation();
 		Rectangle rect = menuButton.getBounds();
 		Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
-		menu.addListener(SWT.Hide, e -> menu.dispose());
 		menu.setLocation(composite.getDisplay().map(menuButton.getParent(), null, mLoc));
 		menu.setVisible(true);
 	}

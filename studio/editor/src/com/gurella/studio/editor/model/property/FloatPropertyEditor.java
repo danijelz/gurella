@@ -20,8 +20,10 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		body.setLayout(layout);
-		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER | SWT.SINGLE);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.widthHint = 60;
+		text.setLayoutData(layoutData);
 
 		Float value = getValue();
 		if (value != null) {

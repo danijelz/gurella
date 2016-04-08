@@ -80,7 +80,7 @@ public class PropertyEditorFactory {
 		}
 
 		if (editableProperty == null) {
-			return true;
+			return false;
 		} else {
 			return Models.getModel(editableProperty.getType()) instanceof SimpleModel;
 		}

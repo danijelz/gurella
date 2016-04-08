@@ -89,7 +89,10 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.moveAbove(composite);
 		} else {
 			Section componentSection = toolkit.createSection(body, TWISTIE | TITLE_BAR);
-			componentSection.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
+			componentSection.setSize(100, 100);
+			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
+			sectionLayoutData.widthHint = 100;
+			componentSection.setLayoutData(sectionLayoutData);
 			componentSection.setText(editor.getDescriptiveName());
 			composite.setParent(componentSection);
 			componentSection.setClient(composite);

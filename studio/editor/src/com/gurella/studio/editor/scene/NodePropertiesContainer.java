@@ -77,6 +77,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		toolkit.adapt(this);
 		GridLayout layout = new GridLayout(4, false);
 		layout.marginWidth = 0;
+		layout.marginRight = 10;
 		getBody().setLayout(layout);
 
 		Label nameLabel = toolkit.createLabel(getBody(), " Name: ");
@@ -138,12 +139,11 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		addMenuItem(menu, TestInputComponent.class);
 		addScriptMenuItem(menu);
 
-		Point loc = menuButton.getLocation();
+		Point buttonLocation = menuButton.getLocation();
 		Rectangle rect = menuButton.getBounds();
-		Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
+		Point menuLocation = new Point(buttonLocation.x - 1, buttonLocation.y + rect.height);
 		
-		menu.addListener(SWT.Hide, e -> menu.dispose());
-		menu.setLocation(getDisplay().map(menuButton.getParent(), null, mLoc));
+		menu.setLocation(getDisplay().map(menuButton.getParent(), null, menuLocation));
 		menu.setVisible(true);
 	}
 

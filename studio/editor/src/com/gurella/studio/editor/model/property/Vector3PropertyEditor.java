@@ -22,6 +22,8 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		GridLayout layout = new GridLayout(6, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 		Model<Vector3> vector3Model = Models.getModel(Vector3.class);
 		createEditorField(vector3Model, "x");
@@ -32,8 +34,13 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private PropertyEditor<Float> createEditorField(final Model<Vector3> vector3Model, String propertyName) {
 		Property<Float> childProperty = vector3Model.getProperty(propertyName);
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, vector3Model,
+				getValue(), childProperty);
+		PropertyEditor<Float> editor = createEditor(body, propertyContext);
+		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
 		Label label = toolkit.createLabel(body, childProperty.getDescriptiveName());
-		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
-		return createEditor(body, new PropertyEditorContext<>(context, vector3Model, getValue(), childProperty));
+		label.setAlignment(SWT.LEFT);
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
+		return editor;
 	}
 }
