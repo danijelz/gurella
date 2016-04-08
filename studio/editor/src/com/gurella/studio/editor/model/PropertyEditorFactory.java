@@ -2,6 +2,10 @@ package com.gurella.studio.editor.model;
 
 import org.eclipse.swt.widgets.Composite;
 
+import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.GridPoint3;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
@@ -15,14 +19,18 @@ import com.gurella.studio.editor.model.property.CharacterPropertyEditor;
 import com.gurella.studio.editor.model.property.DoublePropertyEditor;
 import com.gurella.studio.editor.model.property.EnumPropertyEditor;
 import com.gurella.studio.editor.model.property.FloatPropertyEditor;
+import com.gurella.studio.editor.model.property.GridPoint2PropertyEditor;
+import com.gurella.studio.editor.model.property.GridPoint3PropertyEditor;
 import com.gurella.studio.editor.model.property.IntegerPropertyEditor;
 import com.gurella.studio.editor.model.property.LongPropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
+import com.gurella.studio.editor.model.property.QuaternionPropertyEditor;
 import com.gurella.studio.editor.model.property.ReflectionPropertyEditor;
 import com.gurella.studio.editor.model.property.ShortPropertyEditor;
 import com.gurella.studio.editor.model.property.SimpleObjectPropertyEditor;
 import com.gurella.studio.editor.model.property.StringPropertyEditor;
+import com.gurella.studio.editor.model.property.Vector2PropertyEditor;
 import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
 
 public class PropertyEditorFactory {
@@ -49,7 +57,19 @@ public class PropertyEditorFactory {
 			return Values.cast(new StringPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Vector3.class) {
 			return Values.cast(new Vector3PropertyEditor(parent, Values.cast(context)));
-		} else if (propertyType.isArray()) {
+		} else if (propertyType == Vector2.class) {
+			return Values.cast(new Vector2PropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Quaternion.class) {
+			return Values.cast(new QuaternionPropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == GridPoint2.class) {
+			return Values.cast(new GridPoint2PropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == GridPoint3.class) {
+			return Values.cast(new GridPoint3PropertyEditor(parent, Values.cast(context)));
+		}
+
+		/////
+
+		else if (propertyType.isArray()) {
 			return Values.cast(new ArrayPropertyEditor<>(parent, Values.cast(context)));
 		}
 

@@ -9,14 +9,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.GridPoint3;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
-public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
-	public Vector3PropertyEditor(Composite parent, PropertyEditorContext<?, Vector3> context) {
+public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
+	public GridPoint3PropertyEditor(Composite parent, PropertyEditorContext<?, GridPoint3> context) {
 		super(parent, context);
 
 		GridLayout layout = new GridLayout(6, false);
@@ -25,16 +25,16 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
-		Model<Vector3> vector3Model = Models.getModel(Vector3.class);
-		createEditorField(vector3Model, "x");
-		createEditorField(vector3Model, "y");
-		createEditorField(vector3Model, "z");
+		Model<GridPoint3> model = Models.getModel(GridPoint3.class);
+		createEditorField(model, "x");
+		createEditorField(model, "y");
+		createEditorField(model, "z");
 	}
 
-	private void createEditorField(final Model<Vector3> vector3Model, String propertyName) {
-		Property<Float> childProperty = vector3Model.getProperty(propertyName);
+	private void createEditorField(final Model<GridPoint3> model, String propertyName) {
+		Property<Float> childProperty = model.getProperty(propertyName);
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, vector3Model,
+		PropertyEditorContext<GridPoint3, Float> propertyContext = new PropertyEditorContext<>(context, model,
 				getValue(), childProperty);
 		PropertyEditor<Float> editor = createEditor(body, propertyContext);
 		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));

@@ -2,6 +2,7 @@ package com.gurella.engine.base.model;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.IntFloatMap;
@@ -59,6 +60,7 @@ public class ReflectionModel<T> implements Model<T> {
 		getInstance(IdentityObjectIntMap.class, mapProps);
 		getInstance(OrderedMap.class, mapProps);
 		getInstance(OrderedSet.class, new String[] { "iterator1", "iterator2" }, mapProps);
+		getInstance(BoundingBox.class, new String[] { "cnt", "dim" }, (String[]) null);
 	}
 
 	public static <T> ReflectionModel<T> getInstance(Class<T> type, String... forcedProperties) {
