@@ -11,10 +11,10 @@ public abstract class SceneEditorView extends Composite implements EditorMessage
 
 	public SceneEditorView(GurellaEditor editor, String title, Image image, int style) {
 		super(editor.getMainContainer().getDockItemParent(style), style);
-		editor.getMainContainer().addItem(style, title, image, this);
 		this.editor = editor;
 		addDisposeListener(e -> this.editor.removeEditorMessageListener(this));
 		editor.addEditorMessageListener(this);
+		editor.getMainContainer().addItem(style, title, image, this);
 	}
 
 	protected void setDirty() {

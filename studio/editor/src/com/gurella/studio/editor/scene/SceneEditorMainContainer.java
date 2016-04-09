@@ -634,7 +634,6 @@ public class SceneEditorMainContainer extends Composite {
 			tabItem.setImage(image);
 			tabItem.setControl(control);
 			tabFolder.setSingle(getItemCount() < 2);
-			tabFolder.setSelection(tabItem);
 
 			ToolItem toolItem = new ToolItem(itemsToolBar, SWT.PUSH, index);
 			toolItem.setToolTipText(title);
@@ -653,6 +652,7 @@ public class SceneEditorMainContainer extends Composite {
 
 			tabItem.setData(toolItem);
 			itemsToolBar.pack(true);
+			tabFolder.setSelection(tabItem);
 			layoutParent();
 
 			return index;
