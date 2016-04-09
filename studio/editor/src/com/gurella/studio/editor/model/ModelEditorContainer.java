@@ -127,10 +127,10 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		}
 
 		Composite parent = cursorControl.getParent();
-		Composite editor = null;
+		final List<Composite> composites = new ArrayList<>();
 
 		while (parent != null && parent != getBody()) {
-			editor = parent;
+			composites.add(parent);
 			parent = parent.getParent();
 		}
 
@@ -138,7 +138,6 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			return null;
 		}
 
-		final Composite temp = editor;
-		return editors.stream().filter(e -> e.getComposite() == temp).findFirst().orElse(null);
+		return editors.stream().filter(e -> composites.contains(e.getComposite())).findFirst().orElse(null);
 	}
 }

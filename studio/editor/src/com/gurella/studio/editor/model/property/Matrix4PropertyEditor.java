@@ -10,23 +10,30 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
-public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
-	public Matrix3PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix3> context) {
+public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
+	public Matrix4PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix4> context) {
 		super(parent, context);
 
-		body.setLayout(new GridLayout(6, false));
-		createText(Matrix3.M00, "00");
-		createText(Matrix3.M01, "01");
-		createText(Matrix3.M02, "02");
-		createText(Matrix3.M10, "10");
-		createText(Matrix3.M11, "11");
-		createText(Matrix3.M12, "12");
-		createText(Matrix3.M20, "20");
-		createText(Matrix3.M21, "21");
-		createText(Matrix3.M22, "22");
+		body.setLayout(new GridLayout(8, false));
+		createText(Matrix4.M00, "00");
+		createText(Matrix4.M01, "01");
+		createText(Matrix4.M02, "02");
+		createText(Matrix4.M03, "03");
+		createText(Matrix4.M10, "10");
+		createText(Matrix4.M11, "11");
+		createText(Matrix4.M12, "12");
+		createText(Matrix4.M13, "13");
+		createText(Matrix4.M20, "20");
+		createText(Matrix4.M21, "21");
+		createText(Matrix4.M22, "22");
+		createText(Matrix4.M23, "23");
+		createText(Matrix4.M20, "30");
+		createText(Matrix4.M21, "31");
+		createText(Matrix4.M22, "32");
+		createText(Matrix4.M23, "33");
 	}
 
 	private void createText(int index, String name) {
@@ -41,7 +48,7 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 		layoutData.widthHint = 60;
 		text.setLayoutData(layoutData);
 
-		Matrix3 value = getValue();
+		Matrix4 value = getValue();
 		if (value != null) {
 			text.setText(Float.toString(value.val[index]));
 		}
@@ -64,8 +71,8 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 	}
 
 	private void valueChanged(int index, String value) {
-		Matrix3 matrix = getValue();
-		Matrix3 oldValue = new Matrix3(matrix);
+		Matrix4 matrix = getValue();
+		Matrix4 oldValue = new Matrix4(matrix);
 		matrix.val[index] = Float.valueOf(value).floatValue();
 		context.propertyValueChanged(oldValue, matrix);
 	}

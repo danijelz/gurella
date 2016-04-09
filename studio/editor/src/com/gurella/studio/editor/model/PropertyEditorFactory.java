@@ -4,6 +4,8 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.GridPoint3;
+import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -23,6 +25,8 @@ import com.gurella.studio.editor.model.property.GridPoint2PropertyEditor;
 import com.gurella.studio.editor.model.property.GridPoint3PropertyEditor;
 import com.gurella.studio.editor.model.property.IntegerPropertyEditor;
 import com.gurella.studio.editor.model.property.LongPropertyEditor;
+import com.gurella.studio.editor.model.property.Matrix3PropertyEditor;
+import com.gurella.studio.editor.model.property.Matrix4PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.QuaternionPropertyEditor;
@@ -65,6 +69,10 @@ public class PropertyEditorFactory {
 			return Values.cast(new GridPoint2PropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == GridPoint3.class) {
 			return Values.cast(new GridPoint3PropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Matrix3.class) {
+			return Values.cast(new Matrix3PropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Matrix4.class) {
+			return Values.cast(new Matrix4PropertyEditor(parent, Values.cast(context)));
 		}
 
 		/////

@@ -4,9 +4,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.EditorMessageListener;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
@@ -15,15 +17,18 @@ public class InspectorView extends SceneEditorView {
 	private PropertiesContainer<Object> currentContainer;
 
 	public InspectorView(GurellaEditor editor, int style) {
-		super(editor, "Inspector", GurellaStudioPlugin.createImage("icons/showproperties_obj.gif"), style);
+		super(editor, "Inspector", GurellaStudioPlugin.createImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
+
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		toolkit.adapt(this);
 	}
 
 	@Override
-	public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
+	public void handleMessage(Object source, Object message) {
 		if (message instanceof SelectionMessage) {
 			Object seclection = ((SelectionMessage) message).seclection;
 			if (seclection instanceof Inspectable) {
@@ -64,7 +69,7 @@ public class InspectorView extends SceneEditorView {
 		PropertiesContainer<T> createPropertiesContainer(InspectorView parent, T target);
 	}
 
-	public static abstract class PropertiesContainer<T> extends ScrolledForm {
+	public static abstract class PropertiesContainer<T> extends ScrolledForm implements EditorMessageListener {
 		protected T target;
 
 		public PropertiesContainer(InspectorView parent, T target) {
@@ -74,6 +79,8 @@ public class InspectorView extends SceneEditorView {
 			setExpandVertical(true);
 			setMinWidth(200);
 			addListener(SWT.Resize, (e) -> reflow(true));
+			addDisposeListener(e -> parent.editor.removeEditorMessageListener(this));
+			parent.editor.addEditorMessageListener(this);
 		}
 
 		@Override
@@ -94,12 +101,12 @@ public class InspectorView extends SceneEditorView {
 			return getParent().editor;
 		}
 
-		protected final void postMessage(Object message, Object... additionalData) {
-			getParent().postMessage(message, additionalData);
+		protected final void postMessage(Object message) {
+			getParent().postMessage(message);
 		}
 
-		@SuppressWarnings("unused")
-		public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
+		@Override
+		public void handleMessage(Object source, Object message) {
 		}
 
 		protected void setDirty() {

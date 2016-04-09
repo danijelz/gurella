@@ -23,6 +23,7 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneLoadedMessage;
 import com.gurella.studio.editor.scene.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
@@ -101,6 +102,11 @@ public class SceneHierarchyView extends SceneEditorView {
 			}
 		});
 		graph.setMenu(menu);
+
+		Scene scene = editor.getScene();
+		if (scene != null) {
+			present(scene);
+		}
 	}
 
 	private void graphSelectionChanged() {
@@ -164,7 +170,7 @@ public class SceneHierarchyView extends SceneEditorView {
 	}
 
 	@Override
-	public void handleMessage(SceneEditorView source, Object message, Object... additionalData) {
+	public void handleMessage(Object source, Object message) {
 		if (message instanceof NodeNameChangedMessage) {
 			SceneNode2 node = ((NodeNameChangedMessage) message).node;
 			for (TreeItem item : graph.getItems()) {
@@ -183,6 +189,8 @@ public class SceneHierarchyView extends SceneEditorView {
 					createComponentItem(found, component);
 				}
 			}
+		} else if (message instanceof SceneLoadedMessage) {
+			present(((SceneLoadedMessage) message).scene);
 		}
 	}
 

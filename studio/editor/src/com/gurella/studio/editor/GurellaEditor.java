@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -55,14 +56,12 @@ import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart {
-	private SwtLwjglApplication application;
-
+	private EditorMessageSignal signal = new EditorMessageSignal();
 	private SceneEditorMainContainer mainContainer;
-	private SceneHierarchyView sceneHierarchyView;
-	private InspectorView inspectorView;
-	private AssetsExplorerView assetsExplorerView;
-	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
+	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
+
+	private SwtLwjglApplication application;
 	private Scene scene;
 	boolean dirty;
 
@@ -77,7 +76,6 @@ public class GurellaEditor extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
@@ -93,10 +91,19 @@ public class GurellaEditor extends EditorPart {
 			dirty = false;
 			firePropertyChange(PROP_DIRTY);
 		} catch (CoreException e) {
+			// TODO Auto-generated method stub
 			e.printStackTrace();
 		} finally {
 			monitor.done();
 		}
+	}
+
+	public void addEditorMessageListener(EditorMessageListener listener) {
+		signal.addListener(listener);
+	}
+
+	public void removeEditorMessageListener(EditorMessageListener listener) {
+		signal.removeListener(listener);
 	}
 
 	@Override
@@ -128,14 +135,14 @@ public class GurellaEditor extends EditorPart {
 		project = resource.getProject();
 		javaProject = JavaCore.create(project);
 
-		mainContainer = new SceneEditorMainContainer(parent, SWT.NONE);
+		mainContainer = new SceneEditorMainContainer(this, parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
+		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
-		assetsExplorerView = new AssetsExplorerView(this, SWT.LEFT);
+		AssetsExplorerView assetsExplorerView = new AssetsExplorerView(this, SWT.LEFT);
 		registeredViews.add(assetsExplorerView);
-		inspectorView = new InspectorView(this, SWT.RIGHT);
+		InspectorView inspectorView = new InspectorView(this, SWT.RIGHT);
 		registeredViews.add(inspectorView);
 
 		mainContainer.setSelection(sceneHierarchyView);
@@ -194,7 +201,11 @@ public class GurellaEditor extends EditorPart {
 	private void presentScene(Scene scene) {
 		this.scene = scene;
 		dirty = false;
-		sceneHierarchyView.present(scene);
+		postMessage(null, new SceneLoadedMessage(scene));
+	}
+
+	public Scene getScene() {
+		return scene;
 	}
 
 	public SceneEditorMainContainer getMainContainer() {
@@ -226,7 +237,17 @@ public class GurellaEditor extends EditorPart {
 	public void dispose() {
 		super.dispose();
 		ResourceService.unload(scene);
-		application.exit();
+		if (application != null) {
+			application.exit();
+		}
+		if (javaProject != null) {
+			try {
+				javaProject.close();
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void setDirty() {
@@ -234,10 +255,11 @@ public class GurellaEditor extends EditorPart {
 		firePropertyChange(PROP_DIRTY);
 	}
 
-	public void postMessage(SceneEditorView source, Object message, Object[] additionalData) {
+	public void postMessage(Object source, Object message) {
+		signal.dispatch(source, message);
 		for (SceneEditorView view : registeredViews) {
 			if (source != view) {
-				view.handleMessage(source, message, additionalData);
+				view.handleMessage(source, message);
 			}
 		}
 	}

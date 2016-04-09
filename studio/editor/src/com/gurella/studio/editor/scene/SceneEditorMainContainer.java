@@ -34,15 +34,18 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
+import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class SceneEditorMainContainer extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 32;
+
+	private GurellaEditor editor;
+
 	Composite center;
 	DockComponent east;
 	DockComponent south;
@@ -53,8 +56,9 @@ public class SceneEditorMainContainer extends Composite {
 	private Cursor dragSouth;
 	private Cursor dragWest;
 
-	public SceneEditorMainContainer(Composite parent, int style) {
+	public SceneEditorMainContainer(GurellaEditor editor, Composite parent, int style) {
 		super(parent, style);
+		this.editor = editor;
 
 		defaultImage = GurellaStudioPlugin.createImage("icons/palette_view.gif");
 
@@ -256,32 +260,6 @@ public class SceneEditorMainContainer extends Composite {
 		south.setSelection(control);
 	}
 
-	public static void main(String[] args) {
-		Display display = new Display();
-		final Shell shell = new Shell(display);
-		shell.setSize(1600, 1000);
-		shell.setLayout(new GridLayout(1, false));
-		shell.setText("Composite Example");
-
-		final SceneEditorMainContainer composite = new SceneEditorMainContainer(shell, SWT.NONE);
-		GridData data = new GridData();
-		data.verticalAlignment = SWT.FILL;
-		data.horizontalAlignment = SWT.FILL;
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-		composite.setLayoutData(data);
-
-		shell.open();
-
-		composite.layout(true);
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch())
-				display.sleep();
-		}
-
-		display.dispose();
-	}
-
 	static class DockComponent extends Composite {
 		private CTabFolder tabFolder;
 		private CTabFolderRendererImpl renderer;
@@ -364,6 +342,7 @@ public class SceneEditorMainContainer extends Composite {
 				@Override
 				public void close(CTabFolderEvent event) {
 					CTabItem tabItem = (CTabItem) event.item;
+					SceneEditorView view = (SceneEditorView) tabItem.getControl();
 					ToolItem toolItem = (ToolItem) tabItem.getData();
 					toolItem.dispose();
 					itemsToolBar.pack();
@@ -373,6 +352,7 @@ public class SceneEditorMainContainer extends Composite {
 					layoutParent();
 
 					event.doit = false;
+					getParent().editor.postMessage(null, new SceneEditorViewClosedMessage(view));
 				}
 			});
 
@@ -391,18 +371,18 @@ public class SceneEditorMainContainer extends Composite {
 
 		protected void createSash() {
 			sash = new Composite(this, 0);
-			sash.setBackground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
-			sash.setCursor(
-					getDisplay().getSystemCursor(position == SWT.BOTTOM ? SWT.CURSOR_SIZENS : SWT.CURSOR_SIZEWE));
+			Display display = getDisplay();
+			sash.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+			sash.setCursor(display.getSystemCursor(position == SWT.BOTTOM ? SWT.CURSOR_SIZENS : SWT.CURSOR_SIZEWE));
 			sash.addListener(SWT.Paint, new Listener() {
 				@Override
 				public void handleEvent(Event event) {
 					GC gc = event.gc;
 					Rectangle bounds = getBounds();
-					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+					gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 					gc.drawLine(0, 0, bounds.width, 0);
 					gc.drawLine(0, 0, 0, bounds.height);
-					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+					gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 					gc.drawLine(bounds.width - 1, 0, bounds.width - 1, bounds.height - 1);
 					gc.drawLine(0, bounds.height - 1, bounds.width - 1, bounds.height - 1);
 				}

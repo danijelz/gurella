@@ -129,7 +129,7 @@ public abstract class PropertyEditor<P> {
 		} else if (!empty && menuButton == null) {
 			((GridLayout) composite.getLayout()).numColumns = 2;
 			menuButton = getToolkit().createLabel(composite, "     ", NONE);
-			menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+			menuButton.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
 			menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
 			composite.layout(true, true);
 		}
