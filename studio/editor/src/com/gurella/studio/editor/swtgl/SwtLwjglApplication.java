@@ -15,7 +15,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglClipboard;
 import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
@@ -29,6 +28,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 //https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
+	private static final Object mutex = new Object();
+	
 	protected final SwtLwjglGraphics graphics;
 	protected OpenALAudio audio;
 	protected final LwjglFiles files;
@@ -40,7 +41,7 @@ public class SwtLwjglApplication implements Application {
 	protected final Array<Runnable> executedRunnables = new Array<Runnable>();
 	protected final Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
 	protected int logLevel = LOG_INFO;
-	protected String preferencesdir;
+	protected String preferencesDir;
 
 	protected int lastWidth;
 	protected int lastHeight;
@@ -60,7 +61,7 @@ public class SwtLwjglApplication implements Application {
 		LwjglNativesLoader.load();
 
 		this.graphics = graphics;
-		if (!LwjglApplicationConfiguration.disableAudio) {
+		if (!SwtLwjglApplicationConfiguration.disableAudio) {
 			audio = new OpenALAudio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
 					config.audioDeviceBufferSize);
 		}
@@ -68,15 +69,21 @@ public class SwtLwjglApplication implements Application {
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
 		this.listener = listener;
-		this.preferencesdir = config.preferencesDirectory;
+		this.preferencesDir = config.preferencesDirectory;
 
+		initialize();
+	}
+
+	private void initGdxGlobals() {
 		Gdx.app = this;
 		Gdx.graphics = graphics;
 		Gdx.audio = audio;
 		Gdx.files = files;
 		Gdx.input = input;
 		Gdx.net = net;
-		initialize();
+		Gdx.gl = graphics.gl20;
+		Gdx.gl20 = graphics.gl20;
+		Gdx.gl30 = graphics.gl30;
 	}
 
 	private static SwtLwjglApplicationConfiguration createConfig(int width, int height) {
@@ -127,7 +134,7 @@ public class SwtLwjglApplication implements Application {
 			public void run() {
 				graphics.setVSync(graphics.config.vSyncEnabled);
 				try {
-					SwtLwjglApplication.this.mainLoop();
+					mainLoop();
 				} catch (Throwable t) {
 					if (audio != null) {
 						audio.dispose();
@@ -153,8 +160,15 @@ public class SwtLwjglApplication implements Application {
 			}
 		});
 	}
-
+	
 	void mainLoop() {
+		synchronized (mutex) {
+			initGdxGlobals();
+			mainLoopSafely();
+		}
+	}
+
+	void mainLoopSafely() {
 		graphics.lastTime = System.nanoTime();
 		boolean isActive = graphics.getGlCanvas().isCurrent();
 		if (wasActive && !isActive) {
@@ -287,7 +301,7 @@ public class SwtLwjglApplication implements Application {
 		if (preferences.containsKey(name)) {
 			return preferences.get(name);
 		} else {
-			Preferences prefs = new LwjglPreferences(name, this.preferencesdir);
+			Preferences prefs = new LwjglPreferences(name, this.preferencesDir);
 			preferences.put(name, prefs);
 			return prefs;
 		}
@@ -302,7 +316,7 @@ public class SwtLwjglApplication implements Application {
 	public void postRunnable(Runnable runnable) {
 		synchronized (runnables) {
 			runnables.add(runnable);
-			Gdx.graphics.requestRendering();
+			graphics.requestRendering();
 		}
 	}
 

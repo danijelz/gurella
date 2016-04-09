@@ -23,9 +23,11 @@ public class GurellaEditorActionBarContributor extends BasicTextEditorActionCont
 	public void contributeToMenu(IMenuManager menuManager) {
 		super.contributeToMenu(menuManager);
 
-		IMenuManager menu = new MenuManager("&Gurella");
-		menuManager.prependToGroup(IWorkbenchActionConstants.MB_ADDITIONS, menu);
-		menu.add(toggleEditorViewAction);
+		IMenuManager gurellaMenu = new MenuManager("&Gurella");
+		menuManager.prependToGroup(IWorkbenchActionConstants.MB_ADDITIONS, gurellaMenu);
+		IMenuManager viewsSubMenu = new MenuManager("&View");
+		gurellaMenu.add(viewsSubMenu);
+		viewsSubMenu.add(toggleEditorViewAction);
 	}
 
 	@Override
