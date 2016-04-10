@@ -55,7 +55,7 @@ public class SceneHierarchyView extends SceneEditorView {
 			}
 		});
 
-		MenuItem item = new MenuItem(menu, 0);
+		MenuItem item = new MenuItem(menu, SWT.NONE);
 		item.setText("Add Node");
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -65,12 +65,7 @@ public class SceneHierarchyView extends SceneEditorView {
 
 				if (dlg.open() == Window.OK) {
 					TreeItem[] selection = graph.getSelection();
-					if (selection.length == 0) {
-						SceneNode2 node = getScene().newNode(dlg.getValue());
-						TreeItem nodeItem = new TreeItem(graph, 0);
-						nodeItem.setData(node);
-						nodeItem.setText(node.getName());
-					} else {
+					if (selection.length > 0) {
 						TreeItem seectedItem = selection[0];
 						Object data = seectedItem.getData();
 						SceneNode2 node = (SceneNode2) data;
@@ -78,12 +73,31 @@ public class SceneHierarchyView extends SceneEditorView {
 						TreeItem nodeItem = new TreeItem(seectedItem, 0);
 						nodeItem.setData(child);
 						nodeItem.setText(child.getName());
+						nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
 					}
 					postMessage(SceneChangedMessage.instance);
 				}
 			}
 		});
-		item = new MenuItem(menu, 1);
+		item = new MenuItem(menu, SWT.NONE);
+		item.setText("Add Root Node");
+		item.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
+						(newText) -> newText.length() < 3 ? "Too short" : null);
+
+				if (dlg.open() == Window.OK) {
+					SceneNode2 node = getScene().newNode(dlg.getValue());
+					TreeItem nodeItem = new TreeItem(graph, 0);
+					nodeItem.setData(node);
+					nodeItem.setText(node.getName());
+					nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+					postMessage(SceneChangedMessage.instance);
+				}
+			}
+		});
+		item = new MenuItem(menu, SWT.NONE);
 		item.setText("Remove Node");
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
