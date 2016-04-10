@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.assets;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -18,10 +18,13 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.inspector.InspectableContainer;
+import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer;
+import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.inspector.TexturePropertiesContainer.TextureResource;
-import com.gurella.studio.editor.scene.InspectorView.Inspectable;
-import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
+import com.gurella.studio.editor.scene.SceneEditorView;
+import com.gurella.studio.editor.scene.SelectionMessage;
 
 public class AssetsExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -124,7 +127,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		@Override
-		public PropertiesContainer<TextureResource> createPropertiesContainer(InspectorView parent,
+		public InspectableContainer<TextureResource> createEditContainer(InspectorView parent,
 				TextureResource target) {
 			return new TexturePropertiesContainer(parent, target);
 		}

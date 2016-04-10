@@ -16,10 +16,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
-import com.gurella.studio.editor.scene.InspectorView;
-import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
-public class TexturePropertiesContainer extends PropertiesContainer<TexturePropertiesContainer.TextureResource> {
+public class TexturePropertiesContainer extends InspectableContainer<TexturePropertiesContainer.TextureResource> {
 	private ModelEditorContainer<TextureProperties> loaderProperties;
 	private Composite imageComposite;
 	private Image image;

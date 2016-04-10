@@ -59,18 +59,20 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneChangedMessage;
+import com.gurella.studio.editor.inspector.InspectableContainer;
+import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.property.ModelEditorContext;
-import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
 
-public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
+public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	private Text nameText;
 	private Button enabledCheck;
 	private Label menuButton;
 	private Composite componentsComposite;
 	private Array<ModelEditorContainer<?>> componentContainers = new Array<>();
 
-	public NodePropertiesContainer(InspectorView parent, SceneNode2 target) {
+	public NodeInspectableContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
@@ -109,13 +111,12 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	private void nodeNameChanged() {
 		target.setName(nameText.getText());
-		setDirty();
 		postMessage(new NodeNameChangedMessage(target));
 	}
 
 	private void nodeEnabledChanged() {
 		target.setEnabled(enabledCheck.getSelection());
-		setDirty();
+		postMessage(SceneChangedMessage.instance);
 	}
 
 	private void showMenu() {
@@ -142,7 +143,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		Point buttonLocation = menuButton.getLocation();
 		Rectangle rect = menuButton.getBounds();
 		Point menuLocation = new Point(buttonLocation.x - 1, buttonLocation.y + rect.height);
-		
+
 		menu.setLocation(getDisplay().map(menuButton.getParent(), null, menuLocation));
 		menu.setVisible(true);
 	}
@@ -164,7 +165,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		section.setExpanded(true);
 
 		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(component);
-		context.signal.addListener((event) -> setDirty());
+		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 
 		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(section, context);
 		section.setClient(propertiesContainer);
@@ -178,7 +179,6 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		propertiesContainer.layout(true, true);
 		componentContainers.add(propertiesContainer);
 		postMessage(new ComponentAddedMessage(component));
-		setDirty();
 		reflow(true);
 	}
 
@@ -199,7 +199,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		Thread current = Thread.currentThread();
 		ClassLoader contextClassLoader = current.getContextClassLoader();
 		try {
-			current.setContextClassLoader(getGurellaEditor().getClassLoader());
+			current.setContextClassLoader(getSceneEditor().getClassLoader());
 			addScriptComponent();
 		} catch (Exception e2) {
 			// TODO: handle exception
@@ -211,8 +211,8 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 
 	private void addScriptComponent()
 			throws JavaModelException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		IJavaSearchScope scope = SearchEngine.createHierarchyScope(
-				getGurellaEditor().getJavaProject().findType("com.gurella.engine.scene.SceneNodeComponent2"));
+		IJavaSearchScope scope = SearchEngine
+				.createHierarchyScope(getSceneEditor().getJavaProject().findType(SceneNodeComponent2.class.getName()));
 		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), new ProgressMonitorDialog(getShell()), scope,
 				IJavaElementSearchConstants.CONSIDER_CLASSES, false);
 		if (dialog.open() != IDialogConstants.OK_ID) {
@@ -223,7 +223,7 @@ public class NodePropertiesContainer extends PropertiesContainer<SceneNode2> {
 		if (types != null && types.length > 0) {
 			IType type = (IType) types[0];
 			SceneNodeComponent2 component = Values
-					.cast(getGurellaEditor().getClassLoader().loadClass(type.getFullyQualifiedName()).newInstance());
+					.cast(getSceneEditor().getClassLoader().loadClass(type.getFullyQualifiedName()).newInstance());
 			addComponent(component);
 		}
 	}

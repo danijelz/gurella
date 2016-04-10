@@ -1,20 +1,19 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.inspector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.EditorMessageListener;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.scene.SceneEditorView;
+import com.gurella.studio.editor.scene.SelectionMessage;
 
 public class InspectorView extends SceneEditorView {
 	private Object currentTarget;
-	private PropertiesContainer<Object> currentContainer;
+	private InspectableContainer<Object> currentContainer;
 
 	public InspectorView(GurellaEditor editor, int style) {
 		super(editor, "Inspector", GurellaStudioPlugin.createImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
@@ -47,7 +46,7 @@ public class InspectorView extends SceneEditorView {
 				return;
 			}
 
-			currentContainer = Values.cast(inspectable.createPropertiesContainer(this, inspectable.getTarget()));
+			currentContainer = Values.cast(inspectable.createEditContainer(this, inspectable.getTarget()));
 			if (currentContainer != null) {
 				currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				layout(true, true);
@@ -66,51 +65,6 @@ public class InspectorView extends SceneEditorView {
 	public interface Inspectable<T> {
 		T getTarget();
 
-		PropertiesContainer<T> createPropertiesContainer(InspectorView parent, T target);
-	}
-
-	public static abstract class PropertiesContainer<T> extends ScrolledForm implements EditorMessageListener {
-		protected T target;
-
-		public PropertiesContainer(InspectorView parent, T target) {
-			super(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-			this.target = target;
-			setExpandHorizontal(true);
-			setExpandVertical(true);
-			setMinWidth(200);
-			addListener(SWT.Resize, (e) -> reflow(true));
-			addDisposeListener(e -> parent.editor.removeEditorMessageListener(this));
-			parent.editor.addEditorMessageListener(this);
-		}
-
-		@Override
-		public InspectorView getParent() {
-			return (InspectorView) super.getParent();
-		}
-
-		@Override
-		public boolean setParent(Composite parent) {
-			if (parent instanceof InspectorView) {
-				return super.setParent(parent);
-			} else {
-				throw new IllegalArgumentException();
-			}
-		}
-
-		public GurellaEditor getGurellaEditor() {
-			return getParent().editor;
-		}
-
-		protected final void postMessage(Object message) {
-			getParent().postMessage(message);
-		}
-
-		@Override
-		public void handleMessage(Object source, Object message) {
-		}
-
-		protected void setDirty() {
-			getGurellaEditor().setDirty();
-		}
+		InspectableContainer<T> createEditContainer(InspectorView parent, T target);
 	}
 }

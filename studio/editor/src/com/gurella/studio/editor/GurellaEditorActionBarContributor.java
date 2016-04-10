@@ -10,7 +10,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.texteditor.BasicTextEditorActionContributor;
 
-import com.gurella.studio.editor.scene.AssetsExplorerView;
+import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneEditorViewClosedMessage;
 

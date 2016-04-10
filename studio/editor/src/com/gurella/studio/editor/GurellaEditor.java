@@ -48,14 +48,14 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.studio.editor.scene.AssetsExplorerView;
-import com.gurella.studio.editor.scene.InspectorView;
+import com.gurella.studio.editor.assets.AssetsExplorerView;
+import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
-public class GurellaEditor extends EditorPart {
+public class GurellaEditor extends EditorPart implements EditorMessageListener {
 	private EditorMessageSignal signal = new EditorMessageSignal();
 	private SceneEditorMainContainer mainContainer;
 
@@ -72,6 +72,7 @@ public class GurellaEditor extends EditorPart {
 	private URLClassLoader classLoader;
 
 	public GurellaEditor() {
+		signal.addListener(this);
 	}
 
 	@Override
@@ -237,6 +238,7 @@ public class GurellaEditor extends EditorPart {
 	public void dispose() {
 		super.dispose();
 		ResourceService.unload(scene);
+		signal.clear();
 		if (application != null) {
 			application.exit();
 		}
@@ -250,17 +252,20 @@ public class GurellaEditor extends EditorPart {
 		}
 	}
 
-	public void setDirty() {
-		dirty = true;
-		firePropertyChange(PROP_DIRTY);
-	}
-
 	public void postMessage(Object source, Object message) {
 		signal.dispatch(source, message);
 		for (SceneEditorView view : registeredViews) {
 			if (source != view) {
 				view.handleMessage(source, message);
 			}
+		}
+	}
+
+	@Override
+	public void handleMessage(Object source, Object message) {
+		if (message instanceof SceneChangedMessage) {
+			dirty = true;
+			firePropertyChange(PROP_DIRTY);
 		}
 	}
 

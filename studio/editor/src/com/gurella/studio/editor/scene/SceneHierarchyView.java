@@ -23,9 +23,11 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.SceneLoadedMessage;
-import com.gurella.studio.editor.scene.InspectorView.Inspectable;
-import com.gurella.studio.editor.scene.InspectorView.PropertiesContainer;
+import com.gurella.studio.editor.inspector.InspectableContainer;
+import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 
 public class SceneHierarchyView extends SceneEditorView {
 	private Tree graph;
@@ -77,7 +79,7 @@ public class SceneHierarchyView extends SceneEditorView {
 						nodeItem.setData(child);
 						nodeItem.setText(child.getName());
 					}
-					setDirty();
+					postMessage(SceneChangedMessage.instance);
 				}
 			}
 		});
@@ -97,7 +99,7 @@ public class SceneHierarchyView extends SceneEditorView {
 						parentNode.removeChild(node);
 					}
 					seectedItem.dispose();
-					setDirty();
+					postMessage(SceneChangedMessage.instance);
 				}
 			}
 		});
@@ -222,8 +224,8 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		@Override
-		public PropertiesContainer<SceneNode2> createPropertiesContainer(InspectorView parent, SceneNode2 target) {
-			return new NodePropertiesContainer(parent, target);
+		public InspectableContainer<SceneNode2> createEditContainer(InspectorView parent, SceneNode2 target) {
+			return new NodeInspectableContainer(parent, target);
 		}
 	}
 
@@ -240,9 +242,9 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		@Override
-		public PropertiesContainer<SceneNodeComponent2> createPropertiesContainer(InspectorView parent,
+		public InspectableContainer<SceneNodeComponent2> createEditContainer(InspectorView parent,
 				SceneNodeComponent2 target) {
-			return new ComponentPropertiesContainer(parent, target);
+			return new ComponentInspectableContainer(parent, target);
 		}
 	}
 }

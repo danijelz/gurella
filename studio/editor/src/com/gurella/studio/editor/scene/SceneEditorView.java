@@ -25,15 +25,23 @@ public abstract class SceneEditorView extends Composite implements EditorMessage
 		return ((style & LEFT) == 0 && (style & RIGHT) == 0 && (style & BOTTOM) == 0) ? style | LEFT : style;
 	}
 
-	protected void setDirty() {
-		editor.setDirty();
-	}
-
-	protected final void postMessage(Object message) {
+	public final void postMessage(Object message) {
 		editor.postMessage(this, message);
 	}
 
 	@Override
 	public void handleMessage(Object source, Object message) {
+	}
+
+	public void addEditorMessageListener(EditorMessageListener listener) {
+		editor.addEditorMessageListener(listener);
+	}
+
+	public void removeEditorMessageListener(EditorMessageListener listener) {
+		editor.removeEditorMessageListener(listener);
+	}
+	
+	public GurellaEditor getSceneEditor() {
+		return editor;
 	}
 }
