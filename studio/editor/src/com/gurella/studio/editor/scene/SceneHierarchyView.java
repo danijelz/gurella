@@ -1,5 +1,8 @@
 package com.gurella.studio.editor.scene;
 
+import static org.eclipse.swt.SWT.PUSH;
+import static org.eclipse.swt.SWT.SEPARATOR;
+
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -21,7 +24,23 @@ import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.audio.AudioListenerComponent;
+import com.gurella.engine.scene.audio.AudioSourceComponent;
+import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
+import com.gurella.engine.scene.camera.OrtographicCameraComponent;
+import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
+import com.gurella.engine.scene.light.DirectionalLightComponent;
+import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.renderable.AtlasRegionComponent;
+import com.gurella.engine.scene.renderable.ModelComponent;
+import com.gurella.engine.scene.renderable.SolidComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
+import com.gurella.engine.scene.renderable.TextureRegionComponent;
+import com.gurella.engine.scene.tag.TagComponent;
+import com.gurella.engine.test.TestInputComponent;
+import com.gurella.engine.test.TestPropertyEditorsComponnent;
+import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
@@ -29,8 +48,8 @@ import com.gurella.studio.editor.SceneLoadedMessage;
 import com.gurella.studio.editor.inspector.ComponentInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.inspector.NodeInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
+import com.gurella.studio.editor.inspector.NodeInspectableContainer;
 
 public class SceneHierarchyView extends SceneEditorView {
 	private Tree graph;
@@ -59,7 +78,7 @@ public class SceneHierarchyView extends SceneEditorView {
 			}
 		});
 
-		MenuItem item = new MenuItem(menu, SWT.NONE);
+		MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Node");
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -83,7 +102,7 @@ public class SceneHierarchyView extends SceneEditorView {
 				}
 			}
 		});
-		item = new MenuItem(menu, SWT.NONE);
+		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Root Node");
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -101,7 +120,7 @@ public class SceneHierarchyView extends SceneEditorView {
 				}
 			}
 		});
-		item = new MenuItem(menu, SWT.NONE);
+		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Remove Node");
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -121,11 +140,59 @@ public class SceneHierarchyView extends SceneEditorView {
 				}
 			}
 		});
+
+		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
+		subItem.setText("Add Component");
+		Menu subMenu = new Menu(menu);
+		subItem.setMenu(subMenu);
+		addMenuItem(subMenu, TransformComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, BulletPhysicsRigidBodyComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, OrtographicCameraComponent.class);
+		addMenuItem(subMenu, PerspectiveCameraComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, PointLightComponent.class);
+		addMenuItem(subMenu, DirectionalLightComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, AudioListenerComponent.class);
+		addMenuItem(subMenu, AudioSourceComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, TagComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		// addItem("Layer", LayerComponent.class);
+		addMenuItem(subMenu, TextureComponent.class);
+		addMenuItem(subMenu, TextureRegionComponent.class);
+		addMenuItem(subMenu, AtlasRegionComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, ModelComponent.class);
+		addMenuItem(subMenu, SolidComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+		addMenuItem(subMenu, TestPropertyEditorsComponnent.class);
+		addMenuItem(subMenu, TestInputComponent.class);
+		new MenuItem(subMenu, SEPARATOR);
+
 		graph.setMenu(menu);
 
 		Scene scene = editor.getScene();
 		if (scene != null) {
 			present(scene);
+		}
+	}
+
+	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
+		MenuItem item1 = new MenuItem(menu, PUSH);
+		item1.setText(Models.getModel(componentType).getName());
+		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
+	}
+
+	private void addComponent(SceneNodeComponent2 component) {
+		TreeItem[] selection = graph.getSelection();
+		if (selection.length > 0) {
+			TreeItem seectedItem = selection[0];
+			SceneNode2 node = (SceneNode2) seectedItem.getData();
+			node.addComponent(component);
+			postMessage(new ComponentAddedMessage(component));
 		}
 	}
 
@@ -142,7 +209,7 @@ public class SceneHierarchyView extends SceneEditorView {
 	}
 
 	private void handleKeyUp(Event e) {
-		if(e.keyCode == SWT.DEL) {
+		if (e.keyCode == SWT.DEL) {
 			TreeItem[] selection = graph.getSelection();
 			if (selection.length > 0) {
 				TreeItem seectedItem = selection[0];

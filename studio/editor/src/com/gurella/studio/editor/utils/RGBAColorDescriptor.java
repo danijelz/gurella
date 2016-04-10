@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.utils;
 
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.swt.graphics.Color;

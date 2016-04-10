@@ -14,6 +14,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.gurella.studio.editor.utils.RGBAColorDescriptor;
+
 public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.gurella.studio.editor"; //$NON-NLS-1$
 

@@ -9,6 +9,7 @@ import static org.eclipse.swt.SWT.FILL;
 import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
+import static org.eclipse.swt.SWT.SEPARATOR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
@@ -119,25 +120,35 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		postMessage(SceneChangedMessage.instance);
 	}
 
+	@SuppressWarnings("unused")
 	private void showMenu() {
 		Menu menu = new Menu(getShell(), POP_UP);
 		addMenuItem(menu, TransformComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, OrtographicCameraComponent.class);
 		addMenuItem(menu, PerspectiveCameraComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, PointLightComponent.class);
 		addMenuItem(menu, DirectionalLightComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, AudioListenerComponent.class);
 		addMenuItem(menu, AudioSourceComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TagComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		// addItem("Layer", LayerComponent.class);
 		addMenuItem(menu, TextureComponent.class);
 		addMenuItem(menu, TextureRegionComponent.class);
 		addMenuItem(menu, AtlasRegionComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, ModelComponent.class);
 		addMenuItem(menu, SolidComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TestPropertyEditorsComponnent.class);
 		addMenuItem(menu, TestInputComponent.class);
+		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 
 		Point buttonLocation = menuButton.getLocation();
