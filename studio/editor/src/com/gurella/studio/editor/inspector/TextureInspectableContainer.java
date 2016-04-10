@@ -17,12 +17,12 @@ import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 
-public class TexturePropertiesContainer extends InspectableContainer<TexturePropertiesContainer.TextureResource> {
-	private ModelEditorContainer<TextureProperties> loaderProperties;
+public class TextureInspectableContainer extends InspectableContainer<TextureInspectableContainer.TextureResource> {
+	private ModelEditorContainer<TextureProperties> textureProperties;
 	private Composite imageComposite;
 	private Image image;
 
-	public TexturePropertiesContainer(InspectorView parent, TextureResource target) {
+	public TextureInspectableContainer(InspectorView parent, TextureResource target) {
 		super(parent, target);
 		IFile file = target.file;
 		setText(file.getName());
@@ -32,9 +32,9 @@ public class TexturePropertiesContainer extends InspectableContainer<TextureProp
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		loaderProperties = new ModelEditorContainer<TextureProperties>(getBody(), findTextureProperties(target.file));
+		textureProperties = new ModelEditorContainer<TextureProperties>(getBody(), findTextureProperties(target.file));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		loaderProperties.setLayoutData(layoutData);
+		textureProperties.setLayoutData(layoutData);
 
 		imageComposite = toolkit.createComposite(getBody(), SWT.BORDER);
 		layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);

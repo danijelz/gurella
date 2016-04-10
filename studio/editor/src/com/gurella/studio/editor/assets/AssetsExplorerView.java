@@ -3,6 +3,7 @@ package com.gurella.studio.editor.assets;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
@@ -20,16 +21,17 @@ import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.inspector.TexturePropertiesContainer;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
-import com.gurella.studio.editor.inspector.TexturePropertiesContainer.TextureResource;
+import com.gurella.studio.editor.inspector.TextureInspectableContainer;
+import com.gurella.studio.editor.inspector.TextureInspectableContainer.TextureResource;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;
 
 public class AssetsExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
-	private Tree tree;
+	Tree tree;
+	IResource rootResource;
 
 	public AssetsExplorerView(GurellaEditor editor, int style) {
 		super(editor, "Assets", GurellaStudioPlugin.createImage("icons/resource_persp.gif"), style);
@@ -40,19 +42,32 @@ public class AssetsExplorerView extends SceneEditorView {
 		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		try {
-			IPath assetsRoot = getAssetsRoot().makeRelativeTo(editor.getProject().getLocation());
-			IResource resource = editor.getProject().findMember(assetsRoot);
-			if (resource instanceof IContainer) {
-				createItems(null, resource);
-			}
+		initTree(editor);
 
-			tree.addListener(SWT.Selection, (e) -> postMessage(new SelectionMessage(getInspectable())));
+		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
+		IWorkspace workspace = getSceneEditor().getWorkspace();
+		workspace.addResourceChangeListener(listener);
+		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
+	}
+
+	private void initTree(GurellaEditor editor) {
+		try {
+			createItems(editor);
 		} catch (CoreException e) {
 			tree.dispose();
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private void createItems(GurellaEditor editor) throws CoreException {
+		IPath rootPath = findAssetsRoot().makeRelativeTo(editor.getProject().getLocation());
+		rootResource = editor.getProject().findMember(rootPath);
+		if (rootResource instanceof IContainer) {
+			createItems(null, rootResource);
+		}
+
+		tree.addListener(SWT.Selection, (e) -> postMessage(new SelectionMessage(getInspectable())));
 	}
 
 	private Inspectable<?> getInspectable() {
@@ -69,7 +84,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		return null;
 	}
 
-	private IPath getAssetsRoot() throws CoreException {
+	private IPath findAssetsRoot() throws CoreException {
 		IPathEditorInput pathEditorInput = (IPathEditorInput) editor.getEditorInput();
 		IPath projectPath = editor.getProject().getLocation().makeAbsolute();
 		IPath scenePath = pathEditorInput.getPath().removeLastSegments(1).makeAbsolute();
@@ -95,16 +110,23 @@ public class AssetsExplorerView extends SceneEditorView {
 	}
 
 	private void createItems(TreeItem parentItem, IResource resource) throws CoreException {
+		TreeItem nodeItem = createItem(parentItem, resource);
+
+		if (resource instanceof IContainer) {
+			for (IResource member : ((IContainer) resource).members()) {
+				createItems(nodeItem, member);
+			}
+		}
+	}
+
+	TreeItem createItem(TreeItem parentItem, IResource resource) {
 		TreeItem nodeItem = parentItem == null ? new TreeItem(tree, 0) : new TreeItem(parentItem, 0);
 		nodeItem.setText(resource.getName());
 		nodeItem.setData(resource);
 
 		if (resource instanceof IContainer) {
 			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
-			for (IResource member : ((IContainer) resource).members()) {
-				createItems(nodeItem, member);
-			}
-		} else {
+		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
 			if (AssetType.texture.containsExtension(file.getFileExtension())) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/picture.png"));
@@ -112,6 +134,8 @@ public class AssetsExplorerView extends SceneEditorView {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 			}
 		}
+
+		return nodeItem;
 	}
 
 	private static class TextureInspectable implements Inspectable<TextureResource> {
@@ -127,9 +151,8 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		@Override
-		public InspectableContainer<TextureResource> createEditContainer(InspectorView parent,
-				TextureResource target) {
-			return new TexturePropertiesContainer(parent, target);
+		public InspectableContainer<TextureResource> createEditContainer(InspectorView parent, TextureResource target) {
+			return new TextureInspectableContainer(parent, target);
 		}
 	}
 }
