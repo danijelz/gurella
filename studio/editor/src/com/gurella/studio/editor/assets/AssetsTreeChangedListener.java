@@ -10,12 +10,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class AssetsTreeChangedListener implements IResourceChangeListener {
-	private AssetsExplorerView assetsExplorerView;
+	private AssetsExplorerView assetsExplorer;
 	private IResource rootResource;
 
-	public AssetsTreeChangedListener(AssetsExplorerView assetsExplorerView) {
-		this.assetsExplorerView = assetsExplorerView;
-		rootResource = assetsExplorerView.rootResource;
+	public AssetsTreeChangedListener(AssetsExplorerView assetsExplorer) {
+		this.assetsExplorer = assetsExplorer;
+		rootResource = assetsExplorer.rootResource;
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class AssetsTreeChangedListener implements IResourceChangeListener {
 			return;
 		}
 
-		resourceChanged(assetsExplorerView.tree.getItem(0), assetsDelta);
+		assetsExplorer.getDisplay().asyncExec(() -> resourceChanged(assetsExplorer.tree.getItem(0), assetsDelta));
 	}
 
 	private void resourceChanged(TreeItem item, IResourceDelta delta) {
@@ -38,15 +38,19 @@ public class AssetsTreeChangedListener implements IResourceChangeListener {
 			IResource resource = (IResource) item.getData();
 			IPath rootResourcePath = resource.getFullPath();
 			IPath changedResourcePath = childDelta.getFullPath();
-			if (childDelta.getKind() == IResourceDelta.ADDED || childDelta.getKind() == IResourceDelta.CHANGED || childDelta.getKind() == IResourceDelta.NO_CHANGE) {
-				IPath relativePath = changedResourcePath.removeFirstSegments(rootResourcePath.segmentCount());
+			IPath relativePath = changedResourcePath.removeFirstSegments(rootResourcePath.segmentCount());
+			int kind = childDelta.getKind();
+			if (kind == IResourceDelta.ADDED || kind == IResourceDelta.CHANGED) {
 				TreeItem childItem = findChildItem(item, relativePath.segment(0));
 				if (childItem == null) {
-					childItem = assetsExplorerView.createItem(item, childDelta.getResource());
+					childItem = assetsExplorer.createItem(item, childDelta.getResource());
 				}
 				resourceChanged(childItem, childDelta);
-			} else if (childDelta.getKind() == IResourceDelta.REMOVED) {
-				//TODO 
+			} else if (kind == IResourceDelta.REMOVED) {
+				TreeItem childItem = findChildItem(item, relativePath.segment(0));
+				if (childItem != null) {
+					childItem.dispose();
+				}
 			}
 		}
 	}
