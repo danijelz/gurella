@@ -2,6 +2,7 @@ package com.gurella.studio.editor.assets;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
@@ -126,7 +127,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		nodeItem.setText(resource.getName());
 		nodeItem.setData(resource);
 
-		if (resource instanceof IContainer) {
+		if (resource instanceof IFolder) {
 			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
 		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;

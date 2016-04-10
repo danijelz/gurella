@@ -29,7 +29,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 //https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
 	private static final Object mutex = new Object();
-	
+
 	protected final SwtLwjglGraphics graphics;
 	protected OpenALAudio audio;
 	protected final LwjglFiles files;
@@ -61,7 +61,7 @@ public class SwtLwjglApplication implements Application {
 		LwjglNativesLoader.load();
 
 		this.graphics = graphics;
-		if (!SwtLwjglApplicationConfiguration.disableAudio) {
+		if (!config.disableAudio) {
 			audio = new OpenALAudio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
 					config.audioDeviceBufferSize);
 		}
@@ -71,7 +71,10 @@ public class SwtLwjglApplication implements Application {
 		this.listener = listener;
 		this.preferencesDir = config.preferencesDirectory;
 
-		initialize();
+		synchronized (mutex) {
+			initGdxGlobals();
+			initialize();
+		}
 	}
 
 	private void initGdxGlobals() {
@@ -91,6 +94,7 @@ public class SwtLwjglApplication implements Application {
 		config.width = width;
 		config.height = height;
 		config.vSyncEnabled = true;
+		config.disableAudio = true;
 		return config;
 	}
 
@@ -124,7 +128,7 @@ public class SwtLwjglApplication implements Application {
 				if (audio != null) {
 					audio.dispose();
 				}
-				
+
 				graphics.dispose();
 			}
 		});
@@ -160,7 +164,7 @@ public class SwtLwjglApplication implements Application {
 			}
 		});
 	}
-	
+
 	void mainLoop() {
 		synchronized (mutex) {
 			initGdxGlobals();

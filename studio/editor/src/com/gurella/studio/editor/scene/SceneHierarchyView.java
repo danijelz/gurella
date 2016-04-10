@@ -9,6 +9,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
@@ -25,8 +26,10 @@ import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.SceneLoadedMessage;
+import com.gurella.studio.editor.inspector.ComponentInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.inspector.NodeInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 
 public class SceneHierarchyView extends SceneEditorView {
@@ -42,6 +45,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, (e) -> graphSelectionChanged());
+		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
 		menu = new Menu(graph);
 		menu.addMenuListener(new MenuAdapter() {
@@ -133,6 +137,24 @@ public class SceneHierarchyView extends SceneEditorView {
 				postMessage(new SelectionMessage(new NodeInspectable((SceneNode2) data)));
 			} else {
 				postMessage(new SelectionMessage(new ComponentInspectable((SceneNodeComponent2) data)));
+			}
+		}
+	}
+
+	private void handleKeyUp(Event e) {
+		if(e.keyCode == SWT.DEL) {
+			TreeItem[] selection = graph.getSelection();
+			if (selection.length > 0) {
+				TreeItem seectedItem = selection[0];
+				SceneNode2 node = (SceneNode2) seectedItem.getData();
+				SceneNode2 parentNode = node.getParentNode();
+				if (parentNode == null) {
+					getScene().removeNode(node);
+				} else {
+					parentNode.removeChild(node);
+				}
+				seectedItem.dispose();
+				postMessage(SceneChangedMessage.instance);
 			}
 		}
 	}

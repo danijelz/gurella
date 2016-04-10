@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.inspector;
 
 import static org.eclipse.swt.SWT.BEGINNING;
 import static org.eclipse.swt.SWT.BORDER;
@@ -60,10 +60,10 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.inspector.InspectableContainer;
-import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.property.ModelEditorContext;
+import com.gurella.studio.editor.scene.ComponentAddedMessage;
+import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	private Text nameText;

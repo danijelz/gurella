@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.inspector;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -11,8 +11,6 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.inspector.InspectableContainer;
-import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.property.ModelEditorContext;
 
