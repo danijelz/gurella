@@ -2,10 +2,12 @@ package com.gurella.studio.editor.assets;
 
 import java.util.Arrays;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -43,7 +45,8 @@ public class AssetsTreeChangedListener implements IResourceChangeListener {
 			if (kind == IResourceDelta.ADDED || kind == IResourceDelta.CHANGED) {
 				TreeItem childItem = findChildItem(item, relativePath.segment(0));
 				if (childItem == null) {
-					childItem = assetsExplorer.createItem(item, childDelta.getResource());
+					int index = getChildItemIndex(item, resource, childDelta.getResource());
+					childItem = assetsExplorer.createItem(item, childDelta.getResource(), index);
 				}
 				resourceChanged(childItem, childDelta);
 			} else if (kind == IResourceDelta.REMOVED) {
@@ -53,6 +56,32 @@ public class AssetsTreeChangedListener implements IResourceChangeListener {
 				}
 			}
 		}
+	}
+
+	private static int getChildItemIndex(TreeItem item, IResource parentResource, IResource childResource) {
+		int index = 0;
+		IContainer container = (IContainer) parentResource;
+		IResource[] members;
+		try {
+			members = container.members();
+			for (IResource resource : members) {
+				if (childResource.equals(resource)) {
+					return index;
+				} else if (findChildItem(item, resource) != null) {
+					index++;
+				}
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return index;
+	}
+
+	private static TreeItem findChildItem(TreeItem item, IResource resource) {
+		return Arrays.stream(item.getItems()).filter(treeItem -> ((IResource) treeItem.getData()).equals(resource))
+				.findFirst().orElse(null);
 	}
 
 	private static TreeItem findChildItem(TreeItem item, String name) {

@@ -115,6 +115,10 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
 		setInput(input);
+
+		IPathEditorInput pathEditorInput = (IPathEditorInput) input;
+		String[] segments = pathEditorInput.getPath().segments();
+		setPartName(segments[segments.length - 1]);
 	}
 
 	@Override
@@ -169,12 +173,10 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 
 			@Override
 			public void onCancled(String message) {
-				// TODO Auto-generated method stub
 			}
 
 			@Override
 			public void onProgress(float progress) {
-				// TODO Auto-generated method stub
 			}
 		}, 0);
 	}
@@ -254,11 +256,6 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 
 	public void postMessage(Object source, Object message) {
 		signal.dispatch(source, message);
-		for (SceneEditorView view : registeredViews) {
-			if (source != view) {
-				view.handleMessage(source, message);
-			}
-		}
 	}
 
 	@Override

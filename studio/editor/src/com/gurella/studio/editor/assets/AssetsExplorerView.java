@@ -110,7 +110,8 @@ public class AssetsExplorerView extends SceneEditorView {
 	}
 
 	private void createItems(TreeItem parentItem, IResource resource) throws CoreException {
-		TreeItem nodeItem = createItem(parentItem, resource);
+		int index = parentItem == null ? tree.getItemCount() : parentItem.getItemCount();
+		TreeItem nodeItem = createItem(parentItem, resource, index);
 
 		if (resource instanceof IContainer) {
 			for (IResource member : ((IContainer) resource).members()) {
@@ -119,8 +120,9 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 	}
 
-	TreeItem createItem(TreeItem parentItem, IResource resource) {
-		TreeItem nodeItem = parentItem == null ? new TreeItem(tree, 0) : new TreeItem(parentItem, 0);
+	TreeItem createItem(TreeItem parentItem, IResource resource, int index) {
+		TreeItem nodeItem = parentItem == null ? new TreeItem(tree, SWT.NONE, index)
+				: new TreeItem(parentItem, SWT.NONE, index);
 		nodeItem.setText(resource.getName());
 		nodeItem.setData(resource);
 
