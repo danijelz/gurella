@@ -14,6 +14,6 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	
 	public String[] testStringArray = new String[3];
 	public int[] testIntArray = new int[3];
-	public Integer[] testIntegerArray;
-	public Vector3[] testVectorArray;
+	public Integer[] testIntegerArray = new Integer[3];
+	public Vector3[] testVectorArray = new Vector3[3];
 }
