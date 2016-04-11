@@ -10,21 +10,20 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.audio.loader.SoundDuration;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
-public class SoundInspectableContainer extends InspectableContainer<SoundInspectableContainer.SoundResource> {
+public class MusicInspectableContainer extends InspectableContainer<MusicInspectableContainer.MusicResource> {
 	private Button play;
 	private Button stop;
 	private ProgressBar progress;
 
-	private Sound sound;
-	private long soundHandle;
+	private Music music;
 	private float totalDuration;
 
-	public SoundInspectableContainer(InspectorView parent, SoundResource target) {
+	public MusicInspectableContainer(InspectorView parent, MusicResource target) {
 		super(parent, target);
 		Composite body = getBody();
 		body.setLayout(new GridLayout(2, false));
@@ -33,11 +32,11 @@ public class SoundInspectableContainer extends InspectableContainer<SoundInspect
 
 		play = toolkit.createButton(body, "Play", SWT.PUSH);
 		play.setLayoutData(new GridData(SWT.RIGHT, SWT.BEGINNING, true, false));
-		play.addListener(SWT.Selection, e -> soundHandle = sound.play());
+		play.addListener(SWT.Selection, e -> music.play());
 
 		stop = toolkit.createButton(body, "Stop", SWT.PUSH);
 		stop.setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, true, false));
-		stop.addListener(SWT.Selection, e -> sound.stop());
+		stop.addListener(SWT.Selection, e -> music.stop());
 
 		progress = new ProgressBar(body, SWT.SMOOTH | SWT.HORIZONTAL);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, true);
@@ -46,20 +45,20 @@ public class SoundInspectableContainer extends InspectableContainer<SoundInspect
 		progress.setLayoutData(layoutData);
 
 		FileHandle fileHandle = new FileHandle(target.file.getLocation().toFile());
-		sound = Gdx.audio.newSound(fileHandle);
+		music = Gdx.audio.newMusic(fileHandle);
 		totalDuration = SoundDuration.totalDuration(fileHandle);
 		progress.setMinimum(0);
 		progress.setMaximum((int) (totalDuration * 1000));
 
-		body.addDisposeListener(e -> sound.dispose());
+		body.addDisposeListener(e -> music.dispose());
 
 		reflow(true);
 	}
 
-	public static class SoundResource {
+	public static class MusicResource {
 		IFile file;
 
-		public SoundResource(IFile file) {
+		public MusicResource(IFile file) {
 			this.file = file;
 		}
 	}

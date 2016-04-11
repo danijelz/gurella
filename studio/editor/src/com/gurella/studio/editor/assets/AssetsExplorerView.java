@@ -23,8 +23,8 @@ import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
-import com.gurella.studio.editor.inspector.SoundInspectableContainer;
-import com.gurella.studio.editor.inspector.SoundInspectableContainer.SoundResource;
+import com.gurella.studio.editor.inspector.MusicInspectableContainer;
+import com.gurella.studio.editor.inspector.MusicInspectableContainer.MusicResource;
 import com.gurella.studio.editor.inspector.TextureInspectableContainer;
 import com.gurella.studio.editor.inspector.TextureInspectableContainer.TextureResource;
 import com.gurella.studio.editor.scene.SceneEditorView;
@@ -82,7 +82,7 @@ public class AssetsExplorerView extends SceneEditorView {
 				if (AssetType.texture.containsExtension(file.getFileExtension())) {
 					return new TextureInspectable(file);
 				} else if (AssetType.sound.containsExtension(file.getFileExtension())) {
-					return new SoundInspectable(file);
+					return new MusicInspectable(file);
 				}
 			}
 		}
@@ -165,21 +165,21 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 	}
 
-	private static class SoundInspectable implements Inspectable<SoundResource> {
-		SoundResource target;
+	private static class MusicInspectable implements Inspectable<MusicResource> {
+		MusicResource target;
 
-		public SoundInspectable(IFile file) {
-			this.target = new SoundResource(file);
+		public MusicInspectable(IFile file) {
+			this.target = new MusicResource(file);
 		}
 
 		@Override
-		public SoundResource getTarget() {
+		public MusicResource getTarget() {
 			return target;
 		}
 
 		@Override
-		public InspectableContainer<SoundResource> createEditContainer(InspectorView parent, SoundResource target) {
-			return new SoundInspectableContainer(parent, target);
+		public InspectableContainer<MusicResource> createEditContainer(InspectorView parent, MusicResource target) {
+			return new MusicInspectableContainer(parent, target);
 		}
 	}
 }
