@@ -7,6 +7,7 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.resource.FontDescriptor;
@@ -58,24 +59,15 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 	}
 
 	private void initEditors() {
-		ImmutableArray<Property<?>> properties = context.model.getProperties();
-
-		for (int i = 0; i < properties.size(); i++) {
-			Property<?> property = properties.get(i);
-			if (property.isEditable()) {
-
-				addEditor(property);
-			}
-		}
-
+		Property<?>[] array = context.model.getProperties().toArray(Property.class);
+		Arrays.stream(array).filter(p -> p.isEditable()).forEach(p -> addEditor(p));
 		layout(true, true);
 	}
 
 	private <V> void addEditor(Property<V> property) {
 		FormToolkit toolkit = getToolkit();
 		Composite body = getBody();
-		PropertyEditor<V> editor = createEditor(getBody(),
-				new PropertyEditorContext<>(context, context.model, context.modelInstance, property));
+		PropertyEditor<V> editor = createEditor(getBody(), new PropertyEditorContext<>(context, property));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);

@@ -2,6 +2,7 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.reflect.ArrayReflection;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -63,9 +64,16 @@ public class CopyContext implements Poolable {
 		copiedObjects.put(source, target);
 		objectStack.add(target);
 		Model<T> model = Models.getModel(source);
-		ImmutableArray<Property<?>> properties = model.getProperties();
-		for (int i = 0; i < properties.size(); i++) {
-			properties.get(i).copy(source, target, this);
+		if (model.getType().isArray()) {
+			System.arraycopy(source, 0, target, 0, ArrayReflection.getLength(source));
+		} else {
+			ImmutableArray<Property<?>> properties = model.getProperties();
+			for (int i = 0; i < properties.size(); i++) {
+				Property<?> property = properties.get(i);
+				if (property.isCopyable()) {
+					property.copy(source, target, this);
+				}
+			}
 		}
 		copiedObjectStack.pop();
 		objectStack.pop();

@@ -17,5 +17,5 @@ public interface Model<T> {
 
 	T deserialize(Object template, Input input);
 
-	T copy(T original, CopyContext context);
+	T copy(T source, CopyContext context);
 }

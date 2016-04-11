@@ -11,7 +11,7 @@ import com.gurella.engine.utils.Values;
 public abstract class BaseModel<T> implements Model<T> {
 	private final Class<T> type;
 	private final String name;
-	
+
 	private final boolean innerClass;
 	private final Constructor constructor;
 

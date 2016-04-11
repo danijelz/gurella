@@ -319,7 +319,7 @@ public class Test {
 				if (classpathAttributes != null) {
 					for (IClasspathAttribute classpathAttribute : classpathAttributes) {
 						if (classpathAttribute.getName()
-								.equals(CodeGenUtil.EclipseUtil.PLUGIN_ID_CLASSPATH_ATTRIBUTE_NAME)) {
+								.equals("CodeGenUtil.EclipseUtil.PLUGIN_ID_CLASSPATH_ATTRIBUTE_NAME")) {
 							Bundle bundle = Platform.getBundle(classpathAttribute.getValue());
 							if (bundle != null) {
 								bundles.add(bundle);

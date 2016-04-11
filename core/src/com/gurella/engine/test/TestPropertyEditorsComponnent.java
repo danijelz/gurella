@@ -10,9 +10,10 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	public Matrix3 matrix3 = new Matrix3();
 	public Matrix4 matrix4 = new Matrix4();
 	public Vector3 testVector;
-	public String[] testStringArray;
-	public int[] testIntArray;
+	public Texture texture;
+	
+	public String[] testStringArray = new String[3];
+	public int[] testIntArray = new int[3];
 	public Integer[] testIntegerArray;
 	public Vector3[] testVectorArray;
-	public Texture texture;
 }

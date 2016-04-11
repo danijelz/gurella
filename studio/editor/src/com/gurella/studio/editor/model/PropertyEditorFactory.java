@@ -40,7 +40,11 @@ import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
 public class PropertyEditorFactory {
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		Class<?> propertyType = context.property.getType();
+		return createEditor(parent, context, propertyType);
+	}
 
+	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context,
+			Class<?> propertyType) {
 		if (propertyType == Boolean.class || propertyType == boolean.class) {
 			return Values.cast(new BooleanPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Integer.class || propertyType == int.class) {

@@ -20,7 +20,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public abstract class PropertyEditor<P> {
@@ -32,8 +31,6 @@ public abstract class PropertyEditor<P> {
 	private Map<String, Runnable> menuItems = new HashMap<>();
 
 	protected PropertyEditorContext<?, P> context;
-
-	protected P cachedValue;
 
 	public PropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		this.context = context;
@@ -51,9 +48,7 @@ public abstract class PropertyEditor<P> {
 
 		menuImage = GurellaStudioPlugin.createImage("icons/popup_menu.gif");
 
-		cachedValue = getValue();
-		
-		if (context.property.isNullable() && cachedValue != null) {
+		if (context.property.isNullable() && getValue() != null) {
 			addMenuItem("Set null", () -> setValue(null));
 		}
 	}
@@ -78,24 +73,16 @@ public abstract class PropertyEditor<P> {
 		return context.property;
 	}
 
-	public P getCachedValue() {
-		return cachedValue;
-	}
-
 	protected Object getModelInstance() {
 		return context.modelInstance;
 	}
 
 	protected P getValue() {
-		return context.property.getValue(context.modelInstance);
+		return context.getValue();
 	}
 
 	protected void setValue(P value) {
-		if (!Values.isEqual(cachedValue, value)) {
-			context.property.setValue(context.modelInstance, value);
-			context.propertyValueChanged(cachedValue, value);
-			cachedValue = value;
-		}
+		context.setValue(value);
 	}
 
 	public void setHover(boolean hover) {

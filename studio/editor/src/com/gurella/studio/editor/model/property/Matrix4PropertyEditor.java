@@ -30,10 +30,10 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		createText(Matrix4.M21, "21");
 		createText(Matrix4.M22, "22");
 		createText(Matrix4.M23, "23");
-		createText(Matrix4.M20, "30");
-		createText(Matrix4.M21, "31");
-		createText(Matrix4.M22, "32");
-		createText(Matrix4.M23, "33");
+		createText(Matrix4.M30, "30");
+		createText(Matrix4.M31, "31");
+		createText(Matrix4.M32, "32");
+		createText(Matrix4.M33, "33");
 	}
 
 	private void createText(int index, String name) {
