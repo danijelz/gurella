@@ -46,7 +46,7 @@ public class MusicInspectableContainer extends InspectableContainer<MusicInspect
 
 		FileHandle fileHandle = new FileHandle(target.file.getLocation().toFile());
 		music = Gdx.audio.newMusic(fileHandle);
-		totalDuration = SoundDuration.totalDuration(fileHandle);
+		//totalDuration = SoundDuration.totalDuration(fileHandle);
 		progress.setMinimum(0);
 		progress.setMaximum((int) (totalDuration * 1000));
 
