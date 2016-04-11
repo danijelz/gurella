@@ -100,7 +100,6 @@ public class TextureInspectableContainer extends InspectableContainer<TextureIns
 		IFile file;
 
 		public TextureResource(IFile file) {
-			super();
 			this.file = file;
 		}
 	}

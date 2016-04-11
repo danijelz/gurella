@@ -23,6 +23,8 @@ import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
+import com.gurella.studio.editor.inspector.SoundInspectableContainer;
+import com.gurella.studio.editor.inspector.SoundInspectableContainer.SoundResource;
 import com.gurella.studio.editor.inspector.TextureInspectableContainer;
 import com.gurella.studio.editor.inspector.TextureInspectableContainer.TextureResource;
 import com.gurella.studio.editor.scene.SceneEditorView;
@@ -79,6 +81,8 @@ public class AssetsExplorerView extends SceneEditorView {
 				IFile file = (IFile) data;
 				if (AssetType.texture.containsExtension(file.getFileExtension())) {
 					return new TextureInspectable(file);
+				} else if (AssetType.sound.containsExtension(file.getFileExtension())) {
+					return new SoundInspectable(file);
 				}
 			}
 		}
@@ -133,6 +137,8 @@ public class AssetsExplorerView extends SceneEditorView {
 			IFile file = (IFile) resource;
 			if (AssetType.texture.containsExtension(file.getFileExtension())) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/picture.png"));
+			} else if (AssetType.sound.containsExtension(file.getFileExtension())) {
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/music.png"));
 			} else {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 			}
@@ -156,6 +162,24 @@ public class AssetsExplorerView extends SceneEditorView {
 		@Override
 		public InspectableContainer<TextureResource> createEditContainer(InspectorView parent, TextureResource target) {
 			return new TextureInspectableContainer(parent, target);
+		}
+	}
+
+	private static class SoundInspectable implements Inspectable<SoundResource> {
+		SoundResource target;
+
+		public SoundInspectable(IFile file) {
+			this.target = new SoundResource(file);
+		}
+
+		@Override
+		public SoundResource getTarget() {
+			return target;
+		}
+
+		@Override
+		public InspectableContainer<SoundResource> createEditContainer(InspectorView parent, SoundResource target) {
+			return new SoundInspectableContainer(parent, target);
 		}
 	}
 }

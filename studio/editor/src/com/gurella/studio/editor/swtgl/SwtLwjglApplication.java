@@ -61,7 +61,7 @@ public class SwtLwjglApplication implements Application {
 		LwjglNativesLoader.load();
 
 		this.graphics = graphics;
-		if (!config.disableAudio) {
+		if (!SwtLwjglApplicationConfiguration.disableAudio && audio == null) {
 			audio = new OpenALAudio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
 					config.audioDeviceBufferSize);
 		}
@@ -94,7 +94,6 @@ public class SwtLwjglApplication implements Application {
 		config.width = width;
 		config.height = height;
 		config.vSyncEnabled = true;
-		config.disableAudio = true;
 		return config;
 	}
 

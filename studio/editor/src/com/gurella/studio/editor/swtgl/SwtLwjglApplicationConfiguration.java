@@ -12,7 +12,7 @@ public class SwtLwjglApplicationConfiguration {
 	 * {@link Application#getAudio()} returns null and the gdx-openal.jar and
 	 * OpenAL natives are not needed.
 	 */
-	public boolean disableAudio;
+	public static boolean disableAudio;
 
 	/** whether to attempt use OpenGL ES 3.0. **/
 	public boolean useGL30 = false;

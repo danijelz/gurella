@@ -25,7 +25,9 @@ Bundle-ClassPath: .,
  lib/lwjgl-platform-2.9.2-natives-osx.jar,
  lib/lwjgl-platform-2.9.2-natives-windows.jar,
  lib/gdx-bullet-1.9.1.jar,
- lib/gdx-bullet-platform-1.9.1-natives-desktop.jar
+ lib/gdx-bullet-platform-1.9.1-natives-desktop.jar,
+ lib/jlayer-1.0.1-gdx.jar,
+ lib/jorbis-0.0.17.jar
 Export-Package: com.badlogic.gdx,
  com.badlogic.gdx.assets,
  com.badlogic.gdx.assets.loaders,
