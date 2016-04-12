@@ -21,11 +21,11 @@ public class TextureProperties implements AssetProperties<Texture> {
 	@Override
 	public AssetLoaderParameters<Texture> createLoaderParameters() {
 		TextureParameter textureParameter = new TextureParameter();
-		textureParameter.genMipMaps = false;
-		textureParameter.minFilter = TextureFilter.Nearest;
-		textureParameter.magFilter = TextureFilter.Nearest;
-		textureParameter.wrapU = TextureWrap.ClampToEdge;
-		textureParameter.wrapV = TextureWrap.ClampToEdge;
+		textureParameter.genMipMaps = genMipMaps;
+		textureParameter.minFilter = minFilter == null ? TextureFilter.Nearest : minFilter;
+		textureParameter.magFilter = magFilter == null ? TextureFilter.Nearest : magFilter;
+		textureParameter.wrapU = wrapU == null ? TextureWrap.ClampToEdge : wrapU;
+		textureParameter.wrapV = wrapV == null ? TextureWrap.ClampToEdge : wrapV;
 		return textureParameter;
 	}
 }

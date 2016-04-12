@@ -17,22 +17,21 @@ import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 
-public class TextureInspectableContainer extends InspectableContainer<TextureInspectableContainer.TextureResource> {
+public class TextureInspectableContainer extends InspectableContainer<IFile> {
 	private ModelEditorContainer<TextureProperties> textureProperties;
 	private Composite imageComposite;
 	private Image image;
 
-	public TextureInspectableContainer(InspectorView parent, TextureResource target) {
+	public TextureInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
-		IFile file = target.file;
-		setText(file.getName());
+		setText(target.getName());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new ModelEditorContainer<TextureProperties>(getBody(), findTextureProperties(target.file));
+		textureProperties = new ModelEditorContainer<>(getBody(), findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 
@@ -44,7 +43,7 @@ public class TextureInspectableContainer extends InspectableContainer<TextureIns
 		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
 
 		try {
-			InputStream contents = file.getContents(true);
+			InputStream contents = target.getContents(true);
 			image = new Image(getDisplay(), contents);
 			addListener(SWT.Dispose, (e) -> image.dispose());
 		} catch (CoreException e1) {
@@ -91,16 +90,8 @@ public class TextureInspectableContainer extends InspectableContainer<TextureIns
 		}
 	}
 
-	private TextureProperties findTextureProperties(IFile file) {
+	private TextureProperties findProperties(IFile file) {
 		// TODO Auto-generated method stub
 		return new TextureProperties();
-	}
-
-	public static class TextureResource {
-		IFile file;
-
-		public TextureResource(IFile file) {
-			this.file = file;
-		}
 	}
 }

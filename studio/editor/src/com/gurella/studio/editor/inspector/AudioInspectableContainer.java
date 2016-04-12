@@ -15,7 +15,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.audio.loader.SoundDuration;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
-public class MusicInspectableContainer extends InspectableContainer<MusicInspectableContainer.MusicResource> {
+public class AudioInspectableContainer extends InspectableContainer<IFile> {
 	private Button play;
 	private Button stop;
 	private ProgressBar progress;
@@ -23,7 +23,7 @@ public class MusicInspectableContainer extends InspectableContainer<MusicInspect
 	private Music music;
 	private float totalDuration;
 
-	public MusicInspectableContainer(InspectorView parent, MusicResource target) {
+	public AudioInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 		Composite body = getBody();
 		body.setLayout(new GridLayout(2, false));
@@ -44,22 +44,14 @@ public class MusicInspectableContainer extends InspectableContainer<MusicInspect
 		layoutData.minimumWidth = 100;
 		progress.setLayoutData(layoutData);
 
-		FileHandle fileHandle = new FileHandle(target.file.getLocation().toFile());
+		FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
 		music = Gdx.audio.newMusic(fileHandle);
-		//totalDuration = SoundDuration.totalDuration(fileHandle);
+		totalDuration = SoundDuration.totalDuration(fileHandle);
 		progress.setMinimum(0);
 		progress.setMaximum((int) (totalDuration * 1000));
 
 		body.addDisposeListener(e -> music.dispose());
 
 		reflow(true);
-	}
-
-	public static class MusicResource {
-		IFile file;
-
-		public MusicResource(IFile file) {
-			this.file = file;
-		}
 	}
 }

@@ -17,7 +17,7 @@ import com.gurella.engine.audio.loader.SoundClip;
 
 public enum AssetType {
 	texture(Texture.class, "bmp", "jpg", "jpeg", "png"),
-	textureAtlas(TextureAtlas.class),
+	textureAtlas(TextureAtlas.class, "atl"),
 	cubemap(Cubemap.class),
 	bitmapFont(BitmapFont.class),
 	I18NBundle(I18NBundle.class),

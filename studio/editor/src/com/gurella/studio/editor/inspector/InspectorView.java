@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.inspector;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,7 +41,9 @@ public class InspectorView extends SceneEditorView {
 	}
 
 	private <T> void presentInspectable(Inspectable<T> inspectable) {
+		//TODO exception container
 		if (currentTarget != inspectable.getTarget()) {
+			Arrays.stream(getChildren()).forEach(c -> c.dispose());
 			clearCurrentSelection();
 			currentTarget = inspectable.getTarget();
 			if (currentTarget == null) {
