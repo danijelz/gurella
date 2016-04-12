@@ -20,10 +20,10 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.inspector.AudioInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
-import com.gurella.studio.editor.inspector.AudioInspectableContainer;
 import com.gurella.studio.editor.inspector.TextureAtlasInspectableContainer;
 import com.gurella.studio.editor.inspector.TextureInspectableContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
@@ -118,6 +118,9 @@ public class AssetsExplorerView extends SceneEditorView {
 	private void createItems(TreeItem parentItem, IResource resource) throws CoreException {
 		int index = parentItem == null ? tree.getItemCount() : parentItem.getItemCount();
 		TreeItem nodeItem = createItem(parentItem, resource, index);
+		if (parentItem == null) {
+			nodeItem.setExpanded(true);
+		}
 
 		if (resource instanceof IContainer) {
 			for (IResource member : ((IContainer) resource).members()) {
