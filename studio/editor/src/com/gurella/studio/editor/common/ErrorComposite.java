@@ -1,12 +1,12 @@
 package com.gurella.studio.editor.common;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -16,8 +16,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -64,17 +62,7 @@ public class ErrorComposite extends Composite {
 		list.setFont(getFont());
 		Menu copyMenu = new Menu(list);
 		MenuItem copyItem = new MenuItem(copyMenu, SWT.NONE);
-		copyItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				copyToClipboard();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				copyToClipboard();
-			}
-		});
+		copyItem.addListener(SWT.Selection, e -> copyToClipboard());
 		copyItem.setText(JFaceResources.getString("copy")); //$NON-NLS-1$
 		list.setMenu(copyMenu);
 		return list;
@@ -90,37 +78,19 @@ public class ErrorComposite extends Composite {
 
 		if (includeStatus) {
 			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < nesting; i++) {
-				sb.append(NESTING_INDENT);
-			}
-			String message = buildingStatus.getMessage();
-			sb.append(message);
-			java.util.List<String> lines = readLines(sb.toString());
-			for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
-				String line = iterator.next();
-				listToPopulate.add(line);
-			}
+			IntStream.range(0, nesting).forEach(i -> sb.append(NESTING_INDENT));
+			sb.append(buildingStatus.getMessage());
+			readLines(sb.toString()).forEach(line -> listToPopulate.add(line));
 			incrementNesting = true;
 		}
 
 		if (!(t instanceof CoreException) && t != null) {
 			// Include low-level exception message
 			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < nesting; i++) {
-				sb.append(NESTING_INDENT);
-			}
+			IntStream.range(0, nesting).forEach(i -> sb.append(NESTING_INDENT));
 			String message = t.getLocalizedMessage();
-			if (message == null) {
-				message = t.toString();
-			}
-
-			sb.append(message);
-			
-			java.util.List<String> lines = readLines(sb.toString());
-			for (Iterator<String> iterator = lines.iterator(); iterator.hasNext();) {
-				String line = iterator.next();
-				listToPopulate.add(line);
-			}
+			sb.append(message == null ? t.toString() : message);
+			readLines(sb.toString()).forEach(line -> listToPopulate.add(line));
 			//listToPopulate.add(sb.toString());
 			incrementNesting = true;
 		}
@@ -142,9 +112,8 @@ public class ErrorComposite extends Composite {
 
 		// Look for child status
 		IStatus[] children = buildingStatus.getChildren();
-		for (int i = 0; i < children.length; i++) {
-			populateList(listToPopulate, children[i], nesting, true);
-		}
+		int temp = nesting;
+		Arrays.stream(children).forEach(child -> populateList(listToPopulate, child, temp, true));
 	}
 
 	private void copyToClipboard() {
@@ -157,49 +126,30 @@ public class ErrorComposite extends Composite {
 		clipboard.setContents(new Object[] { statusBuffer.toString() }, new Transfer[] { TextTransfer.getInstance() });
 	}
 
-	private void populateCopyBuffer(IStatus buildingStatus, StringBuffer buffer, int nesting) {
-		for (int i = 0; i < nesting; i++) {
-			buffer.append(NESTING_INDENT);
-		}
-		buffer.append(buildingStatus.getMessage());
-		buffer.append("\n"); //$NON-NLS-1$
+	private void populateCopyBuffer(IStatus buildingStatus, StringBuffer sb, int nesting) {
+		IntStream.range(0, nesting).forEach(i -> sb.append(NESTING_INDENT));
+
+		sb.append(buildingStatus.getMessage());
+		sb.append("\n"); //$NON-NLS-1$
 
 		// Look for a nested core exception
 		Throwable t = buildingStatus.getException();
 		if (t instanceof CoreException) {
 			CoreException ce = (CoreException) t;
-			populateCopyBuffer(ce.getStatus(), buffer, nesting + 1);
+			populateCopyBuffer(ce.getStatus(), sb, nesting + 1);
 		} else if (t != null) {
-			// Include low-level exception message
-			for (int i = 0; i < nesting; i++) {
-				buffer.append(NESTING_INDENT);
-			}
+			IntStream.range(0, nesting).forEach(i -> sb.append(NESTING_INDENT));
 			String message = t.getLocalizedMessage();
-			if (message == null) {
-				message = t.toString();
-			}
-			buffer.append(message);
-			buffer.append("\n"); //$NON-NLS-1$
+			sb.append(message == null ? t.toString() : message);
+			sb.append("\n"); //$NON-NLS-1$
 		}
 
 		IStatus[] children = buildingStatus.getChildren();
-		for (int i = 0; i < children.length; i++) {
-			populateCopyBuffer(children[i], buffer, nesting + 1);
-		}
+		Arrays.stream(children).forEach(child -> populateCopyBuffer(child, sb, nesting + 1));
 	}
 
 	private static java.util.List<String> readLines(final String s) {
-		java.util.List<String> lines = new ArrayList<String>();
 		BufferedReader reader = new BufferedReader(new StringReader(s));
-		String line;
-		try {
-			while ((line = reader.readLine()) != null) {
-				if (line.length() > 0)
-					lines.add(line);
-			}
-		} catch (IOException e) {
-			// shouldn't get this
-		}
-		return lines;
+		return reader.lines().filter(line -> line.length() > 0).collect(Collectors.toList());
 	}
 }
