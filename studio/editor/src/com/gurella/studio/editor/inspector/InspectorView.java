@@ -48,6 +48,7 @@ public class InspectorView extends SceneEditorView {
 				Arrays.stream(getChildren()).forEach(c -> c.dispose());
 				currentTarget = null;
 				currentContainer = new ErrorInspectableContainer(this, e);
+				currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				layout(true, true);
 			}
 		}

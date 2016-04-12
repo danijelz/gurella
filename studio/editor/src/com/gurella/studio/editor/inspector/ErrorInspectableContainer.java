@@ -1,8 +1,13 @@
 package com.gurella.studio.editor.inspector;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.studio.editor.GurellaStudioPlugin;
@@ -15,10 +20,19 @@ public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
-		getBody().setLayout(new GridLayout(1, false));
+
+		Composite body = getBody();
+		body.setLayout(new GridLayout(1, false));
 		
-		ErrorComposite errorComposite = new ErrorComposite(getBody(), throwable);
-		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		toolkit.adapt(errorComposite);
+		StringWriter writer = new StringWriter();
+		throwable.printStackTrace(new PrintWriter(writer));
+		Text text = toolkit.createText(getBody(), writer.toString(), SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		text.setLayoutData(layoutData);
+		pack();
+
+		/*ErrorComposite errorComposite = new ErrorComposite(body, throwable);
+		errorComposite.setLayoutData(layoutData);
+		toolkit.adapt(errorComposite);*/
 	}
 }

@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class ErrorComposite extends Composite {
-	private static final String NESTING_INDENT = "  ";
+	private static final String NESTING_INDENT = "\t";
 
 	private List list;
 	private Clipboard clipboard;
@@ -55,7 +55,7 @@ public class ErrorComposite extends Composite {
 	protected List createDropDownList() {
 		list = new List(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		populateList(list);
-		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		GridData data = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		list.setLayoutData(data);
 		list.setFont(getFont());
 		Menu copyMenu = new Menu(list);
