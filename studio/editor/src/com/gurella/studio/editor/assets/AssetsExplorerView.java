@@ -166,7 +166,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		@Override
-		public InspectableContainer<IFile> createEditContainer(InspectorView parent, IFile target) {
+		public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
 			return new TextureInspectableContainer(parent, target);
 		}
 	}
@@ -184,7 +184,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		@Override
-		public InspectableContainer<IFile> createEditContainer(InspectorView parent, IFile target) {
+		public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
 			return new TextureAtlasInspectableContainer(parent, target);
 		}
 	}
@@ -202,7 +202,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		@Override
-		public InspectableContainer<IFile> createEditContainer(InspectorView parent, IFile target) {
+		public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
 			return new AudioInspectableContainer(parent, target);
 		}
 	}

@@ -60,7 +60,7 @@ public class InspectorView extends SceneEditorView {
 			return;
 		}
 
-		currentContainer = Values.cast(inspectable.createEditContainer(this, inspectable.getTarget()));
+		currentContainer = Values.cast(inspectable.createContainer(this, inspectable.getTarget()));
 		if (currentContainer != null) {
 			currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			layout(true, true);
@@ -78,6 +78,6 @@ public class InspectorView extends SceneEditorView {
 	public interface Inspectable<T> {
 		T getTarget();
 
-		InspectableContainer<T> createEditContainer(InspectorView parent, T target);
+		InspectableContainer<T> createContainer(InspectorView parent, T target);
 	}
 }

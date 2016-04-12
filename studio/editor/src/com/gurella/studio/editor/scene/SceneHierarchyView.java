@@ -327,7 +327,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		@Override
-		public InspectableContainer<SceneNode2> createEditContainer(InspectorView parent, SceneNode2 target) {
+		public InspectableContainer<SceneNode2> createContainer(InspectorView parent, SceneNode2 target) {
 			return new NodeInspectableContainer(parent, target);
 		}
 	}
@@ -345,7 +345,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		@Override
-		public InspectableContainer<SceneNodeComponent2> createEditContainer(InspectorView parent,
+		public InspectableContainer<SceneNodeComponent2> createContainer(InspectorView parent,
 				SceneNodeComponent2 target) {
 			return new ComponentInspectableContainer(parent, target);
 		}
