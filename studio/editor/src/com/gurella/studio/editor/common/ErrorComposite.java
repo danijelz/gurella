@@ -48,9 +48,7 @@ public class ErrorComposite extends Composite {
 		throwable.printStackTrace(new PrintWriter(writer));
 		message = throwable.getMessage();
 		status = new Status(IStatus.ERROR, GurellaStudioPlugin.PLUGIN_ID, message, new Throwable(writer.toString()));
-
 		setLayout(new GridLayout(1, false));
-
 		createDropDownList();
 	}
 
@@ -117,13 +115,12 @@ public class ErrorComposite extends Composite {
 	}
 
 	private void copyToClipboard() {
-		if (clipboard != null) {
-			clipboard.dispose();
-		}
 		StringBuffer statusBuffer = new StringBuffer();
 		populateCopyBuffer(status, statusBuffer, 0);
 		clipboard = new Clipboard(list.getDisplay());
 		clipboard.setContents(new Object[] { statusBuffer.toString() }, new Transfer[] { TextTransfer.getInstance() });
+		clipboard.dispose();
+		clipboard = null;
 	}
 
 	private void populateCopyBuffer(IStatus buildingStatus, StringBuffer sb, int nesting) {
