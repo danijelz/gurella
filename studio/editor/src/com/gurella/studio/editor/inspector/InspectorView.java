@@ -15,7 +15,7 @@ import com.gurella.studio.editor.scene.SelectionMessage;
 
 public class InspectorView extends SceneEditorView {
 	private Object currentTarget;
-	private InspectableContainer<Object> currentContainer;
+	private InspectableContainer<?> currentContainer;
 
 	public InspectorView(GurellaEditor editor, int style) {
 		super(editor, "Inspector", GurellaStudioPlugin.createImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
@@ -41,20 +41,29 @@ public class InspectorView extends SceneEditorView {
 	}
 
 	private <T> void presentInspectable(Inspectable<T> inspectable) {
-		//TODO exception container
 		if (currentTarget != inspectable.getTarget()) {
-			Arrays.stream(getChildren()).forEach(c -> c.dispose());
-			clearCurrentSelection();
-			currentTarget = inspectable.getTarget();
-			if (currentTarget == null) {
-				return;
-			}
-
-			currentContainer = Values.cast(inspectable.createEditContainer(this, inspectable.getTarget()));
-			if (currentContainer != null) {
-				currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			try {
+				replaceSelectable(inspectable);
+			} catch (Exception e) {
+				Arrays.stream(getChildren()).forEach(c -> c.dispose());
+				currentTarget = null;
+				currentContainer = new ErrorInspectableContainer(this, e);
 				layout(true, true);
 			}
+		}
+	}
+
+	private <T> void replaceSelectable(Inspectable<T> inspectable) {
+		clearCurrentSelection();
+		currentTarget = inspectable.getTarget();
+		if (currentTarget == null) {
+			return;
+		}
+
+		currentContainer = Values.cast(inspectable.createEditContainer(this, inspectable.getTarget()));
+		if (currentContainer != null) {
+			currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			layout(true, true);
 		}
 	}
 

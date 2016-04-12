@@ -100,8 +100,8 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 			table.setHeaderVisible(true);
 			table.setLinesVisible(true);
 			GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-			layoutData.heightHint = 200;
-			layoutData.minimumHeight = 200;
+			layoutData.heightHint = 100;
+			layoutData.minimumHeight = 100;
 			table.setLayoutData(layoutData);
 			table.addListener(SWT.Selection, e -> imageComposite.redraw());
 			createTableColumns();
@@ -175,15 +175,22 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 				int destHeight = (int) (imageHeight * ratio);
 				gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
 				gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
+
+				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+				gc.setLineStyle(SWT.LINE_DOT);
 				regions.forEach(r -> drawRegionBorder(gc, r, left, top, ratio));
+
+				IStructuredSelection selection = tableViewer.getStructuredSelection();
+				Object element = selection.getFirstElement();
+				if (element instanceof Region) {
+					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
+					gc.setLineStyle(SWT.LINE_SOLID);
+					drawRegionBorder(gc, (Region) element, left, top, ratio);
+				}
 			}
 		}
 
-		private void drawRegionBorder(GC gc, Region r, int left, int top, float ratio) {
-			IStructuredSelection selection = tableViewer.getStructuredSelection();
-			Object element = selection.getFirstElement();
-			gc.setForeground(getDisplay().getSystemColor(r == element ? SWT.COLOR_RED : SWT.COLOR_DARK_GRAY));
-			gc.setLineStyle(r == element ? SWT.LINE_SOLID : SWT.LINE_DOT);
+		private static void drawRegionBorder(GC gc, Region r, int left, int top, float ratio) {
 			int x = left + (int) (r.left * ratio);
 			int y = top + (int) (r.top * ratio);
 			int width = (int) ((r.rotate ? r.height : r.width) * ratio);
