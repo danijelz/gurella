@@ -20,7 +20,5 @@ public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 		ErrorComposite errorComposite = new ErrorComposite(getBody(), throwable);
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		toolkit.adapt(errorComposite);
-
-		//reflow(true);
 	}
 }
