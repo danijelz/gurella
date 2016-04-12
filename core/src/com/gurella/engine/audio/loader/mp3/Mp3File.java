@@ -52,7 +52,7 @@ public class Mp3File implements Poolable {
 	private boolean firstframe = true;
 
 	public static float totalDuration(FileHandle file) {
-		Mp3File bitstream = Pools.obtain(Mp3File.class);
+		Mp3File bitstream = new Mp3File();//TODO Pools.obtain(Mp3File.class);
 		try {
 			bitstream.init(file);
 			return bitstream.totalDuration();
@@ -109,6 +109,8 @@ public class Mp3File implements Poolable {
 			} else if ((ex.getErrorCode() != BitstreamException.STREAM_EOF)) {
 				// wrap original exception so stack trace is maintained.
 				throw newBitstreamException(ex.getErrorCode(), ex);
+			} else {
+				ex.printStackTrace();
 			}
 		}
 		return result;

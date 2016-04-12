@@ -89,6 +89,7 @@ public class Mp3Header {
 	 * @author E.B (javalayer@javazoom.net)
 	 */
 	void parseVBR(byte[] firstframe) throws BitstreamException {
+		Arrays.fill(tmp, (byte)0);
 		// Trying Xing header.
 		int offset = 0;
 		// Compute "Xing" offset depending on MPEG version and channels.

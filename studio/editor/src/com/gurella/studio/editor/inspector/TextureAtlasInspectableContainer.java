@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -15,6 +20,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.files.FileHandle;
@@ -75,6 +81,9 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 	private static class TextureAtlasPage extends Composite {
 		private Page page;
 		private List<Region> regions;
+
+		private TableViewer tableViewer;
+		private Composite imageComposite;
 		private Image image;
 
 		public TextureAtlasPage(Composite parent, Page page, TextureAtlasData textureAtlasData) {
@@ -82,8 +91,44 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 			this.page = page;
 			Region[] regionArr = textureAtlasData.getRegions().toArray(Region.class);
 			regions = Arrays.<Region> stream(regionArr).filter(r -> r.page == page).collect(Collectors.toList());
+
+			setLayout(new GridLayout());
+
+			FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+			tableViewer = new TableViewer(this, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+			Table table = tableViewer.getTable();
+			table.setHeaderVisible(true);
+			table.setLinesVisible(true);
+			GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+			layoutData.heightHint = 200;
+			layoutData.minimumHeight = 200;
+			table.setLayoutData(layoutData);
+			table.addListener(SWT.Selection, e -> imageComposite.redraw());
+			createTableColumns();
+			toolkit.adapt(table);
+			tableViewer.setContentProvider(ArrayContentProvider.getInstance());
+			tableViewer.setInput(regions.toArray());
+
 			createImage();
-			addListener(SWT.Paint, (e) -> paintImage(e.gc));
+			imageComposite = toolkit.createComposite(this, SWT.BORDER);
+			layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+			layoutData.minimumWidth = 200;
+			layoutData.minimumHeight = 300;
+			imageComposite.setLayoutData(layoutData);
+			imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
+		}
+
+		private void createTableColumns() {
+			TableViewerColumn nameColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+			nameColumn.getColumn().setWidth(200);
+			nameColumn.getColumn().setText("Name");
+			nameColumn.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					return ((Region) element).name;
+				}
+			});
+
 		}
 
 		private void createImage() {
@@ -99,8 +144,8 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 
 		private void paintImage(GC gc) {
 			if (image == null) {
-				int paneWidth = getSize().x;
-				int paneHeight = getSize().y;
+				int paneWidth = imageComposite.getSize().x;
+				int paneHeight = imageComposite.getSize().y;
 				String noImageStr = "No image";
 				Point extent = gc.stringExtent(noImageStr);
 				int left = (int) ((paneWidth - extent.x) * 0.5f);
@@ -109,8 +154,8 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 			} else {
 				int imageWidth = image.getBounds().width;
 				int imageHeight = image.getBounds().height;
-				int paneWidth = getSize().x - 4;
-				int paneHeight = getSize().y - 4;
+				int paneWidth = imageComposite.getSize().x - 4;
+				int paneHeight = imageComposite.getSize().y - 4;
 
 				float widthRatio = (float) imageWidth / (float) paneWidth;
 				float heightRatio = (float) imageHeight / (float) paneHeight;
@@ -130,10 +175,20 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 				int destHeight = (int) (imageHeight * ratio);
 				gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
 				gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
-				regions.forEach(r -> gc.drawRectangle(left + (int) (r.left * ratio), top + (int) (r.top * ratio),
-						(int) ((r.rotate ? r.height : r.width) * ratio),
-						(int) ((r.rotate ? r.width : r.height) * ratio)));
+				regions.forEach(r -> drawRegionBorder(gc, r, left, top, ratio));
 			}
+		}
+
+		private void drawRegionBorder(GC gc, Region r, int left, int top, float ratio) {
+			IStructuredSelection selection = tableViewer.getStructuredSelection();
+			Object element = selection.getFirstElement();
+			gc.setForeground(getDisplay().getSystemColor(r == element ? SWT.COLOR_RED : SWT.COLOR_DARK_GRAY));
+			gc.setLineStyle(r == element ? SWT.LINE_SOLID : SWT.LINE_DOT);
+			int x = left + (int) (r.left * ratio);
+			int y = top + (int) (r.top * ratio);
+			int width = (int) ((r.rotate ? r.height : r.width) * ratio);
+			int height = (int) ((r.rotate ? r.width : r.height) * ratio);
+			gc.drawRectangle(x, y, width, height);
 		}
 	}
 }
