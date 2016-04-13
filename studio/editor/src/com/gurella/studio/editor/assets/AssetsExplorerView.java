@@ -73,13 +73,16 @@ public class AssetsExplorerView extends SceneEditorView {
 			Object data = selection[0].getData();
 			if (data instanceof IFile) {
 				IFile file = (IFile) data;
-				if (AssetType.texture.containsExtension(file.getFileExtension())) {
+				String extension = file.getFileExtension();
+				if (AssetType.texture.containsExtension(extension)) {
 					return new TextureInspectable(file);
-				} else if (AssetType.sound.containsExtension(file.getFileExtension())) {
+				} else if (AssetType.pixmap.containsExtension(extension)) {
+					return new PixmapInspectable(file);
+				} else if (AssetType.sound.containsExtension(extension)) {
 					return new MusicInspectable(file);
-				} else if (AssetType.textureAtlas.containsExtension(file.getFileExtension())) {
+				} else if (AssetType.textureAtlas.containsExtension(extension)) {
 					return new TextureAtlasInspectable(file);
-				} else if (AssetType.bitmapFont.containsExtension(file.getFileExtension())) {
+				} else if (AssetType.bitmapFont.containsExtension(extension)) {
 					return new BitmapFontInspectable(file);
 				}
 			}
@@ -136,13 +139,14 @@ public class AssetsExplorerView extends SceneEditorView {
 			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
 		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			if (AssetType.texture.containsExtension(file.getFileExtension())) {
+			String extension = file.getFileExtension();
+			if (AssetType.texture.containsExtension(extension) || AssetType.pixmap.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/picture.png"));
-			} else if (AssetType.sound.containsExtension(file.getFileExtension())) {
+			} else if (AssetType.sound.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/music.png"));
-			} else if (AssetType.textureAtlas.containsExtension(file.getFileExtension())) {
+			} else if (AssetType.textureAtlas.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
-			} else if (AssetType.bitmapFont.containsExtension(file.getFileExtension())) {
+			} else if (AssetType.bitmapFont.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/font.png"));
 			} else {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));

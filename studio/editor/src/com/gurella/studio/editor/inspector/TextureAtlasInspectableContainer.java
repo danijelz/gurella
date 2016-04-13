@@ -17,6 +17,7 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -85,6 +86,7 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 		private TableViewer tableViewer;
 		private Composite imageComposite;
 		private Image image;
+		private Transform transform;
 
 		public TextureAtlasPage(Composite parent, Page page, TextureAtlasData textureAtlasData) {
 			super(parent, SWT.NONE);
@@ -109,6 +111,9 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 			tableViewer.setContentProvider(ArrayContentProvider.getInstance());
 			tableViewer.setInput(regions.toArray());
 
+			transform = new Transform(getDisplay());
+			addListener(SWT.Dispose, (e) -> transform.dispose());
+
 			createImage();
 			imageComposite = toolkit.createComposite(this, SWT.BORDER);
 			layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -128,7 +133,6 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 					return ((Region) element).name;
 				}
 			});
-
 		}
 
 		private void createImage() {
@@ -165,37 +169,35 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 					ratio = 1;
 				} else {
 					ratio = 1 / Math.max(widthRatio, heightRatio);
-
 				}
 
 				int left = (int) ((paneWidth - imageWidth * ratio) / 2) + 1;
 				int top = (int) ((paneHeight - imageHeight * ratio) / 2) + 1;
 
-				int destWidth = (int) (imageWidth * ratio);
-				int destHeight = (int) (imageHeight * ratio);
-				gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
-				gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
+				transform.identity();
+				transform.translate(left, top);
+				transform.scale(ratio, ratio);
+				gc.setTransform(transform);
+
+				gc.drawRectangle(1, 1, imageWidth + 1, imageHeight + 1);
+				gc.drawImage(image, 0, 0);
 
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
 				gc.setLineStyle(SWT.LINE_DOT);
-				regions.forEach(r -> drawRegionBorder(gc, r, left, top, ratio));
+				regions.forEach(r -> drawRegionBorder(gc, r));
 
 				IStructuredSelection selection = tableViewer.getStructuredSelection();
 				Object element = selection.getFirstElement();
 				if (element instanceof Region) {
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
 					gc.setLineStyle(SWT.LINE_SOLID);
-					drawRegionBorder(gc, (Region) element, left, top, ratio);
+					drawRegionBorder(gc, (Region) element);
 				}
 			}
 		}
 
-		private static void drawRegionBorder(GC gc, Region r, int left, int top, float ratio) {
-			int x = left + (int) (r.left * ratio);
-			int y = top + (int) (r.top * ratio);
-			int width = (int) ((r.rotate ? r.height : r.width) * ratio);
-			int height = (int) ((r.rotate ? r.width : r.height) * ratio);
-			gc.drawRectangle(x, y, width, height);
+		private static void drawRegionBorder(GC gc, Region r) {
+			gc.drawRectangle(r.left, r.top, (r.rotate ? r.height : r.width), (r.rotate ? r.width : r.height));
 		}
 	}
 }
