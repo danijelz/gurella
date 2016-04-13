@@ -20,12 +20,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
-import com.gurella.studio.editor.inspector.AudioInspectableContainer;
-import com.gurella.studio.editor.inspector.InspectableContainer;
-import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
-import com.gurella.studio.editor.inspector.TextureAtlasInspectableContainer;
-import com.gurella.studio.editor.inspector.TextureInspectableContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;
 
@@ -84,6 +79,8 @@ public class AssetsExplorerView extends SceneEditorView {
 					return new MusicInspectable(file);
 				} else if (AssetType.textureAtlas.containsExtension(file.getFileExtension())) {
 					return new TextureAtlasInspectable(file);
+				} else if (AssetType.bitmapFont.containsExtension(file.getFileExtension())) {
+					return new BitmapFontInspectable(file);
 				}
 			}
 		}
@@ -145,65 +142,13 @@ public class AssetsExplorerView extends SceneEditorView {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/music.png"));
 			} else if (AssetType.textureAtlas.containsExtension(file.getFileExtension())) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
+			} else if (AssetType.bitmapFont.containsExtension(file.getFileExtension())) {
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/font.png"));
 			} else {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 			}
 		}
 
 		return nodeItem;
-	}
-
-	private static class TextureInspectable implements Inspectable<IFile> {
-		IFile target;
-
-		public TextureInspectable(IFile file) {
-			this.target = file;
-		}
-
-		@Override
-		public IFile getTarget() {
-			return target;
-		}
-
-		@Override
-		public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
-			return new TextureInspectableContainer(parent, target);
-		}
-	}
-
-	private static class TextureAtlasInspectable implements Inspectable<IFile> {
-		IFile target;
-
-		public TextureAtlasInspectable(IFile file) {
-			this.target = file;
-		}
-
-		@Override
-		public IFile getTarget() {
-			return target;
-		}
-
-		@Override
-		public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
-			return new TextureAtlasInspectableContainer(parent, target);
-		}
-	}
-
-	private static class MusicInspectable implements Inspectable<IFile> {
-		IFile target;
-
-		public MusicInspectable(IFile file) {
-			this.target = file;
-		}
-
-		@Override
-		public IFile getTarget() {
-			return target;
-		}
-
-		@Override
-		public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
-			return new AudioInspectableContainer(parent, target);
-		}
 	}
 }

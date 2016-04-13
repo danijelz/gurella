@@ -19,7 +19,7 @@ public enum AssetType {
 	texture(Texture.class, "bmp", "jpg", "jpeg", "png"),
 	textureAtlas(TextureAtlas.class, "atl"),
 	cubemap(Cubemap.class),
-	bitmapFont(BitmapFont.class),
+	bitmapFont(BitmapFont.class, "fnt"),
 	I18NBundle(I18NBundle.class),
 	model(Model.class),
 	music(Music.class, "wav", "ogg", "mp3"),
