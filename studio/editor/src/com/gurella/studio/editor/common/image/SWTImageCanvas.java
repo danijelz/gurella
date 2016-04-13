@@ -10,15 +10,12 @@ package com.gurella.studio.editor.common.image;
 import java.awt.geom.AffineTransform;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.ScrollBar;
 
 /**
@@ -41,8 +38,6 @@ public class SWTImageCanvas extends Canvas {
 
 	private AffineTransform transform = new AffineTransform();
 
-	private String currentDir = ""; /* remembering file open directory */
-
 	public SWTImageCanvas(final Composite parent) {
 		this(parent, SWT.NULL);
 	}
@@ -62,6 +57,7 @@ public class SWTImageCanvas extends Canvas {
 		if (sourceImage != null && !sourceImage.isDisposed()) {
 			sourceImage.dispose();
 		}
+
 		if (screenImage != null && !screenImage.isDisposed()) {
 			screenImage.dispose();
 		}
@@ -82,8 +78,10 @@ public class SWTImageCanvas extends Canvas {
 			imageRect = imageRect.intersection(imageBound);
 			Rectangle destRect = SWT2Dutil.transformRect(transform, imageRect);
 
-			if (screenImage != null)
+			if (screenImage != null) {
 				screenImage.dispose();
+			}
+
 			screenImage = new Image(getDisplay(), clientRect.width, clientRect.height);
 			GC newGC = new GC(screenImage);
 			newGC.setClipping(clientRect);
@@ -103,18 +101,10 @@ public class SWTImageCanvas extends Canvas {
 	private void initScrollBars() {
 		ScrollBar horizontal = getHorizontalBar();
 		horizontal.setEnabled(false);
-		horizontal.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				scrollHorizontally((ScrollBar) event.widget);
-			}
-		});
+		horizontal.addListener(SWT.Selection, e -> scrollHorizontally((ScrollBar) e.widget));
 		ScrollBar vertical = getVerticalBar();
 		vertical.setEnabled(false);
-		vertical.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				scrollVertically((ScrollBar) event.widget);
-			}
-		});
+		vertical.addListener(SWT.Selection, e -> scrollVertically((ScrollBar) e.widget));
 	}
 
 	/* Scroll horizontally */
@@ -182,8 +172,9 @@ public class SWTImageCanvas extends Canvas {
 		if (imageBound.width * sx > cw) { /* image is wider than client area */
 			horizontal.setMaximum((int) (imageBound.width * sx));
 			horizontal.setEnabled(true);
-			if (((int) -tx) > horizontal.getMaximum() - cw)
+			if (((int) -tx) > horizontal.getMaximum() - cw) {
 				tx = -horizontal.getMaximum() + cw;
+			}
 		} else { /* image is narrower than client area */
 			horizontal.setEnabled(false);
 			tx = (cw - imageBound.width * sx) / 2; // center if too small.
@@ -197,8 +188,9 @@ public class SWTImageCanvas extends Canvas {
 		if (imageBound.height * sy > ch) { /* image is higher than client area */
 			vertical.setMaximum((int) (imageBound.height * sy));
 			vertical.setEnabled(true);
-			if (((int) -ty) > vertical.getMaximum() - ch)
+			if (((int) -ty) > vertical.getMaximum() - ch) {
 				ty = -vertical.getMaximum() + ch;
+			}
 		} else { /* image is less higher than client area */
 			vertical.setEnabled(false);
 			ty = (ch - imageBound.height * sy) / 2; // center if too small.
@@ -232,23 +224,6 @@ public class SWTImageCanvas extends Canvas {
 	}
 
 	/**
-	 * Call back funtion of button "open". Will open a file dialog, and choose the image file. It supports image formats
-	 * supported by Eclipse.
-	 */
-	public void onFileOpen() {
-		FileDialog fileChooser = new FileDialog(getShell(), SWT.OPEN);
-		fileChooser.setText("Open image file");
-		fileChooser.setFilterPath(currentDir);
-		fileChooser.setFilterExtensions(new String[] { "*.gif; *.jpg; *.png; *.ico; *.bmp" });
-		fileChooser.setFilterNames(new String[] { "SWT image" + " (gif, jpeg, png, ico, bmp)" });
-		String filename = fileChooser.open();
-		if (filename != null) {
-			loadImage(filename);
-			currentDir = fileChooser.getFilterPath();
-		}
-	}
-
-	/**
 	 * Get the image data. (for future use only)
 	 * 
 	 * @return image data of canvas
@@ -272,7 +247,7 @@ public class SWTImageCanvas extends Canvas {
 		} else {
 			sourceImage = null;
 		}
-		
+
 		syncScrollBars();
 	}
 
