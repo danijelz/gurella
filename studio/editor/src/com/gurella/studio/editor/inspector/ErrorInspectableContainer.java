@@ -30,7 +30,7 @@ public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 		Text text = toolkit.createText(getBody(), writer.toString(),
 				SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
 		text.setLayoutData(layoutData);
-		parent.addListener(SWT.Resize, e -> setTextSize(text, layoutData));
+		//parent.addListener(SWT.Resize, e -> setTextSize(text, layoutData));
 
 		/*ErrorComposite errorComposite = new ErrorComposite(body, throwable);
 		errorComposite.setLayoutData(layoutData);
