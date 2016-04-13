@@ -3,8 +3,6 @@ package com.gurella.studio.editor.swtgl;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -45,7 +43,7 @@ public class SwtLwjglGraphics implements Graphics {
 	volatile boolean isContinuous = true;
 	volatile boolean requestRendering = false;
 	boolean softwareMode;
-	
+
 	int sizeX;
 	int sizeY;
 
@@ -63,31 +61,25 @@ public class SwtLwjglGraphics implements Graphics {
 		glData.stencilSize = config.stencil;
 		glData.samples = config.samples;
 		glData.doubleBuffer = true;
-		
+
 		Point size = this.parentComposite.getSize();
 		sizeX = size.x;
 		sizeY = size.y;
-		
-		parentComposite.addControlListener(new ControlAdapter() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				Point size = SwtLwjglGraphics.this.parentComposite.getSize();
-				sizeX = size.x;
-				sizeY = size.y;
-			}
-		});
+
+		parentComposite.addListener(SWT.Resize, e -> updateSizeByParent());
 
 		glCanvas = new GLCanvas(parentComposite, SWT.FLAT, glData);
 		if (parentComposite.getLayout() instanceof GridLayout) {
 			glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		}
 
-		glCanvas.addControlListener(new ControlAdapter() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				glCanvasResizeFlag.set(true);
-			}
-		});
+		glCanvas.addListener(SWT.Resize, e -> glCanvasResizeFlag.set(true));
+	}
+
+	private void updateSizeByParent() {
+		Point size = parentComposite.getSize();
+		sizeX = size.x;
+		sizeY = size.y;
 	}
 
 	void setCurrent() {
@@ -195,9 +187,9 @@ public class SwtLwjglGraphics implements Graphics {
 			}
 		}
 
-		/*Gdx.gl = gl20;
-		Gdx.gl20 = gl20;
-		Gdx.gl30 = gl30;*/
+		/*
+		 * Gdx.gl = gl20; Gdx.gl20 = gl20; Gdx.gl30 = gl30; TODO
+		 */
 	}
 
 	private static String glInfo() {

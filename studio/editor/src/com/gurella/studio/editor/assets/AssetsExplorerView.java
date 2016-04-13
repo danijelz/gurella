@@ -79,11 +79,13 @@ public class AssetsExplorerView extends SceneEditorView {
 				} else if (AssetType.pixmap.containsExtension(extension)) {
 					return new PixmapInspectable(file);
 				} else if (AssetType.sound.containsExtension(extension)) {
-					return new MusicInspectable(file);
+					return new AudioInspectable(file);
 				} else if (AssetType.textureAtlas.containsExtension(extension)) {
 					return new TextureAtlasInspectable(file);
 				} else if (AssetType.bitmapFont.containsExtension(extension)) {
 					return new BitmapFontInspectable(file);
+				} else if (AssetType.model.containsExtension(extension)) {
+					return new ModelInspectable(file);
 				}
 			}
 		}
@@ -148,6 +150,8 @@ public class AssetsExplorerView extends SceneEditorView {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
 			} else if (AssetType.bitmapFont.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/font.png"));
+			} else if (AssetType.model.containsExtension(extension)) {
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
 			} else {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 			}

@@ -29,7 +29,7 @@ public class PushActionDelegate {
 		String id = action.getId();
 		SWTImageCanvas imageCanvas = null;
 		if (id.equals("toolbar.open")) {
-			imageCanvas.onFileOpen();
+			//imageCanvas.onFileOpen();
 			return;
 		}
 		if (imageCanvas.getSourceImage() == null)

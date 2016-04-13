@@ -2,15 +2,15 @@ package com.gurella.studio.editor.assets;
 
 import org.eclipse.core.resources.IFile;
 
-import com.gurella.studio.editor.inspector.AudioInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
+import com.gurella.studio.editor.inspector.ModelInspectableContainer;
 
-public class MusicInspectable implements Inspectable<IFile> {
+public class ModelInspectable implements Inspectable<IFile> {
 	IFile target;
 
-	public MusicInspectable(IFile file) {
+	public ModelInspectable(IFile file) {
 		this.target = file;
 	}
 
@@ -21,6 +21,6 @@ public class MusicInspectable implements Inspectable<IFile> {
 
 	@Override
 	public InspectableContainer<IFile> createContainer(InspectorView parent, IFile target) {
-		return new AudioInspectableContainer(parent, target);
+		return new ModelInspectableContainer(parent, target);
 	}
 }
