@@ -2,8 +2,10 @@ package com.gurella.studio.editor.inspector;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.stream.IntStream;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -24,7 +26,7 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 	private Composite imageComposite;
 	private Image image;
 	private Transform transform;
-	private float[] vertices;
+	private int[] vertices;
 
 	public PolygonRegionInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -44,7 +46,6 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 		layoutData.minimumWidth = 200;
 		layoutData.minimumHeight = 300;
 		imageComposite.setLayoutData(layoutData);
-		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
 
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(target.getContents(true)), 256);
@@ -55,25 +56,45 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 					break;
 				if (line.startsWith("s")) {
 					String[] polygonStrings = line.substring(1).trim().split(",");
-					vertices = new float[polygonStrings.length];
-					for (int i = 0, n = vertices.length; i < n; i++) {
-						vertices[i] = Float.parseFloat(polygonStrings[i]);
-					}
+					int length = polygonStrings.length;
+					vertices = new int[length];
+					IntStream.range(0, length).forEach(i -> vertices[i] = Float.valueOf(polygonStrings[i]).intValue());
 				} else if (line.startsWith("i ")) {
-					FileHandle fileHandle = new FileHandle(target.getLocation().removeLastSegments(1)
-							.append(line.substring("i ".length())).toString());
-					image = new Image(getDisplay(), fileHandle.read());
+					String subPath = line.substring("i ".length());
+					IPath pah = target.getLocation().removeLastSegments(1).append(subPath);
+					image = new Image(getDisplay(), new FileHandle(pah.toString()).read());
 					transform = new Transform(getDisplay());
 				}
 			}
 
-			addListener(SWT.Dispose, (e) -> image.dispose());
+			if (image == null) {
+				return;//TODO
+			}
+
+			if (vertices == null) {
+				vertices = new int[0];//TODO
+			}
+
+			int height = image.getBounds().height;
+			IntStream.range(0, vertices.length / 2).forEach(i -> updateVertice(i, height));
+			addListener(SWT.Dispose, e -> doDispose());
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
 		reflow(true);
+		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
+	}
+
+	private void doDispose() {
+		image.dispose();
+		transform.dispose();
+	}
+
+	private void updateVertice(int i, int height) {
+		int index = i * 2 + 1;
+		vertices[index] = height - vertices[index];
 	}
 
 	private void paintImage(GC gc) {
@@ -111,7 +132,21 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 
 			gc.drawRectangle(1, 1, imageWidth + 1, imageHeight + 1);
 			gc.drawImage(image, 0, 0);
+
+			gc.setLineWidth(2);
+			gc.setAntialias(SWT.ON);
+			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
+			gc.drawPolygon(vertices);
+			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE));
+			IntStream.range(0, vertices.length / 2).forEach(i -> drawPoint(gc, i));
 		}
+	}
+
+	private void drawPoint(GC gc, int i) {
+		int index = i * 2;
+		int x = vertices[index];
+		int y = vertices[index + 1];
+		gc.drawRectangle(x - 1, y - 1, 2, 2);
 	}
 
 	private TextureProperties findProperties(IFile file) {

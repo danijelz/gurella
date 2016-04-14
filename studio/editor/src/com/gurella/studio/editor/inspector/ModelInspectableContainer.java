@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
@@ -86,7 +87,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		cam.position.set(1f, 1f, 1f);
 		cam.lookAt(0, 0, 0);
 		cam.near = 0f;
-		cam.far = 300f;
+		cam.far = 1000;
 		cam.update();
 
 		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
@@ -98,6 +99,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		modelBatch = new ModelBatch();
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		synchronized (mutex) {
@@ -167,6 +169,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 			Color color = backgroundColor;
 			gl20.glClearColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
 					color.getAlpha() / 255f);
+			gl20.glEnable(GL20.GL_DEPTH_TEST);
 			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
