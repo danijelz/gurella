@@ -27,7 +27,7 @@ public enum AssetType {
 	soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
 	json(JsonValue.class, "json"),
 	pixmap(Pixmap.class, "pix"),
-	polygonRegion(PolygonRegion.class),
+	polygonRegion(PolygonRegion.class, "psh"),
 	renderProgram(null),
 	material(null),
 	spritter(null),
