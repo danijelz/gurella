@@ -1,11 +1,9 @@
 package com.gurella.studio.editor.inspector;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -15,7 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.graphics.g2d.PolygonRegion;
+import com.badlogic.gdx.files.FileHandle;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
@@ -47,24 +45,25 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
 
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(target.getContents(true)), 256); 
-			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(target.getContents(true)), 256);
+
 			while (true) {
 				String line = reader.readLine();
-				if (line == null) break;
+				if (line == null)
+					break;
 				if (line.startsWith("s")) {
 					String[] polygonStrings = line.substring(1).trim().split(",");
 					vertices = new float[polygonStrings.length];
 					for (int i = 0, n = vertices.length; i < n; i++) {
 						vertices[i] = Float.parseFloat(polygonStrings[i]);
 					}
-				} else if (line.startsWith("i")) {
-					InputStream contents = target.getContents(true);
-					image = new Image(getDisplay(), contents);
-					image = line.substring(params.texturePrefix.length());
+				} else if (line.startsWith("i ")) {
+					FileHandle fileHandle = new FileHandle(
+							target.getLocation().append(line.substring("i ".length())).toString());
+					image = new Image(getDisplay(), fileHandle.read());
 				}
 			}
-			
+
 			addListener(SWT.Dispose, (e) -> image.dispose());
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block

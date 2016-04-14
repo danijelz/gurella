@@ -86,6 +86,8 @@ public class AssetsExplorerView extends SceneEditorView {
 					return new BitmapFontInspectable(file);
 				} else if (AssetType.model.containsExtension(extension)) {
 					return new ModelInspectable(file);
+				}  else if (AssetType.polygonRegion.containsExtension(extension)) {
+					return new PolygonRegionInspectable(file);
 				}
 			}
 		}
@@ -147,6 +149,8 @@ public class AssetsExplorerView extends SceneEditorView {
 			} else if (AssetType.sound.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/music.png"));
 			} else if (AssetType.textureAtlas.containsExtension(extension)) {
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
+			} else if (AssetType.polygonRegion.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
 			} else if (AssetType.bitmapFont.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/font.png"));
