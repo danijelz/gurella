@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.swtgl;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -23,8 +21,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglGraphics implements Graphics {
 	static int major, minor;
-
-	private final AtomicBoolean glCanvasResizeFlag = new AtomicBoolean(false);
 
 	GL20 gl20;
 	GL30 gl30;
@@ -72,8 +68,6 @@ public class SwtLwjglGraphics implements Graphics {
 		if (parentComposite.getLayout() instanceof GridLayout) {
 			glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		}
-
-		glCanvas.addListener(SWT.Resize, e -> glCanvasResizeFlag.set(true));
 	}
 
 	private void updateSizeByParent() {
@@ -96,10 +90,6 @@ public class SwtLwjglGraphics implements Graphics {
 
 	public final GLCanvas getGlCanvas() {
 		return glCanvas;
-	}
-
-	boolean isResized() {
-		return glCanvasResizeFlag.getAndSet(false);
 	}
 
 	@Override
