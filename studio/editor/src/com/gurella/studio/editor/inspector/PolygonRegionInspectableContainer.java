@@ -58,8 +58,8 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 						vertices[i] = Float.parseFloat(polygonStrings[i]);
 					}
 				} else if (line.startsWith("i ")) {
-					FileHandle fileHandle = new FileHandle(
-							target.getLocation().append(line.substring("i ".length())).toString());
+					FileHandle fileHandle = new FileHandle(target.getLocation().removeLastSegments(1)
+							.append(line.substring("i ".length())).toString());
 					image = new Image(getDisplay(), fileHandle.read());
 				}
 			}
