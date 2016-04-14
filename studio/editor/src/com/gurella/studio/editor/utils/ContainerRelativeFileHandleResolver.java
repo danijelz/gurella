@@ -1,14 +1,14 @@
 package com.gurella.studio.editor.utils;
 
-import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IContainer;
 
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 
-public class FolderRelativeFileHandleResolver implements FileHandleResolver {
-	private IFolder rootFolder;
+public class ContainerRelativeFileHandleResolver implements FileHandleResolver {
+	private IContainer rootFolder;
 
-	public FolderRelativeFileHandleResolver(IFolder assetsRootFolder) {
+	public ContainerRelativeFileHandleResolver(IContainer assetsRootFolder) {
 		this.rootFolder = assetsRootFolder;
 	}
 
