@@ -8,6 +8,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -22,6 +23,7 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 	private ModelEditorContainer<TextureProperties> textureProperties;
 	private Composite imageComposite;
 	private Image image;
+	private Transform transform;
 	private float[] vertices;
 
 	public PolygonRegionInspectableContainer(InspectorView parent, IFile target) {
@@ -61,6 +63,7 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 					FileHandle fileHandle = new FileHandle(target.getLocation().removeLastSegments(1)
 							.append(line.substring("i ".length())).toString());
 					image = new Image(getDisplay(), fileHandle.read());
+					transform = new Transform(getDisplay());
 				}
 			}
 
@@ -96,16 +99,18 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 				ratio = 1;
 			} else {
 				ratio = 1 / Math.max(widthRatio, heightRatio);
-
 			}
 
 			int left = (int) ((paneWidth - imageWidth * ratio) / 2) + 1;
 			int top = (int) ((paneHeight - imageHeight * ratio) / 2) + 1;
 
-			int destWidth = (int) (imageWidth * ratio);
-			int destHeight = (int) (imageHeight * ratio);
-			gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
-			gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
+			transform.identity();
+			transform.translate(left, top);
+			transform.scale(ratio, ratio);
+			gc.setTransform(transform);
+
+			gc.drawRectangle(1, 1, imageWidth + 1, imageHeight + 1);
+			gc.drawImage(image, 0, 0);
 		}
 	}
 
