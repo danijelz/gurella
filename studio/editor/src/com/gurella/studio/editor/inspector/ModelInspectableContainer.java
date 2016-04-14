@@ -39,6 +39,8 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
+	private static final Object mutex = new Object();
+
 	private ModelEditorContainer<ModelProperties> propertiesContainer;
 	private GLCanvas glCanvas;
 
@@ -83,7 +85,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		cam = new PerspectiveCamera(67, size.x, size.y);
 		cam.position.set(1f, 1f, 1f);
 		cam.lookAt(0, 0, 0);
-		cam.near = 1f;
+		cam.near = 0f;
 		cam.far = 300f;
 		cam.update();
 
@@ -98,12 +100,14 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		glCanvas.setCurrent();
-		ModelLoader<?> loader = getLoader();
-		FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
-		ModelData modelData = loader.loadModelData(fileHandle);
-		model = new Model(modelData, new DirectTextureProvider());
-		modelInstance = new ModelInstance(model);
+		synchronized (mutex) {
+			glCanvas.setCurrent();
+			ModelLoader<?> loader = getLoader();
+			FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
+			ModelData modelData = loader.loadModelData(fileHandle);
+			model = new Model(modelData, new DirectTextureProvider());
+			modelInstance = new ModelInstance(model);
+		}
 
 		addDisposeListener(e -> onDispose());
 		render();
@@ -136,9 +140,11 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		glCanvas.dispose();
-		model.dispose();
-		modelBatch.dispose();
+		synchronized (mutex) {
+			glCanvas.dispose();
+			model.dispose();
+			modelBatch.dispose();
+		}
 	}
 
 	private void updateSizeByParent() {
@@ -155,18 +161,18 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 
 		input.update();
 		camController.update();
-		glCanvas.setCurrent();
-
-		Point size = glCanvas.getSize();
-		Color color = backgroundColor;
-		gl20.glClearColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-				color.getAlpha() / 255f);
-		gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		gl20.glViewport(0, 0, size.x, size.y);
-
-		modelBatch.begin(cam);
-		modelBatch.render(modelInstance, environment);
-		modelBatch.end();
+		synchronized (mutex) {
+			glCanvas.setCurrent();
+			Point size = glCanvas.getSize();
+			Color color = backgroundColor;
+			gl20.glClearColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+					color.getAlpha() / 255f);
+			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+			gl20.glViewport(0, 0, size.x, size.y);
+			modelBatch.begin(cam);
+			modelBatch.render(modelInstance, environment);
+			modelBatch.end();
+		}
 
 		glCanvas.getDisplay().timerExec(60, this::render);
 	}
