@@ -1,6 +1,8 @@
 package com.gurella.studio.editor.inspector;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -13,6 +15,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
@@ -21,6 +24,7 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 	private ModelEditorContainer<TextureProperties> textureProperties;
 	private Composite imageComposite;
 	private Image image;
+	private float[] vertices;
 
 	public PolygonRegionInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -43,10 +47,26 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
 
 		try {
-			InputStream contents = target.getContents(true);
-			image = new Image(getDisplay(), contents);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(target.getContents(true)), 256); 
+			
+			while (true) {
+				String line = reader.readLine();
+				if (line == null) break;
+				if (line.startsWith("s")) {
+					String[] polygonStrings = line.substring(1).trim().split(",");
+					vertices = new float[polygonStrings.length];
+					for (int i = 0, n = vertices.length; i < n; i++) {
+						vertices[i] = Float.parseFloat(polygonStrings[i]);
+					}
+				} else if (line.startsWith("i")) {
+					InputStream contents = target.getContents(true);
+					image = new Image(getDisplay(), contents);
+					image = line.substring(params.texturePrefix.length());
+				}
+			}
+			
 			addListener(SWT.Dispose, (e) -> image.dispose());
-		} catch (CoreException e1) {
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
