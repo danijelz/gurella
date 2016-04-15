@@ -2,7 +2,6 @@ package com.gurella.studio.editor.inspector;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -11,8 +10,10 @@ import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -40,7 +41,7 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
-	private static final Object mutex = new Object();
+	public static final Object mutex = new Object();
 
 	private ModelEditorContainer<ModelProperties> propertiesContainer;
 	private GLCanvas glCanvas;
@@ -54,7 +55,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private Environment environment;
 	private Model model;
 	private ModelInstance modelInstance;
-	private Color backgroundColor;
+	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	public ModelInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -79,14 +80,12 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
 		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
-		backgroundColor = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
-		glCanvas.setBackground(backgroundColor);
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
 		cam.position.set(1f, 1f, 1f);
 		cam.lookAt(0, 0, 0);
-		cam.near = 0f;
+		cam.near = 0.1f;
 		cam.far = 1000;
 		cam.update();
 
@@ -104,6 +103,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 
 		synchronized (mutex) {
 			glCanvas.setCurrent();
+			Gdx.gl20 = gl20;
 			ModelLoader<?> loader = getLoader();
 			FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
 			ModelData modelData = loader.loadModelData(fileHandle);
@@ -165,10 +165,10 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		camController.update();
 		synchronized (mutex) {
 			glCanvas.setCurrent();
+			Gdx.gl20 = gl20;
 			Point size = glCanvas.getSize();
 			Color color = backgroundColor;
-			gl20.glClearColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-					color.getAlpha() / 255f);
+			gl20.glClearColor(color.r, color.g, color.b, color.a);
 			gl20.glEnable(GL20.GL_DEPTH_TEST);
 			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 			gl20.glViewport(0, 0, size.x, size.y);

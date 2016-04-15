@@ -103,6 +103,7 @@ public class SwtLwjglApplication implements Application {
 		} catch (LWJGLException e) {
 			throw new GdxRuntimeException(e);
 		}
+		initGdxGlobals();
 
 		listener.create();
 		graphics.resize = true;

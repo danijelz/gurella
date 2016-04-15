@@ -36,8 +36,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
@@ -53,6 +52,8 @@ import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
+import com.gurella.studio.editor.scene.SceneRenderer;
+import com.gurella.studio.editor.scene.SceneRenderer2;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart implements EditorMessageListener {
@@ -62,8 +63,10 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
 	private SwtLwjglApplication application;
+	private SceneRenderer sceneRenderer;
+	private ModelBatch modelBatch;
 	private Scene scene;
-	boolean dirty;
+	private boolean dirty;
 
 	private IWorkspace workspace;
 	private IProject project;
@@ -154,6 +157,7 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 
 		Composite center = mainContainer.getCenter();
 		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
+		// sceneRenderer = new SceneRenderer(center);
 
 		createClassLoader();
 		Reflection.classResolver = classLoader::loadClass;
@@ -204,6 +208,7 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 	private void presentScene(Scene scene) {
 		this.scene = scene;
 		dirty = false;
+		// sceneRenderer.setScene(scene);
 		postMessage(null, new SceneLoadedMessage(scene));
 	}
 
@@ -267,6 +272,13 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 	}
 
 	private static final class SceneEditorApplicationAdapter extends ApplicationAdapter {
+		private SceneRenderer2 renderer;
+
+		@Override
+		public void create() {
+			renderer = new SceneRenderer2();
+		}
+
 		@Override
 		public void render() {
 			Array<ApplicationUpdateListener> listeners = new Array<ApplicationUpdateListener>();
@@ -274,9 +286,7 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).update();
 			}
-			Gdx.gl.glClearColor(1, 1, 1, 1);
-			Gdx.gl.glClearStencil(0);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+			renderer.render();
 		}
 	}
 

@@ -62,9 +62,9 @@ public class SwtLwjglGraphics implements Graphics {
 		sizeX = size.x;
 		sizeY = size.y;
 
-		parentComposite.addListener(SWT.Resize, e -> updateSizeByParent());
-
 		glCanvas = new GLCanvas(parentComposite, SWT.FLAT, glData);
+		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
+
 		if (parentComposite.getLayout() instanceof GridLayout) {
 			glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		}
