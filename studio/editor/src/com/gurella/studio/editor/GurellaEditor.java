@@ -278,6 +278,11 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 		public void create() {
 			renderer = new SceneRenderer2();
 		}
+		
+		@Override
+		public void resize (int width, int height) {
+			renderer.resize(width, height);
+		}
 
 		@Override
 		public void render() {

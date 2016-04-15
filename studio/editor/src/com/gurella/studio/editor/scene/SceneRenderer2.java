@@ -56,7 +56,6 @@ public class SceneRenderer2 implements Disposable {
 
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
-
 	}
 
 	public void render() {
@@ -91,5 +90,11 @@ public class SceneRenderer2 implements Disposable {
 	@Override
 	public void dispose() {
 		modelBatch.dispose();
+	}
+
+	public void resize(int width, int height) {
+		perspectiveCamera.viewportWidth = width;
+		perspectiveCamera.viewportHeight = height;
+		perspectiveCamera.update();
 	}
 }
