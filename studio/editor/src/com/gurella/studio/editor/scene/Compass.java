@@ -13,6 +13,10 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
+/**
+ * @author Marcus Brummer
+ * @version 05-12-2015
+ */
 public class Compass implements Disposable {
 	private final float ARROW_LENGTH = 0.05f;
 	private final float ARROW_THIKNESS = 0.4f;
