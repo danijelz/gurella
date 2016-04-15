@@ -63,6 +63,7 @@ public class SwtLwjglGraphics implements Graphics {
 		sizeY = size.y;
 
 		glCanvas = new GLCanvas(parentComposite, SWT.FLAT, glData);
+		glCanvas.setCurrent();
 		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
 
 		if (parentComposite.getLayout() instanceof GridLayout) {
@@ -71,7 +72,7 @@ public class SwtLwjglGraphics implements Graphics {
 	}
 
 	private void updateSizeByParent() {
-		Point size = parentComposite.getSize();
+		Point size = glCanvas.getSize();
 		sizeX = size.x;
 		sizeY = size.y;
 	}
@@ -176,10 +177,6 @@ public class SwtLwjglGraphics implements Graphics {
 								+ ", FBO extension: false" + (glInfo.isEmpty() ? "" : ("\n" + glInfo())));
 			}
 		}
-
-		/*
-		 * Gdx.gl = gl20; Gdx.gl20 = gl20; Gdx.gl30 = gl30; TODO
-		 */
 	}
 
 	private static String glInfo() {

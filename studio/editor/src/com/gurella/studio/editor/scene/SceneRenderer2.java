@@ -30,15 +30,17 @@ public class SceneRenderer2 implements Disposable {
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	private GridModelInstance gridModelInstance;
+	private Compass compass;
 
 	private Scene scene;
 
 	public SceneRenderer2() {
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		perspectiveCamera.position.set(0f, 4f, 2f);
+		perspectiveCamera.position.set(0f, 1f, 3f);
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 1000;
+		
 		perspectiveCamera.update();
 		selectedCamera = perspectiveCamera;
 
@@ -53,6 +55,7 @@ public class SceneRenderer2 implements Disposable {
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		gridModelInstance = new GridModelInstance();
+		compass = new Compass(perspectiveCamera);
 
 	}
 
@@ -67,8 +70,9 @@ public class SceneRenderer2 implements Disposable {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		modelBatch.begin(selectedCamera);
 		modelBatch.render(gridModelInstance, environment);
-		renderScene();
 		modelBatch.end();
+		compass.render(modelBatch);
+		renderScene();
 	}
 
 	private void renderScene() {
