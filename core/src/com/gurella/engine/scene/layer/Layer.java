@@ -46,6 +46,10 @@ public final class Layer implements Comparable<Layer> {
 		return layersByName.get(name);
 	}
 
+	public static Layer[] getAllLayers() {
+		return layersByName.values();
+	}
+
 	@Override
 	public int compareTo(Layer other) {
 		return Values.compare(ordinal, other.ordinal);

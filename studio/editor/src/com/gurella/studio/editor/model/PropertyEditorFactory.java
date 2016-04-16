@@ -14,6 +14,7 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.ArrayPropertyEditor;
@@ -28,6 +29,7 @@ import com.gurella.studio.editor.model.property.FloatPropertyEditor;
 import com.gurella.studio.editor.model.property.GridPoint2PropertyEditor;
 import com.gurella.studio.editor.model.property.GridPoint3PropertyEditor;
 import com.gurella.studio.editor.model.property.IntegerPropertyEditor;
+import com.gurella.studio.editor.model.property.LayerPropertyEditor;
 import com.gurella.studio.editor.model.property.LongPropertyEditor;
 import com.gurella.studio.editor.model.property.Matrix3PropertyEditor;
 import com.gurella.studio.editor.model.property.Matrix4PropertyEditor;
@@ -83,6 +85,8 @@ public class PropertyEditorFactory {
 			return Values.cast(new Matrix4PropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Color.class) {
 			return Values.cast(new ColorPropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Layer.class) {
+			return Values.cast(new LayerPropertyEditor(parent, Values.cast(context)));
 		}
 
 		/////
