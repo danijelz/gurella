@@ -8,6 +8,11 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Tree;
@@ -16,6 +21,7 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaEditor;
@@ -30,6 +36,8 @@ public class AssetsExplorerView extends SceneEditorView {
 	Tree tree;
 	IResource rootResource;
 
+	private IResource[] dragSourceItems;
+
 	public AssetsExplorerView(GurellaEditor editor, int style) {
 		super(editor, "Assets", GurellaStudioPlugin.createImage("icons/resource_persp.gif"), style);
 
@@ -40,6 +48,34 @@ public class AssetsExplorerView extends SceneEditorView {
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		initTree(editor);
+		tree.addListener(SWT.MouseUp, (e) -> presentInspectable());
+
+		dragSourceItems = new IResource[1];
+		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
+		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
+		source.addDragListener(new DragSourceListener() {
+			@Override
+			public void dragStart(DragSourceEvent event) {
+				TreeItem[] selection = tree.getSelection();
+				if (selection.length > 0) {
+					event.doit = true;
+					dragSourceItems[0] = (IResource) selection[0].getData();
+					event.data = dragSourceItems[0];
+				} else {
+					event.doit = false;
+				}
+			}
+
+			@Override
+			public void dragSetData(DragSourceEvent event) {
+				event.data = dragSourceItems[0];
+			}
+
+			@Override
+			public void dragFinished(DragSourceEvent event) {
+				dragSourceItems[0] = null;
+			}
+		});
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
 		IWorkspace workspace = getSceneEditor().getWorkspace();
@@ -63,8 +99,12 @@ public class AssetsExplorerView extends SceneEditorView {
 		if (rootResource instanceof IContainer) {
 			createItems(null, rootResource);
 		}
+	}
 
-		tree.addListener(SWT.Selection, (e) -> postMessage(new SelectionMessage(getInspectable())));
+	private void presentInspectable() {
+		if (dragSourceItems[0] == null) {
+			postMessage(new SelectionMessage(getInspectable()));
+		}
 	}
 
 	private Inspectable<?> getInspectable() {
@@ -86,7 +126,7 @@ public class AssetsExplorerView extends SceneEditorView {
 					return new BitmapFontInspectable(file);
 				} else if (AssetType.model.containsExtension(extension)) {
 					return new ModelInspectable(file);
-				}  else if (AssetType.polygonRegion.containsExtension(extension)) {
+				} else if (AssetType.polygonRegion.containsExtension(extension)) {
 					return new PolygonRegionInspectable(file);
 				}
 			}

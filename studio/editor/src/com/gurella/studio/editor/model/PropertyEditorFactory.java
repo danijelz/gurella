@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model;
 
 import org.eclipse.swt.widgets.Composite;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix3;
@@ -9,15 +10,18 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.ArrayPropertyEditor;
+import com.gurella.studio.editor.model.property.AssetPropertyEditor;
 import com.gurella.studio.editor.model.property.BooleanPropertyEditor;
 import com.gurella.studio.editor.model.property.BytePropertyEditor;
 import com.gurella.studio.editor.model.property.CharacterPropertyEditor;
+import com.gurella.studio.editor.model.property.ColorPropertyEditor;
 import com.gurella.studio.editor.model.property.DoublePropertyEditor;
 import com.gurella.studio.editor.model.property.EnumPropertyEditor;
 import com.gurella.studio.editor.model.property.FloatPropertyEditor;
@@ -39,12 +43,12 @@ import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
 
 public class PropertyEditorFactory {
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
-		Class<?> propertyType = context.property.getType();
+		Class<T> propertyType = context.property.getType();
 		return createEditor(parent, context, propertyType);
 	}
 
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context,
-			Class<?> propertyType) {
+			Class<T> propertyType) {
 		if (propertyType == Boolean.class || propertyType == boolean.class) {
 			return Values.cast(new BooleanPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Integer.class || propertyType == int.class) {
@@ -77,18 +81,22 @@ public class PropertyEditorFactory {
 			return Values.cast(new Matrix3PropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Matrix4.class) {
 			return Values.cast(new Matrix4PropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Color.class) {
+			return Values.cast(new ColorPropertyEditor(parent, Values.cast(context)));
 		}
 
 		/////
 
 		else if (propertyType.isArray()) {
-			return Values.cast(new ArrayPropertyEditor<>(parent, Values.cast(context)));
+			return Values.cast(new ArrayPropertyEditor<>(parent, context));
 		}
 
 		/////
 
 		else if (propertyType.isEnum()) {
 			return Values.cast(new EnumPropertyEditor<>(parent, Values.cast(context)));
+		} else if (Assets.isAssetType(propertyType)) {
+			return Values.cast(new AssetPropertyEditor<>(parent, context, propertyType));
 		} else if (isSimpleProperty(propertyType)) {
 			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));
 		} else {
