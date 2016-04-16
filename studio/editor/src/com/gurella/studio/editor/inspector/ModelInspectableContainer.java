@@ -36,6 +36,7 @@ import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
+import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
@@ -56,6 +57,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private Model model;
 	private ModelInstance modelInstance;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
+	private Compass compass;
 
 	public ModelInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -110,6 +112,8 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 			model = new Model(modelData, new DirectTextureProvider());
 			modelInstance = new ModelInstance(model);
 		}
+		
+		compass = new Compass(cam);
 
 		addDisposeListener(e -> onDispose());
 		render();
@@ -174,6 +178,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
 			modelBatch.render(modelInstance, environment);
+			compass.render(modelBatch);
 			modelBatch.end();
 		}
 

@@ -27,7 +27,10 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -53,7 +56,7 @@ import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.scene.SceneRenderer;
-import com.gurella.studio.editor.scene.SceneRenderer2;
+import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditor extends EditorPart implements EditorMessageListener {
@@ -210,6 +213,11 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 		dirty = false;
 		// sceneRenderer.setScene(scene);
 		postMessage(null, new SceneLoadedMessage(scene));
+		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
+		Menu menu = new Menu(glCanvas);
+		MenuItem item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Test");
+		glCanvas.setMenu(menu);
 	}
 
 	public Scene getScene() {
@@ -272,11 +280,11 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 	}
 
 	private static final class SceneEditorApplicationAdapter extends ApplicationAdapter {
-		private SceneRenderer2 renderer;
+		private SceneRenderer renderer;
 
 		@Override
 		public void create() {
-			renderer = new SceneRenderer2();
+			renderer = new SceneRenderer();
 		}
 		
 		@Override

@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gurella.engine.audio.loader.SoundClip;
+import com.gurella.engine.input.InputActionMap;
 
 public enum AssetType {
 	texture(Texture.class, "bmp", "jpg", "jpeg", "png"),
@@ -28,9 +29,11 @@ public enum AssetType {
 	json(JsonValue.class, "json"),
 	pixmap(Pixmap.class, "pix"),
 	polygonRegion(PolygonRegion.class, "psh"),
+	inputActionMap(InputActionMap.class, "iam"),
 	renderProgram(null),
 	material(null),
 	spritter(null),
+	spline(null),
 	svg(null),
 	font(null),
 	texture3d(null),
