@@ -65,7 +65,9 @@ public class AssetsExplorerView extends SceneEditorView {
 			@Override
 			public void dragSetData(DragSourceEvent event) {
 				TreeItem[] selection = tree.getSelection();
-				event.data = selection[0].getData();
+				IResource resource = (IResource) selection[0].getData();
+				System.out.println(resource.toString());
+				event.data = resource;
 			}
 
 			@Override

@@ -11,6 +11,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ResourceTransfer;
 
@@ -37,10 +38,22 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(body, "add", SWT.PUSH);
 		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
+		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
 
 		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		target.addDropListener(new DropTargetAdapter() {
+			@Override
+			public void dragEnter(DropTargetEvent event) {
+				if (event.detail == DND.DROP_DEFAULT) {
+					if ((event.operations & DND.DROP_MOVE) != 0) {
+						event.detail = DND.DROP_MOVE;
+					} else {
+						event.detail = DND.DROP_NONE;
+					}
+				}
+			}
+
 			@Override
 			public void dragOver(DropTargetEvent event) {
 				event.feedback = DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL;
@@ -72,12 +85,21 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 				if (!isValidResource(item)) {
 					return;
 				}
-				
+
 				T asset = ResourceService.load(item.getLocation().toString());
 				setValue(asset);
 			}
 		});
-		// TODO Auto-generated constructor stub
 	}
 
+	private void showFileDialg() {
+		FileDialog dialog = new FileDialog(getBody().getShell());
+		dialog.setFilterExtensions(new String[] { "*.bmp", "*.png" });
+		final String path = dialog.open();
+		if (path != null) {
+			T asset = ResourceService.load(path);
+			setValue(asset);
+		}
+		// TODO Auto-generated method stub
+	}
 }
