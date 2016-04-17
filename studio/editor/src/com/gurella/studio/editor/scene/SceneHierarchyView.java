@@ -41,7 +41,7 @@ import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.SceneLoadedMessage;
@@ -55,7 +55,7 @@ public class SceneHierarchyView extends SceneEditorView {
 	private Tree graph;
 	private Menu menu;
 
-	public SceneHierarchyView(GurellaEditor editor, int style) {
+	public SceneHierarchyView(GurellaSceneEditor editor, int style) {
 		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();

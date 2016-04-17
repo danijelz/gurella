@@ -8,7 +8,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;
@@ -17,7 +17,7 @@ public class InspectorView extends SceneEditorView {
 	private Object currentTarget;
 	private InspectableContainer<?> currentContainer;
 
-	public InspectorView(GurellaEditor editor, int style) {
+	public InspectorView(GurellaSceneEditor editor, int style) {
 		super(editor, "Inspector", GurellaStudioPlugin.createImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;

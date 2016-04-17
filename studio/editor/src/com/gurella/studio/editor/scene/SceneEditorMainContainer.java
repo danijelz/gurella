@@ -38,13 +38,13 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class SceneEditorMainContainer extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 32;
 
-	private GurellaEditor editor;
+	private GurellaSceneEditor editor;
 
 	Composite center;
 	DockComponent east;
@@ -56,7 +56,7 @@ public class SceneEditorMainContainer extends Composite {
 	private Cursor dragSouth;
 	private Cursor dragWest;
 
-	public SceneEditorMainContainer(GurellaEditor editor, Composite parent, int style) {
+	public SceneEditorMainContainer(GurellaSceneEditor editor, Composite parent, int style) {
 		super(parent, style);
 		this.editor = editor;
 

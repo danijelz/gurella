@@ -50,9 +50,15 @@ public enum AssetType {
 	}
 
 	public boolean containsExtension(String extension) {
-		for (int i = 0, n = extensions.length; i < n; i++) {
-			if (extensions[i].equals(extension)) {
-				return true;
+		return Arrays.binarySearch(extensions, extension) >= 0;
+	}
+
+	public static boolean isValidExtension(Class<?> assetType, String extension) {
+		AssetType[] values = values();
+		for (int i = 0, n = values.length; i < n; i++) {
+			AssetType type = values[i];
+			if (type.assetType == assetType) {
+				return Arrays.binarySearch(type.extensions, extension) >= 0;
 			}
 		}
 		return false;

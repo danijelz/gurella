@@ -16,7 +16,7 @@ import com.gurella.studio.editor.scene.SceneEditorViewClosedMessage;
 
 public class GurellaEditorActionBarContributor extends BasicTextEditorActionContributor
 		implements EditorMessageListener {
-	private GurellaEditor gurellaEditor;
+	private GurellaSceneEditor gurellaSceneEditor;
 	private ToggleEditorViewAction toggleEditorViewAction = new ToggleEditorViewAction("Assets Explorer");
 
 	@Override
@@ -34,15 +34,15 @@ public class GurellaEditorActionBarContributor extends BasicTextEditorActionCont
 	public void setActiveEditor(IEditorPart targetEditor) {
 		super.setActiveEditor(targetEditor);
 
-		if (gurellaEditor != null) {
-			gurellaEditor.removeEditorMessageListener(this);
+		if (gurellaSceneEditor != null) {
+			gurellaSceneEditor.removeEditorMessageListener(this);
 		}
 
-		if (targetEditor instanceof GurellaEditor) {
-			gurellaEditor = (GurellaEditor) targetEditor;
-			gurellaEditor.addEditorMessageListener(this);
+		if (targetEditor instanceof GurellaSceneEditor) {
+			gurellaSceneEditor = (GurellaSceneEditor) targetEditor;
+			gurellaSceneEditor.addEditorMessageListener(this);
 		} else {
-			gurellaEditor = null;
+			gurellaSceneEditor = null;
 		}
 
 		toggleEditorViewAction.updateActiveEditor();
@@ -65,11 +65,11 @@ public class GurellaEditorActionBarContributor extends BasicTextEditorActionCont
 		}
 
 		void updateActiveEditor() {
-			if (gurellaEditor == null) {
+			if (gurellaSceneEditor == null) {
 				setChecked(false);
 				setEnabled(false);
 			} else {
-				List<SceneEditorView> registeredViews = gurellaEditor.registeredViews;
+				List<SceneEditorView> registeredViews = gurellaSceneEditor.registeredViews;
 				setEnabled(registeredViews.stream().filter(v -> v.getClass() == AssetsExplorerView.class).count() == 0);
 				setChecked(!isEnabled());
 			}
@@ -77,7 +77,7 @@ public class GurellaEditorActionBarContributor extends BasicTextEditorActionCont
 
 		@Override
 		public void run() {
-			new AssetsExplorerView(gurellaEditor, SWT.LEFT);
+			new AssetsExplorerView(gurellaSceneEditor, SWT.LEFT);
 			setChecked(true);
 			setEnabled(false);
 		}

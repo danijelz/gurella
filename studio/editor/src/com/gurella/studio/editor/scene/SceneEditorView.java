@@ -8,12 +8,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.studio.editor.EditorMessageListener;
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaSceneEditor;
 
 public abstract class SceneEditorView extends Composite implements EditorMessageListener {
-	protected GurellaEditor editor;
+	protected GurellaSceneEditor editor;
 
-	public SceneEditorView(GurellaEditor editor, String title, Image image, int style) {
+	public SceneEditorView(GurellaSceneEditor editor, String title, Image image, int style) {
 		super(editor.getMainContainer().getDockItemParent(style), checkStyle(style));
 		this.editor = editor;
 		addDisposeListener(e -> this.editor.removeEditorMessageListener(this));
@@ -41,7 +41,7 @@ public abstract class SceneEditorView extends Composite implements EditorMessage
 		editor.removeEditorMessageListener(listener);
 	}
 	
-	public GurellaEditor getSceneEditor() {
+	public GurellaSceneEditor getSceneEditor() {
 		return editor;
 	}
 }

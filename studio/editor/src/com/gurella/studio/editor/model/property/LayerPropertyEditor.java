@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.utils.Values;
 
-public class LayerPropertyEditor  extends SimplePropertyEditor<Layer> {
+public class LayerPropertyEditor extends SimplePropertyEditor<Layer> {
 	private Combo combo;
 	private ComboViewer comboViewer;
 
@@ -33,18 +33,17 @@ public class LayerPropertyEditor  extends SimplePropertyEditor<Layer> {
 
 		comboViewer = new ComboViewer(combo);
 		comboViewer.setContentProvider(new ArrayContentProvider());
-		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((Layer) element).name;
+			}
+		});
 
-		P[] constants = enumType.getEnumConstants();
-		if (constants == null) {
-			@SuppressWarnings("unchecked")
-			Class<P> casted = (Class<P>) enumType.getSuperclass();
-			enumType = casted;
-			constants = enumType.getEnumConstants();
-		}
+		Layer[] constants = { Layer.DEFAULT, Layer.GUI, Layer.DnD };
 		comboViewer.setInput(constants);
 
-		P value = getValue();
+		Layer value = getValue();
 		if (value == null) {
 			combo.clearSelection();
 		} else {

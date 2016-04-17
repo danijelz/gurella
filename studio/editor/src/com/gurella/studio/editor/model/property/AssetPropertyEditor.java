@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ResourceTransfer;
 
+import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
@@ -32,11 +33,11 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		body.setLayout(layout);
 		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER);
 		text.setEditable(false);
-		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(body, "add", SWT.PUSH);
 		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
-		DropTarget target = new DropTarget(text, DND.DROP_MOVE );
+		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		target.addDropListener(new DropTargetAdapter() {
 			@Override
@@ -51,22 +52,21 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 			}
 
 			private boolean isValidResource(IResource item) {
-				// TODO Auto-generated method stub
-				return true;
+				return AssetType.isValidExtension(assetType, item.getFileExtension());
 			}
-			
+
 			@Override
 			public void dropAccept(DropTargetEvent event) {
-		    	if (!isValidResource((IResource) event.data)) {
-		            event.detail = DND.DROP_NONE;
-		        }
-		    }
+				if (!isValidResource((IResource) event.data)) {
+					event.detail = DND.DROP_NONE;
+				}
+			}
 
 			@Override
 			public void drop(DropTargetEvent event) {
+				event.detail = DND.DROP_MOVE;
 				IResource item = (IResource) event.data;
 				if (item == null || !isValidResource(item)) {
-					event.detail = DND.DROP_NONE;
 					return;
 				}
 

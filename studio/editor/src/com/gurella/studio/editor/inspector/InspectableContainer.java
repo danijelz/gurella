@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.studio.editor.EditorMessageListener;
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaSceneEditor;
 
 public abstract class InspectableContainer<T> extends ScrolledForm implements EditorMessageListener {
 	protected T target;
@@ -43,7 +43,7 @@ public abstract class InspectableContainer<T> extends ScrolledForm implements Ed
 	public void handleMessage(Object source, Object message) {
 	}
 	
-	public GurellaEditor getSceneEditor() {
+	public GurellaSceneEditor getSceneEditor() {
 		return getParent().getSceneEditor();
 	}
 }

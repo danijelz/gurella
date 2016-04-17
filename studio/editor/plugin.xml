@@ -9,7 +9,7 @@
             extensions="gscn"
             icon="icons/sample.gif"
             contributorClass="com.gurella.studio.editor.GurellaEditorActionBarContributor"
-            class="com.gurella.studio.editor.GurellaEditor"
+            class="com.gurella.studio.editor.GurellaSceneEditor"
             id="com.gurella.studio.editor.GurellaEditor">
       </editor>
    </extension>

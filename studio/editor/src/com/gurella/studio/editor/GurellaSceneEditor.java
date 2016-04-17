@@ -59,7 +59,7 @@ import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
-public class GurellaEditor extends EditorPart implements EditorMessageListener {
+public class GurellaSceneEditor extends EditorPart implements EditorMessageListener {
 	private EditorMessageSignal signal = new EditorMessageSignal();
 	private SceneEditorMainContainer mainContainer;
 
@@ -77,7 +77,7 @@ public class GurellaEditor extends EditorPart implements EditorMessageListener {
 
 	private URLClassLoader classLoader;
 
-	public GurellaEditor() {
+	public GurellaSceneEditor() {
 		signal.addListener(this);
 	}
 

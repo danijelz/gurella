@@ -24,7 +24,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
-import com.gurella.studio.editor.GurellaEditor;
+import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.SceneEditorView;
@@ -36,9 +36,7 @@ public class AssetsExplorerView extends SceneEditorView {
 	Tree tree;
 	IResource rootResource;
 
-	private IResource[] dragSourceItems;
-
-	public AssetsExplorerView(GurellaEditor editor, int style) {
+	public AssetsExplorerView(GurellaSceneEditor editor, int style) {
 		super(editor, "Assets", GurellaStudioPlugin.createImage("icons/resource_persp.gif"), style);
 
 		setLayout(new GridLayout());
@@ -50,7 +48,6 @@ public class AssetsExplorerView extends SceneEditorView {
 		initTree(editor);
 		tree.addListener(SWT.MouseUp, (e) -> presentInspectable());
 
-		dragSourceItems = new IResource[1];
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		source.addDragListener(new DragSourceListener() {
@@ -59,8 +56,7 @@ public class AssetsExplorerView extends SceneEditorView {
 				TreeItem[] selection = tree.getSelection();
 				if (selection.length > 0) {
 					event.doit = true;
-					dragSourceItems[0] = (IResource) selection[0].getData();
-					event.data = dragSourceItems[0];
+					event.data = selection[0].getData();
 				} else {
 					event.doit = false;
 				}
@@ -68,12 +64,10 @@ public class AssetsExplorerView extends SceneEditorView {
 
 			@Override
 			public void dragSetData(DragSourceEvent event) {
-				event.data = dragSourceItems[0];
 			}
 
 			@Override
 			public void dragFinished(DragSourceEvent event) {
-				dragSourceItems[0] = null;
 			}
 		});
 
@@ -83,7 +77,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
 	}
 
-	private void initTree(GurellaEditor editor) {
+	private void initTree(GurellaSceneEditor editor) {
 		try {
 			createItems(editor);
 		} catch (CoreException e) {
@@ -93,7 +87,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 	}
 
-	private void createItems(GurellaEditor editor) throws CoreException {
+	private void createItems(GurellaSceneEditor editor) throws CoreException {
 		IPath rootPath = findAssetsRoot().makeRelativeTo(editor.getProject().getLocation());
 		rootResource = editor.getProject().findMember(rootPath);
 		if (rootResource instanceof IContainer) {
@@ -102,7 +96,13 @@ public class AssetsExplorerView extends SceneEditorView {
 	}
 
 	private void presentInspectable() {
-		if (dragSourceItems[0] == null) {
+		TreeItem[] selection = tree.getSelection();
+		if (selection.length < 1) {
+			return;
+		}
+
+		Object data = selection[0].getData();
+		if (data instanceof IFile) {
 			postMessage(new SelectionMessage(getInspectable()));
 		}
 	}
