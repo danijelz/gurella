@@ -54,7 +54,7 @@ public class AssetsExplorerView extends SceneEditorView {
 			@Override
 			public void dragStart(DragSourceEvent event) {
 				TreeItem[] selection = tree.getSelection();
-				if (selection.length > 0) {
+				if (selection.length > 0 && selection[0].getData() instanceof IFile) {
 					event.doit = true;
 					event.data = selection[0].getData();
 				} else {
@@ -64,10 +64,13 @@ public class AssetsExplorerView extends SceneEditorView {
 
 			@Override
 			public void dragSetData(DragSourceEvent event) {
+				TreeItem[] selection = tree.getSelection();
+				event.data = selection[0].getData();
 			}
 
 			@Override
 			public void dragFinished(DragSourceEvent event) {
+				int i = 0;
 			}
 		});
 

@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
@@ -52,25 +53,28 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 			}
 
 			private boolean isValidResource(IResource item) {
-				return AssetType.isValidExtension(assetType, item.getFileExtension());
+				return item != null && AssetType.isValidExtension(assetType, item.getFileExtension());
 			}
 
 			@Override
 			public void dropAccept(DropTargetEvent event) {
 				if (!isValidResource((IResource) event.data)) {
 					event.detail = DND.DROP_NONE;
+				} else {
 				}
+				event.detail = DND.DROP_MOVE;
 			}
 
 			@Override
 			public void drop(DropTargetEvent event) {
 				event.detail = DND.DROP_MOVE;
 				IResource item = (IResource) event.data;
-				if (item == null || !isValidResource(item)) {
+				if (!isValidResource(item)) {
 					return;
 				}
-
-				int i = 0;
+				
+				T asset = ResourceService.load(item.getLocation().toString());
+				setValue(asset);
 			}
 		});
 		// TODO Auto-generated constructor stub
