@@ -85,7 +85,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
-		cam.position.set(1f, 1f, 1f);
+		cam.position.set(0f, 1f, -1f);
 		cam.lookAt(0, 0, 0);
 		cam.near = 0.1f;
 		cam.far = 1000;
@@ -165,6 +165,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 			return;
 		}
 
+		
 		input.update();
 		camController.update();
 		synchronized (mutex) {

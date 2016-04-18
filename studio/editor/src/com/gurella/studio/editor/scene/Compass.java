@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -32,7 +33,8 @@ public class Compass implements Disposable {
 	private ModelInstance compassInstance;
 	private Environment environment;
 
-	private Vector3 tempV3 = new Vector3();
+	private Vector3 tempTranslation = new Vector3();
+	private Quaternion tempRotation = new Quaternion();
 
 	public Compass(PerspectiveCamera worldCamera) {
 		this.worldCamera = worldCamera;
@@ -55,7 +57,7 @@ public class Compass implements Disposable {
 		compassInstance = new ModelInstance(compassModel);
 
 		// trans to top left corner
-		compassInstance.transform.translate(0.92f, 0.92f, 0);
+		compassInstance.transform.translate(tempTranslation.set(0.92f, 0.92f, 0));
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.85f, 0.85f, 0.85f, 1f));
@@ -74,13 +76,19 @@ public class Compass implements Disposable {
 	}
 
 	private void update() {
-		compassInstance.transform.getTranslation(tempV3);
-		compassInstance.transform.set(worldCamera.view);
-		compassInstance.transform.setTranslation(tempV3);
+		//compassInstance.transform.getTranslation(tempTranslation);
+		//compassInstance.transform.set(worldCamera.view).inv();
+		//compassInstance.transform.setTranslation(tempTranslation);
+		worldCamera.view.getRotation(tempRotation);
+		compassInstance.transform.set(tempTranslation, tempRotation);
 	}
 
 	@Override
 	public void dispose() {
 		compassModel.dispose();
+	}
+
+	public void resize(int width, int height) {
+		//compassInstance.transform.translate(width - 0.92f, height - 0.92f, 0);
 	}
 }

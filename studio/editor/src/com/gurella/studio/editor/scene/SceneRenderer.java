@@ -36,7 +36,7 @@ public class SceneRenderer implements Disposable {
 
 	public SceneRenderer() {
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		perspectiveCamera.position.set(0f, 1f, 3f);
+		perspectiveCamera.position.set(0f, 1f, -3f);
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 1000;
@@ -96,5 +96,6 @@ public class SceneRenderer implements Disposable {
 		perspectiveCamera.viewportWidth = width;
 		perspectiveCamera.viewportHeight = height;
 		perspectiveCamera.update();
+		compass.resize(width, height);
 	}
 }

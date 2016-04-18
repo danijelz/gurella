@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.model.property;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -42,54 +43,11 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
-		target.addDropListener(new DropTargetAdapter() {
-			@Override
-			public void dragEnter(DropTargetEvent event) {
-				if (event.detail == DND.DROP_DEFAULT) {
-					if ((event.operations & DND.DROP_MOVE) != 0) {
-						event.detail = DND.DROP_MOVE;
-					} else {
-						event.detail = DND.DROP_NONE;
-					}
-				}
-			}
+		target.addDropListener(new AssetDropTarget());
+	}
 
-			@Override
-			public void dragOver(DropTargetEvent event) {
-				event.feedback = DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL;
-				if (event.data != null) {
-					IResource item = (IResource) event.data;
-					if (isValidResource(item)) {
-						event.feedback = DND.FEEDBACK_SELECT;
-					}
-				}
-			}
-
-			private boolean isValidResource(IResource item) {
-				return item != null && AssetType.isValidExtension(assetType, item.getFileExtension());
-			}
-
-			@Override
-			public void dropAccept(DropTargetEvent event) {
-				if (!isValidResource((IResource) event.data)) {
-					event.detail = DND.DROP_NONE;
-				} else {
-				}
-				event.detail = DND.DROP_MOVE;
-			}
-
-			@Override
-			public void drop(DropTargetEvent event) {
-				event.detail = DND.DROP_MOVE;
-				IResource item = (IResource) event.data;
-				if (!isValidResource(item)) {
-					return;
-				}
-
-				T asset = ResourceService.load(item.getLocation().toString());
-				setValue(asset);
-			}
-		});
+	private boolean isValidResource(IResource item) {
+		return !(item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
 	}
 
 	private void showFileDialg() {
@@ -97,10 +55,43 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		dialog.setFilterExtensions(new String[] { "*.png" });
 		final String path = dialog.open();
 		if (path != null) {
-			T asset = ResourceService.load(path);
-			setValue(asset);
-			text.setText(path);
+			setValue(path);
 		}
-		// TODO Auto-generated method stub
+	}
+
+	private void setValue(final String path) {
+		T asset = ResourceService.load(path);
+		setValue(asset);
+		text.setText(path);
+	}
+
+	private final class AssetDropTarget extends DropTargetAdapter {
+		@Override
+		public void dragEnter(DropTargetEvent event) {
+			if (event.detail == DND.DROP_DEFAULT) {
+				if ((event.operations & DND.DROP_MOVE) != 0) {
+					event.detail = DND.DROP_MOVE;
+				} else {
+					event.detail = DND.DROP_NONE;
+				}
+			}
+		}
+
+		@Override
+		public void drop(DropTargetEvent event) {
+			event.detail = DND.DROP_MOVE;
+			IResource[] data = (IResource[]) event.data;
+			if (data == null || data.length != 1) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
+
+			IResource item = data[0];
+			if (!isValidResource(item)) {
+				return;
+			}
+
+			setValue(item.getLocation().toString());
+		}
 	}
 }

@@ -39,23 +39,18 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
-import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
@@ -64,10 +59,9 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private SceneEditorMainContainer mainContainer;
 
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
+	private GurellaSceneEditorContext context = new GurellaSceneEditorContext();
 
 	private SwtLwjglApplication application;
-	private SceneRenderer sceneRenderer;
-	private ModelBatch modelBatch;
 	private Scene scene;
 	private boolean dirty;
 
@@ -142,8 +136,8 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		parent.setLayout(new GridLayout());
 
 		workspace = ResourcesPlugin.getWorkspace();
-		IResource resource = getEditorInput().getAdapter(IResource.class);
-		project = resource.getProject();
+		IResource input = getEditorInput().getAdapter(IResource.class);
+		project = input.getProject();
 		javaProject = JavaCore.create(project);
 
 		mainContainer = new SceneEditorMainContainer(this, parent, SWT.NONE);
@@ -159,7 +153,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		mainContainer.setSelection(sceneHierarchyView);
 
 		Composite center = mainContainer.getCenter();
-		application = new SwtLwjglApplication(new SceneEditorApplicationAdapter(), center);
+		application = new SwtLwjglApplication(new SceneEditorApplicationListener(), center);
 		// sceneRenderer = new SceneRenderer(center);
 
 		createClassLoader();
@@ -279,7 +273,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		}
 	}
 
-	private static final class SceneEditorApplicationAdapter extends ApplicationAdapter {
+	private static final class SceneEditorApplicationListener extends ApplicationAdapter {
 		private SceneRenderer renderer;
 
 		@Override
@@ -294,11 +288,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 		@Override
 		public void render() {
-			Array<ApplicationUpdateListener> listeners = new Array<ApplicationUpdateListener>();
-			EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).update();
-			}
+			ResourceService.update();
 			renderer.render();
 		}
 	}

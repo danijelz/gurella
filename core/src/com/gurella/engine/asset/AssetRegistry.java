@@ -731,6 +731,7 @@ public class AssetRegistry extends AssetManager {
 		boolean propagated = propagateException(task, ex);
 		task.free();
 		if (!propagated) {
+			//TODO throw exception on update
 			throw ex instanceof RuntimeException ? (RuntimeException) ex : new GdxRuntimeException(ex);
 		}
 	}

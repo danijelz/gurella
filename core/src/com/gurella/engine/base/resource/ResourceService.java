@@ -18,9 +18,7 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 
-@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
-public final class ResourceService implements ApplicationUpdateListener {
-	private static final ResourceService instance = new ResourceService();
+public final class ResourceService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 
 	private static final MockAssetManager mockManager = new MockAssetManager();
@@ -28,10 +26,12 @@ public final class ResourceService implements ApplicationUpdateListener {
 	private static final AssetRegistry assetRegistry = new AssetRegistry();
 	private static final IntMap<String> objectsByFile = new IntMap<String>();
 
+	private static final ResourceServiceUpdateListener updateListener = new ResourceServiceUpdateListener();
+
 	static {
 		Texture.setAssetManager(mockManager);
 		Cubemap.setAssetManager(mockManager);
-		EventService.subscribe(instance);
+		EventService.subscribe(updateListener);
 	}
 
 	private ResourceService() {
@@ -143,9 +143,15 @@ public final class ResourceService implements ApplicationUpdateListener {
 		assetRegistry.reloadInvalidated();
 	}
 
-	@Override
-	public void update() {
-		// TODO remove from bus when not needed
-		assetRegistry.update();
+	public static void update() {
+		updateListener.update();
+	}
+
+	@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
+	private static class ResourceServiceUpdateListener implements ApplicationUpdateListener {
+		@Override
+		public void update() {
+			assetRegistry.update();
+		}
 	}
 }

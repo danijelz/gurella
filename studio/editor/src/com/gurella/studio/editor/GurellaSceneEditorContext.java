@@ -8,12 +8,14 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.jdt.core.IJavaProject;
 
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaSceneEditorContext {
 	private IWorkspace workspace;
+	private IResource input;
 	private IProject project;
 	private IJavaProject javaProject;
 
@@ -24,6 +26,7 @@ public class GurellaSceneEditorContext {
 	private ModelBatch modelBatch;
 	private EditorMessageSignal signal = new EditorMessageSignal();
 	
+	private ApplicationConfig applicationConfig;
 	private Scene scene;
 	private IResource rootResource;
 }

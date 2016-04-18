@@ -10,8 +10,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -50,31 +50,7 @@ public class AssetsExplorerView extends SceneEditorView {
 
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
-		source.addDragListener(new DragSourceListener() {
-			@Override
-			public void dragStart(DragSourceEvent event) {
-				TreeItem[] selection = tree.getSelection();
-				if (selection.length > 0 && selection[0].getData() instanceof IFile) {
-					event.doit = true;
-					event.data = selection[0].getData();
-				} else {
-					event.doit = false;
-				}
-			}
-
-			@Override
-			public void dragSetData(DragSourceEvent event) {
-				TreeItem[] selection = tree.getSelection();
-				IResource resource = (IResource) selection[0].getData();
-				System.out.println(resource.toString());
-				event.data = resource;
-			}
-
-			@Override
-			public void dragFinished(DragSourceEvent event) {
-				int i = 0;
-			}
-		});
+		source.addDragListener(new AssetsDragSource());
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
 		IWorkspace workspace = getSceneEditor().getWorkspace();
@@ -211,5 +187,25 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		return nodeItem;
+	}
+
+	private final class AssetsDragSource extends DragSourceAdapter {
+		@Override
+		public void dragStart(DragSourceEvent event) {
+			TreeItem[] selection = tree.getSelection();
+			if (selection.length == 1 && selection[0].getData() instanceof IFile) {
+				event.doit = true;
+				event.data = selection[0].getData();
+			} else {
+				event.doit = false;
+			}
+		}
+
+		@Override
+		public void dragSetData(DragSourceEvent event) {
+			TreeItem[] selection = tree.getSelection();
+			IResource resource = (IResource) selection[0].getData();
+			event.data = new IResource[] { resource };
+		}
 	}
 }
