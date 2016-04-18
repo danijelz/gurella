@@ -47,7 +47,7 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	}
 
 	private boolean isValidResource(IResource item) {
-		return !(item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
+		return (item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
 	}
 
 	private void showFileDialg() {
@@ -79,19 +79,16 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 		@Override
 		public void drop(DropTargetEvent event) {
-			event.detail = DND.DROP_MOVE;
+			event.detail = DND.DROP_NONE;
 			IResource[] data = (IResource[]) event.data;
 			if (data == null || data.length != 1) {
-				event.detail = DND.DROP_NONE;
 				return;
 			}
 
 			IResource item = data[0];
-			if (!isValidResource(item)) {
-				return;
+			if (isValidResource(item)) {
+				setValue(item.getLocation().toString());
 			}
-
-			setValue(item.getLocation().toString());
 		}
 	}
 }
