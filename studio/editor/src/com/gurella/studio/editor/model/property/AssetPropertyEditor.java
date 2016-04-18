@@ -94,11 +94,12 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getBody().getShell());
-		dialog.setFilterExtensions(new String[] { "*.bmp", "*.png" });
+		dialog.setFilterExtensions(new String[] { "*.png" });
 		final String path = dialog.open();
 		if (path != null) {
 			T asset = ResourceService.load(path);
 			setValue(asset);
+			text.setText(path);
 		}
 		// TODO Auto-generated method stub
 	}

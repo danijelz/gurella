@@ -61,6 +61,7 @@ import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
 import com.gurella.engine.utils.Values;
 
@@ -113,12 +114,13 @@ public class AssetRegistry extends AssetManager {
 			setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
 			setLoader(Model.class, "obj", new ObjLoader(resolver));
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
-			setLoader(Archive.class, new JsonArchiveLoader<Archive>(resolver, Archive.class));
-			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));//TODO
+			setLoader(Archive.class, new JsonArchiveLoader<Archive>(resolver, Archive.class));// TODO
+			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));
+			setLoader(SceneNode2.class, "pref", new JsonArchiveLoader<SceneNode2>(resolver, SceneNode2.class));
 		}
 	}
 
-	//TODO make package private and only accessible for prefabs and bundles
+	// TODO make package private and only accessible for prefabs and bundles
 	public <T> void put(T asset, String fileName) {
 		// TODO check if asset in other file -> renamed(oldFileName, newFileName);
 		AssetReference reference = AssetReference.obtain();
@@ -220,8 +222,20 @@ public class AssetRegistry extends AssetManager {
 			final ObjectMap<String, AssetLoader<?, ?>> loadersByType = loaders.get(type);
 			if (loadersByType == null || loadersByType.size < 1) {
 				return null;
+			} else if (fileName == null) {
+				return Values.cast(loadersByType.get(""));
+			}
+
+			String fileExtension = Assets.getFileExtension(fileName);
+			if (fileExtension == null) {
+				return Values.cast(loadersByType.get(""));
+			}
+
+			AssetLoader<T, AssetLoaderParameters<T>> loader = Values.cast(loadersByType.get(fileExtension));
+			if (loader == null && loadersByType.size == 1) {
+				return Values.cast(loadersByType.get(""));
 			} else {
-				return Values.cast(loadersByType.get(Assets.getFileExtension(fileName)));
+				return loader;
 			}
 		}
 	}
