@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.property;
 
+import java.util.Arrays;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.SWT;
@@ -14,6 +16,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
@@ -52,7 +60,16 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getBody().getShell());
-		dialog.setFilterExtensions(new String[] { "*.png" });
+		AssetType value = AssetType.value(assetType);
+		dialog.setFilterExtensions(Arrays.stream(value.extensions).map(e -> "*." + e).toArray(s -> new String[s]));
+
+		IWorkbench wb = PlatformUI.getWorkbench();
+		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
+		IWorkbenchPage page = window.getActivePage();
+		IEditorPart editor = page.getActiveEditor();
+		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
+		dialog.setFilterPath(input.getFile().getLocation().toString());
+
 		final String path = dialog.open();
 		if (path != null) {
 			setValue(path);

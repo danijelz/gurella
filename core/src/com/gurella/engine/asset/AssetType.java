@@ -12,12 +12,14 @@ import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.audio.loader.SoundClip;
 import com.gurella.engine.input.InputActionMap;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 
 public enum AssetType {
-	texture(Texture.class, "bmp", "jpg", "jpeg", "png"),
+	texture(Texture.class, "png", "bmp", "jpg", "jpeg"),
 	textureAtlas(TextureAtlas.class, "atl"),
 	cubemap(Cubemap.class),
 	bitmapFont(BitmapFont.class, "fnt"),
@@ -30,6 +32,7 @@ public enum AssetType {
 	polygonRegion(PolygonRegion.class, "psh"),
 	inputActionMap(InputActionMap.class, "iam"),
 	prefab(SceneNode2.class, "pref"),
+	scene(Scene.class, "gscn"),
 	renderProgram(null),
 	material(null),
 	spritter(null),
@@ -39,6 +42,18 @@ public enum AssetType {
 	texture3d(null),
 	renderTexture(null),
 	particleSystem(null);
+
+	private static ObjectMap<Class<?>, AssetType> enumsByType = new ObjectMap<Class<?>, AssetType>();
+
+	static {
+		AssetType[] values = values();
+		for (int i = 0, n = values.length; i < n; i++) {
+			AssetType type = values[i];
+			if (type.assetType != null) {
+				enumsByType.put(type.assetType, type);
+			}
+		}
+	}
 
 	public final Class<?> assetType;
 	public final String[] extensions;
@@ -54,13 +69,11 @@ public enum AssetType {
 	}
 
 	public static boolean isValidExtension(Class<?> assetType, String extension) {
-		AssetType[] values = values();
-		for (int i = 0, n = values.length; i < n; i++) {
-			AssetType type = values[i];
-			if (type.assetType == assetType) {
-				return Arrays.binarySearch(type.extensions, extension) >= 0;
-			}
-		}
-		return false;
+		AssetType type = value(assetType);
+		return type != null && Arrays.binarySearch(type.extensions, extension) >= 0;
+	}
+
+	public static AssetType value(Class<?> assetType) {
+		return enumsByType.get(assetType);
 	}
 }
