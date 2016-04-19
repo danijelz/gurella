@@ -1,6 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
@@ -22,7 +23,7 @@ import com.gurella.engine.subscriptions.scene.update.UpdateListener;
 import com.gurella.engine.utils.Values;
 
 @TypePriority(priority = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
-class SceneEventsDispatcher implements ApplicationUpdateListener {
+class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	private final Scene scene;
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
@@ -30,10 +31,10 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 
 	SceneEventsDispatcher(Scene scene) {
 		this.scene = scene;
+		sceneId = scene.getInstanceId();
 	}
 
 	void activate() {
-		sceneId = scene.getInstanceId();
 		EventService.subscribe(this);
 		Array<SceneActivityListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(sceneId, SceneActivityListener.class, listeners);
@@ -166,5 +167,10 @@ class SceneEventsDispatcher implements ApplicationUpdateListener {
 			cleanupUpdateListeners.get(i).onCleanupUpdate();
 		}
 		tempListeners.clear();
+	}
+
+	@Override
+	public void reset() {
+		sceneId = scene.getInstanceId();
 	}
 }

@@ -23,7 +23,7 @@ import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
 //TODO Poolable, EntityTransmuter
-public final class Scene extends ManagedObject implements NodeContainer {
+public final class Scene extends ManagedObject implements NodeContainer, Poolable {
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
 	transient final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
@@ -255,5 +255,10 @@ public final class Scene extends ManagedObject implements NodeContainer {
 		builder.append("]");
 
 		return builder.toString();
+	}
+
+	@Override
+	public void reset() {
+		eventsDispatcher.reset();
 	}
 }

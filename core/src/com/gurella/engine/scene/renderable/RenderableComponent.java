@@ -45,13 +45,13 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	static void notifyChanged(RenderableComponent component) {
 		synchronized (mutex) {
-			if (!component.changeDispatched) {
-				component.changeDispatched = true;
-				EventService.getSubscribers(component.nodeId, SceneRenderableChangedListener.class, listeners);
-				for (int i = 0; i < listeners.size; i++) {
-					listeners.get(i).onRenderableChanged(component);
-				}
+			//if (!component.changeDispatched) { TODO
+			component.changeDispatched = true;
+			EventService.getSubscribers(component.getScene().getInstanceId(), SceneRenderableChangedListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onRenderableChanged(component);
 			}
+			//}
 		}
 	}
 
