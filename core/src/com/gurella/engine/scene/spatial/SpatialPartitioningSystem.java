@@ -106,7 +106,10 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	@Override
 	public void onRenderableChanged(RenderableComponent component) {
-		markDirty(spatialsByRenderableComponent.get(component.getInstanceId()));
+		T spatial = spatialsByRenderableComponent.get(component.getInstanceId());
+		if (spatial != null) {
+			markDirty(spatial);
+		}
 	}
 
 	public synchronized void markDirty(T spatial) {

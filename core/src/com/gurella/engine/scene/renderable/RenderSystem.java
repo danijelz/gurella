@@ -2,6 +2,7 @@ package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.graphics.GenericBatch;
@@ -140,7 +141,12 @@ public class RenderSystem extends SceneSystem2
 	@Override
 	public void debugRender(Camera camera) {
 		batch.begin(camera);
-		renderSpatials(Layer.DEFAULT, camera);
-		batch.end();
+		try {
+			renderSpatials(Layer.DEFAULT, camera);
+		} catch (Exception e) {
+			throw e instanceof RuntimeException ? (RuntimeException) e : new GdxRuntimeException(e);
+		} finally {
+			batch.end();
+		}
 	}
 }

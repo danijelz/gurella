@@ -136,9 +136,9 @@ public class Bvh {
 		ObjectSetIterator<BvhNode> iterator = refitNodes.iterator();
 		while (iterator.hasNext()) {
 			BvhNode node = iterator.next();
+			maxDepth = Math.max(maxDepth, node.depth);
 			if (maxDepth < node.depth) {
 				sweepNodes.clear();
-				maxDepth = node.depth;
 			} else if (maxDepth == node.depth) {
 				sweepNodes.add(node);
 			}
