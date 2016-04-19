@@ -2,6 +2,7 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
@@ -42,24 +43,25 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	private transient final Array<SceneSystem2> defaultSystems = new Array<SceneSystem2>();
+	private transient final IntSet defaultSystems = new IntSet();
 	public final transient ComponentManager componentManager = addDefaultSystem(new ComponentManager());
 	public final transient NodeManager nodeManager = addDefaultSystem(new NodeManager());
 	public final transient TagManager tagManager = addDefaultSystem(new TagManager());
 	public final transient LayerManager layerManager = addDefaultSystem(new LayerManager());
 
-	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = addDefaultSystem(new BvhSpatialPartitioningSystem());
+	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = addDefaultSystem(
+			new BvhSpatialPartitioningSystem());
 	public final transient InputSystem inputSystem = addDefaultSystem(new InputSystem());
 	public final transient RenderSystem renderSystem = addDefaultSystem(new RenderSystem());
 	public final transient AudioSystem audioSystem = addDefaultSystem(new AudioSystem());
 	public final BulletPhysicsSystem bulletPhysicsSystem = addDefaultSystem(new BulletPhysicsSystem());
-	
+
 	private <T extends SceneSystem2> T addDefaultSystem(T system) {
-		defaultSystems.add(system);
+		defaultSystems.add(system.getInstanceId());
 		addSystem(system);
 		return system;
 	}
-	
+
 	@Override
 	public ImmutableArray<SceneNode2> getNodes() {
 		return nodes;
@@ -73,18 +75,16 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	}
 
 	@Override
-	protected final void activated() {
+	protected void activationCompleted() {
 		eventsDispatcher.activate();
 	}
 
 	public final void stop() {
 		destroy();
-		// TODO releaseResources();
 	}
 
 	@Override
-	protected final void deactivated() {
-		super.deactivated();
+	protected final void deactivationStarted() {
 		eventsDispatcher.deactivate();
 		// TODO reset managers and systems
 	}
@@ -102,7 +102,19 @@ public final class Scene extends ManagedObject implements NodeContainer {
 		} else {
 			SceneNode2 node = (SceneNode2) child;
 			node.scene = this;
+			updateNodeChildren(node);
 			_nodes.add(node);
+		}
+	}
+
+	private void updateNodeChildren(SceneNode2 node) {
+		ImmutableArray<ManagedObject> nodeChildren = node.children;
+		for (int i = 0, n = nodeChildren.size(); i < n; i++) {
+			SceneElement2 sceneElement = (SceneElement2) nodeChildren.get(i);
+			sceneElement.scene = this;
+			if (sceneElement instanceof SceneNode2) {
+				updateNodeChildren((SceneNode2) sceneElement);
+			}
 		}
 	}
 
@@ -164,7 +176,7 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	}
 
 	private boolean isDefaultSystem(SceneSystem2 system) {
-		return defaultSystems.contains(system, true);
+		return defaultSystems.contains(system.getInstanceId());
 	}
 
 	public <T extends SceneSystem2> T getSystem(int typeId) {
@@ -243,9 +255,5 @@ public final class Scene extends ManagedObject implements NodeContainer {
 		builder.append("]");
 
 		return builder.toString();
-	}
-
-	public void render(boolean debug) {
-		renderSystem.onRenderUpdate();
 	}
 }

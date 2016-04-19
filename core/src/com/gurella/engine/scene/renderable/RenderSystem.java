@@ -12,10 +12,12 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.engine.subscriptions.application.ApplicationDebugRenderListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 
-public class RenderSystem extends SceneSystem2 implements ComponentActivityListener, RenderUpdateListener {
+public class RenderSystem extends SceneSystem2
+		implements ComponentActivityListener, RenderUpdateListener, ApplicationDebugRenderListener {
 	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
@@ -133,5 +135,12 @@ public class RenderSystem extends SceneSystem2 implements ComponentActivityListe
 			layerCameras.sort();
 			return false;
 		}
+	}
+
+	@Override
+	public void debugRender(Camera camera) {
+		batch.begin(camera);
+		renderSpatials(Layer.DEFAULT, camera);
+		batch.end();
 	}
 }

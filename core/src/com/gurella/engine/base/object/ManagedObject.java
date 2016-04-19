@@ -89,6 +89,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			return;
 		}
 
+		activationStarted();
 		if (state == ManagedObjectState.idle) {
 			init();
 		}
@@ -103,10 +104,11 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		activated();
 		Objects.activated(this);
 
-		for (int i = 0; i < children.size(); i++) {
-			ManagedObject child = children.get(i);
+		for (int i = 0; i < _children.size; i++) {
+			ManagedObject child = _children.get(i);
 			child.handleActivation();
 		}
+		activationCompleted();
 	}
 
 	protected boolean isActivationAllowed() {
@@ -116,7 +118,13 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	protected void init() {
 	}
 
+	protected void activationStarted() {
+	}
+
 	protected void activated() {
+	}
+
+	protected void activationCompleted() {
 	}
 
 	public final void deactivate() {
@@ -124,8 +132,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void handleDeactivation() {
+		deactivationStarted();
+
 		for (int i = 0; i < _children.size; i++) {
-			ManagedObject child = children.get(i);
+			ManagedObject child = _children.get(i);
 			if (child.state == ManagedObjectState.active) {
 				child.handleDeactivation();
 			}
@@ -140,9 +150,17 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		if (this instanceof ApplicationEventSubscription) {
 			EventService.unsubscribe(this);
 		}
+
+		deactivationCompleted();
+	}
+
+	protected void deactivationStarted() {
 	}
 
 	protected void deactivated() {
+	}
+
+	protected void deactivationCompleted() {
 	}
 
 	public void destroy() {
@@ -155,7 +173,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		for (int i = 0; i < _children.size; i++) {
-			ManagedObject child = children.get(i);
+			ManagedObject child = _children.get(i);
 			child.handleDestruction();
 		}
 

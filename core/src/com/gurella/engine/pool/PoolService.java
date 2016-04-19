@@ -15,7 +15,6 @@ import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
-import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.Values;
 
 //TODO factory pools, Disposable
@@ -28,8 +27,8 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	private static final ObjectMap<Class<?>, ArrayPool<?>> arrayPools = new ObjectMap<Class<?>, ArrayPool<?>>();
 
 	private static boolean cleaning;
-	private static ArrayExt<Object> asyncPool = new ArrayExt<Object>(128);
-	private static ArrayExt<Object> cleaningObjects = new ArrayExt<Object>(128);
+	private static Array<Object> asyncPool = new Array<Object>(128);
+	private static Array<Object> cleaningObjects = new Array<Object>(128);
 	private static final Sort sort = new Sort();
 
 	static {
@@ -228,7 +227,7 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	@Override
 	public void update() {
 		if (!cleaning && asyncPool.size > 0) {
-			ArrayExt<Object> temp = asyncPool;
+			Array<Object> temp = asyncPool;
 			synchronized (asyncPool) {
 				cleaning = true;
 				asyncPool = cleaningObjects;

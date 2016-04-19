@@ -291,6 +291,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 		public void presentScene(Scene scene) {
 			renderer.setScene(scene);
+			updateListeners();
 		}
 
 		@Override
@@ -300,12 +301,16 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 		@Override
 		public void render() {
+			updateListeners();
+			renderer.render();
+			listeners.clear();
+		}
+
+		private void updateListeners() {
 			EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).debugUpdate();
 			}
-			renderer.render();
-			listeners.clear();
 		}
 	}
 

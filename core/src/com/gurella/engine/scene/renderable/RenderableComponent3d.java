@@ -20,7 +20,9 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 
 	@Override
 	public void getBounds(BoundingBox bounds) {
-		instance.extendBoundingBox(bounds);
+		if(instance != null) {
+			instance.extendBoundingBox(bounds);
+		}
 	}
 
 	@Override
