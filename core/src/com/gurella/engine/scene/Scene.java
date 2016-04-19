@@ -42,16 +42,23 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	public final transient ComponentManager componentManager = new ComponentManager();
-	public final transient NodeManager nodeManager = new NodeManager();
-	public final transient TagManager tagManager = new TagManager();
-	public final transient LayerManager layerManager = new LayerManager();
+	private transient final Array<SceneSystem2> defaultSystems = new Array<SceneSystem2>();
+	public final transient ComponentManager componentManager = addDefaultSystem(new ComponentManager());
+	public final transient NodeManager nodeManager = addDefaultSystem(new NodeManager());
+	public final transient TagManager tagManager = addDefaultSystem(new TagManager());
+	public final transient LayerManager layerManager = addDefaultSystem(new LayerManager());
 
-	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = new BvhSpatialPartitioningSystem();
-	public final transient InputSystem inputSystem = new InputSystem();
-	public final transient RenderSystem renderSystem = new RenderSystem();
-	public final transient AudioSystem audioSystem = new AudioSystem();
-	public final BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
+	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = addDefaultSystem(new BvhSpatialPartitioningSystem());
+	public final transient InputSystem inputSystem = addDefaultSystem(new InputSystem());
+	public final transient RenderSystem renderSystem = addDefaultSystem(new RenderSystem());
+	public final transient AudioSystem audioSystem = addDefaultSystem(new AudioSystem());
+	public final BulletPhysicsSystem bulletPhysicsSystem = addDefaultSystem(new BulletPhysicsSystem());
+	
+	private <T extends SceneSystem2> T addDefaultSystem(T system) {
+		defaultSystems.add(system);
+		addSystem(system);
+		return system;
+	}
 	
 	@Override
 	public ImmutableArray<SceneNode2> getNodes() {
@@ -157,8 +164,7 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	}
 
 	private boolean isDefaultSystem(SceneSystem2 system) {
-		// TODO Auto-generated method stub
-		return false;
+		return defaultSystems.contains(system, true);
 	}
 
 	public <T extends SceneSystem2> T getSystem(int typeId) {
@@ -237,5 +243,9 @@ public final class Scene extends ManagedObject implements NodeContainer {
 		builder.append("]");
 
 		return builder.toString();
+	}
+
+	public void render(boolean debug) {
+		renderSystem.onRenderUpdate();
 	}
 }

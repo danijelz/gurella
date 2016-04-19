@@ -40,7 +40,7 @@ public class SceneRenderer implements Disposable {
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 1000;
-		
+
 		perspectiveCamera.update();
 		selectedCamera = perspectiveCamera;
 
@@ -75,12 +75,9 @@ public class SceneRenderer implements Disposable {
 	}
 
 	private void renderScene() {
-		if (scene == null) {
-			return;
+		if (scene != null) {
+			scene.render(true);
 		}
-
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setScene(Scene scene) {

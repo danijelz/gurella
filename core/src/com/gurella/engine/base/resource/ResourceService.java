@@ -13,7 +13,9 @@ import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
+import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
@@ -143,14 +145,17 @@ public final class ResourceService {
 		assetRegistry.reloadInvalidated();
 	}
 
-	public static void update() {
-		updateListener.update();
-	}
-
-	@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class)
-	private static class ResourceServiceUpdateListener implements ApplicationUpdateListener {
+	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
+			@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
+	private static class ResourceServiceUpdateListener
+			implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {
+			assetRegistry.update();
+		}
+
+		@Override
+		public void debugUpdate() {
 			assetRegistry.update();
 		}
 	}

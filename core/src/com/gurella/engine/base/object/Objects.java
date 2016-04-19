@@ -3,8 +3,10 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
@@ -15,17 +17,15 @@ import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.utils.Values;
 
-@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class)
-final class Objects implements ApplicationUpdateListener {
-	private static final Objects instance = new Objects();
-
+final class Objects {
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
+	private static final Cleaner cleaner = new Cleaner();
 
 	private static final Array<Object> tempListeners = new Array<Object>(64);
 	private static final Object mutex = new Object();
 
 	static {
-		EventService.subscribe(instance);
+		EventService.subscribe(cleaner);
 	}
 
 	private Objects() {
@@ -159,13 +159,28 @@ final class Objects implements ApplicationUpdateListener {
 		tempListeners.clear();
 	}
 
-	@Override
-	public void update() {
-		synchronized (mutex) {
-			for (int i = 0, n = operations.size; i < n; i++) {
-				operations.get(i).execute();
+	@TypePriorities({
+			@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
+			@TypePriority(priority = CommonUpdatePriority.preRenderPriority, type = ApplicationDebugUpdateListener.class) })
+	private static class Cleaner implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
+		@Override
+		public void update() {
+			synchronized (mutex) {
+				for (int i = 0, n = operations.size; i < n; i++) {
+					operations.get(i).execute();
+				}
+				operations.clear();
 			}
-			operations.clear();
+		}
+
+		@Override
+		public void debugUpdate() {
+			synchronized (mutex) {
+				for (int i = 0, n = operations.size; i < n; i++) {
+					operations.get(i).execute();
+				}
+				operations.clear();
+			}
 		}
 	}
 }

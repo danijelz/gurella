@@ -39,12 +39,15 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
@@ -62,6 +65,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private GurellaSceneEditorContext context = new GurellaSceneEditorContext();
 
 	private SwtLwjglApplication application;
+	private SceneEditorApplicationListener applicationListener;
 	private Scene scene;
 	private boolean dirty;
 
@@ -153,7 +157,8 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		mainContainer.setSelection(sceneHierarchyView);
 
 		Composite center = mainContainer.getCenter();
-		application = new SwtLwjglApplication(new SceneEditorApplicationListener(), center);
+		applicationListener = new SceneEditorApplicationListener();
+		application = new SwtLwjglApplication(applicationListener, center);
 		// sceneRenderer = new SceneRenderer(center);
 
 		createClassLoader();
@@ -204,8 +209,9 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	private void presentScene(Scene scene) {
 		this.scene = scene;
+		scene.start();
 		dirty = false;
-		// sceneRenderer.setScene(scene);
+		applicationListener.presentScene(scene);
 		postMessage(null, new SceneLoadedMessage(scene));
 		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 		Menu menu = new Menu(glCanvas);
@@ -274,22 +280,32 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	}
 
 	private static final class SceneEditorApplicationListener extends ApplicationAdapter {
+		private final Array<ApplicationDebugUpdateListener> listeners = new Array<>(64);
+
 		private SceneRenderer renderer;
 
 		@Override
 		public void create() {
 			renderer = new SceneRenderer();
 		}
-		
+
+		public void presentScene(Scene scene) {
+			renderer.setScene(scene);
+		}
+
 		@Override
-		public void resize (int width, int height) {
+		public void resize(int width, int height) {
 			renderer.resize(width, height);
 		}
 
 		@Override
 		public void render() {
-			ResourceService.update();
+			EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).debugUpdate();
+			}
 			renderer.render();
+			listeners.clear();
 		}
 	}
 
