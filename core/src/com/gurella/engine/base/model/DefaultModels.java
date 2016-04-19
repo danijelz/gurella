@@ -7,6 +7,7 @@ import java.util.Date;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
@@ -531,6 +532,30 @@ public class DefaultModels {
 		@Override
 		public Uuid copy(Uuid original, CopyContext context) {
 			return new Uuid(original.mostSigBits, original.leastSigBits);
+		}
+	}
+
+	public static final class LayerModel extends SimpleObjectModel<Layer> {
+		public static final LayerModel instance = new LayerModel();
+
+		private LayerModel() {
+			super(Layer.class);
+		}
+
+		@Override
+		public void writeValue(Layer value, Output output) {
+			output.writeString(value.name);
+		}
+
+		@Override
+		public Layer readValue(Input input) {
+			//TODO validate
+			return Layer.getLayer(input.readString());
+		}
+
+		@Override
+		public Layer copy(Layer original, CopyContext context) {
+			return original;
 		}
 	}
 }

@@ -54,7 +54,7 @@ public final class Scene extends ManagedObject implements NodeContainer {
 	public final transient InputSystem inputSystem = addDefaultSystem(new InputSystem());
 	public final transient RenderSystem renderSystem = addDefaultSystem(new RenderSystem());
 	public final transient AudioSystem audioSystem = addDefaultSystem(new AudioSystem());
-	public final BulletPhysicsSystem bulletPhysicsSystem = addDefaultSystem(new BulletPhysicsSystem());
+	public final transient BulletPhysicsSystem bulletPhysicsSystem = addDefaultSystem(new BulletPhysicsSystem());
 
 	private <T extends SceneSystem2> T addDefaultSystem(T system) {
 		defaultSystems.add(system.getInstanceId());
