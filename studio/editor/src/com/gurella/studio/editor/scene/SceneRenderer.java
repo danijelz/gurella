@@ -77,7 +77,8 @@ public class SceneRenderer implements Disposable {
 		compass.render(modelBatch);
 		modelBatch.end();
 		renderScene();
-		Gdx.input.setInputProcessor(perspectiveCameraController);//TODO
+		//TODO input should be handled 
+		Gdx.input.setInputProcessor(perspectiveCameraController);
 	}
 
 	private void renderScene() {
