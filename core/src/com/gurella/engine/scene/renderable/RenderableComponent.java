@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.movement.TransformComponent;
@@ -23,9 +22,9 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	private static final Array<SceneRenderableChangedListener> listeners = new Array<SceneRenderableChangedListener>();
 	private static final Object mutex = new Object();
 
-	private transient int nodeId;
+	private transient int sceneId;
 
-	//TODO LayerComponent ??
+	// TODO LayerComponent ??
 	public Layer layer = Layer.DEFAULT;
 	transient TransformComponent transformComponent;
 
@@ -33,9 +32,8 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	@Override
 	protected void onActivate() {
-		SceneNode2 node = getNode();
-		nodeId = node.getInstanceId();
-		transformComponent = node.getActiveComponent(TransformComponent.class);
+		sceneId = getScene().getInstanceId();
+		transformComponent = getNode().getActiveComponent(TransformComponent.class);
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {
@@ -43,21 +41,21 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		}
 	}
 
-	static void notifyChanged(RenderableComponent component) {
+	void notifyChanged(RenderableComponent component) {
 		synchronized (mutex) {
-			//if (!component.changeDispatched) { TODO
+			// if (!component.changeDispatched) { TODO
 			component.changeDispatched = true;
-			EventService.getSubscribers(component.getScene().getInstanceId(), SceneRenderableChangedListener.class, listeners);
+			EventService.getSubscribers(sceneId, SceneRenderableChangedListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onRenderableChanged(component);
 			}
-			//}
+			// }
 		}
 	}
 
 	@Override
 	protected void onDeactivate() {
-		nodeId = -1;
+		sceneId = -1;
 		transformComponent = null;
 	}
 
@@ -97,7 +95,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	@Override
 	public void reset() {
-		nodeId = -1;
+		sceneId = -1;
 		layer = Layer.DEFAULT;
 		transformComponent = null;
 		changeDispatched = true;
