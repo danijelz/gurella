@@ -48,8 +48,13 @@ public class RenderSystem extends SceneSystem2
 		Camera camera = cameraComponent.camera;
 		cameraComponent.viewport.apply();
 		batch.begin(camera);
-		renderSpatials(layer, camera);
-		batch.end();
+		try {
+			renderSpatials(layer, camera);
+		} catch (Exception e) {
+			throw e instanceof RuntimeException ? (RuntimeException) e : new GdxRuntimeException(e);
+		} finally {
+			batch.end();
+		}
 	}
 
 	private void renderSpatials(Layer layer, Camera camera) {

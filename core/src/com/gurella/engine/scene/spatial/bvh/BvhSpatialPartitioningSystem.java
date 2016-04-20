@@ -10,8 +10,10 @@ import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
+import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 
-public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhSpatial> {
+public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhSpatial>
+		implements CleanupUpdateListener {
 	private Bvh bvh = new Bvh(1);
 
 	@Override
@@ -32,10 +34,8 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 		iterator = dirtySpatials.values().iterator();
 		while (iterator.hasNext()) {
 			BvhSpatial spatial = iterator.next();
-			bvh.refitNodes.add(spatial.node);
+			spatial.node.refitObjectChanged();
 		}
-
-		bvh.optimize();
 	}
 
 	@Override
@@ -72,5 +72,12 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 	@Override
 	protected void doClearSpatials() {
 		bvh.clear();
+	}
+
+	@Override
+	public void onCleanupUpdate() {
+		if (bvh.refitNodes.size > 0) {
+			bvh.optimize();
+		}
 	}
 }

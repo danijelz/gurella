@@ -120,11 +120,10 @@ public class Bvh {
 			initSweepNodes();
 
 			for (int i = 0; i < sweepNodes.size; i++) {
-				refitNodes.remove(sweepNodes.get(i));
-			}
-
-			for (int i = 0; i < sweepNodes.size; i++) {
-				sweepNodes.get(i).tryRotate();
+				BvhNode node = sweepNodes.get(i);
+				node.tryRotate();
+				if (!node.isLeaf()) {
+				}
 			}
 
 			sweepNodes.clear();
@@ -137,10 +136,15 @@ public class Bvh {
 		while (iterator.hasNext()) {
 			BvhNode node = iterator.next();
 			maxDepth = Math.max(maxDepth, node.depth);
-			if (maxDepth < node.depth) {
-				sweepNodes.clear();
-			} else if (maxDepth == node.depth) {
+		}
+
+		iterator = refitNodes.iterator();
+		while (iterator.hasNext()) {
+			BvhNode node = iterator.next();
+			if (maxDepth == node.depth) {
+				iterator.remove();
 				sweepNodes.add(node);
+			} else {
 			}
 		}
 	}
