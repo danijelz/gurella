@@ -268,6 +268,10 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 		return outTranslate.set(translation);
 	}
 
+	public Vector3 getTranslation() {
+		return translation;
+	}
+	
 	public float getWorldTranslationX() {
 		return getWorldTranslation().x;
 	}
