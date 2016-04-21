@@ -21,7 +21,7 @@ public class ShapeComponent extends RenderableComponent3d {
 		Sphere sphere = new Sphere();
 		sphere.setRadius(1.2f);
 		shape = sphere;
-		material = new Material(ColorAttribute.createDiffuse(0, 1, 1, 0.4f), new BlendingAttribute(1));
+		material = new Material(ColorAttribute.createDiffuse(0.5f, 1, 1, 0.4f), new BlendingAttribute(1));
 		ModelBuilder builder = new ModelBuilder();
 		float radius = sphere.getRadius();
 		model = builder.createSphere(radius, radius, radius, 30, 30, material, Usage.Position | Usage.Normal);
