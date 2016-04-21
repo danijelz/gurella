@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.gurella.engine.base.object.ManagedObject;
 
 public class MaterialDescriptor extends ManagedObject {
@@ -41,11 +42,22 @@ public class MaterialDescriptor extends ManagedObject {
 	}
 
 	public MaterialDescriptor(Material material) {
-		diffuseColor = setColorAttribute(diffuseColor, material, ColorAttribute.Diffuse);
+		diffuseColor = extractColorAttribute(diffuseColor, material, ColorAttribute.Diffuse);
+		extractTextureAttribute(diffuseTexture, material, TextureAttribute.Diffuse);
+		specularColor = extractColorAttribute(specularColor, material, ColorAttribute.Specular);
+		extractTextureAttribute(specularTexture, material, TextureAttribute.Specular);
+		ambientColor = extractColorAttribute(ambientColor, material, ColorAttribute.Ambient);
+		extractTextureAttribute(ambientTexture, material, TextureAttribute.Ambient);
+		emissiveColor = extractColorAttribute(emissiveColor, material, ColorAttribute.Emissive);
+		extractTextureAttribute(emissiveTexture, material, TextureAttribute.Emissive);
+		reflectionColor = extractColorAttribute(reflectionColor, material, ColorAttribute.Reflection);
+		extractTextureAttribute(reflectionTexture, material, TextureAttribute.Reflection);
+		extractTextureAttribute(bumpTexture, material, TextureAttribute.Bump);
+		extractTextureAttribute(normalTexture, material, TextureAttribute.Normal);
 	}
 
-	private static Color setColorAttribute(Color currentValue, Material material, long colorAttributeType) {
-		ColorAttribute colorAttribute = (ColorAttribute) material.get(colorAttributeType);
+	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
+		ColorAttribute colorAttribute = (ColorAttribute) material.get(attributeType);
 		if (colorAttribute == null) {
 			return none;
 		}
@@ -53,6 +65,21 @@ public class MaterialDescriptor extends ManagedObject {
 			return new Color(colorAttribute.color);
 		} else {
 			return currentValue.set(colorAttribute.color);
+		}
+	}
+
+	private static void extractTextureAttribute(TextureAttributeProperties value, Material material,
+			long attributeType) {
+		TextureAttribute attribute = (TextureAttribute) material.get(attributeType);
+		if (attribute == null) {
+			value.reset();
+		} else {
+			value.texture = attribute.textureDescription.texture;
+			value.offsetU = attribute.offsetU;
+			value.offsetV = attribute.offsetV;
+			value.scaleU = attribute.scaleU;
+			value.scaleV = attribute.scaleV;
+			value.uvIndex = attribute.uvIndex;
 		}
 	}
 
@@ -70,6 +97,15 @@ public class MaterialDescriptor extends ManagedObject {
 		public float scaleU = 1;
 		public float scaleV = 1;
 		public int uvIndex = 0;
+
+		private void reset() {
+			texture = null;
+			offsetU = 0;
+			offsetV = 0;
+			scaleU = 1;
+			scaleV = 1;
+			uvIndex = 0;
+		}
 	}
 
 	public static class BlendingAttributeProperties {
