@@ -25,20 +25,6 @@ public class ModelComponent extends RenderableComponent3d {
 	}
 
 	@Override
-	protected void updateDefaultTransform() {
-		if (instance != null) {
-			instance.transform.idt();
-		}
-	}
-
-	@Override
-	protected void updateTransform() {
-		if (instance != null) {
-			transformComponent.getWorldTransform(instance.transform);
-		}
-	}
-
-	@Override
 	public void reset() {
 		super.reset();
 		model = null;

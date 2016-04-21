@@ -34,7 +34,7 @@ import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.AtlasRegionComponent;
 import com.gurella.engine.scene.renderable.ModelComponent;
-import com.gurella.engine.scene.renderable.SolidComponent;
+import com.gurella.engine.scene.renderable.ShapeComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
@@ -140,6 +140,32 @@ public class SceneHierarchyView extends SceneEditorView {
 				}
 			}
 		});
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add sphere");
+		item.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				SceneNode2 node = getScene().newNode("Sphere");
+				TreeItem nodeItem = new TreeItem(graph, 0);
+				nodeItem.setData(node);
+				nodeItem.setText(node.getName());
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+				
+				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+				TreeItem componentItem = new TreeItem(nodeItem, 0);
+				componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
+				componentItem.setText(Models.getModel(transformComponent).getName());
+				componentItem.setData(transformComponent);
+				
+				ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
+				componentItem = new TreeItem(nodeItem, 1);
+				componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
+				componentItem.setText(Models.getModel(shapeComponent).getName());
+				componentItem.setData(shapeComponent);
+				
+				postMessage(SceneChangedMessage.instance);
+			}
+		});
 
 		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 		subItem.setText("Add Component");
@@ -166,7 +192,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		addMenuItem(subMenu, AtlasRegionComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, ModelComponent.class);
-		addMenuItem(subMenu, SolidComponent.class);
+		addMenuItem(subMenu, ShapeComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, TestPropertyEditorsComponnent.class);
 		addMenuItem(subMenu, TestInputComponent.class);

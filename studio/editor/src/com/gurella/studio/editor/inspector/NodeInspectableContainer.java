@@ -50,7 +50,7 @@ import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.AtlasRegionComponent;
 import com.gurella.engine.scene.renderable.ModelComponent;
-import com.gurella.engine.scene.renderable.SolidComponent;
+import com.gurella.engine.scene.renderable.ShapeComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
@@ -144,7 +144,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		addMenuItem(menu, AtlasRegionComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, ModelComponent.class);
-		addMenuItem(menu, SolidComponent.class);
+		addMenuItem(menu, ShapeComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TestPropertyEditorsComponnent.class);
 		addMenuItem(menu, TestInputComponent.class);

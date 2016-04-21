@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -25,6 +26,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	private transient int sceneId;
 
 	// TODO LayerComponent ??
+	@PropertyDescriptor(nullable = false)
 	public Layer layer = Layer.DEFAULT;
 	transient TransformComponent transformComponent;
 

@@ -18,6 +18,7 @@ public class CompositeShape extends Shape {
 	public boolean remove(Shape shape) {
 		if (shapes.remove(shape)) {
 			boundsDirty = true;
+			shape.boundsDirty = true;
 			shape.transformDirty = true;
 			return true;
 		} else {
@@ -35,8 +36,8 @@ public class CompositeShape extends Shape {
 		Array<Shape> items = shapes.orderedItems();
 		for (int i = 0, n = items.size; i < n; i++) {
 			Shape shape = items.get(i);
-			shape.transformDirty = true;
 			shape.boundsDirty = true;
+			shape.transformDirty = true;
 			if (shape instanceof CompositeShape) {
 				((CompositeShape) shape).markTransformDirty();
 			}

@@ -1,7 +1,5 @@
 package com.gurella.engine.math.geometry.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -10,16 +8,18 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 public abstract class Shape {
 	protected CompositeShape parent;
 
+	protected final BoundingBox bounds = new BoundingBox();
+	protected boolean boundsDirty = true;
+
 	protected final Matrix4 localTransform = new Matrix4();
 	protected final Matrix4 globalTransform = new Matrix4();
 	protected boolean transformDirty = true;
 
-	protected final BoundingBox bounds = new BoundingBox();
-	protected boolean boundsDirty = true;
+	protected boolean graphicsDirty = true;
 
-	protected transient Model model;
-	protected transient ModelInstance modelInstance;
-	protected boolean modelDirty = true;
+	public CompositeShape getParent() {
+		return parent;
+	}
 
 	public BoundingBox getBounds() {
 		if (boundsDirty) {
