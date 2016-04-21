@@ -37,5 +37,6 @@ public class TextureComponent extends RenderableComponent2d {
 	public void reset() {
 		super.reset();
 		texture = null;
+		sprite.setTexture(null);
 	}
 }

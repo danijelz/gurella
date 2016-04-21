@@ -115,7 +115,7 @@ public class AssetRegistry extends AssetManager {
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));
 			setLoader(SceneNode2.class, "pref", new JsonArchiveLoader<SceneNode2>(resolver, SceneNode2.class));
-			setLoader(MaterialDescriptor.class, "pref", new JsonArchiveLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+			setLoader(MaterialDescriptor.class, "gmat", new JsonArchiveLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		}
 	}
 

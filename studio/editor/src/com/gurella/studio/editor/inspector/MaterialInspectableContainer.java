@@ -1,12 +1,17 @@
 package com.gurella.studio.editor.inspector;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -18,7 +23,6 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -27,6 +31,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.math.geometry.shape.Sphere;
+import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
@@ -53,10 +58,16 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
-		
+
 		materialDescriptor = ResourceService.load(target.getLocation().toString());
 
 		Composite body = getBody();
+		body.setLayout(new GridLayout(2, false));
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		toolkit.adapt(this);
+		
+		TextureAttributeEditor editor = new TextureAttributeEditor(body);
+		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
@@ -69,7 +80,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		glData.doubleBuffer = false;
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
-		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
+		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true, 2, 1));
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
@@ -141,16 +152,16 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
 			modelBatch.render(instance, environment);
+			compass.render(modelBatch);
 			modelBatch.end();
 		}
 
 		getDisplay().timerExec(60, this::render);
 	}
-	
+
 	private void refreshMaterial() {
-		material = materialDescriptor.createMaterial();
-		
 		synchronized (ModelInspectableContainer.mutex) {
+			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			model.dispose();
 			ModelBuilder builder = new ModelBuilder();
@@ -159,11 +170,42 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			instance = new ModelInstance(model);
 		}
 	}
-	
+
 	private class TextureAttributeEditor extends Composite {
+		private ColorSelector colorSelector;
+		private Spinner alphaSpinner;
+
 		public TextureAttributeEditor(Composite parent) {
 			super(parent, SWT.NONE);
+
+			GridLayout layout = new GridLayout(2, false);
+			layout.marginWidth = 0;
+			layout.marginHeight = 0;
+			layout.horizontalSpacing = 0;
+			layout.verticalSpacing = 0;
+			setLayout(layout);
+
+			colorSelector = new ColorSelector(this);
+			alphaSpinner = new Spinner(this, SWT.NONE);
+			GurellaStudioPlugin.getToolkit().adapt(this);
+			alphaSpinner.setMinimum(0);
+			alphaSpinner.setMaximum(255);
+			alphaSpinner.setIncrement(1);
+			alphaSpinner.setPageIncrement(1);
+
+			Color color = materialDescriptor.diffuseColor;
+			colorSelector.setColorValue(new RGB((int) color.r * 255, (int) color.g * 255, (int) color.b * 255));
+			alphaSpinner.setSelection((int) color.a * 255);
+
+			colorSelector.addListener(e -> valueChanged());
+			alphaSpinner.addModifyListener((e) -> valueChanged());
 		}
-		
+
+		private void valueChanged() {
+			Color color = materialDescriptor.diffuseColor;
+			RGB rgb = colorSelector.getColorValue();
+			color.set(rgb.red / 255f, rgb.green / 255f, rgb.blue / 255f, alphaSpinner.getSelection() / 255f);
+			refreshMaterial();
+		}
 	}
 }

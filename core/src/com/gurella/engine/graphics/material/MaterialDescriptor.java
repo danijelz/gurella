@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.gurella.engine.base.object.ManagedObject;
 
-public abstract class MaterialDescriptor extends ManagedObject {
-	public static final Color none = new Color(1, 1, 1, 1);
-	
+public class MaterialDescriptor extends ManagedObject {
+	public static final Color none = new Color(Color.WHITE);
+
 	public Color diffuseColor = new Color(Color.WHITE);
 	public final TextureAttributeProperties diffuseTexture = new TextureAttributeProperties();
 
@@ -36,11 +36,30 @@ public abstract class MaterialDescriptor extends ManagedObject {
 	public float alphaTest;
 
 	Cullface cullface = Cullface.back;
-	
+
+	public MaterialDescriptor() {
+	}
+
+	public MaterialDescriptor(Material material) {
+		diffuseColor = setColorAttribute(diffuseColor, material, ColorAttribute.Diffuse);
+	}
+
+	private static Color setColorAttribute(Color currentValue, Material material, long colorAttributeType) {
+		ColorAttribute colorAttribute = (ColorAttribute) material.get(colorAttributeType);
+		if (colorAttribute == null) {
+			return none;
+		}
+		if (currentValue == null || currentValue == none) {
+			return new Color(colorAttribute.color);
+		} else {
+			return currentValue.set(colorAttribute.color);
+		}
+	}
+
 	public Material createMaterial() {
 		Material material = new Material();
 		material.set(ColorAttribute.createDiffuse(diffuseColor));
-		
+
 		return material;
 	}
 
@@ -60,7 +79,7 @@ public abstract class MaterialDescriptor extends ManagedObject {
 		public float opacity = 1.f;
 	}
 
-	public enum Cullface {
+	public static enum Cullface {
 		front(GL20.GL_FRONT), back(GL20.GL_BACK), frontAndBack(GL20.GL_FRONT_AND_BACK), none(-1);
 
 		public final int glValue;
@@ -70,10 +89,11 @@ public abstract class MaterialDescriptor extends ManagedObject {
 		}
 	}
 
-	public enum BlendFunction {
+	public static enum BlendFunction {
 		zero(GL20.GL_ZERO),
 
-		one(GL20.GL_ONE), srcColor(GL20.GL_SRC_COLOR),
+		one(GL20.GL_ONE),
+		srcColor(GL20.GL_SRC_COLOR),
 
 		oneMinusSrcColor(GL20.GL_ONE_MINUS_SRC_COLOR),
 

@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationDebugRenderListener;
+import com.gurella.studio.editor.inspector.ModelInspectableContainer;
 
 public class SceneRenderer implements Disposable {
 	private PerspectiveCamera perspectiveCamera;
@@ -64,21 +65,22 @@ public class SceneRenderer implements Disposable {
 	}
 
 	public void render() {
-		selectedController.update();
-
-		Color color = backgroundColor;
-		Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
-		Gdx.gl.glClearStencil(0);
-		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
-		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		modelBatch.begin(selectedCamera);
-		modelBatch.render(gridModelInstance, environment);
-		compass.render(modelBatch);
-		modelBatch.end();
-		renderScene();
-		//TODO input should be handled 
-		Gdx.input.setInputProcessor(perspectiveCameraController);
+		synchronized (ModelInspectableContainer.mutex) {
+			selectedController.update();
+			Color color = backgroundColor;
+			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
+			Gdx.gl.glClearStencil(0);
+			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
+			Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			modelBatch.begin(selectedCamera);
+			modelBatch.render(gridModelInstance, environment);
+			compass.render(modelBatch);
+			modelBatch.end();
+			renderScene();
+			//TODO input should be handled 
+			Gdx.input.setInputProcessor(perspectiveCameraController);
+		}
 	}
 
 	private void renderScene() {
