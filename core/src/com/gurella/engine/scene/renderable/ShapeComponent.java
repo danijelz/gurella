@@ -15,7 +15,6 @@ public class ShapeComponent extends RenderableComponent3d {
 
 	protected transient Model model;
 	protected transient Material material;
-	protected transient boolean modelDirty = true;
 
 	public ShapeComponent() {
 		Sphere sphere = new Sphere();
