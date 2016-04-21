@@ -4,26 +4,28 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.gurella.engine.base.object.ManagedObject;
 
 public class MaterialDescriptor extends ManagedObject {
-	public static final Color none = new Color(Color.WHITE);
+	public static final Color nilColor = new Color(Color.WHITE);
 
 	public Color diffuseColor = new Color(Color.WHITE);
 	public final TextureAttributeProperties diffuseTexture = new TextureAttributeProperties();
 
-	public Color specularColor = none;
+	public Color specularColor = nilColor;
 	public final TextureAttributeProperties specularTexture = new TextureAttributeProperties();
 
-	public Color ambientColor = none;
+	public Color ambientColor = nilColor;
 	public final TextureAttributeProperties ambientTexture = new TextureAttributeProperties();
 
-	public Color emissiveColor = none;
+	public Color emissiveColor = nilColor;
 	public final TextureAttributeProperties emissiveTexture = new TextureAttributeProperties();
 
-	public Color reflectionColor = none;
+	public Color reflectionColor = nilColor;
 	public final TextureAttributeProperties reflectionTexture = new TextureAttributeProperties();
 
 	public final TextureAttributeProperties bumpTexture = new TextureAttributeProperties();
@@ -32,11 +34,11 @@ public class MaterialDescriptor extends ManagedObject {
 
 	public final BlendingAttributeProperties blend = new BlendingAttributeProperties();
 
-	public float shininess;
+	public float shininess = Float.NaN;
 
-	public float alphaTest;
+	public float alphaTest = Float.NaN;
 
-	Cullface cullface = Cullface.back;
+	Cullface cullface = Cullface.none;
 
 	public MaterialDescriptor() {
 	}
@@ -54,14 +56,16 @@ public class MaterialDescriptor extends ManagedObject {
 		extractTextureAttribute(reflectionTexture, material, TextureAttribute.Reflection);
 		extractTextureAttribute(bumpTexture, material, TextureAttribute.Bump);
 		extractTextureAttribute(normalTexture, material, TextureAttribute.Normal);
+		extractBlendAttribute(material);
+		shininess = extractFloatAttribute(material, FloatAttribute.Shininess);
+		alphaTest = extractFloatAttribute(material, FloatAttribute.AlphaTest);
 	}
 
 	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
 		ColorAttribute colorAttribute = (ColorAttribute) material.get(attributeType);
 		if (colorAttribute == null) {
-			return none;
-		}
-		if (currentValue == null || currentValue == none) {
+			return nilColor;
+		} else if (currentValue == null || currentValue == nilColor) {
 			return new Color(colorAttribute.color);
 		} else {
 			return currentValue.set(colorAttribute.color);
@@ -80,6 +84,27 @@ public class MaterialDescriptor extends ManagedObject {
 			value.scaleU = attribute.scaleU;
 			value.scaleV = attribute.scaleV;
 			value.uvIndex = attribute.uvIndex;
+		}
+	}
+
+	private static float extractFloatAttribute(Material material, long attributeType) {
+		FloatAttribute attribute = (FloatAttribute) material.get(attributeType);
+		if (attribute == null) {
+			return Float.NaN;
+		} else {
+			return attribute.value;
+		}
+	}
+
+	private void extractBlendAttribute(Material material) {
+		BlendingAttribute attribute = (BlendingAttribute) material.get(BlendingAttribute.Type);
+		if (attribute == null) {
+			blend.reset();
+		} else {
+			blend.blend = false;
+			//blend.sourceFunction = attribute.sourceFunction; TODO
+			//blend.destFunction = attribute.destFunction;
+			blend.opacity = attribute.opacity;
 		}
 	}
 
@@ -113,6 +138,13 @@ public class MaterialDescriptor extends ManagedObject {
 		public BlendFunction sourceFunction = BlendFunction.srcAlpha;
 		public BlendFunction destFunction = BlendFunction.oneMinusSrcAlpha;
 		public float opacity = 1.f;
+		
+		private void reset() {
+			blend = false;
+			sourceFunction = BlendFunction.srcAlpha;
+			destFunction = BlendFunction.oneMinusSrcAlpha;
+			opacity = 1.f;
+		}
 	}
 
 	public static enum Cullface {
