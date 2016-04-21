@@ -54,11 +54,11 @@ import com.gurella.engine.asset.AssetLoadingTask.LoadingState;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.loader.SoundClip;
 import com.gurella.engine.audio.loader.SoundClipLoader;
-import com.gurella.engine.base.resource.Archive;
 import com.gurella.engine.base.resource.JsonArchiveLoader;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -106,17 +106,16 @@ public class AssetRegistry extends AssetManager {
 			setLoader(Texture.class, new TextureLoader(resolver));
 			setLoader(Skin.class, new SkinLoader(resolver));
 			setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
-			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class,
-					new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
+			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class, new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
 			setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
 			setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
 			setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
 			setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
 			setLoader(Model.class, "obj", new ObjLoader(resolver));
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
-			setLoader(Archive.class, new JsonArchiveLoader<Archive>(resolver, Archive.class));// TODO
 			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));
 			setLoader(SceneNode2.class, "pref", new JsonArchiveLoader<SceneNode2>(resolver, SceneNode2.class));
+			setLoader(MaterialDescriptor.class, "pref", new JsonArchiveLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		}
 	}
 

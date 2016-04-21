@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.audio.loader.SoundClip;
+import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.input.InputActionMap;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -30,13 +31,13 @@ public enum AssetType {
 	soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
 	pixmap(Pixmap.class, "pix", "bmp"),
 	polygonRegion(PolygonRegion.class, "psh"),
-	inputActionMap(InputActionMap.class, "iam"),
+	inputActionMap(InputActionMap.class, "giam"),
 	prefab(SceneNode2.class, "pref"),
 	scene(Scene.class, "gscn"),
+	material(MaterialDescriptor.class, "gmtl"),
 	renderProgram(null),
-	material(null),
-	spritter(null),
-	spline(null),
+	spritterAnimation(null),
+	splineAnimation(null),
 	svg(null),
 	font(null),
 	texture3d(null),

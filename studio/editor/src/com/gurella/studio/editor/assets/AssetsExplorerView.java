@@ -111,6 +111,8 @@ public class AssetsExplorerView extends SceneEditorView {
 					return new PolygonRegionInspectable(file);
 				} else if (AssetType.prefab.containsExtension(extension)) {
 					return new PrefabInspectable(file);
+				} else if (AssetType.material.containsExtension(extension)) {
+					return new MaterialInspectable(file);
 				}
 			}
 		}
@@ -181,6 +183,8 @@ public class AssetsExplorerView extends SceneEditorView {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
 			} else if (AssetType.prefab.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+			} else if (AssetType.material.containsExtension(extension)) {
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/material.png"));
 			} else {
 				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 			}

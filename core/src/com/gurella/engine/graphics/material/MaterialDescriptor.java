@@ -3,36 +3,46 @@ package com.gurella.engine.graphics.material;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.gurella.engine.base.object.ManagedObject;
 
-//TODO unused
 public abstract class MaterialDescriptor extends ManagedObject {
-	public Color diffuseColor;
-	public TextureAttributeProperties diffuseTexture;
+	public static final Color none = new Color(1, 1, 1, 1);
+	
+	public Color diffuseColor = new Color(Color.WHITE);
+	public final TextureAttributeProperties diffuseTexture = new TextureAttributeProperties();
 
-	public Color specularColor;
-	public TextureAttributeProperties specularTexture;
+	public Color specularColor = none;
+	public final TextureAttributeProperties specularTexture = new TextureAttributeProperties();
 
-	public Color ambientColor;
-	public TextureAttributeProperties ambientTexture;
+	public Color ambientColor = none;
+	public final TextureAttributeProperties ambientTexture = new TextureAttributeProperties();
 
-	public Color emissiveColor;
-	public TextureAttributeProperties emissiveTexture;
+	public Color emissiveColor = none;
+	public final TextureAttributeProperties emissiveTexture = new TextureAttributeProperties();
 
-	public Color reflectionColor;
-	public TextureAttributeProperties reflectionTexture;
+	public Color reflectionColor = none;
+	public final TextureAttributeProperties reflectionTexture = new TextureAttributeProperties();
 
-	public TextureAttributeProperties bumpTexture;
+	public final TextureAttributeProperties bumpTexture = new TextureAttributeProperties();
 
-	public TextureAttributeProperties normalTexture;
+	public final TextureAttributeProperties normalTexture = new TextureAttributeProperties();
 
-	public BlendingAttributeProperties blend;
+	public final BlendingAttributeProperties blend = new BlendingAttributeProperties();
 
 	public float shininess;
 
 	public float alphaTest;
 
 	Cullface cullface = Cullface.back;
+	
+	public Material createMaterial() {
+		Material material = new Material();
+		material.set(ColorAttribute.createDiffuse(diffuseColor));
+		
+		return material;
+	}
 
 	public static class TextureAttributeProperties {
 		public Texture texture;
@@ -40,9 +50,11 @@ public abstract class MaterialDescriptor extends ManagedObject {
 		public float offsetV = 0;
 		public float scaleU = 1;
 		public float scaleV = 1;
+		public int uvIndex = 0;
 	}
 
 	public static class BlendingAttributeProperties {
+		public boolean blend;
 		public BlendFunction sourceFunction = BlendFunction.srcAlpha;
 		public BlendFunction destFunction = BlendFunction.oneMinusSrcAlpha;
 		public float opacity = 1.f;
