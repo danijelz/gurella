@@ -59,6 +59,7 @@ public class MaterialDescriptor extends ManagedObject {
 		extractBlendAttribute(material);
 		shininess = extractFloatAttribute(material, FloatAttribute.Shininess);
 		alphaTest = extractFloatAttribute(material, FloatAttribute.AlphaTest);
+		//TODO cullface
 	}
 
 	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
