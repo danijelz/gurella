@@ -46,7 +46,7 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
 		text.setEditable(false);
 		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
-		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(this, "add", SWT.PUSH);
+		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(this, "Browse", SWT.PUSH);
 		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
 

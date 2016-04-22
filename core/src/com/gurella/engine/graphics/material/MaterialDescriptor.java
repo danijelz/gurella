@@ -3,33 +3,35 @@ package com.gurella.engine.graphics.material;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.engine.base.object.ManagedObject;
 
 public class MaterialDescriptor extends ManagedObject {
-	public static final Color nilColor = new Color(Color.WHITE);
-
-	public Color diffuseColor = new Color(Color.WHITE);
+	public Color diffuseColor;
 	public final TextureAttributeProperties diffuseTexture = new TextureAttributeProperties();
 
-	public Color specularColor = nilColor;
+	public Color specularColor;
 	public final TextureAttributeProperties specularTexture = new TextureAttributeProperties();
 
-	public Color ambientColor = nilColor;
+	public Color ambientColor;
 	public final TextureAttributeProperties ambientTexture = new TextureAttributeProperties();
 
-	public Color emissiveColor = nilColor;
+	public Color emissiveColor;
 	public final TextureAttributeProperties emissiveTexture = new TextureAttributeProperties();
 
-	public Color reflectionColor = nilColor;
+	public Color reflectionColor;
 	public final TextureAttributeProperties reflectionTexture = new TextureAttributeProperties();
 
 	public final TextureAttributeProperties bumpTexture = new TextureAttributeProperties();
@@ -63,14 +65,18 @@ public class MaterialDescriptor extends ManagedObject {
 		extractBlendAttribute(material);
 		shininess = extractFloatAttribute(material, FloatAttribute.Shininess);
 		alphaTest = extractFloatAttribute(material, FloatAttribute.AlphaTest);
-		// TODO cullface
+
+		IntAttribute cullfaceAttribute = (IntAttribute) material.get(IntAttribute.CullFace);
+		if (cullfaceAttribute != null) {
+			cullface = Cullface.value(cullfaceAttribute.value);
+		}
 	}
 
 	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
 		ColorAttribute colorAttribute = (ColorAttribute) material.get(attributeType);
 		if (colorAttribute == null) {
-			return nilColor;
-		} else if (currentValue == null || currentValue == nilColor) {
+			return null;
+		} else if (currentValue == null) {
 			return new Color(colorAttribute.color);
 		} else {
 			return currentValue.set(colorAttribute.color);
@@ -114,7 +120,7 @@ public class MaterialDescriptor extends ManagedObject {
 	}
 
 	public boolean isDiffuseColorDefined() {
-		return diffuseColor != null && diffuseColor != nilColor;
+		return diffuseColor != null;
 	}
 
 	public boolean isDiffuseTextureDefined() {
@@ -162,7 +168,12 @@ public class MaterialDescriptor extends ManagedObject {
 		attribute.scaleU = properties.scaleU;
 		attribute.scaleV = properties.scaleV;
 		attribute.uvIndex = properties.uvIndex;
-		//TODO attribute.textureDescription.magFilter ... should be resolved from texture properties
+		TextureProperties textureProperties = null;
+		// TODO attribute.textureDescription.magFilter ... should be resolved from texture properties
+		attribute.textureDescription.minFilter = TextureFilter.Linear;
+		attribute.textureDescription.magFilter = TextureFilter.Linear;
+		attribute.textureDescription.uWrap = TextureWrap.MirroredRepeat;
+		attribute.textureDescription.vWrap = TextureWrap.MirroredRepeat;
 		material.set(attribute);
 	}
 
@@ -201,10 +212,23 @@ public class MaterialDescriptor extends ManagedObject {
 	public static enum Cullface {
 		front(GL20.GL_FRONT), back(GL20.GL_BACK), frontAndBack(GL20.GL_FRONT_AND_BACK), none(-1);
 
+		private static IntMap<Cullface> valuesByGlValue = new IntMap<Cullface>();
+		static {
+			Cullface[] values = values();
+			for (int i = 0, n = values.length; i < n; i++) {
+				Cullface value = values[i];
+				valuesByGlValue.put(value.glValue, value);
+			}
+		}
+
 		public final int glValue;
 
 		private Cullface(int glValue) {
 			this.glValue = glValue;
+		}
+
+		public static Cullface value(int glValue) {
+			return valuesByGlValue.get(glValue);
 		}
 	}
 
@@ -237,7 +261,7 @@ public class MaterialDescriptor extends ManagedObject {
 
 		srcAlphaSaturate(GL20.GL_SRC_ALPHA_SATURATE);
 
-		private static IntMap<BlendFunction> functionsByGlValue = new IntMap<>();
+		private static IntMap<BlendFunction> functionsByGlValue = new IntMap<BlendFunction>();
 		static {
 			BlendFunction[] values = values();
 			for (int i = 0, n = values.length; i < n; i++) {

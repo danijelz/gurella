@@ -11,9 +11,11 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.base.object.ObjectActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectCompositionListener;
+import com.gurella.engine.subscriptions.base.object.ObjectDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
+import com.gurella.engine.subscriptions.base.object.ObjectsDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.utils.Values;
 
@@ -95,6 +97,22 @@ final class Objects {
 		EventService.getSubscribers(object.instanceId, ObjectActivityListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).deactivated();
+		}
+		tempListeners.clear();
+	}
+
+	static void destroyed(ManagedObject object) {
+		Array<ObjectsDestroyedListener> globalListeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ObjectsDestroyedListener.class, globalListeners);
+		for (int i = 0; i < globalListeners.size; i++) {
+			globalListeners.get(i).objectDestroyed(object);
+		}
+		tempListeners.clear();
+
+		Array<ObjectDestroyedListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(object.instanceId, ObjectDestroyedListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).objectDestroyed();
 		}
 		tempListeners.clear();
 	}

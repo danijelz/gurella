@@ -3,6 +3,7 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.model.PropertyEditor;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
@@ -89,26 +90,25 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			return;
 		}
 
-		activationStarted();
+		preActivation();
 		if (state == ManagedObjectState.idle) {
 			init();
 		}
-
-		state = ManagedObjectState.active;
-		attachAll();
 
 		if (this instanceof ApplicationEventSubscription) {
 			EventService.subscribe(this);
 		}
 
+		state = ManagedObjectState.active;
 		activated();
 		Objects.activated(this);
+		attachAll();
 
 		for (int i = 0; i < _children.size; i++) {
 			ManagedObject child = _children.get(i);
 			child.handleActivation();
 		}
-		activationCompleted();
+		postActivation();
 	}
 
 	protected boolean isActivationAllowed() {
@@ -118,13 +118,13 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	protected void init() {
 	}
 
-	protected void activationStarted() {
+	protected void preActivation() {
 	}
 
 	protected void activated() {
 	}
 
-	protected void activationCompleted() {
+	protected void postActivation() {
 	}
 
 	public final void deactivate() {
@@ -132,7 +132,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	void handleDeactivation() {
-		deactivationStarted();
+		preDeactivation();
 
 		for (int i = 0; i < _children.size; i++) {
 			ManagedObject child = _children.get(i);
@@ -143,7 +143,6 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 		state = ManagedObjectState.inactive;
 
-		detachAll();
 		deactivated();
 		Objects.deactivated(this);
 
@@ -151,16 +150,17 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			EventService.unsubscribe(this);
 		}
 
-		deactivationCompleted();
+		detachAll();
+		postDeactivation();
 	}
 
-	protected void deactivationStarted() {
+	protected void preDeactivation() {
 	}
 
 	protected void deactivated() {
 	}
 
-	protected void deactivationCompleted() {
+	protected void postDeactivation() {
 	}
 
 	public void destroy() {
@@ -184,6 +184,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		state = ManagedObjectState.disposed;
+		Objects.destroyed(this);
 		clear();
 		// TODO EventService.removeChannel(instanceId);
 
@@ -280,16 +281,13 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void childRemoved(@SuppressWarnings("unused") ManagedObject child) {
-		// TODO Auto-generated method stub
 	}
 
 	protected void childAdded(@SuppressWarnings("unused") ManagedObject child) {
-		// TODO Auto-generated method stub
 	}
 
 	@SuppressWarnings("unused")
 	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
-		// TODO Auto-generated method stub
 	}
 
 	//// ATTACHMENTS
@@ -297,6 +295,9 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		Object value = attachment.value;
 		if (value == null) {
 			throw new GdxRuntimeException("Attachment value must be non null.");
+		}
+		if (attachments.containsKey(value)) {
+			throw new GdxRuntimeException("Attachment value must be unique.");
 		}
 
 		attachments.put(value, attachment);
@@ -311,23 +312,27 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		}
 	}
 
-	public void detach(Attachment<?> attachment) {
-		detach(attachment.value);
+	public boolean detach(Attachment<?> attachment) {
+		return detach(attachment.value);
 	}
 
-	protected void detach(Object value) {
+	protected boolean detach(Object value) {
 		Attachment<?> attachment = attachments.remove(value);
-		if (attachment != null) {
-			if (isActive()) {
-				attachment.detach();
-			}
-
-			if (attachment instanceof Poolable) {
-				PoolService.free(attachment);
-			} else {
-				DisposablesService.tryDispose(attachment);
-			}
+		if (attachment == null) {
+			return false;
 		}
+
+		if (isActive()) {
+			attachment.detach();
+		}
+
+		if (attachment instanceof Poolable) {
+			PoolService.free(attachment);
+		} else {
+			DisposablesService.tryDispose(attachment);
+		}
+
+		return true;
 	}
 
 	private void detachAll() {
@@ -355,11 +360,11 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		attach(SubscriptionAttachment.obtain(subscriber));
 	}
 
-	protected void unsubscribe(Object subscriber) {
+	protected boolean unsubscribe(Object subscriber) {
 		if (subscriber == null) {
 			throw new NullPointerException("subscriber is null.");
 		}
-		detach(subscriber);
+		return detach(subscriber);
 	}
 
 	protected void subscribeTo(ManagedObject object, Object subscriber) {
@@ -369,13 +374,14 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		attach(ObjectSubscriptionAttachment.obtain(object.instanceId, subscriber));
 	}
 
-	protected void unsubscribeFrom(ManagedObject object, Object subscriber) {
+	protected boolean unsubscribeFrom(ManagedObject object, Object subscriber) {
 		if (object == null || subscriber == null) {
 			throw new NullPointerException("object or subscriber is null.");
 		}
 		ObjectSubscription objectSubscription = ObjectSubscription.obtain(object.instanceId, subscriber);
-		detach(objectSubscription);
+		boolean result = detach(objectSubscription);
 		objectSubscription.free();
+		return result;
 	}
 
 	public void subscribeTo(Object subscriber) {
@@ -385,13 +391,36 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		attach(ObjectSubscriptionAttachment.obtain(instanceId, subscriber));
 	}
 
-	public void unsubscribeFrom(Object subscriber) {
+	public boolean unsubscribeFrom(Object subscriber) {
 		if (subscriber == null) {
 			throw new NullPointerException("subscriber is null.");
 		}
 		ObjectSubscription objectSubscription = ObjectSubscription.obtain(instanceId, subscriber);
-		detach(objectSubscription);
+		boolean result = detach(objectSubscription);
 		objectSubscription.free();
+		return result;
+	}
+
+	public <T> T load(String fileName, Class<T> assetType) {
+		LoadAssetAttachment<T> attachment = LoadAssetAttachment.obtain(fileName, assetType);
+		attach(attachment);
+		return attachment.value;
+	}
+
+	public <T> void loadAsync(String fileName, Class<T> assetType, AsyncCallback<T> callback) {
+		if (callback == null) {
+			throw new NullPointerException("callback is null.");
+		}
+		ManageAssetAttachment.loadAsync(this, fileName, assetType, callback);
+	}
+
+	public <T> boolean unload(T asset) {
+		return detach(asset);
+	}
+
+	public <T> void bindAsset(T asset) {
+		ManageAssetAttachment<T> attachment = ManageAssetAttachment.obtain(asset);
+		attach(attachment);
 	}
 
 	@Override

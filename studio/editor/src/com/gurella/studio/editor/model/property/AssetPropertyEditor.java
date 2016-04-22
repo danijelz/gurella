@@ -44,8 +44,10 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		body.setLayout(layout);
 		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER);
 		text.setEditable(false);
-		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
-		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(body, "add", SWT.PUSH);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.widthHint = 50;
+		text.setLayoutData(layoutData);
+		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(body, "Browse", SWT.PUSH);
 		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
 

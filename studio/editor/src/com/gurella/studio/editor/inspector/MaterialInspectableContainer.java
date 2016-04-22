@@ -19,7 +19,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -212,9 +211,13 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			alphaSpinner.setPageIncrement(1);
 
 			Color color = materialDescriptor.diffuseColor;
-			colorSelector.setColorValue(new RGB((int) color.r * 255, (int) color.g * 255, (int) color.b * 255));
-			alphaSpinner.setSelection((int) color.a * 255);
-
+			if (color == null) {
+				colorSelector.setColorValue(new RGB(255, 255, 255));
+				alphaSpinner.setSelection(255);
+			} else {
+				colorSelector.setColorValue(new RGB((int) color.r * 255, (int) color.g * 255, (int) color.b * 255));
+				alphaSpinner.setSelection((int) color.a * 255);
+			}
 			colorSelector.addListener(e -> valueChanged());
 			alphaSpinner.addModifyListener(e -> valueChanged());
 
@@ -235,9 +238,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		}
 
 		private void valueChanged() {
-			Color color = materialDescriptor.diffuseColor;
 			RGB rgb = colorSelector.getColorValue();
-			color.set(rgb.red / 255f, rgb.green / 255f, rgb.blue / 255f, alphaSpinner.getSelection() / 255f);
+			int a = alphaSpinner.getSelection();
+			float r = 1 / 255f;
+			materialDescriptor.diffuseColor = new Color(rgb.red * r, rgb.green * r, rgb.blue * r, a * r);
 
 			TextureAttributeProperties properties = materialDescriptor.diffuseTexture;
 			properties.texture = textureSelector.getAsset();

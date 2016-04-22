@@ -75,7 +75,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	@Override
-	protected void activationCompleted() {
+	protected void postActivation() {
 		eventsDispatcher.activate();
 	}
 
@@ -84,7 +84,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	@Override
-	protected final void deactivationStarted() {
+	protected final void preDeactivation() {
 		eventsDispatcher.deactivate();
 		// TODO reset managers and systems
 	}
