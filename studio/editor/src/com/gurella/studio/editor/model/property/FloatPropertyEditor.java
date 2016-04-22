@@ -1,14 +1,12 @@
 package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.common.UiUtils;
 
 public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 	private Text text;
@@ -20,7 +18,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		body.setLayout(layout);
-		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER | SWT.SINGLE);
+		text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
 		text.setLayoutData(layoutData);
@@ -31,19 +29,5 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 		}
 
 		text.addModifyListener((e) -> setValue(Float.valueOf(text.getText())));
-		text.addVerifyListener(new VerifyListener() {
-			@Override
-			public void verifyText(VerifyEvent e) {
-				try {
-					final String oldS = text.getText();
-					String newS = oldS.substring(0, e.start) + e.text + oldS.substring(e.end);
-					if (newS.length() > 0) {
-						Float.parseFloat(newS);
-					}
-				} catch (Exception e2) {
-					e.doit = false;
-				}
-			}
-		});
 	}
 }

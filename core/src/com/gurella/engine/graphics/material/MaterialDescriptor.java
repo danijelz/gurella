@@ -3,11 +3,15 @@ package com.gurella.engine.graphics.material;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.base.object.ManagedObject;
 
 public class MaterialDescriptor extends ManagedObject {
@@ -38,7 +42,7 @@ public class MaterialDescriptor extends ManagedObject {
 
 	public float alphaTest = Float.NaN;
 
-	Cullface cullface = Cullface.none;
+	Cullface cullface = Cullface.back;
 
 	public MaterialDescriptor() {
 	}
@@ -59,7 +63,7 @@ public class MaterialDescriptor extends ManagedObject {
 		extractBlendAttribute(material);
 		shininess = extractFloatAttribute(material, FloatAttribute.Shininess);
 		alphaTest = extractFloatAttribute(material, FloatAttribute.AlphaTest);
-		//TODO cullface
+		// TODO cullface
 	}
 
 	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
@@ -103,17 +107,63 @@ public class MaterialDescriptor extends ManagedObject {
 			blend.reset();
 		} else {
 			blend.blend = false;
-			//blend.sourceFunction = attribute.sourceFunction; TODO
-			//blend.destFunction = attribute.destFunction;
+			blend.sourceFunction = BlendFunction.value(attribute.sourceFunction);
+			blend.destFunction = BlendFunction.value(attribute.destFunction);
 			blend.opacity = attribute.opacity;
 		}
 	}
 
+	public boolean isDiffuseColorDefined() {
+		return diffuseColor != null && diffuseColor != nilColor;
+	}
+
+	public boolean isDiffuseTextureDefined() {
+		return diffuseTexture != null && diffuseTexture.texture != null;
+	}
+
+	public VertexAttributes createVertexAttributes(boolean addPositionAttribute, boolean addNormalAttribute) {
+		Array<VertexAttribute> attributes = new Array<VertexAttribute>();
+		if (addPositionAttribute) {
+			attributes.add(VertexAttribute.Position());
+		}
+
+		if (addNormalAttribute) {
+			attributes.add(VertexAttribute.Normal());
+		}
+
+		if (isDiffuseTextureDefined()) {
+			attributes.add(VertexAttribute.TexCoords(0));
+		}
+
+		return new VertexAttributes(attributes.toArray(VertexAttribute.class));
+	}
+
 	public Material createMaterial() {
 		Material material = new Material();
-		material.set(ColorAttribute.createDiffuse(diffuseColor));
 
+		if (isDiffuseColorDefined()) {
+			createColorAttribute(material, ColorAttribute.Diffuse, diffuseColor);
+		}
+
+		if (isDiffuseTextureDefined()) {
+			createTextureAttribute(material, TextureAttribute.Diffuse, diffuseTexture);
+		}
 		return material;
+	}
+
+	private static void createColorAttribute(Material material, long type, Color color) {
+		material.set(new ColorAttribute(type, color));
+	}
+
+	private static void createTextureAttribute(Material material, long type, TextureAttributeProperties properties) {
+		TextureAttribute attribute = TextureAttribute.createDiffuse(properties.texture);
+		attribute.offsetU = properties.offsetU;
+		attribute.offsetV = properties.offsetV;
+		attribute.scaleU = properties.scaleU;
+		attribute.scaleV = properties.scaleV;
+		attribute.uvIndex = properties.uvIndex;
+		//TODO attribute.textureDescription.magFilter ... should be resolved from texture properties
+		material.set(attribute);
 	}
 
 	public static class TextureAttributeProperties {
@@ -139,7 +189,7 @@ public class MaterialDescriptor extends ManagedObject {
 		public BlendFunction sourceFunction = BlendFunction.srcAlpha;
 		public BlendFunction destFunction = BlendFunction.oneMinusSrcAlpha;
 		public float opacity = 1.f;
-		
+
 		private void reset() {
 			blend = false;
 			sourceFunction = BlendFunction.srcAlpha;
@@ -161,8 +211,7 @@ public class MaterialDescriptor extends ManagedObject {
 	public static enum BlendFunction {
 		zero(GL20.GL_ZERO),
 
-		one(GL20.GL_ONE),
-		srcColor(GL20.GL_SRC_COLOR),
+		one(GL20.GL_ONE), srcColor(GL20.GL_SRC_COLOR),
 
 		oneMinusSrcColor(GL20.GL_ONE_MINUS_SRC_COLOR),
 
@@ -188,10 +237,23 @@ public class MaterialDescriptor extends ManagedObject {
 
 		srcAlphaSaturate(GL20.GL_SRC_ALPHA_SATURATE);
 
+		private static IntMap<BlendFunction> functionsByGlValue = new IntMap<>();
+		static {
+			BlendFunction[] values = values();
+			for (int i = 0, n = values.length; i < n; i++) {
+				BlendFunction value = values[i];
+				functionsByGlValue.put(value.glValue, value);
+			}
+		}
+
 		public final int glValue;
 
 		private BlendFunction(int glValue) {
 			this.glValue = glValue;
+		}
+
+		public static BlendFunction value(int glValue) {
+			return functionsByGlValue.get(glValue);
 		}
 	}
 }

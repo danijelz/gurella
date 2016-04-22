@@ -11,12 +11,14 @@ import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -30,15 +32,18 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.graphics.material.MaterialDescriptor.TextureAttributeProperties;
 import com.gurella.engine.math.geometry.shape.Sphere;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.editor.common.AssetSelectionWidget;
+import com.gurella.studio.editor.common.UiUtils;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 
 public class MaterialInspectableContainer extends InspectableContainer<IFile> {
-	private MaterialDescriptor materialDescriptor;
-
+	private ModelBuilder builder;
 	private Sphere sphere;
 	private Model model;
 	private ModelInstance instance;
@@ -56,6 +61,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 	private Compass compass;
 
+	private MaterialDescriptor materialDescriptor;
+
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 
@@ -65,7 +72,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		body.setLayout(new GridLayout(2, false));
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
-		
+
 		TextureAttributeEditor editor = new TextureAttributeEditor(body);
 		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 
@@ -105,11 +112,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		synchronized (ModelInspectableContainer.mutex) {
 			glCanvas.setCurrent();
 			sphere = new Sphere();
-			sphere.setRadius(1.2f);
+			sphere.setRadius(0.8f);
 			material = materialDescriptor.createMaterial();
-			ModelBuilder builder = new ModelBuilder();
-			float radius = sphere.getRadius();
-			model = builder.createSphere(radius, radius, radius, 30, 30, material, Usage.Position | Usage.Normal);
+			builder = new ModelBuilder();
+			model = createSphere();
 			instance = new ModelInstance(model);
 			compass = new Compass(cam);
 		}
@@ -164,16 +170,28 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			model.dispose();
-			ModelBuilder builder = new ModelBuilder();
-			float radius = sphere.getRadius();
-			model = builder.createSphere(radius, radius, radius, 30, 30, material, Usage.Position | Usage.Normal);
+			model = createSphere();
 			instance = new ModelInstance(model);
 		}
+	}
+
+	private Model createSphere() {
+		float radius = sphere.getRadius();
+		builder.begin();
+		builder.part("sphere", GL20.GL_TRIANGLES, materialDescriptor.createVertexAttributes(true, true), material)
+				.sphere(radius, radius, radius, 30, 30);
+		return builder.end();
 	}
 
 	private class TextureAttributeEditor extends Composite {
 		private ColorSelector colorSelector;
 		private Spinner alphaSpinner;
+
+		private TextureSelector textureSelector;
+		private Text offsetU;
+		private Text offsetV;
+		private Text scaleU;
+		private Text scaleV;
 
 		public TextureAttributeEditor(Composite parent) {
 			super(parent, SWT.NONE);
@@ -198,14 +216,56 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			alphaSpinner.setSelection((int) color.a * 255);
 
 			colorSelector.addListener(e -> valueChanged());
-			alphaSpinner.addModifyListener((e) -> valueChanged());
+			alphaSpinner.addModifyListener(e -> valueChanged());
+
+			textureSelector = new TextureSelector(this);
+			textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
+
+			offsetU = UiUtils.createFloatWidget(this);
+			offsetU.addModifyListener(e -> valueChanged());
+
+			offsetV = UiUtils.createFloatWidget(this);
+			offsetV.addModifyListener(e -> valueChanged());
+
+			scaleU = UiUtils.createFloatWidget(this);
+			scaleU.addModifyListener(e -> valueChanged());
+
+			scaleV = UiUtils.createFloatWidget(this);
+			scaleV.addModifyListener(e -> valueChanged());
 		}
 
 		private void valueChanged() {
 			Color color = materialDescriptor.diffuseColor;
 			RGB rgb = colorSelector.getColorValue();
 			color.set(rgb.red / 255f, rgb.green / 255f, rgb.blue / 255f, alphaSpinner.getSelection() / 255f);
+
+			TextureAttributeProperties properties = materialDescriptor.diffuseTexture;
+			properties.texture = textureSelector.getAsset();
+
+			String textValue = offsetU.getText();
+			properties.offsetU = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
+
+			textValue = offsetV.getText();
+			properties.offsetV = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
+
+			textValue = scaleU.getText();
+			properties.scaleU = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
+
+			textValue = scaleV.getText();
+			properties.scaleV = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
+
 			refreshMaterial();
+		}
+
+		private class TextureSelector extends AssetSelectionWidget<Texture> {
+			public TextureSelector(TextureAttributeEditor parent) {
+				super(parent, Texture.class);
+			}
+
+			@Override
+			protected void assetSelected(Texture asset) {
+				valueChanged();
+			}
 		}
 	}
 }
