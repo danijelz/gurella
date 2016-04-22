@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.inspector;
 
+import java.util.Iterator;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.swt.SWT;
@@ -19,6 +21,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -29,6 +32,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor.TextureAttributeProperties;
@@ -128,6 +132,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
+			ResourceService.unload(materialDescriptor);
 			glCanvas.dispose();
 		}
 	}
@@ -176,10 +181,21 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private Model createSphere() {
 		float radius = sphere.getRadius();
+		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
+
 		builder.begin();
-		builder.part("sphere", GL20.GL_TRIANGLES, materialDescriptor.createVertexAttributes(true, true), material)
-				.sphere(radius, radius, radius, 30, 30);
-		return builder.end();
+		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 30, 30);
+		Model result = builder.end();
+
+		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
+		while (disposables.hasNext()) {
+			Disposable disposable = disposables.next();
+			if (disposable instanceof Texture) {
+				disposables.remove();
+			}
+		}
+
+		return result;
 	}
 
 	private class TextureAttributeEditor extends Composite {
