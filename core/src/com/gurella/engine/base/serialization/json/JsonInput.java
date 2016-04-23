@@ -43,7 +43,7 @@ public class JsonInput implements Input, Poolable {
 	}
 
 	public <T> T deserialize(Class<T> expectedType) {
-		if(rootValue == null || rootValue.child == null) {
+		if (rootValue == null || rootValue.child == null) {
 			return null;
 		}
 		JsonValue referenceValue = rootValue.get(0);

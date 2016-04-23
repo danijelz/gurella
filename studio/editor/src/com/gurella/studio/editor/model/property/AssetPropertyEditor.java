@@ -79,6 +79,10 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	}
 
 	private void setValue(final String path) {
+		T oldValue = getValue();
+		if(oldValue != null) {
+			ResourceService.unload(oldValue);
+		}
 		T asset = ResourceService.load(path);
 		setValue(asset);
 		text.setText(path);

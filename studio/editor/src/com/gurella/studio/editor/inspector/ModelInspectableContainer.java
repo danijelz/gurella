@@ -38,6 +38,7 @@ import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
+import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
@@ -79,6 +80,8 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		glData.stencilSize = 0;
 		glData.samples = 0;
 		glData.doubleBuffer = false;
+		SwtLwjglGraphics graphics = (SwtLwjglGraphics) Gdx.graphics;
+		glData.shareContext = graphics.getGlCanvas();
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
 		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
@@ -97,7 +100,6 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		input = new SwtLwjglInput(glCanvas);
 		input.setInputProcessor(camController);
 
-		modelBatch = new ModelBatch();
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
 		environment.set(new DepthTestAttribute());
@@ -106,6 +108,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		synchronized (mutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
+			modelBatch = new ModelBatch();
 			ModelLoader<?> loader = getLoader();
 			FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
 			ModelData modelData = loader.loadModelData(fileHandle);

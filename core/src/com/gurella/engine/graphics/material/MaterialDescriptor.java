@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.engine.base.object.ManagedObject;
 
+//TODO DepthTestAttribute
 public class MaterialDescriptor extends ManagedObject {
 	public Color diffuseColor;
 	public final TextureAttributeProperties diffuseTexture = new TextureAttributeProperties();

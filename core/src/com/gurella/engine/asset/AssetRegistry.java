@@ -54,7 +54,7 @@ import com.gurella.engine.asset.AssetLoadingTask.LoadingState;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.loader.SoundClip;
 import com.gurella.engine.audio.loader.SoundClipLoader;
-import com.gurella.engine.base.resource.JsonArchiveLoader;
+import com.gurella.engine.base.resource.JsonObjectLoader;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
@@ -114,10 +114,10 @@ public class AssetRegistry extends AssetManager {
 			setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
 			setLoader(Model.class, "obj", new ObjLoader(resolver));
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
-			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));
-			setLoader(SceneNode2.class, "pref", new JsonArchiveLoader<SceneNode2>(resolver, SceneNode2.class));
+			setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
+			setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
 			setLoader(MaterialDescriptor.class, "gmat",
-					new JsonArchiveLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+					new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		}
 	}
 

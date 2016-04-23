@@ -78,16 +78,17 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 	}
 
 	private void setAsset(final String path) {
+		T oldAsset = asset;
 		asset = ResourceService.load(path);
 		text.setText(path);
-		assetSelected(asset);
+		assetSelectionChanged(oldAsset, asset);
 	}
 	
 	public T getAsset() {
 		return asset;
 	}
 
-	protected abstract void assetSelected(T asset);
+	protected abstract void assetSelectionChanged(T oldAsset, T newAsset);
 
 	private final class AssetDropTarget extends DropTargetAdapter {
 		@Override

@@ -43,6 +43,7 @@ import com.gurella.studio.editor.common.AssetSelectionWidget;
 import com.gurella.studio.editor.common.UiUtils;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
+import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 
 public class MaterialInspectableContainer extends InspectableContainer<IFile> {
@@ -88,6 +89,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		glData.stencilSize = 0;
 		glData.samples = 0;
 		glData.doubleBuffer = false;
+		SwtLwjglGraphics graphics = (SwtLwjglGraphics) Gdx.graphics;
+		glData.shareContext = graphics.getGlCanvas();
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
 		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true, 2, 1));
@@ -106,7 +109,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		input = new SwtLwjglInput(glCanvas);
 		input.setInputProcessor(camController);
 
-		modelBatch = new ModelBatch();
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
 		environment.set(new DepthTestAttribute());
@@ -115,6 +117,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		synchronized (ModelInspectableContainer.mutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
+			modelBatch = new ModelBatch();
 			sphere = new Sphere();
 			sphere.setRadius(0.8f);
 			material = materialDescriptor.createMaterial();
@@ -286,8 +289,13 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			}
 
 			@Override
-			protected void assetSelected(Texture asset) {
-				materialDescriptor.bindAsset(asset);
+			protected void assetSelectionChanged(Texture oldAsset, Texture newAsset) {
+				if(oldAsset != null) {
+					materialDescriptor.unload(oldAsset);
+				}
+				if (newAsset != null) {
+					materialDescriptor.bindAsset(newAsset);
+				}
 				valueChanged();
 			}
 		}
