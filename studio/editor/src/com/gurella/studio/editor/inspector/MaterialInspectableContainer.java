@@ -114,6 +114,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		synchronized (ModelInspectableContainer.mutex) {
 			glCanvas.setCurrent();
+			Gdx.gl20 = gl20;
 			sphere = new Sphere();
 			sphere.setRadius(0.8f);
 			material = materialDescriptor.createMaterial();
@@ -132,7 +133,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
-			ResourceService.unload(materialDescriptor);
+			//ResourceService.unload(materialDescriptor);
+			materialDescriptor.destroy();
 			glCanvas.dispose();
 		}
 	}
@@ -173,6 +175,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		synchronized (ModelInspectableContainer.mutex) {
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
+			Gdx.gl20 = gl20;
 			model.dispose();
 			model = createSphere();
 			instance = new ModelInstance(model);
@@ -284,6 +287,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 			@Override
 			protected void assetSelected(Texture asset) {
+				materialDescriptor.bindAsset(asset);
 				valueChanged();
 			}
 		}

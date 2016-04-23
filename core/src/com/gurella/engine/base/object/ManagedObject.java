@@ -7,6 +7,7 @@ import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.model.PropertyEditor;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
@@ -91,6 +92,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		}
 
 		preActivation();
+
 		if (state == ManagedObjectState.idle) {
 			init();
 		}
@@ -108,6 +110,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			ManagedObject child = _children.get(i);
 			child.handleActivation();
 		}
+
 		postActivation();
 	}
 
@@ -187,6 +190,10 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		Objects.destroyed(this);
 		clear();
 		// TODO EventService.removeChannel(instanceId);
+
+		if (ResourceService.isManaged(this)) {
+			ResourceService.unload(this);
+		}
 
 		if (this instanceof Poolable) {
 			resetValues();

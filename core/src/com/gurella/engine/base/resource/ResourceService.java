@@ -5,13 +5,11 @@ import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.asset.AssetRegistry;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
@@ -24,10 +22,7 @@ public final class ResourceService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 
 	private static final MockAssetManager mockManager = new MockAssetManager();
-
 	private static final AssetRegistry assetRegistry = new AssetRegistry();
-	private static final IntMap<String> objectsByFile = new IntMap<String>();
-
 	private static final ResourceServiceUpdateListener updateListener = new ResourceServiceUpdateListener();
 
 	static {
@@ -112,14 +107,8 @@ public final class ResourceService {
 	}
 
 	public static <T> String getFileName(T resource) {
-		if (resource instanceof ManagedObject) {
-			synchronized (objectsByFile) {
-				return objectsByFile.get(((ManagedObject) resource).getInstanceId());
-			}
-		} else {
-			synchronized (assetRegistry) {
-				return assetRegistry.getAssetFileName(resource);
-			}
+		synchronized (assetRegistry) {
+			return assetRegistry.getAssetFileName(resource);
 		}
 	}
 

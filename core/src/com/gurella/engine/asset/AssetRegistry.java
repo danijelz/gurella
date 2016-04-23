@@ -106,7 +106,8 @@ public class AssetRegistry extends AssetManager {
 			setLoader(Texture.class, new TextureLoader(resolver));
 			setLoader(Skin.class, new SkinLoader(resolver));
 			setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
-			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class, new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
+			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class,
+					new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
 			setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
 			setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
 			setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
@@ -115,7 +116,8 @@ public class AssetRegistry extends AssetManager {
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 			setLoader(Scene.class, "gscn", new JsonArchiveLoader<Scene>(resolver, Scene.class));
 			setLoader(SceneNode2.class, "pref", new JsonArchiveLoader<SceneNode2>(resolver, SceneNode2.class));
-			setLoader(MaterialDescriptor.class, "gmat", new JsonArchiveLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+			setLoader(MaterialDescriptor.class, "gmat",
+					new JsonArchiveLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 		}
 	}
 
@@ -422,14 +424,15 @@ public class AssetRegistry extends AssetManager {
 		}
 
 		Object asset = reference.asset;
-		DisposablesService.tryDispose(asset);
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
-		if (asset instanceof Poolable) {
-			// TODO is it OK
-			PoolService.free(asset);
-		}
 		dereferenceDependencies(fileName, reference);
+		
+		if (asset instanceof Poolable) {
+			PoolService.free(asset);
+		} else {
+			DisposablesService.tryDispose(asset);
+		}
 		reference.free();
 	}
 

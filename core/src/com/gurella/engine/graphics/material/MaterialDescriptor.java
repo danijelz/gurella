@@ -141,7 +141,7 @@ public class MaterialDescriptor extends ManagedObject {
 			attributes.add(VertexAttribute.TexCoords(0));
 		}
 
-		return new VertexAttributes(attributes.toArray(VertexAttribute.class));
+		return new VertexAttributes(attributes.<VertexAttribute> toArray(VertexAttribute.class));
 	}
 
 	public Material createMaterial() {
@@ -154,6 +154,7 @@ public class MaterialDescriptor extends ManagedObject {
 		if (isDiffuseTextureDefined()) {
 			createTextureAttribute(material, TextureAttribute.Diffuse, diffuseTexture);
 		}
+		
 		return material;
 	}
 
@@ -172,8 +173,8 @@ public class MaterialDescriptor extends ManagedObject {
 		// TODO attribute.textureDescription.magFilter ... should be resolved from texture properties
 		attribute.textureDescription.minFilter = TextureFilter.Linear;
 		attribute.textureDescription.magFilter = TextureFilter.Linear;
-		attribute.textureDescription.uWrap = TextureWrap.MirroredRepeat;
-		attribute.textureDescription.vWrap = TextureWrap.MirroredRepeat;
+		attribute.textureDescription.uWrap = TextureWrap.Repeat;
+		attribute.textureDescription.vWrap = TextureWrap.Repeat;
 		material.set(attribute);
 	}
 
@@ -213,6 +214,7 @@ public class MaterialDescriptor extends ManagedObject {
 		front(GL20.GL_FRONT), back(GL20.GL_BACK), frontAndBack(GL20.GL_FRONT_AND_BACK), none(-1);
 
 		private static IntMap<Cullface> valuesByGlValue = new IntMap<Cullface>();
+
 		static {
 			Cullface[] values = values();
 			for (int i = 0, n = values.length; i < n; i++) {
@@ -235,7 +237,8 @@ public class MaterialDescriptor extends ManagedObject {
 	public static enum BlendFunction {
 		zero(GL20.GL_ZERO),
 
-		one(GL20.GL_ONE), srcColor(GL20.GL_SRC_COLOR),
+		one(GL20.GL_ONE),
+		srcColor(GL20.GL_SRC_COLOR),
 
 		oneMinusSrcColor(GL20.GL_ONE_MINUS_SRC_COLOR),
 
@@ -262,6 +265,7 @@ public class MaterialDescriptor extends ManagedObject {
 		srcAlphaSaturate(GL20.GL_SRC_ALPHA_SATURATE);
 
 		private static IntMap<BlendFunction> functionsByGlValue = new IntMap<BlendFunction>();
+
 		static {
 			BlendFunction[] values = values();
 			for (int i = 0, n = values.length; i < n; i++) {

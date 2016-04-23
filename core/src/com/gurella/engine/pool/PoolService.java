@@ -5,21 +5,26 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.ReflectionPool;
 import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
+import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 
 //TODO factory pools, Disposable
-@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class)
-public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener {
+@TypePriorities({
+		@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
+		@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
+public final class PoolService implements AsyncTask<Void>, ApplicationUpdateListener, ApplicationDebugUpdateListener {
 	private static final PoolService instance = new PoolService();
 	private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
@@ -171,6 +176,14 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 		}
 	}
 
+	public static <T> void freePoolable(T object) {
+		if (object instanceof Poolable) {
+			synchronized (asyncPool) {
+				asyncPool.add(object);
+			}
+		}
+	}
+
 	public static void freeAll(Object... objects) {
 		synchronized (asyncPool) {
 			asyncPool.addAll(objects);
@@ -226,6 +239,20 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 
 	@Override
 	public void update() {
+		if (!cleaning && asyncPool.size > 0) {
+			Array<Object> temp = asyncPool;
+			synchronized (asyncPool) {
+				cleaning = true;
+				asyncPool = cleaningObjects;
+			}
+			cleaningObjects = temp;
+			sort.sort(cleaningObjects, comparatorInstance);
+			AsyncService.submit(this);
+		}
+	}
+
+	@Override
+	public void debugUpdate() {
 		if (!cleaning && asyncPool.size > 0) {
 			Array<Object> temp = asyncPool;
 			synchronized (asyncPool) {
