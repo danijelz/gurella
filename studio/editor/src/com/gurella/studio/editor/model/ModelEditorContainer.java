@@ -80,7 +80,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
 		} else {
-			Section componentSection = toolkit.createSection(body, TWISTIE | TITLE_BAR);
+			Section componentSection = toolkit.createSection(body, TWISTIE);
 			componentSection.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;

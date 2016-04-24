@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.Gdx;
@@ -80,7 +81,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		Group group = new Group(body, SWT.NONE);
+		ExpandableComposite group = toolkit.createExpandableComposite(body, ExpandableComposite.TWISTIE);
 		group.setText("Diffuse");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
@@ -88,6 +89,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group.setLayout(new GridLayout());
 		TextureAttributeEditor editor = new TextureAttributeEditor(group);
 		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setClient(editor);
+		group.setExpanded(true);
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
