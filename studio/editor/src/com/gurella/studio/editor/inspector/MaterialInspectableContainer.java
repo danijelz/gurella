@@ -11,6 +11,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -207,8 +208,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private class TextureAttributeEditor extends Composite {
 		private ColorSelector colorSelector;
 		private Spinner alphaSpinner;
+		private Button colorEnabledButton;
 
 		private TextureSelector textureSelector;
+		private Button textureEnabledButton;
 		private Text offsetU;
 		private Text offsetV;
 		private Text scaleU;
@@ -217,7 +220,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		public TextureAttributeEditor(Composite parent) {
 			super(parent, SWT.NONE);
 
-			GridLayout layout = new GridLayout(2, false);
+			FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+			toolkit.adapt(this);
+			
+			GridLayout layout = new GridLayout(3, false);
 			layout.marginWidth = 0;
 			layout.marginHeight = 0;
 			layout.horizontalSpacing = 0;
@@ -226,37 +232,45 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 			colorSelector = new ColorSelector(this);
 			alphaSpinner = new Spinner(this, SWT.NONE);
-			GurellaStudioPlugin.getToolkit().adapt(this);
 			alphaSpinner.setMinimum(0);
 			alphaSpinner.setMaximum(255);
 			alphaSpinner.setIncrement(1);
 			alphaSpinner.setPageIncrement(1);
+			colorEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
 
 			Color color = materialDescriptor.diffuseColor;
 			if (color == null) {
 				colorSelector.setColorValue(new RGB(255, 255, 255));
 				alphaSpinner.setSelection(255);
+				colorEnabledButton.setSelection(false);
 			} else {
 				colorSelector.setColorValue(new RGB((int) color.r * 255, (int) color.g * 255, (int) color.b * 255));
 				alphaSpinner.setSelection((int) color.a * 255);
+				colorEnabledButton.setSelection(true);
 			}
+			
 			colorSelector.addListener(e -> valueChanged());
 			alphaSpinner.addModifyListener(e -> valueChanged());
 
 			textureSelector = new TextureSelector(this);
+			toolkit.adapt(textureSelector);
 			textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
+			textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
+			textureEnabledButton.setSelection(materialDescriptor.diffuseTexture != null);
 
 			offsetU = UiUtils.createFloatWidget(this);
 			offsetU.addModifyListener(e -> valueChanged());
 
 			offsetV = UiUtils.createFloatWidget(this);
 			offsetV.addModifyListener(e -> valueChanged());
+			toolkit.createComposite(this);
 
 			scaleU = UiUtils.createFloatWidget(this);
 			scaleU.addModifyListener(e -> valueChanged());
 
 			scaleV = UiUtils.createFloatWidget(this);
 			scaleV.addModifyListener(e -> valueChanged());
+			toolkit.createComposite(this);
 		}
 
 		private void valueChanged() {
