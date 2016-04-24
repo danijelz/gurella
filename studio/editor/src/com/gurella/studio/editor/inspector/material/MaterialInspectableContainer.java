@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.inspector;
+package com.gurella.studio.editor.inspector.material;
 
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
@@ -48,6 +48,9 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.AssetSelectionWidget;
 import com.gurella.studio.editor.common.UiUtils;
+import com.gurella.studio.editor.inspector.InspectableContainer;
+import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.inspector.ModelInspectableContainer;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
@@ -94,6 +97,22 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(editor);
 		group.setExpanded(true);
+
+		/////////////
+
+		group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		group.setText("Specular");
+		toolkit.adapt(group);
+		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+
+		group.setLayout(new GridLayout());
+		ColorTextureAttributeEditor attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
+				() -> materialDescriptor.specularColor, c -> materialDescriptor.specularColor = c,
+				() -> materialDescriptor.specularTexture, this::refreshMaterial);
+		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setClient(attributeEditor);
+		group.setExpanded(true);
+		//////////
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
@@ -189,7 +208,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		getDisplay().timerExec(60, this::render);
 	}
 
-	private void refreshMaterial() {
+	void refreshMaterial() {
 		synchronized (ModelInspectableContainer.mutex) {
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();

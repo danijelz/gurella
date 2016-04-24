@@ -5,7 +5,7 @@ import org.eclipse.core.resources.IFile;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
-import com.gurella.studio.editor.inspector.MaterialInspectableContainer;
+import com.gurella.studio.editor.inspector.material.MaterialInspectableContainer;
 
 public class MaterialInspectable implements Inspectable<IFile> {
 	IFile target;
