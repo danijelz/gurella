@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.inspector;
 
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -82,7 +84,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		ExpandableComposite group = toolkit.createExpandableComposite(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR);
+		Section group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Diffuse");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));

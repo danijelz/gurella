@@ -10,7 +10,6 @@ import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
-import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
@@ -35,7 +34,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 

@@ -3,6 +3,7 @@ package com.gurella.studio.editor.model;
 import static com.gurella.studio.editor.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.util.ArrayList;
@@ -18,9 +19,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.GurellaStudioPlugin;
@@ -66,7 +67,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		FormToolkit toolkit = getToolkit();
 		Composite body = getBody();
 		PropertyEditor<V> editor = createEditor(getBody(), new PropertyEditorContext<>(context, property));
-		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
 		editors.add(editor);
@@ -78,9 +79,9 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
 		} else {
-			ExpandableComposite componentSection = toolkit.createExpandableComposite(body, TWISTIE);
+			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX);
 			componentSection.setSize(100, 100);
-			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
+			GridData sectionLayoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
 			componentSection.setLayoutData(sectionLayoutData);
 			componentSection.setText(editor.getDescriptiveName());
