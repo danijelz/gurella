@@ -87,15 +87,28 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
+		/*Section group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		group.setText("Diffuse");
+		toolkit.adapt(group);
+		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		
+		group.setLayout(new GridLayout());
+		TextureAttributeEditor editor = new TextureAttributeEditor(group);
+		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setClient(editor);
+		group.setExpanded(true);*/
+
 		Section group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Diffuse");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 
 		group.setLayout(new GridLayout());
-		TextureAttributeEditor editor = new TextureAttributeEditor(group);
-		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
-		group.setClient(editor);
+		ColorTextureAttributeEditor attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
+				() -> materialDescriptor.diffuseColor, c -> materialDescriptor.diffuseColor = c,
+				() -> materialDescriptor.diffuseTexture, this::refreshMaterial);
+		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setClient(attributeEditor);
 		group.setExpanded(true);
 
 		/////////////
@@ -106,9 +119,9 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 
 		group.setLayout(new GridLayout());
-		ColorTextureAttributeEditor attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
-				() -> materialDescriptor.specularColor, c -> materialDescriptor.specularColor = c,
-				() -> materialDescriptor.specularTexture, this::refreshMaterial);
+		attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
+				() -> materialDescriptor.emissiveColor, c -> materialDescriptor.emissiveColor = c,
+				() -> materialDescriptor.emissiveTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 		group.setExpanded(true);
