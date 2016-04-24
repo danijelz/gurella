@@ -13,6 +13,8 @@ import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -74,12 +76,18 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		materialDescriptor = ResourceService.load(target.getLocation().toString());
 
 		Composite body = getBody();
-		body.setLayout(new GridLayout(2, false));
+		body.setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		TextureAttributeEditor editor = new TextureAttributeEditor(body);
-		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
+		Group group = new Group(body, SWT.NONE);
+		group.setText("Diffuse");
+		toolkit.adapt(group);
+		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		
+		group.setLayout(new GridLayout());
+		TextureAttributeEditor editor = new TextureAttributeEditor(group);
+		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
@@ -94,7 +102,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		glData.shareContext = graphics.getGlCanvas();
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
-		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true, 2, 1));
+		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
@@ -222,20 +230,25 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 			FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 			toolkit.adapt(this);
-			
-			GridLayout layout = new GridLayout(3, false);
+
+			GridLayout layout = new GridLayout(5, false);
 			layout.marginWidth = 0;
 			layout.marginHeight = 0;
-			layout.horizontalSpacing = 0;
-			layout.verticalSpacing = 0;
+			layout.horizontalSpacing = 5;
+			layout.verticalSpacing = 5;
 			setLayout(layout);
 
+			toolkit.createLabel(this, "RGB:");
 			colorSelector = new ColorSelector(this);
-			alphaSpinner = new Spinner(this, SWT.NONE);
+
+			toolkit.createLabel(this, "A:");
+			alphaSpinner = new Spinner(this, SWT.BORDER);
 			alphaSpinner.setMinimum(0);
 			alphaSpinner.setMaximum(255);
 			alphaSpinner.setIncrement(1);
 			alphaSpinner.setPageIncrement(1);
+			toolkit.adapt(alphaSpinner);
+
 			colorEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
 
 			Color color = materialDescriptor.diffuseColor;
@@ -248,29 +261,64 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				alphaSpinner.setSelection((int) color.a * 255);
 				colorEnabledButton.setSelection(true);
 			}
-			
+			enableColor();
+
+			colorEnabledButton.addListener(SWT.Selection, e -> enableColor());
 			colorSelector.addListener(e -> valueChanged());
 			alphaSpinner.addModifyListener(e -> valueChanged());
 
+			Label label = toolkit.createLabel(this, "", SWT.SEPARATOR | SWT.HORIZONTAL);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
+
+			toolkit.createLabel(this, "Texture:");
 			textureSelector = new TextureSelector(this);
 			toolkit.adapt(textureSelector);
-			textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
-			textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
-			textureEnabledButton.setSelection(materialDescriptor.diffuseTexture != null);
+			textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
 
+			textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
+			textureEnabledButton.setSelection(materialDescriptor.isDiffuseTextureEnabled());
+			textureEnabledButton.addListener(SWT.Selection, e -> enableTexture());
+
+			label = toolkit.createLabel(this, "Offset U:");
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 			offsetU = UiUtils.createFloatWidget(this);
+			offsetU.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 			offsetU.addModifyListener(e -> valueChanged());
 
+			label = toolkit.createLabel(this, " V:");
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 			offsetV = UiUtils.createFloatWidget(this);
+			offsetV.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 			offsetV.addModifyListener(e -> valueChanged());
-			toolkit.createComposite(this);
+			label = toolkit.createLabel(this, " ");
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
+			toolkit.createLabel(this, "Scale U:");
 			scaleU = UiUtils.createFloatWidget(this);
 			scaleU.addModifyListener(e -> valueChanged());
 
+			toolkit.createLabel(this, " V:");
 			scaleV = UiUtils.createFloatWidget(this);
 			scaleV.addModifyListener(e -> valueChanged());
-			toolkit.createComposite(this);
+			label = toolkit.createLabel(this, " ");
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
+
+			enableTexture();
+		}
+
+		private void enableColor() {
+			boolean selection = colorEnabledButton.getSelection();
+			colorSelector.setEnabled(selection);
+			alphaSpinner.setEnabled(selection);
+		}
+
+		private void enableTexture() {
+			boolean selection = textureEnabledButton.getSelection();
+			textureSelector.setEnabled(selection);
+			offsetU.setEnabled(selection);
+			offsetV.setEnabled(selection);
+			scaleU.setEnabled(selection);
+			scaleV.setEnabled(selection);
 		}
 
 		private void valueChanged() {
@@ -304,7 +352,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 			@Override
 			protected void assetSelectionChanged(Texture oldAsset, Texture newAsset) {
-				if(oldAsset != null) {
+				if (oldAsset != null) {
 					materialDescriptor.unload(oldAsset);
 				}
 				if (newAsset != null) {

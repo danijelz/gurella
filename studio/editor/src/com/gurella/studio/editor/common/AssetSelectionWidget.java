@@ -18,10 +18,12 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
@@ -39,20 +41,28 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		super(parent, SWT.NONE);
 		this.assetType = assetType;
 
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
-		text = GurellaStudioPlugin.getToolkit().createText(this, "", SWT.BORDER);
+		text = toolkit.createText(this, "", SWT.BORDER);
 		text.setEditable(false);
-		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
-		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(this, "Browse", SWT.PUSH);
-		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
+		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		layoutData.widthHint = 50;
+		text.setLayoutData(layoutData);
+		
+		selectAssetButton = toolkit.createButton(this, "", SWT.PUSH);
+		selectAssetButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
+		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
 
 		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		target.addDropListener(new AssetDropTarget());
+		
+		toolkit.adapt(this);
 	}
 
 	private boolean isValidResource(IResource item) {
@@ -83,7 +93,7 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		text.setText(path);
 		assetSelectionChanged(oldAsset, asset);
 	}
-	
+
 	public T getAsset() {
 		return asset;
 	}

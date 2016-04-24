@@ -6,6 +6,7 @@ import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.base.object.ObjectDestroyedListener;
 
+//TODO maybe not needed
 public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable {
 	static <T> ManageAssetAttachment<T> obtain(T asset) {
 		@SuppressWarnings("unchecked")

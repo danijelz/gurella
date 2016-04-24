@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
@@ -18,7 +19,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.engine.base.object.ManagedObject;
 
-//TODO DepthTestAttribute
 public class MaterialDescriptor extends ManagedObject {
 	public Color diffuseColor;
 	public final TextureAttributeProperties diffuseTexture = new TextureAttributeProperties();
@@ -41,11 +41,13 @@ public class MaterialDescriptor extends ManagedObject {
 
 	public final BlendingAttributeProperties blend = new BlendingAttributeProperties();
 
+	public final DepthTestAttributeProperties depthTest = new DepthTestAttributeProperties();
+
 	public float shininess = Float.NaN;
 
 	public float alphaTest = Float.NaN;
 
-	Cullface cullface = Cullface.back;
+	Cullface cullface = null;
 
 	public MaterialDescriptor() {
 	}
@@ -64,13 +66,10 @@ public class MaterialDescriptor extends ManagedObject {
 		extractTextureAttribute(bumpTexture, material, TextureAttribute.Bump);
 		extractTextureAttribute(normalTexture, material, TextureAttribute.Normal);
 		extractBlendAttribute(material);
+		extractDepthTestAttribute(material);
 		shininess = extractFloatAttribute(material, FloatAttribute.Shininess);
 		alphaTest = extractFloatAttribute(material, FloatAttribute.AlphaTest);
-
-		IntAttribute cullfaceAttribute = (IntAttribute) material.get(IntAttribute.CullFace);
-		if (cullfaceAttribute != null) {
-			cullface = Cullface.value(cullfaceAttribute.value);
-		}
+		extractCullfaceAttribute(material);
 	}
 
 	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
@@ -113,19 +112,100 @@ public class MaterialDescriptor extends ManagedObject {
 		if (attribute == null) {
 			blend.reset();
 		} else {
-			blend.blend = false;
+			blend.blended = false;
 			blend.sourceFunction = BlendFunction.value(attribute.sourceFunction);
 			blend.destFunction = BlendFunction.value(attribute.destFunction);
 			blend.opacity = attribute.opacity;
 		}
 	}
 
-	public boolean isDiffuseColorDefined() {
+	private void extractDepthTestAttribute(Material material) {
+		DepthTestAttribute attribute = (DepthTestAttribute) material.get(DepthTestAttribute.Type);
+		if (attribute == null) {
+			depthTest.reset();
+		} else {
+			depthTest.depthMask = attribute.depthMask;
+			depthTest.depthRangeNear = attribute.depthRangeNear;
+			depthTest.depthRangeFar = attribute.depthRangeFar;
+			depthTest.depthFunc = DepthTestFunction.value(attribute.depthFunc);
+		}
+	}
+
+	private void extractCullfaceAttribute(Material material) {
+		IntAttribute cullfaceAttribute = (IntAttribute) material.get(IntAttribute.CullFace);
+		if (cullfaceAttribute == null) {
+			cullface = null;
+		} else {
+			cullface = Cullface.value(cullfaceAttribute.value);
+		}
+	}
+
+	public boolean isDiffuseColorEnabled() {
 		return diffuseColor != null;
 	}
 
-	public boolean isDiffuseTextureDefined() {
-		return diffuseTexture != null && diffuseTexture.texture != null;
+	public boolean isDiffuseTextureEnabled() {
+		return diffuseTexture.texture != null;
+	}
+
+	public boolean isSpecularColorEnabled() {
+		return specularColor != null;
+	}
+
+	public boolean isSpecularTextureEnabled() {
+		return specularTexture.texture != null;
+	}
+
+	public boolean isAmbientColorEnabled() {
+		return ambientColor != null;
+	}
+
+	public boolean isAmbientTextureEnabled() {
+		return ambientTexture.texture != null;
+	}
+
+	public boolean isEmissiveColorEnabled() {
+		return emissiveColor != null;
+	}
+
+	public boolean isEmissiveTextureEnabled() {
+		return emissiveTexture.texture != null;
+	}
+
+	public boolean isReflectionColorEnabled() {
+		return reflectionColor != null;
+	}
+
+	public boolean isReflectionTextureEnabled() {
+		return reflectionTexture.texture != null;
+	}
+
+	public boolean isBumpTextureEnabled() {
+		return bumpTexture.texture != null;
+	}
+
+	public boolean isNormalTextureEnabled() {
+		return normalTexture.texture != null;
+	}
+
+	public boolean isBlendEnabled() {
+		return blend.enabled && blend.sourceFunction != null && blend.destFunction != null;
+	}
+
+	public boolean isDepthTestEnabled() {
+		return depthTest.enabled && depthTest.depthFunc != null;
+	}
+
+	public boolean isShininessEnabled() {
+		return shininess != Float.NaN;
+	}
+
+	public boolean isAlphaTestEnabled() {
+		return alphaTest != Float.NaN;
+	}
+
+	public boolean isCullfaceEnabled() {
+		return cullface != null;
 	}
 
 	public VertexAttributes createVertexAttributes(boolean addPositionAttribute, boolean addNormalAttribute) {
@@ -138,7 +218,7 @@ public class MaterialDescriptor extends ManagedObject {
 			attributes.add(VertexAttribute.Normal());
 		}
 
-		if (isDiffuseTextureDefined()) {
+		if (isDiffuseTextureEnabled()) {
 			attributes.add(VertexAttribute.TexCoords(0));
 		}
 
@@ -148,14 +228,78 @@ public class MaterialDescriptor extends ManagedObject {
 	public Material createMaterial() {
 		Material material = new Material();
 
-		if (isDiffuseColorDefined()) {
+		if (isDiffuseColorEnabled()) {
 			createColorAttribute(material, ColorAttribute.Diffuse, diffuseColor);
 		}
 
-		if (isDiffuseTextureDefined()) {
+		if (isDiffuseTextureEnabled()) {
 			createTextureAttribute(material, TextureAttribute.Diffuse, diffuseTexture);
 		}
-		
+
+		if (isSpecularColorEnabled()) {
+			createColorAttribute(material, ColorAttribute.Specular, specularColor);
+		}
+
+		if (isSpecularTextureEnabled()) {
+			createTextureAttribute(material, TextureAttribute.Specular, specularTexture);
+		}
+
+		if (isAmbientColorEnabled()) {
+			createColorAttribute(material, ColorAttribute.Ambient, ambientColor);
+		}
+
+		if (isAmbientTextureEnabled()) {
+			createTextureAttribute(material, TextureAttribute.Ambient, ambientTexture);
+		}
+
+		if (isEmissiveColorEnabled()) {
+			createColorAttribute(material, ColorAttribute.Emissive, emissiveColor);
+		}
+
+		if (isEmissiveTextureEnabled()) {
+			createTextureAttribute(material, TextureAttribute.Emissive, emissiveTexture);
+		}
+
+		if (isReflectionColorEnabled()) {
+			createColorAttribute(material, ColorAttribute.Reflection, reflectionColor);
+		}
+
+		if (isReflectionTextureEnabled()) {
+			createTextureAttribute(material, TextureAttribute.Reflection, reflectionTexture);
+		}
+
+		if (isBumpTextureEnabled()) {
+			createTextureAttribute(material, TextureAttribute.Bump, reflectionTexture);
+		}
+
+		if (isNormalTextureEnabled()) {
+			createTextureAttribute(material, TextureAttribute.Normal, reflectionTexture);
+		}
+
+		if (isShininessEnabled()) {
+			material.set(FloatAttribute.createShininess(shininess));
+		}
+
+		if (isAlphaTestEnabled()) {
+			material.set(FloatAttribute.createAlphaTest(alphaTest));
+		}
+
+		if (isCullfaceEnabled()) {
+			material.set(IntAttribute.createCullFace(cullface.glValue));
+		}
+
+		if (isBlendEnabled()) {
+			int sourceFunction = blend.sourceFunction.glValue;
+			int destFunction = blend.destFunction.glValue;
+			material.set(new BlendingAttribute(blend.blended, sourceFunction, destFunction, blend.opacity));
+		}
+
+		if (isDepthTestEnabled()) {
+			int depthFunc = depthTest.depthFunc.glValue;
+			material.set(new DepthTestAttribute(depthFunc, depthTest.depthRangeNear, depthTest.depthRangeFar,
+					depthTest.depthMask));
+		}
+
 		return material;
 	}
 
@@ -164,7 +308,7 @@ public class MaterialDescriptor extends ManagedObject {
 	}
 
 	private static void createTextureAttribute(Material material, long type, TextureAttributeProperties properties) {
-		TextureAttribute attribute = TextureAttribute.createDiffuse(properties.texture);
+		TextureAttribute attribute = new TextureAttribute(type, properties.texture);
 		attribute.offsetU = properties.offsetU;
 		attribute.offsetV = properties.offsetV;
 		attribute.scaleU = properties.scaleU;
@@ -198,21 +342,39 @@ public class MaterialDescriptor extends ManagedObject {
 	}
 
 	public static class BlendingAttributeProperties {
-		public boolean blend;
+		public boolean blended;
 		public BlendFunction sourceFunction = BlendFunction.srcAlpha;
 		public BlendFunction destFunction = BlendFunction.oneMinusSrcAlpha;
 		public float opacity = 1.f;
+		public boolean enabled;
 
 		private void reset() {
-			blend = false;
+			blended = true;
 			sourceFunction = BlendFunction.srcAlpha;
 			destFunction = BlendFunction.oneMinusSrcAlpha;
 			opacity = 1.f;
+			enabled = false;
+		}
+	}
+
+	public static class DepthTestAttributeProperties {
+		public DepthTestFunction depthFunc = DepthTestFunction.lequal;
+		public float depthRangeNear = 0;
+		public float depthRangeFar = 1;
+		public boolean depthMask = true;
+		public boolean enabled;
+
+		private void reset() {
+			depthFunc = DepthTestFunction.lequal;
+			depthRangeNear = 0;
+			depthRangeFar = 1;
+			depthMask = true;
+			enabled = false;
 		}
 	}
 
 	public static enum Cullface {
-		front(GL20.GL_FRONT), back(GL20.GL_BACK), frontAndBack(GL20.GL_FRONT_AND_BACK), none(-1);
+		front(GL20.GL_FRONT), back(GL20.GL_BACK), frontAndBack(GL20.GL_FRONT_AND_BACK);
 
 		private static IntMap<Cullface> valuesByGlValue = new IntMap<Cullface>();
 
@@ -231,6 +393,44 @@ public class MaterialDescriptor extends ManagedObject {
 		}
 
 		public static Cullface value(int glValue) {
+			return valuesByGlValue.get(glValue);
+		}
+	}
+
+	public static enum DepthTestFunction {
+		never(GL20.GL_NEVER),
+
+		less(GL20.GL_LESS),
+
+		equal(GL20.GL_EQUAL),
+
+		lequal(GL20.GL_LEQUAL),
+
+		greater(GL20.GL_GREATER),
+
+		notequal(GL20.GL_NOTEQUAL),
+
+		gequal(GL20.GL_GEQUAL),
+
+		always(GL20.GL_ALWAYS);
+
+		private static IntMap<DepthTestFunction> valuesByGlValue = new IntMap<DepthTestFunction>();
+
+		static {
+			DepthTestFunction[] values = values();
+			for (int i = 0, n = values.length; i < n; i++) {
+				DepthTestFunction value = values[i];
+				valuesByGlValue.put(value.glValue, value);
+			}
+		}
+
+		public final int glValue;
+
+		private DepthTestFunction(int glValue) {
+			this.glValue = glValue;
+		}
+
+		public static DepthTestFunction value(int glValue) {
 			return valuesByGlValue.get(glValue);
 		}
 	}
@@ -261,9 +461,7 @@ public class MaterialDescriptor extends ManagedObject {
 
 		constantAlpha(GL20.GL_CONSTANT_ALPHA),
 
-		oneMinusConstantAlpha(GL20.GL_ONE_MINUS_CONSTANT_ALPHA),
-
-		srcAlphaSaturate(GL20.GL_SRC_ALPHA_SATURATE);
+		oneMinusConstantAlpha(GL20.GL_ONE_MINUS_CONSTANT_ALPHA);
 
 		private static IntMap<BlendFunction> functionsByGlValue = new IntMap<BlendFunction>();
 
