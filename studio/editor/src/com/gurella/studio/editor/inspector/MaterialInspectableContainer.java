@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.inspector;
 
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
+
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
@@ -13,7 +15,6 @@ import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -81,11 +82,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		ExpandableComposite group = toolkit.createExpandableComposite(body, ExpandableComposite.TWISTIE);
+		ExpandableComposite group = toolkit.createExpandableComposite(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR);
 		group.setText("Diffuse");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
-		
+
 		group.setLayout(new GridLayout());
 		TextureAttributeEditor editor = new TextureAttributeEditor(group);
 		editor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
@@ -229,7 +230,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		private Text scaleV;
 
 		public TextureAttributeEditor(Composite parent) {
-			super(parent, SWT.NONE);
+			super(parent, SWT.BORDER);
 
 			FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 			toolkit.adapt(this);

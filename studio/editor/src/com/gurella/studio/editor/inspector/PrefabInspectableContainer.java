@@ -11,6 +11,7 @@ import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import org.eclipse.core.resources.IFile;
@@ -34,6 +35,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
@@ -177,7 +179,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 	private ModelEditorContainer<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		Section section = toolkit.createSection(componentsComposite, TWISTIE | TITLE_BAR);
+		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR);
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 		section.setExpanded(true);

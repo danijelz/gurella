@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model;
 import static com.gurella.studio.editor.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
-import static org.eclipse.ui.forms.widgets.ExpandableComposite.TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.util.ArrayList;
@@ -19,12 +18,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
-import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.property.ModelEditorContext;
 import com.gurella.studio.editor.model.property.PropertyEditor;
@@ -80,7 +78,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
 		} else {
-			Section componentSection = toolkit.createSection(body, TWISTIE);
+			ExpandableComposite componentSection = toolkit.createExpandableComposite(body, TWISTIE);
 			componentSection.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
@@ -88,8 +86,9 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			componentSection.setText(editor.getDescriptiveName());
 			composite.setParent(componentSection);
 			componentSection.setClient(composite);
-			composite.layout(true, true);
+			//composite.layout(true, true);
 			componentSection.setExpanded(true);
+			componentSection.layout();
 		}
 
 		Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);
