@@ -148,8 +148,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		separator.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1));
 		toolkit.createLabel(body, "Shininess:");
 		Text shininess = UiUtils.createFloatWidget(body);
-		shininess.addModifyListener(e -> materialDescriptor.shininess = Values.isBlank(shininess.getText()) ? 0
-				: Float.valueOf(shininess.getText()).floatValue());
+		shininess.addModifyListener(e -> updateShininess(shininess.getText()));
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
@@ -181,7 +180,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		input.setInputProcessor(camController);
 
 		environment = new Environment();
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1f));
 		environment.set(new DepthTestAttribute());
 		DirectionalLightsAttribute directionalAttribute = new DirectionalLightsAttribute();
 		directionalAttribute.lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
@@ -202,6 +201,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		addDisposeListener(e -> onDispose());
 		render();
+	}
+
+	private void updateShininess(String text) {
+		materialDescriptor.shininess = Values.isBlank(text) ? 0 : Float.valueOf(text).floatValue();
+		refreshMaterial();
 	}
 
 	private void onDispose() {

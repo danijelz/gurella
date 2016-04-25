@@ -221,6 +221,10 @@ public class MaterialDescriptor extends ManagedObject {
 		if (isDiffuseTextureEnabled()) {
 			attributes.add(VertexAttribute.TexCoords(0));
 		}
+		
+		if (isNormalTextureEnabled()) {
+			attributes.add(VertexAttribute.Binormal());
+		}
 
 		return new VertexAttributes(attributes.<VertexAttribute> toArray(VertexAttribute.class));
 	}
