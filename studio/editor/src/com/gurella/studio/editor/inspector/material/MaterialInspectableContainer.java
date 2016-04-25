@@ -36,6 +36,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -83,7 +84,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		materialDescriptor = ResourceService.load(target.getLocation().toString());
 
 		Composite body = getBody();
-		body.setLayout(new GridLayout());
+		body.setLayout(new GridLayout(2, false));
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
@@ -101,7 +102,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		Section group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Diffuse");
 		toolkit.adapt(group);
-		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 
 		group.setLayout(new GridLayout());
 		ColorTextureAttributeEditor attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
@@ -116,7 +117,23 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Specular");
 		toolkit.adapt(group);
-		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
+
+		group.setLayout(new GridLayout());
+		attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
+				() -> materialDescriptor.specularColor, c -> materialDescriptor.specularColor = c,
+				() -> materialDescriptor.specularTexture, this::refreshMaterial);
+		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
+		group.setClient(attributeEditor);
+		group.setExpanded(true);
+		//////////
+
+		/////////////
+
+		group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		group.setText("Emissive");
+		toolkit.adapt(group);
+		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 
 		group.setLayout(new GridLayout());
 		attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
@@ -126,6 +143,13 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group.setClient(attributeEditor);
 		group.setExpanded(true);
 		//////////
+
+		Label separator = toolkit.createLabel(body, "", SWT.SEPARATOR | SWT.HORIZONTAL);
+		separator.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1));
+		toolkit.createLabel(body, "Shininess:");
+		Text shininess = UiUtils.createFloatWidget(body);
+		shininess.addModifyListener(e -> materialDescriptor.shininess = Values.isBlank(shininess.getText()) ? 0
+				: Float.valueOf(shininess.getText()).floatValue());
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
@@ -140,7 +164,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		glData.shareContext = graphics.getGlCanvas();
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
-		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
+		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true, 2, 1));
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
@@ -159,7 +183,9 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
 		environment.set(new DepthTestAttribute());
-		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		DirectionalLightsAttribute directionalAttribute = new DirectionalLightsAttribute();
+		directionalAttribute.lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		environment.set(directionalAttribute);
 
 		synchronized (ModelInspectableContainer.mutex) {
 			glCanvas.setCurrent();

@@ -89,7 +89,6 @@ public class ColorTextureAttributeEditor extends Composite {
 			alphaSpinner.setSelection((int) color.a * 255);
 			colorEnabledButton.setSelection(true);
 		}
-		enableColor();
 
 		colorEnabledButton.addListener(SWT.Selection, e -> enableColor());
 		colorSelector.addListener(e -> valueChanged());
@@ -132,13 +131,23 @@ public class ColorTextureAttributeEditor extends Composite {
 		label = toolkit.createLabel(this, " ");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
-		enableTexture();
+		boolean selection = colorEnabledButton.getSelection();
+		colorSelector.setEnabled(selection);
+		alphaSpinner.setEnabled(selection);
+
+		selection = textureEnabledButton.getSelection();
+		textureSelector.setEnabled(selection);
+		offsetU.setEnabled(selection);
+		offsetV.setEnabled(selection);
+		scaleU.setEnabled(selection);
+		scaleV.setEnabled(selection);
 	}
 
 	private void enableColor() {
 		boolean selection = colorEnabledButton.getSelection();
 		colorSelector.setEnabled(selection);
 		alphaSpinner.setEnabled(selection);
+		valueChanged();
 	}
 
 	private void enableTexture() {
@@ -148,28 +157,33 @@ public class ColorTextureAttributeEditor extends Composite {
 		offsetV.setEnabled(selection);
 		scaleU.setEnabled(selection);
 		scaleV.setEnabled(selection);
+		valueChanged();
 	}
 
 	private void valueChanged() {
-		RGB rgb = colorSelector.getColorValue();
-		int a = alphaSpinner.getSelection();
-		float r = 1 / 255f;
-		colorSetter.accept(new Color(rgb.red * r, rgb.green * r, rgb.blue * r, a * r));
+		if (colorEnabledButton.getSelection()) {
+			RGB rgb = colorSelector.getColorValue();
+			int a = alphaSpinner.getSelection();
+			float r = 1 / 255f;
+			colorSetter.accept(new Color(rgb.red * r, rgb.green * r, rgb.blue * r, a * r));
+		} else {
+			colorSetter.accept(null);
+		}
 
 		TextureAttributeProperties properties = textureGetter.get();
-		properties.texture = textureSelector.getAsset();
-
-		String textValue = offsetU.getText();
-		properties.offsetU = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
-
-		textValue = offsetV.getText();
-		properties.offsetV = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
-
-		textValue = scaleU.getText();
-		properties.scaleU = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
-
-		textValue = scaleV.getText();
-		properties.scaleV = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
+		if (textureEnabledButton.getSelection()) {
+			properties.texture = textureSelector.getAsset();
+			String textValue = offsetU.getText();
+			properties.offsetU = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
+			textValue = offsetV.getText();
+			properties.offsetV = Values.isBlank(textValue) ? 0 : Float.valueOf(textValue).floatValue();
+			textValue = scaleU.getText();
+			properties.scaleU = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
+			textValue = scaleV.getText();
+			properties.scaleV = Values.isBlank(textValue) ? 1 : Float.valueOf(textValue).floatValue();
+		} else {
+			properties.texture = null;
+		}
 
 		updater.run();
 	}

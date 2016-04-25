@@ -197,11 +197,11 @@ public class MaterialDescriptor extends ManagedObject {
 	}
 
 	public boolean isShininessEnabled() {
-		return shininess != Float.NaN;
+		return !Float.isNaN(shininess);
 	}
 
 	public boolean isAlphaTestEnabled() {
-		return alphaTest != Float.NaN;
+		return !Float.isNaN(alphaTest);
 	}
 
 	public boolean isCullfaceEnabled() {
