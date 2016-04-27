@@ -59,7 +59,6 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 
 public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private ModelBuilder builder;
-	private Sphere sphere;
 	private Model model;
 	private ModelInstance instance;
 	private Material material;
@@ -190,11 +189,9 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 			modelBatch = new ModelBatch();
-			sphere = new Sphere();
-			sphere.setRadius(0.8f);
 			material = materialDescriptor.createMaterial();
 			builder = new ModelBuilder();
-			model = createSphere();
+			model = createModel();
 			instance = new ModelInstance(model);
 			compass = new Compass(cam);
 		}
@@ -257,13 +254,35 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 			model.dispose();
-			model = createSphere();
+			model = createModel();
 			instance = new ModelInstance(model);
 		}
 	}
+	
+	private Model createModel() {
+		return createBox();
+	}
 
-	private Model createSphere() {
-		float radius = sphere.getRadius();
+	private Model createBox() {
+		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
+
+		builder.begin();
+		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.8f, 0.8f, 0.8f);
+		Model result = builder.end();
+
+		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
+		while (disposables.hasNext()) {
+			Disposable disposable = disposables.next();
+			if (disposable instanceof Texture) {
+				disposables.remove();
+			}
+		}
+
+		return result;
+	}
+	
+	private Model createSphere1() {
+		float radius = 0.8f;
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
 
 		builder.begin();
