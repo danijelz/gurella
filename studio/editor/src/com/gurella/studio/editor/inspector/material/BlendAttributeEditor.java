@@ -15,6 +15,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor.BlendFunction;
 import com.gurella.engine.graphics.material.MaterialDescriptor.BlendingAttributeProperties;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.UiUtils;
 
@@ -52,17 +53,36 @@ public class BlendAttributeEditor extends Composite {
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		sourceFunctionCombo = UiUtils.createEnumComboViewer(this, BlendFunction.class);
 		sourceFunctionCombo.getControl().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		sourceFunctionCombo.getControl().addListener(SWT.Selection, e -> valueChanged());
 		enabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
+		enabledButton.addListener(SWT.Selection, e -> valueChanged());
 
 		label = toolkit.createLabel(this, "Destination:");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		destFunctionCombo = UiUtils.createEnumComboViewer(this, BlendFunction.class);
 		destFunctionCombo.getControl().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		destFunctionCombo.getControl().addListener(SWT.Selection, e -> valueChanged());
 		toolkit.createComposite(this);
 
 		label = toolkit.createLabel(this, "Opacity:");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		opacityText = UiUtils.createFloatWidget(this);
 		opacityText.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		opacityText.addModifyListener(e -> valueChanged());
+	}
+
+	private void valueChanged() {
+		BlendingAttributeProperties properties = propertiesGetter.get();
+		if (enabledButton.getSelection()) {
+			properties.blended = true;
+			properties.sourceFunction = (BlendFunction) sourceFunctionCombo.getStructuredSelection().getFirstElement();
+			properties.destFunction = (BlendFunction) destFunctionCombo.getStructuredSelection().getFirstElement();
+			String opacity = opacityText.getText();
+			properties.opacity = Values.isBlank(opacity) ? 0 : Float.valueOf(opacity).floatValue();
+		} else {
+			properties.blended = false;
+		}
+
+		updater.run();
 	}
 }

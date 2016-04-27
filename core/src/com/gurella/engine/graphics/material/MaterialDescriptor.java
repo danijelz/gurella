@@ -189,7 +189,7 @@ public class MaterialDescriptor extends ManagedObject {
 	}
 
 	public boolean isBlendEnabled() {
-		return blend.enabled && blend.sourceFunction != null && blend.destFunction != null;
+		return blend.blended && blend.sourceFunction != null && blend.destFunction != null;
 	}
 
 	public boolean isDepthTestEnabled() {
@@ -350,14 +350,12 @@ public class MaterialDescriptor extends ManagedObject {
 		public BlendFunction sourceFunction = BlendFunction.srcAlpha;
 		public BlendFunction destFunction = BlendFunction.oneMinusSrcAlpha;
 		public float opacity = 1.f;
-		public boolean enabled;
 
 		private void reset() {
 			blended = true;
 			sourceFunction = BlendFunction.srcAlpha;
 			destFunction = BlendFunction.oneMinusSrcAlpha;
 			opacity = 1.f;
-			enabled = false;
 		}
 	}
 
