@@ -62,7 +62,8 @@ public class BlendAttributeEditor extends Composite {
 		destFunctionCombo = UiUtils.createEnumComboViewer(this, BlendFunction.class);
 		destFunctionCombo.getControl().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		destFunctionCombo.getControl().addListener(SWT.Selection, e -> valueChanged());
-		toolkit.createComposite(this);
+		Composite composite = toolkit.createComposite(this);
+		composite.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
 		label = toolkit.createLabel(this, "Opacity:");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));

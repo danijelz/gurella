@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -15,6 +16,9 @@ import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
@@ -76,11 +80,44 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		materialDescriptor = ResourceService.load(target.getLocation().toString());
 
 		Composite body = getBody();
-		body.setLayout(new GridLayout(2, false));
+		body.setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		Section group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		/*Composite root = toolkit.createComposite(body);
+		toolkit.adapt(root);
+		GridData layoutData = new GridData(GridData.FILL, GridData.FILL, true, true);
+		layoutData.heightHint = 500;
+		root.setLayoutData(layoutData);
+		root.setLayout(new GridLayout());*/
+
+		ScrolledComposite scrolledComposite = new ScrolledComposite(body, SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		GridData layoutData = new GridData(GridData.FILL, GridData.BEGINNING, true, false);
+		scrolledComposite.setLayoutData(layoutData);
+		toolkit.adapt(scrolledComposite);
+
+		Composite content = toolkit.createComposite(scrolledComposite);
+		toolkit.adapt(content);
+		content.setLayout(new GridLayout(2, false));
+		scrolledComposite.setContent(content);
+		//content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		scrolledComposite.setMinSize(200, 100);
+
+		//////////////////////////////
+
+		IExpansionListener expansionListener = new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				//content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			}
+		};
+
+		/////////////////////////
+
+		Section group = toolkit.createSection(content,
+				ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Diffuse");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
@@ -92,10 +129,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 		group.setExpanded(true);
+		group.addExpansionListener(expansionListener);
 
 		/////////////
 
-		group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Blend");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
@@ -106,11 +144,12 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		blendAttributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(blendAttributeEditor);
 		group.setExpanded(true);
+		group.addExpansionListener(expansionListener);
 		//////////
 
 		/////////////
 
-		group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Specular");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
@@ -122,11 +161,12 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 		group.setExpanded(true);
+		group.addExpansionListener(expansionListener);
 		//////////
 
 		/////////////
 
-		group = toolkit.createSection(body, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
+		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Emissive");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
@@ -138,12 +178,13 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 		group.setExpanded(true);
+		group.addExpansionListener(expansionListener);
 		//////////
 
-		Label separator = toolkit.createLabel(body, "", SWT.SEPARATOR | SWT.HORIZONTAL);
+		Label separator = toolkit.createLabel(content, "", SWT.SEPARATOR | SWT.HORIZONTAL);
 		separator.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1));
-		toolkit.createLabel(body, "Shininess:");
-		Text shininess = UiUtils.createFloatWidget(body);
+		toolkit.createLabel(content, "Shininess:");
+		Text shininess = UiUtils.createFloatWidget(content);
 		shininess.addModifyListener(e -> updateShininess(shininess.getText()));
 
 		GLData glData = new GLData();
@@ -159,7 +200,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		glData.shareContext = graphics.getGlCanvas();
 
 		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
-		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true, 2, 1));
+		layoutData = new GridData(GridData.FILL, GridData.FILL, true, true);
+		layoutData.minimumHeight = 300;
+		layoutData.heightHint = 300;
+		glCanvas.setLayoutData(layoutData);
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
