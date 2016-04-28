@@ -28,7 +28,7 @@ varying float v_alphaTest;
 #endif //alphaTestFlag
 #endif //blendedFlag
 
-#if defined(diffuseTextureFlag) || defined(specularTextureFlag)
+#if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
 #define textureFlag
 #endif
 
@@ -38,6 +38,10 @@ varying MED vec2 v_diffuseUV;
 
 #ifdef specularTextureFlag
 varying MED vec2 v_specularUV;
+#endif
+
+#ifdef emissiveTextureFlag
+varying MED vec2 v_emissiveUV;
 #endif
 
 #ifdef diffuseColorFlag
@@ -58,6 +62,10 @@ uniform sampler2D u_specularTexture;
 
 #ifdef emissiveColorFlag
 uniform vec4 u_emissiveColor;
+#endif
+
+#ifdef emissiveTextureFlag
+uniform sampler2D u_emissiveTexture;
 #endif
 
 #ifdef normalTextureFlag
@@ -133,6 +141,10 @@ void main() {
 	
 	#ifdef emissiveColorFlag
 	    diffuse += u_emissiveColor;
+	#endif
+	
+	#ifdef emissiveTextureFlag
+	    diffuse += texture2D(u_emissiveTexture, v_emissiveUV);
 	#endif
 
 	#if (!defined(lightingFlag))  

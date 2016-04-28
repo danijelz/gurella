@@ -218,7 +218,7 @@ public class MaterialDescriptor extends ManagedObject {
 			attributes.add(VertexAttribute.Normal());
 		}
 
-		if (isDiffuseTextureEnabled() || isSpecularTextureEnabled() || isNormalTextureEnabled()) {
+		if (isDiffuseTextureEnabled() || isSpecularTextureEnabled() || isEmissiveTextureEnabled() || isNormalTextureEnabled()) {
 			attributes.add(VertexAttribute.TexCoords(0));
 		}
 		

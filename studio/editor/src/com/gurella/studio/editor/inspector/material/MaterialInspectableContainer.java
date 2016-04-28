@@ -249,17 +249,18 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		input.setInputProcessor(modelInputController);
 
 		environment = new Environment();
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1f));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
 		environment.set(new DepthTestAttribute());
 		DirectionalLightsAttribute directionalAttribute = new DirectionalLightsAttribute();
-		directionalAttribute.lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		directionalAttribute.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 		environment.set(directionalAttribute);
 
 		synchronized (ModelInspectableContainer.mutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 
-			modelBatch = new ModelBatch(new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
+			DefaultShaderProvider provider = new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader());
+			modelBatch = new ModelBatch(provider);
 			builder = new ModelBuilder();
 
 			wall = createWall();
