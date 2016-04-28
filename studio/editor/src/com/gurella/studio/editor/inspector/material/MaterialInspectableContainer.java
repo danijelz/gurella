@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -29,6 +30,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -40,6 +42,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -56,11 +59,19 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 
 public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private ModelBuilder builder;
+
+	private Model wall;
+	private ModelInstance wallInstance;
+
 	private Model model;
 	private ModelInstance instance;
 	private Material material;
 
 	private GLCanvas glCanvas;
+	private Button sphereButton;
+	private Button boxButton;
+
+	private ModelShape modelShape = ModelShape.sphere;
 
 	private LwjglGL20 gl20 = new LwjglGL20();
 	private SwtLwjglInput input;
@@ -115,7 +126,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		};
 
 		/////////////////////////
-
 		Section group = toolkit.createSection(content,
 				ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Diffuse");
@@ -128,11 +138,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.diffuseTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		group.setExpanded(true);
+		//group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 
 		/////////////
-
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Blend");
 		toolkit.adapt(group);
@@ -143,12 +152,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.blend, this::refreshMaterial);
 		blendAttributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(blendAttributeEditor);
-		group.setExpanded(true);
+		//group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
 
 		/////////////
-
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Specular");
 		toolkit.adapt(group);
@@ -160,12 +168,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.specularTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		group.setExpanded(true);
+		//group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
 
 		/////////////
-
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		group.setText("Emissive");
 		toolkit.adapt(group);
@@ -177,7 +184,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.emissiveTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		group.setExpanded(true);
+		//group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
 
@@ -186,6 +193,13 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		toolkit.createLabel(content, "Shininess:");
 		Text shininess = UiUtils.createFloatWidget(content);
 		shininess.addModifyListener(e -> updateShininess(shininess.getText()));
+
+		Composite canvasComposite = toolkit.createComposite(body);
+		toolkit.adapt(canvasComposite);
+		layoutData = new GridData(GridData.FILL, GridData.FILL, true, true);
+		layoutData.heightHint = 300;
+		canvasComposite.setLayoutData(layoutData);
+		canvasComposite.setLayout(new GridLayout(2, false));
 
 		GLData glData = new GLData();
 		glData.redSize = 8;
@@ -199,10 +213,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		SwtLwjglGraphics graphics = (SwtLwjglGraphics) Gdx.graphics;
 		glData.shareContext = graphics.getGlCanvas();
 
-		glCanvas = new GLCanvas(body, SWT.FLAT, glData);
+		glCanvas = new GLCanvas(canvasComposite, SWT.FLAT, glData);
 		layoutData = new GridData(GridData.FILL, GridData.FILL, true, true);
 		layoutData.minimumHeight = 300;
 		layoutData.heightHint = 300;
+		layoutData.verticalSpan = 2;
 		glCanvas.setLayoutData(layoutData);
 
 		Point size = glCanvas.getSize();
@@ -214,6 +229,14 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		cam.update();
 
 		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
+
+		sphereButton = toolkit.createButton(canvasComposite, "S", SWT.PUSH);
+		sphereButton.addListener(SWT.Selection, e -> updateModelType(ModelShape.sphere));
+		sphereButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.BEGINNING, false, false));
+
+		boxButton = toolkit.createButton(canvasComposite, "B", SWT.PUSH);
+		boxButton.addListener(SWT.Selection, e -> updateModelType(ModelShape.box));
+		boxButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.BEGINNING, false, false));
 
 		camController = new CameraInputController(cam);
 		input = new SwtLwjglInput(glCanvas);
@@ -230,15 +253,33 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 			modelBatch = new ModelBatch();
-			material = materialDescriptor.createMaterial();
 			builder = new ModelBuilder();
+
+			wall = createWall();
+			wallInstance = new ModelInstance(wall);
+
+			material = materialDescriptor.createMaterial();
 			model = createModel();
 			instance = new ModelInstance(model);
+
 			compass = new Compass(cam);
 		}
 
 		addDisposeListener(e -> onDispose());
 		render();
+	}
+
+	private void updateModelType(ModelShape newShape) {
+		if (modelShape != newShape) {
+			modelShape = newShape;
+			synchronized (ModelInspectableContainer.mutex) {
+				glCanvas.setCurrent();
+				Gdx.gl20 = gl20;
+				model.dispose();
+				model = createModel();
+				instance = new ModelInstance(model);
+			}
+		}
 	}
 
 	private void updateShininess(String text) {
@@ -248,6 +289,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void onDispose() {
 		synchronized (ModelInspectableContainer.mutex) {
+			wall.dispose();
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
@@ -281,7 +323,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
-			modelBatch.render(instance, environment);
+			modelBatch.render(wallInstance, environment);
+			//modelBatch.render(instance, environment);
 			compass.render(modelBatch);
 			modelBatch.end();
 		}
@@ -301,35 +344,96 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private Model createModel() {
-		return createBox();
+		switch (modelShape) {
+		case sphere:
+			return createSphere();
+		case box:
+			return createBox();
+		default:
+			return createSphere();
+		}
 	}
 
 	private Model createBox() {
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
-
 		builder.begin();
 		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.8f, 0.8f, 0.8f);
 		Model result = builder.end();
-
-		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
-		while (disposables.hasNext()) {
-			Disposable disposable = disposables.next();
-			if (disposable instanceof Texture) {
-				disposables.remove();
-			}
-		}
-
-		return result;
+		return removeDisposables(result);
 	}
 
 	private Model createSphere() {
 		float radius = 0.8f;
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
-
 		builder.begin();
 		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 30, 30);
 		Model result = builder.end();
+		return removeDisposables(result);
+	}
 
+	private Model createWall() {
+		builder.begin();
+		int usage = Usage.Position | Usage.Normal;
+
+		Material wallMaterialGrey = new Material();
+		wallMaterialGrey.set(ColorAttribute.createDiffuse(0.1f, 0.1f, 0.1f, 1));
+
+		Material wallMaterialWhite = new Material();
+		wallMaterialWhite.set(ColorAttribute.createDiffuse(1, 1, 1, 1));
+
+		Vector3 normal = new Vector3(0, 0, -1);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 30; j++) {
+				float x = i * 0.2f;
+				float y = j * 0.2f;
+
+				Vector3 corner00 = new Vector3(x, y, 0);
+				Vector3 corner10 = new Vector3(x, y + 0.2f, 0);
+				Vector3 corner11 = new Vector3(x + 0.2f, y + 0.2f, 0);
+				Vector3 corner01 = new Vector3(x + 0.2f, y, 0);
+				Material wallMaterial = (i + j) % 2 == 0 ? wallMaterialGrey : wallMaterialWhite;
+				builder.part("box", GL20.GL_TRIANGLES, usage, wallMaterial).rect(corner00, corner10, corner11, corner01,
+						normal);
+			}
+		}
+		
+		normal = new Vector3(-1, 0, 0);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 30; j++) {
+				float y = i * 0.2f;
+				float z = j * -0.2f;
+
+				Vector3 corner00 = new Vector3(0, y, z);
+				Vector3 corner10 = new Vector3(0, y, z - 0.2f);
+				Vector3 corner11 = new Vector3(0, y + 0.2f, z - 0.2f);
+				Vector3 corner01 = new Vector3(0, y + 0.2f, z);
+				Material wallMaterial = (i + j) % 2 == 1 ? wallMaterialGrey : wallMaterialWhite;
+				builder.part("box", GL20.GL_TRIANGLES, usage, wallMaterial).rect(corner00, corner10, corner11, corner01,
+						normal);
+			}
+		}
+
+		normal = new Vector3(0, 1, 0);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < 30; j++) {
+				float x = i * 0.2f;
+				float z = j * -0.2f;
+
+				Vector3 corner00 = new Vector3(x, 0, z);
+				Vector3 corner10 = new Vector3(x + 0.2f, 0, z);
+				Vector3 corner11 = new Vector3(x + 0.2f, 0, z - 0.2f);
+				Vector3 corner01 = new Vector3(x, 0, z - 0.2f);
+				Material wallMaterial = (i + j) % 2 == 1 ? wallMaterialGrey : wallMaterialWhite;
+				builder.part("box", GL20.GL_TRIANGLES, usage, wallMaterial).rect(corner00, corner10, corner11, corner01,
+						normal);
+			}
+		}
+
+		Model result = builder.end();
+		return removeDisposables(result);
+	}
+
+	private static Model removeDisposables(Model result) {
 		Iterator<Disposable> disposables = result.getManagedDisposables().iterator();
 		while (disposables.hasNext()) {
 			Disposable disposable = disposables.next();
@@ -337,7 +441,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				disposables.remove();
 			}
 		}
-
 		return result;
+	}
+
+	private static enum ModelShape {
+		sphere, box;
 	}
 }
