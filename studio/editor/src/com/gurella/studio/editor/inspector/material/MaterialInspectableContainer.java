@@ -78,7 +78,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private SwtLwjglInput input;
 
 	private PerspectiveCamera cam;
-	private CameraInputController camController;
+	//private CameraInputController camController;
+	private ModelInputController modelInputController;
 	private ModelBatch modelBatch;
 	private Environment environment;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
@@ -239,9 +240,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		boxButton.addListener(SWT.Selection, e -> updateModelType(ModelShape.box));
 		boxButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.BEGINNING, false, false));
 
-		camController = new CameraInputController(cam);
+		//camController = new CameraInputController(cam);
+		modelInputController = new ModelInputController();
 		input = new SwtLwjglInput(glCanvas);
-		input.setInputProcessor(camController);
+		//input.setInputProcessor(camController);
+		input.setInputProcessor(modelInputController);
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1f));
@@ -264,6 +267,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			material = materialDescriptor.createMaterial();
 			model = createModel();
 			instance = new ModelInstance(model);
+			modelInputController.instance = instance;
 
 			compass = new Compass(cam);
 		}
@@ -281,6 +285,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				model.dispose();
 				model = createModel();
 				instance = new ModelInstance(model);
+				modelInputController.instance = instance;
 			}
 		}
 	}
@@ -311,7 +316,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void render() {
 		input.update();
-		camController.update();
+		//camController.update();
 		synchronized (ModelInspectableContainer.mutex) {
 			if (glCanvas.isDisposed()) {
 				return;
@@ -343,6 +348,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model.dispose();
 			model = createModel();
 			instance = new ModelInstance(model);
+			modelInputController.instance = instance;
 		}
 	}
 
@@ -360,7 +366,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private Model createBox() {
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
 		builder.begin();
-		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.8f, 0.8f, 0.8f);
+		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.6f, 0.6f, 0.6f);
 		Model result = builder.end();
 		return removeDisposables(result);
 	}
