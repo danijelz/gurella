@@ -42,6 +42,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.resource.ResourceService;
@@ -222,7 +223,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		Point size = glCanvas.getSize();
 		cam = new PerspectiveCamera(67, size.x, size.y);
-		cam.position.set(0f, 1f, -1f);
+		cam.position.set(0f, 0.5f, -1f);
 		cam.lookAt(0, 0, 0);
 		cam.near = 0.1f;
 		cam.far = 1000;
@@ -257,6 +258,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 			wall = createWall();
 			wallInstance = new ModelInstance(wall);
+			Matrix4 transform = wallInstance.transform;
+			transform.idt().rotate(0, 1, 0, 45).translate(-0.6f, -0.6f, 0.6f);
 
 			material = materialDescriptor.createMaterial();
 			model = createModel();
@@ -324,7 +327,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
 			modelBatch.render(wallInstance, environment);
-			//modelBatch.render(instance, environment);
+			modelBatch.render(instance, environment);
 			compass.render(modelBatch);
 			modelBatch.end();
 		}
