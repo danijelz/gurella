@@ -40,9 +40,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
+import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -83,9 +82,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	//private CameraInputController camController;
 	private ModelInputController modelInputController;
 
-	@SuppressWarnings("deprecation")
-	private DirectionalShadowLight shadowLight;
-	private ModelBatch shadowBatch;
 	private ModelBatch modelBatch;
 	private Environment environment;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
@@ -252,25 +248,18 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		//input.setInputProcessor(camController);
 		input.setInputProcessor(modelInputController);
 
-		shadowLight = new DirectionalShadowLight(200, 300, 30f, 30f, 1f, 100f);
-		shadowLight.set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f);
-
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1f));
 		environment.set(new DepthTestAttribute());
 		DirectionalLightsAttribute directionalAttribute = new DirectionalLightsAttribute();
 		directionalAttribute.lights.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
-		directionalAttribute.lights.add(shadowLight);
 		environment.set(directionalAttribute);
-		environment.shadowMap = shadowLight;
 
 		synchronized (ModelInspectableContainer.mutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
-			
-			modelBatch = new ModelBatch();
-			shadowBatch = new ModelBatch(new DepthShaderProvider());
 
+			modelBatch = new ModelBatch(new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader()));
 			builder = new ModelBuilder();
 
 			wall = createWall();
@@ -288,6 +277,14 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		addDisposeListener(e -> onDispose());
 		render();
+	}
+
+	public static String getDefaultVertexShader() {
+		return Gdx.files.classpath("com/gurella/engine/graphics/gl/standard.vertex.glsl").readString();
+	}
+
+	public static String getDefaultFragmentShader() {
+		return Gdx.files.classpath("com/gurella/engine/graphics/gl/standard.fragment.glsl").readString();
 	}
 
 	private void updateModelType(ModelShape newShape) {
@@ -315,9 +312,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
-			shadowLight.dispose();
-			shadowBatch.dispose();
-			//ResourceService.unload(materialDescriptor);
+			//TODO ResourceService.unload(materialDescriptor);
 			materialDescriptor.destroy();
 			glCanvas.dispose();
 		}
@@ -346,14 +341,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glEnable(GL20.GL_DEPTH_TEST);
 			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 			gl20.glViewport(0, 0, size.x, size.y);
-			
-			shadowLight.begin(cam);
-			shadowBatch.begin(shadowLight.getCamera());
-			shadowBatch.render(wallInstance);
-			shadowBatch.render(instance);
-			shadowBatch.end();
-			shadowLight.end();
-			
+
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
 			modelBatch.render(wallInstance, environment);
