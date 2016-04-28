@@ -375,7 +375,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		float radius = 0.8f;
 		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
 		builder.begin();
-		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 30, 30);
+		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
 		Model result = builder.end();
 		return removeDisposables(result);
 	}
