@@ -359,9 +359,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
+			Matrix4 transform = new Matrix4(instance.transform);
 			model.dispose();
 			model = createModel();
 			instance = new ModelInstance(model);
+			instance.transform.set(transform);
 			modelInputController.instance = instance;
 		}
 	}
