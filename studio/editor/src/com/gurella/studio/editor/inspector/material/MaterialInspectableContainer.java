@@ -165,13 +165,20 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		group.setText("Specular");
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
-
 		group.setLayout(new GridLayout());
-		attributeEditor = new ColorTextureAttributeEditor(group, materialDescriptor,
+		
+		Composite client = toolkit.createComposite(group);
+		client.setLayout(new GridLayout(2, false));
+		
+		toolkit.createLabel(client, "Shininess:");
+		Text shininess = UiUtils.createFloatWidget(client);
+		shininess.addModifyListener(e -> updateShininess(shininess.getText()));
+
+		attributeEditor = new ColorTextureAttributeEditor(client, materialDescriptor,
 				() -> materialDescriptor.specularColor, c -> materialDescriptor.specularColor = c,
 				() -> materialDescriptor.specularTexture, this::refreshMaterial);
-		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
-		group.setClient(attributeEditor);
+		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
+		group.setClient(client);
 		//group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
@@ -191,12 +198,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		//group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
-
-		Label separator = toolkit.createLabel(content, "", SWT.SEPARATOR | SWT.HORIZONTAL);
-		separator.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1));
-		toolkit.createLabel(content, "Shininess:");
-		Text shininess = UiUtils.createFloatWidget(content);
-		shininess.addModifyListener(e -> updateShininess(shininess.getText()));
 
 		Composite canvasComposite = toolkit.createComposite(body);
 		toolkit.adapt(canvasComposite);
@@ -303,7 +304,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void updateShininess(String text) {
-		materialDescriptor.shininess = Values.isBlank(text) ? 0 : Float.valueOf(text).floatValue();
+		materialDescriptor.shininess = Values.isBlank(text) ? 1 : Float.valueOf(text).floatValue();
 		refreshMaterial();
 	}
 
