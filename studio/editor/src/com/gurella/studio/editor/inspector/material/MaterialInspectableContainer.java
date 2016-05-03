@@ -44,6 +44,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -166,10 +167,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		toolkit.adapt(group);
 		group.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 		group.setLayout(new GridLayout());
-		
+
 		Composite client = toolkit.createComposite(group);
 		client.setLayout(new GridLayout(2, false));
-		
+
 		toolkit.createLabel(client, "Shininess:");
 		Text shininess = UiUtils.createFloatWidget(client);
 		shininess.addModifyListener(e -> updateShininess(shininess.getText()));
@@ -260,7 +261,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 
-			DefaultShaderProvider provider = new DefaultShaderProvider(getDefaultVertexShader(), getDefaultFragmentShader());
+			DefaultShaderProvider provider = new DefaultShaderProvider(getDefaultVertexShader(),
+					getDefaultFragmentShader());
 			modelBatch = new ModelBatch(provider);
 			builder = new ModelBuilder();
 
@@ -385,23 +387,94 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		builder.begin();
 		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.6f, 0.6f, 0.6f);
 		Model result = builder.end();
-		if(materialDescriptor.isNormalTextureEnabled()) {
-			calculateTangents(result);
-		} else {
-			calculateTangents(result);
-		}
+		calculateTangents(result);
 		return removeDisposables(result);
 	}
 
 	private static void calculateTangents(Model result) {
 		Array<Mesh> meshes = result.meshes;
-		for(Mesh mesh : meshes) {
+		for (Mesh mesh : meshes) {
 			int numVertices = mesh.getNumVertices();
-			float[] vertices = mesh.getVertices(new float[numVertices]);
-			//System.out.println(Arrays.toString(vertices));
+			final int vertexSize = mesh.getVertexSize() / 4;
+			float[] vertices = mesh.getVertices(new float[vertexSize * numVertices]);
+			System.out.println(Arrays.toString(vertices));
+
+			int numIndices = mesh.getNumIndices();
+			short[] indices = new short[numIndices];
+			mesh.getIndices(indices);
+			System.out.println(Arrays.toString(indices));
+
+			VertexAttributes vertexAttributes = mesh.getVertexAttributes();
+			int offsetPosition = vertexAttributes.getOffset(Usage.Position, -1);
+			int offsetTex = vertexAttributes.getOffset(Usage.TextureCoordinates, -1);
+			int offsetTangent = vertexAttributes.getOffset(Usage.Tangent, -1);
+			int stride = vertexAttributes.vertexSize / 4;
+
+			if (offsetPosition < 0 || offsetTex < 0 || offsetPosition < 0)
+				continue;
+
+			for (int i = 0; i < numIndices; i += 3) {
+				int vert = indices[i];
+				Vector3 v0pos = new Vector3(vertices[(vert * stride) + offsetPosition],
+						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);// Vertices[Indices[i]];
+				vert = indices[i + 1];
+				Vector3 v1pos = new Vector3(vertices[(vert * stride) + offsetPosition],
+						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);//Vertices[Indices[i+1]];
+				vert = indices[i + 2];
+				Vector3 v2pos = new Vector3(vertices[(vert * stride) + offsetPosition],
+						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);//Vertices[Indices[i+2]];
+
+				vert = indices[i];
+				Vector2 v0tex = new Vector2(vertices[(vert * stride) + offsetTex],
+						vertices[(vert * stride) + offsetTex + 1]);
+				vert = indices[i + 1];
+				Vector2 v1tex = new Vector2(vertices[(vert * stride) + offsetTex],
+						vertices[(vert * stride) + offsetTex + 1]);
+				vert = indices[i + 2];
+				Vector2 v2tex = new Vector2(vertices[(vert * stride) + offsetTex],
+						vertices[(vert * stride) + offsetTex + 1]);
+
+				Vector3 Edge1 = new Vector3(v1pos).sub(v0pos);
+				Vector3 Edge2 = new Vector3(v2pos).sub(v0pos);
+
+				float DeltaU1 = v1tex.x - v0tex.x;
+				float DeltaV1 = v1tex.y - v0tex.y;
+				float DeltaU2 = v2tex.x - v0tex.x;
+				float DeltaV2 = v2tex.y - v0tex.y;
+
+				float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
+
+				Vector3 Tangent = new Vector3();
+
+				Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
+				Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
+				Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
+
+				/*Bitangent.x = f * (-DeltaU2 * Edge1.x - DeltaU1 * Edge2.x);
+				Bitangent.y = f * (-DeltaU2 * Edge1.y - DeltaU1 * Edge2.y);
+				Bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);*/
+
+				vert = indices[i];
+				vertices[(vert * stride) + offsetTangent] = Tangent.x;
+				vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
+				vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+
+				vert = indices[i + 1];
+				vertices[(vert * stride) + offsetTangent] = Tangent.x;
+				vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
+				vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+
+				vert = indices[i + 2];
+				vertices[(vert * stride) + offsetTangent] = Tangent.x;
+				vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
+				vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+
+			}
+
+			System.out.println(Arrays.toString(vertices));
+			mesh.setVertices(vertices);
 		}
 		// TODO Auto-generated method stub
-		
 	}
 
 	private Model createSphere() {
@@ -410,9 +483,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		builder.begin();
 		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
 		Model result = builder.end();
-		if(materialDescriptor.isNormalTextureEnabled()) {
-			calculateTangents(result);
-		} else {
+		if (materialDescriptor.isNormalTextureEnabled()) {
 			calculateTangents(result);
 		}
 		return removeDisposables(result);

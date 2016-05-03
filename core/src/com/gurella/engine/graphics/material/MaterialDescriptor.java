@@ -218,14 +218,15 @@ public class MaterialDescriptor extends ManagedObject {
 			attributes.add(VertexAttribute.Normal());
 		}
 
-		if (isDiffuseTextureEnabled() || isSpecularTextureEnabled() || isEmissiveTextureEnabled() || isNormalTextureEnabled()) {
+		if (isDiffuseTextureEnabled() || isSpecularTextureEnabled() || isEmissiveTextureEnabled()
+				|| isNormalTextureEnabled()) {
 			attributes.add(VertexAttribute.TexCoords(0));
 		}
-		
+
 		if (isNormalTextureEnabled()) {
 			attributes.add(VertexAttribute.Tangent());
 		} else {
-			attributes.add(VertexAttribute.Tangent());
+			attributes.add(VertexAttribute.Tangent());//TODO
 		}
 
 		return new VertexAttributes(attributes.<VertexAttribute> toArray(VertexAttribute.class));
