@@ -3,7 +3,6 @@ package com.gurella.studio.editor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -40,13 +38,11 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
@@ -59,7 +55,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private SceneEditorMainContainer mainContainer;
 
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
-	private GurellaSceneEditorContext context;
+	private GurellaEditorContext context;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
@@ -156,10 +152,10 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		Composite center = mainContainer.getCenter();
 		applicationListener = new SceneEditorApplicationListener();
 		application = new SwtLwjglApplication(applicationListener, center);
-		// sceneRenderer = new SceneRenderer(center);
-		//context = new GurellaSceneEditorContext();
+		// context = new GurellaSceneEditorContext();
 
-		createClassLoader();
+		classLoader = DynamicURLClassLoader.newInstance(javaProject);
+		Reflection.classResolver = classLoader::loadClass;
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallbackAdapter<Scene>() {
@@ -174,26 +170,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 				exception.printStackTrace();
 			}
 		}, 0);
-	}
-
-	private void createClassLoader() {
-		try {
-			String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(javaProject);
-			List<URL> urlList = new ArrayList<URL>();
-			for (int i = 0; i < classPathEntries.length; i++) {
-				String entry = classPathEntries[i];
-				IPath path = new Path(entry);
-				URL url = path.toFile().toURI().toURL();
-				urlList.add(url);
-			}
-
-			ClassLoader parentClassLoader = project.getClass().getClassLoader();
-			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			classLoader = new DynamicURLClassLoader(urls, parentClassLoader);
-			Reflection.classResolver = classLoader::loadClass;
-		} catch (MalformedURLException | CoreException e) {
-			throw new RuntimeException("Can't create class loader.");
-		}
 	}
 
 	private void presentScene(Scene scene) {
@@ -265,29 +241,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		if (message instanceof SceneChangedMessage) {
 			dirty = true;
 			firePropertyChange(PROP_DIRTY);
-		}
-	}
-
-	private static class DynamicURLClassLoader extends URLClassLoader {
-		public DynamicURLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
-			super(urls, parent, factory);
-		}
-
-		public DynamicURLClassLoader(URL[] urls, ClassLoader parent) {
-			super(urls, parent);
-		}
-
-		public DynamicURLClassLoader(URL[] urls) {
-			super(urls);
-		}
-
-		@Override
-		public Class<?> loadClass(String className) throws ClassNotFoundException {
-			try {
-				return Platform.getBundle(GurellaStudioPlugin.PLUGIN_ID).loadClass(className);
-			} catch (ClassNotFoundException exception) {
-				return super.loadClass(className);
-			}
 		}
 	}
 }

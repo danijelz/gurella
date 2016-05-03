@@ -63,7 +63,9 @@ public class BlendAttributeEditor extends Composite {
 		destFunctionCombo.getControl().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		destFunctionCombo.getControl().addListener(SWT.Selection, e -> valueChanged());
 		Composite composite = toolkit.createComposite(this);
-		composite.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.heightHint = 1;
+		composite.setLayoutData(layoutData);
 
 		label = toolkit.createLabel(this, "Opacity:");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
