@@ -19,13 +19,13 @@ import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaEditorContext {
-	private IPathEditorInput editorInput;
-	private IResource resource;
-	private IWorkspace workspace;
-	private IProject project;
-	private IJavaProject javaProject;
+	public final IPathEditorInput editorInput;
+	public final IResource resource;
+	public final IWorkspace workspace;
+	public final IProject project;
+	public final IJavaProject javaProject;
 
-	private URLClassLoader classLoader;
+	public final URLClassLoader classLoader;
 
 	private SwtLwjglApplication application;
 
