@@ -17,10 +17,6 @@ precision mediump float;
 varying vec3 v_normal;
 #endif //normalFlag
 
-#ifdef tangentFlag
-varying vec3 v_tangent;
-#endif //tangentFlag
-
 #if defined(colorFlag)
 varying vec4 v_color;
 #endif

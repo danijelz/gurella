@@ -3,6 +3,7 @@ package com.gurella.studio.editor.inspector.material;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
@@ -26,6 +27,7 @@ import org.eclipse.ui.forms.widgets.Section;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -43,6 +45,7 @@ import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -382,7 +385,23 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		builder.begin();
 		builder.part("box", GL20.GL_TRIANGLES, attributes, material).box(0.6f, 0.6f, 0.6f);
 		Model result = builder.end();
+		if(materialDescriptor.isNormalTextureEnabled()) {
+			calculateTangents(result);
+		} else {
+			calculateTangents(result);
+		}
 		return removeDisposables(result);
+	}
+
+	private static void calculateTangents(Model result) {
+		Array<Mesh> meshes = result.meshes;
+		for(Mesh mesh : meshes) {
+			int numVertices = mesh.getNumVertices();
+			float[] vertices = mesh.getVertices(new float[numVertices]);
+			//System.out.println(Arrays.toString(vertices));
+		}
+		// TODO Auto-generated method stub
+		
 	}
 
 	private Model createSphere() {
@@ -391,6 +410,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		builder.begin();
 		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
 		Model result = builder.end();
+		if(materialDescriptor.isNormalTextureEnabled()) {
+			calculateTangents(result);
+		} else {
+			calculateTangents(result);
+		}
 		return removeDisposables(result);
 	}
 

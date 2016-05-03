@@ -224,6 +224,8 @@ public class MaterialDescriptor extends ManagedObject {
 		
 		if (isNormalTextureEnabled()) {
 			attributes.add(VertexAttribute.Tangent());
+		} else {
+			attributes.add(VertexAttribute.Tangent());
 		}
 
 		return new VertexAttributes(attributes.<VertexAttribute> toArray(VertexAttribute.class));

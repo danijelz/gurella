@@ -1,9 +1,8 @@
 package com.gurella.studio.editor;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -11,17 +10,15 @@ import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -42,7 +39,7 @@ import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.utils.Reflection;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
@@ -51,7 +48,7 @@ import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaSceneEditor extends EditorPart implements EditorMessageListener {
-	private EditorMessageSignal signal = new EditorMessageSignal();
+	private Composite contentComposite;
 	private SceneEditorMainContainer mainContainer;
 
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
@@ -62,46 +59,41 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private Scene scene;
 	private boolean dirty;
 
-	private IWorkspace workspace;
-	private IProject project;
-	private IJavaProject javaProject;
-
-	private URLClassLoader classLoader;
-
-	public GurellaSceneEditor() {
-		signal.addListener(this);
-	}
-
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		IFileEditorInput input = (IFileEditorInput) getEditorInput();
-		IPath path = input.getFile().getFullPath();
-		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, scene);
 		try {
-			monitor.beginTask("Saving", 2000);
-			ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
-			manager.connect(path, LocationKind.IFILE, monitor);
-			ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);
-			buffer.getDocument().set(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
-			buffer.commit(monitor, true);
-			manager.disconnect(path, LocationKind.IFILE, monitor);
-			dirty = false;
-			firePropertyChange(PROP_DIRTY);
+			save(monitor);
 		} catch (CoreException e) {
-			// TODO Auto-generated method stub
-			e.printStackTrace();
+			ErrorDialog.openError(contentComposite.getShell(), "Error saving scene", e.getLocalizedMessage(),
+					createSaveErrorStatus(e));
+			// TODO Auto-generated catch block
 		} finally {
 			monitor.done();
 		}
 	}
 
-	public void addEditorMessageListener(EditorMessageListener listener) {
-		signal.addListener(listener);
+	private static MultiStatus createSaveErrorStatus(Throwable t) {
+		String pluginId = GurellaStudioPlugin.PLUGIN_ID;
+		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+		Status[] childStatuses = Arrays.stream(stackTraces)
+				.map(st -> new Status(IStatus.ERROR, pluginId, st.toString())).toArray(i -> new Status[i]);
+		return new MultiStatus(pluginId, IStatus.ERROR, childStatuses, t.toString(), t);
 	}
 
-	public void removeEditorMessageListener(EditorMessageListener listener) {
-		signal.removeListener(listener);
+	private void save(IProgressMonitor monitor) throws CoreException {
+		IFileEditorInput input = (IFileEditorInput) getEditorInput();
+		IPath path = input.getFile().getFullPath();
+		JsonOutput output = new JsonOutput();
+		String string = output.serialize(Scene.class, scene);
+		monitor.beginTask("Saving", 2000);
+		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
+		manager.connect(path, LocationKind.IFILE, monitor);
+		ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);
+		buffer.getDocument().set(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
+		buffer.commit(monitor, true);
+		manager.disconnect(path, LocationKind.IFILE, monitor);
+		dirty = false;
+		firePropertyChange(PROP_DIRTY);
 	}
 
 	@Override
@@ -130,12 +122,11 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	@Override
 	public void createPartControl(Composite parent) {
+		this.contentComposite = parent;
 		parent.setLayout(new GridLayout());
 
-		workspace = ResourcesPlugin.getWorkspace();
-		IResource input = getEditorInput().getAdapter(IResource.class);
-		project = input.getProject();
-		javaProject = JavaCore.create(project);
+		context = new GurellaEditorContext((IPathEditorInput) getEditorInput());
+		context.addEditorMessageListener(this);
 
 		mainContainer = new SceneEditorMainContainer(this, parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -152,10 +143,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		Composite center = mainContainer.getCenter();
 		applicationListener = new SceneEditorApplicationListener();
 		application = new SwtLwjglApplication(applicationListener, center);
-		// context = new GurellaSceneEditorContext();
-
-		classLoader = DynamicURLClassLoader.newInstance(javaProject);
-		Reflection.classResolver = classLoader::loadClass;
+		// 
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallbackAdapter<Scene>() {
@@ -194,19 +182,27 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	}
 
 	public IWorkspace getWorkspace() {
-		return workspace;
+		return context.workspace;
 	}
 
 	public IProject getProject() {
-		return project;
+		return context.project;
 	}
 
 	public IJavaProject getJavaProject() {
-		return javaProject;
+		return context.javaProject;
 	}
 
 	public URLClassLoader getClassLoader() {
-		return classLoader;
+		return context.classLoader;
+	}
+
+	public void addEditorMessageListener(EditorMessageListener listener) {
+		context.addEditorMessageListener(listener);
+	}
+
+	public void removeEditorMessageListener(EditorMessageListener listener) {
+		context.removeEditorMessageListener(listener);
 	}
 
 	@Override
@@ -218,22 +214,13 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	public void dispose() {
 		super.dispose();
 		ResourceService.unload(scene);
-		signal.clear();
 		if (application != null) {
 			application.exit();
-		}
-		if (javaProject != null) {
-			try {
-				javaProject.close();
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 
 	public void postMessage(Object source, Object message) {
-		signal.dispatch(source, message);
+		context.postMessage(source, message);
 	}
 
 	@Override

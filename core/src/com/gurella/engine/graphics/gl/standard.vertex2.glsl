@@ -24,12 +24,6 @@ uniform mat3 u_normalMatrix;
 varying vec3 v_normal;
 #endif // normalFlag
 
-#ifdef tangentFlag
-attribute vec3 a_tangent;
-//uniform mat3 u_tangentMatrix;
-varying vec3 v_tangent;
-#endif // tangentFlag
-
 #ifdef textureFlag
 attribute vec2 a_texCoord0;
 #endif // textureFlag
@@ -47,11 +41,6 @@ varying vec2 v_specularUV;
 #ifdef emissiveTextureFlag
 uniform vec4 u_emissiveUVTransform;
 varying vec2 v_emissiveUV;
-#endif
-
-#ifdef normalTextureFlag
-uniform vec4 u_normalUVTransform;
-varying vec2 v_normalUV;
 #endif
 
 #ifdef boneWeight0Flag
