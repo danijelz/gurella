@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class ErrorComposite extends Composite {
 	private static final String NESTING_INDENT = "\t";

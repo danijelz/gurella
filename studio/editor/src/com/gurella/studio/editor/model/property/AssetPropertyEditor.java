@@ -26,7 +26,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.base.resource.ResourceService;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 	private Text text;

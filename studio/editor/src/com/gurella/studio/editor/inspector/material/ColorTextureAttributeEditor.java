@@ -20,7 +20,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor.TextureAttributeProperties;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.AssetSelectionWidget;
 import com.gurella.studio.editor.common.UiUtils;
 

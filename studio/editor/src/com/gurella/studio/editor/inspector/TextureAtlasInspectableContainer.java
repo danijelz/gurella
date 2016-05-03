@@ -29,7 +29,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Page;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
 import com.gurella.engine.asset.properties.TextureAtlasProperties;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class TextureAtlasInspectableContainer extends InspectableContainer<IFile> {

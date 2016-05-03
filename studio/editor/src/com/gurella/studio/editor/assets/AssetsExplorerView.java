@@ -24,8 +24,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;

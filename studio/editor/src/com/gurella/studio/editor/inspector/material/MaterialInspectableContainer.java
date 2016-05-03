@@ -15,7 +15,6 @@ import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
@@ -40,7 +39,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
@@ -49,11 +47,10 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.UiUtils;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.inspector.ModelInspectableContainer;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
@@ -256,7 +253,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		directionalAttribute.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 		environment.set(directionalAttribute);
 
-		synchronized (ModelInspectableContainer.mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 
@@ -292,7 +289,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private void updateModelType(ModelShape newShape) {
 		if (modelShape != newShape) {
 			modelShape = newShape;
-			synchronized (ModelInspectableContainer.mutex) {
+			synchronized (GurellaStudioPlugin.glMutex) {
 				glCanvas.setCurrent();
 				Gdx.gl20 = gl20;
 				model.dispose();
@@ -309,7 +306,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		synchronized (ModelInspectableContainer.mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			wall.dispose();
 			model.dispose();
 			modelBatch.dispose();
@@ -330,7 +327,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private void render() {
 		input.update();
 		//camController.update();
-		synchronized (ModelInspectableContainer.mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			if (glCanvas.isDisposed()) {
 				return;
 			}
@@ -356,7 +353,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	void refreshMaterial() {
-		synchronized (ModelInspectableContainer.mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			material = materialDescriptor.createMaterial();
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;

@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix4;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 	public Matrix4PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix4> context) {

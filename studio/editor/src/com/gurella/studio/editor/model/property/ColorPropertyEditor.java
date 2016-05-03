@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.badlogic.gdx.graphics.Color;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class ColorPropertyEditor extends SimplePropertyEditor<Color> {
 	private ColorSelector colorSelector;

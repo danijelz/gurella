@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GurellaStudio-editor
-Bundle-SymbolicName: com.gurella.studio.editor;singleton:=true
+Bundle-SymbolicName: com.gurella.studio;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.gurella.studio.editor.GurellaStudioPlugin
+Bundle-Activator: com.gurella.studio.GurellaStudioPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,

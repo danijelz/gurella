@@ -1,7 +1,7 @@
 package com.gurella.studio.editor.model;
 
-import static com.gurella.studio.editor.GurellaStudioPlugin.createFont;
-import static com.gurella.studio.editor.GurellaStudioPlugin.getToolkit;
+import static com.gurella.studio.GurellaStudioPlugin.createFont;
+import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
@@ -24,7 +24,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.property.ModelEditorContext;
 import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;

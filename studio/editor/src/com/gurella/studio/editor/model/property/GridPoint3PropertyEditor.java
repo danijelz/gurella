@@ -13,7 +13,7 @@ import com.badlogic.gdx.math.GridPoint3;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 	public GridPoint3PropertyEditor(Composite parent, PropertyEditorContext<?, GridPoint3> context) {

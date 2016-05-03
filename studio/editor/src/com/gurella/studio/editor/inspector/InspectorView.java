@@ -8,8 +8,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;
 

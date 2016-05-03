@@ -38,23 +38,20 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.async.AsyncCallback;
+import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
-import com.gurella.studio.editor.scene.SceneRenderer;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaSceneEditor extends EditorPart implements EditorMessageListener {
@@ -62,7 +59,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private SceneEditorMainContainer mainContainer;
 
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
-	private GurellaSceneEditorContext context = new GurellaSceneEditorContext();
+	private GurellaSceneEditorContext context;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
@@ -160,12 +157,12 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		applicationListener = new SceneEditorApplicationListener();
 		application = new SwtLwjglApplication(applicationListener, center);
 		// sceneRenderer = new SceneRenderer(center);
+		//context = new GurellaSceneEditorContext();
 
 		createClassLoader();
-		Reflection.classResolver = classLoader::loadClass;
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
-		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallback<Scene>() {
+		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallbackAdapter<Scene>() {
 			@Override
 			public void onSuccess(Scene scene) {
 				presentScene(scene);
@@ -175,14 +172,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 			public void onException(Throwable exception) {
 				// TODO Auto-generated method stub
 				exception.printStackTrace();
-			}
-
-			@Override
-			public void onCancled(String message) {
-			}
-
-			@Override
-			public void onProgress(float progress) {
 			}
 		}, 0);
 	}
@@ -201,9 +190,9 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 			ClassLoader parentClassLoader = project.getClass().getClassLoader();
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			classLoader = new DynamicURLClassLoader(urls, parentClassLoader);
+			Reflection.classResolver = classLoader::loadClass;
 		} catch (MalformedURLException | CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("Can't create class loader.");
 		}
 	}
 
@@ -276,41 +265,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		if (message instanceof SceneChangedMessage) {
 			dirty = true;
 			firePropertyChange(PROP_DIRTY);
-		}
-	}
-
-	private static final class SceneEditorApplicationListener extends ApplicationAdapter {
-		private final Array<ApplicationDebugUpdateListener> listeners = new Array<>(64);
-
-		private SceneRenderer renderer;
-
-		@Override
-		public void create() {
-			renderer = new SceneRenderer();
-		}
-
-		public void presentScene(Scene scene) {
-			renderer.setScene(scene);
-			debugUpdate();
-		}
-
-		@Override
-		public void resize(int width, int height) {
-			renderer.resize(width, height);
-		}
-
-		@Override
-		public void render() {
-			debugUpdate();
-			renderer.render();
-			listeners.clear();
-		}
-
-		private void debugUpdate() {
-			EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).debugUpdate();
-			}
 		}
 	}
 

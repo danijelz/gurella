@@ -13,7 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 	public Vector2PropertyEditor(Composite parent, PropertyEditorContext<?, Vector2> context) {

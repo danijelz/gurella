@@ -28,7 +28,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.base.resource.ResourceService;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class AssetSelectionWidget<T> extends Composite {
 	private Text text;

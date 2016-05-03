@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio;
 
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
@@ -17,8 +17,9 @@ import org.osgi.framework.BundleContext;
 import com.gurella.studio.editor.utils.RGBAColorDescriptor;
 
 public class GurellaStudioPlugin extends AbstractUIPlugin {
-	public static final String PLUGIN_ID = "com.gurella.studio.editor"; //$NON-NLS-1$
-
+	public static final String PLUGIN_ID = "com.gurella.studio"; //$NON-NLS-1$
+	public static final Object glMutex = new Object();
+	
 	private static GurellaStudioPlugin plugin;
 
 	private static DeviceResourceManager resourceManager;

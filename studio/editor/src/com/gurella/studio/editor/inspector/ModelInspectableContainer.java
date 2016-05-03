@@ -34,7 +34,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.gurella.engine.asset.properties.G3dModelProperties;
 import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
@@ -43,8 +43,6 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
-	public static final Object mutex = new Object();
-
 	private ModelEditorContainer<ModelProperties> propertiesContainer;
 	private GLCanvas glCanvas;
 
@@ -105,7 +103,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		synchronized (mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			glCanvas.setCurrent();
 			Gdx.gl20 = gl20;
 			modelBatch = new ModelBatch();
@@ -148,7 +146,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		synchronized (mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
@@ -166,7 +164,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private void render() {
 		input.update();
 		camController.update();
-		synchronized (mutex) {
+		synchronized (GurellaStudioPlugin.glMutex) {
 			if (glCanvas.isDisposed()) {
 				return;
 			}

@@ -38,8 +38,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.GurellaStudioPlugin;
 
 public class SceneEditorMainContainer extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 32;
@@ -168,7 +168,7 @@ public class SceneEditorMainContainer extends Composite {
 		}
 	}
 
-	Composite getDockItemParent(int position) {
+	public Composite getDockItemParent(int position) {
 		if ((position & SWT.RIGHT) != 0) {
 			return east.tabFolder;
 		} else if ((position & SWT.LEFT) != 0) {

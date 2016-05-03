@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.properties.TextureProperties;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 
 public class TextureInspectableContainer extends InspectableContainer<IFile> {

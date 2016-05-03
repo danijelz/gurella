@@ -6,7 +6,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class DefaultPropertyEditor<P> extends SimplePropertyEditor<P> {
 	public DefaultPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {

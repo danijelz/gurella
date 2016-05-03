@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class PropertyEditor<P> {
 	private Composite composite;

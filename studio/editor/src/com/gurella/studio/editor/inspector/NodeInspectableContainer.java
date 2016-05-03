@@ -60,7 +60,7 @@ import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.GurellaStudioPlugin;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.property.ModelEditorContext;
