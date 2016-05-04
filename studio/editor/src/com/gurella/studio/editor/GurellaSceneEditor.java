@@ -15,8 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
@@ -41,6 +39,7 @@ import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
+import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorMainContainer;
 import com.gurella.studio.editor.scene.SceneEditorView;
@@ -56,7 +55,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
-	private Scene scene;
+
 	private boolean dirty;
 
 	@Override
@@ -64,27 +63,19 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		try {
 			save(monitor);
 		} catch (CoreException e) {
-			ErrorDialog.openError(contentComposite.getShell(), "Error saving scene", e.getLocalizedMessage(),
-					createSaveErrorStatus(e));
-			// TODO Auto-generated catch block
+			String message = "Error saving scene";
+			IStatus status = GurellaStudioPlugin.log(e, message);
+			ErrorDialog.openError(contentComposite.getShell(), message, e.getLocalizedMessage(), status);
 		} finally {
 			monitor.done();
 		}
-	}
-
-	private static MultiStatus createSaveErrorStatus(Throwable t) {
-		String pluginId = GurellaStudioPlugin.PLUGIN_ID;
-		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
-		Status[] childStatuses = Arrays.stream(stackTraces)
-				.map(st -> new Status(IStatus.ERROR, pluginId, st.toString())).toArray(i -> new Status[i]);
-		return new MultiStatus(pluginId, IStatus.ERROR, childStatuses, t.toString(), t);
 	}
 
 	private void save(IProgressMonitor monitor) throws CoreException {
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, scene);
+		String string = output.serialize(Scene.class, context.scene);
 		monitor.beginTask("Saving", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);
@@ -143,29 +134,15 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		Composite center = mainContainer.getCenter();
 		applicationListener = new SceneEditorApplicationListener();
 		application = new SwtLwjglApplication(applicationListener, center);
-		// 
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
-		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new AsyncCallbackAdapter<Scene>() {
-			@Override
-			public void onSuccess(Scene scene) {
-				presentScene(scene);
-			}
-
-			@Override
-			public void onException(Throwable exception) {
-				// TODO Auto-generated method stub
-				exception.printStackTrace();
-			}
-		}, 0);
+		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
 	}
 
 	private void presentScene(Scene scene) {
-		this.scene = scene;
-		scene.start();
 		dirty = false;
+		context.setScene(scene);
 		applicationListener.presentScene(scene);
-		postMessage(null, new SceneLoadedMessage(scene));
 		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 		Menu menu = new Menu(glCanvas);
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
@@ -173,8 +150,17 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		glCanvas.setMenu(menu);
 	}
 
+	private void presentException(Throwable exception) {
+		Arrays.stream(contentComposite.getChildren()).forEach(c -> c.dispose());
+		String message = "Error opening scene";
+		IStatus status = GurellaStudioPlugin.log(exception, message);
+		ErrorComposite errorComposite = new ErrorComposite(contentComposite, status, message);
+		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		contentComposite.layout();
+	}
+
 	public Scene getScene() {
-		return scene;
+		return context.scene;
 	}
 
 	public SceneEditorMainContainer getMainContainer() {
@@ -213,7 +199,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	@Override
 	public void dispose() {
 		super.dispose();
-		ResourceService.unload(scene);
+		context.dispose();
 		if (application != null) {
 			application.exit();
 		}
@@ -228,6 +214,18 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		if (message instanceof SceneChangedMessage) {
 			dirty = true;
 			firePropertyChange(PROP_DIRTY);
+		}
+	}
+
+	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
+		@Override
+		public void onSuccess(Scene scene) {
+			presentScene(scene);
+		}
+
+		@Override
+		public void onException(Throwable exception) {
+			contentComposite.getDisplay().asyncExec(() -> presentException(exception));
 		}
 	}
 }

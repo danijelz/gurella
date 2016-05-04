@@ -1,5 +1,10 @@
 package com.gurella.studio;
 
+import java.util.Arrays;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
 import org.eclipse.jface.resource.FontDescriptor;
@@ -19,7 +24,7 @@ import com.gurella.studio.editor.utils.RGBAColorDescriptor;
 public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.gurella.studio"; //$NON-NLS-1$
 	public static final Object glMutex = new Object();
-	
+
 	private static GurellaStudioPlugin plugin;
 
 	private static DeviceResourceManager resourceManager;
@@ -138,5 +143,22 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	public static FormToolkit getToolkit() {
 		return toolkit;
+	}
+
+	public static void log(IStatus status) {
+		getDefault().getLog().log(status);
+	}
+
+	public static IStatus log(Throwable t, String message) {
+		MultiStatus status = createErrorStatus(t, message);
+		getDefault().getLog().log(status);
+		return status;
+	}
+
+	private static MultiStatus createErrorStatus(Throwable t, String message) {
+		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+		Status[] childStatuses = Arrays.stream(stackTraces)
+				.map(st -> new Status(IStatus.ERROR, PLUGIN_ID, st.toString())).toArray(i -> new Status[i]);
+		return new MultiStatus(PLUGIN_ID, IStatus.ERROR, childStatuses, message, t);
 	}
 }

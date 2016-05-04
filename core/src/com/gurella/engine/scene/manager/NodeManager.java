@@ -7,13 +7,13 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 ////TODO EntitySubscription -> NodeSubscription
-public class NodeManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
+public class NodeManager extends SceneService implements ComponentActivityListener, Poolable {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override

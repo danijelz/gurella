@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.gurella.engine.application.ApplicationConfig;
+import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.scene.SceneEditorView;
@@ -31,7 +32,7 @@ public class GurellaEditorContext {
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
 	private ApplicationConfig applicationConfig;
-	private Scene scene;
+	Scene scene;
 
 	private IContainer rootAssetsContainer;
 
@@ -52,12 +53,13 @@ public class GurellaEditorContext {
 	public void removeEditorMessageListener(EditorMessageListener listener) {
 		signal.removeListener(listener);
 	}
-	
+
 	public void postMessage(Object source, Object message) {
 		signal.dispatch(source, message);
 	}
-	
+
 	void dispose() {
+		ResourceService.unload(scene);
 		signal.clear();
 		if (javaProject != null) {
 			try {
@@ -67,5 +69,15 @@ public class GurellaEditorContext {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	void setScene(Scene scene) {
+		this.scene = scene;
+		scene.start();
+		postMessage(null, new SceneLoadedMessage(scene));
 	}
 }

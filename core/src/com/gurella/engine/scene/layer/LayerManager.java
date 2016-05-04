@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.manager.ComponentManager;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.scene.manager.ComponentTypePredicate;
@@ -14,7 +14,7 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class LayerManager extends SceneSystem2 implements ComponentActivityListener, Poolable {
+public class LayerManager extends SceneService implements ComponentActivityListener, Poolable {
 	private static final ComponentFamily family = new ComponentFamily(new ComponentTypePredicate(LayerComponent.class));
 
 	private IntMap<ArrayExt<SceneNode2>> nodesByLayer = new IntMap<ArrayExt<SceneNode2>>();

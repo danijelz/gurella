@@ -25,7 +25,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
@@ -47,7 +47,7 @@ import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class InputSystem extends SceneSystem2 implements ComponentActivityListener, InputUpdateListener, Poolable {
+public class InputSystem extends SceneService implements ComponentActivityListener, InputUpdateListener, Poolable {
 	private transient final Array<Layer> orderedLayers = new Array<Layer>();
 	private transient final ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 

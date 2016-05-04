@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.LayerComponent;
 import com.gurella.engine.scene.layer.LayerMask;
@@ -18,7 +18,7 @@ import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 
 @BaseSceneElement
-public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneSystem2
+public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneService
 		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();

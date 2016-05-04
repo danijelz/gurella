@@ -6,12 +6,12 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO EntitySubscription -> ComponentSubscription
-public class ComponentManager extends SceneSystem2 implements ComponentActivityListener {
+public class ComponentManager extends SceneService implements ComponentActivityListener {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	@Override

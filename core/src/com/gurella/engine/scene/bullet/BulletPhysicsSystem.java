@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
@@ -27,8 +27,7 @@ import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-//TODO attach listeners on activate -> SceneListener
-public class BulletPhysicsSystem extends SceneSystem2
+public class BulletPhysicsSystem extends SceneService
 		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener, Poolable {
 	static {
 		Bullet.init();
@@ -67,7 +66,7 @@ public class BulletPhysicsSystem extends SceneSystem2
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
 		}
-		//TODO paused = Application.isPaused();
+		// TODO paused = Application.isPaused();
 	}
 
 	@Override

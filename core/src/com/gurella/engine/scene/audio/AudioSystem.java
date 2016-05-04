@@ -11,13 +11,13 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 //TODO attach listeners on activate
-public class AudioSystem extends SceneSystem2 implements ComponentActivityListener, PreRenderUpdateListener, Poolable {
+public class AudioSystem extends SceneService implements ComponentActivityListener, PreRenderUpdateListener, Poolable {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -342,7 +342,7 @@ public class AudioSystem extends SceneSystem2 implements ComponentActivityListen
 			PoolService.free(SL);
 		}
 	}
-	
+
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub

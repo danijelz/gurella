@@ -2,7 +2,6 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
@@ -43,29 +42,17 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	private transient final IntSet defaultSystems = new IntSet();
-	public final transient ComponentManager componentManager = addDefaultSystem(new ComponentManager());
-	public final transient NodeManager nodeManager = addDefaultSystem(new NodeManager());
-	public final transient TagManager tagManager = addDefaultSystem(new TagManager());
-	public final transient LayerManager layerManager = addDefaultSystem(new LayerManager());
+	public final transient ComponentManager componentManager = addService(new ComponentManager());
+	public final transient NodeManager nodeManager = addService(new NodeManager());
+	public final transient TagManager tagManager = addService(new TagManager());
+	public final transient LayerManager layerManager = addService(new LayerManager());
 
-	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = addDefaultSystem(
+	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = addService(
 			new BvhSpatialPartitioningSystem());
-	public final transient InputSystem inputSystem = addDefaultSystem(new InputSystem());
-	public final transient RenderSystem renderSystem = addDefaultSystem(new RenderSystem());
-	public final transient AudioSystem audioSystem = addDefaultSystem(new AudioSystem());
-	public final transient BulletPhysicsSystem bulletPhysicsSystem = addDefaultSystem(new BulletPhysicsSystem());
-
-	private <T extends SceneSystem2> T addDefaultSystem(T system) {
-		defaultSystems.add(system.getInstanceId());
-		addSystem(system);
-		return system;
-	}
-
-	@Override
-	public ImmutableArray<SceneNode2> getNodes() {
-		return nodes;
-	}
+	public final transient InputSystem inputSystem = addService(new InputSystem());
+	public final transient RenderSystem renderSystem = addService(new RenderSystem());
+	public final transient AudioSystem audioSystem = addService(new AudioSystem());
+	public final transient BulletPhysicsSystem bulletPhysicsSystem = addService(new BulletPhysicsSystem());
 
 	public final void start() {
 		if (isActive()) {
@@ -86,12 +73,22 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	@Override
 	protected final void preDeactivation() {
 		eventsDispatcher.deactivate();
+	}
+
+	@Override
+	protected void postDeactivation() {
+		super.postDeactivation();
 		// TODO reset managers and systems
 	}
 
 	@Override
 	protected final void childAdded(ManagedObject child) {
-		if (child instanceof SceneSystem2) {
+		if (child instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) child;
+			node.scene = this;
+			updateNodeChildren(node);
+			_nodes.add(node);
+		} else if (child instanceof SceneSystem2) {
 			SceneSystem2 system = (SceneSystem2) child;
 			int baseSystemType = system.baseSystemType;
 			if (_systems.containsKey(baseSystemType)) {
@@ -100,10 +97,8 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			system.scene = this;
 			_systems.put(baseSystemType, system);
 		} else {
-			SceneNode2 node = (SceneNode2) child;
-			node.scene = this;
-			updateNodeChildren(node);
-			_nodes.add(node);
+			SceneService service = (SceneService) child;
+			service.scene = this;
 		}
 	}
 
@@ -141,10 +136,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			return;
 		}
 
-		if (isDefaultSystem(system)) {
-			throw new GdxRuntimeException("Can't remove default system.");
-		}
-
 		system.destroy();
 	}
 
@@ -153,10 +144,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		SceneSystem2 system = _systems.get(SystemType.findBaseType(typeId));
 		if (system == null || !SystemType.isSubtype(typeId, system.systemType)) {
 			return;
-		}
-
-		if (isDefaultSystem(system)) {
-			throw new GdxRuntimeException("Can't remove default system.");
 		}
 
 		system.destroy();
@@ -168,15 +155,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			return;
 		}
 
-		if (isDefaultSystem(system)) {
-			throw new GdxRuntimeException("Can't remove default system.");
-		}
-
 		system.destroy();
-	}
-
-	private boolean isDefaultSystem(SceneSystem2 system) {
-		return defaultSystems.contains(system.getInstanceId());
 	}
 
 	public <T extends SceneSystem2> T getSystem(int typeId) {
@@ -194,6 +173,16 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		T system = PoolService.obtain(systemType);
 		system.setParent(this);
 		return system;
+	}
+
+	private <T extends SceneService> T addService(T service) {
+		service.setParent(this);
+		return service;
+	}
+
+	@Override
+	public ImmutableArray<SceneNode2> getNodes() {
+		return nodes;
 	}
 
 	public void addNode(SceneNode2 node) {

@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneSystem2;
+import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
@@ -17,7 +17,7 @@ import com.gurella.engine.subscriptions.application.ApplicationDebugRenderListen
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 
-public class RenderSystem extends SceneSystem2
+public class RenderSystem extends SceneService
 		implements ComponentActivityListener, RenderUpdateListener, ApplicationDebugRenderListener {
 	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();

@@ -43,10 +43,14 @@ public class ErrorComposite extends Composite {
 	}
 
 	public ErrorComposite(Composite parent, Throwable throwable) {
+		this(parent, throwable, throwable.getMessage());
+	}
+
+	public ErrorComposite(Composite parent, Throwable throwable, String message) {
 		super(parent, SWT.NONE);
+		this.message = message;
 		StringWriter writer = new StringWriter();
 		throwable.printStackTrace(new PrintWriter(writer));
-		message = throwable.getMessage();
 		status = new Status(IStatus.ERROR, GurellaStudioPlugin.PLUGIN_ID, message, new Throwable(writer.toString()));
 		setLayout(new GridLayout(1, false));
 		createDropDownList();
@@ -89,7 +93,7 @@ public class ErrorComposite extends Composite {
 			String message = t.getLocalizedMessage();
 			sb.append(message == null ? t.toString() : message);
 			readLines(sb.toString()).forEach(line -> listToPopulate.add(line));
-			//listToPopulate.add(sb.toString());
+			// listToPopulate.add(sb.toString());
 			incrementNesting = true;
 		}
 
