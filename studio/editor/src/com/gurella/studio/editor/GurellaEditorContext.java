@@ -17,6 +17,7 @@ import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.SceneEditorView;
 
 public class GurellaEditorContext {
@@ -61,12 +62,15 @@ public class GurellaEditorContext {
 	void dispose() {
 		ResourceService.unload(scene);
 		signal.clear();
+		closeJavaProject();
+	}
+
+	private void closeJavaProject() {
 		if (javaProject != null) {
 			try {
 				javaProject.close();
 			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				GurellaStudioPlugin.log(e, "Error cloasing java project");
 			}
 		}
 	}

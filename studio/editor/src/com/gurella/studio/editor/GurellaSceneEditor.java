@@ -159,6 +159,10 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		contentComposite.layout();
 	}
 
+	public GurellaEditorContext getContext() {
+		return context;
+	}
+
 	public Scene getScene() {
 		return context.scene;
 	}

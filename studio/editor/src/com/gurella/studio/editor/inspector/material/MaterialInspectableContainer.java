@@ -80,7 +80,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private SwtLwjglInput input;
 
 	private PerspectiveCamera cam;
-	//private CameraInputController camController;
+	// private CameraInputController camController;
 	private ModelInputController modelInputController;
 
 	private ModelBatch modelBatch;
@@ -100,12 +100,11 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		/*Composite root = toolkit.createComposite(body);
-		toolkit.adapt(root);
-		GridData layoutData = new GridData(GridData.FILL, GridData.FILL, true, true);
-		layoutData.heightHint = 500;
-		root.setLayoutData(layoutData);
-		root.setLayout(new GridLayout());*/
+		/*
+		 * Composite root = toolkit.createComposite(body); toolkit.adapt(root); GridData layoutData = new
+		 * GridData(GridData.FILL, GridData.FILL, true, true); layoutData.heightHint = 500;
+		 * root.setLayoutData(layoutData); root.setLayout(new GridLayout());
+		 */
 
 		ScrolledComposite scrolledComposite = new ScrolledComposite(body, SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
@@ -118,7 +117,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		toolkit.adapt(content);
 		content.setLayout(new GridLayout(2, false));
 		scrolledComposite.setContent(content);
-		//content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		// content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		scrolledComposite.setMinSize(200, 100);
 
 		//////////////////////////////
@@ -126,7 +125,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		IExpansionListener expansionListener = new ExpansionAdapter() {
 			@Override
 			public void expansionStateChanged(ExpansionEvent e) {
-				//content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				// content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		};
 
@@ -143,7 +142,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.diffuseTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		//group.setExpanded(true);
+		// group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 
 		/////////////
@@ -157,7 +156,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.blend, this::refreshMaterial);
 		blendAttributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(blendAttributeEditor);
-		//group.setExpanded(true);
+		// group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
 
@@ -180,7 +179,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.specularTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 		group.setClient(client);
-		//group.setExpanded(true);
+		// group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
 
@@ -196,7 +195,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.emissiveTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		//group.setExpanded(true);
+		// group.setExpanded(true);
 		group.addExpansionListener(expansionListener);
 		//////////
 
@@ -244,10 +243,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		boxButton.addListener(SWT.Selection, e -> updateModelType(ModelShape.box));
 		boxButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.BEGINNING, false, false));
 
-		//camController = new CameraInputController(cam);
+		// camController = new CameraInputController(cam);
 		modelInputController = new ModelInputController();
 		input = new SwtLwjglInput(glCanvas);
-		//input.setInputProcessor(camController);
+		// input.setInputProcessor(camController);
 		input.setInputProcessor(modelInputController);
 
 		environment = new Environment();
@@ -316,7 +315,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
-			//TODO ResourceService.unload(materialDescriptor);
+			// TODO ResourceService.unload(materialDescriptor);
 			materialDescriptor.destroy();
 			glCanvas.dispose();
 		}
@@ -331,7 +330,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void render() {
 		input.update();
-		//camController.update();
+		// camController.update();
 		synchronized (GurellaStudioPlugin.glMutex) {
 			if (glCanvas.isDisposed()) {
 				return;
@@ -393,24 +392,28 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private static void calculateTangents(Model result) {
 		Array<Mesh> meshes = result.meshes;
+		Vector3 Tangent = new Vector3();
+		Vector3 Bitangent = new Vector3();
+
 		for (Mesh mesh : meshes) {
 			int numVertices = mesh.getNumVertices();
 			final int vertexSize = mesh.getVertexSize() / 4;
 			float[] vertices = mesh.getVertices(new float[vertexSize * numVertices]);
-			System.out.println(Arrays.toString(vertices));
+			// System.out.println(Arrays.toString(vertices));
 
 			int numIndices = mesh.getNumIndices();
 			short[] indices = new short[numIndices];
 			mesh.getIndices(indices);
-			System.out.println(Arrays.toString(indices));
+			// System.out.println(Arrays.toString(indices));
 
 			VertexAttributes vertexAttributes = mesh.getVertexAttributes();
 			int offsetPosition = vertexAttributes.getOffset(Usage.Position, -1);
 			int offsetTex = vertexAttributes.getOffset(Usage.TextureCoordinates, -1);
 			int offsetTangent = vertexAttributes.getOffset(Usage.Tangent, -1);
+			int offsetBiNormal = vertexAttributes.getOffset(Usage.BiNormal, -1);
 			int stride = vertexAttributes.vertexSize / 4;
 
-			if (offsetPosition < 0 || offsetTex < 0 || offsetPosition < 0)
+			if (offsetPosition < 0 || offsetTex < 0 || (offsetTangent < 0 && offsetBiNormal < 0))
 				continue;
 
 			for (int i = 0; i < numIndices; i += 3) {
@@ -419,10 +422,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);// Vertices[Indices[i]];
 				vert = indices[i + 1];
 				Vector3 v1pos = new Vector3(vertices[(vert * stride) + offsetPosition],
-						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);//Vertices[Indices[i+1]];
+						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);// Vertices[Indices[i+1]];
 				vert = indices[i + 2];
 				Vector3 v2pos = new Vector3(vertices[(vert * stride) + offsetPosition],
-						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);//Vertices[Indices[i+2]];
+						vertices[(vert * stride) + offsetPosition + 1], vertices[(vert * stride) + offsetPosition + 2]);// Vertices[Indices[i+2]];
 
 				vert = indices[i];
 				Vector2 v0tex = new Vector2(vertices[(vert * stride) + offsetTex],
@@ -444,31 +447,43 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 				float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
 
-				Vector3 Tangent = new Vector3();
-
 				Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
 				Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
 				Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
 
-				/*Bitangent.x = f * (-DeltaU2 * Edge1.x - DeltaU1 * Edge2.x);
-				Bitangent.y = f * (-DeltaU2 * Edge1.y - DeltaU1 * Edge2.y);
-				Bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);*/
+				if (offsetTangent >= 0) {
+					vert = indices[i];
+					vertices[(vert * stride) + offsetTangent] = Tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
+					vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+					vert = indices[i + 1];
+					vertices[(vert * stride) + offsetTangent] = Tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
+					vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+					vert = indices[i + 2];
+					vertices[(vert * stride) + offsetTangent] = Tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
+					vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+				}
 
-				vert = indices[i];
-				vertices[(vert * stride) + offsetTangent] = Tangent.x;
-				vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
-				vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+				if (offsetBiNormal >= 0) {
+					Bitangent.x = f * (-DeltaU2 * Edge1.x - DeltaU1 * Edge2.x);
+					Bitangent.y = f * (-DeltaU2 * Edge1.y - DeltaU1 * Edge2.y);
+					Bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);
 
-				vert = indices[i + 1];
-				vertices[(vert * stride) + offsetTangent] = Tangent.x;
-				vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
-				vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
-
-				vert = indices[i + 2];
-				vertices[(vert * stride) + offsetTangent] = Tangent.x;
-				vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
-				vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
-
+					vert = indices[i];
+					vertices[(vert * stride) + offsetBiNormal] = Tangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.z;
+					vert = indices[i + 1];
+					vertices[(vert * stride) + offsetBiNormal] = Tangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.z;
+					vert = indices[i + 2];
+					vertices[(vert * stride) + offsetBiNormal] = Tangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.z;
+				}
 			}
 
 			System.out.println(Arrays.toString(vertices));
@@ -483,9 +498,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		builder.begin();
 		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
 		Model result = builder.end();
-		if (materialDescriptor.isNormalTextureEnabled()) {
-			calculateTangents(result);
-		}
+		calculateTangents(result);
 		return removeDisposables(result);
 	}
 

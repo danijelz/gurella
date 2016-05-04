@@ -225,8 +225,6 @@ public class MaterialDescriptor extends ManagedObject {
 
 		if (isNormalTextureEnabled()) {
 			attributes.add(VertexAttribute.Tangent());
-		} else {
-			attributes.add(VertexAttribute.Tangent());//TODO
 		}
 
 		return new VertexAttributes(attributes.<VertexAttribute> toArray(VertexAttribute.class));
@@ -443,8 +441,7 @@ public class MaterialDescriptor extends ManagedObject {
 	public static enum BlendFunction {
 		zero(GL20.GL_ZERO),
 
-		one(GL20.GL_ONE),
-		srcColor(GL20.GL_SRC_COLOR),
+		one(GL20.GL_ONE), srcColor(GL20.GL_SRC_COLOR),
 
 		oneMinusSrcColor(GL20.GL_ONE_MINUS_SRC_COLOR),
 
