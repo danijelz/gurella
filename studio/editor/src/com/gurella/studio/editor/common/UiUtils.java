@@ -14,7 +14,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public class UiUtils {
 	public static Text createFloatWidget(Composite parent) {
-		Text text = GurellaStudioPlugin.getToolkit().createText(parent, "", SWT.BORDER | SWT.SINGLE);
+		Text text = GurellaStudioPlugin.getToolkit().createText(parent, "", SWT.SINGLE);
 		text.addVerifyListener(e -> verifyFloat(e, text.getText()));
 		return text;
 	}
@@ -29,8 +29,8 @@ public class UiUtils {
 			e.doit = false;
 		}
 	}
-	
-	public static <T extends Enum<T>> ComboViewer createEnumComboViewer (Composite parent, Class<T> enumType) {
+
+	public static <T extends Enum<T>> ComboViewer createEnumComboViewer(Composite parent, Class<T> enumType) {
 		Combo combo = new Combo(parent, SWT.READ_ONLY);
 		combo.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 
