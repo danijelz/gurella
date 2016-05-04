@@ -14,7 +14,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public class UiUtils {
 	public static Text createFloatWidget(Composite parent) {
-		Text text = GurellaStudioPlugin.getToolkit().createText(parent, "", SWT.SINGLE);
+		Text text = GurellaStudioPlugin.getToolkit().createText(parent, "", SWT.BORDER | SWT.SINGLE);
 		text.addVerifyListener(e -> verifyFloat(e, text.getText()));
 		return text;
 	}
