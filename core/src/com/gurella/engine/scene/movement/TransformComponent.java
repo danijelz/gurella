@@ -422,6 +422,10 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return this;
 	}
 
+	public TransformComponent setWorldRotation(Quaternion rotation) {
+		return setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w);
+	}
+
 	public TransformComponent setWorldRotation(float x, float y, float z, float w) {
 		if (parentTransform == null) {
 			rotation.set(x, y, z, w);
@@ -524,6 +528,25 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		notifyChanged();
 		return this;
+	}
+
+	public TransformComponent rotate(Vector3 axis, float angle) {
+		rotator.set(axis, angle);
+		rotation.mul(rotator);
+		rotation.nor();
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		notifyChanged();
+		return this;
+	}
+
+	public void rotateAround(Vector3 point, Vector3 axis, float angle) {
+		// TODO
+		// tmpVec.set(point);
+		// tmpVec.sub(position);
+		// translate(tmpVec);
+		// rotate(axis, angle);
+		// tmpVec.rotate(axis, angle);
+		// translate(-tmpVec.x, -tmpVec.y, -tmpVec.z);
 	}
 
 	public TransformComponent eulerRotate(Vector3 additionalEulerRotation) {
@@ -696,6 +719,59 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
 			notifyChanged();
 		}
+	}
+
+	public Vector3 getWorldUp(Vector3 out) {
+		return out.set(0, 1, 0).mul(getWorldRotation()).nor();
+	}
+
+	public Vector3 getWorldRight(Vector3 out) {
+		return out.set(1, 0, 0).mul(getWorldRotation()).nor();
+	}
+
+	public Vector3 getWorldForward(Vector3 out) {
+		return out.set(0, 0, 1).mul(getWorldRotation()).nor();
+	}
+
+	public Vector3 transformWorldDirection(Vector3 direction) {
+		return direction.mul(getWorldRotation());
+	}
+
+	public Vector3 getUp(Vector3 out) {
+		return out.set(0, 1, 0).mul(rotation).nor();
+	}
+
+	public Vector3 getRight(Vector3 out) {
+		return out.set(1, 0, 0).mul(rotation).nor();
+	}
+
+	public Vector3 getForward(Vector3 out) {
+		return out.set(0, 0, 1).mul(rotation).nor();
+	}
+
+	public Vector3 transformDirection(Vector3 direction) {
+		return direction.mul(rotation);
+	}
+
+	public void lookAt(Vector3 target) {
+		lookAt(target, getUp(tempVector));
+	}
+
+	public void lookAt(Vector3 target, Vector3 up) {
+		// TODO
+		// tmpVec.set(x, y, z).sub(position).nor();
+		// if (!tmpVec.isZero()) {
+		// float dot = tmpVec.dot(up); // up and direction must ALWAYS be orthonormal vectors
+		// if (Math.abs(dot - 1) < 0.000000001f) {
+		// // Collinear
+		// up.set(direction).scl(-1);
+		// } else if (Math.abs(dot + 1) < 0.000000001f) {
+		// // Collinear opposite
+		// up.set(direction);
+		// }
+		// direction.set(tmpVec);
+		// normalizeUp();
+		// }
 	}
 
 	@Override
