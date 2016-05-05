@@ -453,17 +453,17 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 				if (offsetTangent >= 0) {
 					vert = indices[i];
-					vertices[(vert * stride) + offsetTangent] = Tangent.x;
-					vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
-					vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+					vertices[(vert * stride) + offsetTangent] += Tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] += Tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] += Tangent.z;
 					vert = indices[i + 1];
-					vertices[(vert * stride) + offsetTangent] = Tangent.x;
-					vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
-					vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+					vertices[(vert * stride) + offsetTangent] += Tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] += Tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] += Tangent.z;
 					vert = indices[i + 2];
-					vertices[(vert * stride) + offsetTangent] = Tangent.x;
-					vertices[(vert * stride) + offsetTangent + 1] = Tangent.y;
-					vertices[(vert * stride) + offsetTangent + 1] = Tangent.z;
+					vertices[(vert * stride) + offsetTangent] += Tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] += Tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] += Tangent.z;
 				}
 
 				if (offsetBiNormal >= 0) {
@@ -472,17 +472,35 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 					Bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);
 
 					vert = indices[i];
-					vertices[(vert * stride) + offsetBiNormal] = Tangent.x;
-					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.y;
-					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.z;
+					vertices[(vert * stride) + offsetBiNormal] += Bitangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] += Bitangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 2] += Bitangent.z;
 					vert = indices[i + 1];
-					vertices[(vert * stride) + offsetBiNormal] = Tangent.x;
-					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.y;
-					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.z;
+					vertices[(vert * stride) + offsetBiNormal] += Bitangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] += Bitangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 2] += Bitangent.z;
 					vert = indices[i + 2];
-					vertices[(vert * stride) + offsetBiNormal] = Tangent.x;
-					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.y;
-					vertices[(vert * stride) + offsetBiNormal + 1] = Tangent.z;
+					vertices[(vert * stride) + offsetBiNormal] += Bitangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] += Bitangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 2] += Bitangent.z;
+				}
+			}
+			
+			Vector3 normal = Bitangent;
+			if(offsetTangent >= 0) {
+				for (int i = 0; i < numIndices; i += 3) {
+					int vert = indices[i];
+					float nx = vertices[(vert * stride) + offsetTangent];
+					float ny = vertices[(vert * stride) + offsetTangent + 1];
+					float nz = vertices[(vert * stride) + offsetTangent + 2];
+					normal.set(nx, ny, nz);
+					
+					float tx = vertices[(vert * stride) + offsetTangent];
+					float ty = vertices[(vert * stride) + offsetTangent + 1];
+					float tz = vertices[(vert * stride) + offsetTangent + 2];
+					Tangent.set(tx, ty, tz);
+					
+					//(t - n * Dot(n, t)).Normalize() TODO
 				}
 			}
 
