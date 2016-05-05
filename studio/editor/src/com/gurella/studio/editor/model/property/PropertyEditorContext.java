@@ -74,18 +74,20 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	public void propertyValueChanged(Object oldValue, Object newValue) {
 		signal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
 
-		ModelEditorContext<?> temp = parent;
+		ModelEditorContext<?> temp = this;
 		PropertyChangeEvent event = new PropertyChangeEvent();
 		event.oldValue = oldValue;
-		event.oldValue = oldValue;
+		event.newValue = newValue;
 		Array<Object> propertyPath = new Array<Object>();
 		event.propertyPath = propertyPath;
 
 		while (temp != null) {
-			propertyPath.insert(0, temp.modelInstance);
-			if (temp.modelInstance instanceof PropertyChangeListener) {
-				PropertyChangeListener listener = (PropertyChangeListener) temp.modelInstance;
-				listener.propertyChanged(event);
+			if (temp instanceof PropertyEditorContext) {
+				propertyPath.insert(0, temp.modelInstance);
+				if (temp.modelInstance instanceof PropertyChangeListener) {
+					PropertyChangeListener listener = (PropertyChangeListener) temp.modelInstance;
+					listener.propertyChanged(event);
+				}
 			}
 			temp = temp.parent;
 		}
