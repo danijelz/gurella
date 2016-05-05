@@ -390,6 +390,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		return removeDisposables(result);
 	}
 
+	//http://www.terathon.com/code/tangent.html
 	private static void calculateTangents(Model result) {
 		Array<Mesh> meshes = result.meshes;
 		Vector3 tangent = new Vector3();
@@ -409,9 +410,10 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			int offsetTex = vertexAttributes.getOffset(Usage.TextureCoordinates, -1);
 			int offsetTangent = vertexAttributes.getOffset(Usage.Tangent, -1);
 			int offsetBiNormal = vertexAttributes.getOffset(Usage.BiNormal, -1);
+			int offsetNormal = vertexAttributes.getOffset(Usage.Normal, -1);
 			int stride = vertexAttributes.vertexSize / 4;
 
-			if (offsetPosition < 0 || offsetTex < 0 || (offsetTangent < 0 && offsetBiNormal < 0))
+			if (offsetPosition < 0 || offsetTex < 0 || offsetNormal < 0 || (offsetTangent < 0 && offsetBiNormal < 0))
 				continue;
 
 			for (int i = 0; i < numIndices; i += 3) {
@@ -488,16 +490,17 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			if (offsetTangent >= 0) {
 				for (int i = 0; i < numIndices; i += 3) {
 					int vert = indices[i];
-					float nx = vertices[(vert * stride) + offsetTangent];
-					float ny = vertices[(vert * stride) + offsetTangent + 1];
-					float nz = vertices[(vert * stride) + offsetTangent + 2];
+
+					float nx = vertices[(vert * stride) + offsetNormal];
+					float ny = vertices[(vert * stride) + offsetNormal + 1];
+					float nz = vertices[(vert * stride) + offsetNormal + 2];
 					normal.set(nx, ny, nz);
 
 					float tx = vertices[(vert * stride) + offsetTangent];
 					float ty = vertices[(vert * stride) + offsetTangent + 1];
 					float tz = vertices[(vert * stride) + offsetTangent + 2];
-
 					tangent.set(tx, ty, tz);
+
 					float dot = normal.dot(tangent);
 					tangent.sub(normal).scl(dot).nor();
 
