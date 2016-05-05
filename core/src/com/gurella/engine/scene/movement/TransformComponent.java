@@ -332,15 +332,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setWorldScaleX(float x) {
-		if (parentTransform == null) {
+		float parentScale;
+		if (parentTransform == null || (parentScale = parentTransform.getWorldScaleX()) == 0) {
 			scale.x = x;
 		} else {
-			float parentScale = parentTransform.getWorldScaleX();
-			if (parentScale == 0) {
-				scale.x = x;
-			} else {
-				scale.x /= parentScale;
-			}
+			scale.x /= parentScale;
 		}
 
 		notifyChanged();
@@ -348,15 +344,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setWorldScaleY(float y) {
-		if (parentTransform == null) {
+		float parentScale;
+		if (parentTransform == null || (parentScale = parentTransform.getWorldScaleY()) == 0) {
 			scale.y = y;
 		} else {
-			float parentScale = parentTransform.getWorldScaleY();
-			if (parentScale == 0) {
-				scale.y = y;
-			} else {
-				scale.y /= parentScale;
-			}
+			scale.y /= parentScale;
 		}
 
 		notifyChanged();
@@ -364,16 +356,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setWorldScaleZ(float z) {
-
-		if (parentTransform == null) {
+		float parentScale;
+		if (parentTransform == null || (parentScale = parentTransform.getWorldScaleZ()) == 0) {
 			scale.z = z;
 		} else {
-			float parentScale = parentTransform.getWorldScaleZ();
-			if (parentScale == 0) {
-				scale.z = z;
-			} else {
-				scale.z /= parentScale;
-			}
+			scale.z /= parentScale;
 		}
 
 		notifyChanged();
