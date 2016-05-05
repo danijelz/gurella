@@ -22,7 +22,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 		text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
-		layoutData.heightHint = 10;
+		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 
 		Float value = getValue();

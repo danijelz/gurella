@@ -23,7 +23,7 @@ public class UiUtils {
 		text.addVerifyListener(e -> verifyFloat(e, text.getText()));
 		toolkit.adapt(text, false, false);
 		text.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
-		text.setFont(createFont(FontDescriptor.createFrom(text.getFont()).increaseHeight(-2)));
+		text.setFont(createFont(FontDescriptor.createFrom(text.getFont()).increaseHeight(-1)));
 		return text;
 	}
 

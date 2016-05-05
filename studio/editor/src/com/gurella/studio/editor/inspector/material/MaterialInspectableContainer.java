@@ -488,7 +488,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 			Vector3 normal = bitangent;
 			if (offsetTangent >= 0) {
-				for (int i = 0; i < numIndices; i += 3) {
+				for (int i = 0; i < numIndices; i++) {
 					int vert = indices[i];
 
 					float nx = vertices[(vert * stride) + offsetNormal];
