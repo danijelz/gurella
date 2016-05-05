@@ -15,7 +15,6 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
-import com.gurella.engine.utils.ImmutableArray;
 
 @ModelDescriptor(descriptiveName = "Transform")
 public class TransformComponent extends SceneNodeComponent2 implements PropertyChangeListener, Poolable {
@@ -24,40 +23,28 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	private transient int nodeId;
 
-	private final Quaternion rotator = new Quaternion(0, 0, 0, 0);
-
 	@PropertyDescriptor(flat = true)
 	private final Vector3 translation = new Vector3();
-	private final Vector3 worldTranslation = new Vector3();
-	private boolean worldTranslationDirty = true;
-
-	private final Quaternion rotation = new Quaternion();
-	private final Quaternion worldRotation = new Quaternion();
-	private boolean worldRotationDirty = true;
 
 	@PropertyDescriptor(descriptiveName = "rotation", flat = true)
 	private final Vector3 eulerRotation = new Vector3();
-	private final Vector3 worldEulerRotation = new Vector3();
-	private boolean worldEulerRotationDirty = true;
+	private final Quaternion rotation = new Quaternion();
 
 	@PropertyDescriptor(flat = true)
 	private final Vector3 scale = new Vector3(1, 1, 1);
-	private final Vector3 worldScale = new Vector3(1, 1, 1);
-	private boolean worldScaleDirty = true;
 
 	private final Matrix4 transform = new Matrix4();
+	private final Matrix4 worldTransform = new Matrix4();
 	private boolean transformDirty = true;
 
-	private final Matrix4 worldTransform = new Matrix4();
-	private boolean worldTransformDirty = true;
-
 	private final Matrix4 worldTransformInverse = new Matrix4();
-	private boolean worldTransformInvDirty = true;
+	private boolean transformInvDirty = true;
 
 	private TransformComponent parentTransform;
 	private final Array<TransformComponent> childTransforms = new Array<TransformComponent>();
 
-	private transient boolean changeDispatched = true;
+	private final Vector3 tempVector = new Vector3();
+	private final Quaternion rotator = new Quaternion();
 
 	private final NodeParentChangedListener nodeParentChangedListener = new NodeParentChangedListener();
 	private final ParentComponentActivityListener parentComponentActivityListener = new ParentComponentActivityListener();
@@ -82,108 +69,83 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		nodeId = -1;
 	}
 
+	private void notifyChanged() {
+		if (!transformDirty) {
+			transformDirty = true;
+			transformInvDirty = true;
+			notifyChanged(this);
+		}
+	}
+
 	private static void notifyChanged(TransformComponent component) {
-		// if (!component.changeDispatched) {
 		synchronized (mutex) {
-			component.changeDispatched = true;
 			EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onNodeTransformChanged();
 			}
 			listeners.clear();
 		}
-		// }
 	}
 
 	// //////////translate
 
 	public TransformComponent translate(Vector3 additionalTranslation) {
-		this.translation.add(additionalTranslation);
-
-		if (!worldTranslationDirty) {
-			this.worldTranslation.add(additionalTranslation);
-		}
-
-		notifyChanged(this);
+		translation.add(additionalTranslation);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent translate(float x, float y, float z) {
-		this.translation.add(x, y, z);
-
-		if (!worldTranslationDirty) {
-			this.worldTranslation.add(x, y, z);
-		}
-
-		notifyChanged(this);
+		translation.add(x, y, z);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent translateX(float x) {
-		this.translation.x += x;
-
-		if (!worldTranslationDirty) {
-			this.worldTranslation.x += x;
-		}
-
-		notifyChanged(this);
+		translation.x += x;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent translateY(float y) {
-		this.translation.y += y;
-
-		if (!worldTranslationDirty) {
-			this.worldTranslation.y += y;
-		}
-
-		notifyChanged(this);
+		translation.y += y;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent translateZ(float z) {
-		this.translation.z += z;
-
-		if (!worldTranslationDirty) {
-			this.worldTranslation.z += z;
-		}
-
-		notifyChanged(this);
+		translation.z += z;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setTranslation(float x, float y, float z) {
-		this.translation.set(x, y, z);
-		markWorldTranslationDirty();
-		notifyChanged(this);
+		translation.set(x, y, z);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setTranslation(Vector3 translation) {
-		this.translation.set(translation);
-		markWorldTranslationDirty();
-		notifyChanged(this);
+		translation.set(translation);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setTranslationX(float x) {
-		this.translation.x = x;
-		markWorldTranslationDirty();
-		notifyChanged(this);
+		translation.x = x;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setTranslationY(float y) {
-		this.translation.y = y;
-		markWorldTranslationDirty();
-		notifyChanged(this);
+		translation.y = y;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setTranslationZ(float z) {
-		this.translation.z = z;
-		markWorldTranslationDirty();
-		notifyChanged(this);
+		translation.z = z;
+		notifyChanged();
 		return this;
 	}
 
@@ -192,64 +154,44 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setWorldTranslation(float x, float y, float z) {
-		this.translation.set(x, y, z);
-		this.worldTranslation.set(x, y, z);
-
-		if (parentTransform != null) {
-			this.translation.sub(parentTransform.getWorldTranslation());
+		translation.set(x, y, z);
+		if (parentTransform == null) {
+			translation.sub(parentTransform.getWorldTranslation());
 		}
-
-		worldTranslationDirty = false;
-		markWorldTranslationHierarchyDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldTranslationX(float x) {
-		this.translation.x = x;
-
-		if (parentTransform != null) {
-			this.translation.x -= parentTransform.getWorldTranslationX();
+		if (parentTransform == null) {
+			translation.x = x;
+		} else {
+			translation.x = x - parentTransform.getWorldTranslationX();
 		}
 
-		if (!worldTranslationDirty) {
-			this.worldTranslation.x = x;
-			markWorldTranslationHierarchyDirty();
-		}
-
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldTranslationY(float y) {
-		this.translation.y = y;
-
-		if (parentTransform != null) {
-			this.translation.y -= parentTransform.getWorldTranslationY();
+		if (parentTransform == null) {
+			translation.y = y;
+		} else {
+			translation.y = y - parentTransform.getWorldTranslationY();
 		}
 
-		if (!worldTranslationDirty) {
-			this.worldTranslation.y = y;
-			markWorldTranslationHierarchyDirty();
-		}
-
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldTranslationZ(float z) {
-		this.translation.z = z;
-
-		if (parentTransform != null) {
-			this.translation.z -= parentTransform.getWorldTranslationZ();
+		if (parentTransform == null) {
+			translation.z = z;
+		} else {
+			translation.z = z - parentTransform.getWorldTranslationZ();
 		}
 
-		if (!worldTranslationDirty) {
-			this.worldTranslation.z = z;
-			markWorldTranslationHierarchyDirty();
-		}
-
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
@@ -269,10 +211,6 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return outTranslate.set(translation);
 	}
 
-	public Vector3 getTranslation() {
-		return translation;
-	}
-
 	public float getWorldTranslationX() {
 		return getWorldTranslation().x;
 	}
@@ -290,197 +228,155 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Vector3 getWorldTranslation() {
-		if (worldTranslationDirty) {
-			worldTranslation.set(translation);
-
-			if (parentTransform != null) {
-				worldTranslation.add(parentTransform.getWorldTranslation());
-			}
-
-			worldTranslationDirty = false;
+		if (parentTransform == null) {
+			return translation;
+		} else {
+			update();
+			return worldTransform.getTranslation(tempVector);
 		}
-
-		return worldTranslation;
-	}
-
-	private void markWorldTranslationDirty() {
-		transformDirty = true;
-
-		if (!worldTranslationDirty) {
-			worldTranslationDirty = true;
-			worldTransformDirty = true;
-			worldTransformInvDirty = true;
-		}
-	}
-
-	private void markWorldTranslationHierarchyDirty() {
-		transformDirty = true;
-		worldTransformDirty = true;
-		worldTransformInvDirty = true;
-		notifyChanged(this);
 	}
 
 	// ////////////scale
 
 	public TransformComponent scale(Vector3 additionalScale) {
-		this.scale.add(additionalScale);
-		markWorldScaleDirty();
-
-		if (!worldScaleDirty) {
-			this.worldScale.add(additionalScale);
-			markChildrenWorldScaleDirty();
-		}
-
-		notifyChanged(this);
+		scale.add(additionalScale);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent scale(float x, float y, float z) {
-		this.scale.add(x, y, z);
-
-		if (!worldScaleDirty) {
-			this.worldScale.add(x, y, z);
-			markChildrenWorldScaleDirty();
-		}
-
-		notifyChanged(this);
+		scale.add(x, y, z);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent scaleX(float x) {
-		this.scale.x += x;
-
-		if (!worldScaleDirty) {
-			this.worldScale.x += x;
-			markChildrenWorldScaleDirty();
-		}
-
-		notifyChanged(this);
+		scale.x += x;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent scaleY(float y) {
-		this.scale.y += y;
-
-		if (!worldScaleDirty) {
-			this.worldScale.y += y;
-			markChildrenWorldScaleDirty();
-		}
-
-		notifyChanged(this);
+		scale.y += y;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent scaleZ(float z) {
-		this.scale.z += z;
-
-		if (!worldScaleDirty) {
-			this.worldScale.z += z;
-			markChildrenWorldScaleDirty();
-		}
-
-		notifyChanged(this);
+		scale.z += z;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setScale(Vector3 scale) {
-		this.scale.set(scale);
-		markWorldScaleDirty();
-		notifyChanged(this);
+		scale.set(scale);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setScale(float x, float y, float z) {
-		this.scale.set(x, y, z);
-		markWorldScaleDirty();
-		notifyChanged(this);
+		scale.set(x, y, z);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setScaleX(float x) {
-		this.scale.x = x;
-		markWorldScaleDirty();
-		notifyChanged(this);
+		scale.x = x;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setScaleY(float y) {
-		this.scale.y = y;
-		markWorldScaleDirty();
-		notifyChanged(this);
+		scale.y = y;
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setScaleZ(float z) {
-		this.scale.z = z;
-		markWorldScaleDirty();
-		notifyChanged(this);
+		scale.z = z;
+		notifyChanged();
 		return this;
 	}
 
-	public TransformComponent setWorldScale(Vector3 scale) {
-		return setWorldScale(scale.x, scale.y, scale.z);
+	public TransformComponent setWorldScale(Vector3 newScale) {
+		return setWorldScale(newScale.x, newScale.y, newScale.z);
 	}
 
 	public TransformComponent setWorldScale(float x, float y, float z) {
-		this.scale.set(x, y, z);
-		this.worldScale.set(x, y, z);
+		if (parentTransform == null) {
+			scale.set(x, y, z);
+		} else {
+			parentTransform.getWorldScale(tempVector);
 
-		if (parentTransform != null) {
-			this.scale.sub(parentTransform.getWorldScale());
+			if (tempVector.x == 0) {
+				scale.x = x;
+			} else {
+				scale.x /= tempVector.x;
+			}
+
+			if (tempVector.y == 0) {
+				scale.y = y;
+			} else {
+				scale.y /= tempVector.y;
+			}
+
+			if (tempVector.z == 0) {
+				scale.z = z;
+			} else {
+				scale.z /= tempVector.z;
+			}
 		}
 
-		worldScaleDirty = false;
-		markWorldScaleHierarchyDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldScaleX(float x) {
-		this.scale.x = x;
-
-		if (parentTransform != null) {
-			this.scale.x -= parentTransform.getWorldScaleX();
+		if (parentTransform == null) {
+			scale.x = x;
+		} else {
+			float parentScale = parentTransform.getWorldScaleX();
+			if (parentScale == 0) {
+				scale.x = x;
+			} else {
+				scale.x /= parentScale;
+			}
 		}
 
-		if (!worldScaleDirty) {
-			this.worldScale.x = x;
-			markWorldScaleHierarchyDirty();
-		}
-
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldScaleY(float y) {
-		this.scale.y = y;
-
-		if (parentTransform != null) {
-			this.scale.y -= parentTransform.getWorldScaleY();
+		if (parentTransform == null) {
+			scale.y = y;
+		} else {
+			float parentScale = parentTransform.getWorldScaleY();
+			if (parentScale == 0) {
+				scale.y = y;
+			} else {
+				scale.y /= parentScale;
+			}
 		}
 
-		if (!worldScaleDirty) {
-			this.worldScale.y = y;
-			markWorldScaleHierarchyDirty();
-		}
-
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldScaleZ(float z) {
-		this.scale.z = z;
 
-		if (parentTransform != null) {
-			this.scale.z -= parentTransform.getWorldScaleZ();
+		if (parentTransform == null) {
+			scale.z = z;
+		} else {
+			float parentScale = parentTransform.getWorldScaleZ();
+			if (parentScale == 0) {
+				scale.z = z;
+			} else {
+				scale.z /= parentScale;
+			}
 		}
 
-		if (!worldScaleDirty) {
-			this.worldScale.z = z;
-			markWorldScaleHierarchyDirty();
-		}
-
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
@@ -517,44 +413,12 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Vector3 getWorldScale() {
-		if (worldScaleDirty) {
-			worldScale.set(scale);
-
-			if (parentTransform != null) {
-				worldScale.scl(parentTransform.getWorldScale());
-			}
-
-			worldScaleDirty = false;
+		if (parentTransform == null) {
+			return scale;
+		} else {
+			update();
+			return worldTransform.getScale(tempVector);
 		}
-
-		return worldScale;
-	}
-
-	private void markWorldScaleDirty() {
-		transformDirty = true;
-
-		if (!worldScaleDirty) {
-			worldScaleDirty = true;
-			worldTransformDirty = true;
-			worldTransformInvDirty = true;
-			markChildrenWorldScaleDirty();
-		}
-	}
-
-	private void markChildrenWorldScaleDirty() {
-		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
-		for (int i = 0; i < childNodes.size(); i++) {
-			SceneNode2 child = childNodes.get(i);
-			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
-			childTransformComponent.markWorldScaleDirty();
-		}
-	}
-
-	private void markWorldScaleHierarchyDirty() {
-		transformDirty = true;
-		worldTransformDirty = true;
-		worldTransformInvDirty = true;
-		markChildrenWorldScaleDirty();
 	}
 
 	// ///////////////rotation
@@ -567,54 +431,22 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		rotation.set(x, y, z, w);
 		rotation.nor();
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setWorldRotation(float x, float y, float z, float w) {
-		worldRotation.set(x, y, z, w);
-		worldRotation.nor();
-		worldEulerRotation.set(worldRotation.getPitch(), worldRotation.getYaw(), worldRotation.getRoll());
-
-		if (parentTransform != null) {
-			parentTransform.getWorldRotation(rotator).conjugate();
-			rotation.set(worldRotation).mul(rotator);
-			rotation.nor();
+		if (parentTransform == null) {
+			rotation.set(x, y, z, w);
 			eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		} else {
-			rotation.set(worldRotation);
-			eulerRotation.set(worldEulerRotation);
+			parentTransform.getWorldRotation(rotator).conjugate();
+			rotation.set(x, y, z, w).mul(rotator);
+			rotation.nor();
+			eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 		}
 
-		worldRotationDirty = false;
-		markWorldRotationHierarchyDirty();
-		notifyChanged(this);
-		return this;
-	}
-
-	// TODO wrong
-	public TransformComponent setRotationX(float angle) {
-		rotation.set(Vector3.X, angle);
-		eulerRotation.x = angle;
-		markWorldRotationDirty();
-		notifyChanged(this);
-		return this;
-	}
-
-	public TransformComponent setRotationY(float angle) {
-		rotation.set(Vector3.Y, angle);
-		eulerRotation.y = angle;
-		markWorldRotationDirty();
-		notifyChanged(this);
-		return this;
-	}
-
-	public TransformComponent setRotationZ(float angle) {
-		rotation.set(Vector3.Z, angle);
-		eulerRotation.z = angle;
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
@@ -625,8 +457,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	public TransformComponent setEulerRotation(float x, float y, float z) {
 		rotation.setEulerAngles(y, x, z);
 		eulerRotation.set(x, y, z);
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
@@ -635,53 +466,41 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setWorldEulerRotation(float x, float y, float z) {
-		worldRotation.setEulerAngles(y, x, z);
-		worldEulerRotation.set(x, y, z);
-
 		eulerRotation.set(x, y, z);
-
 		if (parentTransform != null) {
 			eulerRotation.sub(parentTransform.getWorldEulerRotation());
 		}
-
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-
-		worldRotationDirty = false;
-		markWorldRotationHierarchyDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setEulerRotationX(float angle) {
 		eulerRotation.x = angle;
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setEulerRotationY(float angle) {
 		eulerRotation.y = angle;
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setEulerRotationZ(float angle) {
 		eulerRotation.z = angle;
 		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotate(Quaternion additionalRotation) {
 		this.rotation.mul(additionalRotation);
 		rotation.nor();
-		eulerRotation.add(additionalRotation.getPitch(), additionalRotation.getYaw(), additionalRotation.getRoll());
-		markWorldRotationDirty();
-		notifyChanged(this);
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		notifyChanged();
 		return this;
 	}
 
@@ -689,35 +508,34 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		this.rotation.mul(x, y, z, w);
 		rotation.nor();
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
-		markWorldRotationDirty();
-		notifyChanged(this);
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotateX(float angle) {
 		rotator.set(Vector3.X, angle);
 		rotation.mul(rotator);
-		eulerRotation.x += angle;
-		markWorldRotationDirty();
-		notifyChanged(this);
+		rotation.nor();
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotateY(float angle) {
 		rotator.set(Vector3.Y, angle);
 		rotation.mul(rotator);
-		eulerRotation.y += angle;
-		markWorldRotationDirty();
-		notifyChanged(this);
+		rotation.nor();
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotateZ(float angle) {
 		rotator.set(Vector3.Z, angle);
 		rotation.mul(rotator);
-		eulerRotation.z += angle;
-		markWorldRotationDirty();
-		notifyChanged(this);
+		rotation.nor();
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		notifyChanged();
 		return this;
 	}
 
@@ -728,9 +546,9 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	public TransformComponent eulerRotate(float x, float y, float z) {
 		rotator.setEulerAngles(y, x, z);
 		rotation.mul(rotator);
-		eulerRotation.add(x, y, z);
-		markWorldRotationDirty();
-		notifyChanged(this);
+		rotation.nor();
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		notifyChanged();
 		return this;
 	}
 
@@ -771,17 +589,12 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Vector3 getWorldEulerRotation() {
-		if (worldEulerRotationDirty) {
-			worldEulerRotation.set(eulerRotation);
-
-			if (parentTransform != null) {
-				worldEulerRotation.add(parentTransform.getWorldEulerRotation());
-			}
-
-			worldEulerRotationDirty = false;
+		if (parentTransform == null) {
+			return eulerRotation;
+		} else {
+			Quaternion worldRotation = getWorldRotation();
+			return tempVector.set(worldRotation.getPitch(), worldRotation.getYaw(), worldRotation.getRoll());
 		}
-
-		return worldEulerRotation;
 	}
 
 	public Quaternion getWorldRotation(Quaternion outRotation) {
@@ -789,46 +602,12 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Quaternion getWorldRotation() {
-		if (worldRotationDirty) {
-
-			if (parentTransform == null) {
-				worldRotation.set(rotation);
-			} else {
-				worldRotation.set(parentTransform.getWorldRotation()).mul(rotation);
-			}
-
-			worldRotationDirty = false;
+		if (parentTransform == null) {
+			return rotation;
+		} else {
+			update();
+			return worldTransform.getRotation(rotator, true);
 		}
-
-		return worldRotation;
-	}
-
-	private void markWorldRotationDirty() {
-		transformDirty = true;
-
-		if (!worldRotationDirty) {
-			worldRotationDirty = true;
-			worldEulerRotationDirty = true;
-			worldTransformDirty = true;
-			worldTransformInvDirty = true;
-			markChildrenWorldRotationDirty();
-		}
-	}
-
-	private void markChildrenWorldRotationDirty() {
-		ImmutableArray<SceneNode2> childNodes = getNode().childNodes;
-		for (int i = 0; i < childNodes.size(); i++) {
-			SceneNode2 child = childNodes.get(i);
-			TransformComponent childTransformComponent = child.getComponent(TransformComponent.class);
-			childTransformComponent.markWorldRotationDirty();
-		}
-	}
-
-	private void markWorldRotationHierarchyDirty() {
-		transformDirty = true;
-		worldTransformDirty = true;
-		worldTransformInvDirty = true;
-		markChildrenWorldRotationDirty();
 	}
 
 	////////////////// transform
@@ -839,93 +618,70 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transform.getScale(scale);
 		transform.getRotation(rotation, true);
 		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
-		markWorldTransformDirty();
+
+		if (parentTransform == null) {
+			worldTransform.set(transform);
+		} else {
+			worldTransform.set(parentTransform.getWorldTransform()).mul(transform);
+		}
+
+		transformDirty = false;
+		transformInvDirty = true;
 		notifyChanged(this);
 	}
 
 	public void setWorldTransform(Matrix4 newWorldTransform) {
 		worldTransform.set(newWorldTransform);
-		worldTransform.getTranslation(worldTranslation);
-		worldTransform.getScale(worldScale);
-		worldTransform.getRotation(worldRotation, true);
-		worldEulerRotation.set(worldRotation.getPitch(), worldRotation.getYaw(), worldRotation.getRoll());
+		transform.set(worldTransform);
 
-		if (parentTransform == null) {
-			transform.set(worldTransform);
-			translation.set(worldTranslation);
-			scale.set(worldScale);
-			rotation.set(worldRotation);
-			eulerRotation.set(worldEulerRotation);
-		} else {
-			transform.set(worldTransform).mul(parentTransform.getWorldTransformInverse());
-			transform.getTranslation(translation);
-			transform.getScale(scale);
-			transform.getRotation(rotation, true);
-			eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		if (parentTransform != null) {
+			transform.mul(parentTransform.getWorldTransformInverse());
 		}
 
-		worldTransformDirty = false;
-		worldTransformInvDirty = false;
-		worldTranslationDirty = false;
-		worldScaleDirty = false;
-		worldRotationDirty = false;
-		worldEulerRotationDirty = false;
+		transform.getTranslation(translation);
+		transform.getScale(scale);
+		transform.getRotation(rotation, true);
+		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
 
+		transformDirty = false;
+		transformInvDirty = true;
 		notifyChanged(this);
-	}
-
-	private void markTransformDirty() {
-		transformDirty = true;
-		markWorldTransformDirty();
-	}
-
-	private void markWorldTransformDirty() {
-		if (!worldTransformDirty || !worldTranslationDirty || !worldScaleDirty || !worldRotationDirty) {
-			worldTransformDirty = true;
-			worldTransformInvDirty = true;
-			worldTranslationDirty = true;
-			worldScaleDirty = true;
-			worldRotationDirty = true;
-			worldEulerRotationDirty = true;
-			notifyChanged(this);
-		}
-	}
-
-	private Matrix4 getTransform() {
-		if (transformDirty) {
-			transform.set(translation, rotation, scale);
-			transformDirty = false;
-		}
-
-		return transform;
 	}
 
 	public Matrix4 getTransform(Matrix4 outTransform) {
 		return outTransform.set(getTransform());
 	}
 
-	private Matrix4 getWorldTransform() {
-		if (worldTransformDirty) {
-			if (parentTransform == null) {
-				worldTransform.set(getTransform());
-			} else {
-				worldTransform.set(parentTransform.getWorldTransform()).mul(getTransform());
-			}
-
-			worldTransformDirty = false;
-		}
-
-		return worldTransform;
+	private Matrix4 getTransform() {
+		update();
+		return transform;
 	}
 
 	public Matrix4 getWorldTransform(Matrix4 outTransform) {
 		return outTransform.set(getWorldTransform());
 	}
 
+	private Matrix4 getWorldTransform() {
+		update();
+		return worldTransform;
+	}
+
+	private void update() {
+		if (transformDirty) {
+			transform.set(translation, rotation, scale);
+			if (parentTransform == null) {
+				worldTransform.set(getTransform());
+			} else {
+				worldTransform.set(parentTransform.getWorldTransform()).mul(getTransform());
+			}
+			transformDirty = false;
+		}
+	}
+
 	public Matrix4 getWorldTransformInverse() {
-		if (worldTransformInvDirty) {
+		if (transformInvDirty) {
 			worldTransformInverse.set(getWorldTransform()).inv();
-			worldTransformInvDirty = false;
+			transformInvDirty = false;
 		}
 
 		return worldTransformInverse;
@@ -951,7 +707,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	public void propertyChanged(PropertyChangeEvent event) {
 		Array<Object> propertyPath = event.propertyPath;
 		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
-			markWorldTransformDirty();
+			notifyChanged();
 		}
 	}
 
@@ -965,37 +721,38 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		eulerRotation.setZero();
 		scale.set(1, 1, 1);
 		transformDirty = true;
-		worldTransformDirty = true;
-		worldTransformInvDirty = true;
-		worldTranslationDirty = true;
-		worldScaleDirty = true;
-		worldRotationDirty = true;
-		worldEulerRotationDirty = true;
-		changeDispatched = true;
+		transformInvDirty = true;
 	}
 
 	private class NodeParentChangedListener implements ObjectParentChangeListener {
 		@Override
 		public void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
+			boolean notify = false;
 			if (oldParent instanceof SceneNode2) {
 				SceneNode2 parentNode = (SceneNode2) oldParent;
 				unsubscribeFrom(parentNode, parentComponentActivityListener);
 				unsubscribeFrom(parentNode, parentNodeTransformChangedListener);
-				parentTransform = null;
+				if (parentTransform != null) {
+					notify = true;
+					parentTransform = null;
+				}
 			}
 
 			if (newParent instanceof SceneNode2) {
 				SceneNode2 parentNode = (SceneNode2) newParent;
 				TransformComponent newParentTransform = parentNode.getActiveComponent(TransformComponent.class);
-				if (parentTransform != null || newParentTransform != null) {
+				if (newParentTransform != null) {
+					notify = true;
 					parentTransform = newParentTransform;
-					markTransformDirty();
 				}
+
 				subscribeTo(parentNode, parentComponentActivityListener);
 				subscribeTo(parentNode, parentNodeTransformChangedListener);
 			}
 
-			markTransformDirty();
+			if (notify) {
+				notifyChanged();
+			}
 		}
 	}
 
@@ -1004,7 +761,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		public void nodeComponentActivated(SceneNodeComponent2 component) {
 			if (component instanceof TransformComponent) {
 				parentTransform = (TransformComponent) component;
-				markTransformDirty();
+				notifyChanged();
 			}
 		}
 
@@ -1012,7 +769,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 			if (parentTransform == component) {
 				parentTransform = null;
-				markTransformDirty();
+				notifyChanged();
 			}
 		}
 	}
@@ -1020,7 +777,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	private class ParentNodeTransformChangedListener implements NodeTransformChangedListener {
 		@Override
 		public void onNodeTransformChanged() {
-			markTransformDirty();
+			notifyChanged();
 		}
 	}
 }

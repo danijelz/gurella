@@ -39,6 +39,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		Display display = getDisplay();
+		//http://www.eclipsezone.com/eclipse/forums/t61092.html  colors...
 		toolkit = new FormToolkit(display);
 		resourceManager = new DeviceResourceManager(display);
 	}
