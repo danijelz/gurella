@@ -392,19 +392,17 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private static void calculateTangents(Model result) {
 		Array<Mesh> meshes = result.meshes;
-		Vector3 Tangent = new Vector3();
-		Vector3 Bitangent = new Vector3();
+		Vector3 tangent = new Vector3();
+		Vector3 bitangent = new Vector3();
 
 		for (Mesh mesh : meshes) {
 			int numVertices = mesh.getNumVertices();
 			final int vertexSize = mesh.getVertexSize() / 4;
 			float[] vertices = mesh.getVertices(new float[vertexSize * numVertices]);
-			// System.out.println(Arrays.toString(vertices));
 
 			int numIndices = mesh.getNumIndices();
 			short[] indices = new short[numIndices];
 			mesh.getIndices(indices);
-			// System.out.println(Arrays.toString(indices));
 
 			VertexAttributes vertexAttributes = mesh.getVertexAttributes();
 			int offsetPosition = vertexAttributes.getOffset(Usage.Position, -1);
@@ -447,67 +445,71 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 				float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
 
-				Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
-				Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
-				Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
+				tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
+				tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
+				tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
 
 				if (offsetTangent >= 0) {
 					vert = indices[i];
-					vertices[(vert * stride) + offsetTangent] += Tangent.x;
-					vertices[(vert * stride) + offsetTangent + 1] += Tangent.y;
-					vertices[(vert * stride) + offsetTangent + 2] += Tangent.z;
+					vertices[(vert * stride) + offsetTangent] += tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] += tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] += tangent.z;
 					vert = indices[i + 1];
-					vertices[(vert * stride) + offsetTangent] += Tangent.x;
-					vertices[(vert * stride) + offsetTangent + 1] += Tangent.y;
-					vertices[(vert * stride) + offsetTangent + 2] += Tangent.z;
+					vertices[(vert * stride) + offsetTangent] += tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] += tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] += tangent.z;
 					vert = indices[i + 2];
-					vertices[(vert * stride) + offsetTangent] += Tangent.x;
-					vertices[(vert * stride) + offsetTangent + 1] += Tangent.y;
-					vertices[(vert * stride) + offsetTangent + 2] += Tangent.z;
+					vertices[(vert * stride) + offsetTangent] += tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] += tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] += tangent.z;
 				}
 
 				if (offsetBiNormal >= 0) {
-					Bitangent.x = f * (-DeltaU2 * Edge1.x - DeltaU1 * Edge2.x);
-					Bitangent.y = f * (-DeltaU2 * Edge1.y - DeltaU1 * Edge2.y);
-					Bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);
+					bitangent.x = f * (-DeltaU2 * Edge1.x - DeltaU1 * Edge2.x);
+					bitangent.y = f * (-DeltaU2 * Edge1.y - DeltaU1 * Edge2.y);
+					bitangent.z = f * (-DeltaU2 * Edge1.z - DeltaU1 * Edge2.z);
 
 					vert = indices[i];
-					vertices[(vert * stride) + offsetBiNormal] += Bitangent.x;
-					vertices[(vert * stride) + offsetBiNormal + 1] += Bitangent.y;
-					vertices[(vert * stride) + offsetBiNormal + 2] += Bitangent.z;
+					vertices[(vert * stride) + offsetBiNormal] += bitangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] += bitangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 2] += bitangent.z;
 					vert = indices[i + 1];
-					vertices[(vert * stride) + offsetBiNormal] += Bitangent.x;
-					vertices[(vert * stride) + offsetBiNormal + 1] += Bitangent.y;
-					vertices[(vert * stride) + offsetBiNormal + 2] += Bitangent.z;
+					vertices[(vert * stride) + offsetBiNormal] += bitangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] += bitangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 2] += bitangent.z;
 					vert = indices[i + 2];
-					vertices[(vert * stride) + offsetBiNormal] += Bitangent.x;
-					vertices[(vert * stride) + offsetBiNormal + 1] += Bitangent.y;
-					vertices[(vert * stride) + offsetBiNormal + 2] += Bitangent.z;
+					vertices[(vert * stride) + offsetBiNormal] += bitangent.x;
+					vertices[(vert * stride) + offsetBiNormal + 1] += bitangent.y;
+					vertices[(vert * stride) + offsetBiNormal + 2] += bitangent.z;
 				}
 			}
-			
-			Vector3 normal = Bitangent;
-			if(offsetTangent >= 0) {
+
+			Vector3 normal = bitangent;
+			if (offsetTangent >= 0) {
 				for (int i = 0; i < numIndices; i += 3) {
 					int vert = indices[i];
 					float nx = vertices[(vert * stride) + offsetTangent];
 					float ny = vertices[(vert * stride) + offsetTangent + 1];
 					float nz = vertices[(vert * stride) + offsetTangent + 2];
 					normal.set(nx, ny, nz);
-					
+
 					float tx = vertices[(vert * stride) + offsetTangent];
 					float ty = vertices[(vert * stride) + offsetTangent + 1];
 					float tz = vertices[(vert * stride) + offsetTangent + 2];
-					Tangent.set(tx, ty, tz);
-					
-					//(t - n * Dot(n, t)).Normalize() TODO
+
+					tangent.set(tx, ty, tz);
+					float dot = normal.dot(tangent);
+					tangent.sub(normal).scl(dot).nor();
+
+					vertices[(vert * stride) + offsetTangent] = tangent.x;
+					vertices[(vert * stride) + offsetTangent + 1] = tangent.y;
+					vertices[(vert * stride) + offsetTangent + 2] = tangent.z;
 				}
 			}
 
 			System.out.println(Arrays.toString(vertices));
 			mesh.setVertices(vertices);
 		}
-		// TODO Auto-generated method stub
 	}
 
 	private Model createSphere() {
