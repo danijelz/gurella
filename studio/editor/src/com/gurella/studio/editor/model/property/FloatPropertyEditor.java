@@ -6,6 +6,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.UiUtils;
 
 public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
@@ -15,12 +16,13 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 		super(parent, context);
 
 		GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginWidth = 1;
+		layout.marginHeight = 2;
 		body.setLayout(layout);
 		text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
+		layoutData.heightHint = 10;
 		text.setLayoutData(layoutData);
 
 		Float value = getValue();
@@ -28,6 +30,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 			text.setText(value.toString());
 		}
 
-		text.addModifyListener((e) -> setValue(Float.valueOf(text.getText())));
+		text.addModifyListener(e -> setValue(Float.valueOf(text.getText())));
+		GurellaStudioPlugin.getToolkit().paintBordersFor(body);
 	}
 }

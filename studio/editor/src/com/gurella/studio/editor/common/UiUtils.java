@@ -1,5 +1,8 @@
 package com.gurella.studio.editor.common;
 
+import static com.gurella.studio.GurellaStudioPlugin.createFont;
+
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -9,13 +12,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class UiUtils {
 	public static Text createFloatWidget(Composite parent) {
-		Text text = GurellaStudioPlugin.getToolkit().createText(parent, "", SWT.BORDER | SWT.SINGLE);
+		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		Text text = toolkit.createText(parent, "", SWT.SINGLE);
 		text.addVerifyListener(e -> verifyFloat(e, text.getText()));
+		toolkit.adapt(text, false, false);
+		text.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
+		text.setFont(createFont(FontDescriptor.createFrom(text.getFont()).increaseHeight(-2)));
 		return text;
 	}
 

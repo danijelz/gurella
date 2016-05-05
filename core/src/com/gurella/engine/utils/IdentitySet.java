@@ -558,6 +558,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable {
 		T[] oldKeyTable = keyTable;
 		init(32, 0.8f);
 		PoolService.free(oldKeyTable);
+		size = 0;
 	}
 
 	static public <T> IdentitySet<T> with(T... array) {

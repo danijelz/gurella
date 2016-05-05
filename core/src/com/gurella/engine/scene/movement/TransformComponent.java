@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
@@ -17,7 +18,7 @@ import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListe
 import com.gurella.engine.utils.ImmutableArray;
 
 @ModelDescriptor(descriptiveName = "Transform")
-public class TransformComponent extends SceneNodeComponent2 implements Poolable {
+public class TransformComponent extends SceneNodeComponent2 implements PropertyChangeListener, Poolable {
 	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
 	private static final Object mutex = new Object();
 
@@ -82,16 +83,16 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	private static void notifyChanged(TransformComponent component) {
+		// if (!component.changeDispatched) {
 		synchronized (mutex) {
-			// if (!component.changeDispatched) {
 			component.changeDispatched = true;
 			EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onNodeTransformChanged();
 			}
 			listeners.clear();
-			// }
 		}
+		// }
 	}
 
 	// //////////translate
@@ -271,7 +272,7 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 	public Vector3 getTranslation() {
 		return translation;
 	}
-	
+
 	public float getWorldTranslationX() {
 		return getWorldTranslation().x;
 	}
@@ -944,6 +945,14 @@ public class TransformComponent extends SceneNodeComponent2 implements Poolable 
 
 	public Vector3 worldToLocal(Vector3 point, Vector3 out) {
 		return out.set(point).mul(getWorldTransformInverse());
+	}
+
+	@Override
+	public void propertyChanged(PropertyChangeEvent event) {
+		Array<Object> propertyPath = event.propertyPath;
+		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
+			markWorldTransformDirty();
+		}
 	}
 
 	@Override

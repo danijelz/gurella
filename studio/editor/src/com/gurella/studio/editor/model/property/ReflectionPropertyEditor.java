@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.ModelEditorContainer;
+import com.gurella.studio.editor.model.ModelEditorContext;
 
 public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	private ModelEditorContainer<P> objectPropertiesContainer;

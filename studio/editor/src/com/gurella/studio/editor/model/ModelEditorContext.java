@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.model.property;
+package com.gurella.studio.editor.model;
 
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -22,12 +22,12 @@ public class ModelEditorContext<T> {
 	public ModelEditorContext(ModelEditorContext<?> parent, T modelInstance) {
 		this(parent, Models.getModel(modelInstance), modelInstance);
 	}
-	
+
 	public ModelEditorContext(ModelEditorContext<?> parent, Model<T> model, T modelInstance) {
 		this.parent = parent;
 		this.model = model;
 		this.modelInstance = modelInstance;
-		
+
 		if (parent != null) {
 			signal.addListener(parent.signal::dispatch);
 		}

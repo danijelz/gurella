@@ -1,8 +1,6 @@
 package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -12,6 +10,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.common.UiUtils;
 
 public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 	public Matrix4PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix4> context) {
@@ -34,6 +33,7 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		createText(Matrix4.M31, "31");
 		createText(Matrix4.M32, "32");
 		createText(Matrix4.M33, "33");
+		GurellaStudioPlugin.getToolkit().paintBordersFor(body);
 	}
 
 	private void createText(int index, String name) {
@@ -43,9 +43,10 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		label.setAlignment(SWT.LEFT);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
 
-		Text text = toolkit.createText(body, "", SWT.BORDER | SWT.SINGLE);
+		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
+		layoutData.heightHint = 10;
 		text.setLayoutData(layoutData);
 
 		Matrix4 value = getValue();
@@ -54,20 +55,6 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		}
 
 		text.addModifyListener((e) -> valueChanged(index, text.getText()));
-		text.addVerifyListener(new VerifyListener() {
-			@Override
-			public void verifyText(VerifyEvent e) {
-				try {
-					final String oldS = text.getText();
-					String newS = oldS.substring(0, e.start) + e.text + oldS.substring(e.end);
-					if (newS.length() > 0) {
-						Float.parseFloat(newS);
-					}
-				} catch (Exception e2) {
-					e.doit = false;
-				}
-			}
-		});
 	}
 
 	private void valueChanged(int index, String value) {

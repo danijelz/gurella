@@ -12,7 +12,7 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.ModelEditorContainer;
-import com.gurella.studio.editor.model.property.ModelEditorContext;
+import com.gurella.studio.editor.model.ModelEditorContext;
 
 public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent2> {
 	private ModelEditorContainer<SceneNodeComponent2> propertiesContainer;

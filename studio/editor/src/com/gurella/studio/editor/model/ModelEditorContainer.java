@@ -25,7 +25,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.property.ModelEditorContext;
+import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.SimplePropertyEditor;
@@ -46,8 +46,8 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		setExpandHorizontal(true);
 		GurellaStudioPlugin.getToolkit().adapt(this);
 		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginWidth = 1;
+		layout.marginHeight = 1;
 		getBody().setLayout(layout);
 		initEditors();
 		Listener mouseMoveListener = e -> mouseMoved();
@@ -60,7 +60,6 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 	private void initEditors() {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		Arrays.stream(array).filter(p -> p.isEditable()).forEach(p -> addEditor(p));
-		layout(true, true);
 	}
 
 	private <V> void addEditor(Property<V> property) {
@@ -78,7 +77,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
-		} else {
+		} else if (editor instanceof ComplexPropertyEditor) {
 			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX);
 			componentSection.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 2, 1);
@@ -87,9 +86,10 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			componentSection.setText(editor.getDescriptiveName());
 			composite.setParent(componentSection);
 			componentSection.setClient(composite);
-			//composite.layout(true, true);
 			componentSection.setExpanded(true);
-			componentSection.layout();
+			componentSection.layout(true, true);
+		} else {
+			layoutData.horizontalSpan = 2;
 		}
 
 		Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);

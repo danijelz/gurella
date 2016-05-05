@@ -64,7 +64,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.ModelEditorContainer;
-import com.gurella.studio.editor.model.property.ModelEditorContext;
+import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 

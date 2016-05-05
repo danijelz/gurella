@@ -63,6 +63,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	@Override
 	public void onNodeTransformChanged() {
+		updateTransform();
 		notifyChanged(this);
 	}
 

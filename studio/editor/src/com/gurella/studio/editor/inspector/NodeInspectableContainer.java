@@ -63,7 +63,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.ModelEditorContainer;
-import com.gurella.studio.editor.model.property.ModelEditorContext;
+import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 
@@ -188,10 +188,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	private void addComponent(SceneNodeComponent2 component) {
 		target.addComponent(component);
 		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = createSection(component);
-		propertiesContainer.pack(true);
-		propertiesContainer.layout(true, true);
 		componentContainers.add(propertiesContainer);
 		postMessage(new ComponentAddedMessage(component));
+		layout(true, true);
 		reflow(true);
 	}
 
