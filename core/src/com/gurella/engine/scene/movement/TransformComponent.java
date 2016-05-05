@@ -680,9 +680,9 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		if (transformDirty) {
 			transform.set(translation, rotation, scale);
 			if (parentTransform == null) {
-				worldTransform.set(getTransform());
+				worldTransform.set(transform);
 			} else {
-				worldTransform.set(parentTransform.getWorldTransform()).mul(getTransform());
+				worldTransform.set(parentTransform.getWorldTransform()).mul(transform);
 			}
 			transformDirty = false;
 		}
@@ -711,14 +711,6 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	public Vector3 worldToLocal(Vector3 point, Vector3 out) {
 		return out.set(point).mul(getWorldTransformInverse());
-	}
-
-	@Override
-	public void propertyChanged(PropertyChangeEvent event) {
-		Array<Object> propertyPath = event.propertyPath;
-		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
-			notifyChanged();
-		}
 	}
 
 	public Vector3 getWorldUp(Vector3 out) {
@@ -772,6 +764,17 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		// direction.set(tmpVec);
 		// normalizeUp();
 		// }
+	}
+
+	@Override
+	public void propertyChanged(PropertyChangeEvent event) {
+		Array<Object> propertyPath = event.propertyPath;
+		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
+			if(propertyPath.peek() == eulerRotation) {
+				rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+			}
+			notifyChanged();
+		}
 	}
 
 	@Override
