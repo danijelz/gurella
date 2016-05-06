@@ -26,19 +26,8 @@ public class RGBAColorDescriptor extends ColorDescriptor {
 		this.originalColor = originalColor;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof RGBAColorDescriptor) {
-			RGBAColorDescriptor other = (RGBAColorDescriptor) obj;
-			return other.color.equals(color) && other.originalColor == originalColor;
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return color.hashCode();
+	public RGBA getColor() {
+		return new RGBA(color.rgb.red, color.rgb.green, color.rgb.blue, color.alpha);
 	}
 
 	@Override
@@ -62,5 +51,20 @@ public class RGBAColorDescriptor extends ColorDescriptor {
 		}
 
 		toDestroy.dispose();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof RGBAColorDescriptor) {
+			RGBAColorDescriptor other = (RGBAColorDescriptor) obj;
+			return other.color.equals(color) && other.originalColor == originalColor;
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return color.hashCode();
 	}
 }
