@@ -51,7 +51,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private SceneEditorMainContainer mainContainer;
 
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
-	private GurellaEditorContext context;
+	private SceneEditorContext context;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
@@ -116,7 +116,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		this.contentComposite = parent;
 		parent.setLayout(new GridLayout());
 
-		context = new GurellaEditorContext((IPathEditorInput) getEditorInput());
+		context = new SceneEditorContext((IPathEditorInput) getEditorInput());
 		context.addEditorMessageListener(this);
 
 		mainContainer = new SceneEditorMainContainer(this, parent, SWT.NONE);
@@ -159,7 +159,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		contentComposite.layout();
 	}
 
-	public GurellaEditorContext getContext() {
+	public SceneEditorContext getContext() {
 		return context;
 	}
 

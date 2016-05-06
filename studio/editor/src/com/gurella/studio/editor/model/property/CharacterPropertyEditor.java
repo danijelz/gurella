@@ -1,14 +1,12 @@
 package com.gurella.studio.editor.model.property;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class CharacterPropertyEditor extends SimplePropertyEditor<Character> {
 	private Text text;
@@ -17,11 +15,15 @@ public class CharacterPropertyEditor extends SimplePropertyEditor<Character> {
 		super(parent, context);
 
 		GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginWidth = 1;
+		layout.marginHeight = 2;
 		body.setLayout(layout);
-		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+
+		text = UiUtils.createCharacterWidget(body);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.widthHint = 60;
+		layoutData.heightHint = 16;
+		text.setLayoutData(layoutData);
 
 		Character value = getValue();
 		if (value != null) {
@@ -29,15 +31,6 @@ public class CharacterPropertyEditor extends SimplePropertyEditor<Character> {
 		}
 
 		text.addModifyListener((e) -> setValue(Character.valueOf(text.getText().charAt(0))));
-		text.addVerifyListener(new VerifyListener() {
-			@Override
-			public void verifyText(VerifyEvent e) {
-				final String oldS = text.getText();
-				String newS = oldS.substring(0, e.start) + e.text + oldS.substring(e.end);
-				if (newS.length() > 1) {
-					e.doit = false;
-				}
-			}
-		});
+		UiUtils.paintBordersFor(body);
 	}
 }

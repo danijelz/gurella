@@ -17,7 +17,7 @@ import com.gurella.engine.graphics.material.MaterialDescriptor.BlendFunction;
 import com.gurella.engine.graphics.material.MaterialDescriptor.BlendingAttributeProperties;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.UiUtils;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class BlendAttributeEditor extends Composite {
 	private ComboViewer sourceFunctionCombo;

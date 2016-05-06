@@ -10,7 +10,7 @@ import com.gurella.engine.scene.spatial.Spatial;
 public class BvhSpatial extends Spatial {
 	BvhNode node;
 	private final Vector3 translate = new Vector3();
-	private final BoundingBox bounds = new BoundingBox();
+	private final BoundingBox bounds = new BoundingBox().inf();
 
 	public static BvhSpatial obtain(RenderableComponent renderableComponent) {
 		BvhSpatial spatial = PoolService.obtain(BvhSpatial.class);

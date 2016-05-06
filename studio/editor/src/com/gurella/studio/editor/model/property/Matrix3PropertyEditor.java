@@ -10,7 +10,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix3;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.UiUtils;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 	public Matrix3PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix3> context) {
@@ -26,7 +26,7 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 		createText(Matrix3.M20, "20");
 		createText(Matrix3.M21, "21");
 		createText(Matrix3.M22, "22");
-		GurellaStudioPlugin.getToolkit().paintBordersFor(body);
+		UiUtils.paintBordersFor(body);
 	}
 
 	private void createText(int index, String name) {

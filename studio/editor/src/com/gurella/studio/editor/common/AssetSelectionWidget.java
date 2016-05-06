@@ -29,6 +29,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class AssetSelectionWidget<T> extends Composite {
 	private Text text;
@@ -47,7 +48,8 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		setLayout(layout);
-		text = toolkit.createText(this, "", SWT.BORDER);
+		
+		text = UiUtils.createText(this);
 		text.setEditable(false);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		layoutData.widthHint = 50;
@@ -63,6 +65,7 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		target.addDropListener(new AssetDropTarget());
 		
 		toolkit.adapt(this);
+		UiUtils.paintBordersFor(this);
 	}
 
 	private boolean isValidResource(IResource item) {

@@ -20,7 +20,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.SceneEditorView;
 
-public class GurellaEditorContext {
+public class SceneEditorContext {
 	public final IPathEditorInput editorInput;
 	public final IResource editorInputResource;
 	public final IWorkspace workspace;
@@ -37,7 +37,7 @@ public class GurellaEditorContext {
 
 	private IContainer rootAssetsContainer;
 
-	public GurellaEditorContext(IPathEditorInput editorInput) {
+	public SceneEditorContext(IPathEditorInput editorInput) {
 		this.editorInput = editorInput;
 		editorInputResource = editorInput.getAdapter(IResource.class);
 		workspace = editorInputResource.getWorkspace();

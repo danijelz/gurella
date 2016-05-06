@@ -8,7 +8,6 @@ public class Spatial implements Poolable {
 	public int nodeId;
 	public RenderableComponent renderableComponent;
 	public Layer layer;
-	public boolean dirty;
 
 	public void init(RenderableComponent renderableComponent) {
 		this.nodeId = renderableComponent.getNodeId();
@@ -21,6 +20,5 @@ public class Spatial implements Poolable {
 		nodeId = -1;
 		renderableComponent = null;
 		layer = null;
-		dirty = false;
 	}
 }

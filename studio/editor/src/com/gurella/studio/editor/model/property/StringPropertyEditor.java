@@ -6,20 +6,24 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class StringPropertyEditor extends SimplePropertyEditor<String> {
 	private Text text;
 
 	public StringPropertyEditor(Composite parent, PropertyEditorContext<?, String> context) {
 		super(parent, context);
-
+		
 		GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginWidth = 1;
+		layout.marginHeight = 2;
 		body.setLayout(layout);
-		text = GurellaStudioPlugin.getToolkit().createText(body, "", SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+
+		text = UiUtils.createText(body);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.widthHint = 60;
+		layoutData.heightHint = 16;
+		text.setLayoutData(layoutData);
 
 		String value = getValue();
 		if (value != null) {
@@ -27,5 +31,6 @@ public class StringPropertyEditor extends SimplePropertyEditor<String> {
 		}
 
 		text.addModifyListener((e) -> setValue(text.getText()));
+		UiUtils.paintBordersFor(body);
 	}
 }

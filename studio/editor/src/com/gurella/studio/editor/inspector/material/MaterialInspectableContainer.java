@@ -52,13 +52,13 @@ import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.UiUtils;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
 import com.gurella.studio.editor.swtgl.SwtLwjglInput;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private ModelBuilder builder;

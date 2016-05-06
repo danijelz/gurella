@@ -10,7 +10,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.UiUtils;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 	public Matrix4PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix4> context) {
@@ -33,7 +33,7 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		createText(Matrix4.M31, "31");
 		createText(Matrix4.M32, "32");
 		createText(Matrix4.M33, "33");
-		GurellaStudioPlugin.getToolkit().paintBordersFor(body);
+		UiUtils.paintBordersFor(body);
 	}
 
 	private void createText(int index, String name) {
