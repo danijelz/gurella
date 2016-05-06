@@ -10,7 +10,7 @@ import com.gurella.engine.graphics.GenericBatch;
 
 public abstract class RenderableComponent3d extends RenderableComponent {
 	public transient ModelInstance instance;
-	private final BoundingBox temp = new BoundingBox();
+	private transient final BoundingBox temp = new BoundingBox();
 
 	@Override
 	protected void render(GenericBatch batch) {
