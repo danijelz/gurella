@@ -119,14 +119,11 @@ public final class ComponentType {
 		int parentId = registry.getId(parentType);
 		int parentBaseId = baseComponentTypes.get(parentId, invalidId);
 
-		if (parentId == parentBaseId) {
-			if (Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null) {
-				baseComponentTypes.put(typeId, typeId);
-			} else {
-				baseComponentTypes.put(typeId, parentBaseId);
-			}
+		if (parentId == parentBaseId
+				&& (parentId == 0 || Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null)) {
+			baseComponentTypes.put(typeId, typeId);
 		} else {
-			baseComponentTypes.put(typeId, parentId);
+			baseComponentTypes.put(typeId, parentBaseId);
 		}
 	}
 

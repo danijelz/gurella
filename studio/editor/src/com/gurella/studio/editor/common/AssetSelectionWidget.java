@@ -46,7 +46,7 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginHeight = 2;
 		setLayout(layout);
 		
 		text = UiUtils.createText(this);

@@ -117,13 +117,9 @@ public class SystemType {
 		int parentId = registry.getId(parentType);
 		int parentBaseId = baseComponentTypes.get(parentId, invalidId);
 
-		if (parentId == parentBaseId) {
-			if (Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null) {
-				BaseSceneElement base = Reflection.getDeclaredAnnotation(type, BaseSceneElement.class);
-				baseComponentTypes.put(typeId, base == null ? parentId : typeId);
-			} else {
-				baseComponentTypes.put(typeId, parentBaseId);
-			}
+		if (parentId == parentBaseId
+				&& (parentId == 0 || Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null)) {
+			baseComponentTypes.put(typeId, typeId);
 		} else {
 			baseComponentTypes.put(typeId, parentBaseId);
 		}
