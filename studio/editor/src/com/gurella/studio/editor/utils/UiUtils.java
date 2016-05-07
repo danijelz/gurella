@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
@@ -164,5 +165,21 @@ public class UiUtils {
 
 	public static void paintBordersFor(Composite parent) {
 		GurellaStudioPlugin.getToolkit().paintBordersFor(parent);
+	}
+
+	public static Composite createComposite(Composite parent) {
+		return GurellaStudioPlugin.getToolkit().createComposite(parent);
+	}
+
+	public static Composite createComposite(Composite parent, int style) {
+		return GurellaStudioPlugin.getToolkit().createComposite(parent, style);
+	}
+
+	public static Label createLabel(Composite parent, String text) {
+		return GurellaStudioPlugin.getToolkit().createLabel(parent, text);
+	}
+
+	public static Label createLabel(Composite parent, String text, int style) {
+		return GurellaStudioPlugin.getToolkit().createLabel(parent, text, style);
 	}
 }

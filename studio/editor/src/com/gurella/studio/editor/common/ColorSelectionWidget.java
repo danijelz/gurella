@@ -79,8 +79,8 @@ public class ColorSelectionWidget extends Composite {
 			int halfWidth = width / 2;
 			int halfHeight = height / 2;
 
-			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
-			gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+			gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
 			gc.fillRectangle(0, 0, halfWidth, halfHeight);
 			gc.fillRectangle(halfWidth, halfHeight, halfWidth, halfHeight);
 
