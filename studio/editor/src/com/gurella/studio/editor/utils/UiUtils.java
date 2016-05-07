@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.utils;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
+import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -16,13 +17,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.studio.GurellaStudioPlugin;
-
 public class UiUtils {
 	private static Font TEXT_FONT;
 
 	public static Text createText(Composite parent) {
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		FormToolkit toolkit = getToolkit();
 		Text text = toolkit.createText(parent, "", SWT.SINGLE);
 		toolkit.adapt(text, false, false);
 		text.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
@@ -164,22 +163,22 @@ public class UiUtils {
 	}
 
 	public static void paintBordersFor(Composite parent) {
-		GurellaStudioPlugin.getToolkit().paintBordersFor(parent);
+		getToolkit().paintBordersFor(parent);
 	}
 
 	public static Composite createComposite(Composite parent) {
-		return GurellaStudioPlugin.getToolkit().createComposite(parent);
+		return getToolkit().createComposite(parent);
 	}
 
 	public static Composite createComposite(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createComposite(parent, style);
+		return getToolkit().createComposite(parent, style);
 	}
 
 	public static Label createLabel(Composite parent, String text) {
-		return GurellaStudioPlugin.getToolkit().createLabel(parent, text);
+		return getToolkit().createLabel(parent, text);
 	}
 
 	public static Label createLabel(Composite parent, String text, int style) {
-		return GurellaStudioPlugin.getToolkit().createLabel(parent, text, style);
+		return getToolkit().createLabel(parent, text, style);
 	}
 }
