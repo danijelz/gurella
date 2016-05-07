@@ -39,6 +39,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
@@ -198,7 +199,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(Models.getModel(componentType).getName());
 		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
-		item1.setEnabled(target.getComponent(componentType) == null);
+		item1.setEnabled(target.getComponent(ComponentType.getBaseType(componentType)) == null);
 	}
 
 	private void addScriptMenuItem(Menu menu) {

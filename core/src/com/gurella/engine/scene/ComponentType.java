@@ -120,8 +120,11 @@ public final class ComponentType {
 		int parentBaseId = baseComponentTypes.get(parentId, invalidId);
 
 		if (parentId == parentBaseId) {
-			BaseSceneElement base = Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class);
-			baseComponentTypes.put(typeId, base == null ? typeId : parentId);
+			if (Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null) {
+				baseComponentTypes.put(typeId, typeId);
+			} else {
+				baseComponentTypes.put(typeId, parentBaseId);
+			}
 		} else {
 			baseComponentTypes.put(typeId, parentId);
 		}

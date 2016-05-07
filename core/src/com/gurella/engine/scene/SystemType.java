@@ -118,8 +118,12 @@ public class SystemType {
 		int parentBaseId = baseComponentTypes.get(parentId, invalidId);
 
 		if (parentId == parentBaseId) {
-			BaseSceneElement base = Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class);
-			baseComponentTypes.put(typeId, base == null ? typeId : parentId);
+			if (Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null) {
+				BaseSceneElement base = Reflection.getDeclaredAnnotation(type, BaseSceneElement.class);
+				baseComponentTypes.put(typeId, base == null ? parentId : typeId);
+			} else {
+				baseComponentTypes.put(typeId, parentBaseId);
+			}
 		} else {
 			baseComponentTypes.put(typeId, parentId);
 		}
