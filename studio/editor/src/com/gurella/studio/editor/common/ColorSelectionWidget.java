@@ -12,7 +12,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
@@ -128,11 +127,12 @@ public class ColorSelectionWidget extends Composite {
 	}
 
 	public void openDialog() {
-		ColorDialog colorDialog = new ColorDialog(getShell());
-		colorDialog.setRGB(swtColor == null ? new RGB(255, 255, 255) : swtColor.getRGB());
-		RGB newColor = colorDialog.open();
+		ColorSelectionDialog colorDialog = new ColorSelectionDialog(getShell());
+		colorDialog.setColor(swtColor == null ? new RGBA(255, 255, 255, 255) : swtColor.getRGBA());
+		RGBA newColor = colorDialog.open();
 		if (newColor != null) {
-			setColor(new Color(newColor.red / 255f, newColor.green / 255f, newColor.blue / 255f, 1f));
+			RGB rgb = newColor.rgb;
+			setColor(new Color(rgb.red / 255f, rgb.green / 255f, rgb.blue / 255f, newColor.alpha / 255f));
 			colorChangeListener.accept(color);
 			button.redraw();
 		}

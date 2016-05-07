@@ -9,7 +9,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
@@ -25,7 +24,6 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class ColorTextureAttributeEditor extends Composite {
 	private ColorSelectionWidget colorSelector;
-	private Spinner alphaSpinner;
 	private Button colorEnabledButton;
 
 	private TextureSelector textureSelector;
@@ -65,33 +63,23 @@ public class ColorTextureAttributeEditor extends Composite {
 		layout.verticalSpacing = 5;
 		setLayout(layout);
 
-		toolkit.createLabel(this, "RGB:");
+		toolkit.createLabel(this, "Color:");
 		colorSelector = new ColorSelectionWidget(this);
+		colorSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
 		toolkit.adapt(colorSelector);
-
-		toolkit.createLabel(this, "A:");
-		alphaSpinner = new Spinner(this, SWT.BORDER);
-		alphaSpinner.setMinimum(0);
-		alphaSpinner.setMaximum(255);
-		alphaSpinner.setIncrement(1);
-		alphaSpinner.setPageIncrement(1);
-		toolkit.adapt(alphaSpinner);
 
 		colorEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
 
 		Color color = colorGetter.get();
 		if (color == null) {
-			alphaSpinner.setSelection(255);
 			colorEnabledButton.setSelection(false);
 		} else {
 			colorSelector.setColor(color);
-			alphaSpinner.setSelection((int) color.a * 255);
 			colorEnabledButton.setSelection(true);
 		}
 
 		colorEnabledButton.addListener(SWT.Selection, e -> enableColor());
 		colorSelector.setColorChangeListener(e -> valueChanged());
-		alphaSpinner.addModifyListener(e -> valueChanged());
 
 		Label label = toolkit.createLabel(this, "", SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
@@ -132,7 +120,6 @@ public class ColorTextureAttributeEditor extends Composite {
 
 		boolean selection = colorEnabledButton.getSelection();
 		colorSelector.setEnabled(selection);
-		alphaSpinner.setEnabled(selection);
 
 		selection = textureEnabledButton.getSelection();
 		textureSelector.setEnabled(selection);
@@ -145,7 +132,6 @@ public class ColorTextureAttributeEditor extends Composite {
 	private void enableColor() {
 		boolean selection = colorEnabledButton.getSelection();
 		colorSelector.setEnabled(selection);
-		alphaSpinner.setEnabled(selection);
 		valueChanged();
 	}
 
@@ -161,9 +147,7 @@ public class ColorTextureAttributeEditor extends Composite {
 
 	private void valueChanged() {
 		if (colorEnabledButton.getSelection()) {
-			Color color = colorSelector.getColor();
-			color.a = 1 / alphaSpinner.getSelection();
-			colorSetter.accept(color);
+			colorSetter.accept(colorSelector.getColor());
 		} else {
 			colorSetter.accept(null);
 		}
