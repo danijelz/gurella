@@ -125,7 +125,7 @@ public class SystemType {
 				baseComponentTypes.put(typeId, parentBaseId);
 			}
 		} else {
-			baseComponentTypes.put(typeId, parentId);
+			baseComponentTypes.put(typeId, parentBaseId);
 		}
 	}
 }
