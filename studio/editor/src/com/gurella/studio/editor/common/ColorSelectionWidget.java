@@ -129,7 +129,7 @@ public class ColorSelectionWidget extends Composite {
 	public void openDialog() {
 		ColorSelectionDialog colorDialog = new ColorSelectionDialog(getShell());
 		colorDialog.setColor(swtColor == null ? new RGBA(255, 255, 255, 255) : swtColor.getRGBA());
-		RGBA newColor = colorDialog.open();
+		RGBA newColor = colorDialog.open(button.toDisplay(0, 0));
 		if (newColor != null) {
 			RGB rgb = newColor.rgb;
 			setColor(new Color(rgb.red / 255f, rgb.green / 255f, rgb.blue / 255f, newColor.alpha / 255f));

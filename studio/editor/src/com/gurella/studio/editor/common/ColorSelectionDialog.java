@@ -4,6 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -46,13 +47,30 @@ public class ColorSelectionDialog extends Dialog {
 		setText("Color");
 	}
 
-	public RGBA open() {
+	public RGBA open(Point location) {
 		Shell shell = new Shell(getParent(), getStyle());
 		shell.setText(getText());
 		createContents(shell);
 		shell.pack();
 		shell.open();
-		Display display = getDisplay();
+
+		final Display display = getDisplay();
+		if (location != null) {
+			Point size = shell.getSize();
+			final Rectangle rect = display.getBounds();
+			if (location.x < 10) {
+				location.x = 10;
+			} else if (location.x + size.x > rect.width - 10) {
+				location.x = rect.width - 10 - size.x;
+			}
+			if (location.y < 10) {
+				location.y = 10;
+			} else if (location.y + size.y > rect.height - 10) {
+				location.y = rect.height - 10 - size.y;
+			}
+			shell.setLocation(location);
+		}
+
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
@@ -149,7 +167,7 @@ public class ColorSelectionDialog extends Dialog {
 
 			a.setText(Integer.toString(color.getAlpha()));
 			aSlider.setSelection(color.getAlpha());
-			
+
 			colorText.setText(toColorString());
 		}
 
