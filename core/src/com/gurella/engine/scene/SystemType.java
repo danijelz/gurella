@@ -1,12 +1,13 @@
 package com.gurella.engine.scene;
 
+import static com.gurella.engine.utils.Reflection.hasDeclaredAnnotation;
+
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableBits;
-import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.TypeRegistry;
 import com.gurella.engine.utils.Values;
 
@@ -117,8 +118,7 @@ public class SystemType {
 		int parentId = registry.getId(parentType);
 		int parentBaseId = baseComponentTypes.get(parentId, invalidId);
 
-		if (parentId == parentBaseId
-				&& (parentId == 0 || Reflection.getDeclaredAnnotation(parentType, BaseSceneElement.class) == null)) {
+		if (parentId == parentBaseId && (parentId == 0 || !hasDeclaredAnnotation(parentType, BaseSceneElement.class))) {
 			baseComponentTypes.put(typeId, typeId);
 		} else {
 			baseComponentTypes.put(typeId, parentBaseId);

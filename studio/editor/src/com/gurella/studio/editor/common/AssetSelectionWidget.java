@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.common;
 
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -31,12 +32,14 @@ import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public abstract class AssetSelectionWidget<T> extends Composite {
+public class AssetSelectionWidget<T> extends Composite {
 	private Text text;
 	private Button selectAssetButton;
 
 	private Class<T> assetType;
 	private T asset;
+
+	private BiConsumer<T, T> selectionChangedListener;
 
 	public AssetSelectionWidget(Composite parent, Class<T> assetType) {
 		super(parent, SWT.NONE);
@@ -45,16 +48,18 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
 		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 2;
+		layout.marginWidth = 2;
+		layout.marginHeight = 0;
+		layout.verticalSpacing = 0;
 		setLayout(layout);
-		
+
 		text = UiUtils.createText(this);
 		text.setEditable(false);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		layoutData.widthHint = 50;
+		layoutData.widthHint = 60;
+		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
-		
+
 		selectAssetButton = toolkit.createButton(this, "", SWT.PUSH);
 		selectAssetButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
 		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -63,7 +68,7 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		target.addDropListener(new AssetDropTarget());
-		
+
 		toolkit.adapt(this);
 		UiUtils.paintBordersFor(this);
 	}
@@ -90,18 +95,22 @@ public abstract class AssetSelectionWidget<T> extends Composite {
 		}
 	}
 
-	private void setAsset(final String path) {
-		T oldAsset = asset;
-		asset = ResourceService.load(path);
-		text.setText(path);
-		assetSelectionChanged(oldAsset, asset);
-	}
-
 	public T getAsset() {
 		return asset;
 	}
 
-	protected abstract void assetSelectionChanged(T oldAsset, T newAsset);
+	private void setAsset(final String path) {
+		T oldAsset = asset;
+		asset = ResourceService.load(path);
+		text.setText(path);
+		if (selectionChangedListener != null) {
+			selectionChangedListener.accept(oldAsset, asset);
+		}
+	}
+
+	public void setSelectionChangedListener(BiConsumer<T, T> selectionChangedListener) {
+		this.selectionChangedListener = selectionChangedListener;
+	}
 
 	private final class AssetDropTarget extends DropTargetAdapter {
 		@Override

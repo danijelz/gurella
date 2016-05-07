@@ -52,7 +52,7 @@ public class ColorSelectionWidget extends Composite {
 
 		Point textSize = text.computeSize(60, 16, true);
 
-		button = GurellaStudioPlugin.getToolkit().createComposite(this, SWT.BORDER);
+		button = UiUtils.createComposite(this, SWT.BORDER);
 		layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = textSize.y;
 		layoutData.heightHint = textSize.y;
@@ -61,6 +61,7 @@ public class ColorSelectionWidget extends Composite {
 		button.addListener(SWT.MouseUp, e -> openDialog());
 
 		UiUtils.paintBordersFor(this);
+		GurellaStudioPlugin.getToolkit().adapt(this);
 	}
 
 	private void paintButton(PaintEvent e) {

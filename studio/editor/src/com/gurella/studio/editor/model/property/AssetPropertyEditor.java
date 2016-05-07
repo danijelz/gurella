@@ -1,124 +1,37 @@
 package com.gurella.studio.editor.model.property;
 
-import java.util.Arrays;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetAdapter;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ResourceTransfer;
 
-import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.base.resource.ResourceService;
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.common.AssetSelectionWidget;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
-	private Text text;
-	private Button selectAssetButton;
-
-	private Class<T> assetType;
+	private AssetSelectionWidget<T> assetWidget;
 
 	public AssetPropertyEditor(Composite parent, PropertyEditorContext<?, T> context, Class<T> assetType) {
 		super(parent, context);
-		this.assetType = assetType;
 
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
+		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
-		text = UiUtils.createText(body);
-		text.setEditable(false);
-		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 50;
-		text.setLayoutData(layoutData);
-
-		selectAssetButton = GurellaStudioPlugin.getToolkit().createButton(body, "", SWT.PUSH);
-		selectAssetButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
-		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
-		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
-
-		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
-		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
-		target.addDropListener(new AssetDropTarget());
+		assetWidget = new AssetSelectionWidget<>(body, assetType);
+		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		assetWidget.setSelectionChangedListener(this::assetSelectionChanged);
 
 		UiUtils.paintBordersFor(body);
 	}
 
-	private boolean isValidResource(IResource item) {
-		return (item instanceof IFile) && AssetType.isValidExtension(assetType, item.getFileExtension());
-	}
-
-	private void showFileDialg() {
-		FileDialog dialog = new FileDialog(getBody().getShell());
-		AssetType value = AssetType.value(assetType);
-		dialog.setFilterExtensions(Arrays.stream(value.extensions).map(e -> "*." + e).toArray(s -> new String[s]));
-
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = window.getActivePage();
-		IEditorPart editor = page.getActiveEditor();
-		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-		dialog.setFilterPath(input.getFile().getLocation().toString());
-
-		final String path = dialog.open();
-		if (path != null) {
-			setValue(path);
+	private void assetSelectionChanged(T oldAsset, T newAsset) {
+		if (oldAsset != null) {
+			ResourceService.unload(oldAsset); //TODO resource deprendencies
 		}
-	}
-
-	private void setValue(final String path) {
-		T oldValue = getValue();
-		if (oldValue != null) {
-			ResourceService.unload(oldValue);
-		}
-		T asset = ResourceService.load(path);
-		setValue(asset);
-		text.setText(path);
-	}
-
-	private final class AssetDropTarget extends DropTargetAdapter {
-		@Override
-		public void dragEnter(DropTargetEvent event) {
-			if (event.detail == DND.DROP_DEFAULT) {
-				if ((event.operations & DND.DROP_MOVE) != 0) {
-					event.detail = DND.DROP_MOVE;
-				} else {
-					event.detail = DND.DROP_NONE;
-				}
-			}
-		}
-
-		@Override
-		public void drop(DropTargetEvent event) {
-			event.detail = DND.DROP_NONE;
-			IResource[] data = (IResource[]) event.data;
-			if (data == null || data.length != 1) {
-				return;
-			}
-
-			IResource item = data[0];
-			if (isValidResource(item)) {
-				setValue(item.getLocation().toString());
-			}
-		}
+		setValue(newAsset);
 	}
 }

@@ -46,7 +46,7 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
-		layoutData.heightHint = 10;
+		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 
 		Matrix4 value = getValue();

@@ -26,7 +26,7 @@ public class ColorTextureAttributeEditor extends Composite {
 	private ColorSelectionWidget colorSelector;
 	private Button colorEnabledButton;
 
-	private TextureSelector textureSelector;
+	private AssetSelectionWidget<Texture> textureSelector;
 	private Button textureEnabledButton;
 	private Text offsetU;
 	private Text offsetV;
@@ -85,9 +85,10 @@ public class ColorTextureAttributeEditor extends Composite {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
 
 		toolkit.createLabel(this, "Texture:");
-		textureSelector = new TextureSelector(this);
+		textureSelector = new AssetSelectionWidget<Texture>(this, Texture.class);
 		toolkit.adapt(textureSelector);
 		textureSelector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 3, 1));
+		textureSelector.setSelectionChangedListener(this::assetSelectionChanged);
 
 		TextureAttributeProperties properties = textureGetter.get();
 		textureEnabledButton = toolkit.createButton(this, "Enabled", SWT.CHECK);
@@ -129,6 +130,16 @@ public class ColorTextureAttributeEditor extends Composite {
 		scaleV.setEnabled(selection);
 	}
 
+	private void assetSelectionChanged(Texture oldAsset, Texture newAsset) {
+		if (oldAsset != null) {
+			materialDescriptor.unload(oldAsset);
+		}
+		if (newAsset != null) {
+			materialDescriptor.bindAsset(newAsset);
+		}
+		valueChanged();
+	}
+
 	private void enableColor() {
 		boolean selection = colorEnabledButton.getSelection();
 		colorSelector.setEnabled(selection);
@@ -168,22 +179,5 @@ public class ColorTextureAttributeEditor extends Composite {
 		}
 
 		updater.run();
-	}
-
-	private class TextureSelector extends AssetSelectionWidget<Texture> {
-		public TextureSelector(ColorTextureAttributeEditor parent) {
-			super(parent, Texture.class);
-		}
-
-		@Override
-		protected void assetSelectionChanged(Texture oldAsset, Texture newAsset) {
-			if (oldAsset != null) {
-				materialDescriptor.unload(oldAsset);
-			}
-			if (newAsset != null) {
-				materialDescriptor.bindAsset(newAsset);
-			}
-			valueChanged();
-		}
 	}
 }

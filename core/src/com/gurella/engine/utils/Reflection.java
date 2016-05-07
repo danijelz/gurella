@@ -216,10 +216,20 @@ public class Reflection {
 		}
 	}
 
+	public static boolean hasDeclaredAnnotation(Class<?> owner, Class<? extends Annotation> annotationType) {
+		com.badlogic.gdx.utils.reflect.Annotation annotation = ClassReflection.getDeclaredAnnotation(owner,
+				annotationType);
+		return annotation != null;
+	}
+
 	public static <T extends Annotation> T getDeclaredAnnotation(Class<?> owner, Class<T> annotationType) {
 		com.badlogic.gdx.utils.reflect.Annotation annotation = ClassReflection.getDeclaredAnnotation(owner,
 				annotationType);
 		return annotation == null ? null : annotation.getAnnotation(annotationType);
+	}
+
+	public static boolean hasAnnotation(Class<?> owner, Class<? extends Annotation> annotationType) {
+		return getAnnotation(owner, annotationType) != null;
 	}
 
 	public static <T extends Annotation> T getAnnotation(Class<?> owner, Class<T> annotationType) {
@@ -233,6 +243,11 @@ public class Reflection {
 			}
 		}
 		return null;
+	}
+
+	public static boolean hasDeclaredAnnotation(Field owner, Class<? extends Annotation> annotationType) {
+		com.badlogic.gdx.utils.reflect.Annotation annotation = owner.getDeclaredAnnotation(annotationType);
+		return annotation != null;
 	}
 
 	public static <T extends Annotation> T getDeclaredAnnotation(Field owner, Class<T> annotationType) {

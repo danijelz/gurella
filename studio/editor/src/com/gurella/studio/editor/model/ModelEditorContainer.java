@@ -48,6 +48,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 1;
 		layout.marginHeight = 1;
+		layout.verticalSpacing = 2;
 		getBody().setLayout(layout);
 		initEditors();
 		Listener mouseMoveListener = e -> mouseMoved();
@@ -66,7 +67,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		FormToolkit toolkit = getToolkit();
 		Composite body = getBody();
 		PropertyEditor<V> editor = createEditor(getBody(), new PropertyEditorContext<>(context, property));
-		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false);
+		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
 		editors.add(editor);
@@ -74,9 +75,9 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		if (editor instanceof SimplePropertyEditor) {
 			Label label = toolkit.createLabel(body, editor.getDescriptiveName() + ":");
 			label.setAlignment(SWT.RIGHT);
-			label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
+			label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		} else if (editor instanceof ComplexPropertyEditor) {
 			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX);
 			componentSection.setSize(100, 100);
