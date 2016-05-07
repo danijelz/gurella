@@ -3,9 +3,7 @@ package com.gurella.studio.editor.inspector.material;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -22,10 +20,11 @@ import com.gurella.engine.graphics.material.MaterialDescriptor.TextureAttributeP
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.AssetSelectionWidget;
+import com.gurella.studio.editor.common.ColorSelectionWidget;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class ColorTextureAttributeEditor extends Composite {
-	private ColorSelector colorSelector;
+	private ColorSelectionWidget colorSelector;
 	private Spinner alphaSpinner;
 	private Button colorEnabledButton;
 
@@ -67,7 +66,8 @@ public class ColorTextureAttributeEditor extends Composite {
 		setLayout(layout);
 
 		toolkit.createLabel(this, "RGB:");
-		colorSelector = new ColorSelector(this);
+		colorSelector = new ColorSelectionWidget(this);
+		toolkit.adapt(colorSelector);
 
 		toolkit.createLabel(this, "A:");
 		alphaSpinner = new Spinner(this, SWT.BORDER);
@@ -81,17 +81,16 @@ public class ColorTextureAttributeEditor extends Composite {
 
 		Color color = colorGetter.get();
 		if (color == null) {
-			colorSelector.setColorValue(new RGB(255, 255, 255));
 			alphaSpinner.setSelection(255);
 			colorEnabledButton.setSelection(false);
 		} else {
-			colorSelector.setColorValue(new RGB((int) color.r * 255, (int) color.g * 255, (int) color.b * 255));
+			colorSelector.setColor(color);
 			alphaSpinner.setSelection((int) color.a * 255);
 			colorEnabledButton.setSelection(true);
 		}
 
 		colorEnabledButton.addListener(SWT.Selection, e -> enableColor());
-		colorSelector.addListener(e -> valueChanged());
+		colorSelector.setColorChangeListener(e -> valueChanged());
 		alphaSpinner.addModifyListener(e -> valueChanged());
 
 		Label label = toolkit.createLabel(this, "", SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -162,10 +161,9 @@ public class ColorTextureAttributeEditor extends Composite {
 
 	private void valueChanged() {
 		if (colorEnabledButton.getSelection()) {
-			RGB rgb = colorSelector.getColorValue();
-			int a = alphaSpinner.getSelection();
-			float r = 1 / 255f;
-			colorSetter.accept(new Color(rgb.red * r, rgb.green * r, rgb.blue * r, a * r));
+			Color color = colorSelector.getColor();
+			color.a = 1 / alphaSpinner.getSelection();
+			colorSetter.accept(color);
 		} else {
 			colorSetter.accept(null);
 		}

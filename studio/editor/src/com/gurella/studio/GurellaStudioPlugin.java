@@ -9,11 +9,11 @@ import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -125,6 +125,10 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	public static void destroyColor(int red, int green, int blue) {
 		resourceManager.destroyColor(new RGB(red, green, blue));
+	}
+
+	public static void destroyColor(RGBA descriptor) {
+		resourceManager.destroyColor(new RGBAColorDescriptor(descriptor));
 	}
 
 	public static void destroyColor(int red, int green, int blue, int alpha) {
