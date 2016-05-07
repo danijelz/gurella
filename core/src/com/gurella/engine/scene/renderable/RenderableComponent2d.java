@@ -22,6 +22,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	public transient final Sprite sprite = new Sprite();
 
 	public RenderableComponent2d() {
+		sprite.setColor(tint);
 	}
 
 	public float getWidth() {

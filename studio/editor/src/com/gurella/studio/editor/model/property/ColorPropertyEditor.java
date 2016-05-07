@@ -26,12 +26,6 @@ public class ColorPropertyEditor extends SimplePropertyEditor<Color> {
 			colorSelector.setColor(color);
 		}
 
-		colorSelector.setColorChangeListener(e -> valueChanged());
-	}
-
-	private void valueChanged() {
-		Color color = getValue();
-		Color oldValue = new Color(color);
-		context.propertyValueChanged(oldValue, colorSelector.getColor());
+		colorSelector.setColorChangeListener(e -> setValue(colorSelector.getColor()));
 	}
 }
