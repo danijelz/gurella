@@ -102,6 +102,7 @@ public class PropertyEditorFactory {
 		} else if (Assets.isAssetType(propertyType)) {
 			return Values.cast(new AssetPropertyEditor<>(parent, context, propertyType));
 		} else if (isSimpleProperty(propertyType)) {
+			//TODO handle in ReflectionPropertyEditor
 			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));
 		} else {
 			return new ReflectionPropertyEditor<T>(parent, context);
