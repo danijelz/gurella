@@ -59,7 +59,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		} else if (PropertyEditorFactory.isSimpleProperty(value.getClass())) {
 			PropertyEditorContext<Object, P> casted = Values.cast(context);
-			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);
+			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, value, casted.property);
 			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(body, child);
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			editor.getComposite().setLayoutData(layoutData);
