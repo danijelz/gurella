@@ -20,7 +20,7 @@ public class StringPropertyEditor extends SimplePropertyEditor<String> {
 		body.setLayout(layout);
 
 		text = UiUtils.createText(body);
-		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		layoutData.widthHint = 60;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);

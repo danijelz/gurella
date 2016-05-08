@@ -17,7 +17,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
+public class QuaternionPropertyEditor extends PropertyEditor<Quaternion> {
 	public QuaternionPropertyEditor(Composite parent, PropertyEditorContext<?, Quaternion> context) {
 		super(parent, context);
 

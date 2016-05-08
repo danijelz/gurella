@@ -71,6 +71,10 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		}
 	}
 
+	public String getDescriptiveName() {
+		return property.getDescriptiveName();
+	}
+
 	public void propertyValueChanged(Object oldValue, Object newValue) {
 		signal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
 

@@ -17,7 +17,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
+public class GridPoint2PropertyEditor extends PropertyEditor<GridPoint2> {
 	public GridPoint2PropertyEditor(Composite parent, PropertyEditorContext<?, GridPoint2> context) {
 		super(parent, context);
 

@@ -247,4 +247,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	public void copy(Object original, Object duplicate, CopyContext context) {
 		setValue(duplicate, context.copy(getValue(original)));
 	}
+	
+	public Field getField() {
+		return field;
+	}
 }

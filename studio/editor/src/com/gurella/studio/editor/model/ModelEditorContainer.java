@@ -81,7 +81,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		} else if (editor instanceof ComplexPropertyEditor) {
 			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX);
 			componentSection.setSize(100, 100);
-			GridData sectionLayoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 2, 1);
+			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
 			componentSection.setLayoutData(sectionLayoutData);
 			componentSection.setText(editor.getDescriptiveName());
