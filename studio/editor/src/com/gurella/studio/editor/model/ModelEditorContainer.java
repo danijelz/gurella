@@ -56,7 +56,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		Display display = getDisplay();
 		display.addFilter(SWT.MouseMove, mouseMoveListener);
 		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
-		layout(true, true);
+		reflow(true);
 	}
 
 	private void initEditors() {

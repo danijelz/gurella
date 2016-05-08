@@ -24,6 +24,8 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 		P value = getValue();
 		delegate = createEditor(body, new PropertyEditorContext<>(context, model, value, delegateProperty));

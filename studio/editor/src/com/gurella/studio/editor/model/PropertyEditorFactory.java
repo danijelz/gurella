@@ -111,6 +111,10 @@ public class PropertyEditorFactory {
 	}
 
 	public static boolean isSimpleProperty(Class<?> propertyType) {
+		if (Models.getModel(propertyType) instanceof SimpleModel) {
+			return true;
+		}
+
 		ImmutableArray<Property<?>> properties = Models.getModel(propertyType).getProperties();
 		Property<?> editableProperty = null;
 		for (Property<?> property : properties) {
