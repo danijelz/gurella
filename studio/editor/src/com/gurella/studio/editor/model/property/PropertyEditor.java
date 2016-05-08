@@ -43,6 +43,7 @@ public abstract class PropertyEditor<P> {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		layout.marginHeight = 0;
+		layout.marginWidth = 0;
 		composite.setLayout(layout);
 
 		body = new BodyComposite(composite, SWT.NULL);

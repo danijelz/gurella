@@ -17,6 +17,8 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 1;
 		layout.marginHeight = 2;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
 		text = UiUtils.createIntegerWidget(body);

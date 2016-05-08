@@ -13,8 +13,6 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 
 public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
-	private PropertyEditor<Object> delegate;
-
 	public SimpleObjectPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
 
@@ -28,7 +26,7 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 		P value = getValue();
-		delegate = createEditor(body, new PropertyEditorContext<>(context, model, value, delegateProperty));
+		PropertyEditor<Object> delegate = createEditor(body, new PropertyEditorContext<>(context, model, value, delegateProperty));
 		delegate.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 	}
 }
