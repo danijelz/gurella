@@ -21,7 +21,7 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 		Model<P> model = Models.getModel(getProperty().getType());
 		Property<Object> delegateProperty = Values.cast(model.getProperties().get(0));
 
-		GridLayout layout = new GridLayout(1, false);
+		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 0;
