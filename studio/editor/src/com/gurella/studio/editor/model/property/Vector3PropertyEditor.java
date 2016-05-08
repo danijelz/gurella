@@ -48,9 +48,17 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Vector3 value = getValue();
 		if (value == null) {
+			String descriptiveName = context.getDescriptiveName();
+			boolean hasName = Values.isNotBlank(descriptiveName);
+			if (hasName) {
+				Label label = toolkit.createLabel(body, descriptiveName + ":");
+				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
+				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+			}
+
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 6, 1));
+			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, hasName ? 5 : 6, 1));
 		} else {
 			String descriptiveName = context.getDescriptiveName();
 			if (Values.isNotBlank(descriptiveName)) {
