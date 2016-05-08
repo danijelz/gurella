@@ -3,6 +3,7 @@ package com.gurella.studio.editor.model;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
@@ -80,7 +81,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			label.moveAbove(composite);
 			label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		} else if (editor instanceof ComplexPropertyEditor) {
-			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX);
+			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 			componentSection.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;

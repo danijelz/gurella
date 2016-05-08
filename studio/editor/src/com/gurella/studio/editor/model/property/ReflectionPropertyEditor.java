@@ -24,6 +24,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.gurella.engine.base.model.DefaultModels.SimpleModel;
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -75,7 +77,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-		} else if (PropertyEditorFactory.isSimpleProperty(value.getClass())) {
+		} else if (Models.getModel(value.getClass()) instanceof SimpleModel) {
 			PropertyEditorContext<Object, P> casted = Values.cast(context);
 			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);
 			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(body, child, Values.cast(value.getClass()));

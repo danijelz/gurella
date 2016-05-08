@@ -38,7 +38,6 @@ import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.QuaternionPropertyEditor;
 import com.gurella.studio.editor.model.property.ReflectionPropertyEditor;
 import com.gurella.studio.editor.model.property.ShortPropertyEditor;
-import com.gurella.studio.editor.model.property.SimpleObjectPropertyEditor;
 import com.gurella.studio.editor.model.property.StringPropertyEditor;
 import com.gurella.studio.editor.model.property.Vector2PropertyEditor;
 import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
@@ -97,10 +96,10 @@ public class PropertyEditorFactory {
 			return Values.cast(new EnumPropertyEditor<>(parent, Values.cast(context)));
 		} else if (Assets.isAssetType(propertyType)) {
 			return Values.cast(new AssetPropertyEditor<>(parent, context, propertyType));
-		} else if (isSimpleProperty(propertyType)) {
+		} /*else if (isSimpleProperty(propertyType)) {
 			//TODO handle in ReflectionPropertyEditor
-			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));
-		} else {
+			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));}*/
+		else {
 			return new ReflectionPropertyEditor<T>(parent, context);
 		}
 	}

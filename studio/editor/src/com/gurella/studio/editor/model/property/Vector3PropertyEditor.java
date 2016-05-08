@@ -38,7 +38,7 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 		}
 
 		Model<Vector3> vector3Model = Models.getModel(Vector3.class);
-		createEditorField(vector3Model, "x", "");
+		createEditorField(vector3Model, "x", "      ");
 		createEditorField(vector3Model, "y", "");
 		createEditorField(vector3Model, "z", "");
 	}
