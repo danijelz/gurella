@@ -134,7 +134,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 				System.arraycopy(values, 0, newValues, 0, newLength);
 			} else {
 				System.arraycopy(values, 0, newValues, 0, i);
-				System.arraycopy(values, i + 1, newValues, i, newLength - i - 1);
+				System.arraycopy(values, i + 1, newValues, i, newLength - i);
 			}
 		}
 
