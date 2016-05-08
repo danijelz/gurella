@@ -89,15 +89,11 @@ public class PropertyEditorFactory {
 			return Values.cast(new LayerPropertyEditor(parent, Values.cast(context)));
 		}
 
-		/////
+		///// custom models for collections...
 
 		else if (propertyType.isArray()) {
 			return Values.cast(new ArrayPropertyEditor<>(parent, context));
-		}
-
-		/////
-
-		else if (propertyType.isEnum()) {
+		} else if (propertyType.isEnum()) {
 			return Values.cast(new EnumPropertyEditor<>(parent, Values.cast(context)));
 		} else if (Assets.isAssetType(propertyType)) {
 			return Values.cast(new AssetPropertyEditor<>(parent, context, propertyType));
