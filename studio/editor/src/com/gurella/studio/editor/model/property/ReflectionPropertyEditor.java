@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContainer;
@@ -41,12 +42,29 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 		buildUi();
 
-		if (context.property.isNullable()) {
-			addMenuItem("Set null", () -> setNull());
-		}
-
 		if (!context.property.isFinal()) {
 			addMenuItem("Select type", () -> selectType());
+
+			if (Reflection.getDeclaredConstructorSilently(getProperty().getType()) != null) {
+				addMenuItem("New instance", () -> newTypeInstance());
+			}
+
+			if (context.property.isNullable()) {
+				addMenuItem("Set null", () -> setNull());
+			}
+		}
+	}
+
+	private void newTypeInstance() {
+		try {
+			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+			P value = Values.cast(classLoader.loadClass(getProperty().getType().getName()).newInstance());
+			setValue(value);
+			rebuildUi();
+		} catch (Exception e) {
+			String message = "Error occurred while creating value";
+			IStatus status = GurellaStudioPlugin.log(e, message);
+			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
 		}
 	}
 
