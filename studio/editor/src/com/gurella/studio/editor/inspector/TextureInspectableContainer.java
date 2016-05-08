@@ -31,7 +31,7 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new ModelEditorContainer<>(getBody(), findProperties(target));
+		textureProperties = new ModelEditorContainer<>(getBody(), getEditorContext(), findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

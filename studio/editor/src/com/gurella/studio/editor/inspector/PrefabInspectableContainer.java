@@ -182,7 +182,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 		section.setExpanded(true);
 
-		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(component);
+		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getEditorContext(), component);
 		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 
 		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(section, context);

@@ -106,6 +106,11 @@ public class ImmutableArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isFinal() {
+			return false;
+		}
+
+		@Override
 		public boolean isCopyable() {
 			return true;
 		}

@@ -43,6 +43,11 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	public boolean isNullable() {
 		return false;
 	}
+	
+	@Override
+	public boolean isFinal() {
+		return true;
+	}
 
 	@Override
 	public boolean isCopyable() {

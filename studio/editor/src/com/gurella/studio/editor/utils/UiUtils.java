@@ -181,4 +181,8 @@ public class UiUtils {
 	public static Label createLabel(Composite parent, String text, int style) {
 		return getToolkit().createLabel(parent, text, style);
 	}
+
+	public static void adapt(Composite composite) {
+		getToolkit().adapt(composite);
+	}
 }

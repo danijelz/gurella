@@ -166,6 +166,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
+		
+		@Override
+		public boolean isFinal() {
+			return false;
+		}
 
 		@Override
 		public boolean isCopyable() {
@@ -261,6 +266,11 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public boolean isNullable() {
+			return false;
+		}
+		
+		@Override
+		public boolean isFinal() {
 			return false;
 		}
 

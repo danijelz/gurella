@@ -18,9 +18,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class PropertyEditor<P> {
 	private Composite composite;
@@ -43,14 +45,10 @@ public abstract class PropertyEditor<P> {
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
 
-		body = toolkit.createComposite(composite);
+		body = new BodyComposite(composite, SWT.NULL);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 
 		menuImage = GurellaStudioPlugin.createImage("icons/popup_menu.gif");
-
-		if (context.property.isNullable() && getValue() != null) {
-			addMenuItem("Set null", () -> setValue(null));
-		}
 	}
 
 	public Composite getComposite() {
@@ -140,5 +138,29 @@ public abstract class PropertyEditor<P> {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(text);
 		item1.addListener(SWT.Selection, e -> action.run());
+	}
+
+	private static final class BodyComposite extends Composite {
+		private BodyComposite(Composite parent, int style) {
+			super(parent, style);
+			UiUtils.adapt(this);
+		}
+
+		@Override
+		public void layout(boolean changed, boolean all) {
+			super.layout(changed, all);
+			reflow();
+		}
+
+		private void reflow() {
+			Composite temp = this;
+			while (temp != null) {
+				temp = temp.getParent();
+				if (temp instanceof ScrolledForm) {
+					((ScrolledForm) temp).reflow(true);
+					return;
+				}
+			}
+		}
 	}
 }

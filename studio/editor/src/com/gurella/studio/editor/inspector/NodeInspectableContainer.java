@@ -14,12 +14,14 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BO
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
@@ -176,7 +178,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(component);
+		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getEditorContext(), component);
 		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 
 		ModelEditorContainer<SceneNodeComponent2> propertiesContainer = new ModelEditorContainer<>(section, context);
@@ -214,9 +216,10 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		try {
 			current.setContextClassLoader(getSceneEditor().getClassLoader());
 			addScriptComponent();
-		} catch (Exception e2) {
-			// TODO: handle exception
-			e2.printStackTrace();
+		} catch (Exception e) {
+			String message = "Error occurred while adding script component";
+			IStatus status = GurellaStudioPlugin.log(e, message);
+			ErrorDialog.openError(getShell(), message, e.getLocalizedMessage(), status);
 		} finally {
 			current.setContextClassLoader(contextClassLoader);
 		}

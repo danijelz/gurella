@@ -110,7 +110,7 @@ public class PropertyEditorFactory {
 		// return new DefaultPropertyEditor<>(parent, context,property);
 	}
 
-	private static boolean isSimpleProperty(Class<?> propertyType) {
+	public static boolean isSimpleProperty(Class<?> propertyType) {
 		ImmutableArray<Property<?>> properties = Models.getModel(propertyType).getProperties();
 		Property<?> editableProperty = null;
 		for (Property<?> property : properties) {

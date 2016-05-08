@@ -31,6 +31,11 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	public boolean isNullable() {
 		return true;
 	}
+	
+	@Override
+	public boolean isFinal() {
+		return false;
+	}
 
 	@Override
 	public boolean isCopyable() {

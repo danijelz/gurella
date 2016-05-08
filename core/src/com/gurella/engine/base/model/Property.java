@@ -13,6 +13,8 @@ public interface Property<T> {
 
 	boolean isNullable();
 	
+	boolean isFinal();
+	
 	boolean isCopyable();
 	
 	boolean isFlat();

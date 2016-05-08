@@ -25,6 +25,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Class<T> type;
 	private Range<?> range;
 	private boolean nullable;
+	private boolean finalProperty;
 	private boolean copyable;
 	private boolean flat;
 	private T defaultValue;
@@ -40,6 +41,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	public ReflectionProperty(Field field, Method getter, Method setter, Model<?> model) {
 		this.name = field.getName();
 		this.field = field;
+		finalProperty = field.isFinal();
 		this.field.setAccessible(true);
 		@SuppressWarnings("unchecked")
 		Class<T> castedType = field.getType();
@@ -153,6 +155,11 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
+	public boolean isFinal() {
+		return finalProperty;
+	}
+
+	@Override
 	public boolean isCopyable() {
 		return copyable;
 	}
@@ -247,7 +254,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	public void copy(Object original, Object duplicate, CopyContext context) {
 		setValue(duplicate, context.copy(getValue(original)));
 	}
-	
+
 	public Field getField() {
 		return field;
 	}

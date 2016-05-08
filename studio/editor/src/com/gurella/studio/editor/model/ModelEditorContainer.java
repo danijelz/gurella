@@ -25,6 +25,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
@@ -36,8 +37,8 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 
 	private PropertyEditor<?> hoverEditor;
 
-	public ModelEditorContainer(Composite parent, T modelInstance) {
-		this(parent, new ModelEditorContext<>(modelInstance));
+	public ModelEditorContainer(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
+		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
 	}
 
 	public ModelEditorContainer(Composite parent, ModelEditorContext<T> context) {

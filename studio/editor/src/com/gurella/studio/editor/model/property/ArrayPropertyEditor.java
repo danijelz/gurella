@@ -16,7 +16,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.model.Model;
@@ -39,10 +38,10 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 		buildUi();
 
-		if (isResizable()) {
+		if (isFinalValue()) {
 			addMenuItem("Add item", () -> addItem());
-			addMenuItem("Set null", () -> setNull());
 			addMenuItem("Resize", () -> resize());
+			addMenuItem("Set null", () -> setNull());
 		}
 	}
 
@@ -54,29 +53,29 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			Label label = toolkit.createLabel(body, values == null ? "null" : "empty");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
-			return;
+		} else {
+			Property<Object> property = Values.cast(getProperty());
+			Class<Object> componentType = getComponentType();
+			Model<Object> model = Models.getModel(componentType);
+
+			for (int i = 0, n = Array.getLength(values); i < n; i++) {
+				Label label = toolkit.createLabel(body, Integer.toString(i) + ".");
+				label.setAlignment(SWT.RIGHT);
+				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+				label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+
+				Object item = Array.get(values, i);
+				ItemContext<Object, Object> itemContext = new ItemContext<>(context, model, item, property, i);
+				PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(body, itemContext, componentType);
+				GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+				editor.getComposite().setLayoutData(layoutData);
+
+				addEditorMenus(editor, i);
+				itemEditors.add(editor);
+			}
 		}
 
-		Property<Object> property = Values.cast(getProperty());
-		Class<Object> componentType = getComponentType();
-		Model<Object> model = Models.getModel(componentType);
-		boolean resizable = isResizable();
-
-		for (int i = 0, n = Array.getLength(values); i < n; i++) {
-			Label label = toolkit.createLabel(body, Integer.toString(i) + ".");
-			label.setAlignment(SWT.RIGHT);
-			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-			label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
-
-			Object item = Array.get(values, i);
-			ItemContext<Object, Object> itemContext = new ItemContext<>(context, model, item, property, i);
-			PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(body, itemContext, componentType);
-			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-			editor.getComposite().setLayoutData(layoutData);
-
-			addEditorMenus(editor, i, resizable);
-			itemEditors.add(editor);
-		}
+		body.layout();
 	}
 
 	private void setNull() {
@@ -111,8 +110,8 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		return Values.cast(property.getType().getComponentType());
 	}
 
-	private void addEditorMenus(PropertyEditor<Object> editor, int i, boolean resizable) {
-		if (resizable) {
+	private void addEditorMenus(PropertyEditor<Object> editor, int i) {
+		if (!context.property.isFinal()) {
 			editor.addMenuItem("Remove", () -> removeItem(i));
 		}
 
@@ -147,7 +146,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		Array.set(values, i, null);
 	}
 
-	private boolean isResizable() {
+	private boolean isFinalValue() {
 		Property<P> property = context.property;
 		if (property instanceof ReflectionProperty) {
 			ReflectionProperty<P> reflectionProperty = (ReflectionProperty<P>) property;
@@ -180,15 +179,6 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	private void rebuildUi() {
 		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
 		buildUi();
-		body.layout(true, true);
-
-		Composite temp = body;
-		while (true) {
-			temp = temp.getParent();
-			if (temp instanceof ScrolledForm) {
-				((ScrolledForm) temp).reflow(true);
-			}
-		}
 	}
 
 	private static class ItemContext<M, P> extends PropertyEditorContext<M, P> {

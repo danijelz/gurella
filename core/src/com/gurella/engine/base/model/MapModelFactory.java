@@ -155,6 +155,11 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
+		public boolean isFinal() {
+			return false;
+		}
+
+		@Override
 		public boolean isCopyable() {
 			return true;
 		}

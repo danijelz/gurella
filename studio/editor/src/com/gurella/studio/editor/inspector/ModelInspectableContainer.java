@@ -65,7 +65,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		propertiesContainer = new ModelEditorContainer<>(getBody(), findProperties(target));
+		propertiesContainer = new ModelEditorContainer<>(getBody(), getEditorContext(), findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertiesContainer.setLayoutData(layoutData);
 

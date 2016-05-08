@@ -197,6 +197,11 @@ public class CollectionModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
+		
+		@Override
+		public boolean isFinal() {
+			return false;
+		}
 
 		@Override
 		public boolean isCopyable() {

@@ -16,22 +16,8 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	public Supplier<P> valueExtractor;
 	public Consumer<P> valueUpdater;
 
-	public PropertyEditorContext(M modelInstance, Property<P> property) {
-		super(modelInstance);
-		this.property = property;
-		valueExtractor = this::getValueDefault;
-		valueUpdater = this::setValueDefault;
-	}
-
-	public PropertyEditorContext(Model<M> model, M modelInstance, Property<P> property) {
-		super(model, modelInstance);
-		this.property = property;
-		valueExtractor = this::getValueDefault;
-		valueUpdater = this::setValueDefault;
-	}
-
 	public PropertyEditorContext(ModelEditorContext<M> parent, Property<P> property) {
-		super(parent, parent.model, parent.modelInstance);
+		super(parent.sceneEditorContext, parent, parent.model, parent.modelInstance);
 		this.property = property;
 		valueExtractor = this::getValueDefault;
 		valueUpdater = this::setValueDefault;
@@ -45,7 +31,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	}
 
 	public PropertyEditorContext(ModelEditorContext<?> parent, Model<M> model, M modelInstance, Property<P> property) {
-		super(parent, model, modelInstance);
+		super(parent.sceneEditorContext, parent, model, modelInstance);
 		this.property = property;
 		valueExtractor = this::getValueDefault;
 		valueUpdater = this::setValueDefault;
