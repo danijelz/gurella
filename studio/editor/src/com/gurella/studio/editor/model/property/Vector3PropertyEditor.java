@@ -3,6 +3,11 @@ package com.gurella.studio.editor.model.property;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
 
+import java.net.URLClassLoader;
+import java.util.Arrays;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -29,18 +34,38 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
+		buildUi();
+
+		if (!context.property.isFinal()) {
+			addMenuItem("New instance", () -> newInstance());
+			if (context.property.isNullable()) {
+				addMenuItem("Set null", () -> setNull());
+			}
+		}
+	}
+
+	private void buildUi() {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		String descriptiveName = context.getDescriptiveName();
-		if (Values.isNotBlank(descriptiveName)) {
-			Label label = toolkit.createLabel(body, descriptiveName);
-			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 6, 1));
-			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+		Vector3 value = getValue();
+		if (value == null) {
+			Label label = toolkit.createLabel(body, "null");
+			label.setAlignment(SWT.CENTER);
+			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 6, 1));
+		} else {
+			String descriptiveName = context.getDescriptiveName();
+			if (Values.isNotBlank(descriptiveName)) {
+				Label label = toolkit.createLabel(body, descriptiveName);
+				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 6, 1));
+				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+			}
+
+			Model<Vector3> vector3Model = Models.getModel(Vector3.class);
+			createEditorField(vector3Model, "x", "      ");
+			createEditorField(vector3Model, "y", "");
+			createEditorField(vector3Model, "z", "");
 		}
 
-		Model<Vector3> vector3Model = Models.getModel(Vector3.class);
-		createEditorField(vector3Model, "x", "      ");
-		createEditorField(vector3Model, "y", "");
-		createEditorField(vector3Model, "z", "");
+		body.layout();
 	}
 
 	private void createEditorField(final Model<Vector3> vector3Model, String propertyName, String prefix) {
@@ -55,5 +80,28 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 				getValue(), childProperty);
 		PropertyEditor<Float> editor = createEditor(body, propertyContext);
 		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
+	}
+
+	private void rebuildUi() {
+		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		buildUi();
+	}
+
+	private void setNull() {
+		setValue(null);
+		rebuildUi();
+	}
+
+	private void newInstance() {
+		try {
+			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+			Vector3 value = Values.cast(classLoader.loadClass(Vector3.class.getName()).newInstance());
+			setValue(value);
+			rebuildUi();
+		} catch (Exception e) {
+			String message = "Error occurred while creating value";
+			IStatus status = GurellaStudioPlugin.log(e, message);
+			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
+		}
 	}
 }
