@@ -24,7 +24,7 @@ public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 
 		buildUi();
 
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			addMenuItem("Set value", () -> updateValue(Byte.valueOf((byte) 0)));
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> updateValue(null));

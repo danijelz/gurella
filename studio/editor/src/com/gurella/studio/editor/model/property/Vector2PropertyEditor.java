@@ -33,7 +33,7 @@ public class Vector2PropertyEditor extends PropertyEditor<Vector2> {
 
 		buildUi();
 
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			addMenuItem("New instance", () -> newInstance());
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());

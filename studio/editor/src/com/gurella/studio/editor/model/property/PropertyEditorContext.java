@@ -87,7 +87,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		return property.isNullable();
 	}
 
-	public boolean isFinal() {
-		return property.isFinal();
+	public boolean isFixedValue() {
+		return property.getType().isPrimitive() || property.isFinal();
 	}
 }

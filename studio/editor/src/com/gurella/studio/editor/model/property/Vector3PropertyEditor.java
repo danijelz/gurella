@@ -33,7 +33,7 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 
 		buildUi();
 
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			addMenuItem("New instance", () -> newInstance());
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());
@@ -65,7 +65,7 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 			}
 
 			Model<Vector3> model = Models.getModel(Vector3.class);
-			createEditorField(model, "x", "      ");
+			createEditorField(model, "x", "");
 			createEditorField(model, "y", "");
 			createEditorField(model, "z", "");
 		}

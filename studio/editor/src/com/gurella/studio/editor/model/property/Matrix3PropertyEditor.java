@@ -22,7 +22,7 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 
 		buildUi();
 
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			addMenuItem("New instance", () -> updateValue(new Matrix3()));
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> updateValue(null));

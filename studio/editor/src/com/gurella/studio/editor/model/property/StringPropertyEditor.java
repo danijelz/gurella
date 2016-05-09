@@ -24,7 +24,7 @@ public class StringPropertyEditor extends SimplePropertyEditor<String> {
 
 		buildUi();
 
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			addMenuItem("Set value", () -> updateValue(""));
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> updateValue(null));

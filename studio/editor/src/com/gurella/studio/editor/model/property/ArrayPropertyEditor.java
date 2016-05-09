@@ -111,7 +111,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	}
 
 	private void addEditorMenus(PropertyEditor<Object> editor, int i) {
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			editor.addMenuItem("Remove item", () -> removeItem(i));
 		}
 	}
@@ -195,7 +195,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		}
 
 		@Override
-		public boolean isFinal() {
+		public boolean isFixedValue() {
 			return false;
 		}
 

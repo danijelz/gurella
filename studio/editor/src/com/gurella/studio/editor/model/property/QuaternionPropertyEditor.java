@@ -33,7 +33,7 @@ public class QuaternionPropertyEditor extends PropertyEditor<Quaternion> {
 
 		buildUi();
 
-		if (!context.isFinal()) {
+		if (!context.isFixedValue()) {
 			addMenuItem("New instance", () -> newInstance());
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());
