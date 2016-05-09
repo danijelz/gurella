@@ -65,7 +65,7 @@ public class Vector2PropertyEditor extends PropertyEditor<Vector2> {
 			}
 
 			Model<Vector2> model = Models.getModel(Vector2.class);
-			createEditorField(model, "x", "      ");
+			createEditorField(model, "x", "");
 			createEditorField(model, "y", "");
 		}
 

@@ -34,7 +34,7 @@ public class GridPoint3PropertyEditor extends PropertyEditor<GridPoint3> {
 		label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 
 		Model<GridPoint3> model = Models.getModel(GridPoint3.class);
-		createEditorField(model, "x", "\t");
+		createEditorField(model, "x", "");
 		createEditorField(model, "y", "");
 		createEditorField(model, "z", "");
 	}

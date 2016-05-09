@@ -65,7 +65,7 @@ public class QuaternionPropertyEditor extends PropertyEditor<Quaternion> {
 			}
 
 			Model<Quaternion> model = Models.getModel(Quaternion.class);
-			createEditorField(model, "x", "      ");
+			createEditorField(model, "x", "");
 			createEditorField(model, "y", "");
 			createEditorField(model, "z", "");
 			createEditorField(model, "w", "");
