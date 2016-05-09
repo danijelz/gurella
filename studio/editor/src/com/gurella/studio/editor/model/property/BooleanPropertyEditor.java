@@ -25,7 +25,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 
 		buildUi();
 
-		if (context.property.isNullable()) {
+		if (context.isNullable()) {
 			addMenuItem("Set null", () -> updateValue(null));
 			addMenuItem("Set value", () -> updateValue(Boolean.FALSE));
 		}

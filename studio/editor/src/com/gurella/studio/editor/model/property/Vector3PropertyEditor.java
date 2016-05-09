@@ -38,7 +38,7 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 
 		if (!context.property.isFinal()) {
 			addMenuItem("New instance", () -> newInstance());
-			if (context.property.isNullable()) {
+			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());
 			}
 		}

@@ -26,7 +26,7 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 
 		buildUi();
 
-		if (context.property.isNullable()) {
+		if (context.isNullable()) {
 			addMenuItem("Set null", () -> updateValue(null));
 			addMenuItem("Set value", () -> updateValue(Integer.valueOf(0)));
 		}

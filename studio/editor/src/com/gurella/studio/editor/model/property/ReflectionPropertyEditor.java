@@ -51,7 +51,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 				addMenuItem("New instance", () -> newTypeInstance());
 			}
 
-			if (context.property.isNullable()) {
+			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());
 			}
 		}

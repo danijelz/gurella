@@ -24,7 +24,7 @@ public class LongPropertyEditor extends SimplePropertyEditor<Long> {
 
 		buildUi();
 
-		if (context.property.isNullable()) {
+		if (context.isNullable()) {
 			addMenuItem("Set null", () -> updateValue(null));
 			addMenuItem("Set value", () -> updateValue(Long.valueOf(0)));
 		}

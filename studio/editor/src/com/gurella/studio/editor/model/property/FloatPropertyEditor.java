@@ -24,7 +24,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 
 		buildUi();
 
-		if (context.property.isNullable()) {
+		if (context.isNullable()) {
 			addMenuItem("Set null", () -> updateValue(null));
 			addMenuItem("Set value", () -> updateValue(Float.valueOf(0)));
 		}

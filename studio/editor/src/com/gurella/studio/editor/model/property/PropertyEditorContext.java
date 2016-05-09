@@ -82,4 +82,8 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 			temp = temp.parent;
 		}
 	}
+
+	public boolean isNullable() {
+		return property.isNullable();
+	}
 }

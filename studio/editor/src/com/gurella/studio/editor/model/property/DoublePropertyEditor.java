@@ -24,7 +24,7 @@ public class DoublePropertyEditor extends SimplePropertyEditor<Double> {
 
 		buildUi();
 
-		if (context.property.isNullable()) {
+		if (context.isNullable()) {
 			addMenuItem("Set null", () -> updateValue(null));
 			addMenuItem("Set value", () -> updateValue(Double.valueOf(0)));
 		}
