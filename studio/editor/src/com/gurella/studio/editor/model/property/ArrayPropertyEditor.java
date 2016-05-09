@@ -137,12 +137,6 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		rebuildUi();
 	}
 
-	private void setNull(int i) {
-		P values = getValue();
-		Array.set(values, i, null);
-		rebuildUi();
-	}
-
 	private boolean isFinalValue() {
 		Property<P> property = context.property;
 		if (property instanceof ReflectionProperty) {
