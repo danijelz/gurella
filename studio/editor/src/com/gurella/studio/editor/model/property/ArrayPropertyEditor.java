@@ -111,12 +111,8 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	}
 
 	private void addEditorMenus(PropertyEditor<Object> editor, int i) {
-		if (!context.property.isFinal()) {
+		if (!context.isFinal()) {
 			editor.addMenuItem("Remove item", () -> removeItem(i));
-		}
-
-		if (!getComponentType().isPrimitive()) {
-			editor.addMenuItem("Set item null", () -> setNull(i));
 		}
 	}
 
@@ -198,9 +194,14 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		protected P getItemValue() {
 			return Values.cast(Array.get(parentModelInstance, index));
 		}
-		
+
 		@Override
 		public boolean isNullable() {
+			return !parentModelInstance.getClass().getComponentType().isPrimitive();
+		}
+
+		@Override
+		public boolean isFinal() {
 			return false;
 		}
 

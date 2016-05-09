@@ -3,11 +3,8 @@ package com.gurella.studio.editor.model.property;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
 
-import java.net.URLClassLoader;
 import java.util.Arrays;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -36,7 +33,7 @@ public class Vector2PropertyEditor extends PropertyEditor<Vector2> {
 
 		buildUi();
 
-		if (!context.property.isFinal()) {
+		if (!context.isFinal()) {
 			addMenuItem("New instance", () -> newInstance());
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());
@@ -100,15 +97,7 @@ public class Vector2PropertyEditor extends PropertyEditor<Vector2> {
 	}
 
 	private void newInstance() {
-		try {
-			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Vector2 value = Values.cast(classLoader.loadClass(Vector2.class.getName()).newInstance());
-			setValue(value);
-			rebuildUi();
-		} catch (Exception e) {
-			String message = "Error occurred while creating value";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
-		}
+		setValue(new Vector2());
+		rebuildUi();
 	}
 }

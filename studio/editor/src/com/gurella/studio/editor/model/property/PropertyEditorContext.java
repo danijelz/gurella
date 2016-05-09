@@ -86,4 +86,8 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	public boolean isNullable() {
 		return property.isNullable();
 	}
+
+	public boolean isFinal() {
+		return property.isFinal();
+	}
 }

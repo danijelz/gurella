@@ -24,9 +24,11 @@ public class CharacterPropertyEditor extends SimplePropertyEditor<Character> {
 
 		buildUi();
 
-		if (context.isNullable()) {
-			addMenuItem("Set null", () -> updateValue(null));
+		if (!context.isFinal()) {
 			addMenuItem("Set value", () -> updateValue(Character.valueOf('0')));
+			if (context.isNullable()) {
+				addMenuItem("Set null", () -> updateValue(null));
+			}
 		}
 	}
 

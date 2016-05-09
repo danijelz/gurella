@@ -44,7 +44,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 		buildUi();
 
-		if (!context.property.isFinal()) {
+		if (!context.isFinal()) {
 			addMenuItem("Select type", () -> selectType());
 
 			if (Reflection.getDeclaredConstructorSilently(getProperty().getType()) != null) {

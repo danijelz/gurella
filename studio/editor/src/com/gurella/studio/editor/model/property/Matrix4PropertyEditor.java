@@ -21,9 +21,11 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 		body.setLayout(new GridLayout(8, false));
 		buildUi();
 
-		if (context.isNullable()) {
-			addMenuItem("Set null", () -> updateValue(null));
+		if (!context.isFinal()) {
 			addMenuItem("New instance", () -> updateValue(new Matrix4()));
+			if (context.isNullable()) {
+				addMenuItem("Set null", () -> updateValue(null));
+			}
 		}
 	}
 

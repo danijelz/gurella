@@ -24,9 +24,11 @@ public class StringPropertyEditor extends SimplePropertyEditor<String> {
 
 		buildUi();
 
-		if (context.isNullable()) {
-			addMenuItem("Set null", () -> updateValue(null));
+		if (!context.isFinal()) {
 			addMenuItem("Set value", () -> updateValue(""));
+			if (context.isNullable()) {
+				addMenuItem("Set null", () -> updateValue(null));
+			}
 		}
 	}
 

@@ -4,7 +4,9 @@ import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -31,6 +33,7 @@ public abstract class PropertyEditor<P> {
 	private Image menuImage;
 
 	private Map<String, Runnable> menuItems = new HashMap<>();
+	private List<String> menuItemsOrder = new ArrayList<>();
 
 	protected PropertyEditorContext<?, P> context;
 
@@ -98,12 +101,21 @@ public abstract class PropertyEditor<P> {
 	}
 
 	public void addMenuItem(String text, Runnable action) {
-		menuItems.put(text, action);
+		if (action == null) {
+			return;
+		}
+
+		if (menuItems.put(text, action) != null) {
+			menuItemsOrder.remove(text);
+		}
+
+		menuItemsOrder.add(text);
 		updateMenu();
 	}
 
 	public void removeMenuItem(String text) {
 		menuItems.remove(text);
+		menuItemsOrder.remove(text);
 		updateMenu();
 	}
 
@@ -129,7 +141,7 @@ public abstract class PropertyEditor<P> {
 		}
 
 		Menu menu = new Menu(composite.getShell(), POP_UP);
-		menuItems.forEach((text, action) -> addMenuAction(menu, text, action));
+		menuItemsOrder.forEach(text -> addMenuAction(menu, text, menuItems.get(text)));
 		Point loc = menuButton.getLocation();
 		Rectangle rect = menuButton.getBounds();
 		Point mLoc = new Point(loc.x - 1, loc.y + rect.height);

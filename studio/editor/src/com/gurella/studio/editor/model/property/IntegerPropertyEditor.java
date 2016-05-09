@@ -27,8 +27,8 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 		buildUi();
 
 		if (context.isNullable()) {
-			addMenuItem("Set null", () -> updateValue(null));
 			addMenuItem("Set value", () -> updateValue(Integer.valueOf(0)));
+			addMenuItem("Set null", () -> updateValue(null));
 		}
 	}
 
@@ -48,7 +48,7 @@ public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
 			text.addModifyListener(e -> setValue(Integer.valueOf(text.getText())));
 			UiUtils.paintBordersFor(body);
 		}
-		
+
 		body.layout();
 	}
 

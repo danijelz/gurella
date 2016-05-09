@@ -24,9 +24,11 @@ public class ShortPropertyEditor extends SimplePropertyEditor<Short> {
 
 		buildUi();
 
-		if (context.isNullable()) {
-			addMenuItem("Set null", () -> updateValue(null));
+		if (!context.isFinal()) {
 			addMenuItem("Set value", () -> updateValue(Short.valueOf((short) 0)));
+			if (context.isNullable()) {
+				addMenuItem("Set null", () -> updateValue(null));
+			}
 		}
 	}
 

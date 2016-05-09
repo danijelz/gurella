@@ -3,11 +3,8 @@ package com.gurella.studio.editor.model.property;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
 
-import java.net.URLClassLoader;
 import java.util.Arrays;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -36,7 +33,7 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 
 		buildUi();
 
-		if (!context.property.isFinal()) {
+		if (!context.isFinal()) {
 			addMenuItem("New instance", () -> newInstance());
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> setNull());
@@ -84,8 +81,8 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 		label.setAlignment(SWT.LEFT);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
-		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, model,
-				getValue(), childProperty);
+		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, model, getValue(),
+				childProperty);
 		PropertyEditor<Float> editor = createEditor(body, propertyContext);
 		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
 	}
@@ -101,15 +98,7 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 	}
 
 	private void newInstance() {
-		try {
-			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Vector3 value = Values.cast(classLoader.loadClass(Vector3.class.getName()).newInstance());
-			setValue(value);
-			rebuildUi();
-		} catch (Exception e) {
-			String message = "Error occurred while creating value";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
-		}
+		setValue(new Vector3());
+		rebuildUi();
 	}
 }

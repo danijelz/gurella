@@ -24,9 +24,11 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 
 		buildUi();
 
-		if (context.isNullable()) {
-			addMenuItem("Set null", () -> updateValue(null));
+		if (!context.isFinal()) {
 			addMenuItem("Set value", () -> updateValue(Float.valueOf(0)));
+			if (context.isNullable()) {
+				addMenuItem("Set null", () -> updateValue(null));
+			}
 		}
 	}
 
@@ -46,7 +48,7 @@ public class FloatPropertyEditor extends SimplePropertyEditor<Float> {
 			text.addModifyListener(e -> setValue(Float.valueOf(text.getText())));
 			UiUtils.paintBordersFor(body);
 		}
-		
+
 		body.layout();
 	}
 
