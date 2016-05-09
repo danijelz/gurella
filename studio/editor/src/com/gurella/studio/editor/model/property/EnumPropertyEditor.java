@@ -7,8 +7,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -52,17 +50,11 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 			comboViewer.setSelection(selection);
 		}
 
-		combo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				ISelection selection = comboViewer.getSelection();
-				if (selection instanceof IStructuredSelection) {
-					IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-					setValue(Values.cast(structuredSelection.getFirstElement()));
-				} else {
-					setValue(null);
-				}
-			}
-		});
+		combo.addListener(SWT.Selection, e -> selectionChanged());
+	}
+
+	public void selectionChanged() {
+		IStructuredSelection selection = comboViewer.getStructuredSelection();
+		setValue(Values.cast(selection.getFirstElement()));
 	}
 }

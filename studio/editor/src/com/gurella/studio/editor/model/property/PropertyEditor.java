@@ -45,6 +45,7 @@ public abstract class PropertyEditor<P> {
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		composite.setLayout(layout);
+		composite.setData(PropertyEditor.class.getName(), this);
 
 		body = new BodyComposite(composite, SWT.NULL);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
@@ -85,7 +86,7 @@ public abstract class PropertyEditor<P> {
 	}
 
 	public void setHover(boolean hover) {
-		if (menuButton == null) {
+		if (menuButton == null || menuButton.isDisposed()) {
 			return;
 		}
 
@@ -111,6 +112,7 @@ public abstract class PropertyEditor<P> {
 		if (empty && menuButton != null) {
 			((GridLayout) composite.getLayout()).numColumns = 1;
 			menuButton.dispose();
+			menuButton = null;
 			composite.layout(true, true);
 		} else if (!empty && menuButton == null) {
 			((GridLayout) composite.getLayout()).numColumns = 2;

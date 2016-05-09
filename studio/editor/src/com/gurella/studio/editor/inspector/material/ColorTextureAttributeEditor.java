@@ -45,7 +45,7 @@ public class ColorTextureAttributeEditor extends Composite {
 	public ColorTextureAttributeEditor(Composite parent, MaterialDescriptor materialDescriptor,
 			Supplier<Color> colorGetter, Consumer<Color> colorSetter,
 			Supplier<TextureAttributeProperties> textureGetter, Runnable updater) {
-		super(parent, SWT.BORDER);
+		super(parent, SWT.NONE);
 
 		this.materialDescriptor = materialDescriptor;
 		this.colorGetter = colorGetter;

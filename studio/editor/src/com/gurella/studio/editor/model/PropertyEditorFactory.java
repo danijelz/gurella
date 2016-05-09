@@ -38,6 +38,7 @@ import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.QuaternionPropertyEditor;
 import com.gurella.studio.editor.model.property.ReflectionPropertyEditor;
 import com.gurella.studio.editor.model.property.ShortPropertyEditor;
+import com.gurella.studio.editor.model.property.SimpleObjectPropertyEditor;
 import com.gurella.studio.editor.model.property.StringPropertyEditor;
 import com.gurella.studio.editor.model.property.Vector2PropertyEditor;
 import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
@@ -96,19 +97,15 @@ public class PropertyEditorFactory {
 			return Values.cast(new EnumPropertyEditor<>(parent, Values.cast(context)));
 		} else if (Assets.isAssetType(propertyType)) {
 			return Values.cast(new AssetPropertyEditor<>(parent, context, propertyType));
-		} /*else if (isSimpleProperty(propertyType)) {
-			//TODO handle in ReflectionPropertyEditor
-			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));}*/
-		else {
+		} else if (context.property.isFinal() && context.modelInstance != null && isSimpleProperty(propertyType)) {
+			// TODO handle in ReflectionPropertyEditor
+			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));
+		} else {
 			return new ReflectionPropertyEditor<T>(parent, context);
 		}
 	}
 
 	public static boolean isSimpleProperty(Class<?> propertyType) {
-		if (Models.getModel(propertyType) instanceof SimpleModel) {
-			return true;
-		}
-
 		ImmutableArray<Property<?>> properties = Models.getModel(propertyType).getProperties();
 		Property<?> editableProperty = null;
 		for (Property<?> property : properties) {
@@ -121,10 +118,6 @@ public class PropertyEditorFactory {
 			}
 		}
 
-		if (editableProperty == null) {
-			return false;
-		} else {
-			return Models.getModel(editableProperty.getType()) instanceof SimpleModel;
-		}
+		return editableProperty != null && Models.getModel(editableProperty.getType()) instanceof SimpleModel;
 	}
 }

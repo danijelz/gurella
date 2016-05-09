@@ -4,6 +4,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.graphics.Color;
+import com.gurella.engine.base.model.ModelDefaults;
 import com.gurella.studio.editor.common.ColorSelectionWidget;
 
 public class ColorPropertyEditor extends SimplePropertyEditor<Color> {
@@ -19,13 +20,14 @@ public class ColorPropertyEditor extends SimplePropertyEditor<Color> {
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
-		colorSelector = new ColorSelectionWidget(body);
-
 		Color color = getValue();
-		if (color != null) {
-			colorSelector.setColor(color);
-		}
-
+		Color defaultColor = context.property.isNullable() ? null : getDefaultColor();
+		colorSelector = new ColorSelectionWidget(body, color, defaultColor);
 		colorSelector.setColorChangeListener(e -> setValue(colorSelector.getColor()));
+	}
+
+	private Color getDefaultColor() {
+		Color defaultColor = ModelDefaults.getDefault(context.model.getType(), context.property);
+		return defaultColor == null ? new Color(Color.WHITE) : new Color(defaultColor);
 	}
 }

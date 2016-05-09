@@ -185,4 +185,22 @@ public class UiUtils {
 	public static void adapt(Composite composite) {
 		getToolkit().adapt(composite);
 	}
+
+	public static void verifyHexRgb(VerifyEvent e, String oldValue) {
+		String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
+		int length = newS.length();
+
+		if (length == 0) {
+			return;
+		} else if (length > 8) {
+			e.doit = false;
+			return;
+		} else {
+			try {
+				Integer.parseUnsignedInt(newS, 16);
+			} catch (Exception e2) {
+				e.doit = false;
+			}
+		}
+	}
 }

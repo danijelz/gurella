@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.property;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -17,16 +19,35 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 		super(parent, context);
 
 		body.setLayout(new GridLayout(6, false));
-		createText(Matrix3.M00, "00");
-		createText(Matrix3.M01, "01");
-		createText(Matrix3.M02, "02");
-		createText(Matrix3.M10, "10");
-		createText(Matrix3.M11, "11");
-		createText(Matrix3.M12, "12");
-		createText(Matrix3.M20, "20");
-		createText(Matrix3.M21, "21");
-		createText(Matrix3.M22, "22");
-		UiUtils.paintBordersFor(body);
+
+		buildUi();
+
+		if (context.property.isNullable()) {
+			addMenuItem("Set null", () -> updateValue(null));
+			addMenuItem("New instance", () -> updateValue(new Matrix3()));
+		}
+	}
+
+	private void buildUi() {
+		Matrix3 value = getValue();
+		if (value == null) {
+			Label label = UiUtils.createLabel(body, "null");
+			label.setAlignment(SWT.CENTER);
+			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 6, 1));
+		} else {
+			createText(Matrix3.M00, "00");
+			createText(Matrix3.M01, "01");
+			createText(Matrix3.M02, "02");
+			createText(Matrix3.M10, "10");
+			createText(Matrix3.M11, "11");
+			createText(Matrix3.M12, "12");
+			createText(Matrix3.M20, "20");
+			createText(Matrix3.M21, "21");
+			createText(Matrix3.M22, "22");
+			UiUtils.paintBordersFor(body);
+		}
+
+		body.layout();
 	}
 
 	private void createText(int index, String name) {
@@ -55,5 +76,15 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 		Matrix3 oldValue = new Matrix3(matrix);
 		matrix.val[index] = Float.valueOf(value).floatValue();
 		context.propertyValueChanged(oldValue, matrix);
+	}
+
+	private void rebuildUi() {
+		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		buildUi();
+	}
+
+	private void updateValue(Matrix3 value) {
+		setValue(value);
+		rebuildUi();
 	}
 }

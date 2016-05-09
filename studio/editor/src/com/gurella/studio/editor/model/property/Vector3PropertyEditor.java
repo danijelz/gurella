@@ -67,24 +67,24 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			}
 
-			Model<Vector3> vector3Model = Models.getModel(Vector3.class);
-			createEditorField(vector3Model, "x", "      ");
-			createEditorField(vector3Model, "y", "");
-			createEditorField(vector3Model, "z", "");
+			Model<Vector3> model = Models.getModel(Vector3.class);
+			createEditorField(model, "x", "      ");
+			createEditorField(model, "y", "");
+			createEditorField(model, "z", "");
 		}
 
 		body.layout();
 	}
 
-	private void createEditorField(final Model<Vector3> vector3Model, String propertyName, String prefix) {
-		Property<Float> childProperty = vector3Model.getProperty(propertyName);
+	private void createEditorField(final Model<Vector3> model, String propertyName, String prefix) {
+		Property<Float> childProperty = model.getProperty(propertyName);
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
 		Label label = toolkit.createLabel(body, prefix + childProperty.getDescriptiveName() + ":");
 		label.setAlignment(SWT.LEFT);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
-		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, vector3Model,
+		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, model,
 				getValue(), childProperty);
 		PropertyEditor<Float> editor = createEditor(body, propertyContext);
 		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));

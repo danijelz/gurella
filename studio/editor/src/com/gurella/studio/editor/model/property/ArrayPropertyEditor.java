@@ -144,6 +144,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	private void setNull(int i) {
 		P values = getValue();
 		Array.set(values, i, null);
+		rebuildUi();
 	}
 
 	private boolean isFinalValue() {

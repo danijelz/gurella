@@ -36,7 +36,8 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 	private ModelEditorContext<T> context;
 	private List<PropertyEditor<?>> editors = new ArrayList<>();
 
-	private PropertyEditor<?> hoverEditor;
+	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
+	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
 
 	public ModelEditorContainer(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
@@ -69,7 +70,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		FormToolkit toolkit = getToolkit();
 		Composite body = getBody();
 		PropertyEditor<V> editor = createEditor(getBody(), new PropertyEditorContext<>(context, property));
-		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
 		editors.add(editor);
@@ -100,39 +101,37 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 	}
 
 	protected void mouseMoved() {
-		PropertyEditor<?> editor = getPropertyEditor();
-		if (editor == hoverEditor) {
+		extractHoveredEditors();
+
+		hoverEditors.stream().filter(e -> !hoverEditorsTemp.contains(e)).forEach(e -> e.setHover(false));
+		hoverEditorsTemp.stream().filter(e -> !hoverEditors.contains(e)).forEach(e -> e.setHover(true));
+
+		hoverEditors.clear();
+		List<PropertyEditor<?>> temp = hoverEditorsTemp;
+		hoverEditorsTemp = hoverEditors;
+		hoverEditors = temp;
+	}
+
+	private void extractHoveredEditors() {
+		Control cursorControl = getDisplay().getCursorControl();
+		if (cursorControl == null) {
 			return;
 		}
 
-		if (hoverEditor != null) {
-			hoverEditor.setHover(false);
-		}
-
-		hoverEditor = editor;
-		if (editor != null) {
-			editor.setHover(true);
-		}
-	}
-
-	private PropertyEditor<?> getPropertyEditor() {
-		Control cursorControl = getDisplay().getCursorControl();
-		if (cursorControl == null) {
-			return null;
-		}
-
 		Composite parent = cursorControl.getParent();
-		final List<Composite> composites = new ArrayList<>();
 
-		while (parent != null && parent != getBody()) {
-			composites.add(parent);
+		Composite body = getBody();
+		while (parent != null && parent != body) {
+			PropertyEditor<?> editor = (PropertyEditor<?>) parent.getData(PropertyEditor.class.getName());
+			if (editor != null) {
+				hoverEditorsTemp.add(editor);
+			}
+
 			parent = parent.getParent();
 		}
 
-		if (parent == null) {
-			return null;
+		if (body != parent) {
+			hoverEditorsTemp.clear();
 		}
-
-		return editors.stream().filter(e -> composites.contains(e.getComposite())).findFirst().orElse(null);
 	}
 }
