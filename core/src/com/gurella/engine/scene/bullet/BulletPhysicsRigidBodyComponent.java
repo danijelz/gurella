@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.bullet.shapes.BulletPhysicsCollisionShape;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
@@ -49,6 +50,7 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2
 		createCollisionObject();
 		transformComponent = getNode().getComponent(TransformComponent.class);
 		if (rigidBody != null && transformComponent != null) {
+			transformComponent.getWorldTransform(rigidBody.getWorldTransform());
 			rigidBody.activate(true);
 		}
 	}
@@ -56,10 +58,10 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2
 	private void createCollisionObject() {
 		if (rigidBody == null) {
 			constructionInfo.setMotionState(motionState);
+			constructionInfo.setFriction(0.4f);
+			constructionInfo.setRestitution(0.2f);
 			rigidBody = new btRigidBody(constructionInfo);
 			rigidBody.userData = this;
-			rigidBody.setFriction(0.4f);
-			rigidBody.setRestitution(0.2f);
 			rigidBody.setAngularFactor(new Vector3(0, 0, 1));
 		}
 	}

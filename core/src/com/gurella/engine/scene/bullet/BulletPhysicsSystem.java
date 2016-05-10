@@ -42,7 +42,7 @@ public class BulletPhysicsSystem extends SceneService
 
 	public boolean stopSimulationOnPause;
 	private boolean paused;
-	private final Vector3 gravity = new Vector3(0, -10f, 0);
+	private final Vector3 gravity = new Vector3(0f, -9.8f, 0f);
 
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
