@@ -27,7 +27,7 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2
 	public boolean disableContactResponse;// CF_NO_CONTACT_RESPONSE
 
 	public final BulletMaterial bulletMaterial = new BulletMaterial();
-	private final MotionState motionState = new MotionState();
+	private final transient MotionState motionState = new MotionState();
 	public BulletPhysicsCollisionShape bulletPhysicsCollisionShape;
 
 	public int collisionGroup;
