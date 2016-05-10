@@ -34,6 +34,11 @@ import com.gurella.engine.scene.renderable.ShapeComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.renderable.shape.BoxShapeModel;
+import com.gurella.engine.scene.renderable.shape.CapsuleShapeModel;
+import com.gurella.engine.scene.renderable.shape.ConeShapeModel;
+import com.gurella.engine.scene.renderable.shape.CylinderShapeModel;
+import com.gurella.engine.scene.renderable.shape.RectangleShapeModel;
+import com.gurella.engine.scene.renderable.shape.ShapeModel;
 import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.test.TestInputComponent;
@@ -81,11 +86,27 @@ public class SceneHierarchyView extends SceneEditorView {
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add sphere");
-		item.addListener(SWT.Selection, e -> addSphereNode());
+		item.addListener(SWT.Selection, e -> addShapeNode("Sphere", new SphereShapeModel()));
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add box");
-		item.addListener(SWT.Selection, e -> addBoxNode());
+		item.addListener(SWT.Selection, e -> addShapeNode("Box", new BoxShapeModel()));
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add cylinder");
+		item.addListener(SWT.Selection, e -> addShapeNode("Cylinder", new CylinderShapeModel()));
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add cone");
+		item.addListener(SWT.Selection, e -> addShapeNode("Cone", new ConeShapeModel()));
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add capsule");
+		item.addListener(SWT.Selection, e -> addShapeNode("Capsule", new CapsuleShapeModel()));
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add rectangle");
+		item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel()));
 
 		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 		subItem.setText("Add Component");
@@ -256,8 +277,8 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private void addSphereNode() {
-		SceneNode2 node = getScene().newNode("Sphere");
+	private void addShapeNode(String name, ShapeModel shapeModel) {
+		SceneNode2 node = getScene().newNode(name);
 		TreeItem nodeItem = new TreeItem(graph, 0);
 		nodeItem.setData(node);
 		nodeItem.setText(node.getName());
@@ -270,30 +291,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		componentItem.setData(transformComponent);
 
 		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
-		shapeComponent.setShape(new SphereShapeModel());
-		componentItem = new TreeItem(nodeItem, 1);
-		componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
-		componentItem.setText(Models.getModel(shapeComponent).getName());
-		componentItem.setData(shapeComponent);
-
-		postMessage(SceneChangedMessage.instance);
-	}
-
-	private void addBoxNode() {
-		SceneNode2 node = getScene().newNode("Box");
-		TreeItem nodeItem = new TreeItem(graph, 0);
-		nodeItem.setData(node);
-		nodeItem.setText(node.getName());
-		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-
-		TransformComponent transformComponent = node.newComponent(TransformComponent.class);
-		TreeItem componentItem = new TreeItem(nodeItem, 0);
-		componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
-		componentItem.setText(Models.getModel(transformComponent).getName());
-		componentItem.setData(transformComponent);
-
-		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
-		shapeComponent.setShape(new BoxShapeModel());
+		shapeComponent.setShape(shapeModel);
 		componentItem = new TreeItem(nodeItem, 1);
 		componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
 		componentItem.setText(Models.getModel(shapeComponent).getName());
