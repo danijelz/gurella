@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.bullet;
 
-public interface BulletPhysicsCollisionShape {
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 
+public interface BulletPhysicsCollisionShape {
+	btCollisionShape createNativeShape();
 }

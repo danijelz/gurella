@@ -58,8 +58,9 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2 impleme
 	
 	@Override
 	public void reset() {
-		transformComponent.reset();
-		rigidBody.setWorldTransform(transformComponent.getWorldTransform(rigidBody.getWorldTransform()));
+		transformComponent = null;
+		//rigidBody.setWorldTransform(transformComponent.getWorldTransform(rigidBody.getWorldTransform()));
+		rigidBody.getWorldTransform().idt();
 		rigidBody.clearForces();
 		rigidBody.setLinearVelocity(rigidBody.getLinearVelocity().setZero());
 		rigidBody.setAngularVelocity(rigidBody.getAngularVelocity().setZero());
