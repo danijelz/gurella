@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.movement;
+package com.gurella.engine.scene.velocity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
@@ -7,6 +7,7 @@ import com.gurella.engine.scene.SceneSystem2;
 import com.gurella.engine.scene.manager.ComponentBitsPredicate;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
+import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 

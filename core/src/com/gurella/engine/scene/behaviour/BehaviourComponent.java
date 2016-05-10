@@ -31,10 +31,10 @@ import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
-import com.gurella.engine.scene.movement.TransformComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.tag.Tag;
+import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO move methods to parent classes

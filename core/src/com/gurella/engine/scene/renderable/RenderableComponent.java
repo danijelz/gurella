@@ -11,7 +11,7 @@ import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.layer.Layer;
-import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;

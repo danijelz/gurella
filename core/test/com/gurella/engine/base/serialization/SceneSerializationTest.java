@@ -9,7 +9,7 @@ import com.gurella.engine.base.serialization.json.JsonInput;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class SceneSerializationTest {
 	public static void main(String[] args) {

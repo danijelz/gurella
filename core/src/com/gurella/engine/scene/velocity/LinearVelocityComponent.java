@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.movement;
+package com.gurella.engine.scene.velocity;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;

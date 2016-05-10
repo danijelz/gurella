@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2 implements Poolable {
 	static {

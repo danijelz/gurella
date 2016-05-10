@@ -1,7 +1,7 @@
 package com.gurella.engine.base.model;
 
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class ModelTest {
 	public static void main(String[] args) {

@@ -13,7 +13,7 @@ import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 class AudioSourceData implements Poolable {
 	private static Attenuation defaultAttenuation = Attenuation.ROLLOFF;

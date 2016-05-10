@@ -1,12 +1,10 @@
 package com.gurella.engine.scene.renderable;
 
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.gurella.engine.scene.renderable.shape.ShapeModel;
 
 public class ShapeComponent extends RenderableComponent3d {
 	private ShapeModel shape;
-	protected transient Material material;
 
 	public ShapeComponent() {
 	}

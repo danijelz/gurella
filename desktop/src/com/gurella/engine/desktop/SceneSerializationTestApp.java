@@ -11,7 +11,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.object.Prefabs;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.movement.TransformComponent;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class SceneSerializationTestApp {
 	@SuppressWarnings("unused")

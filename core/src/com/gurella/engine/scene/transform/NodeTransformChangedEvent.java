@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.movement;
+package com.gurella.engine.scene.transform;
 
 import com.gurella.engine.event.SubscriptionEvent;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
