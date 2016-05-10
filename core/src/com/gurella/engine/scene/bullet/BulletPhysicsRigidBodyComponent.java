@@ -9,28 +9,31 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstruct
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
-public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2 implements Poolable {
+public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2
+		implements NodeComponentActivityListener, Poolable {
 	static {
 		Bullet.init();
 	}
-	
-	private TransformComponent transformComponent;
+
+	private transient TransformComponent transformComponent;
 	private btRigidBodyConstructionInfo constructionInfo;
 
 	public boolean ghost;
-	public boolean trigger;// CF_NO_CONTACT_RESPONSE
-	public float mass;
-	public final Vector3 localInertia = new Vector3();
+	public boolean disableContactResponse;// CF_NO_CONTACT_RESPONSE
+
+	public final BulletMaterial bulletMaterial = new BulletMaterial();
+	private final MotionState motionState = new MotionState();
+	public BulletPhysicsCollisionShape bulletPhysicsCollisionShape;
+
 	public int collisionGroup;
 	public Bits collisionMasks = new Bits(32);
 
 	public BulletPhysicsRigidBodyType rigidBodyType = BulletPhysicsRigidBodyType.DYNAMIC;
-	public BulletPhysicsCollisionShape bulletPhysicsCollisionShape;
-	public btRigidBody rigidBody;
+	public transient btRigidBody rigidBody;
 
 	public BulletPhysicsRigidBodyComponent() {
 	}
@@ -40,46 +43,58 @@ public class BulletPhysicsRigidBodyComponent extends SceneNodeComponent2 impleme
 		collisionShape.calculateLocalInertia(mass, inertia);
 		constructionInfo = new btRigidBodyConstructionInfo(mass, null, collisionShape, inertia);
 	}
-	
+
 	@Override
 	protected void onActivate() {
+		createCollisionObject();
 		transformComponent = getNode().getComponent(TransformComponent.class);
+		if (rigidBody != null && transformComponent != null) {
+			rigidBody.activate(true);
+		}
+	}
+
+	private void createCollisionObject() {
 		if (rigidBody == null) {
-			constructionInfo.setMotionState(new MotionState());
-			rigidBody = DisposablesService.add(new btRigidBody(constructionInfo));
+			constructionInfo.setMotionState(motionState);
+			rigidBody = new btRigidBody(constructionInfo);
 			rigidBody.userData = this;
 			rigidBody.setFriction(0.4f);
 			rigidBody.setRestitution(0.2f);
 			rigidBody.setAngularFactor(new Vector3(0, 0, 1));
 		}
-
-		rigidBody.activate(true);
 	}
-	
+
+	@Override
+	protected void onDeactivate() {
+		transformComponent = null;
+		if (rigidBody.isActive()) {
+			rigidBody.activate(false);
+		}
+	}
+
+	@Override
+	public void nodeComponentActivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			transformComponent = (TransformComponent) component;
+			rigidBody.activate(true);
+		}
+	}
+
+	@Override
+	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			transformComponent = null;
+			if (rigidBody.isActive()) {
+				rigidBody.activate(false);
+			}
+		}
+	}
+
 	@Override
 	public void reset() {
 		transformComponent = null;
-		//rigidBody.setWorldTransform(transformComponent.getWorldTransform(rigidBody.getWorldTransform()));
-		rigidBody.getWorldTransform().idt();
-		rigidBody.clearForces();
-		rigidBody.setLinearVelocity(rigidBody.getLinearVelocity().setZero());
-		rigidBody.setAngularVelocity(rigidBody.getAngularVelocity().setZero());
-		
-		/*
-		TODO
-		private TransformComponent transformComponent;
-		private btRigidBodyConstructionInfo constructionInfo;
-
-		public boolean ghost;
-		public boolean trigger;// CF_NO_CONTACT_RESPONSE
-		public float mass;
-		public final Vector3 localInertia = new Vector3();
-		public int collisionGroup;
-		public Bits collisionMasks = new Bits(32);
-
-		public BulletPhysicsRigidBodyType rigidBodyType = BulletPhysicsRigidBodyType.DYNAMIC;
-		public BulletPhysicsCollisionShape bulletPhysicsCollisionShape;
-		public btRigidBody rigidBody;*/
+		rigidBody.dispose();
+		rigidBody = null;
 	}
 
 	private class MotionState extends btMotionState {
