@@ -25,31 +25,25 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	private transient int sceneId;
 
-	// TODO LayerComponent ??
 	@PropertyDescriptor(nullable = false)
 	public Layer layer = Layer.DEFAULT;
 	transient TransformComponent transformComponent;
 
 	private transient boolean dirty = true;
 
+	protected abstract void updateGeometry();
+
+	protected abstract void doRender(GenericBatch batch);
+
+	public abstract void doGetBounds(BoundingBox bounds);
+
+	public abstract boolean doGetIntersection(Ray ray, Vector3 intersection);
+
 	@Override
 	protected void onActivate() {
 		sceneId = getScene().getInstanceId();
 		transformComponent = getNode().getActiveComponent(TransformComponent.class);
-		if (transformComponent == null) {
-			updateDefaultTransform();
-		} else {
-			updateTransform();
-		}
-	}
-
-	void notifyChanged(RenderableComponent component) {
-		synchronized (mutex) {
-			EventService.getSubscribers(sceneId, SceneRenderableChangedListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onRenderableChanged(component);
-			}
-		}
+		updateGeometry();
 	}
 
 	@Override
@@ -60,14 +54,22 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	@Override
 	public void onNodeTransformChanged() {
-		updateTransform();
-		notifyChanged(this);
+		setDirty();
 	}
-	
+
 	public void setDirty() {
-		if(!dirty) {
+		if (!dirty) {
 			dirty = true;
 			notifyChanged(this);
+		}
+	}
+
+	private static void notifyChanged(RenderableComponent component) {
+		synchronized (mutex) {
+			EventService.getSubscribers(component.sceneId, SceneRenderableChangedListener.class, listeners);
+			for (int i = 0; i < listeners.size; i++) {
+				listeners.get(i).onRenderableChanged(component);
+			}
 		}
 	}
 
@@ -91,21 +93,29 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	private void setTransformComponent(TransformComponent transformComponent) {
 		this.transformComponent = transformComponent;
-		if (transformComponent == null) {
-			updateDefaultTransform();
-		} else {
-			updateTransform();
-		}
-
-		notifyChanged(this);
+		setDirty();
 	}
-	
-	//TODO call when dirty
+
 	protected void update() {
-		if(dirty) {
-			//updateGeometry
+		if (dirty) {
+			updateGeometry();
 			dirty = false;
 		}
+	}
+
+	final void render(GenericBatch batch) {
+		update();
+		doRender(batch);
+	}
+
+	public final void getBounds(BoundingBox bounds) {
+		update();
+		doGetBounds(bounds);
+	}
+
+	public final boolean getIntersection(Ray ray, Vector3 intersection) {
+		update();
+		return doGetIntersection(ray, intersection);
 	}
 
 	@Override
@@ -115,14 +125,4 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		transformComponent = null;
 		dirty = true;
 	}
-
-	protected abstract void updateDefaultTransform();
-
-	protected abstract void updateTransform();
-
-	protected abstract void render(GenericBatch batch);
-
-	public abstract void getBounds(BoundingBox bounds);
-
-	public abstract boolean getIntersection(Ray ray, Vector3 intersection);
 }

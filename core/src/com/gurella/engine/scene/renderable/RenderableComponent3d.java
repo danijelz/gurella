@@ -20,7 +20,21 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 	protected abstract ModelInstance getModelInstance();
 
 	@Override
-	protected void render(GenericBatch batch) {
+	protected void updateGeometry() {
+		ModelInstance instance = getModelInstance();
+		if (instance == null) {
+			return;
+		}
+
+		if (transformComponent == null) {
+			instance.transform.idt();
+		} else {
+			transformComponent.getWorldTransform(instance.transform);
+		}
+	}
+
+	@Override
+	protected void doRender(GenericBatch batch) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			batch.render(instance);
@@ -28,27 +42,15 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 	}
 
 	@Override
-	public void getBounds(BoundingBox bounds) {
+	public void doGetBounds(BoundingBox bounds) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.extendBoundingBox(bounds);
 		}
 	}
 
-	// public boolean intersect(Ray ray, Vector3 intersection) {
-	// final BoundingBox bb = new BoundingBox();
-	// for (int i = 0; i < modelInstances.size; i++) {
-	// ModelInstance instance = modelInstances.get(i);
-	// instance.calculateBoundingBox(bb).mul(instance.transform);
-	// if (Intersector.intersectRayBoundsFast(ray, bb)) {
-	// return intersect(ray, models.get(i), instance.transform, intersection);
-	// }
-	// }
-	// return false;
-	// }
-
 	@Override
-	public boolean getIntersection(Ray ray, Vector3 intersection) {
+	public boolean doGetIntersection(Ray ray, Vector3 intersection) {
 		ModelInstance instance = getModelInstance();
 		if (instance == null) {
 			return false;
@@ -116,19 +118,15 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 		return false;
 	}
 
-	@Override
-	protected void updateDefaultTransform() {
-		ModelInstance instance = getModelInstance();
-		if (instance != null) {
-			instance.transform.idt();
-		}
-	}
-
-	@Override
-	protected void updateTransform() {
-		ModelInstance instance = getModelInstance();
-		if (instance != null) {
-			transformComponent.getWorldTransform(instance.transform);
-		}
-	}
+	// public boolean intersect(Ray ray, Vector3 intersection) {
+	// final BoundingBox bb = new BoundingBox();
+	// for (int i = 0; i < modelInstances.size; i++) {
+	// ModelInstance instance = modelInstances.get(i);
+	// instance.calculateBoundingBox(bb).mul(instance.transform);
+	// if (Intersector.intersectRayBoundsFast(ray, bb)) {
+	// return intersect(ray, models.get(i), instance.transform, intersection);
+	// }
+	// }
+	// return false;
+	// }
 }

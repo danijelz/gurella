@@ -22,6 +22,7 @@ public class ModelComponent extends RenderableComponent3d {
 					transformComponent.getWorldTransform(instance.transform);
 				}
 			}
+			setDirty();
 		}
 	}
 

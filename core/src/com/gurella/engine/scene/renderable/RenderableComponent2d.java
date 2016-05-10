@@ -35,7 +35,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			if (!dimensionsFromTexture) {
 				sprite.setSize(width, height);
 			}
-			notifyChanged(this);
+			setDirty();
 		}
 	}
 
@@ -49,7 +49,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			if (!dimensionsFromTexture) {
 				sprite.setSize(width, height);
 			}
-			notifyChanged(this);
+			setDirty();
 		}
 	}
 
@@ -72,10 +72,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	public void set_25d(boolean _25d) {
 		if (this._25d != _25d) {
 			this._25d = _25d;
-			if (transformComponent != null) {
-				updateTransform();
-			}
-			notifyChanged(this);
+			setDirty();
 		}
 	}
 
@@ -91,46 +88,45 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			} else {
 				sprite.setSize(width, height);
 			}
-			notifyChanged(this);
+			setDirty();
 		}
 	}
 
 	abstract void updateDimensionsFromTexture();
 
 	@Override
-	protected void updateTransform() {
-		float y = transformComponent.getWorldTranslationY();
-		if (_25d) {
-			y += transformComponent.getWorldTranslationZ();
+	protected void updateGeometry() {
+		if (transformComponent == null) {
+			sprite.setScale(1, 1);
+			sprite.setRotation(0);
+			sprite.setCenter(0, 0);
+		} else {
+			float y = transformComponent.getWorldTranslationY();
+			if (_25d) {
+				y += transformComponent.getWorldTranslationZ();
+			}
+			sprite.setScale(transformComponent.getWorldScaleX(), transformComponent.getWorldScaleY());
+			sprite.setRotation(transformComponent.getWorldEulerRotationZ());
+			sprite.setCenter(transformComponent.getWorldTranslationX(), y);
 		}
-		sprite.setScale(transformComponent.getWorldScaleX(), transformComponent.getWorldScaleY());
-		sprite.setRotation(transformComponent.getWorldEulerRotationZ());
-		sprite.setCenter(transformComponent.getWorldTranslationX(), y);
 	}
 
 	@Override
-	protected void updateDefaultTransform() {
-		sprite.setScale(1, 1);
-		sprite.setRotation(0);
-		sprite.setCenter(0, 0);
-	}
-
-	@Override
-	protected void render(GenericBatch batch) {
+	protected void doRender(GenericBatch batch) {
 		if (sprite.getTexture() != null) {
 			batch.render(sprite);
 		}
 	}
 
 	@Override
-	public void getBounds(BoundingBox bounds) {
+	public void doGetBounds(BoundingBox bounds) {
 		Rectangle rect = sprite.getBoundingRectangle();
 		bounds.min.set(rect.x, rect.y, 0);
 		bounds.max.set(rect.x + rect.width, rect.y + rect.height, 0);
 	}
 
 	@Override
-	public boolean getIntersection(Ray ray, Vector3 intersection) {
+	public boolean doGetIntersection(Ray ray, Vector3 intersection) {
 		return Intersector.intersectRayTriangles(ray, sprite.getVertices(), intersection);
 	}
 

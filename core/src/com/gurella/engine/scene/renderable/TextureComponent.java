@@ -20,7 +20,7 @@ public class TextureComponent extends RenderableComponent2d {
 					int tempPixelsPerUnit = pixelsPerUnit < 1 ? 1 : pixelsPerUnit;
 					sprite.setSize(texture.getWidth() / tempPixelsPerUnit, texture.getHeight() / tempPixelsPerUnit);
 					sprite.setOriginCenter();
-					notifyChanged(this);
+					setDirty();
 				}
 			}
 		}

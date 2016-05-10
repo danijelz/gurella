@@ -37,7 +37,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 				sprite.setRegion(region);
 				if (dimensionsFromTexture) {
 					sprite.setSize(u2 - u, v2 - v);
-					notifyChanged(this);
+					setDirty();
 				} else {
 					sprite.setSize(width, height);
 				}
@@ -57,7 +57,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 				sprite.setRegion(region);
 				if (dimensionsFromTexture) {
 					sprite.setSize(u2 - u, v2 - v);
-					notifyChanged(this);
+					setDirty();
 				} else {
 					sprite.setSize(width, height);
 				}
@@ -77,7 +77,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 				sprite.setRegion(region);
 				if (dimensionsFromTexture) {
 					sprite.setSize(u2 - u, v2 - v);
-					notifyChanged(this);
+					setDirty();
 				} else {
 					sprite.setSize(width, height);
 				}
@@ -97,7 +97,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 				sprite.setRegion(region);
 				if (dimensionsFromTexture) {
 					sprite.setSize(u2 - u, v2 - v);
-					notifyChanged(this);
+					setDirty();
 				} else {
 					sprite.setSize(width, height);
 				}

@@ -26,6 +26,7 @@ public class ShapeComponent extends RenderableComponent3d {
 		if (transformComponent != null && shape != null && shape.getModelInstance() != null) {
 			transformComponent.getWorldTransform(shape.getModelInstance().transform);
 		}
+		setDirty();
 	}
 
 	@Override
