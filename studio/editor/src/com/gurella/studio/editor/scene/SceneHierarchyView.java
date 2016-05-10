@@ -6,10 +6,6 @@ import static org.eclipse.swt.SWT.SEPARATOR;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -37,6 +33,8 @@ import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.ShapeComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
+import com.gurella.engine.scene.renderable.shape.BoxShapeModel;
+import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
@@ -67,105 +65,27 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
 		menu = new Menu(graph);
-		menu.addMenuListener(new MenuAdapter() {
-			@Override
-			public void menuShown(MenuEvent e) {
-				TreeItem[] selection = graph.getSelection();
-				boolean enabled = selection.length > 0 ? selection[0].getData() instanceof SceneNode2 : true;
-				for (MenuItem item : menu.getItems()) {
-					item.setEnabled(enabled);
-				}
-			}
-		});
+		menu.addListener(SWT.Show, e -> showMenu());
 
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Node");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
-						(newText) -> newText.length() < 3 ? "Too short" : null);
+		item.addListener(SWT.Selection, e -> addEmptyNode());
 
-				if (dlg.open() == Window.OK) {
-					TreeItem[] selection = graph.getSelection();
-					if (selection.length > 0) {
-						TreeItem seectedItem = selection[0];
-						Object data = seectedItem.getData();
-						SceneNode2 node = (SceneNode2) data;
-						SceneNode2 child = node.newChild(dlg.getValue());
-						TreeItem nodeItem = new TreeItem(seectedItem, 0);
-						nodeItem.setData(child);
-						nodeItem.setText(child.getName());
-						nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-					}
-					postMessage(SceneChangedMessage.instance);
-				}
-			}
-		});
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Root Node");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
-						(newText) -> newText.length() < 3 ? "Too short" : null);
+		item.addListener(SWT.Selection, e -> addRootNode());
 
-				if (dlg.open() == Window.OK) {
-					SceneNode2 node = getScene().newNode(dlg.getValue());
-					TreeItem nodeItem = new TreeItem(graph, 0);
-					nodeItem.setData(node);
-					nodeItem.setText(node.getName());
-					nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-					postMessage(SceneChangedMessage.instance);
-				}
-			}
-		});
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Remove Node");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				TreeItem[] selection = graph.getSelection();
-				if (selection.length > 0) {
-					TreeItem seectedItem = selection[0];
-					SceneNode2 node = (SceneNode2) seectedItem.getData();
-					SceneNode2 parentNode = node.getParentNode();
-					if (parentNode == null) {
-						getScene().removeNode(node);
-					} else {
-						parentNode.removeChild(node);
-					}
-					seectedItem.dispose();
-					postMessage(SceneChangedMessage.instance);
-				}
-			}
-		});
+		item.addListener(SWT.Selection, e -> removeSelectedNode());
+
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add sphere");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				SceneNode2 node = getScene().newNode("Sphere");
-				TreeItem nodeItem = new TreeItem(graph, 0);
-				nodeItem.setData(node);
-				nodeItem.setText(node.getName());
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-				
-				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
-				TreeItem componentItem = new TreeItem(nodeItem, 0);
-				componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
-				componentItem.setText(Models.getModel(transformComponent).getName());
-				componentItem.setData(transformComponent);
-				
-				ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
-				componentItem = new TreeItem(nodeItem, 1);
-				componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
-				componentItem.setText(Models.getModel(shapeComponent).getName());
-				componentItem.setData(shapeComponent);
-				
-				postMessage(SceneChangedMessage.instance);
-			}
-		});
+		item.addListener(SWT.Selection, e -> addSphereNode());
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add box");
+		item.addListener(SWT.Selection, e -> addBoxNode());
 
 		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 		subItem.setText("Add Component");
@@ -236,19 +156,7 @@ public class SceneHierarchyView extends SceneEditorView {
 
 	private void handleKeyUp(Event e) {
 		if (e.keyCode == SWT.DEL) {
-			TreeItem[] selection = graph.getSelection();
-			if (selection.length > 0) {
-				TreeItem seectedItem = selection[0];
-				SceneNode2 node = (SceneNode2) seectedItem.getData();
-				SceneNode2 parentNode = node.getParentNode();
-				if (parentNode == null) {
-					getScene().removeNode(node);
-				} else {
-					parentNode.removeChild(node);
-				}
-				seectedItem.dispose();
-				postMessage(SceneChangedMessage.instance);
-			}
+			removeSelectedNode();
 		}
 	}
 
@@ -338,6 +246,110 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 
 		return null;
+	}
+
+	public void showMenu() {
+		TreeItem[] selection = graph.getSelection();
+		boolean enabled = selection.length > 0 ? selection[0].getData() instanceof SceneNode2 : true;
+		for (MenuItem item : menu.getItems()) {
+			item.setEnabled(enabled);
+		}
+	}
+
+	private void addSphereNode() {
+		SceneNode2 node = getScene().newNode("Sphere");
+		TreeItem nodeItem = new TreeItem(graph, 0);
+		nodeItem.setData(node);
+		nodeItem.setText(node.getName());
+		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+
+		TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+		TreeItem componentItem = new TreeItem(nodeItem, 0);
+		componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
+		componentItem.setText(Models.getModel(transformComponent).getName());
+		componentItem.setData(transformComponent);
+
+		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
+		shapeComponent.setShape(new SphereShapeModel());
+		componentItem = new TreeItem(nodeItem, 1);
+		componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
+		componentItem.setText(Models.getModel(shapeComponent).getName());
+		componentItem.setData(shapeComponent);
+
+		postMessage(SceneChangedMessage.instance);
+	}
+
+	private void addBoxNode() {
+		SceneNode2 node = getScene().newNode("Box");
+		TreeItem nodeItem = new TreeItem(graph, 0);
+		nodeItem.setData(node);
+		nodeItem.setText(node.getName());
+		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+
+		TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+		TreeItem componentItem = new TreeItem(nodeItem, 0);
+		componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
+		componentItem.setText(Models.getModel(transformComponent).getName());
+		componentItem.setData(transformComponent);
+
+		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
+		shapeComponent.setShape(new BoxShapeModel());
+		componentItem = new TreeItem(nodeItem, 1);
+		componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
+		componentItem.setText(Models.getModel(shapeComponent).getName());
+		componentItem.setData(shapeComponent);
+
+		postMessage(SceneChangedMessage.instance);
+	}
+
+	private void removeSelectedNode() {
+		TreeItem[] selection = graph.getSelection();
+		if (selection.length > 0) {
+			TreeItem seectedItem = selection[0];
+			SceneNode2 node = (SceneNode2) seectedItem.getData();
+			SceneNode2 parentNode = node.getParentNode();
+			if (parentNode == null) {
+				getScene().removeNode(node);
+			} else {
+				parentNode.removeChild(node);
+			}
+			seectedItem.dispose();
+			postMessage(SceneChangedMessage.instance);
+		}
+	}
+
+	private void addRootNode() {
+		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
+				(newText) -> newText.length() < 3 ? "Too short" : null);
+
+		if (dlg.open() == Window.OK) {
+			SceneNode2 node = getScene().newNode(dlg.getValue());
+			TreeItem nodeItem = new TreeItem(graph, 0);
+			nodeItem.setData(node);
+			nodeItem.setText(node.getName());
+			nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+			postMessage(SceneChangedMessage.instance);
+		}
+	}
+
+	private void addEmptyNode() {
+		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
+				(newText) -> newText.length() < 3 ? "Too short" : null);
+
+		if (dlg.open() == Window.OK) {
+			TreeItem[] selection = graph.getSelection();
+			if (selection.length > 0) {
+				TreeItem seectedItem = selection[0];
+				Object data = seectedItem.getData();
+				SceneNode2 node = (SceneNode2) data;
+				SceneNode2 child = node.newChild(dlg.getValue());
+				TreeItem nodeItem = new TreeItem(seectedItem, 0);
+				nodeItem.setData(child);
+				nodeItem.setText(child.getName());
+				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+			}
+			postMessage(SceneChangedMessage.instance);
+		}
 	}
 
 	private static class NodeInspectable implements Inspectable<SceneNode2> {

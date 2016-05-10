@@ -1,7 +1,13 @@
 package com.gurella.engine.scene.renderable;
 
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.model.NodePart;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -9,11 +15,13 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.GenericBatch;
 
 public abstract class RenderableComponent3d extends RenderableComponent {
-	public transient ModelInstance instance;
 	private transient final BoundingBox temp = new BoundingBox();
+
+	protected abstract ModelInstance getModelInstance();
 
 	@Override
 	protected void render(GenericBatch batch) {
+		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			batch.render(instance);
 		}
@@ -21,27 +29,96 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 
 	@Override
 	public void getBounds(BoundingBox bounds) {
-		if(instance != null) {
+		ModelInstance instance = getModelInstance();
+		if (instance != null) {
 			instance.extendBoundingBox(bounds);
 		}
 	}
 
+	// public boolean intersect(Ray ray, Vector3 intersection) {
+	// final BoundingBox bb = new BoundingBox();
+	// for (int i = 0; i < modelInstances.size; i++) {
+	// ModelInstance instance = modelInstances.get(i);
+	// instance.calculateBoundingBox(bb).mul(instance.transform);
+	// if (Intersector.intersectRayBoundsFast(ray, bb)) {
+	// return intersect(ray, models.get(i), instance.transform, intersection);
+	// }
+	// }
+	// return false;
+	// }
+
 	@Override
 	public boolean getIntersection(Ray ray, Vector3 intersection) {
+		ModelInstance instance = getModelInstance();
+		if (instance == null) {
+			return false;
+		}
+
 		Array<Node> nodes = instance.nodes;
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
-			node.calculateBoundingBox(temp.clr(), true);
-			//
+			if (getIntersection(ray, intersection, node)) {
+				return true;
+			}
 		}
 
-		// instance.nodes.get(0).calculateBoundingBox(out, transform)
-		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
+	private boolean getIntersection(Ray ray, Vector3 intersection, Node node) {
+		int childCount = node.getChildCount();
+		if (childCount > 0) {
+			for (int i = 0; i < childCount; i++) {
+				Node childNode = node.getChild(i);
+				if (getIntersection(ray, intersection, childNode)) {
+					return true;
+				}
+			}
+		} else {
+			node.extendBoundingBox(temp.inf(), true);
+			if (Intersector.intersectRayBoundsFast(ray, temp)) {
+				Array<NodePart> parts = node.parts;
+				for (int i = 0, n = parts.size; i < n; i++) {
+					NodePart nodePart = parts.get(i);
+					if (!nodePart.enabled) {
+						continue;
+					}
+
+					MeshPart meshPart = nodePart.meshPart;
+					Mesh mesh = meshPart.mesh;
+
+					// TODO meshPart.size;
+					// Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection);
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean intersect(Ray ray, Model model, Matrix4 transform, Vector3 intersection) {
+		final Matrix4 reverse = new Matrix4(transform).inv();
+		for (Mesh mesh : model.meshes) {
+			mesh.transform(transform);
+			float[] vertices = new float[mesh.getNumVertices() * 6];
+			short[] indices = new short[mesh.getNumIndices()];
+			mesh.getVertices(vertices);
+			mesh.getIndices(indices);
+			try {
+				if (Intersector.intersectRayTriangles(ray, vertices, indices, 4, intersection)) {
+					intersection.mul(transform);
+					return true;
+				}
+			} finally {
+				mesh.transform(reverse);
+			}
+		}
+		return false;
+	}
+
 	@Override
 	protected void updateDefaultTransform() {
+		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.transform.idt();
 		}
@@ -49,14 +126,9 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 
 	@Override
 	protected void updateTransform() {
+		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			transformComponent.getWorldTransform(instance.transform);
 		}
-	}
-
-	@Override
-	public void reset() {
-		super.reset();
-		instance = null;
 	}
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 
 public class ModelComponent extends RenderableComponent3d {
 	private Model model;
+	public transient ModelInstance instance;
 
 	public Model getModel() {
 		return model;
@@ -25,8 +26,17 @@ public class ModelComponent extends RenderableComponent3d {
 	}
 
 	@Override
+	protected ModelInstance getModelInstance() {
+		return instance;
+	}
+
+	@Override
 	public void reset() {
 		super.reset();
-		model = null;
+		instance = null;
+		if (model != null) {
+			model.dispose();
+			model = null;
+		}
 	}
 }

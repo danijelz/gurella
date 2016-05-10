@@ -30,7 +30,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	public Layer layer = Layer.DEFAULT;
 	transient TransformComponent transformComponent;
 
-	private transient boolean changeDispatched = true;
+	private transient boolean dirty = true;
 
 	@Override
 	protected void onActivate() {
@@ -45,13 +45,10 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	void notifyChanged(RenderableComponent component) {
 		synchronized (mutex) {
-			// if (!component.changeDispatched) { TODO
-			component.changeDispatched = true;
 			EventService.getSubscribers(sceneId, SceneRenderableChangedListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
 				listeners.get(i).onRenderableChanged(component);
 			}
-			// }
 		}
 	}
 
@@ -65,6 +62,13 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	public void onNodeTransformChanged() {
 		updateTransform();
 		notifyChanged(this);
+	}
+	
+	public void setDirty() {
+		if(!dirty) {
+			dirty = true;
+			notifyChanged(this);
+		}
 	}
 
 	@Override
@@ -95,13 +99,21 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 		notifyChanged(this);
 	}
+	
+	//TODO call when dirty
+	protected void update() {
+		if(dirty) {
+			//updateGeometry
+			dirty = false;
+		}
+	}
 
 	@Override
 	public void reset() {
 		sceneId = -1;
 		layer = Layer.DEFAULT;
 		transformComponent = null;
-		changeDispatched = true;
+		dirty = true;
 	}
 
 	protected abstract void updateDefaultTransform();
