@@ -56,6 +56,7 @@ public class Vector2PropertyEditor extends PropertyEditor<Vector2> {
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, hasName ? 3 : 4, 1));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			String descriptiveName = context.getDescriptiveName();
 			if (Values.isNotBlank(descriptiveName)) {

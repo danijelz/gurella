@@ -38,6 +38,7 @@ public class BytePropertyEditor extends SimplePropertyEditor<Byte> {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			text = UiUtils.createByteWidget(body);
 			GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);

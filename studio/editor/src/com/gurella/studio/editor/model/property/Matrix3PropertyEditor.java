@@ -36,6 +36,7 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 6, 1));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			createText(Matrix3.M00, "00");
 			createText(Matrix3.M01, "01");

@@ -38,6 +38,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			check = getToolkit().createButton(body, "", SWT.CHECK);
 			check.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));

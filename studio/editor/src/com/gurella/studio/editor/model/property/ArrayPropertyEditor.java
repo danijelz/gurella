@@ -53,6 +53,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			Label label = toolkit.createLabel(body, values == null ? "null" : "empty");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Property<Object> property = Values.cast(getProperty());
 			Class<Object> componentType = getComponentType();

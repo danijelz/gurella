@@ -38,6 +38,7 @@ public class ShortPropertyEditor extends SimplePropertyEditor<Short> {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			text = UiUtils.createShortWidget(body);
 			GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);

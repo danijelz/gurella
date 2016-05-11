@@ -56,10 +56,11 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, hasName ? 5 : 6, 1));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			String descriptiveName = context.getDescriptiveName();
 			if (Values.isNotBlank(descriptiveName)) {
-				Label label = toolkit.createLabel(body, descriptiveName);
+				Label label = toolkit.createLabel(body, descriptiveName + ":");
 				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 6, 1));
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			}

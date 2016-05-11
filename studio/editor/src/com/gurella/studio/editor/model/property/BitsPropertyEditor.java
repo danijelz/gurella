@@ -45,6 +45,7 @@ public class BitsPropertyEditor extends ComplexPropertyEditor<Bits> {
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			bodyLayout.numColumns = 16;
 			IntStream.range(0, value.numBits()).forEach(i -> buildCheck(value, i));

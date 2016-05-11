@@ -60,8 +60,8 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 		if (value == null) {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
-			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			FormToolkit toolkit = getToolkit();
 			Label label = toolkit.createLabel(body, "type:");

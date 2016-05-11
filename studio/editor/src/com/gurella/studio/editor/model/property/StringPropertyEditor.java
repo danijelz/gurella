@@ -38,6 +38,7 @@ public class StringPropertyEditor extends SimplePropertyEditor<String> {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			text = UiUtils.createText(body);
 			GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);

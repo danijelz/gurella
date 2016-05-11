@@ -77,6 +77,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else if (Models.getModel(value.getClass()) instanceof SimpleModel) {
 			PropertyEditorContext<Object, P> casted = Values.cast(context);
 			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);

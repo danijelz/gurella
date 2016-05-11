@@ -12,7 +12,6 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 
-//TODO unused
 public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 	public SimpleObjectPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);

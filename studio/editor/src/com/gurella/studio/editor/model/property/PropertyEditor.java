@@ -135,7 +135,7 @@ public abstract class PropertyEditor<P> {
 		}
 	}
 
-	private void showMenu() {
+	protected void showMenu() {
 		if (menuItems.isEmpty()) {
 			return;
 		}
