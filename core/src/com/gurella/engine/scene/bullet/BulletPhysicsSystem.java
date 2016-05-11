@@ -38,7 +38,7 @@ public class BulletPhysicsSystem extends SceneService
 	private btBroadphaseInterface broadphase;
 	private btConstraintSolver constraintSolver;
 	private btDynamicsWorld dynamicsWorld;
-	private CollisionTrackingInternalTickCallback tickCallback;
+	private CollisionTrackingCallback tickCallback;
 
 	public boolean stopSimulationOnPause;
 	private boolean paused;
@@ -56,7 +56,7 @@ public class BulletPhysicsSystem extends SceneService
 				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
-		tickCallback = DisposablesService.add(new CollisionTrackingInternalTickCallback(tempListeners));
+		tickCallback = DisposablesService.add(new CollisionTrackingCallback(tempListeners));
 		tickCallback.attach(dynamicsWorld, false);
 	}
 

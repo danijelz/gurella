@@ -1,10 +1,13 @@
 package com.gurella.studio.editor.model.property.bullet;
 
+import static com.gurella.studio.GurellaStudioPlugin.createFont;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -22,6 +25,7 @@ import com.gurella.engine.scene.bullet.shapes.CapsuleCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.ConeCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.CylinderCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.EmptyCollisionShape;
+import com.gurella.engine.scene.bullet.shapes.PlaneCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.ModelEditorContext;
@@ -42,7 +46,9 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("Set value", () -> updateValue(new EmptyCollisionShape()));
+			Arrays.stream(CollisionShapeType.values())
+					.forEach(v -> addMenuItem("Set " + v.name(), () -> updateValue(v.shapeConstructor.get())));
+
 			if (context.isNullable()) {
 				addMenuItem("Set null", () -> updateValue(null));
 			}
@@ -54,11 +60,13 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 		if (value == null) {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
+			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 		} else {
 			FormToolkit toolkit = getToolkit();
 			Label label = toolkit.createLabel(body, "type:");
 			label.setAlignment(SWT.RIGHT);
+			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 			ComboViewer comboViewer = UiUtils.createEnumComboViewer(body, CollisionShapeType.class);
@@ -101,20 +109,23 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 
 	private enum CollisionShapeType {
 		empty(EmptyCollisionShape::new, EmptyCollisionShape.class),
-
+		
 		box(BoxCollisionShape::new, BoxCollisionShape.class),
-
+		
 		sphere(SphereCollisionShape::new, SphereCollisionShape.class),
-
+		
 		capsule(CapsuleCollisionShape::new, CapsuleCollisionShape.class),
-
+		
 		cone(ConeCollisionShape::new, ConeCollisionShape.class),
-
+		
 		cylinder(CylinderCollisionShape::new, CylinderCollisionShape.class),
+		
+		plane(PlaneCollisionShape::new, PlaneCollisionShape.class),
 
 		;
 
 		static final Map<Class<? extends BulletCollisionShape>, CollisionShapeType> valuesByType = new HashMap<>();
+
 		static {
 			Arrays.stream(values()).forEach(v -> valuesByType.put(v.type, v));
 		}

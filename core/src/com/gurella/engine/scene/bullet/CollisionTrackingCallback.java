@@ -13,7 +13,7 @@ import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionPairListener
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationStepListener;
 import com.gurella.engine.utils.Values;
 
-class CollisionTrackingInternalTickCallback extends InternalTickCallback {
+class CollisionTrackingCallback extends InternalTickCallback {
 	private Array<Object> tempListeners;
 
 	private Collision collision0 = new Collision();
@@ -23,7 +23,7 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 	private ObjectSet<CachedCollisionPair> currentTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 
-	CollisionTrackingInternalTickCallback(Array<Object> tempListeners) {
+	CollisionTrackingCallback(Array<Object> tempListeners) {
 		this.tempListeners = tempListeners;
 	}
 

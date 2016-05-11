@@ -57,6 +57,7 @@ public class BitsPropertyEditor extends ComplexPropertyEditor<Bits> {
 		Button check = GurellaStudioPlugin.getToolkit().createButton(body, "", SWT.CHECK);
 		check.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		check.setSelection(value.get(index));
+		check.setToolTipText(Integer.toString(index));
 		check.addListener(SWT.Selection, e -> updateValue(value, index, check.getSelection()));
 	}
 

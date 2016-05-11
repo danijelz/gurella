@@ -76,11 +76,18 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		editors.add(editor);
 
 		if (editor instanceof SimplePropertyEditor) {
-			Label label = toolkit.createLabel(body, editor.getDescriptiveName() + ":");
+			String name = editor.getDescriptiveName();
+			boolean shortened = name.length() > 15;
+			String text = shortened ? name.substring(0, 12) + "..." : name;
+			Label label = toolkit.createLabel(body, text + ":");
+			if(shortened) {
+				label.setToolTipText(name);
+			}
 			label.setAlignment(SWT.RIGHT);
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			label.moveAbove(composite);
-			label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
+			label.setLayoutData(labelLayoutData);
 		} else if (editor instanceof ComplexPropertyEditor) {
 			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 			componentSection.setSize(100, 100);
