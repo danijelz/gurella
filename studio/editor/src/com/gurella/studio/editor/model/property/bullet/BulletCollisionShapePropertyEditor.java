@@ -19,6 +19,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.scene.bullet.shapes.BoxCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.CapsuleCollisionShape;
+import com.gurella.engine.scene.bullet.shapes.ConeCollisionShape;
+import com.gurella.engine.scene.bullet.shapes.CylinderCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.EmptyCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
 import com.gurella.studio.editor.model.ModelEditorContainer;
@@ -105,6 +107,10 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 		sphere(SphereCollisionShape::new, SphereCollisionShape.class),
 
 		capsule(CapsuleCollisionShape::new, CapsuleCollisionShape.class),
+
+		cone(ConeCollisionShape::new, ConeCollisionShape.class),
+
+		cylinder(CylinderCollisionShape::new, CylinderCollisionShape.class),
 
 		;
 

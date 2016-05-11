@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 
 public class BoxCollisionShape extends BulletCollisionShape {
-	public final Vector3 dimensions = new Vector3();
+	public final Vector3 dimensions = new Vector3(1, 1, 1);
 
 	@Override
 	public btCollisionShape createNativeShape() {
