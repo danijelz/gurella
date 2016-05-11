@@ -11,8 +11,6 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -142,10 +140,7 @@ public abstract class PropertyEditor<P> {
 
 		Menu menu = new Menu(composite.getShell(), POP_UP);
 		menuItemsOrder.forEach(text -> addMenuAction(menu, text, menuItems.get(text)));
-		Point loc = menuButton.getLocation();
-		Rectangle rect = menuButton.getBounds();
-		Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
-		menu.setLocation(composite.getDisplay().map(menuButton.getParent(), null, mLoc));
+		menu.setLocation(composite.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
 
