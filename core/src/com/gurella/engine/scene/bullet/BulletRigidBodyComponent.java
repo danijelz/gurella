@@ -20,20 +20,20 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 		Bullet.init();
 	}
 
-	private transient TransformComponent transformComponent;
-
 	public boolean ghost;
 	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
 
-	public final BulletMaterial material = new BulletMaterial();
-	private final transient MotionState motionState = new MotionState();
-	public BulletCollisionShape collisionShape;
-
 	public int collisionGroup;
 	public Bits collisionMasks = new Bits(32);
-
 	public BulletRigidBodyType rigidBodyType = BulletRigidBodyType.DYNAMIC;
-	public transient btRigidBody rigidBody;
+
+	public BulletCollisionShape collisionShape;
+	public final BulletMaterial material = new BulletMaterial();
+
+	private final transient MotionState motionState = new MotionState();
+	transient btRigidBody rigidBody;
+	
+	private transient TransformComponent transformComponent;
 
 	@Override
 	protected void onActivate() {
@@ -73,7 +73,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 			rigidBody.userData = this;
 			rigidBody.setAngularFactor(material.angularFactor);
 			rigidBody.setGravity(material.gravity);
-			info.dispose();//TODO remove when pooled
+			info.dispose();// TODO remove when pooled
 		}
 
 		if (transformComponent != null) {
