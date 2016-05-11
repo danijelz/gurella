@@ -22,7 +22,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
-import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
+import com.gurella.engine.scene.bullet.BulletRigidBodyComponent;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
@@ -69,6 +69,15 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph.addListener(SWT.Selection, (e) -> graphSelectionChanged());
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
+		createMenu();
+
+		Scene scene = editor.getScene();
+		if (scene != null) {
+			present(scene);
+		}
+	}
+
+	private void createMenu() {
 		menu = new Menu(graph);
 		menu.addListener(SWT.Show, e -> showMenu());
 
@@ -108,13 +117,18 @@ public class SceneHierarchyView extends SceneEditorView {
 		item.setText("Add rectangle");
 		item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel()));
 
+		createComponentsSubMenu();
+		graph.setMenu(menu);
+	}
+
+	private void createComponentsSubMenu() {
 		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 		subItem.setText("Add Component");
 		Menu subMenu = new Menu(menu);
 		subItem.setMenu(subMenu);
 		addMenuItem(subMenu, TransformComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, BulletPhysicsRigidBodyComponent.class);
+		addMenuItem(subMenu, BulletRigidBodyComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, OrtographicCameraComponent.class);
 		addMenuItem(subMenu, PerspectiveCameraComponent.class);
@@ -138,13 +152,6 @@ public class SceneHierarchyView extends SceneEditorView {
 		addMenuItem(subMenu, TestPropertyEditorsComponnent.class);
 		addMenuItem(subMenu, TestInputComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
-
-		graph.setMenu(menu);
-
-		Scene scene = editor.getScene();
-		if (scene != null) {
-			present(scene);
-		}
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
@@ -326,7 +333,17 @@ public class SceneHierarchyView extends SceneEditorView {
 			nodeItem.setData(node);
 			nodeItem.setText(node.getName());
 			nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+			
+			TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+			TreeItem componentItem = new TreeItem(nodeItem, 0);
+			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
+			componentItem.setText(Models.getModel(transformComponent).getName());
+			componentItem.setData(transformComponent);
+			
 			postMessage(SceneChangedMessage.instance);
+			
+			graph.select(nodeItem);
+			postMessage(new SelectionMessage(new NodeInspectable(node)));
 		}
 	}
 
@@ -345,8 +362,19 @@ public class SceneHierarchyView extends SceneEditorView {
 				nodeItem.setData(child);
 				nodeItem.setText(child.getName());
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+				
+				TransformComponent transformComponent = child.newComponent(TransformComponent.class);
+				TreeItem componentItem = new TreeItem(nodeItem, 0);
+				componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
+				componentItem.setText(Models.getModel(transformComponent).getName());
+				componentItem.setData(transformComponent);
+				
+				postMessage(SceneChangedMessage.instance);
+				
+				seectedItem.setExpanded(true);
+				graph.select(nodeItem);
+				postMessage(new SelectionMessage(new NodeInspectable(child)));
 			}
-			postMessage(SceneChangedMessage.instance);
 		}
 	}
 

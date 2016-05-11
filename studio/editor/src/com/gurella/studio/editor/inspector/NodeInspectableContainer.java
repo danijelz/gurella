@@ -46,7 +46,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
-import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
+import com.gurella.engine.scene.bullet.BulletRigidBodyComponent;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
@@ -129,7 +129,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		Menu menu = new Menu(getShell(), POP_UP);
 		addMenuItem(menu, TransformComponent.class);
 		new MenuItem(menu, SEPARATOR);
-		addMenuItem(menu, BulletPhysicsRigidBodyComponent.class);
+		addMenuItem(menu, BulletRigidBodyComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, OrtographicCameraComponent.class);
 		addMenuItem(menu, PerspectiveCameraComponent.class);

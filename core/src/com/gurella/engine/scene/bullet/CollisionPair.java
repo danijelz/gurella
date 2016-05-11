@@ -8,11 +8,11 @@ public class CollisionPair {
 	private btPersistentManifold contactManifold;
 
 	private btCollisionObject collisionObject0;
-	private BulletPhysicsRigidBodyComponent component0;
+	private BulletRigidBodyComponent component0;
 	private SceneNode2 node0;
 
 	private btCollisionObject collisionObject1;
-	private BulletPhysicsRigidBodyComponent component1;
+	private BulletRigidBodyComponent component1;
 	private SceneNode2 node1;
 
 	private float timeStep = -1;
@@ -24,10 +24,10 @@ public class CollisionPair {
 			btCollisionObject collisionObject1, float timeStep) {
 		this.contactManifold = contactManifold;
 		this.collisionObject0 = collisionObject0;
-		this.component0 = (BulletPhysicsRigidBodyComponent) collisionObject0.userData;
+		this.component0 = (BulletRigidBodyComponent) collisionObject0.userData;
 		this.node0 = this.component0.getNode();
 		this.collisionObject1 = collisionObject1;
-		this.component1 = (BulletPhysicsRigidBodyComponent) collisionObject1.userData;
+		this.component1 = (BulletRigidBodyComponent) collisionObject1.userData;
 		this.node1 = this.component1.getNode();
 		this.timeStep = timeStep;
 	}
@@ -51,7 +51,7 @@ public class CollisionPair {
 		return collisionObject0;
 	}
 
-	public BulletPhysicsRigidBodyComponent getComponent0() {
+	public BulletRigidBodyComponent getComponent0() {
 		return component0;
 	}
 
@@ -63,7 +63,7 @@ public class CollisionPair {
 		return collisionObject1;
 	}
 
-	public BulletPhysicsRigidBodyComponent getComponent1() {
+	public BulletRigidBodyComponent getComponent1() {
 		return component1;
 	}
 

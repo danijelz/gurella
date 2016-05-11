@@ -3,14 +3,14 @@ package com.gurella.engine.scene.bullet;
 import com.gurella.engine.pool.PoolService;
 
 class CachedCollisionPair {
-	BulletPhysicsRigidBodyComponent rigidBodyComponent0;
-	BulletPhysicsRigidBodyComponent rigidBodyComponent1;
+	BulletRigidBodyComponent rigidBodyComponent0;
+	BulletRigidBodyComponent rigidBodyComponent1;
 
 	private CachedCollisionPair() {
 	}
 
-	static CachedCollisionPair obtain(BulletPhysicsRigidBodyComponent rigidBodyComponent0,
-			BulletPhysicsRigidBodyComponent rigidBodyComponent1) {
+	static CachedCollisionPair obtain(BulletRigidBodyComponent rigidBodyComponent0,
+			BulletRigidBodyComponent rigidBodyComponent1) {
 		CachedCollisionPair cachedCollisionPair = PoolService.obtain(CachedCollisionPair.class);
 		cachedCollisionPair.rigidBodyComponent0 = rigidBodyComponent0;
 		cachedCollisionPair.rigidBodyComponent1 = rigidBodyComponent1;

@@ -10,15 +10,19 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Bits;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
 import com.gurella.engine.scene.layer.Layer;
+import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.ArrayPropertyEditor;
 import com.gurella.studio.editor.model.property.AssetPropertyEditor;
+import com.gurella.studio.editor.model.property.BitsPropertyEditor;
 import com.gurella.studio.editor.model.property.BooleanPropertyEditor;
 import com.gurella.studio.editor.model.property.BytePropertyEditor;
 import com.gurella.studio.editor.model.property.CharacterPropertyEditor;
@@ -42,6 +46,7 @@ import com.gurella.studio.editor.model.property.SimpleObjectPropertyEditor;
 import com.gurella.studio.editor.model.property.StringPropertyEditor;
 import com.gurella.studio.editor.model.property.Vector2PropertyEditor;
 import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
+import com.gurella.studio.editor.model.property.bullet.BulletCollisionShapePropertyEditor;
 
 public class PropertyEditorFactory {
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
@@ -87,6 +92,10 @@ public class PropertyEditorFactory {
 			return Values.cast(new ColorPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Layer.class) {
 			return Values.cast(new LayerPropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Bits.class || propertyType == BitsExt.class) {
+			return Values.cast(new BitsPropertyEditor(parent, Values.cast(context)));
+		}  else if (BulletCollisionShape.class.isAssignableFrom(propertyType)) {
+			return Values.cast(new BulletCollisionShapePropertyEditor(parent, Values.cast(context)));
 		}
 
 		///// custom models for collections...

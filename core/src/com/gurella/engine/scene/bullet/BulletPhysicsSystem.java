@@ -116,16 +116,16 @@ public class BulletPhysicsSystem extends SceneService
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
-		if (component instanceof BulletPhysicsRigidBodyComponent) {
-			BulletPhysicsRigidBodyComponent rigidBodyComponent = (BulletPhysicsRigidBodyComponent) component;
+		if (component instanceof BulletRigidBodyComponent) {
+			BulletRigidBodyComponent rigidBodyComponent = (BulletRigidBodyComponent) component;
 			dynamicsWorld.addRigidBody(rigidBodyComponent.rigidBody);
 		}
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
-		if (component instanceof BulletPhysicsRigidBodyComponent) {
-			BulletPhysicsRigidBodyComponent rigidBodyComponent = (BulletPhysicsRigidBodyComponent) component;
+		if (component instanceof BulletRigidBodyComponent) {
+			BulletRigidBodyComponent rigidBodyComponent = (BulletRigidBodyComponent) component;
 			dynamicsWorld.removeRigidBody(rigidBodyComponent.rigidBody);
 		}
 	}

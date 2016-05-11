@@ -59,11 +59,11 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 
 	private void handleContactManifold(btPersistentManifold contactManifold, float timeStep) {
 		btCollisionObject collisionObject0 = contactManifold.getBody0();
-		BulletPhysicsRigidBodyComponent rigidBodyComponent0 = (BulletPhysicsRigidBodyComponent) collisionObject0.userData;
+		BulletRigidBodyComponent rigidBodyComponent0 = (BulletRigidBodyComponent) collisionObject0.userData;
 		collision1.init(contactManifold, collisionObject0, timeStep);
 
 		btCollisionObject collisionObject1 = contactManifold.getBody1();
-		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = (BulletPhysicsRigidBodyComponent) collisionObject1.userData;
+		BulletRigidBodyComponent rigidBodyComponent1 = (BulletRigidBodyComponent) collisionObject1.userData;
 		collision0.init(contactManifold, collisionObject1, timeStep);
 
 		collisionPair.init(contactManifold, collisionObject0, collisionObject1, timeStep);
@@ -125,8 +125,8 @@ class CollisionTrackingInternalTickCallback extends InternalTickCallback {
 	}
 
 	private void fireCollisionExitEvent(CachedCollisionPair cachedCollisionPair) {
-		BulletPhysicsRigidBodyComponent rigidBodyComponent0 = cachedCollisionPair.rigidBodyComponent0;
-		BulletPhysicsRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
+		BulletRigidBodyComponent rigidBodyComponent0 = cachedCollisionPair.rigidBodyComponent0;
+		BulletRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
 
 		Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);

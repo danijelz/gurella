@@ -1,0 +1,136 @@
+package com.gurella.engine.scene.bullet;
+
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btEmptyShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
+import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
+import com.badlogic.gdx.utils.Bits;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
+import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
+
+public class BulletRigidBodyComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable {
+	static {
+		Bullet.init();
+	}
+
+	private transient TransformComponent transformComponent;
+
+	public boolean ghost;
+	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
+
+	public final BulletMaterial material = new BulletMaterial();
+	private final transient MotionState motionState = new MotionState();
+	public BulletCollisionShape collisionShape;
+
+	public int collisionGroup;
+	public Bits collisionMasks = new Bits(32);
+
+	public BulletRigidBodyType rigidBodyType = BulletRigidBodyType.DYNAMIC;
+	public transient btRigidBody rigidBody;
+
+	@Override
+	protected void onActivate() {
+		transformComponent = getNode().getComponent(TransformComponent.class);
+		createCollisionObject();
+	}
+
+	@Override
+	protected void onDeactivate() {
+		transformComponent = null;
+		if (rigidBody.isActive()) {
+			rigidBody.activate(false);
+		}
+	}
+
+	@Override
+	public void nodeComponentActivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			transformComponent = (TransformComponent) component;
+		}
+	}
+
+	@Override
+	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			transformComponent = null;
+			if (rigidBody.isActive()) {
+				rigidBody.activate(false);
+			}
+		}
+	}
+
+	private void createCollisionObject() {
+		if (rigidBody == null) {
+			btRigidBodyConstructionInfo info = createConstructionInfo();
+			rigidBody = new btRigidBody(info);
+			rigidBody.userData = this;
+			rigidBody.setAngularFactor(material.angularFactor);
+			rigidBody.setGravity(material.gravity);
+			info.dispose();//TODO remove when pooled
+		}
+
+		if (transformComponent != null) {
+			transformComponent.getWorldTransform(rigidBody.getWorldTransform());
+			rigidBody.activate(true);
+		}
+	}
+
+	private btRigidBodyConstructionInfo createConstructionInfo() {
+		btCollisionShape nativeShape = collisionShape == null ? new btEmptyShape() : collisionShape.createNativeShape();
+		nativeShape.setMargin(material.margin);
+
+		float mass = material.mass;
+		Vector3 inertia = material.localInertia;
+		if (mass > 0 && material.inertiaFromShape) {
+			nativeShape.calculateLocalInertia(mass, inertia);
+		}
+
+		// TODO create info from pool
+		mass = mass < 0 ? 0 : mass;
+		btRigidBodyConstructionInfo info = new btRigidBodyConstructionInfo(mass, motionState, nativeShape, inertia);
+		info.setFriction(material.friction);
+		info.setRollingFriction(material.rollingFriction);
+		info.setRestitution(material.restitution);
+		info.setLinearDamping(material.linearDamping);
+		info.setAngularDamping(material.angularDamping);
+		info.setLinearSleepingThreshold(material.linearSleepingThreshold);
+		info.setAngularSleepingThreshold(material.angularSleepingThreshold);
+		info.setAdditionalDamping(material.additionalDamping);
+		info.setAdditionalDampingFactor(material.additionalDampingFactor);
+		info.setAdditionalAngularDampingFactor(material.additionalAngularDampingFactor);
+
+		return info;
+	}
+
+	@Override
+	public void reset() {
+		transformComponent = null;
+		rigidBody.dispose();
+		rigidBody = null;
+	}
+
+	private class MotionState extends btMotionState {
+		@Override
+		public void getWorldTransform(Matrix4 worldTransform) {
+			if (transformComponent == null) {
+				worldTransform.idt();
+			} else {
+				transformComponent.getWorldTransform(worldTransform);
+			}
+		}
+
+		@Override
+		public void setWorldTransform(Matrix4 worldTransform) {
+			if (transformComponent != null) {
+				transformComponent.setWorldTransform(worldTransform);
+			}
+		}
+	}
+}

@@ -1,6 +1,6 @@
 package com.gurella.engine.subscriptions.scene.bullet;
 
-import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
+import com.gurella.engine.scene.bullet.BulletRigidBodyComponent;
 import com.gurella.engine.scene.bullet.CollisionPair;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
@@ -9,5 +9,5 @@ public interface BulletCollisionPairListener extends SceneEventSubscription {
 
 	public void onCollisionStay(CollisionPair collision);
 
-	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBody1, BulletPhysicsRigidBodyComponent rigidBody2);
+	public void onCollisionExit(BulletRigidBodyComponent rigidBody1, BulletRigidBodyComponent rigidBody2);
 }

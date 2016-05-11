@@ -7,7 +7,7 @@ import com.gurella.engine.scene.SceneNode2;
 public class Collision {
 	private btPersistentManifold contactManifold;
 	private btCollisionObject collidedWithCollisionObject;
-	private BulletPhysicsRigidBodyComponent collidedWithComponent;
+	private BulletRigidBodyComponent collidedWithComponent;
 	private SceneNode2 collidedWithNode;
 	private float timeStep = -1;
 
@@ -17,7 +17,7 @@ public class Collision {
 	void init(btPersistentManifold manifold, btCollisionObject collidedWith, float timeStep) {
 		this.contactManifold = manifold;
 		this.collidedWithCollisionObject = collidedWith;
-		this.collidedWithComponent = (BulletPhysicsRigidBodyComponent) collidedWith.userData;
+		this.collidedWithComponent = (BulletRigidBodyComponent) collidedWith.userData;
 		this.collidedWithNode = this.collidedWithComponent.getNode();
 		this.timeStep = timeStep;
 	}
@@ -38,7 +38,7 @@ public class Collision {
 		return collidedWithCollisionObject;
 	}
 
-	public BulletPhysicsRigidBodyComponent getCollidedWithComponent() {
+	public BulletRigidBodyComponent getCollidedWithComponent() {
 		return collidedWithComponent;
 	}
 

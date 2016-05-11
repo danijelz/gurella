@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
@@ -40,7 +39,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		} else {
-			check = GurellaStudioPlugin.getToolkit().createButton(body, "", SWT.CHECK);
+			check = getToolkit().createButton(body, "", SWT.CHECK);
 			check.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 			check.setSelection(value.booleanValue());
 			check.addListener(SWT.Selection, e -> setValue(Boolean.valueOf(check.getSelection())));

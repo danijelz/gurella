@@ -25,7 +25,7 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		body.setLayout(layout);
-		
+
 		combo = new Combo(body, SWT.READ_ONLY);
 		combo.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
 
@@ -48,6 +48,7 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		comboViewer.setSelection(selection);
 
 		combo.addListener(SWT.Selection, e -> selectionChanged());
+		getToolkit().adapt(body);
 	}
 
 	public void selectionChanged() {

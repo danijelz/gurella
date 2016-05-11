@@ -18,7 +18,7 @@ import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.bullet.BulletPhysicsRigidBodyComponent;
+import com.gurella.engine.scene.bullet.BulletRigidBodyComponent;
 import com.gurella.engine.scene.bullet.Collision;
 import com.gurella.engine.scene.bullet.CollisionPair;
 import com.gurella.engine.scene.input.DragSource;
@@ -213,7 +213,7 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public void onCollisionStay(Collision collision) {
 	}
 
-	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent) {
+	public void onCollisionExit(BulletRigidBodyComponent rigidBodyComponent) {
 	}
 
 	// GLOBAL BULLET PHYSICS EVENTS
@@ -224,8 +224,8 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public void onCollisionStay(CollisionPair collision) {
 	}
 
-	public void onCollisionExit(BulletPhysicsRigidBodyComponent rigidBodyComponent1,
-			BulletPhysicsRigidBodyComponent rigidBodyComponent2) {
+	public void onCollisionExit(BulletRigidBodyComponent rigidBodyComponent1,
+			BulletRigidBodyComponent rigidBodyComponent2) {
 	}
 
 	public void onPhysicsSimulationStart(btDynamicsWorld dynamicsWorld) {
