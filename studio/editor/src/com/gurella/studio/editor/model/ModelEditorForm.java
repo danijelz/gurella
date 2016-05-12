@@ -32,18 +32,18 @@ import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.SimplePropertyEditor;
 
-public class ModelEditorContainer<T> extends ScrolledForm {
+public class ModelEditorForm<T> extends ScrolledForm {
 	private ModelEditorContext<T> context;
 	private List<PropertyEditor<?>> editors = new ArrayList<>();
 
 	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
 	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
 
-	public ModelEditorContainer(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
+	public ModelEditorForm(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
 	}
 
-	public ModelEditorContainer(Composite parent, ModelEditorContext<T> context) {
+	public ModelEditorForm(Composite parent, ModelEditorContext<T> context) {
 		super(parent, SWT.NONE);
 		this.context = context;
 		setExpandHorizontal(true);
@@ -63,10 +63,16 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 
 	private void initEditors() {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
-		Arrays.stream(array).filter(p -> p.isEditable()).forEach(p -> addEditor(p));
+		int length = array.length;
+		if (length == 0) {
+			return;
+		}
+
+		Property<?> last = array[array.length - 1];
+		Arrays.stream(array).filter(p -> p.isEditable()).forEach(p -> addEditor(p, p != last));
 	}
 
-	private <V> void addEditor(Property<V> property) {
+	private <V> void addEditor(Property<V> property, boolean addSeperator) {
 		FormToolkit toolkit = getToolkit();
 		Composite body = getBody();
 		PropertyEditor<V> editor = createEditor(getBody(), new PropertyEditorContext<>(context, property));
@@ -78,7 +84,7 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 		if (editor instanceof SimplePropertyEditor) {
 			String name = editor.getDescriptiveName();
 			boolean longName = name.length() > 20;
-			
+
 			Label label = toolkit.createLabel(body, name + ":");
 			label.setAlignment(SWT.RIGHT);
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
@@ -106,8 +112,10 @@ public class ModelEditorContainer<T> extends ScrolledForm {
 			layoutData.horizontalSpan = 2;
 		}
 
-		Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);
-		separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
+		if (addSeperator) {
+			Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);
+			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
+		}
 	}
 
 	protected void mouseMoved() {

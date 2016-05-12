@@ -29,7 +29,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContainer;
+import com.gurella.studio.editor.model.ModelEditorForm;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.model.PropertyEditorFactory;
 
@@ -47,8 +47,9 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		if (!context.isFixedValue()) {
 			addMenuItem("Select type", () -> selectType());
 
-			if (Reflection.getDeclaredConstructorSilently(getProperty().getType()) != null) {
-				addMenuItem("New instance", () -> newTypeInstance());
+			Class<P> type = getProperty().getType();
+			if (Reflection.getDeclaredConstructorSilently(type) != null) {
+				addMenuItem("New " + type.getSimpleName(), () -> newTypeInstance());
 			}
 
 			if (context.isNullable()) {
@@ -86,7 +87,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			editor.getComposite().setLayoutData(layoutData);
 		} else {
 			ModelEditorContext<P> child = new ModelEditorContext<>(context, value);
-			ModelEditorContainer<P> container = new ModelEditorContainer<>(body, child);
+			ModelEditorForm<P> container = new ModelEditorForm<>(body, child);
 			container.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
 

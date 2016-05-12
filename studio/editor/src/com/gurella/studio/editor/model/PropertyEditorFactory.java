@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
@@ -33,6 +34,7 @@ import com.gurella.studio.editor.model.property.ColorPropertyEditor;
 import com.gurella.studio.editor.model.property.DoublePropertyEditor;
 import com.gurella.studio.editor.model.property.EnumPropertyEditor;
 import com.gurella.studio.editor.model.property.FloatPropertyEditor;
+import com.gurella.studio.editor.model.property.GdxArrayPropertyEditor;
 import com.gurella.studio.editor.model.property.GridPoint2PropertyEditor;
 import com.gurella.studio.editor.model.property.GridPoint3PropertyEditor;
 import com.gurella.studio.editor.model.property.IntegerPropertyEditor;
@@ -97,6 +99,8 @@ public class PropertyEditorFactory {
 			return Values.cast(new LayerPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Bits.class || propertyType == BitsExt.class) {
 			return Values.cast(new BitsPropertyEditor(parent, Values.cast(context)));
+		} else if (Array.class.isAssignableFrom(propertyType)) {
+			return Values.cast(new GdxArrayPropertyEditor<>(parent, Values.cast(context)));
 		} else if (Collection.class.isAssignableFrom(propertyType)) {
 			return Values.cast(new CollectionPropertyEditor<>(parent, Values.cast(context)));
 		}

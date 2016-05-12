@@ -6,8 +6,6 @@ import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -33,6 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -43,11 +42,11 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.PropertyEditorFactory;
 
-public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collection<T>> {
+public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
 	private Class<Object> componentType;
 
-	public CollectionPropertyEditor(Composite parent, PropertyEditorContext<?, Collection<T>> context) {
+	public GdxArrayPropertyEditor(Composite parent, PropertyEditorContext<?, Array<T>> context) {
 		super(parent, context);
 
 		GridLayout layout = new GridLayout(2, false);
@@ -62,19 +61,22 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 		if (!isFinalValue()) {
 			addMenuItem("Select type", () -> selectType());
 
-			if (Reflection.getDeclaredConstructorSilently(getProperty().getType()) != null) {
-				addMenuItem("New instance", () -> newTypeInstance());
+			Class<Array<T>> type = getProperty().getType();
+			if (Reflection.getDeclaredConstructorSilently(type) != null) {
+				addMenuItem("New " + type.getSimpleName(), () -> newTypeInstance());
 			}
 
-			addMenuItem("Set null", () -> setNull());
+			if (context.isNullable()) {
+				addMenuItem("Set null", () -> setNull());
+			}
 		}
 	}
 
 	private void buildUi() {
 		FormToolkit toolkit = getToolkit();
-		Collection<T> values = getValue();
+		Array<T> values = getValue();
 
-		if (values == null || values.isEmpty()) {
+		if (values == null || values.size == 0) {
 			Label label = toolkit.createLabel(body, values == null ? "null" : "empty");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
@@ -82,14 +84,13 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 		} else {
 			Class<Object> componentType = getComponentType();
 			Model<Object> itemModel = Models.getModel(componentType);
-			Iterator<T> iter = values.iterator();
-			IntStream.range(0, values.size()).forEach(i -> addItemEditor(itemModel, iter.next(), i));
+			IntStream.range(0, values.size).forEach(i -> addItemEditor(itemModel, values.get(i), i));
 		}
 
 		body.layout();
 	}
 
-	private int addItemEditor(Model<Object> itemModel, T item, int index) {
+	private void addItemEditor(Model<Object> itemModel, T item, int index) {
 		Label label = getToolkit().createLabel(body, Integer.toString(index) + ".");
 		label.setAlignment(SWT.RIGHT);
 		label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
@@ -103,7 +104,6 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 
 		addEditorMenus(editor, index);
 		itemEditors.add(editor);
-		return index;
 	}
 
 	private void setNull() {
@@ -158,9 +158,8 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 	}
 
 	private void removeItem(int i) {
-		Collection<T> values = getValue();
-		PropertyEditor<?> itemEditor = itemEditors.get(i);
-		values.remove(itemEditor.getModelInstance());
+		Array<T> values = getValue();
+		values.removeIndex(i);
 		rebuildUi();
 	}
 
@@ -176,7 +175,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 	}
 
 	private void addItem() {
-		Collection<T> values = getValue();
+		Array<T> values = getValue();
 		if (values != null) {
 			values.add(null);
 			rebuildUi();
@@ -191,7 +190,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 	private void newTypeInstance() {
 		try {
 			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Collection<T> value = Values.cast(classLoader.loadClass(getProperty().getType().getName()).newInstance());
+			Array<T> value = Values.cast(classLoader.loadClass(getProperty().getType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -216,7 +215,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 
 	private void createType(IType selectedType) throws Exception {
 		URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-		Collection<T> value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
+		Array<T> value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
 		setValue(value);
 		rebuildUi();
 	}
@@ -240,31 +239,25 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 
 	private IJavaSearchScope getSearchScope() throws JavaModelException {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<Collection<T>> type = getProperty().getType();
+		Class<Array<T>> type = getProperty().getType();
 		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}
 
 	private static class ItemContext<M, P> extends PropertyEditorContext<M, P> {
-		private Collection<P> collection;
+		private Array<P> array;
 		private int index;
 
 		public ItemContext(PropertyEditorContext<?, ?> parent, Model<M> model, M modelInstance, Property<P> property,
 				int index) {
 			super(parent, model, modelInstance, property);
 			this.index = index;
-			collection = Values.cast(parent.getValue());
+			array = Values.cast(parent.getValue());
 			valueExtractor = this::getItemValue;
 			valueUpdater = this::setItemValue;
 		}
 
 		protected P getItemValue() {
-			if (collection instanceof List) {
-				return ((List<P>) collection).get(index);
-			} else {
-				Iterator<P> iter = collection.iterator();
-				IntStream.range(0, index).forEach(i -> iter.next());
-				return iter.next();
-			}
+			return array.get(index);
 		}
 
 		@Override
@@ -284,19 +277,10 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 
 		protected void setItemValue(P newValue) {
 			PropertyEditorContext<?, Object> parentContext = Values.cast(parent);
-			Collection<P> values = Values.cast(parentContext.getValue());
-
-			if (collection instanceof List) {
-				P oldValue = ((List<P>) collection).set(index, newValue);
-				parent.propertyValueChanged(parentContext.property, oldValue, newValue);
-			} else {
-				Iterator<P> iter = collection.iterator();
-				IntStream.range(0, index).forEach(i -> iter.next());
-				P oldValue = iter.next();
-				iter.remove();
-				values.add(newValue);
-				parent.propertyValueChanged(parentContext.property, oldValue, newValue);
-			}
+			Array<P> values = Values.cast(parentContext.getValue());
+			P oldValue = values.get(index);
+			values.set(index, newValue);
+			parent.propertyValueChanged(parentContext.property, oldValue, newValue);
 		}
 	}
 }

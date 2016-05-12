@@ -30,8 +30,8 @@ import com.gurella.engine.scene.bullet.shapes.PlaneCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.TetrahedronCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.TriangleCollisionShape;
-import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.ModelEditorContext;
+import com.gurella.studio.editor.model.ModelEditorForm;
 import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -79,8 +79,7 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 
 			if (!(value instanceof EmptyCollisionShape)) {
 				ModelEditorContext<BulletCollisionShape> shapeContext = new ModelEditorContext<>(context, value);
-				ModelEditorContainer<BulletCollisionShape> shapeModelEditor = new ModelEditorContainer<>(body,
-						shapeContext);
+				ModelEditorForm<BulletCollisionShape> shapeModelEditor = new ModelEditorForm<>(body, shapeContext);
 				shapeModelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 			}
 
@@ -128,7 +127,7 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 		plane(PlaneCollisionShape::new, PlaneCollisionShape.class),
 
 		triangle(TriangleCollisionShape::new, TriangleCollisionShape.class),
-		
+
 		tetrahedron(TetrahedronCollisionShape::new, TetrahedronCollisionShape.class),
 
 		;
