@@ -66,7 +66,16 @@ public abstract class ShapeModel implements Disposable {
 			synchronized (modelBuilder) {
 				model = createModel(modelBuilder);
 			}
-			instance = model == null ? null : new ModelInstance(model);
+
+			if (model != null) {
+				ModelInstance newInstance = new ModelInstance(model);
+				if (instance != null) {
+					newInstance.transform.set(instance.transform);
+				}
+				instance = newInstance;
+			} else {
+				instance = null;
+			}
 		}
 		return instance;
 	}
@@ -74,7 +83,7 @@ public abstract class ShapeModel implements Disposable {
 	public int getGlPrimitiveType() {
 		return primitiveType.glValue;
 	}
-	
+
 	public PrimitiveType getPrimitiveType() {
 		return primitiveType;
 	}
