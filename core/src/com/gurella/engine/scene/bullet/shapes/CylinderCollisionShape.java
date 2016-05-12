@@ -10,7 +10,7 @@ import com.gurella.engine.math.geometry.Axis;
 
 public class CylinderCollisionShape extends BulletCollisionShape {
 	private Axis axis = Axis.y;
-	public final Vector3 dimensions = new Vector3(1, 1, 1);
+	public final Vector3 halfExtents = new Vector3(0.5f, 0.5f, 0.5f);
 
 	public Axis getAxis() {
 		return axis;
@@ -22,22 +22,13 @@ public class CylinderCollisionShape extends BulletCollisionShape {
 
 	@Override
 	public btCollisionShape createNativeShape() {
-		float x = dimensions.x;
-		float y = dimensions.y;
-		float z = dimensions.z;
-		btCollisionShape shape = doCreateShape();
-		dimensions.set(x, y, z);
-		return shape;
-	}
-
-	private btCollisionShape doCreateShape() {
 		switch (axis) {
 		case x:
-			return new btCylinderShapeX(dimensions);
+			return new btCylinderShapeX(halfExtents);
 		case y:
-			return new btCylinderShape(dimensions);
+			return new btCylinderShape(halfExtents);
 		case z:
-			return new btCylinderShapeZ(dimensions);
+			return new btCylinderShapeZ(halfExtents);
 		default:
 			throw new GdxRuntimeException("Unsuported axis.");
 		}

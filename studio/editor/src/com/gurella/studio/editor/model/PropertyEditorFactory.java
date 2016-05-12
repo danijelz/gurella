@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model;
 
+import java.util.Collection;
+
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.graphics.Color;
@@ -26,6 +28,7 @@ import com.gurella.studio.editor.model.property.BitsPropertyEditor;
 import com.gurella.studio.editor.model.property.BooleanPropertyEditor;
 import com.gurella.studio.editor.model.property.BytePropertyEditor;
 import com.gurella.studio.editor.model.property.CharacterPropertyEditor;
+import com.gurella.studio.editor.model.property.CollectionPropertyEditor;
 import com.gurella.studio.editor.model.property.ColorPropertyEditor;
 import com.gurella.studio.editor.model.property.DoublePropertyEditor;
 import com.gurella.studio.editor.model.property.EnumPropertyEditor;
@@ -94,7 +97,13 @@ public class PropertyEditorFactory {
 			return Values.cast(new LayerPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Bits.class || propertyType == BitsExt.class) {
 			return Values.cast(new BitsPropertyEditor(parent, Values.cast(context)));
-		}  else if (BulletCollisionShape.class.isAssignableFrom(propertyType)) {
+		} else if (Collection.class.isAssignableFrom(propertyType)) {
+			return Values.cast(new CollectionPropertyEditor<>(parent, Values.cast(context)));
+		}
+		
+		/////
+		
+		else if (BulletCollisionShape.class.isAssignableFrom(propertyType)) {
 			return Values.cast(new BulletCollisionShapePropertyEditor(parent, Values.cast(context)));
 		}
 

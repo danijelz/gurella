@@ -134,11 +134,20 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	}
 
 	private SelectionDialog createJavaSearchDialog() throws JavaModelException {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		String typeName = getProperty().getType().getName();
-		IJavaSearchScope scope = SearchEngine.createHierarchyScope(javaProject.findType(typeName));
+		IJavaSearchScope scope = getSearchScope();
 		Shell shell = body.getShell();
 		ProgressMonitorDialog monitor = new ProgressMonitorDialog(shell);
 		return JavaUI.createTypeDialog(shell, monitor, scope, CONSIDER_CLASSES, false);
+	}
+
+	private IJavaSearchScope getSearchScope() throws JavaModelException {
+		IJavaProject javaProject = context.sceneEditorContext.javaProject;
+		Class<P> type = getProperty().getType();
+
+		if (type == Object.class) {
+			return SearchEngine.createWorkspaceScope();
+		} else {
+			return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
+		}
 	}
 }

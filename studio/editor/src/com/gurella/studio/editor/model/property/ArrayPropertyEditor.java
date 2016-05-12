@@ -38,7 +38,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 		buildUi();
 
-		if (isFinalValue()) {
+		if (!isFinalValue()) {
 			addMenuItem("Add item", () -> addItem());
 			addMenuItem("Resize", () -> resize());
 			addMenuItem("Set null", () -> setNull());
@@ -143,9 +143,9 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		if (property instanceof ReflectionProperty) {
 			ReflectionProperty<P> reflectionProperty = (ReflectionProperty<P>) property;
 			Field field = reflectionProperty.getField();
-			return !field.isFinal();
+			return field.isFinal();
 		} else {
-			return false;
+			return true;
 		}
 	}
 

@@ -5,15 +5,10 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 
 public class BoxCollisionShape extends BulletCollisionShape {
-	public final Vector3 dimensions = new Vector3(1, 1, 1);
+	public final Vector3 halfExtents = new Vector3(0.5f, 0.5f, 0.5f);
 
 	@Override
 	public btCollisionShape createNativeShape() {
-		float x = dimensions.x;
-		float y = dimensions.y;
-		float z = dimensions.z;
-		btBoxShape shape = new btBoxShape(dimensions.scl(0.5f));
-		dimensions.set(x, y, z);
-		return shape;
+		return new btBoxShape(halfExtents);
 	}
 }

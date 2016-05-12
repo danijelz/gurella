@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.gurella.engine.scene.bullet.shapes.Box2dCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.BoxCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.CapsuleCollisionShape;
@@ -27,6 +28,8 @@ import com.gurella.engine.scene.bullet.shapes.CylinderCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.EmptyCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.PlaneCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
+import com.gurella.engine.scene.bullet.shapes.TetrahedronCollisionShape;
+import com.gurella.engine.scene.bullet.shapes.TriangleCollisionShape;
 import com.gurella.studio.editor.model.ModelEditorContainer;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
@@ -109,18 +112,24 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 
 	private enum CollisionShapeType {
 		empty(EmptyCollisionShape::new, EmptyCollisionShape.class),
-		
+
 		box(BoxCollisionShape::new, BoxCollisionShape.class),
-		
+
+		box2d(Box2dCollisionShape::new, Box2dCollisionShape.class),
+
 		sphere(SphereCollisionShape::new, SphereCollisionShape.class),
-		
+
 		capsule(CapsuleCollisionShape::new, CapsuleCollisionShape.class),
-		
+
 		cone(ConeCollisionShape::new, ConeCollisionShape.class),
-		
+
 		cylinder(CylinderCollisionShape::new, CylinderCollisionShape.class),
-		
+
 		plane(PlaneCollisionShape::new, PlaneCollisionShape.class),
+
+		triangle(TriangleCollisionShape::new, TriangleCollisionShape.class),
+		
+		tetrahedron(TetrahedronCollisionShape::new, TetrahedronCollisionShape.class),
 
 		;
 
