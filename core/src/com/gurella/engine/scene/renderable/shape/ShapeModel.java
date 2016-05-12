@@ -70,6 +70,7 @@ public abstract class ShapeModel implements Disposable {
 			if (model != null) {
 				ModelInstance newInstance = new ModelInstance(model);
 				if (instance != null) {
+					//TODO update transform from TransformComponent
 					newInstance.transform.set(instance.transform);
 				}
 				instance = newInstance;
