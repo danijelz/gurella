@@ -148,9 +148,17 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 			return Object.class;
 		}
 
-		String typeArgument = typeArguments[0];
 		URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-		return Values.cast(classLoader.loadClass(Signature.toString(typeArgument)));
+		String typeArgument = typeArguments[0];
+
+		switch (Signature.getTypeSignatureKind(typeArgument)) {
+		case Signature.CLASS_TYPE_SIGNATURE:
+			return Values.cast(classLoader.loadClass(Signature.toString(Signature.getTypeErasure(typeArgument))));
+		case Signature.ARRAY_TYPE_SIGNATURE:
+			return Values.cast(classLoader.loadClass(typeArgument));
+		default:
+			return Object.class;
+		}
 	}
 
 	private void addEditorMenus(PropertyEditor<Object> editor, int i) {

@@ -20,6 +20,7 @@ public abstract class ShapeModel implements Disposable {
 	public static final Material defaulMaterial = new Material(ColorAttribute.createDiffuse(1, 1, 1, 1));
 	public static final VertexAttributes defaultAttributes = new VertexAttributes(Position(), Normal());
 
+	@PropertyDescriptor(descriptiveName = "material")
 	public MaterialDescriptor materialDescriptor;
 	private transient Material material;
 

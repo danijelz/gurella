@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.bullet.collision.btEmptyShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
-import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
@@ -24,7 +23,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
 
 	public int collisionGroup;
-	public Bits collisionMasks = new Bits(32);
+	public int collisionMask;
 	public BulletRigidBodyType rigidBodyType = BulletRigidBodyType.DYNAMIC;
 
 	public BulletCollisionShape collisionShape;
@@ -32,7 +31,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 
 	private final transient MotionState motionState = new MotionState();
 	transient btRigidBody rigidBody;
-	
+
 	private transient TransformComponent transformComponent;
 
 	@Override
