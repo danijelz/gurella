@@ -84,7 +84,7 @@ public class SceneHierarchyView extends SceneEditorView {
 
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Node");
-		item.addListener(SWT.Selection, e -> addEmptyNode());
+		item.addListener(SWT.Selection, e -> addChildNode());
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Root Node");
@@ -123,6 +123,10 @@ public class SceneHierarchyView extends SceneEditorView {
 		CompositeShapeModel shapeModel = new CompositeShapeModel();
 		shapeModel.addShape(new BoxShapeModel());
 		shapeModel.addShape(new CylinderShapeModel(), 0, 1, 0);
+		CompositeShapeModel composite = new CompositeShapeModel();
+		composite.addShape(new CylinderShapeModel(), 0, 1, 0);
+		shapeModel.addShape(composite, 0, 1, 0);
+
 		item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel));
 
 		createComponentsSubMenu();
@@ -333,7 +337,7 @@ public class SceneHierarchyView extends SceneEditorView {
 
 	private void addRootNode() {
 		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
-				(newText) -> newText.length() < 3 ? "Too short" : null);
+				newText -> newText.length() < 3 ? "Too short" : null);
 
 		if (dlg.open() == Window.OK) {
 			SceneNode2 node = getScene().newNode(dlg.getValue());
@@ -355,9 +359,9 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private void addEmptyNode() {
+	private void addChildNode() {
 		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
-				(newText) -> newText.length() < 3 ? "Too short" : null);
+				newText -> newText.length() < 3 ? "Too short" : null);
 
 		if (dlg.open() == Window.OK) {
 			TreeItem[] selection = graph.getSelection();

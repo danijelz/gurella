@@ -43,6 +43,7 @@ public abstract class ShapeModel implements Disposable {
 		if (instance != null) {
 			instance.materials.set(0, material);
 		}
+		dirty = true;
 	}
 
 	public Material getMaterial() {

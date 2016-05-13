@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.inspector;
 
+import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
+import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
 import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.CENTER;
@@ -14,12 +16,12 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BO
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
+import java.net.URLClassLoader;
+
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -65,8 +67,8 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.model.ModelEditorForm;
 import com.gurella.studio.editor.model.ModelEditorContext;
+import com.gurella.studio.editor.model.ModelEditorForm;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 
@@ -214,7 +216,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		Thread current = Thread.currentThread();
 		ClassLoader contextClassLoader = current.getContextClassLoader();
 		try {
-			current.setContextClassLoader(getSceneEditor().getClassLoader());
+			current.setContextClassLoader(getEditorContext().classLoader);
 			addScriptComponent();
 		} catch (Exception e) {
 			String message = "Error occurred while adding script component";
@@ -225,12 +227,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		}
 	}
 
-	private void addScriptComponent()
-			throws JavaModelException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		IJavaSearchScope scope = SearchEngine
-				.createHierarchyScope(getSceneEditor().getJavaProject().findType(SceneNodeComponent2.class.getName()));
-		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), new ProgressMonitorDialog(getShell()), scope,
-				IJavaElementSearchConstants.CONSIDER_CLASSES, false);
+	private void addScriptComponent() throws Exception {
+		IJavaProject javaProject = getEditorContext().javaProject;
+		IJavaSearchScope scope = createHierarchyScope(javaProject.findType(SceneNodeComponent2.class.getName()));
+		ProgressMonitorDialog monitor = new ProgressMonitorDialog(getShell());
+		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), monitor, scope, CONSIDER_CLASSES, false);
 		if (dialog.open() != IDialogConstants.OK_ID) {
 			return;
 		}
@@ -238,8 +239,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		Object[] types = dialog.getResult();
 		if (types != null && types.length > 0) {
 			IType type = (IType) types[0];
-			SceneNodeComponent2 component = Values
-					.cast(getSceneEditor().getClassLoader().loadClass(type.getFullyQualifiedName()).newInstance());
+			URLClassLoader classLoader = getEditorContext().classLoader;
+			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
+			SceneNodeComponent2 component = Values.cast(resolvedClass.newInstance());
 			addComponent(component);
 		}
 	}

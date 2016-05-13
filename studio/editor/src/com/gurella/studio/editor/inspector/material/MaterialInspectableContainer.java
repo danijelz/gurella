@@ -17,9 +17,6 @@ import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
-import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
@@ -100,12 +97,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		/*
-		 * Composite root = toolkit.createComposite(body); toolkit.adapt(root); GridData layoutData = new
-		 * GridData(GridData.FILL, GridData.FILL, true, true); layoutData.heightHint = 500;
-		 * root.setLayoutData(layoutData); root.setLayout(new GridLayout());
-		 */
-
 		ScrolledComposite scrolledComposite = new ScrolledComposite(body, SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -122,13 +113,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 		//////////////////////////////
 
-		IExpansionListener expansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				// content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			}
-		};
-
 		/////////////////////////
 		Section group = toolkit.createSection(content,
 				ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
@@ -143,7 +127,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 		// group.setExpanded(true);
-		group.addExpansionListener(expansionListener);
 
 		/////////////
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
@@ -157,7 +140,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		blendAttributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(blendAttributeEditor);
 		// group.setExpanded(true);
-		group.addExpansionListener(expansionListener);
 		//////////
 
 		/////////////
@@ -180,7 +162,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 		group.setClient(client);
 		// group.setExpanded(true);
-		group.addExpansionListener(expansionListener);
 		//////////
 
 		/////////////
@@ -196,7 +177,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
 		// group.setExpanded(true);
-		group.addExpansionListener(expansionListener);
 		//////////
 
 		Composite canvasComposite = toolkit.createComposite(body);
@@ -310,13 +290,16 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
+		// JsonOutput output = new JsonOutput();
+		// String string = output.serialize(MaterialDescriptor.class, materialDescriptor);
+		// System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
+
 		synchronized (GurellaStudioPlugin.glMutex) {
 			wall.dispose();
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
-			// TODO ResourceService.unload(materialDescriptor);
-			materialDescriptor.destroy();
+			ResourceService.unload(materialDescriptor);
 			glCanvas.dispose();
 		}
 	}
@@ -390,7 +373,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		return removeDisposables(result);
 	}
 
-	//http://www.terathon.com/code/tangent.html
+	// http://www.terathon.com/code/tangent.html
 	private static void calculateTangents(Model result) {
 		Array<Mesh> meshes = result.meshes;
 		Vector3 tangent = new Vector3();

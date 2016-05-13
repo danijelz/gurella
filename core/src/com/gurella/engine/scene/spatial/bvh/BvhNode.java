@@ -11,6 +11,8 @@ import com.gurella.engine.utils.Values;
 
 //TODO https://github.com/jeske/SimpleScene/tree/master/SimpleScene/Util/ssBVH
 public class BvhNode implements Poolable {
+	private static final float MERGE_DISCOUNT = 0.3f;
+
 	Bvh bvh;
 	BvhNode parent;
 	BvhNode left;
@@ -409,10 +411,6 @@ public class BvhNode implements Poolable {
 			float sendLeftSAH = rightSAH + SAH(temp.set(left.box).ext(newSpatialBox)); // (L+N,R)
 			float sendRightSAH = leftSAH + SAH(temp.set(right.box).ext(newSpatialBox)); // (L,R+N)
 			float mergedLeftAndRightSAH = SAH(boundsOfPair(left, right)) + newSpatialSAH; // (L+R,N)
-
-			// Doing a merge-and-pushdown can be expensive, so we only do it if
-			// it's notably better
-			final float MERGE_DISCOUNT = 0.3f;
 
 			if (mergedLeftAndRightSAH < (Math.min(sendLeftSAH, sendRightSAH)) * MERGE_DISCOUNT) {
 				// merge and pushdown left and right as a new node..
