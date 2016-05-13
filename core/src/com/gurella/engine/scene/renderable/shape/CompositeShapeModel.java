@@ -1,60 +1,81 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.base.model.PropertyDescriptor;
 
 //TODO unused
 public class CompositeShapeModel extends ShapeModel {
-	private Array<ShapeModelItem> items = new Array<ShapeModelItem>();
+	private final Quaternion rotation = new Quaternion();
+	private final Matrix4 transform = new Matrix4();
+	private final Matrix4 worldTransform = new Matrix4();
 
-	@Override
-	protected Model createModel(ModelBuilder builder) {
-		// TODO Auto-generated method stub
-		return null;
+	Array<ShapeModelItem> items = new Array<ShapeModelItem>();
+
+	public void addShape(ShapeModel shape) {
+		items.add(new ShapeModelItem(shape));
+		dirty = true;
+	}
+	
+	public void addShape(ShapeModel shape, float x, float y, float z) {
+		ShapeModelItem item = new ShapeModelItem(shape);
+		item.translation.set(x, y, z);
+		items.add(item);
+		dirty = true;
 	}
 
-	public static class ShapeModelItem implements PropertyChangeListener {
+	public void removeShape(ShapeModel shape) {
+		for (int i = 0, n = items.size; i < n; i++) {
+			ShapeModelItem item = items.get(i);
+			if (item.shape == shape) {
+				items.removeIndex(i);
+				dirty = true;
+				return;
+			}
+		}
+	}
+
+	@Override
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		for (int i = 0, n = items.size; i < n; i++) {
+			ShapeModelItem item = items.get(i);
+			if (item.shape != null) {
+				updateItemTransform(item, parentTransform);
+				item.shape.buildParts(builder, worldTransform);
+			}
+		}
+	}
+
+	private void updateItemTransform(ShapeModelItem item, Matrix4 parentTransform) {
+		rotation.setEulerAngles(item.eulerRotation.y, item.eulerRotation.x, item.eulerRotation.z);
+		transform.set(item.translation, rotation, item.scale);
+		if (parentTransform == null) {
+			worldTransform.set(transform);
+		} else {
+			worldTransform.set(parentTransform).mul(transform);
+		}
+	}
+
+	public static class ShapeModelItem {
 		@PropertyDescriptor(flat = true)
 		private final Vector3 translation = new Vector3();
 
 		@PropertyDescriptor(descriptiveName = "rotation", flat = true)
 		private final Vector3 eulerRotation = new Vector3();
-		private final Quaternion rotation = new Quaternion();
 
 		@PropertyDescriptor(flat = true)
 		private final Vector3 scale = new Vector3(1, 1, 1);
 
-		private final Matrix4 transform = new Matrix4();
-		private final Matrix4 worldTransform = new Matrix4();
-
-		private Matrix4 parentTransform;
-
 		public ShapeModel shape;
 
-		@Override
-		public void propertyChanged(PropertyChangeEvent event) {
-			Array<Object> propertyPath = event.propertyPath;
-			if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
-				if (propertyPath.peek() == eulerRotation) {
-					rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-				}
-				update();
-			}
+		public ShapeModelItem() {
 		}
 
-		private void update() {
-			transform.set(translation, rotation, scale);
-			if (parentTransform == null) {
-				worldTransform.set(transform);
-			} else {
-				worldTransform.set(parentTransform).mul(transform);
-			}
+		public ShapeModelItem(ShapeModel shape) {
+			this.shape = shape;
 		}
 	}
 }

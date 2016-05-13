@@ -1,7 +1,8 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 
 public class CapsuleShapeModel extends ShapeModel {
 	private float radius = 0.2f;
@@ -44,10 +45,11 @@ public class CapsuleShapeModel extends ShapeModel {
 	}
 
 	@Override
-	protected Model createModel(ModelBuilder builder) {
-		builder.begin();
-		builder.part("capsule", getGlPrimitiveType(), getVertexAttributes(), getMaterial()).capsule(radius, height,
-				divisions);
-		return builder.end();
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		MeshPartBuilder part = builder.part("capsule", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
+		if (parentTransform != null) {
+			part.setVertexTransform(parentTransform);
+		}
+		part.capsule(radius, height, divisions);
 	}
 }

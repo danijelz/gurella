@@ -34,6 +34,7 @@ import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.renderable.shape.BoxShapeModel;
 import com.gurella.engine.scene.renderable.shape.CapsuleShapeModel;
+import com.gurella.engine.scene.renderable.shape.CompositeShapeModel;
 import com.gurella.engine.scene.renderable.shape.ConeShapeModel;
 import com.gurella.engine.scene.renderable.shape.CylinderShapeModel;
 import com.gurella.engine.scene.renderable.shape.RectangleShapeModel;
@@ -116,6 +117,13 @@ public class SceneHierarchyView extends SceneEditorView {
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add rectangle");
 		item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel()));
+
+		item = new MenuItem(menu, SWT.PUSH);
+		item.setText("Add composite");
+		CompositeShapeModel shapeModel = new CompositeShapeModel();
+		shapeModel.addShape(new BoxShapeModel());
+		shapeModel.addShape(new CylinderShapeModel(), 0, 1, 0);
+		item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel));
 
 		createComponentsSubMenu();
 		graph.setMenu(menu);
@@ -333,15 +341,15 @@ public class SceneHierarchyView extends SceneEditorView {
 			nodeItem.setData(node);
 			nodeItem.setText(node.getName());
 			nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-			
+
 			TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 			TreeItem componentItem = new TreeItem(nodeItem, 0);
 			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
 			componentItem.setText(Models.getModel(transformComponent).getName());
 			componentItem.setData(transformComponent);
-			
+
 			postMessage(SceneChangedMessage.instance);
-			
+
 			graph.select(nodeItem);
 			postMessage(new SelectionMessage(new NodeInspectable(node)));
 		}
@@ -362,15 +370,15 @@ public class SceneHierarchyView extends SceneEditorView {
 				nodeItem.setData(child);
 				nodeItem.setText(child.getName());
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-				
+
 				TransformComponent transformComponent = child.newComponent(TransformComponent.class);
 				TreeItem componentItem = new TreeItem(nodeItem, 0);
 				componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
 				componentItem.setText(Models.getModel(transformComponent).getName());
 				componentItem.setData(transformComponent);
-				
+
 				postMessage(SceneChangedMessage.instance);
-				
+
 				seectedItem.setExpanded(true);
 				graph.select(nodeItem);
 				postMessage(new SelectionMessage(new NodeInspectable(child)));

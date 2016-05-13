@@ -1,7 +1,8 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 
 public class RectangleShapeModel extends ShapeModel {
 	private float x00 = 1;
@@ -160,10 +161,11 @@ public class RectangleShapeModel extends ShapeModel {
 	}
 
 	@Override
-	protected Model createModel(ModelBuilder builder) {
-		builder.begin();
-		builder.part("rect", getGlPrimitiveType(), getVertexAttributes(), getMaterial()).rect(x00, y00, z00, x10, y10,
-				z10, x11, y11, z11, x01, y01, z01, normalX, normalY, normalZ);
-		return builder.end();
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		MeshPartBuilder part = builder.part("rect", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
+		if (parentTransform != null) {
+			part.setVertexTransform(parentTransform);
+		}
+		part.rect(x00, y00, z00, x10, y10, z10, x11, y11, z11, x01, y01, z01, normalX, normalY, normalZ);
 	}
 }

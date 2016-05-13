@@ -1,7 +1,8 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 
 public class ConeShapeModel extends ShapeModel {
 	private float width = 1;
@@ -66,10 +67,11 @@ public class ConeShapeModel extends ShapeModel {
 	}
 
 	@Override
-	protected Model createModel(ModelBuilder builder) {
-		builder.begin();
-		builder.part("cone", getGlPrimitiveType(), getVertexAttributes(), getMaterial()).cone(width, height, depth,
-				divisions, angleFrom, angleTo);
-		return builder.end();
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		MeshPartBuilder part = builder.part("cone", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
+		if (parentTransform != null) {
+			part.setVertexTransform(parentTransform);
+		}
+		part.cone(width, height, depth, divisions, angleFrom, angleTo);
 	}
 }

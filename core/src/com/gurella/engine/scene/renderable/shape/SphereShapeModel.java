@@ -1,7 +1,8 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 
 public class SphereShapeModel extends ShapeModel {
 	private float width = 1;
@@ -13,14 +14,6 @@ public class SphereShapeModel extends ShapeModel {
 	private float angleUTo = 360;
 	private float angleVFrom = 0;
 	private float angleVTo = 180;
-
-	@Override
-	protected Model createModel(ModelBuilder builder) {
-		builder.begin();
-		builder.part("sphere", getGlPrimitiveType(), getVertexAttributes(), getMaterial()).sphere(width, height,
-				depth, divisionsU, divisionsV, angleUFrom, angleUTo, angleVFrom, angleVTo);
-		return builder.end();
-	}
 
 	public float getWidth() {
 		return width;
@@ -101,5 +94,14 @@ public class SphereShapeModel extends ShapeModel {
 	public void setAngleVTo(float angleVTo) {
 		this.angleVTo = angleVTo;
 		dirty = true;
+	}
+
+	@Override
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		MeshPartBuilder part = builder.part("sphere", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
+		if (parentTransform != null) {
+			part.setVertexTransform(parentTransform);
+		}
+		part.sphere(width, height, depth, divisionsU, divisionsV, angleUFrom, angleUTo, angleVFrom, angleVTo);
 	}
 }

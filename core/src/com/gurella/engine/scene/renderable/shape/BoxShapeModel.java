@@ -1,7 +1,8 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 
 public class BoxShapeModel extends ShapeModel {
 	private float width = 1;
@@ -36,9 +37,11 @@ public class BoxShapeModel extends ShapeModel {
 	}
 
 	@Override
-	protected Model createModel(ModelBuilder builder) {
-		builder.begin();
-		builder.part("box", getGlPrimitiveType(), getVertexAttributes(), getMaterial()).box(width, height, depth);
-		return builder.end();
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		MeshPartBuilder part = builder.part("box", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
+		if (parentTransform != null) {
+			part.setVertexTransform(parentTransform);
+		}
+		part.box(width, height, depth);
 	}
 }

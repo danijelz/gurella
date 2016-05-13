@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -31,8 +32,6 @@ public abstract class ShapeModel implements Disposable {
 	private PrimitiveType primitiveType = PrimitiveType.triangles;
 
 	protected transient boolean dirty = true;
-
-	protected abstract Model createModel(ModelBuilder builder);
 
 	public MaterialDescriptor getMaterialDescriptor() {
 		return materialDescriptor;
@@ -71,7 +70,7 @@ public abstract class ShapeModel implements Disposable {
 			if (model != null) {
 				ModelInstance newInstance = new ModelInstance(model);
 				if (instance != null) {
-					//TODO update transform from TransformComponent
+					// TODO update transform from TransformComponent
 					newInstance.transform.set(instance.transform);
 				}
 				instance = newInstance;
@@ -81,6 +80,14 @@ public abstract class ShapeModel implements Disposable {
 		}
 		return instance;
 	}
+
+	private Model createModel(ModelBuilder builder) {
+		builder.begin();
+		buildParts(builder, null);
+		return builder.end();
+	}
+
+	protected abstract void buildParts(ModelBuilder builder, Matrix4 parentTransform);
 
 	public int getGlPrimitiveType() {
 		return primitiveType.glValue;

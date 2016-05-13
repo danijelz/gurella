@@ -1,7 +1,8 @@
 package com.gurella.engine.scene.renderable.shape;
 
-import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 
 public class CylinderShapeModel extends ShapeModel {
 	private float width = 1;
@@ -66,11 +67,11 @@ public class CylinderShapeModel extends ShapeModel {
 	}
 
 	@Override
-	protected Model createModel(ModelBuilder builder) {
-		builder.begin();
-		builder.part("cylinder", getGlPrimitiveType(), getVertexAttributes(), getMaterial()).cylinder(width, height,
-				depth, divisions, angleFrom, angleTo);
-		return builder.end();
+	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
+		MeshPartBuilder part = builder.part("cylinder", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
+		if (parentTransform != null) {
+			part.setVertexTransform(parentTransform);
+		}
+		part.cylinder(width, height, depth, divisions, angleFrom, angleTo);
 	}
-
 }
