@@ -91,15 +91,11 @@ public class AssetSelectionWidget<T> extends Composite {
 
 		final String path = dialog.open();
 		if (path != null) {
-			setAsset(path);
+			assetSelected(path);
 		}
 	}
 
-	public T getAsset() {
-		return asset;
-	}
-
-	private void setAsset(final String path) {
+	private void assetSelected(final String path) {
 		T oldAsset = asset;
 		asset = ResourceService.load(path);
 		text.setText(path);
@@ -110,6 +106,20 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	public void setSelectionChangedListener(BiConsumer<T, T> selectionChangedListener) {
 		this.selectionChangedListener = selectionChangedListener;
+	}
+
+	public T getAsset() {
+		return asset;
+	}
+
+	public void setAsset(final T asset) {
+		this.asset = asset;
+		if (asset == null) {
+			text.setText("");
+		} else {
+			String path = ResourceService.getFileName(asset);
+			text.setText(path);
+		}
 	}
 
 	private final class AssetDropTarget extends DropTargetAdapter {
@@ -134,7 +144,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 			IResource item = data[0];
 			if (isValidResource(item)) {
-				setAsset(item.getLocation().toString());
+				assetSelected(item.getLocation().toString());
 			}
 		}
 	}
