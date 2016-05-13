@@ -33,7 +33,7 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 
-		Class<P> enumType = getProperty().getType();
+		Class<P> enumType = context.getPropertyType();
 		P[] constants = enumType.getEnumConstants();
 		if (constants == null) {
 			@SuppressWarnings("unchecked")

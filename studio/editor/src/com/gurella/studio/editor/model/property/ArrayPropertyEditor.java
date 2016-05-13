@@ -107,8 +107,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	}
 
 	private Class<Object> getComponentType() {
-		Property<Object> property = Values.cast(getProperty());
-		return Values.cast(property.getType().getComponentType());
+		return Values.cast(context.getPropertyType().getComponentType());
 	}
 
 	private void addEditorMenus(PropertyEditor<Object> editor, int i) {

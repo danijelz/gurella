@@ -61,7 +61,7 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 		if (!isFinalValue()) {
 			addMenuItem("Select type", () -> selectType());
 
-			Class<Array<T>> type = getProperty().getType();
+			Class<Array<T>> type = context.getPropertyType();
 			if (Reflection.getDeclaredConstructorSilently(type) != null) {
 				addMenuItem("New " + type.getSimpleName(), () -> newTypeInstance());
 			}
@@ -111,15 +111,6 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 		rebuildUi();
 	}
 
-	public String isValid(String newText) {
-		try {
-			Integer.parseInt(newText);
-			return null;
-		} catch (Exception e) {
-		}
-		return "invalid length";
-	}
-
 	private Class<Object> getComponentType() {
 		if (componentType == null) {
 			componentType = resolveComponentType();
@@ -131,6 +122,7 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 		try {
 			return resolveComponentTypeSafely();
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Object.class;
 		}
 	}
@@ -148,9 +140,17 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 			return Object.class;
 		}
 
-		String typeArgument = typeArguments[0];
 		URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-		return Values.cast(classLoader.loadClass(Signature.toString(typeArgument)));
+		String typeArgument = typeArguments[0];
+
+		switch (Signature.getTypeSignatureKind(typeArgument)) {
+		case Signature.CLASS_TYPE_SIGNATURE:
+			return Values.cast(classLoader.loadClass(Signature.toString(Signature.getTypeErasure(typeArgument))));
+		case Signature.ARRAY_TYPE_SIGNATURE:
+			return Values.cast(classLoader.loadClass(typeArgument));
+		default:
+			return Object.class;
+		}
 	}
 
 	private void addEditorMenus(PropertyEditor<Object> editor, int i) {
@@ -190,7 +190,7 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 	private void newTypeInstance() {
 		try {
 			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Array<T> value = Values.cast(classLoader.loadClass(getProperty().getType().getName()).newInstance());
+			Array<T> value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -239,7 +239,7 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 
 	private IJavaSearchScope getSearchScope() throws JavaModelException {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<Array<T>> type = getProperty().getType();
+		Class<Array<T>> type = context.getPropertyType();
 		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}
 
@@ -273,6 +273,11 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 		@Override
 		public String getDescriptiveName() {
 			return null;
+		}
+
+		@Override
+		public Class<P> getPropertyType() {
+			return Values.cast(model.getType());
 		}
 
 		protected void setItemValue(P newValue) {

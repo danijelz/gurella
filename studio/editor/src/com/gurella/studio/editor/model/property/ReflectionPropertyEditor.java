@@ -47,7 +47,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		if (!context.isFixedValue()) {
 			addMenuItem("Select type", () -> selectType());
 
-			Class<P> type = getProperty().getType();
+			Class<P> type = context.getPropertyType();
 			if (Reflection.getDeclaredConstructorSilently(type) != null) {
 				addMenuItem("New " + type.getSimpleName(), () -> newTypeInstance());
 			}
@@ -61,7 +61,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	private void newTypeInstance() {
 		try {
 			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			P value = Values.cast(classLoader.loadClass(getProperty().getType().getName()).newInstance());
+			P value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -143,7 +143,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 
 	private IJavaSearchScope getSearchScope() throws JavaModelException {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<P> type = getProperty().getType();
+		Class<P> type = context.getPropertyType();
 
 		if (type == Object.class) {
 			return SearchEngine.createWorkspaceScope();

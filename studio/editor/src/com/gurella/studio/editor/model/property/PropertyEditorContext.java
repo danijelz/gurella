@@ -88,6 +88,10 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	}
 
 	public boolean isFixedValue() {
-		return property.getType().isPrimitive() || property.isFinal();
+		return getPropertyType().isPrimitive() || property.isFinal();
+	}
+	
+	public Class<P> getPropertyType() {
+		return property.getType();
 	}
 }

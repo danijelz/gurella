@@ -62,7 +62,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 		if (!isFinalValue()) {
 			addMenuItem("Select type", () -> selectType());
 
-			if (Reflection.getDeclaredConstructorSilently(getProperty().getType()) != null) {
+			if (Reflection.getDeclaredConstructorSilently(context.getPropertyType()) != null) {
 				addMenuItem("New instance", () -> newTypeInstance());
 			}
 
@@ -191,7 +191,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 	private void newTypeInstance() {
 		try {
 			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Collection<T> value = Values.cast(classLoader.loadClass(getProperty().getType().getName()).newInstance());
+			Collection<T> value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -240,7 +240,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 
 	private IJavaSearchScope getSearchScope() throws JavaModelException {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<Collection<T>> type = getProperty().getType();
+		Class<Collection<T>> type = context.getPropertyType();
 		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}
 

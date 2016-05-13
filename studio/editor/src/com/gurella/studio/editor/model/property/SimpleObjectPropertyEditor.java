@@ -16,7 +16,7 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 	public SimpleObjectPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
 
-		Model<P> model = Models.getModel(getProperty().getType());
+		Model<P> model = Models.getModel(context.getPropertyType());
 		Property<Object> delegateProperty = Values.cast(model.getProperties().get(0));
 
 		GridLayout layout = new GridLayout();
