@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.PropertyDescriptor;
 
-//TODO unused
 public class CompositeShapeModel extends ShapeModel {
 	private final Quaternion rotation = new Quaternion();
 	private final Matrix4 transform = new Matrix4();
@@ -19,7 +18,7 @@ public class CompositeShapeModel extends ShapeModel {
 		items.add(new ShapeModelItem(shape));
 		dirty = true;
 	}
-	
+
 	public void addShape(ShapeModel shape, float x, float y, float z) {
 		ShapeModelItem item = new ShapeModelItem(shape);
 		item.translation.set(x, y, z);
@@ -42,7 +41,7 @@ public class CompositeShapeModel extends ShapeModel {
 	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
 		for (int i = 0, n = items.size; i < n; i++) {
 			ShapeModelItem item = items.get(i);
-			if (item.shape != null) {
+			if (item != null && item.shape != null) {
 				updateItemTransform(item, parentTransform);
 				item.shape.buildParts(builder, worldTransform);
 			}

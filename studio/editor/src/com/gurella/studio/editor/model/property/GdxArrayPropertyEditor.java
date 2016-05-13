@@ -94,7 +94,7 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 		Label label = getToolkit().createLabel(body, Integer.toString(index) + ".");
 		label.setAlignment(SWT.RIGHT);
 		label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-		label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		label.setLayoutData(new GridData(SWT.END, SWT.BEGINNING, false, false));
 
 		Property<Object> property = Values.cast(getProperty());
 		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemModel, item, property, index);
@@ -122,7 +122,6 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 		try {
 			return resolveComponentTypeSafely();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return Object.class;
 		}
 	}
