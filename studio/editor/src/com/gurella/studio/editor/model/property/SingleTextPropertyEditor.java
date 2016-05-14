@@ -57,7 +57,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		}
 
 		text.addModifyListener(e -> textModified());
-		text.addListener(SWT.MouseVerticalWheel, e -> onMouseWheelEvent(e));
+		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(e));
 
 		UiUtils.paintBordersFor(body);
 	}
@@ -93,7 +93,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		return value.toString();
 	}
 
-	private void onMouseWheelEvent(Event e) {
+	private void onMouseVerticalWheel(Event e) {
 		if (getValue() == null) {
 			return;
 		}
