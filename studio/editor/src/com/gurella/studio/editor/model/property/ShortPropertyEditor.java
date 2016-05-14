@@ -1,65 +1,39 @@
 package com.gurella.studio.editor.model.property;
 
-import java.util.Arrays;
+import java.util.function.BiConsumer;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class ShortPropertyEditor extends SimplePropertyEditor<Short> {
-	private Text text;
-
+public class ShortPropertyEditor extends SingleTextPropertyEditor<Short> {
 	public ShortPropertyEditor(Composite parent, PropertyEditorContext<?, Short> context) {
 		super(parent, context);
-
-		GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 1;
-		layout.marginHeight = 2;
-		body.setLayout(layout);
-
-		buildUi();
-
-		if (!context.isFixedValue()) {
-			addMenuItem("Set value", () -> updateValue(Short.valueOf((short) 0)));
-			if (context.isNullable()) {
-				addMenuItem("Set null", () -> updateValue(null));
-			}
-		}
 	}
 
-	private void buildUi() {
+	@Override
+	protected Short getDefaultValue() {
+		return Short.valueOf((short) 0);
+	}
+
+	@Override
+	protected Short extractValue(String stringValue) {
+		return Short.valueOf(stringValue);
+	}
+
+	@Override
+	protected BiConsumer<VerifyEvent, String> getVerifyListener() {
+		return UiUtils::verifyShort;
+	}
+
+	@Override
+	protected WheelEventListener getWheelEventConsumer() {
+		return this::onWheelEvent;
+	}
+
+	private void onWheelEvent(int amount, float multiplier) {
 		Short value = getValue();
-		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
-			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-			label.addListener(SWT.MouseUp, (e) -> showMenu());
-		} else {
-			text = UiUtils.createShortWidget(body);
-			GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-			layoutData.widthHint = 60;
-			layoutData.heightHint = 16;
-			text.setLayoutData(layoutData);
-			text.setText(value.toString());
-			text.addModifyListener(e -> setValue(Short.valueOf(text.getText())));
-			UiUtils.paintBordersFor(body);
-		}
-
-		body.layout();
-	}
-
-	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
-		buildUi();
-	}
-
-	private void updateValue(Short value) {
-		setValue(value);
-		rebuildUi();
+		updateValue(Short.valueOf((short) (value.shortValue() + (amount * multiplier))));
 	}
 }

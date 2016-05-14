@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model.property;
 
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
+import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
@@ -29,8 +30,8 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorForm;
 import com.gurella.studio.editor.model.ModelEditorContext;
+import com.gurella.studio.editor.model.ModelEditorForm;
 import com.gurella.studio.editor.model.PropertyEditorFactory;
 
 public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
@@ -48,7 +49,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			addMenuItem("Select type", () -> selectType());
 
 			Class<P> type = context.getPropertyType();
-			if (Reflection.getDeclaredConstructorSilently(type) != null) {
+			if (!Modifier.isAbstract(type.getModifiers()) && Reflection.getDeclaredConstructorSilently(type) != null) {
 				addMenuItem("New " + type.getSimpleName(), () -> newTypeInstance());
 			}
 

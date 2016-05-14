@@ -1,68 +1,45 @@
 package com.gurella.studio.editor.model.property;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.function.BiConsumer;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class BigDecimalPropertyEditor extends SimplePropertyEditor<BigDecimal> {
-	private Text text;
-
+public class BigDecimalPropertyEditor extends SingleTextPropertyEditor<BigDecimal> {
 	public BigDecimalPropertyEditor(Composite parent, PropertyEditorContext<?, BigDecimal> context) {
 		super(parent, context);
-
-		GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 1;
-		layout.marginHeight = 2;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
-		body.setLayout(layout);
-
-		buildUi();
-
-		if (!context.isFixedValue()) {
-			addMenuItem("Set value", () -> updateValue(BigDecimal.valueOf(0)));
-			if (context.isNullable()) {
-				addMenuItem("Set null", () -> updateValue(null));
-			}
-		}
 	}
 
-	private void buildUi() {
+	@Override
+	protected BigDecimal getDefaultValue() {
+		return BigDecimal.valueOf(0);
+	}
+
+	@Override
+	protected BigDecimal extractValue(String stringValue) {
+		return new BigDecimal(stringValue);
+	}
+
+	@Override
+	protected BiConsumer<VerifyEvent, String> getVerifyListener() {
+		return UiUtils::verifyBigDecimal;
+	}
+
+	@Override
+	protected String toStringNonNullValue(BigDecimal value) {
+		return value.toPlainString();
+	}
+
+	@Override
+	protected WheelEventListener getWheelEventConsumer() {
+		return this::onWheelEvent;
+	}
+
+	private void onWheelEvent(int amount, float multiplier) {
 		BigDecimal value = getValue();
-		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
-			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-			label.addListener(SWT.MouseUp, (e) -> showMenu());
-		} else {
-			text = UiUtils.createBigDecimalWidget(body);
-			GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-			layoutData.widthHint = 60;
-			layoutData.heightHint = 16;
-			text.setLayoutData(layoutData);
-			text.setText(value.toString());
-			text.addModifyListener(e -> setValue(new BigDecimal(text.getText())));
-			UiUtils.paintBordersFor(body);
-		}
-
-		body.layout();
-	}
-
-	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
-		buildUi();
-	}
-
-	private void updateValue(BigDecimal value) {
-		setValue(value);
-		rebuildUi();
+		updateValue(value.add(new BigDecimal(amount * multiplier)));
 	}
 }

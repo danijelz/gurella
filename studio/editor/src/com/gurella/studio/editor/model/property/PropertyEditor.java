@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -50,6 +51,7 @@ public abstract class PropertyEditor<P> {
 
 		body = new BodyComposite(composite, SWT.NULL);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		body.addListener(SWT.MouseUp, e -> showMouseUpMenu(e));
 
 		menuImage = GurellaStudioPlugin.createImage("icons/popup_menu.gif");
 	}
@@ -148,6 +150,12 @@ public abstract class PropertyEditor<P> {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(text);
 		item1.addListener(SWT.Selection, e -> action.run());
+	}
+
+	protected void showMouseUpMenu(Event e) {
+		if (e.button == 3) {
+			showMenu();
+		}
 	}
 
 	private static final class BodyComposite extends Composite {

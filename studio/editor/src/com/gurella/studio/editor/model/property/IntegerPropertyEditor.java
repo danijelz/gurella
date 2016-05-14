@@ -1,67 +1,39 @@
 package com.gurella.studio.editor.model.property;
 
-import java.util.Arrays;
+import java.util.function.BiConsumer;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class IntegerPropertyEditor extends SimplePropertyEditor<Integer> {
-	private Text text;
-
+public class IntegerPropertyEditor extends SingleTextPropertyEditor<Integer> {
 	public IntegerPropertyEditor(Composite parent, PropertyEditorContext<?, Integer> context) {
 		super(parent, context);
-
-		GridLayout layout = new GridLayout(1, false);
-		layout.marginWidth = 1;
-		layout.marginHeight = 2;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
-		body.setLayout(layout);
-
-		buildUi();
-
-		if (!context.isFixedValue()) {
-			addMenuItem("Set value", () -> updateValue(Integer.valueOf(0)));
-			if (context.isNullable()) {
-				addMenuItem("Set null", () -> updateValue(null));
-			}
-		}
 	}
 
-	private void buildUi() {
+	@Override
+	protected Integer getDefaultValue() {
+		return Integer.valueOf(0);
+	}
+
+	@Override
+	protected Integer extractValue(String stringValue) {
+		return Integer.valueOf(stringValue);
+	}
+
+	@Override
+	protected BiConsumer<VerifyEvent, String> getVerifyListener() {
+		return UiUtils::verifyInteger;
+	}
+
+	@Override
+	protected WheelEventListener getWheelEventConsumer() {
+		return this::onWheelEvent;
+	}
+
+	private void onWheelEvent(int amount, float multiplier) {
 		Integer value = getValue();
-		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
-			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-			label.addListener(SWT.MouseUp, (e) -> showMenu());
-		} else {
-			text = UiUtils.createIntegerWidget(body);
-			GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-			layoutData.widthHint = 60;
-			layoutData.heightHint = 16;
-			text.setLayoutData(layoutData);
-			text.setText(value.toString());
-			text.addModifyListener(e -> setValue(Integer.valueOf(text.getText())));
-			UiUtils.paintBordersFor(body);
-		}
-
-		body.layout();
-	}
-
-	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
-		buildUi();
-	}
-
-	private void updateValue(Integer value) {
-		setValue(value);
-		rebuildUi();
+		updateValue(Integer.valueOf((int) (value.intValue() + (amount * multiplier))));
 	}
 }
