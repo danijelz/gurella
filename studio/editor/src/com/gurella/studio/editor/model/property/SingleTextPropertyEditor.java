@@ -9,6 +9,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tracker;
 
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -58,6 +59,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 
 		text.addModifyListener(e -> textModified());
 		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(e));
+		text.addListener(SWT.MouseDown, e -> onTrackerStart(e));
 
 		UiUtils.paintBordersFor(body);
 	}
@@ -124,6 +126,33 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 
 	protected WheelEventListener getWheelEventConsumer() {
 		return null;
+	}
+
+	public void onTrackerStart(Event e) {
+		if (e.button != 3) {
+			return;
+		}
+
+		WheelEventListener listener = getWheelEventConsumer();
+		if (listener == null) {
+			return;
+		}
+
+		int start = text.toDisplay(e.x, e.y).y;
+		System.out.println("start: " + start);
+
+		final Tracker tracker = new Tracker(body, SWT.NONE);
+		tracker.addListener(SWT.MouseUp, te -> tracker.dispose());
+		tracker.addListener(SWT.Move, te -> onTrackerMove(listener, te, start));
+		tracker.open();
+		tracker.dispose();
+	}
+
+	private static void onTrackerMove(WheelEventListener listener, Event e, int start) {
+		int stateMask = e.stateMask;
+		System.out.println(e.y);
+		float multiplier = ((stateMask & SWT.CONTROL) != 0) ? 10 : ((stateMask & SWT.ALT) != 0) ? 0.1f : 1;
+		listener.onWheelEvent((start - e.y) / 10, multiplier);
 	}
 
 	public interface WheelEventListener {
