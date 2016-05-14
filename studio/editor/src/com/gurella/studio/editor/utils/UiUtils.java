@@ -3,6 +3,9 @@ package com.gurella.studio.editor.utils;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -64,6 +67,42 @@ public class UiUtils {
 			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
 			if (newS.length() > 0) {
 				Integer.parseInt(newS);
+			}
+		} catch (Exception e2) {
+			e.doit = false;
+		}
+	}
+
+	public static Text createBigIntegerWidget(Composite parent) {
+		Text text = createText(parent);
+		text.addVerifyListener(e -> verifyBigInteger(e, text.getText()));
+		return text;
+	}
+
+	@SuppressWarnings("unused")
+	public static void verifyBigInteger(VerifyEvent e, String oldValue) {
+		try {
+			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
+			if (newS.length() > 0) {
+				new BigInteger(newS);
+			}
+		} catch (Exception e2) {
+			e.doit = false;
+		}
+	}
+
+	public static Text createBigDecimalWidget(Composite parent) {
+		Text text = createText(parent);
+		text.addVerifyListener(e -> verifyBigDecimal(e, text.getText()));
+		return text;
+	}
+
+	@SuppressWarnings("unused")
+	public static void verifyBigDecimal(VerifyEvent e, String oldValue) {
+		try {
+			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
+			if (newS.length() > 0) {
+				new BigDecimal(newS);
 			}
 		} catch (Exception e2) {
 			e.doit = false;

@@ -290,10 +290,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void onDispose() {
-		// JsonOutput output = new JsonOutput();
-		// String string = output.serialize(MaterialDescriptor.class, materialDescriptor);
-		// System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
-
 		synchronized (GurellaStudioPlugin.glMutex) {
 			wall.dispose();
 			model.dispose();

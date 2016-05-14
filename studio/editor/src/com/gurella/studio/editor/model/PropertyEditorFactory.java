@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 
 import org.eclipse.swt.widgets.Composite;
@@ -25,6 +27,8 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.property.ArrayPropertyEditor;
 import com.gurella.studio.editor.model.property.AssetPropertyEditor;
+import com.gurella.studio.editor.model.property.BigDecimalPropertyEditor;
+import com.gurella.studio.editor.model.property.BigIntegerPropertyEditor;
 import com.gurella.studio.editor.model.property.BitsPropertyEditor;
 import com.gurella.studio.editor.model.property.BooleanPropertyEditor;
 import com.gurella.studio.editor.model.property.BytePropertyEditor;
@@ -99,21 +103,11 @@ public class PropertyEditorFactory {
 			return Values.cast(new LayerPropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Bits.class || propertyType == BitsExt.class) {
 			return Values.cast(new BitsPropertyEditor(parent, Values.cast(context)));
-		} else if (Array.class.isAssignableFrom(propertyType)) {
-			return Values.cast(new GdxArrayPropertyEditor<>(parent, Values.cast(context)));
-		} else if (Collection.class.isAssignableFrom(propertyType)) {
-			return Values.cast(new CollectionPropertyEditor<>(parent, Values.cast(context)));
-		}
-		
-		/////
-		
-		else if (BulletCollisionShape.class.isAssignableFrom(propertyType)) {
-			return Values.cast(new BulletCollisionShapePropertyEditor(parent, Values.cast(context)));
-		}
-
-		///// custom models for collections...
-
-		else if (propertyType.isArray()) {
+		} else if (propertyType == BigInteger.class) {
+			return Values.cast(new BigIntegerPropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == BigDecimal.class) {
+			return Values.cast(new BigDecimalPropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType.isArray()) {
 			return Values.cast(new ArrayPropertyEditor<>(parent, context));
 		} else if (propertyType.isEnum()) {
 			return Values.cast(new EnumPropertyEditor<>(parent, Values.cast(context)));
@@ -122,7 +116,23 @@ public class PropertyEditorFactory {
 		} else if (context.property.isFinal() && context.modelInstance != null && isSimpleProperty(propertyType)) {
 			// TODO handle in ReflectionPropertyEditor
 			return Values.cast(new SimpleObjectPropertyEditor<>(parent, context));
-		} else {
+		}
+
+		/////
+
+		else if (BulletCollisionShape.class.isAssignableFrom(propertyType)) {
+			return Values.cast(new BulletCollisionShapePropertyEditor(parent, Values.cast(context)));
+		}
+
+		///// custom models for collections...
+
+		else if (Array.class.isAssignableFrom(propertyType)) {
+			return Values.cast(new GdxArrayPropertyEditor<>(parent, Values.cast(context)));
+		} else if (Collection.class.isAssignableFrom(propertyType)) {
+			return Values.cast(new CollectionPropertyEditor<>(parent, Values.cast(context)));
+		}
+
+		else {
 			return new ReflectionPropertyEditor<T>(parent, context);
 		}
 	}
