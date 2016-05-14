@@ -3,6 +3,7 @@ package com.gurella.studio.editor.model.property;
 import java.util.function.BiConsumer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -168,7 +169,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			addListener(SWT.Move, e -> onTrackerMove(e));
 			body.getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZENS));
 			mouseUpListener = e -> onMouseUp();
-			//getDisplay().addFilter(SWT.MouseUp, mouseUpListener);
+			getDisplay().addFilter(SWT.MouseUp, mouseUpListener);
 			//getDisplay().addListener(SWT.MouseUp, mouseUpListener);
 			//body.getShell().addListener(SWT.MouseUp, mouseUpListener);
 			//addListener(SWT.MouseUp, mouseUpListener);
