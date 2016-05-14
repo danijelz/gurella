@@ -8,6 +8,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tracker;
 
@@ -138,21 +139,61 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			return;
 		}
 
-		int start = text.toDisplay(e.x, e.y).y;
-		System.out.println("start: " + start);
+		System.out.println("start: " + getCursorYLocation());
 
-		final Tracker tracker = new Tracker(body, SWT.NONE);
-		tracker.addListener(SWT.MouseUp, te -> tracker.dispose());
-		tracker.addListener(SWT.Move, te -> onTrackerMove(listener, te, start));
+		final Tracker tracker = new WheelTracker(listener);
 		tracker.open();
 		tracker.dispose();
 	}
 
-	private static void onTrackerMove(WheelEventListener listener, Event e, int start) {
-		int stateMask = e.stateMask;
-		System.out.println(e.y);
-		float multiplier = ((stateMask & SWT.CONTROL) != 0) ? 10 : ((stateMask & SWT.ALT) != 0) ? 0.1f : 1;
-		listener.onWheelEvent((start - e.y) / 10, multiplier);
+	private int getCursorYLocation() {
+		return body.getDisplay().getCursorLocation().y;
+	}
+
+	private class WheelTracker extends Tracker {
+		private WheelEventListener listener;
+		private int startY;
+		private int ratio;
+
+		private Listener mouseUpListener;
+
+		public WheelTracker(WheelEventListener listener) {
+			super(body.getDisplay(), SWT.NONE);
+			startY = getCursorYLocation();
+			this.listener = listener;
+			ratio = getDisplay().getClientArea().height / 100;
+			addListener(SWT.MouseUp, e -> dispose());
+			addListener(SWT.Move, e -> onTrackerMove(e));
+			body.getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZENS));
+			mouseUpListener = e -> onMouseUp();
+			getDisplay().addFilter(SWT.MouseUp, mouseUpListener);
+			getDisplay().addListener(SWT.MouseUp, mouseUpListener);
+			body.getShell().addListener(SWT.MouseUp, mouseUpListener);
+			//addListener(SWT.MouseUp, mouseUpListener);
+		}
+
+		private void onTrackerMove(Event e) {
+			int stateMask = e.stateMask;
+			System.out.println((startY - getCursorYLocation()) / ratio);
+			float multiplier = ((stateMask & SWT.CONTROL) != 0) ? 10 : ((stateMask & SWT.ALT) != 0) ? 0.1f : 1;
+			int currentY = getCursorYLocation();
+			int diffY = (startY - currentY) / ratio;
+			if (diffY != 0) {
+				startY = currentY;
+				listener.onWheelEvent(diffY, multiplier);
+			}
+		}
+
+		private void onMouseUp() {
+			body.getShell().setCursor(null);
+			close();
+		}
+
+		@Override
+		public void dispose() {
+			super.dispose();
+			body.getShell().setCursor(null);
+		}
 	}
 
 	public interface WheelEventListener {
