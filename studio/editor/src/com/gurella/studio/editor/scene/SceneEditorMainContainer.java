@@ -266,27 +266,7 @@ public class SceneEditorMainContainer extends Composite {
 		}
 
 		protected void createTabFolder() {
-			tabFolder = new CTabFolder(this, SWT.BORDER | SWT.MULTI) {
-				@Override
-				public Rectangle getClientArea() {
-					checkWidget();
-					Rectangle trim = renderer.computeTrim(CTabFolderRenderer.PART_BODY, SWT.FILL, 0, 0, 0, 0);
-					Point size = getSize();
-					//					int wrapHeight = 0;// TODO getWrappedHeight(size);
-					//					if ((getStyle() & SWT.BOTTOM) != 0) {
-					//						trim.height += wrapHeight;
-					//					} else {
-					//						trim.y -= wrapHeight;
-					//						trim.height += wrapHeight;
-					//					}
-
-					if (!isContentVisible())
-						return new Rectangle(-trim.x, -trim.y, 0, 0);
-					int width = size.x - trim.width;
-					int height = size.y - trim.height;
-					return new Rectangle(-trim.x, -trim.y, width, height);
-				}
-			};
+			tabFolder = new CTabFolderImpl(this, SWT.BORDER | SWT.MULTI);
 			tabFolder.setMinimizeVisible(true);
 			tabFolder.setSingle(true);
 			renderer = new CTabFolderRendererImpl(tabFolder);
@@ -630,6 +610,34 @@ public class SceneEditorMainContainer extends Composite {
 			for (CTabItem item : tabFolder.getItems()) {
 				if (item.getControl() == control) {
 					tabFolder.setSelection(item);
+				}
+			}
+		}
+
+		private final class CTabFolderImpl extends CTabFolder {
+			private CTabFolderImpl(Composite parent, int style) {
+				super(parent, style);
+			}
+
+			@Override
+			public Rectangle getClientArea() {
+				checkWidget();
+				Rectangle trim = renderer.computeTrim(CTabFolderRenderer.PART_BODY, SWT.FILL, 0, 0, 0, 0);
+				Point size = getSize();
+				//					int wrapHeight = 0;// TODO getWrappedHeight(size);
+				//					if ((getStyle() & SWT.BOTTOM) != 0) {
+				//						trim.height += wrapHeight;
+				//					} else {
+				//						trim.y -= wrapHeight;
+				//						trim.height += wrapHeight;
+				//					}
+
+				if (!isContentVisible()) {
+					return new Rectangle(-trim.x, -trim.y, 0, 0);
+				} else {
+					int width = size.x - trim.width;
+					int height = size.y - trim.height;
+					return new Rectangle(-trim.x, -trim.y, width, height);
 				}
 			}
 		}
