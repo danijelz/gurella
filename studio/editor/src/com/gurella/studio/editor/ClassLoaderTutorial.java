@@ -44,7 +44,7 @@ import org.osgi.framework.Bundle;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-public class ClasLoaderTutorial {
+public class ClassLoaderTutorial {
 //	public static void initialize(Monitor monitor, final JETEmitter jetEmitter) {
 //		IProgressMonitor progressMonitor = BasicMonitor.toIProgressMonitor(monitor);
 //		progressMonitor.beginTask("", 10);

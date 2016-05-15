@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
@@ -32,7 +31,7 @@ import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.SimplePropertyEditor;
 
-public class ModelEditorForm<T> extends ScrolledForm {
+public class ModelEditorForm<T> extends Composite {
 	private ModelEditorContext<T> context;
 	private List<PropertyEditor<?>> editors = new ArrayList<>();
 
@@ -46,19 +45,17 @@ public class ModelEditorForm<T> extends ScrolledForm {
 	public ModelEditorForm(Composite parent, ModelEditorContext<T> context) {
 		super(parent, SWT.NONE);
 		this.context = context;
-		setExpandHorizontal(true);
 		GurellaStudioPlugin.getToolkit().adapt(this);
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 1;
 		layout.marginHeight = 1;
 		layout.verticalSpacing = 2;
-		getBody().setLayout(layout);
+		setLayout(layout);
 		initEditors();
 		Listener mouseMoveListener = e -> mouseMoved();
 		Display display = getDisplay();
 		display.addFilter(SWT.MouseMove, mouseMoveListener);
 		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
-		reflow(true);
 	}
 
 	private void initEditors() {
@@ -74,8 +71,7 @@ public class ModelEditorForm<T> extends ScrolledForm {
 
 	private <V> void addEditor(Property<V> property, boolean addSeperator) {
 		FormToolkit toolkit = getToolkit();
-		Composite body = getBody();
-		PropertyEditor<V> editor = createEditor(getBody(), new PropertyEditorContext<>(context, property));
+		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
@@ -85,7 +81,7 @@ public class ModelEditorForm<T> extends ScrolledForm {
 			String name = editor.getDescriptiveName();
 			boolean longName = name.length() > 20;
 
-			Label label = toolkit.createLabel(body, name + ":");
+			Label label = toolkit.createLabel(this, name + ":");
 			label.setAlignment(SWT.RIGHT);
 			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
@@ -98,7 +94,7 @@ public class ModelEditorForm<T> extends ScrolledForm {
 				layoutData.horizontalSpan = 2;
 			}
 		} else if (editor instanceof ComplexPropertyEditor) {
-			Section componentSection = toolkit.createSection(body, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
+			Section componentSection = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 			componentSection.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
@@ -113,7 +109,7 @@ public class ModelEditorForm<T> extends ScrolledForm {
 		}
 
 		if (addSeperator) {
-			Label separator = toolkit.createSeparator(body, SWT.HORIZONTAL);
+			Label separator = toolkit.createSeparator(this, SWT.HORIZONTAL);
 			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 		}
 	}
@@ -138,8 +134,7 @@ public class ModelEditorForm<T> extends ScrolledForm {
 
 		Composite parent = cursorControl.getParent();
 
-		Composite body = getBody();
-		while (parent != null && parent != body) {
+		while (parent != null && parent != this) {
 			PropertyEditor<?> editor = (PropertyEditor<?>) parent.getData(PropertyEditor.class.getName());
 			if (editor != null) {
 				hoverEditorsTemp.add(editor);
@@ -148,7 +143,7 @@ public class ModelEditorForm<T> extends ScrolledForm {
 			parent = parent.getParent();
 		}
 
-		if (body != parent) {
+		if (this != parent) {
 			hoverEditorsTemp.clear();
 		}
 	}
