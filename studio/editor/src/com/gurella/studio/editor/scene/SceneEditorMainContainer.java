@@ -272,13 +272,13 @@ public class SceneEditorMainContainer extends Composite {
 					checkWidget();
 					Rectangle trim = renderer.computeTrim(CTabFolderRenderer.PART_BODY, SWT.FILL, 0, 0, 0, 0);
 					Point size = getSize();
-					int wrapHeight = 0;// TODO getWrappedHeight(size);
-					if ((getStyle() & SWT.BOTTOM) != 0) {
-						trim.height += wrapHeight;
-					} else {
-						trim.y -= wrapHeight;
-						trim.height += wrapHeight;
-					}
+					//					int wrapHeight = 0;// TODO getWrappedHeight(size);
+					//					if ((getStyle() & SWT.BOTTOM) != 0) {
+					//						trim.height += wrapHeight;
+					//					} else {
+					//						trim.y -= wrapHeight;
+					//						trim.height += wrapHeight;
+					//					}
 
 					if (!isContentVisible())
 						return new Rectangle(-trim.x, -trim.y, 0, 0);
