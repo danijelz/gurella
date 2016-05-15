@@ -46,7 +46,8 @@ public class SceneEditorMainContainer extends Composite {
 	DockComponent south;
 	DockComponent west;
 
-	private Image defaultImage;
+	private Image defaultDockImage;
+
 	private Cursor dragEast;
 	private Cursor dragSouth;
 	private Cursor dragWest;
@@ -55,7 +56,7 @@ public class SceneEditorMainContainer extends Composite {
 		super(parent, style);
 		this.editor = editor;
 
-		defaultImage = GurellaStudioPlugin.createImage("icons/palette_view.gif");
+		defaultDockImage = GurellaStudioPlugin.createImage("icons/palette_view.gif");
 
 		dragEast = createCursor("icons/right_source.bmp");
 		dragSouth = createCursor("icons/bottom_source.bmp");
@@ -85,7 +86,7 @@ public class SceneEditorMainContainer extends Composite {
 	}
 
 	private void onDispose() {
-		defaultImage.dispose();
+		defaultDockImage.dispose();
 		dragEast.dispose();
 		dragSouth.dispose();
 		dragWest.dispose();
@@ -102,11 +103,11 @@ public class SceneEditorMainContainer extends Composite {
 	}
 
 	public void addItem(int position, String title, Image image, Control control) {
-		getDockComponent(position).addItem(title, image == null ? defaultImage : image, control);
+		getDockComponent(position).addItem(title, image == null ? defaultDockImage : image, control);
 	}
 
 	public void addItem(int position, String title, Image image, Control control, int index) {
-		getDockComponent(position).addItem(title, image == null ? defaultImage : image, control, index);
+		getDockComponent(position).addItem(title, image == null ? defaultDockImage : image, control, index);
 	}
 
 	private DockComponent getDockComponent(int position) {
@@ -265,7 +266,27 @@ public class SceneEditorMainContainer extends Composite {
 		}
 
 		protected void createTabFolder() {
-			tabFolder = new CTabFolder(this, SWT.BORDER | SWT.MULTI);
+			tabFolder = new CTabFolder(this, SWT.BORDER | SWT.MULTI) {
+				@Override
+				public Rectangle getClientArea() {
+					checkWidget();
+					Rectangle trim = renderer.computeTrim(CTabFolderRenderer.PART_BODY, SWT.FILL, 0, 0, 0, 0);
+					Point size = getSize();
+					int wrapHeight = 0;// TODO getWrappedHeight(size);
+					if ((getStyle() & SWT.BOTTOM) != 0) {
+						trim.height += wrapHeight;
+					} else {
+						trim.y -= wrapHeight;
+						trim.height += wrapHeight;
+					}
+
+					if (!isContentVisible())
+						return new Rectangle(-trim.x, -trim.y, 0, 0);
+					int width = size.x - trim.width;
+					int height = size.y - trim.height;
+					return new Rectangle(-trim.x, -trim.y, width, height);
+				}
+			};
 			tabFolder.setMinimizeVisible(true);
 			tabFolder.setSingle(true);
 			renderer = new CTabFolderRendererImpl(tabFolder);
@@ -366,6 +387,7 @@ public class SceneEditorMainContainer extends Composite {
 						expanded = true;
 						getDisplay().timerExec(500, collapseRunnable);
 						stateChanged();
+						tabFolder.layout(true, true);
 					}
 				}
 			});
@@ -385,6 +407,7 @@ public class SceneEditorMainContainer extends Composite {
 						expanded = true;
 						getDisplay().timerExec(500, collapseRunnable);
 						stateChanged();
+						tabFolder.layout(true, true);
 					}
 				}
 			});
@@ -590,6 +613,7 @@ public class SceneEditorMainContainer extends Composite {
 					tabFolder.setSelection((CTabItem) toolItem.getData());
 					expanded = true;
 					stateChanged();
+					tabFolder.layout(true, true);
 					getDisplay().timerExec(500, collapseRunnable);
 				}
 			});
