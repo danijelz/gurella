@@ -11,7 +11,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -360,37 +359,9 @@ public class SceneEditorMainContainer extends Composite {
 
 		private void createClosedComposite() {
 			closedComposite = new Composite(this, 0);
-			closedComposite.addMouseTrackListener(new MouseTrackAdapter() {
-				@Override
-				public void mouseHover(MouseEvent e) {
-					if (tabFolder.getMinimized() && !expanded) {
-						expanded = true;
-						getDisplay().timerExec(500, collapseRunnable);
-						stateChanged();
-						tabFolder.layout(true, true);
-					}
-				}
-			});
-
-			closedComposite.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					if (tabFolder.getMinimized()) {
-						tabFolder.setMinimized(false);
-						stateChanged();
-					}
-				}
-
-				@Override
-				public void mouseUp(MouseEvent e) {
-					if (tabFolder.getMinimized() && !expanded) {
-						expanded = true;
-						getDisplay().timerExec(500, collapseRunnable);
-						stateChanged();
-						tabFolder.layout(true, true);
-					}
-				}
-			});
+			closedComposite.addListener(SWT.MouseHover, e -> onClosedCompositeMousHoover());
+			closedComposite.addListener(SWT.MouseUp, e -> onClosedCompositeMousUp());
+			closedComposite.addListener(SWT.MouseDoubleClick, e -> onClosedCompositeDoubleClick());
 
 			GridData data = new GridData();
 			data.verticalAlignment = SWT.FILL;
@@ -400,7 +371,8 @@ public class SceneEditorMainContainer extends Composite {
 			data.exclude = true;
 			closedComposite.setLayoutData(data);
 
-			GridLayout gridLayout = new GridLayout(position == SWT.BOTTOM ? 2 : 1, false);
+			int numColumns = position == SWT.BOTTOM ? 2 : 1;
+			GridLayout gridLayout = new GridLayout(numColumns, false);
 			gridLayout.horizontalSpacing = 0;
 			gridLayout.verticalSpacing = 0;
 			gridLayout.marginWidth = 0;
@@ -413,6 +385,31 @@ public class SceneEditorMainContainer extends Composite {
 			} else {
 				createDockToolBar();
 				createItemsToolBar();
+			}
+		}
+
+		private void onClosedCompositeMousHoover() {
+			if (tabFolder.getMinimized() && !expanded) {
+				expanded = true;
+				getDisplay().timerExec(500, collapseRunnable);
+				stateChanged();
+				tabFolder.layout(true, true);
+			}
+		}
+
+		private void onClosedCompositeDoubleClick() {
+			if (tabFolder.getMinimized()) {
+				tabFolder.setMinimized(false);
+				stateChanged();
+			}
+		}
+
+		private void onClosedCompositeMousUp() {
+			if (tabFolder.getMinimized() && !expanded) {
+				expanded = true;
+				getDisplay().timerExec(500, collapseRunnable);
+				stateChanged();
+				tabFolder.layout(true, true);
 			}
 		}
 
@@ -663,33 +660,38 @@ public class SceneEditorMainContainer extends Composite {
 					tracker.addListener(SWT.Move, e -> onMouseMoved(mainView, tracker));
 
 					if (tracker.open()) {
-						DockComponent dockComponent = findDockComponent();
-						if (dockComponent == null) {
-							Point point = mainView.toControl(getDisplay().getCursorLocation());
-							Rectangle bounds = mainView.getBounds();
-							if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
-								transferItem(mainView.west, 0);
-							} else if (point.x >= bounds.width - 200 && point.x <= bounds.width
-									&& mainView.east.getItemCount() < 1) {
-								transferItem(mainView.east, 0);
-							} else if (point.y <= bounds.height && point.y >= bounds.height - 200
-									&& mainView.south.getItemCount() < 1) {
-								transferItem(mainView.south, 0);
-							}
-						} else {
-							int dragItemNewIndex = getDragItemNewIndex(dockComponent);
-							CTabFolder dragTabFolder = dockComponent.tabFolder;
-							if (dragItemNewIndex >= 0 && (dragTabFolder.getItemCount() <= dragItemNewIndex
-									|| dragTabFolder.getItem(dragItemNewIndex) != dragItem)) {
-								transferItem(dockComponent, dragItemNewIndex);
-							}
-						}
-
-						dragItem = null;
+						completeDrag();
 					}
 
 					tracker.dispose();
 				}
+			}
+
+			private void completeDrag() {
+				DockComponent dockComponent = findDockComponent();
+				if (dockComponent == null) {
+					final SceneEditorMainContainer mainView = getParent();
+					Point point = mainView.toControl(getDisplay().getCursorLocation());
+					Rectangle bounds = mainView.getBounds();
+					if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
+						transferItem(mainView.west, 0);
+					} else if (point.x >= bounds.width - 200 && point.x <= bounds.width
+							&& mainView.east.getItemCount() < 1) {
+						transferItem(mainView.east, 0);
+					} else if (point.y <= bounds.height && point.y >= bounds.height - 200
+							&& mainView.south.getItemCount() < 1) {
+						transferItem(mainView.south, 0);
+					}
+				} else {
+					int dragItemNewIndex = getDragItemNewIndex(dockComponent);
+					CTabFolder dragTabFolder = dockComponent.tabFolder;
+					if (dragItemNewIndex >= 0 && (dragTabFolder.getItemCount() <= dragItemNewIndex
+							|| dragTabFolder.getItem(dragItemNewIndex) != dragItem)) {
+						transferItem(dockComponent, dragItemNewIndex);
+					}
+				}
+
+				dragItem = null;
 			}
 
 			protected int getDragItemNewIndex(DockComponent dockComponent) {
