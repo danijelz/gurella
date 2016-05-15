@@ -29,7 +29,7 @@ public class BigIntegerPropertyEditor extends SingleTextPropertyEditor<BigIntege
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

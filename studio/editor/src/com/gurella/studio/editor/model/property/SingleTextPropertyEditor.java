@@ -3,18 +3,17 @@ package com.gurella.studio.editor.model.property;
 import java.util.function.BiConsumer;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tracker;
 
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P> {
@@ -118,7 +117,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			return;
 		}
 
-		WheelEventListener listener = getWheelEventConsumer();
+		WheelEventListener listener = getWheelEventListener();
 		if (listener == null) {
 			return;
 		}
@@ -128,56 +127,68 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		listener.onWheelEvent(amount, multiplier);
 	}
 
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return null;
 	}
 
 	public void onTrackerStart(Event e) {
-		if (e.button != 3) {
+		if (Values.isNotBlank(text.getSelectionText()) || e.button != 1) {
 			return;
 		}
 
-		WheelEventListener listener = getWheelEventConsumer();
+		WheelEventListener listener = getWheelEventListener();
 		if (listener == null) {
 			return;
 		}
 
-		System.out.println("start: " + getCursorYLocation());
-
-		final Tracker tracker = new WheelTracker(listener);
-		tracker.open();
-		tracker.dispose();
+		DragManager.manage(body.getShell(), listener);
 	}
 
-	private int getCursorYLocation() {
-		return body.getDisplay().getCursorLocation().y;
-	}
-
-	private class WheelTracker extends Tracker {
+	private static class DragManager implements Listener {
+		private Shell shell;
 		private WheelEventListener listener;
+
+		private Display display;
+
 		private int startY;
 		private int ratio;
 
-		private Listener mouseUpListener;
-
-		public WheelTracker(WheelEventListener listener) {
-			super(body.getDisplay(), SWT.NONE);
-			startY = getCursorYLocation();
-			this.listener = listener;
-			ratio = getDisplay().getClientArea().height / 100;
-			addListener(SWT.MouseUp, e -> dispose());
-			addListener(SWT.Move, e -> onTrackerMove(e));
-			body.getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZENS));
-			mouseUpListener = e -> onMouseUp();
-			getDisplay().addFilter(SWT.MouseUp, mouseUpListener);
-			//getDisplay().addListener(SWT.MouseUp, mouseUpListener);
-			//body.getShell().addListener(SWT.MouseUp, mouseUpListener);
-			//addListener(SWT.MouseUp, mouseUpListener);
+		static void manage(Shell shell, WheelEventListener listener) {
+			DragManager manager = new DragManager();
+			manager.init(shell, listener);
 		}
 
-		private void onTrackerMove(Event e) {
-			int stateMask = e.stateMask;
-			System.out.println((startY - getCursorYLocation()) / ratio);
+		private void init(Shell shell, WheelEventListener listener) {
+			this.shell = shell;
+			this.listener = listener;
+			display = shell.getDisplay();
+			startY = getCursorYLocation();
+			ratio = display.getClientArea().height / 100;
+			display.addFilter(SWT.MouseMove, this);
+			display.addFilter(SWT.MouseUp, this);
+			shell.setCursor(display.getSystemCursor(SWT.CURSOR_SIZENS));
+		}
+
+		private int getCursorYLocation() {
+			return display.getCursorLocation().y;
+		}
+
+		@Override
+		public void handleEvent(Event event) {
+			switch (event.type) {
+			case SWT.MouseMove:
+				onMouseMove(event);
+				return;
+			case SWT.MouseUp:
+				onMouseUp();
+				return;
+			default:
+				return;
+			}
+		}
+
+		private void onMouseMove(Event event) {
+			int stateMask = event.stateMask;
 			float multiplier = ((stateMask & SWT.CONTROL) != 0) ? 10 : ((stateMask & SWT.ALT) != 0) ? 0.1f : 1;
 			int currentY = getCursorYLocation();
 			int diffY = (startY - currentY) / ratio;
@@ -188,14 +199,9 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		}
 
 		private void onMouseUp() {
-			body.getShell().setCursor(null);
-			close();
-		}
-
-		@Override
-		public void dispose() {
-			super.dispose();
-			body.getShell().setCursor(null);
+			display.removeFilter(SWT.MouseMove, this);
+			display.removeFilter(SWT.MouseUp, this);
+			shell.setCursor(null);
 		}
 	}
 

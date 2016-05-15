@@ -28,7 +28,7 @@ public class IntegerPropertyEditor extends SingleTextPropertyEditor<Integer> {
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

@@ -28,7 +28,7 @@ public class DoublePropertyEditor extends SingleTextPropertyEditor<Double> {
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

@@ -28,7 +28,7 @@ public class ShortPropertyEditor extends SingleTextPropertyEditor<Short> {
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

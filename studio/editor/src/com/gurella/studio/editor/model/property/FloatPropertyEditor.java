@@ -28,7 +28,7 @@ public class FloatPropertyEditor extends SingleTextPropertyEditor<Float> {
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

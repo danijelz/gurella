@@ -28,7 +28,7 @@ public class LongPropertyEditor extends SingleTextPropertyEditor<Long> {
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

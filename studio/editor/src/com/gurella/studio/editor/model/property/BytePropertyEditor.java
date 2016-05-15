@@ -28,7 +28,7 @@ public class BytePropertyEditor extends SingleTextPropertyEditor<Byte> {
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 

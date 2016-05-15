@@ -34,7 +34,7 @@ public class BigDecimalPropertyEditor extends SingleTextPropertyEditor<BigDecima
 	}
 
 	@Override
-	protected WheelEventListener getWheelEventConsumer() {
+	protected WheelEventListener getWheelEventListener() {
 		return this::onWheelEvent;
 	}
 
