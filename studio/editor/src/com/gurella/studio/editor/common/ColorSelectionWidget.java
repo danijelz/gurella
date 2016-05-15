@@ -75,6 +75,7 @@ public class ColorSelectionWidget extends Composite {
 
 	private void paintButton(PaintEvent e) {
 		GC gc = e.gc;
+		gc.setAntialias(SWT.ON);
 		Rectangle clientArea = button.getClientArea();
 		int width = clientArea.width;
 		int height = clientArea.height;
