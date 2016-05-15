@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P> {
@@ -132,7 +131,8 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 	}
 
 	public void onTrackerStart(Event e) {
-		if (Values.isNotBlank(text.getSelectionText()) || e.button != 1) {
+		int stateMask = e.stateMask;
+		if (((stateMask & (SWT.SHIFT | SWT.CONTROL | SWT.ALT)) == 0) || e.button != 1) {
 			return;
 		}
 

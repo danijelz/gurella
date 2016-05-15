@@ -35,7 +35,7 @@ import com.gurella.engine.asset.properties.G3dModelProperties;
 import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorForm;
+import com.gurella.studio.editor.model.ModelEditor;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
 import com.gurella.studio.editor.swtgl.SwtLwjglGraphics;
@@ -43,7 +43,7 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
-	private ModelEditorForm<ModelProperties> propertiesContainer;
+	private ModelEditor<ModelProperties> propertiesContainer;
 	private GLCanvas glCanvas;
 
 	private LwjglGL20 gl20 = new LwjglGL20();
@@ -65,7 +65,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		propertiesContainer = new ModelEditorForm<>(getBody(), getEditorContext(), findProperties(target));
+		propertiesContainer = new ModelEditor<>(getBody(), getEditorContext(), findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertiesContainer.setLayoutData(layoutData);
 

@@ -31,18 +31,18 @@ import com.gurella.studio.editor.model.property.PropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.property.SimplePropertyEditor;
 
-public class ModelEditorForm<T> extends Composite {
+public class ModelEditor<T> extends Composite {
 	private ModelEditorContext<T> context;
 	private List<PropertyEditor<?>> editors = new ArrayList<>();
 
 	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
 	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
 
-	public ModelEditorForm(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
+	public ModelEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
 	}
 
-	public ModelEditorForm(Composite parent, ModelEditorContext<T> context) {
+	public ModelEditor(Composite parent, ModelEditorContext<T> context) {
 		super(parent, SWT.NONE);
 		this.context = context;
 		GurellaStudioPlugin.getToolkit().adapt(this);

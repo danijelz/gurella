@@ -98,10 +98,15 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void assetSelected(final String path) {
 		T oldAsset = asset;
 		asset = ResourceService.load(path);
-		text.setText(path);
+		text.setText(extractFileName(path));
 		if (selectionChangedListener != null) {
 			selectionChangedListener.accept(oldAsset, asset);
 		}
+	}
+
+	private static String extractFileName(String path) {
+		int index = path.lastIndexOf('/');
+		return index < 0 ? path : path.substring(index + 1);
 	}
 
 	public void setSelectionChangedListener(BiConsumer<T, T> selectionChangedListener) {
@@ -118,7 +123,7 @@ public class AssetSelectionWidget<T> extends Composite {
 			text.setText("");
 		} else {
 			String path = ResourceService.getFileName(asset);
-			text.setText(path);
+			text.setText(extractFileName(path));
 		}
 	}
 

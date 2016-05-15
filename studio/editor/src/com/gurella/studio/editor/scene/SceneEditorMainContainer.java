@@ -62,7 +62,12 @@ public class SceneEditorMainContainer extends Composite {
 		dragWest = createCursor("icons/left_source.bmp");
 
 		center = new Composite(this, SWT.BORDER);
-		center.setLayout(new GridLayout());
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = 0;
+		layout.verticalSpacing = 0;
+		center.setLayout(layout);
 		center.addListener(SWT.MouseDoubleClick, e -> maximizeCenter());
 
 		east = new DockComponent(this, SWT.RIGHT);
