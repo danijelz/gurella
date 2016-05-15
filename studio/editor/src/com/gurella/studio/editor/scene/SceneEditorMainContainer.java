@@ -1,22 +1,19 @@
 package com.gurella.studio.editor.scene;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabFolderRenderer;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
@@ -32,8 +29,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
@@ -68,78 +63,31 @@ public class SceneEditorMainContainer extends Composite {
 
 		center = new Composite(this, SWT.BORDER);
 		center.setLayout(new GridLayout());
-		center.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				east.setMinimized(true);
-				west.setMinimized(true);
-				south.setMinimized(true);
-			}
-		});
+		center.addListener(SWT.MouseDoubleClick, e -> maximizeCenter());
 
-		Menu menu = new Menu(center);
-		MenuItem item = new MenuItem(menu, 0);
-		item.setText("Add to west");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int itemCount = west.getItemCount();
-				String title = "Test " + itemCount;
-				west.addItem(title, defaultImage, new Composite(west.tabFolder, 0));
-			}
-		});
-
-		item = new MenuItem(menu, 0);
-		item.setText("Add to east");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int itemCount = east.getItemCount();
-				String title = "Test " + itemCount;
-				east.addItem(title, defaultImage, new Composite(east.tabFolder, 0));
-			}
-		});
-
-		item = new MenuItem(menu, 0);
-		item.setText("Add to south");
-		item.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int itemCount = south.getItemCount();
-				String title = "Test " + itemCount;
-				south.addItem(title, defaultImage, new Composite(south.tabFolder, 0));
-			}
-		});
-
-		center.setMenu(menu);
 		east = new DockComponent(this, SWT.RIGHT);
 		south = new DockComponent(this, SWT.BOTTOM);
 		west = new DockComponent(this, SWT.LEFT);
 
-		addControlListener(new ControlAdapter() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				layout(true);
-			}
-		});
+		addListener(SWT.Resize, e -> layout(true));
+		addListener(SWT.Dispose, e -> onDispose());
+	}
 
-		addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				defaultImage.dispose();
-				dragEast.dispose();
-				dragSouth.dispose();
-				dragWest.dispose();
-			}
-		});
+	private void maximizeCenter() {
+		east.setMinimized(true);
+		west.setMinimized(true);
+		south.setMinimized(true);
+	}
+
+	private void onDispose() {
+		defaultImage.dispose();
+		dragEast.dispose();
+		dragSouth.dispose();
+		dragWest.dispose();
 	}
 
 	public void setCenterControl(Control centerControl) {
-		Control[] children = center.getChildren();
-		for (Control control : children) {
-			control.dispose();
-		}
-
+		Arrays.stream(center.getChildren()).forEach(c -> c.dispose());
 		centerControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		centerControl.setParent(center);
 	}
@@ -298,7 +246,7 @@ public class SceneEditorMainContainer extends Composite {
 				sash.moveAbove(tabFolder);
 			}
 
-			addDisposeListener((e) -> disposeMaxImage());
+			addDisposeListener(e -> disposeMaxImage());
 		}
 
 		private void disposeMaxImage() {
@@ -356,17 +304,15 @@ public class SceneEditorMainContainer extends Composite {
 				}
 			});
 
-			tabFolder.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					if (!tabFolder.getMinimized() && tabFolder.getItem(new Point(e.x, e.y)) == null) {
-						tabFolder.setMinimized(true);
-						stateChanged();
-					}
-				}
-			});
-
+			tabFolder.addListener(SWT.MouseDoubleClick, e -> onTabDoubleClick(e));
 			tabFolder.addListener(SWT.DragDetect, new DragListener());
+		}
+
+		private void onTabDoubleClick(Event e) {
+			if (!tabFolder.getMinimized() && tabFolder.getItem(new Point(e.x, e.y)) == null) {
+				tabFolder.setMinimized(true);
+				stateChanged();
+			}
 		}
 
 		protected void createSash() {
@@ -374,19 +320,7 @@ public class SceneEditorMainContainer extends Composite {
 			Display display = getDisplay();
 			sash.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 			sash.setCursor(display.getSystemCursor(position == SWT.BOTTOM ? SWT.CURSOR_SIZENS : SWT.CURSOR_SIZEWE));
-			sash.addListener(SWT.Paint, new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					GC gc = event.gc;
-					Rectangle bounds = getBounds();
-					gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
-					gc.drawLine(0, 0, bounds.width, 0);
-					gc.drawLine(0, 0, 0, bounds.height);
-					gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
-					gc.drawLine(bounds.width - 1, 0, bounds.width - 1, bounds.height - 1);
-					gc.drawLine(0, bounds.height - 1, bounds.width - 1, bounds.height - 1);
-				}
-			});
+			sash.addListener(SWT.Paint, e -> paintSash(e.gc));
 
 			sashDragManager = new SashDragManager();
 			sash.addMouseMoveListener(sashDragManager);
@@ -406,6 +340,16 @@ public class SceneEditorMainContainer extends Composite {
 				data.grabExcessVerticalSpace = true;
 				sash.setLayoutData(data);
 			}
+		}
+
+		private void paintSash(GC gc) {
+			Rectangle bounds = getBounds();
+			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+			gc.drawLine(0, 0, bounds.width, 0);
+			gc.drawLine(0, 0, 0, bounds.height);
+			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+			gc.drawLine(bounds.width - 1, 0, bounds.width - 1, bounds.height - 1);
+			gc.drawLine(0, bounds.height - 1, bounds.width - 1, bounds.height - 1);
 		}
 
 		private void createClosedComposite() {
@@ -475,24 +419,19 @@ public class SceneEditorMainContainer extends Composite {
 			maxImage = createMaxButtonImage();
 			maxItem.setImage(maxImage);
 			maxItem.setToolTipText(SWT.getMessage("SWT_Restore"));
-			maxItem.addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					widgetSelected(e);
-				}
-
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					tabFolder.setMinimized(false);
-					stateChanged();
-				}
-			});
+			maxItem.addListener(SWT.Selection, e -> onMaxItemSelected());
+			maxItem.addListener(SWT.DefaultSelection, e -> onMaxItemSelected());
 
 			GridData data = new GridData();
 			data.verticalAlignment = SWT.BEGINNING;
 			data.horizontalAlignment = SWT.END;
 			data.grabExcessHorizontalSpace = position == SWT.BOTTOM;
 			dockToolBar.setLayoutData(data);
+		}
+
+		private void onMaxItemSelected() {
+			tabFolder.setMinimized(false);
+			stateChanged();
 		}
 
 		private void createItemsToolBar() {
@@ -684,42 +623,7 @@ public class SceneEditorMainContainer extends Composite {
 					final SceneEditorMainContainer mainView = getParent();
 					final Tracker tracker = new Tracker(mainView, SWT.NONE);
 					tracker.setStippled(true);
-					tracker.addListener(SWT.Move, new Listener() {
-						@Override
-						public void handleEvent(Event event) {
-							DockComponent dockComponent = findDockComponent();
-							if (dockComponent == null) {
-								Point point = mainView.toControl(getDisplay().getCursorLocation());
-								Rectangle bounds = mainView.getBounds();
-								if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
-									Rectangle clientArea = mainView.getClientArea();
-									int southDockHeight = mainView.getDockHeight(mainView.south);
-									tracker.setRectangles(new Rectangle[] { new Rectangle(clientArea.x, clientArea.y,
-											200, clientArea.height - southDockHeight - 2) });
-									tracker.setCursor(mainView.dragWest);
-								} else if (point.x >= bounds.width - 200 && point.x <= bounds.width
-										&& mainView.east.getItemCount() < 1) {
-									Rectangle clientArea = mainView.getClientArea();
-									int southDockHeight = mainView.getDockHeight(mainView.south);
-									tracker.setRectangles(new Rectangle[] { new Rectangle(clientArea.width - 200,
-											clientArea.y, 200, clientArea.height - southDockHeight - 2) });
-									tracker.setCursor(mainView.dragEast);
-								} else if (point.y <= bounds.height && point.y >= bounds.height - 200
-										&& mainView.south.getItemCount() < 1) {
-									Rectangle clientArea = mainView.getClientArea();
-									tracker.setRectangles(new Rectangle[] { new Rectangle(clientArea.x,
-											clientArea.height - 200, clientArea.width, 200) });
-									tracker.setCursor(mainView.dragSouth);
-								} else {
-									tracker.setRectangles(new Rectangle[] {});
-									tracker.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_NO));
-								}
-							} else {
-								tracker.setRectangles(new Rectangle[] {});
-								tracker.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-							}
-						}
-					});
+					tracker.addListener(SWT.Move, e -> onMouseMoved(mainView, tracker));
 
 					if (tracker.open()) {
 						DockComponent dockComponent = findDockComponent();
@@ -819,6 +723,40 @@ public class SceneEditorMainContainer extends Composite {
 				}
 				return null;
 			}
+
+			private void onMouseMoved(final SceneEditorMainContainer mainView, final Tracker tracker) {
+				DockComponent dockComponent = findDockComponent();
+				if (dockComponent == null) {
+					Point point = mainView.toControl(getDisplay().getCursorLocation());
+					Rectangle bounds = mainView.getBounds();
+					if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
+						Rectangle clientArea = mainView.getClientArea();
+						int southDockHeight = mainView.getDockHeight(mainView.south);
+						tracker.setRectangles(new Rectangle[] { new Rectangle(clientArea.x, clientArea.y, 200,
+								clientArea.height - southDockHeight - 2) });
+						tracker.setCursor(mainView.dragWest);
+					} else if (point.x >= bounds.width - 200 && point.x <= bounds.width
+							&& mainView.east.getItemCount() < 1) {
+						Rectangle clientArea = mainView.getClientArea();
+						int southDockHeight = mainView.getDockHeight(mainView.south);
+						tracker.setRectangles(new Rectangle[] { new Rectangle(clientArea.width - 200, clientArea.y, 200,
+								clientArea.height - southDockHeight - 2) });
+						tracker.setCursor(mainView.dragEast);
+					} else if (point.y <= bounds.height && point.y >= bounds.height - 200
+							&& mainView.south.getItemCount() < 1) {
+						Rectangle clientArea = mainView.getClientArea();
+						tracker.setRectangles(new Rectangle[] {
+								new Rectangle(clientArea.x, clientArea.height - 200, clientArea.width, 200) });
+						tracker.setCursor(mainView.dragSouth);
+					} else {
+						tracker.setRectangles(new Rectangle[] {});
+						tracker.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_NO));
+					}
+				} else {
+					tracker.setRectangles(new Rectangle[] {});
+					tracker.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+				}
+			}
 		}
 
 		private class CollapseRunnable implements Runnable {
@@ -835,16 +773,17 @@ public class SceneEditorMainContainer extends Composite {
 			}
 
 			private boolean isDescendantOf(Control descendant) {
-				if (descendant == null) {
+				Control temp = descendant;
+				if (temp == null) {
 					return false;
 				}
 
-				while (descendant != null) {
-					if (DockComponent.this == descendant) {
+				while (temp != null) {
+					if (DockComponent.this == temp) {
 						return true;
 					}
 
-					descendant = descendant.getParent();
+					temp = temp.getParent();
 				}
 
 				return false;
