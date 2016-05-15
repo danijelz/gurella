@@ -821,7 +821,6 @@ public class SceneEditorMainContainer extends Composite {
 					if (DockComponent.this == temp) {
 						return true;
 					}
-
 					temp = temp.getParent();
 				}
 
