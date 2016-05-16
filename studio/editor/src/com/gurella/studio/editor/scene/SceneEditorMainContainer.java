@@ -11,8 +11,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
@@ -34,9 +32,10 @@ import org.eclipse.swt.widgets.Tracker;
 
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneEditorMainContainer extends Composite {
-	private static final int CLOSED_DOCK_EXTENT = 32;
+	private static final int CLOSED_DOCK_EXTENT = 38;
 
 	private GurellaSceneEditor editor;
 
@@ -233,7 +232,7 @@ public class SceneEditorMainContainer extends Composite {
 		private CollapseRunnable collapseRunnable = new CollapseRunnable();
 
 		public DockComponent(SceneEditorMainContainer parent, int position) {
-			super(parent, SWT.BORDER);
+			super(parent, SWT.NONE);
 			this.position = position;
 
 			GridLayout layout = new GridLayout(position == SWT.BOTTOM ? 1 : 2, false);
@@ -279,35 +278,7 @@ public class SceneEditorMainContainer extends Composite {
 			data.horizontalIndent = 0;
 			tabFolder.setLayoutData(data);
 
-			tabFolder.addCTabFolder2Listener(new CTabFolder2Adapter() {
-				@Override
-				public void restore(CTabFolderEvent event) {
-					tabFolder.setMinimized(false);
-					stateChanged();
-				}
-
-				@Override
-				public void minimize(CTabFolderEvent event) {
-					tabFolder.setMinimized(true);
-					stateChanged();
-				}
-
-				@Override
-				public void close(CTabFolderEvent event) {
-					CTabItem tabItem = (CTabItem) event.item;
-					SceneEditorView view = (SceneEditorView) tabItem.getControl();
-					ToolItem toolItem = (ToolItem) tabItem.getData();
-					toolItem.dispose();
-					itemsToolBar.pack();
-
-					tabItem.dispose();
-					tabFolder.setSingle(getItemCount() < 2);
-					layoutParent();
-
-					event.doit = false;
-					getParent().editor.postMessage(null, new SceneEditorViewClosedMessage(view));
-				}
-			});
+			tabFolder.addCTabFolder2Listener(new CTabFolder2ListenerImpl());
 
 			tabFolder.addListener(SWT.MouseDoubleClick, e -> onTabDoubleClick(e));
 			tabFolder.addListener(SWT.DragDetect, new DragListener());
@@ -359,9 +330,10 @@ public class SceneEditorMainContainer extends Composite {
 
 		private void createClosedComposite() {
 			closedComposite = new Composite(this, 0);
-			closedComposite.addListener(SWT.MouseHover, e -> onClosedCompositeMousHoover());
-			closedComposite.addListener(SWT.MouseUp, e -> onClosedCompositeMousUp());
+			closedComposite.addListener(SWT.MouseHover, e -> expandClosedComposite());
+			closedComposite.addListener(SWT.MouseUp, e -> expandClosedComposite());
 			closedComposite.addListener(SWT.MouseDoubleClick, e -> onClosedCompositeDoubleClick());
+			closedComposite.addListener(SWT.Paint, e -> UiUtils.paintSimpleBorder(closedComposite, e.gc));
 
 			GridData data = new GridData();
 			data.verticalAlignment = SWT.FILL;
@@ -388,12 +360,13 @@ public class SceneEditorMainContainer extends Composite {
 			}
 		}
 
-		private void onClosedCompositeMousHoover() {
+		private void expandClosedComposite() {
 			if (tabFolder.getMinimized() && !expanded) {
 				expanded = true;
-				getDisplay().timerExec(500, collapseRunnable);
 				stateChanged();
 				tabFolder.layout(true, true);
+				getDisplay().timerExec(60, () -> tabFolder.redraw());
+				getDisplay().timerExec(500, collapseRunnable);
 			}
 		}
 
@@ -404,18 +377,11 @@ public class SceneEditorMainContainer extends Composite {
 			}
 		}
 
-		private void onClosedCompositeMousUp() {
-			if (tabFolder.getMinimized() && !expanded) {
-				expanded = true;
-				getDisplay().timerExec(500, collapseRunnable);
-				stateChanged();
-				tabFolder.layout(true, true);
-			}
-		}
-
 		private void createDockToolBar() {
+			boolean sideBar = position != SWT.BOTTOM;
+
 			int style = SWT.FLAT;
-			if (position != SWT.BOTTOM) {
+			if (sideBar) {
 				style |= SWT.VERTICAL;
 			}
 
@@ -429,8 +395,8 @@ public class SceneEditorMainContainer extends Composite {
 
 			GridData data = new GridData();
 			data.verticalAlignment = SWT.BEGINNING;
-			data.horizontalAlignment = SWT.END;
-			data.grabExcessHorizontalSpace = position == SWT.BOTTOM;
+			data.horizontalAlignment = sideBar ? SWT.BEGINNING : SWT.END;
+			data.grabExcessHorizontalSpace = !sideBar;
 			dockToolBar.setLayoutData(data);
 		}
 
@@ -440,8 +406,10 @@ public class SceneEditorMainContainer extends Composite {
 		}
 
 		private void createItemsToolBar() {
+			boolean sideBar = position != SWT.BOTTOM;
+
 			int style = SWT.FLAT;
-			if (position != SWT.BOTTOM) {
+			if (sideBar) {
 				style |= SWT.VERTICAL;
 			}
 
@@ -449,7 +417,7 @@ public class SceneEditorMainContainer extends Composite {
 			GridData data = new GridData();
 			data.verticalAlignment = SWT.BEGINNING;
 			data.horizontalAlignment = SWT.BEGINNING;
-			data.grabExcessVerticalSpace = position != SWT.BOTTOM;
+			data.grabExcessVerticalSpace = sideBar;
 			itemsToolBar.setLayoutData(data);
 		}
 
@@ -583,17 +551,7 @@ public class SceneEditorMainContainer extends Composite {
 			toolItem.setToolTipText(title);
 			toolItem.setImage(image);
 			toolItem.setData(tabItem);
-			toolItem.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					ToolItem toolItem = (ToolItem) e.getSource();
-					tabFolder.setSelection((CTabItem) toolItem.getData());
-					expanded = true;
-					stateChanged();
-					tabFolder.layout(true, true);
-					getDisplay().timerExec(500, collapseRunnable);
-				}
-			});
+			toolItem.addListener(SWT.Selection, e -> onToolItemSelected(e));
 
 			tabItem.setData(toolItem);
 			itemsToolBar.pack(true);
@@ -603,11 +561,51 @@ public class SceneEditorMainContainer extends Composite {
 			return index;
 		}
 
+		private void onToolItemSelected(Event e) {
+			ToolItem toolItem = (ToolItem) e.widget;
+			tabFolder.setSelection((CTabItem) toolItem.getData());
+			expanded = true;
+			stateChanged();
+			tabFolder.layout(true, true);
+			getDisplay().timerExec(60, () -> tabFolder.redraw());
+			getDisplay().timerExec(500, collapseRunnable);
+		}
+
 		private void setSelection(Control control) {
 			for (CTabItem item : tabFolder.getItems()) {
 				if (item.getControl() == control) {
 					tabFolder.setSelection(item);
 				}
+			}
+		}
+
+		private final class CTabFolder2ListenerImpl extends CTabFolder2Adapter {
+			@Override
+			public void restore(CTabFolderEvent event) {
+				tabFolder.setMinimized(false);
+				stateChanged();
+			}
+
+			@Override
+			public void minimize(CTabFolderEvent event) {
+				tabFolder.setMinimized(true);
+				stateChanged();
+			}
+
+			@Override
+			public void close(CTabFolderEvent event) {
+				CTabItem tabItem = (CTabItem) event.item;
+				SceneEditorView view = (SceneEditorView) tabItem.getControl();
+				ToolItem toolItem = (ToolItem) tabItem.getData();
+				toolItem.dispose();
+				itemsToolBar.pack();
+
+				tabItem.dispose();
+				tabFolder.setSingle(getItemCount() < 2);
+				layoutParent();
+
+				event.doit = false;
+				getParent().editor.postMessage(null, new SceneEditorViewClosedMessage(view));
 			}
 		}
 
@@ -621,13 +619,13 @@ public class SceneEditorMainContainer extends Composite {
 				checkWidget();
 				Rectangle trim = renderer.computeTrim(CTabFolderRenderer.PART_BODY, SWT.FILL, 0, 0, 0, 0);
 				Point size = getSize();
-				//					int wrapHeight = 0;// TODO getWrappedHeight(size);
-				//					if ((getStyle() & SWT.BOTTOM) != 0) {
-				//						trim.height += wrapHeight;
-				//					} else {
-				//						trim.y -= wrapHeight;
-				//						trim.height += wrapHeight;
-				//					}
+				// int wrapHeight = 0;// TODO getWrappedHeight(size);
+				// if ((getStyle() & SWT.BOTTOM) != 0) {
+				// trim.height += wrapHeight;
+				// } else {
+				// trim.y -= wrapHeight;
+				// trim.height += wrapHeight;
+				// }
 
 				if (!isContentVisible()) {
 					return new Rectangle(-trim.x, -trim.y, 0, 0);

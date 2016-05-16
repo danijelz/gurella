@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.common;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -96,12 +95,12 @@ public class ColorSelectionDialog extends Dialog {
 
 		shell.setLayout(new GridLayout(3, false));
 
-		image = UiUtils.createComposite(shell, SWT.BORDER);
+		image = UiUtils.createComposite(shell, SWT.NONE);
 		GridData layoutData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 3, 1);
 		layoutData.heightHint = 100;
 		layoutData.widthHint = 100;
 		image.setLayoutData(layoutData);
-		image.addPaintListener(e -> paintImage(e));
+		image.addPaintListener(e -> paintImage(e.gc));
 
 		Label label = UiUtils.createLabel(shell, "R:");
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -209,8 +208,7 @@ public class ColorSelectionDialog extends Dialog {
 		shell.close();
 	}
 
-	private void paintImage(PaintEvent e) {
-		GC gc = e.gc;
+	private void paintImage(GC gc) {
 		Rectangle clientArea = image.getClientArea();
 		int width = clientArea.width;
 		int height = clientArea.height;
@@ -232,6 +230,10 @@ public class ColorSelectionDialog extends Dialog {
 		gc.setBackground(color);
 		gc.setAlpha(color.getAlpha());
 		gc.fillRectangle(0, 0, width, height);
+
+		gc.setAlpha(255);
+		gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+		gc.drawRectangle(0, 0, width - 1, height - 1);
 	}
 
 	private Display getDisplay() {

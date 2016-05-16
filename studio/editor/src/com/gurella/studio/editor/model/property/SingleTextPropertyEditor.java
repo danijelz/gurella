@@ -4,13 +4,13 @@ import java.util.function.BiConsumer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.gurella.studio.editor.utils.UiUtils;
@@ -141,36 +141,36 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			return;
 		}
 
-		DragManager.manage(body.getShell(), listener);
+		DragManager.manage(text, listener);
 	}
 
 	private static class DragManager implements Listener {
-		private Shell shell;
+		private Text text;
 		private WheelEventListener listener;
-
-		private Display display;
 
 		private int startY;
 		private int ratio;
 
-		static void manage(Shell shell, WheelEventListener listener) {
+		static void manage(Text text, WheelEventListener listener) {
 			DragManager manager = new DragManager();
-			manager.init(shell, listener);
+			manager.init(text, listener);
 		}
 
-		private void init(Shell shell, WheelEventListener listener) {
-			this.shell = shell;
+		private void init(Text text, WheelEventListener listener) {
+			this.text = text;
 			this.listener = listener;
-			display = shell.getDisplay();
+			Display display = text.getDisplay();
 			startY = getCursorYLocation();
 			ratio = display.getClientArea().height / 100;
 			display.addFilter(SWT.MouseMove, this);
 			display.addFilter(SWT.MouseUp, this);
-			shell.setCursor(display.getSystemCursor(SWT.CURSOR_SIZENS));
+			Cursor resizeCursor = display.getSystemCursor(SWT.CURSOR_SIZENS);
+			text.getShell().setCursor(resizeCursor);
+			text.setCursor(resizeCursor);
 		}
 
 		private int getCursorYLocation() {
-			return display.getCursorLocation().y;
+			return text.getDisplay().getCursorLocation().y;
 		}
 
 		@Override
@@ -199,12 +199,15 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		}
 
 		private void onMouseUp() {
+			Display display = text.getDisplay();
 			display.removeFilter(SWT.MouseMove, this);
 			display.removeFilter(SWT.MouseUp, this);
-			shell.setCursor(null);
+			text.setCursor(null);
+			text.getShell().setCursor(null);
 		}
 	}
 
+	//TODO rename
 	public interface WheelEventListener {
 		void onWheelEvent(int amount, float multiplier);
 	}

@@ -3,6 +3,7 @@ package com.gurella.studio.editor.model;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Date;
 
 import org.eclipse.swt.widgets.Composite;
 
@@ -35,6 +36,7 @@ import com.gurella.studio.editor.model.property.BytePropertyEditor;
 import com.gurella.studio.editor.model.property.CharacterPropertyEditor;
 import com.gurella.studio.editor.model.property.CollectionPropertyEditor;
 import com.gurella.studio.editor.model.property.ColorPropertyEditor;
+import com.gurella.studio.editor.model.property.DatePropertyEditor;
 import com.gurella.studio.editor.model.property.DoublePropertyEditor;
 import com.gurella.studio.editor.model.property.EnumPropertyEditor;
 import com.gurella.studio.editor.model.property.FloatPropertyEditor;
@@ -83,6 +85,8 @@ public class PropertyEditorFactory {
 			return Values.cast(new DoublePropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == String.class) {
 			return Values.cast(new StringPropertyEditor(parent, Values.cast(context)));
+		} else if (propertyType == Date.class) {
+			return Values.cast(new DatePropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Vector3.class) {
 			return Values.cast(new Vector3PropertyEditor(parent, Values.cast(context)));
 		} else if (propertyType == Vector2.class) {

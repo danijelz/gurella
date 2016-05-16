@@ -41,7 +41,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			check = getToolkit().createButton(body, "", SWT.CHECK);
-			check.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false));
+			check.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
 			check.setSelection(value.booleanValue());
 			check.addListener(SWT.Selection, e -> setValue(Boolean.valueOf(check.getSelection())));
 			UiUtils.paintBordersFor(body);

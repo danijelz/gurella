@@ -13,6 +13,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -47,13 +49,17 @@ public class UiUtils {
 
 	public static void verifyFloat(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				Float.parseFloat(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				Float.parseFloat(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
 		}
+	}
+
+	private static String getNewText(VerifyEvent e, String oldValue) {
+		return oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
 	}
 
 	public static Text createIntegerWidget(Composite parent) {
@@ -64,9 +70,9 @@ public class UiUtils {
 
 	public static void verifyInteger(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				Integer.parseInt(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				Integer.parseInt(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -82,9 +88,9 @@ public class UiUtils {
 	@SuppressWarnings("unused")
 	public static void verifyBigInteger(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				new BigInteger(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				new BigInteger(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -100,9 +106,9 @@ public class UiUtils {
 	@SuppressWarnings("unused")
 	public static void verifyBigDecimal(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				new BigDecimal(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				new BigDecimal(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -117,9 +123,9 @@ public class UiUtils {
 
 	public static void verifyLong(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				Long.parseLong(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				Long.parseLong(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -134,9 +140,9 @@ public class UiUtils {
 
 	public static void verifyByte(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				Byte.parseByte(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				Byte.parseByte(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -151,9 +157,9 @@ public class UiUtils {
 
 	public static void verifyDouble(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				Double.parseDouble(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				Double.parseDouble(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -168,9 +174,9 @@ public class UiUtils {
 
 	public static void verifyShort(VerifyEvent e, String oldValue) {
 		try {
-			String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-			if (newS.length() > 0) {
-				Short.parseShort(newS);
+			String newText = getNewText(e, oldValue);
+			if (newText.length() > 0) {
+				Short.parseShort(newText);
 			}
 		} catch (Exception e2) {
 			e.doit = false;
@@ -184,8 +190,8 @@ public class UiUtils {
 	}
 
 	public static void verifyCharacter(VerifyEvent e, String oldValue) {
-		String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-		if (newS.length() > 1) {
+		String newText = getNewText(e, oldValue);
+		if (newText.length() > 1) {
 			e.doit = false;
 		}
 	}
@@ -225,21 +231,30 @@ public class UiUtils {
 		getToolkit().adapt(composite);
 	}
 
-	public static void verifyHexRgb(VerifyEvent e, String oldValue) {
-		String newS = oldValue.substring(0, e.start) + e.text + oldValue.substring(e.end);
-		int length = newS.length();
+	public static void verifyHexRgba(VerifyEvent e, String oldValue) {
+		String newText = getNewText(e, oldValue);
+		int length = newText.length();
 
 		if (length == 0) {
 			return;
-		} else if (length > 8) {
+		}
+
+		String temp = newText.startsWith("#") ? newText.substring(1) : newText;
+		if (temp.length() > 8) {
 			e.doit = false;
 			return;
-		} else {
-			try {
-				Integer.parseUnsignedInt(newS, 16);
-			} catch (Exception e2) {
-				e.doit = false;
-			}
 		}
+
+		try {
+			Integer.parseUnsignedInt(temp, 16);
+		} catch (Exception e2) {
+			e.doit = false;
+		}
+	}
+
+	public static void paintSimpleBorder(Composite composite, GC gc) {
+		Rectangle area = composite.getClientArea();
+		gc.setForeground(composite.getDisplay().getSystemColor(SWT.COLOR_GRAY));
+		gc.drawRectangle(0, 0, area.width - 1, area.height - 1);
 	}
 }

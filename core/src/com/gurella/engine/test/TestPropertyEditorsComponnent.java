@@ -1,6 +1,7 @@
 package com.gurella.engine.test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
+	public Date date;
 	public List<String> list = new ArrayList<String>();
 	public Array<Integer> arr = new Array<Integer>();
 	public Set<Integer> set = new HashSet<Integer>();

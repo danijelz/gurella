@@ -69,7 +69,7 @@ public class ColorSelectionWidget extends Composite {
 
 		setColor(color);
 
-		text.addVerifyListener(e -> UiUtils.verifyHexRgb(e, text.getText()));
+		text.addVerifyListener(e -> UiUtils.verifyHexRgba(e, text.getText()));
 		text.addModifyListener(e -> modifyColor(text.getText()));
 	}
 
@@ -108,22 +108,27 @@ public class ColorSelectionWidget extends Composite {
 			gc.setAlpha(rgba.alpha);
 			gc.fillRectangle(0, 0, width, height);
 		}
+		
+		gc.setAlpha(255);
+		gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+		gc.drawRectangle(0, 0, width - 1, height - 1);
 	}
 
 	private void modifyColor(String hex) {
-		int length = hex.length();
+		String temp = hex.startsWith("#") ? hex.substring(1) : hex;
+		int length = temp.length();
 		if (length == 0) {
 			updateColor(defaultColor);
 		} else if (length == 6 || length == 8) {
-			updateColor(Color.valueOf(hex));
+			updateColor(Color.valueOf(temp));
 		} else if (length < 6) {
 			char[] missing = new char[6 - length];
 			Arrays.fill(missing, '0');
-			updateColor(Color.valueOf(hex + new String(missing)));
+			updateColor(Color.valueOf(temp + new String(missing)));
 		} else if (length < 8) {
 			char[] missing = new char[8 - length];
 			Arrays.fill(missing, 'f');
-			updateColor(Color.valueOf(hex + new String(missing)));
+			updateColor(Color.valueOf(temp + new String(missing)));
 		}
 		fireColorChanged();
 	}
