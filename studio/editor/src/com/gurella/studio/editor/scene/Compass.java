@@ -90,6 +90,6 @@ public class Compass implements Disposable {
 	}
 
 	public void resize(int width, int height) {
-		//compassInstance.transform.translate(width - 0.92f, height - 0.92f, 0);
+		//TODO compassInstance.transform.translate(width - 0.92f, height - 0.92f, 0);
 	}
 }
