@@ -33,7 +33,7 @@ public class ModelInputController extends InputAdapter {
 			return false;
 		}
 
-		instance.transform.rotate(new Quaternion().setEulerAnglesRad(deltaX, deltaY, 0));
+		instance.transform.rotate(new Quaternion().setEulerAnglesRad(deltaX * 2f, deltaY * 2f, 0));
 		return true;
 	}
 
