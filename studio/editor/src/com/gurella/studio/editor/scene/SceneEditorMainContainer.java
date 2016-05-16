@@ -249,13 +249,6 @@ public class SceneEditorMainContainer extends Composite {
 			if (position != SWT.LEFT) {
 				sash.moveAbove(tabFolder);
 			}
-
-			addDisposeListener(e -> disposeMaxImage());
-		}
-
-		private void disposeMaxImage() {
-			maxImage.dispose();
-			maxImage = null;
 		}
 
 		@Override
@@ -347,8 +340,8 @@ public class SceneEditorMainContainer extends Composite {
 			GridLayout gridLayout = new GridLayout(numColumns, false);
 			gridLayout.horizontalSpacing = 0;
 			gridLayout.verticalSpacing = 0;
-			gridLayout.marginWidth = 0;
-			gridLayout.marginHeight = 0;
+			gridLayout.marginWidth = 1;
+			gridLayout.marginHeight = 1;
 			closedComposite.setLayout(gridLayout);
 
 			if (position == SWT.BOTTOM) {
@@ -386,18 +379,21 @@ public class SceneEditorMainContainer extends Composite {
 			}
 
 			dockToolBar = new ToolBar(closedComposite, style);
-			maxItem = new ToolItem(dockToolBar, SWT.PUSH);
+			GridData data = new GridData();
+			data.verticalAlignment = sideBar ? SWT.BEGINNING : SWT.CENTER;
+			data.horizontalAlignment = sideBar ? SWT.CENTER : SWT.END;
+			data.grabExcessHorizontalSpace = true;
+			data.grabExcessVerticalSpace = !sideBar;
+			dockToolBar.setLayoutData(data);
+
 			maxImage = createMaxButtonImage();
+			addDisposeListener(e -> maxImage.dispose());
+			
+			maxItem = new ToolItem(dockToolBar, SWT.PUSH);
 			maxItem.setImage(maxImage);
 			maxItem.setToolTipText(SWT.getMessage("SWT_Restore"));
 			maxItem.addListener(SWT.Selection, e -> onMaxItemSelected());
 			maxItem.addListener(SWT.DefaultSelection, e -> onMaxItemSelected());
-
-			GridData data = new GridData();
-			data.verticalAlignment = SWT.BEGINNING;
-			data.horizontalAlignment = sideBar ? SWT.BEGINNING : SWT.END;
-			data.grabExcessHorizontalSpace = !sideBar;
-			dockToolBar.setLayoutData(data);
 		}
 
 		private void onMaxItemSelected() {
@@ -415,8 +411,8 @@ public class SceneEditorMainContainer extends Composite {
 
 			itemsToolBar = new ToolBar(closedComposite, style);
 			GridData data = new GridData();
-			data.verticalAlignment = SWT.BEGINNING;
-			data.horizontalAlignment = SWT.BEGINNING;
+			data.verticalAlignment = sideBar ? SWT.BEGINNING : SWT.CENTER;
+			data.horizontalAlignment = sideBar ? SWT.CENTER : SWT.BEGINNING;
 			data.grabExcessVerticalSpace = sideBar;
 			itemsToolBar.setLayoutData(data);
 		}
@@ -463,6 +459,7 @@ public class SceneEditorMainContainer extends Composite {
 		private void stateChanged() {
 			boolean contentVisible = isContentVisible();
 			closedComposite.setVisible(!contentVisible);
+			closedComposite.layout(true, true);
 			((GridData) closedComposite.getLayoutData()).exclude = contentVisible;
 			tabFolder.setVisible(contentVisible);
 			((GridData) tabFolder.getLayoutData()).exclude = !contentVisible;
