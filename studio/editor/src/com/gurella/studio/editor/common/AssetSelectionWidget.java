@@ -99,6 +99,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		T oldAsset = asset;
 		asset = ResourceService.load(path);
 		text.setText(extractFileName(path));
+		text.setMessage("");
 		if (selectionChangedListener != null) {
 			selectionChangedListener.accept(oldAsset, asset);
 		}
@@ -121,9 +122,11 @@ public class AssetSelectionWidget<T> extends Composite {
 		this.asset = asset;
 		if (asset == null) {
 			text.setText("");
+			text.setMessage("null");
 		} else {
 			String path = ResourceService.getFileName(asset);
 			text.setText(extractFileName(path));
+			text.setMessage("");
 		}
 	}
 

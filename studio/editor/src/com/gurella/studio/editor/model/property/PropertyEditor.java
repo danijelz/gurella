@@ -51,7 +51,7 @@ public abstract class PropertyEditor<P> {
 
 		body = new BodyComposite(composite, SWT.NULL);
 		body.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
-		body.addListener(SWT.MouseUp, e -> showMouseUpMenu(e));
+		body.addListener(SWT.MouseUp, e -> showMenuOnMouseUp(e));
 
 		menuImage = GurellaStudioPlugin.createImage("icons/popup_menu.gif");
 	}
@@ -66,6 +66,10 @@ public abstract class PropertyEditor<P> {
 
 	protected FormToolkit getToolkit() {
 		return GurellaStudioPlugin.getToolkit();
+	}
+	
+	public PropertyEditorContext<?, P> getContext() {
+		return context;
 	}
 
 	public String getDescriptiveName() {
@@ -152,8 +156,8 @@ public abstract class PropertyEditor<P> {
 		item1.addListener(SWT.Selection, e -> action.run());
 	}
 
-	protected void showMouseUpMenu(Event e) {
-		if (e.button == 3) {
+	public void showMenuOnMouseUp(Event e) {
+		if (e.type == SWT.MouseUp && e.button == 3) {
 			showMenu();
 		}
 	}

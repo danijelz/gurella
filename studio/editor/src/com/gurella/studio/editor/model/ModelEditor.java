@@ -78,7 +78,7 @@ public class ModelEditor<T> extends Composite {
 		editors.add(editor);
 
 		if (editor instanceof SimplePropertyEditor) {
-			String name = editor.getDescriptiveName();
+			String name = editor.getDescriptiveName() /*+ (editor.getContext().isNullable() ? "" : "*")*/;
 			boolean longName = name.length() > 20;
 
 			Label label = toolkit.createLabel(this, name + ":");
@@ -87,6 +87,7 @@ public class ModelEditor<T> extends Composite {
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(composite);
+			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 
 			if (longName) {
 				labelLayoutData.horizontalAlignment = SWT.BEGINNING;
@@ -94,16 +95,17 @@ public class ModelEditor<T> extends Composite {
 				layoutData.horizontalSpan = 2;
 			}
 		} else if (editor instanceof ComplexPropertyEditor) {
-			Section componentSection = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
-			componentSection.setSize(100, 100);
+			Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
+			section.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
-			componentSection.setLayoutData(sectionLayoutData);
-			componentSection.setText(editor.getDescriptiveName());
-			composite.setParent(componentSection);
-			componentSection.setClient(composite);
-			componentSection.setExpanded(true);
-			componentSection.layout(true, true);
+			section.setLayoutData(sectionLayoutData);
+			section.setText(editor.getDescriptiveName());
+			composite.setParent(section);
+			section.setClient(composite);
+			section.setExpanded(true);
+			section.layout(true, true);
+			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 		} else {
 			layoutData.horizontalSpan = 2;
 		}

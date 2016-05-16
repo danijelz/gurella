@@ -29,9 +29,9 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("Set today", () -> updateValue(new Date()));
+			addMenuItem("New Date", () -> updateValue(new Date()));
 			if (context.isNullable()) {
-				addMenuItem("Set null", () -> updateValue(null));
+				addMenuItem("Set to null", () -> updateValue(null));
 			}
 		}
 	}
