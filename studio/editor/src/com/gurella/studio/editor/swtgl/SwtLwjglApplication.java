@@ -1,6 +1,8 @@
 package com.gurella.studio.editor.swtgl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.opengl.GLCanvas;
@@ -22,7 +24,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.badlogic.gdx.backends.lwjgl.LwjglNet;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -37,15 +38,15 @@ public class SwtLwjglApplication implements Application {
 	private final ApplicationListener listener;
 	private boolean running = true;
 
-	private final Array<Runnable> runnables = new Array<Runnable>();
-	private final Array<Runnable> executedRunnables = new Array<Runnable>();
+	private final List<Runnable> runnables = new ArrayList<>();
+	private final List<Runnable> executedRunnables = new ArrayList<>();
 
-	private final Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
+	private final List<LifecycleListener> lifecycleListeners = Collections.synchronizedList(new ArrayList<>());
 
 	private int logLevel = LOG_INFO;
 
 	private String preferencesDir;
-	private ObjectMap<String, Preferences> preferences = new ObjectMap<String, Preferences>();
+	private ObjectMap<String, Preferences> preferences = new ObjectMap<>();
 
 	private int lastWidth;
 	private int lastHeight;
@@ -149,45 +150,13 @@ public class SwtLwjglApplication implements Application {
 
 	private void update() {
 		graphics.lastTime = System.nanoTime();
-		boolean isActive = graphics.getGlCanvas().isCurrent();
-		if (wasActive && !isActive) {
-			wasActive = false;
-			synchronized (lifecycleListeners) {
-				for (LifecycleListener lifecycleListener : lifecycleListeners) {
-					lifecycleListener.pause();
-				}
-			}
-			listener.pause();
-		}
-		if (!wasActive && isActive) {
-			wasActive = true;
-			listener.resume();
-			synchronized (lifecycleListeners) {
-				for (LifecycleListener lifecycleListener : lifecycleListeners) {
-					lifecycleListener.resume();
-				}
-			}
-		}
+		boolean isActive = updateActivity();
 
-		boolean shouldRender = false;
-
-		int width = graphics.getWidth();
-		int height = graphics.getHeight();
-		if (lastWidth != width || lastHeight != height) {
-			lastWidth = width;
-			lastHeight = height;
-			graphics.setCurrent();
-			Gdx.gl.glViewport(0, 0, lastWidth, lastHeight);
-			listener.resize(lastWidth, lastHeight);
-			shouldRender = true;
-		}
-
-		if (executeRunnables()) {
-			shouldRender = true;
-		}
+		boolean shouldRender = graphics.shouldRender();
+		shouldRender |= updateVievport();
+		shouldRender |= executeRunnables();
 
 		input.update();
-		shouldRender |= graphics.shouldRender();
 		if (audio != null) {
 			audio.update();
 		}
@@ -201,6 +170,35 @@ public class SwtLwjglApplication implements Application {
 		}
 	}
 
+	private boolean updateVievport() {
+		int width = graphics.getWidth();
+		int height = graphics.getHeight();
+		if (lastWidth != width || lastHeight != height) {
+			lastWidth = width;
+			lastHeight = height;
+			graphics.setCurrent();
+			Gdx.gl.glViewport(0, 0, lastWidth, lastHeight);
+			listener.resize(lastWidth, lastHeight);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean updateActivity() {
+		boolean isActive = graphics.getGlCanvas().isCurrent();
+		if (wasActive && !isActive) {
+			wasActive = false;
+			lifecycleListeners.stream().forEach(l -> l.pause());
+			listener.pause();
+		} else if (!wasActive && isActive) {
+			wasActive = true;
+			listener.resume();
+			lifecycleListeners.stream().forEach(l -> l.resume());
+		}
+		return isActive;
+	}
+
 	private void render() {
 		graphics.setCurrent();
 		graphics.update();
@@ -210,7 +208,7 @@ public class SwtLwjglApplication implements Application {
 
 	public boolean executeRunnables() {
 		synchronized (runnables) {
-			if (runnables.size == 0) {
+			if (runnables.size() == 0) {
 				return false;
 			}
 
@@ -218,7 +216,7 @@ public class SwtLwjglApplication implements Application {
 			runnables.clear();
 		}
 
-		Arrays.stream(executedRunnables.<Runnable> toArray(Runnable.class)).forEach(r -> r.run());
+		executedRunnables.stream().forEach(r -> r.run());
 		executedRunnables.clear();
 		return true;
 	}
@@ -363,15 +361,11 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void addLifecycleListener(LifecycleListener lifecycleListener) {
-		synchronized (lifecycleListeners) {
-			lifecycleListeners.add(lifecycleListener);
-		}
+		lifecycleListeners.add(lifecycleListener);
 	}
 
 	@Override
 	public void removeLifecycleListener(LifecycleListener lifecycleListener) {
-		synchronized (lifecycleListeners) {
-			lifecycleListeners.removeValue(lifecycleListener, true);
-		}
+		lifecycleListeners.remove(lifecycleListener);
 	}
 }

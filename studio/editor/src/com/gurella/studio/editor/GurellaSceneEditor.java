@@ -167,10 +167,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		return context.scene;
 	}
 
-	public SceneEditorMainContainer getMainContainer() {
-		return mainContainer;
-	}
-
 	public IWorkspace getWorkspace() {
 		return context.workspace;
 	}
@@ -204,9 +200,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	public void dispose() {
 		super.dispose();
 		context.dispose();
-		if (application != null) {
-			application.exit();
-		}
+		application.exit();
 	}
 
 	public void postMessage(Object source, Object message) {
