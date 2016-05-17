@@ -38,7 +38,7 @@ public class SwtLwjglInput implements Input {
 
 	private final Object mutex = new Object();
 
-	private Pool<KeyEvent> keyEventsPool = new ReflectionPool<>(KeyEvent.class, 16, 1000);;
+	private Pool<KeyEvent> keyEventsPool = new ReflectionPool<>(KeyEvent.class, 16, 1000);
 	private Pool<TouchEvent> touchEventsPool = new ReflectionPool<>(TouchEvent.class, 16, 1000);
 
 	public SwtLwjglInput(final GLCanvas glCanvas) {
@@ -522,8 +522,9 @@ public class SwtLwjglInput implements Input {
 				event.type = KeyEvent.KEY_UP;
 
 				lastKeyCharPressed = 0;
-				if (pressedKeys.contains(keyCode))
+				if (pressedKeys.contains(keyCode)) {
 					pressedKeys.remove(keyCode);
+				}
 				break;
 			}
 
@@ -554,119 +555,8 @@ public class SwtLwjglInput implements Input {
 			return Input.Keys.NUM_8;
 		case SWT.KEYPAD_9:
 			return Input.Keys.NUM_9;
-		case SWT.ALPHA:
-			switch (character) {
-			case '0':
-				return Input.Keys.NUM_0;
-			case '1':
-				return Input.Keys.NUM_1;
-			case '2':
-				return Input.Keys.NUM_2;
-			case '3':
-				return Input.Keys.NUM_3;
-			case '4':
-				return Input.Keys.NUM_4;
-			case '5':
-				return Input.Keys.NUM_5;
-			case '6':
-				return Input.Keys.NUM_6;
-			case '7':
-				return Input.Keys.NUM_7;
-			case '8':
-				return Input.Keys.NUM_8;
-			case '9':
-				return Input.Keys.NUM_9;
-			case 'a':
-				return Input.Keys.A;
-			case 'b':
-				return Input.Keys.B;
-			case 'c':
-				return Input.Keys.C;
-			case 'd':
-				return Input.Keys.D;
-			case 'e':
-				return Input.Keys.E;
-			case 'f':
-				return Input.Keys.F;
-			case 'g':
-				return Input.Keys.G;
-			case 'h':
-				return Input.Keys.H;
-			case 'i':
-				return Input.Keys.I;
-			case 'j':
-				return Input.Keys.J;
-			case 'k':
-				return Input.Keys.K;
-			case 'l':
-				return Input.Keys.L;
-			case 'm':
-				return Input.Keys.M;
-			case 'n':
-				return Input.Keys.N;
-			case 'o':
-				return Input.Keys.O;
-			case 'p':
-				return Input.Keys.P;
-			case 'q':
-				return Input.Keys.Q;
-			case 'r':
-				return Input.Keys.R;
-			case 's':
-				return Input.Keys.S;
-			case 't':
-				return Input.Keys.T;
-			case 'u':
-				return Input.Keys.U;
-			case 'v':
-				return Input.Keys.V;
-			case 'w':
-				return Input.Keys.W;
-			case 'x':
-				return Input.Keys.X;
-			case 'y':
-				return Input.Keys.Y;
-			case 'z':
-				return Input.Keys.Z;
-			case '/':
-				return Input.Keys.SLASH;
-			case '\\':
-				return Input.Keys.BACKSLASH;
-			case ',':
-				return Input.Keys.COMMA;
-			case ';':
-				return Input.Keys.SEMICOLON;
-			case '+':
-				return Input.Keys.PLUS;
-			case '-':
-				return Input.Keys.MINUS;
-			case '.':
-				return Input.Keys.PERIOD;
-			case '\n':
-				return Input.Keys.ENTER;
-			case '\'':
-				return Input.Keys.APOSTROPHE;
-			case ':':
-				return Input.Keys.COLON;
-			case SWT.SPACE:
-				return Input.Keys.SPACE;
-			case SWT.DEL:
-				if (location == SWT.LEFT)
-					return Input.Keys.FORWARD_DEL;
-				else
-					return Input.Keys.DEL;
-			case SWT.TAB:
-				return Input.Keys.TAB;
-			case SWT.ESC:
-				return Input.Keys.ESCAPE;
-			default:
-				return Input.Keys.UNKNOWN;
-			}
 		case SWT.ALT:
-			if (location == SWT.LEFT)
-				return Input.Keys.ALT_LEFT;
-			else
-				return Input.Keys.ALT_RIGHT;
+			return location == SWT.LEFT ? Input.Keys.ALT_LEFT : Input.Keys.ALT_RIGHT;
 		case SWT.ARROW_LEFT:
 			return Input.Keys.DPAD_LEFT;
 		case SWT.ARROW_RIGHT:
@@ -678,15 +568,9 @@ public class SwtLwjglInput implements Input {
 		case SWT.HOME:
 			return Input.Keys.HOME;
 		case SWT.SHIFT:
-			if (location == SWT.LEFT)
-				return Input.Keys.SHIFT_LEFT;
-			else
-				return Input.Keys.SHIFT_RIGHT;
+			return location == SWT.LEFT ? Input.Keys.SHIFT_LEFT : Input.Keys.SHIFT_RIGHT;
 		case SWT.CTRL:
-			if (location == SWT.LEFT)
-				return Input.Keys.CONTROL_LEFT;
-			else
-				return Input.Keys.CONTROL_RIGHT;
+			return location == SWT.LEFT ? Input.Keys.CONTROL_LEFT : Input.Keys.CONTROL_RIGHT;
 		case SWT.END:
 			return Input.Keys.END;
 		case SWT.INSERT:
@@ -715,6 +599,115 @@ public class SwtLwjglInput implements Input {
 			return Input.Keys.F11;
 		case SWT.F12:
 			return Input.Keys.F12;
+		case SWT.ALPHA:
+			return toGdxAlphaKey(location, character);
+		default:
+			return Input.Keys.UNKNOWN;
+		}
+	}
+
+	private static int toGdxAlphaKey(int location, char character) {
+		switch (character) {
+		case '0':
+			return Input.Keys.NUM_0;
+		case '1':
+			return Input.Keys.NUM_1;
+		case '2':
+			return Input.Keys.NUM_2;
+		case '3':
+			return Input.Keys.NUM_3;
+		case '4':
+			return Input.Keys.NUM_4;
+		case '5':
+			return Input.Keys.NUM_5;
+		case '6':
+			return Input.Keys.NUM_6;
+		case '7':
+			return Input.Keys.NUM_7;
+		case '8':
+			return Input.Keys.NUM_8;
+		case '9':
+			return Input.Keys.NUM_9;
+		case 'a':
+			return Input.Keys.A;
+		case 'b':
+			return Input.Keys.B;
+		case 'c':
+			return Input.Keys.C;
+		case 'd':
+			return Input.Keys.D;
+		case 'e':
+			return Input.Keys.E;
+		case 'f':
+			return Input.Keys.F;
+		case 'g':
+			return Input.Keys.G;
+		case 'h':
+			return Input.Keys.H;
+		case 'i':
+			return Input.Keys.I;
+		case 'j':
+			return Input.Keys.J;
+		case 'k':
+			return Input.Keys.K;
+		case 'l':
+			return Input.Keys.L;
+		case 'm':
+			return Input.Keys.M;
+		case 'n':
+			return Input.Keys.N;
+		case 'o':
+			return Input.Keys.O;
+		case 'p':
+			return Input.Keys.P;
+		case 'q':
+			return Input.Keys.Q;
+		case 'r':
+			return Input.Keys.R;
+		case 's':
+			return Input.Keys.S;
+		case 't':
+			return Input.Keys.T;
+		case 'u':
+			return Input.Keys.U;
+		case 'v':
+			return Input.Keys.V;
+		case 'w':
+			return Input.Keys.W;
+		case 'x':
+			return Input.Keys.X;
+		case 'y':
+			return Input.Keys.Y;
+		case 'z':
+			return Input.Keys.Z;
+		case '/':
+			return Input.Keys.SLASH;
+		case '\\':
+			return Input.Keys.BACKSLASH;
+		case ',':
+			return Input.Keys.COMMA;
+		case ';':
+			return Input.Keys.SEMICOLON;
+		case '+':
+			return Input.Keys.PLUS;
+		case '-':
+			return Input.Keys.MINUS;
+		case '.':
+			return Input.Keys.PERIOD;
+		case '\n':
+			return Input.Keys.ENTER;
+		case '\'':
+			return Input.Keys.APOSTROPHE;
+		case ':':
+			return Input.Keys.COLON;
+		case SWT.SPACE:
+			return Input.Keys.SPACE;
+		case SWT.DEL:
+			return location == SWT.LEFT ? Input.Keys.FORWARD_DEL : Input.Keys.DEL;
+		case SWT.TAB:
+			return Input.Keys.TAB;
+		case SWT.ESC:
+			return Input.Keys.ESCAPE;
 		default:
 			return Input.Keys.UNKNOWN;
 		}

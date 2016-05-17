@@ -86,7 +86,7 @@ public class SceneRenderer implements Disposable {
 	private void renderScene() {
 		if (scene != null) {
 			EventService.getSubscribers(ApplicationDebugRenderListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
+			for (int i = 0, n = listeners.size; i < n; i++) {
 				listeners.get(i).debugRender(selectedCamera);
 			}
 			listeners.clear();
@@ -101,6 +101,8 @@ public class SceneRenderer implements Disposable {
 	public void dispose() {
 		InputService.removeInputProcessor(selectedController);
 		modelBatch.dispose();
+		compass.dispose();
+		gridModelInstance.dispose();
 	}
 
 	public void resize(int width, int height) {

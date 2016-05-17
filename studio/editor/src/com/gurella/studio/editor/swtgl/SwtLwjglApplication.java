@@ -38,8 +38,8 @@ public class SwtLwjglApplication implements Application {
 	private final ApplicationListener listener;
 	private boolean running = true;
 
-	private final List<Runnable> runnables = new ArrayList<>();
-	private final List<Runnable> executedRunnables = new ArrayList<>();
+	private List<Runnable> runnables = new ArrayList<>();
+	private List<Runnable> executedRunnables = new ArrayList<>();
 
 	private final List<LifecycleListener> lifecycleListeners = Collections.synchronizedList(new ArrayList<>());
 
@@ -66,19 +66,14 @@ public class SwtLwjglApplication implements Application {
 		this.listener = listener;
 		backgroundFPS = config.backgroundFPS;
 		preferencesDir = config.preferencesDirectory;
-		
+
 		LwjglNativesLoader.load();
 
-		if (!SwtApplicationConfig.disableAudio && audio == null) {
-			audio = new OpenALAudio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
-					config.audioDeviceBufferSize);
-		}
-
+		audio = OpenAlAudioSingletone.getInstance(config);
 		graphics = new SwtLwjglGraphics(parent, config);
 		files = new LwjglFiles();
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
-
 
 		synchronized (GurellaStudioPlugin.glMutex) {
 			initialize();
@@ -123,15 +118,13 @@ public class SwtLwjglApplication implements Application {
 		running = false;
 		listener.pause();
 		listener.dispose();
+		lifecycleListeners.stream().forEach(l -> disposeListener(l));
+		OpenAlAudioSingletone.dispose(audio);
+	}
 
-		for (LifecycleListener l : lifecycleListeners) {
-			l.pause();
-			l.dispose();
-		}
-
-		if (audio != null) {
-			audio.dispose();
-		}
+	private static void disposeListener(LifecycleListener listener) {
+		listener.pause();
+		listener.dispose();
 	}
 
 	private void mainLoop() {
@@ -207,18 +200,22 @@ public class SwtLwjglApplication implements Application {
 	}
 
 	public boolean executeRunnables() {
-		synchronized (runnables) {
-			if (runnables.size() == 0) {
-				return false;
-			}
-
-			executedRunnables.addAll(runnables);
-			runnables.clear();
+		if (runnables.size() == 0) {
+			return false;
 		}
 
+		switchRunnables();
 		executedRunnables.stream().forEach(r -> r.run());
 		executedRunnables.clear();
 		return true;
+	}
+
+	private void switchRunnables() {
+		synchronized (runnables) {
+			List<Runnable> temp = runnables;
+			runnables = executedRunnables;
+			executedRunnables = temp;
+		}
 	}
 
 	@Override
