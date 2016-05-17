@@ -14,6 +14,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.ReflectionPool;
 
 public class SwtLwjglInput implements Input {
 	static public float keyRepeatInitialTime = 0.4f;
@@ -37,19 +38,8 @@ public class SwtLwjglInput implements Input {
 
 	private final Object mutex = new Object();
 
-	Pool<KeyEvent> usedKeyEvents = new Pool<KeyEvent>(16, 1000) {
-		@Override
-		protected KeyEvent newObject() {
-			return new KeyEvent();
-		}
-	};
-
-	Pool<TouchEvent> usedTouchEvents = new Pool<TouchEvent>(16, 1000) {
-		@Override
-		protected TouchEvent newObject() {
-			return new TouchEvent();
-		}
-	};
+	private Pool<KeyEvent> keyEventsPool = new ReflectionPool<>(KeyEvent.class, 16, 1000);;
+	private Pool<TouchEvent> touchEventsPool = new ReflectionPool<>(TouchEvent.class, 16, 1000);
 
 	public SwtLwjglInput(final GLCanvas glCanvas) {
 		this.glCanvas = glCanvas;
@@ -193,13 +183,11 @@ public class SwtLwjglInput implements Input {
 	public boolean isKeyJustPressed(int key) {
 		if (key == Input.Keys.ANY_KEY) {
 			return keyJustPressed;
-		}
-
-		if (key < 0 || key > 255) {
+		} else if (key < 0 || key > 255) {
 			return false;
+		} else {
+			return justPressedKeys[key];
 		}
-
-		return justPressedKeys[key];
 	}
 
 	@Override
@@ -243,60 +231,60 @@ public class SwtLwjglInput implements Input {
 
 	public void update() {
 		synchronized (mutex) {
-			if (processor != null) {
-				int len = keyEvents.size;
-				for (int i = 0; i < len; i++) {
-					KeyEvent e = keyEvents.get(i);
-					currentEventTime = e.timeStamp;
-					switch (e.type) {
-					case KeyEvent.KEY_DOWN:
-						processor.keyDown(e.keyCode);
-						break;
-					case KeyEvent.KEY_UP:
-						processor.keyUp(e.keyCode);
-						break;
-					case KeyEvent.KEY_TYPED:
-						processor.keyTyped(e.keyChar);
-					}
-					usedKeyEvents.free(e);
-				}
-
-				len = touchEvents.size;
-				for (int i = 0; i < len; i++) {
-					TouchEvent e = touchEvents.get(i);
-					currentEventTime = e.timeStamp;
-					switch (e.type) {
-					case TouchEvent.TOUCH_DOWN:
-						processor.touchDown(e.x, e.y, e.pointer, e.button);
-						break;
-					case TouchEvent.TOUCH_UP:
-						processor.touchUp(e.x, e.y, e.pointer, e.button);
-						break;
-					case TouchEvent.TOUCH_DRAGGED:
-						processor.touchDragged(e.x, e.y, e.pointer);
-						break;
-					case TouchEvent.TOUCH_MOVED:
-						processor.mouseMoved(e.x, e.y);
-						break;
-					case TouchEvent.TOUCH_SCROLLED:
-						processor.scrolled(e.scrollAmount);
-					}
-					usedTouchEvents.free(e);
-				}
+			if (processor == null) {
+				touchEventsPool.freeAll(touchEvents);
+				keyEventsPool.freeAll(keyEvents);
 			} else {
-				int len = touchEvents.size;
-				for (int i = 0; i < len; i++) {
-					usedTouchEvents.free(touchEvents.get(i));
-				}
-
-				len = keyEvents.size;
-				for (int i = 0; i < len; i++) {
-					usedKeyEvents.free(keyEvents.get(i));
-				}
+				processKeyEvents();
+				processTouchEvents();
 			}
 
 			keyEvents.clear();
 			touchEvents.clear();
+		}
+	}
+
+	private void processTouchEvents() {
+		int len = touchEvents.size;
+		for (int i = 0; i < len; i++) {
+			TouchEvent e = touchEvents.get(i);
+			currentEventTime = e.timeStamp;
+			switch (e.type) {
+			case TouchEvent.TOUCH_DOWN:
+				processor.touchDown(e.x, e.y, e.pointer, e.button);
+				break;
+			case TouchEvent.TOUCH_UP:
+				processor.touchUp(e.x, e.y, e.pointer, e.button);
+				break;
+			case TouchEvent.TOUCH_DRAGGED:
+				processor.touchDragged(e.x, e.y, e.pointer);
+				break;
+			case TouchEvent.TOUCH_MOVED:
+				processor.mouseMoved(e.x, e.y);
+				break;
+			case TouchEvent.TOUCH_SCROLLED:
+				processor.scrolled(e.scrollAmount);
+			}
+			touchEventsPool.free(e);
+		}
+	}
+
+	private void processKeyEvents() {
+		int len = keyEvents.size;
+		for (int i = 0; i < len; i++) {
+			KeyEvent e = keyEvents.get(i);
+			currentEventTime = e.timeStamp;
+			switch (e.type) {
+			case KeyEvent.KEY_DOWN:
+				processor.keyDown(e.keyCode);
+				break;
+			case KeyEvent.KEY_UP:
+				processor.keyUp(e.keyCode);
+				break;
+			case KeyEvent.KEY_TYPED:
+				processor.keyTyped(e.keyChar);
+			}
+			keyEventsPool.free(e);
 		}
 	}
 
@@ -307,7 +295,7 @@ public class SwtLwjglInput implements Input {
 
 	@Override
 	public InputProcessor getInputProcessor() {
-		return this.processor;
+		return processor;
 	}
 
 	@Override
@@ -349,9 +337,7 @@ public class SwtLwjglInput implements Input {
 
 	@Override
 	public boolean isPeripheralAvailable(Peripheral peripheral) {
-		if (peripheral == Peripheral.HardwareKeyboard)
-			return true;
-		return false;
+		return peripheral == Peripheral.HardwareKeyboard;
 	}
 
 	@Override
@@ -380,10 +366,7 @@ public class SwtLwjglInput implements Input {
 
 	@Override
 	public int getDeltaX(int pointer) {
-		if (pointer == 0)
-			return deltaX;
-		else
-			return 0;
+		return pointer == 0 ? deltaX : 0;
 	}
 
 	@Override
@@ -393,10 +376,7 @@ public class SwtLwjglInput implements Input {
 
 	@Override
 	public int getDeltaY(int pointer) {
-		if (pointer == 0)
-			return -deltaY;
-		else
-			return 0;
+		return pointer == 0 ? -deltaY : 0;
 	}
 
 	@Override
@@ -446,12 +426,17 @@ public class SwtLwjglInput implements Input {
 
 	private void onMouseEvent(Event e) {
 		synchronized (mutex) {
-			TouchEvent event = usedTouchEvents.obtain();
+			TouchEvent event = touchEventsPool.obtain();
 			event.x = e.x;
 			event.y = e.y;
 			event.button = toGdxButton(e.button);
 			event.pointer = 0;
 			event.timeStamp = TimeUnit.MILLISECONDS.toNanos(e.time);
+			touchEvents.add(event);
+			mouseX = event.x;
+			mouseY = event.y;
+			deltaX = 0;
+			deltaY = 0;
 
 			switch (e.type) {
 			case SWT.MouseDown:
@@ -471,12 +456,6 @@ public class SwtLwjglInput implements Input {
 				event.scrollAmount = e.count;
 				break;
 			}
-
-			touchEvents.add(event);
-			mouseX = event.x;
-			mouseY = event.y;
-			deltaX = 0;
-			deltaY = 0;
 		}
 	}
 
@@ -499,7 +478,7 @@ public class SwtLwjglInput implements Input {
 				keyRepeatTimer -= Gdx.graphics.getDeltaTime();
 				if (keyRepeatTimer < 0) {
 					keyRepeatTimer = 0.15f;
-					KeyEvent event = usedKeyEvents.obtain();
+					KeyEvent event = keyEventsPool.obtain();
 					event.keyCode = 0;
 					event.keyChar = lastKeyCharPressed;
 					event.type = KeyEvent.KEY_TYPED;
@@ -510,7 +489,7 @@ public class SwtLwjglInput implements Input {
 
 			int keyCode = toGdxKeyCode(e.keyCode, e.keyLocation, e.character);
 			long timeStamp = TimeUnit.MILLISECONDS.toNanos(e.time);
-			KeyEvent event = usedKeyEvents.obtain();
+			KeyEvent event = keyEventsPool.obtain();
 
 			switch (e.type) {
 			case SWT.KeyDown:
@@ -528,7 +507,7 @@ public class SwtLwjglInput implements Input {
 				event.timeStamp = timeStamp;
 				keyEvents.add(event);
 
-				event = usedKeyEvents.obtain();
+				event = keyEventsPool.obtain();
 				event.keyCode = 0;
 				event.keyChar = keyChar;
 				event.type = KeyEvent.KEY_TYPED;
