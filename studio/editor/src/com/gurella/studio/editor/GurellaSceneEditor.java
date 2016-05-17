@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IEditorInput;
@@ -158,7 +159,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		contentComposite.layout();
 	}
-	
+
 	public SceneEditorMainContainer getMainContainer() {
 		return mainContainer;
 	}
@@ -197,7 +198,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
+		application.setFocus();
 	}
 
 	@Override
@@ -220,14 +221,38 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	}
 
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
+		private Label label;
+
+		public LoadSceneCallback() {
+			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
+			glCanvas.setLayout(new GridLayout());
+			label = new Label(glCanvas, SWT.DM_FILL_NONE);
+			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+			label.setText("Loading...");
+		}
+
+		@Override
+		public void onProgress(float progress) {
+			asyncExec(() -> updateProgress((int) (progress * 100)));
+		}
+
+		private void updateProgress(int progress) {
+			label.setText("Loading... " + progress);
+		}
+
 		@Override
 		public void onSuccess(Scene scene) {
 			presentScene(scene);
+			asyncExec(() -> label.dispose());
 		}
 
 		@Override
 		public void onException(Throwable exception) {
-			contentComposite.getDisplay().asyncExec(() -> presentException(exception));
+			asyncExec(() -> presentException(exception));
+		}
+
+		private void asyncExec(Runnable runnable) {
+			contentComposite.getDisplay().asyncExec(runnable);
 		}
 	}
 }

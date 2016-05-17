@@ -69,7 +69,6 @@ public class SwtLwjglGraphics implements Graphics {
 	void init() {
 		try {
 			initDisplay();
-			initiateGlInstances();
 		} catch (LWJGLException e) {
 			throw new GdxRuntimeException(e);
 		}
@@ -80,6 +79,7 @@ public class SwtLwjglGraphics implements Graphics {
 		if (!glCanvas.isDisposed()) {
 			glCanvas.setCurrent();
 			GLContext.useContext(glCanvas);
+			initiateGlInstances();
 		}
 	}
 

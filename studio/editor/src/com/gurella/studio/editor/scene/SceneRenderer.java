@@ -12,12 +12,9 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.subscriptions.application.ApplicationDebugRenderListener;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SceneRenderer implements Disposable {
@@ -38,8 +35,7 @@ public class SceneRenderer implements Disposable {
 	private Compass compass;
 
 	private Scene scene;
-
-	private final Array<ApplicationDebugRenderListener> listeners = new Array<>(64);
+	private StudioRenderSystem renderSystem;
 
 	public SceneRenderer() {
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -85,16 +81,13 @@ public class SceneRenderer implements Disposable {
 
 	private void renderScene() {
 		if (scene != null) {
-			EventService.getSubscribers(ApplicationDebugRenderListener.class, listeners);
-			for (int i = 0, n = listeners.size; i < n; i++) {
-				listeners.get(i).debugRender(selectedCamera);
-			}
-			listeners.clear();
+			renderSystem.renderScene(selectedCamera);
 		}
 	}
 
 	public void setScene(Scene scene) {
 		this.scene = scene;
+		this.renderSystem = new StudioRenderSystem(scene);
 	}
 
 	@Override
@@ -103,6 +96,7 @@ public class SceneRenderer implements Disposable {
 		modelBatch.dispose();
 		compass.dispose();
 		gridModelInstance.dispose();
+		renderSystem.dispose();
 	}
 
 	public void resize(int width, int height) {

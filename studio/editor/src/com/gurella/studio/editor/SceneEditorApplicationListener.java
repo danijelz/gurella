@@ -31,7 +31,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	public void render() {
 		debugUpdate();
 		renderer.render();
-		listeners.clear();
 	}
 
 	private void debugUpdate() {
@@ -39,5 +38,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).debugUpdate();
 		}
+		listeners.clear();
 	}
 }

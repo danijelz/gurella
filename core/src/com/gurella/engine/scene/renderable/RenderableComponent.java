@@ -103,7 +103,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		}
 	}
 
-	final void render(GenericBatch batch) {
+	public final void render(GenericBatch batch) {
 		update();
 		doRender(batch);
 	}
