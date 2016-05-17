@@ -158,6 +158,10 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		contentComposite.layout();
 	}
+	
+	public SceneEditorMainContainer getMainContainer() {
+		return mainContainer;
+	}
 
 	public SceneEditorContext getContext() {
 		return context;

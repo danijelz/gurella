@@ -51,12 +51,6 @@ public class SwtLwjglApplicationConfiguration {
 	 * not render.
 	 **/
 	public int backgroundFPS = 60;
-	/**
-	 * Allows software OpenGL rendering if hardware acceleration was not available.
-	 * 
-	 * @see LwjglGraphics#isSoftwareMode()
-	 */
-	public boolean allowSoftwareMode = false;
 	/** Preferences directory on the desktop. Default is ".prefs/". */
 	public String preferencesDirectory = ".prefs/";
 	/**
