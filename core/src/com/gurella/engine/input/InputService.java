@@ -7,12 +7,11 @@ import com.badlogic.gdx.InputEventQueue;
 
 public class InputService {
 	private static final InputMultiplexer multiplexer = new InputMultiplexer();
-	private static final InputEventQueue inputQueue = new InputEventQueue(multiplexer);
 	private static final InputMapper mapper = new InputMapper();
 
 	static {
 		multiplexer.addProcessor(mapper);
-		Gdx.input.setInputProcessor(inputQueue);
+		Gdx.input.setInputProcessor(multiplexer);
 	}
 
 	private InputService() {

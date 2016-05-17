@@ -5,7 +5,7 @@ import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.backends.lwjgl.LwjglGraphics;
 import com.badlogic.gdx.graphics.Color;
 
-public class SwtLwjglApplicationConfiguration {
+public class SwtApplicationConfig {
 	/**
 	 * If true, OpenAL will not be used. This means {@link Application#getAudio()} returns null and the gdx-openal.jar
 	 * and OpenAL natives are not needed.

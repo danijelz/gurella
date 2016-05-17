@@ -2,6 +2,7 @@ package com.gurella.studio.editor.swtgl;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.widgets.Display;
 
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -10,7 +11,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class SwtLwjglCursor implements Cursor {
 	org.eclipse.swt.graphics.Cursor swtCursor = null;
 
-	public SwtLwjglCursor(Pixmap pixmap, int xHotspot, int yHotspot) {
+	public SwtLwjglCursor(Display display, Pixmap pixmap, int xHotspot, int yHotspot) {
 		if (pixmap == null) {
 			return;
 		}
@@ -49,7 +50,7 @@ public class SwtLwjglCursor implements Cursor {
 			}
 		}
 
-		swtCursor = new org.eclipse.swt.graphics.Cursor(SwtLwjglGraphics.getDisplay(), imageData, xHotspot,
+		swtCursor = new org.eclipse.swt.graphics.Cursor(display, imageData, xHotspot,
 				pixmap.getHeight() - yHotspot - 4);
 	}
 

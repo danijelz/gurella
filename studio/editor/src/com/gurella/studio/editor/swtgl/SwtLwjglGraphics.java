@@ -6,7 +6,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
@@ -19,8 +18,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglGraphics implements Graphics {
-	private int major = -1, minor;
-
 	GL20 gl20;
 	GL30 gl30;
 	long lastTime = System.nanoTime();
@@ -44,7 +41,7 @@ public class SwtLwjglGraphics implements Graphics {
 
 	private final Object mutex = new Object();
 
-	SwtLwjglGraphics(Composite parentComposite, SwtLwjglApplicationConfiguration config) {
+	SwtLwjglGraphics(Composite parentComposite, SwtApplicationConfig config) {
 		this.overrideDensity = config.overrideDensity;
 
 		GLData glData = new GLData();
@@ -88,14 +85,12 @@ public class SwtLwjglGraphics implements Graphics {
 
 	public void initiateGlInstances() {
 		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
-		major = Integer.parseInt("" + version.charAt(0));
+		int major = Integer.parseInt("" + version.charAt(0));
 
 		if (major < 2) {
 			throw new GdxRuntimeException(
 					"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: " + version);
 		}
-
-		minor = Integer.parseInt("" + version.charAt(2));
 
 		if (major > 2) {
 			gl30 = new LwjglGL30();
@@ -258,9 +253,9 @@ public class SwtLwjglGraphics implements Graphics {
 
 	public boolean shouldRender() {
 		synchronized (mutex) {
-			boolean rq = requestRendering;
+			boolean shouldRender = requestRendering;
 			requestRendering = false;
-			return rq || isContinuous;
+			return shouldRender || isContinuous;
 		}
 	}
 
@@ -285,16 +280,16 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public com.badlogic.gdx.graphics.Cursor newCursor(Pixmap pixmap, int xHotspot, int yHotspot) {
-		return new SwtLwjglCursor(pixmap, xHotspot, yHotspot);
+		return new SwtLwjglCursor(glCanvas.getDisplay(), pixmap, xHotspot, yHotspot);
 	}
 
 	@Override
 	public void setCursor(com.badlogic.gdx.graphics.Cursor cursor) {
 		if (cursor instanceof SwtLwjglCursor) {
 			SwtLwjglCursor swtLwjglCursor = (SwtLwjglCursor) cursor;
-			getDisplay().getActiveShell().setCursor(swtLwjglCursor.swtCursor);
+			glCanvas.setCursor(swtLwjglCursor.swtCursor);
 		} else {
-			getDisplay().getActiveShell().setCursor(null);
+			glCanvas.setCursor(null);
 		}
 	}
 
@@ -350,29 +345,19 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public boolean setFullscreenMode(DisplayMode arg0) {
-		getDisplay().getActiveShell().setFullScreen(true);
+		glCanvas.getShell().setFullScreen(true);
 		return true;
 	}
 
 	@Override
 	public void setSystemCursor(SystemCursor arg0) {
-		getDisplay().getActiveShell().setCursor(null);
+		glCanvas.setCursor(null);
 	}
 
 	@Override
 	public boolean setWindowedMode(int width, int height) {
-		getDisplay().getActiveShell().setFullScreen(false);
+		glCanvas.getShell().setFullScreen(false);
 		return true;
-	}
-
-	public static Display getDisplay() {
-		Display display = Display.getCurrent();
-		// may be null if outside the UI thread
-		if (display == null) {
-			display = Display.getDefault();
-		}
-
-		return display;
 	}
 
 	private class SwtLwjglMonitor extends Monitor {

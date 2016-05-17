@@ -55,30 +55,30 @@ public class SwtLwjglApplication implements Application {
 	private int backgroundFPS;
 
 	public SwtLwjglApplication(ApplicationListener listener) {
-		this(new Shell(SwtLwjglGraphics.getDisplay()), listener);
+		this(new Shell(), listener);
 	}
 
 	public SwtLwjglApplication(Composite parent, ApplicationListener listener) {
 		this(parent, listener, createConfig(parent.getSize().x, parent.getSize().y));
 	}
 
-	public SwtLwjglApplication(Composite parent, ApplicationListener listener,
-			SwtLwjglApplicationConfiguration config) {
+	public SwtLwjglApplication(Composite parent, ApplicationListener listener, SwtApplicationConfig config) {
+		this.listener = listener;
+		backgroundFPS = config.backgroundFPS;
+		preferencesDir = config.preferencesDirectory;
+		
 		LwjglNativesLoader.load();
 
-		if (!SwtLwjglApplicationConfiguration.disableAudio && audio == null) {
+		if (!SwtApplicationConfig.disableAudio && audio == null) {
 			audio = new OpenALAudio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
 					config.audioDeviceBufferSize);
 		}
 
-		backgroundFPS = config.backgroundFPS;
 		graphics = new SwtLwjglGraphics(parent, config);
 		files = new LwjglFiles();
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
 
-		this.listener = listener;
-		this.preferencesDir = config.preferencesDirectory;
 
 		synchronized (GurellaStudioPlugin.glMutex) {
 			initialize();
@@ -99,8 +99,8 @@ public class SwtLwjglApplication implements Application {
 		Gdx.gl30 = graphics.gl30;
 	}
 
-	private static SwtLwjglApplicationConfiguration createConfig(int width, int height) {
-		SwtLwjglApplicationConfiguration config = new SwtLwjglApplicationConfiguration();
+	private static SwtApplicationConfig createConfig(int width, int height) {
+		SwtApplicationConfig config = new SwtApplicationConfig();
 		config.width = width;
 		config.height = height;
 		return config;

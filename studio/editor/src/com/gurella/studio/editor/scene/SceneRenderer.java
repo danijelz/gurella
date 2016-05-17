@@ -63,14 +63,11 @@ public class SceneRenderer implements Disposable {
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
 
-		// TODO input should be handled
 		InputService.addInputProcessor(selectedController);
-		//Gdx.input.setInputProcessor(selectedController);
 	}
 
 	public void render() {
 		synchronized (GurellaStudioPlugin.glMutex) {
-			Gdx.input.setInputProcessor(selectedController);
 			selectedController.update();
 			Color color = backgroundColor;
 			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
@@ -102,6 +99,7 @@ public class SceneRenderer implements Disposable {
 
 	@Override
 	public void dispose() {
+		InputService.removeInputProcessor(selectedController);
 		modelBatch.dispose();
 	}
 
