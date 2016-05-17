@@ -11,7 +11,6 @@ import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.NodeRenamedListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
-import com.gurella.engine.subscriptions.scene.update.DebugRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.IoUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.LogicUpdateListener;
@@ -143,14 +142,6 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		EventService.getSubscribers(sceneId, RenderUpdateListener.class, renderUpdateListeners);
 		for (int i = 0; i < renderUpdateListeners.size; i++) {
 			renderUpdateListeners.get(i).onRenderUpdate();
-		}
-		tempListeners.clear();
-
-		// TODO only fire if in debug or editor mode
-		Array<DebugRenderUpdateListener> debugRenderUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, DebugRenderUpdateListener.class, debugRenderUpdateListeners);
-		for (int i = 0; i < debugRenderUpdateListeners.size; i++) {
-			debugRenderUpdateListeners.get(i).onDebugRenderUpdate();
 		}
 		tempListeners.clear();
 

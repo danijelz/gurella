@@ -12,6 +12,7 @@ import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
@@ -24,6 +25,8 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
+	private IntMap<Array<DebugRenderable>> debugRenderablesByNode = new IntMap<Array<DebugRenderable>>();
+
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
@@ -57,6 +60,14 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 			if (layersUpdated) {
 				orderedLayers.sort(LayerOrdinalComparator.instance);
 			}
+		} else if (component instanceof DebugRenderable) {
+			int nodeId = component.getNodeId();
+			Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
+			if (renderables == null) {
+				renderables = new Array<>();
+				debugRenderablesByNode.put(nodeId, renderables);
+			}
+			renderables.add((DebugRenderable) component);
 		}
 	}
 
@@ -97,6 +108,17 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 
 			if (layersUpdated) {
 				orderedLayers.sort(LayerOrdinalComparator.instance);
+			}
+		} else if (component instanceof DebugRenderable) {
+			int nodeId = component.getNodeId();
+			Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
+			if (renderables == null) {
+				return;
+			}
+
+			renderables.removeValue((DebugRenderable) component, true);
+			if (renderables.size < 1) {
+				debugRenderablesByNode.remove(nodeId);
 			}
 		}
 	}

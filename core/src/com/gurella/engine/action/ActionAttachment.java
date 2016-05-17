@@ -7,7 +7,6 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
-import com.gurella.engine.subscriptions.scene.update.DebugRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.IoUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.LogicUpdateListener;
@@ -64,8 +63,6 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 			return PoolService.obtain(PreRenderActionAttachment.class);
 		case RENDER:
 			return PoolService.obtain(RenderActionAttachment.class);
-		case DEBUG_RENDER:
-			return PoolService.obtain(DebugRenderActionAttachment.class);
 		case POST_RENDER:
 			return PoolService.obtain(PostRenderActionAttachment.class);
 		case CLEANUP:
@@ -132,15 +129,6 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class RenderActionAttachment extends ActionAttachment implements RenderUpdateListener {
 		@Override
 		public void onRenderUpdate() {
-			if (value.act()) {
-				owner.detach(this);
-			}
-		}
-	}
-
-	private static class DebugRenderActionAttachment extends ActionAttachment implements DebugRenderUpdateListener {
-		@Override
-		public void onDebugRenderUpdate() {
 			if (value.act()) {
 				owner.detach(this);
 			}

@@ -31,7 +31,8 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 
 	@Override
 	public void onRenderUpdate() {
-		for (Layer layer : orderedLayers) {
+		for (int i = 0, n = orderedLayers.size; i < n; i++) {
+			Layer layer = orderedLayers.get(i);
 			render(layer);
 		}
 	}

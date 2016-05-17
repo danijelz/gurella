@@ -50,13 +50,6 @@ public enum CommonUpdatePriority {
 		}
 	},
 
-	DEBUG_RENDER() {
-		@Override
-		public int getPriority() {
-			return debugRenderPriority;
-		}
-	},
-
 	POST_RENDER() {
 		@Override
 		public int getPriority() {
