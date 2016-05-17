@@ -1,6 +1,10 @@
 package com.gurella.studio.editor.scene;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
@@ -23,10 +27,17 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
+	private Environment environment;
+
 	public StudioRenderSystem(Scene scene) {
 		this.scene = scene;
 		layerMask.allowed(Layer.DEFAULT);
 		batch = new GenericBatch();
+
+		environment = new Environment();
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+		environment.set(new DepthTestAttribute());
+		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 	}
 
 	@Override
@@ -107,6 +118,7 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 
 	public void renderScene(Camera camera) {
 		batch.begin(camera);
+		batch.setEnvironment(environment);
 		scene.spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);

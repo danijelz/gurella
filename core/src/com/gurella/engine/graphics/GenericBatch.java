@@ -21,6 +21,7 @@ public class GenericBatch implements Disposable {
 
 	private Object activeBatch;
 	private Camera activeCamera;
+	private Environment activeEnvironment;
 
 	public void begin(Camera camera) {
 		if (activeCamera != null) {
@@ -73,6 +74,10 @@ public class GenericBatch implements Disposable {
 		}
 	}
 
+	public void setEnvironment(Environment environment) {
+		this.activeEnvironment = environment;
+	}
+
 	public void render(final Renderable renderable) {
 		ensure3d();
 		modelBatch.render(renderable);
@@ -80,12 +85,12 @@ public class GenericBatch implements Disposable {
 
 	public void render(final RenderableProvider renderableProvider) {
 		ensure3d();
-		modelBatch.render(renderableProvider);
+		modelBatch.render(renderableProvider, activeEnvironment);
 	}
 
 	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders) {
 		ensure3d();
-		modelBatch.render(renderableProviders);
+		modelBatch.render(renderableProviders, activeEnvironment);
 	}
 
 	public void render(final RenderableProvider renderableProvider, final Environment environment) {
@@ -96,14 +101,17 @@ public class GenericBatch implements Disposable {
 	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders,
 			final Environment environment) {
 		ensure3d();
+		modelBatch.render(renderableProviders, environment);
 	}
 
 	public void render(final RenderableProvider renderableProvider, final Shader shader) {
 		ensure3d();
+		modelBatch.render(renderableProvider, activeEnvironment, shader);
 	}
 
 	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders, final Shader shader) {
 		ensure3d();
+		modelBatch.render(renderableProviders, activeEnvironment, shader);
 	}
 
 	public void render(final RenderableProvider renderableProvider, final Environment environment,
