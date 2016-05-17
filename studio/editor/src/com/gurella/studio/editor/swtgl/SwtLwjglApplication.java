@@ -1,10 +1,11 @@
 package com.gurella.studio.editor.swtgl;
 
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import java.util.Arrays;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
-import org.lwjgl.LWJGLException;
+import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
@@ -23,58 +24,66 @@ import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Clipboard;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.studio.GurellaStudioPlugin;
 
 //https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
-	private static final Object mutex = new Object();
+	private final SwtLwjglGraphics graphics;
+	private OpenALAudio audio;
+	private final LwjglFiles files;
+	private final SwtLwjglInput input;
+	private final LwjglNet net;
+	private final ApplicationListener listener;
+	private boolean running = true;
 
-	protected final SwtLwjglGraphics graphics;
-	protected OpenALAudio audio;
-	protected final LwjglFiles files;
-	protected final SwtLwjglInput input;
-	protected final LwjglNet net;
-	protected final ApplicationListener listener;
-	protected boolean running = true;
-	protected final Array<Runnable> runnables = new Array<Runnable>();
-	protected final Array<Runnable> executedRunnables = new Array<Runnable>();
-	protected final Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
-	protected int logLevel = LOG_INFO;
-	protected String preferencesDir;
+	private final Array<Runnable> runnables = new Array<Runnable>();
+	private final Array<Runnable> executedRunnables = new Array<Runnable>();
 
-	protected int lastWidth;
-	protected int lastHeight;
-	protected boolean wasActive = true;
+	private final Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
 
-	public SwtLwjglApplication(ApplicationListener listener, Composite parentComposite) {
-		this(listener, createConfig(parentComposite.getSize().x, parentComposite.getSize().y), parentComposite);
+	private int logLevel = LOG_INFO;
+
+	private String preferencesDir;
+	private ObjectMap<String, Preferences> preferences = new ObjectMap<String, Preferences>();
+
+	private int lastWidth;
+	private int lastHeight;
+	private boolean wasActive = true;
+
+	private int backgroundFPS;
+
+	public SwtLwjglApplication(ApplicationListener listener) {
+		this(new Shell(SwtLwjglGraphics.getDisplay()), listener);
 	}
 
-	public SwtLwjglApplication(ApplicationListener listener, SwtLwjglApplicationConfiguration config,
-			Composite parentComposite) {
-		this(listener, config, new SwtLwjglGraphics(parentComposite, config));
+	public SwtLwjglApplication(Composite parent, ApplicationListener listener) {
+		this(parent, listener, createConfig(parent.getSize().x, parent.getSize().y));
 	}
 
-	public SwtLwjglApplication(ApplicationListener listener, SwtLwjglApplicationConfiguration config,
-			SwtLwjglGraphics graphics) {
+	public SwtLwjglApplication(Composite parent, ApplicationListener listener,
+			SwtLwjglApplicationConfiguration config) {
 		LwjglNativesLoader.load();
 
-		this.graphics = graphics;
 		if (!SwtLwjglApplicationConfiguration.disableAudio && audio == null) {
 			audio = new OpenALAudio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
 					config.audioDeviceBufferSize);
 		}
+
+		backgroundFPS = config.backgroundFPS;
+		graphics = new SwtLwjglGraphics(parent, config);
 		files = new LwjglFiles();
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();
+
 		this.listener = listener;
 		this.preferencesDir = config.preferencesDirectory;
 
-		synchronized (mutex) {
-			initGdxGlobals();
+		synchronized (GurellaStudioPlugin.glMutex) {
 			initialize();
 		}
+
+		parent.getDisplay().asyncExec(() -> mainLoop());
 	}
 
 	private void initGdxGlobals() {
@@ -93,86 +102,52 @@ public class SwtLwjglApplication implements Application {
 		SwtLwjglApplicationConfiguration config = new SwtLwjglApplicationConfiguration();
 		config.width = width;
 		config.height = height;
-		config.vSyncEnabled = true;
 		return config;
 	}
 
 	private void initialize() {
-		try {
-			graphics.setupDisplay();
-		} catch (LWJGLException e) {
-			throw new GdxRuntimeException(e);
-		}
+		graphics.init();
 		initGdxGlobals();
 
 		listener.create();
-		graphics.resize = true;
 
 		lastWidth = graphics.getWidth();
 		lastHeight = graphics.getHeight();
 
-		graphics.lastTime = System.nanoTime();
-
 		final GLCanvas glCanvas = graphics.getGlCanvas();
-		glCanvas.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				running = false;
-				listener.pause();
-				listener.dispose();
-				for (LifecycleListener l : lifecycleListeners) {
-					l.pause();
-					l.dispose();
-				}
-
-				if (audio != null) {
-					audio.dispose();
-				}
-
-				graphics.dispose();
-			}
-		});
-
-		glCanvas.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				graphics.setVSync(graphics.config.vSyncEnabled);
-				try {
-					mainLoop();
-				} catch (Throwable t) {
-					if (audio != null) {
-						audio.dispose();
-					}
-					if (t instanceof RuntimeException) {
-						throw (RuntimeException) t;
-					} else {
-						throw new GdxRuntimeException(t);
-					}
-				}
-			}
-		});
-
-		glCanvas.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (running && !glCanvas.isDisposed()) {
-					mainLoop();
-				}
-				if (running && !glCanvas.isDisposed()) {
-					glCanvas.getDisplay().timerExec(35, this);
-				}
-			}
-		});
+		glCanvas.addListener(SWT.Dispose, e -> onGlCanvasDisposed());
 	}
 
-	void mainLoop() {
-		synchronized (mutex) {
-			initGdxGlobals();
-			mainLoopSafely();
+	private void onGlCanvasDisposed() {
+		running = false;
+		listener.pause();
+		listener.dispose();
+
+		for (LifecycleListener l : lifecycleListeners) {
+			l.pause();
+			l.dispose();
+		}
+
+		if (audio != null) {
+			audio.dispose();
 		}
 	}
 
-	void mainLoopSafely() {
+	private void mainLoop() {
+		GLCanvas glCanvas = graphics.getGlCanvas();
+		if (running && !glCanvas.isDisposed()) {
+			synchronized (GurellaStudioPlugin.glMutex) {
+				initGdxGlobals();
+				update();
+			}
+		}
+
+		if (running && !glCanvas.isDisposed()) {
+			glCanvas.getDisplay().timerExec(35, () -> mainLoop());
+		}
+	}
+
+	private void update() {
 		graphics.lastTime = System.nanoTime();
 		boolean isActive = graphics.getGlCanvas().isCurrent();
 		if (wasActive && !isActive) {
@@ -217,29 +192,33 @@ public class SwtLwjglApplication implements Application {
 			audio.update();
 		}
 
-		if (!isActive && graphics.config.backgroundFPS == -1) {
+		if (!isActive && backgroundFPS == -1) {
 			shouldRender = false;
 		}
 
 		if (shouldRender) {
-			graphics.setCurrent();
-			graphics.updateTime();
-			listener.render();
-			graphics.swapBuffer();
+			render();
 		}
+	}
+
+	private void render() {
+		graphics.setCurrent();
+		graphics.update();
+		listener.render();
+		graphics.swapBuffer();
 	}
 
 	public boolean executeRunnables() {
 		synchronized (runnables) {
+			if (runnables.size == 0) {
+				return false;
+			}
+
 			executedRunnables.addAll(runnables);
 			runnables.clear();
 		}
-		if (executedRunnables.size == 0) {
-			return false;
-		}
-		for (int i = 0; i < executedRunnables.size; i++) {
-			executedRunnables.get(i).run();
-		}
+
+		Arrays.stream(executedRunnables.<Runnable> toArray(Runnable.class)).forEach(r -> r.run());
 		executedRunnables.clear();
 		return true;
 	}
@@ -297,8 +276,6 @@ public class SwtLwjglApplication implements Application {
 	public long getNativeHeap() {
 		return getJavaHeap();
 	}
-
-	ObjectMap<String, Preferences> preferences = new ObjectMap<String, Preferences>();
 
 	@Override
 	public Preferences getPreferences(String name) {
@@ -381,12 +358,7 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void exit() {
-		postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				running = false;
-			}
-		});
+		postRunnable(() -> running = false);
 	}
 
 	@Override

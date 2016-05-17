@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationDebugRenderListener;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -51,7 +52,6 @@ public class SceneRenderer implements Disposable {
 		selectedCamera = perspectiveCamera;
 
 		perspectiveCameraController = new CameraInputController(perspectiveCamera);
-		Gdx.input.setInputProcessor(perspectiveCameraController);
 		selectedController = perspectiveCameraController;
 
 		modelBatch = new ModelBatch();
@@ -62,10 +62,15 @@ public class SceneRenderer implements Disposable {
 
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
+
+		// TODO input should be handled
+		InputService.addInputProcessor(selectedController);
+		//Gdx.input.setInputProcessor(selectedController);
 	}
 
 	public void render() {
 		synchronized (GurellaStudioPlugin.glMutex) {
+			Gdx.input.setInputProcessor(selectedController);
 			selectedController.update();
 			Color color = backgroundColor;
 			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
@@ -78,8 +83,6 @@ public class SceneRenderer implements Disposable {
 			compass.render(modelBatch);
 			modelBatch.end();
 			renderScene();
-			// TODO input should be handled
-			Gdx.input.setInputProcessor(perspectiveCameraController);
 		}
 	}
 

@@ -1,16 +1,14 @@
 package com.gurella.studio.editor.swtgl;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.backends.lwjgl.LwjglGraphics;
 import com.badlogic.gdx.graphics.Color;
 
 public class SwtLwjglApplicationConfiguration {
 	/**
-	 * If true, OpenAL will not be used. This means
-	 * {@link Application#getAudio()} returns null and the gdx-openal.jar and
-	 * OpenAL natives are not needed.
+	 * If true, OpenAL will not be used. This means {@link Application#getAudio()} returns null and the gdx-openal.jar
+	 * and OpenAL natives are not needed.
 	 */
 	public static boolean disableAudio;
 
@@ -32,13 +30,7 @@ public class SwtLwjglApplicationConfiguration {
 	/** used to emulate screen densities **/
 	public int overrideDensity = -1;
 	/**
-	 * whether to enable vsync, can be changed at runtime via
-	 * {@link Graphics#setVSync(boolean)}
-	 **/
-	public boolean vSyncEnabled = true;
-	/**
-	 * whether to call System.exit() on tear-down. Needed for Webstarts on some
-	 * versions of Mac OS X it seems
+	 * whether to call System.exit() on tear-down. Needed for Webstarts on some versions of Mac OS X it seems
 	 **/
 	public boolean forceExit = true;
 	/** whether the window is resizable **/
@@ -51,18 +43,16 @@ public class SwtLwjglApplicationConfiguration {
 	public int audioDeviceBufferCount = 9;
 	public Color initialBackgroundColor = Color.BLACK;
 	/**
-	 * Target framerate when the window is in the foreground. The CPU sleeps as
-	 * needed. Use 0 to never sleep.
+	 * Target framerate when the window is in the foreground. The CPU sleeps as needed. Use 0 to never sleep.
 	 **/
 	public int foregroundFPS = 60;
 	/**
-	 * Target framerate when the window is not in the foreground. The CPU sleeps
-	 * as needed. Use 0 to never sleep, -1 to not render.
+	 * Target framerate when the window is not in the foreground. The CPU sleeps as needed. Use 0 to never sleep, -1 to
+	 * not render.
 	 **/
 	public int backgroundFPS = 60;
 	/**
-	 * Allows software OpenGL rendering if hardware acceleration was not
-	 * available.
+	 * Allows software OpenGL rendering if hardware acceleration was not available.
 	 * 
 	 * @see LwjglGraphics#isSoftwareMode()
 	 */
@@ -70,14 +60,13 @@ public class SwtLwjglApplicationConfiguration {
 	/** Preferences directory on the desktop. Default is ".prefs/". */
 	public String preferencesDirectory = ".prefs/";
 	/**
-	 * Callback used when trying to create a display, can handle failures,
-	 * default value is null (disabled)
+	 * Callback used when trying to create a display, can handle failures, default value is null (disabled)
 	 */
 	public LwjglGraphics.SetDisplayModeCallback setDisplayModeCallback;
 
 	/**
-	 * Sets the r, g, b and a bits per channel based on the given
-	 * {@link DisplayMode} and sets the fullscreen flag to true.
+	 * Sets the r, g, b and a bits per channel based on the given {@link DisplayMode} and sets the fullscreen flag to
+	 * true.
 	 * 
 	 * @param mode
 	 */

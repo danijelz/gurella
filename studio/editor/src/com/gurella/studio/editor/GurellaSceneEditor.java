@@ -133,7 +133,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 		Composite center = mainContainer.getCenter();
 		applicationListener = new SceneEditorApplicationListener();
-		application = new SwtLwjglApplication(applicationListener, center);
+		application = new SwtLwjglApplication(center, applicationListener);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);

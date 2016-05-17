@@ -3,7 +3,6 @@ package com.gurella.studio.editor.swtgl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
@@ -20,34 +19,34 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglGraphics implements Graphics {
-	static int major, minor;
+	private int major = -1, minor;
 
 	GL20 gl20;
 	GL30 gl30;
-	long frameId = -1;
-	float deltaTime = 0;
-	long frameStart = 0;
-	int frames = 0;
-	int fps;
 	long lastTime = System.nanoTime();
-	Composite parentComposite;
-	boolean vsync = false;
-	boolean resize = false;
-	SwtLwjglApplicationConfiguration config;
-	BufferFormat bufferFormat = new BufferFormat(8, 8, 8, 8, 16, 8, 0, false);
-	String extensions;
-	volatile boolean isContinuous = true;
-	volatile boolean requestRendering = false;
-	boolean softwareMode;
 
-	int sizeX;
-	int sizeY;
+	private long frameId = -1;
+	private float deltaTime = 0;
+	private long frameStart = 0;
+	private int frames = 0;
+	private int fps;
+	private BufferFormat bufferFormat = new BufferFormat(8, 8, 8, 8, 16, 8, 0, false);
+	private String extensions;
+	private volatile boolean isContinuous = true;
+	private volatile boolean requestRendering = false;
+	private boolean softwareMode;
+	private int overrideDensity = -1;
+
+	private int sizeX;
+	private int sizeY;
 
 	private final GLCanvas glCanvas;
 
+	private final Object mutex = new Object();
+
 	SwtLwjglGraphics(Composite parentComposite, SwtLwjglApplicationConfiguration config) {
-		this.parentComposite = parentComposite;
-		this.config = config;
+		this.overrideDensity = config.overrideDensity;
+
 		GLData glData = new GLData();
 		glData.redSize = config.r;
 		glData.greenSize = config.g;
@@ -58,20 +57,68 @@ public class SwtLwjglGraphics implements Graphics {
 		glData.samples = config.samples;
 		glData.doubleBuffer = true;
 
-		Point size = this.parentComposite.getSize();
+		Point size = parentComposite.getSize();
 		sizeX = size.x;
 		sizeY = size.y;
 
 		glCanvas = new GLCanvas(parentComposite, SWT.FLAT, glData);
 		glCanvas.setCurrent();
-		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
+		glCanvas.addListener(SWT.Resize, e -> updateSize());
+		glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 
-		if (parentComposite.getLayout() instanceof GridLayout) {
-			glCanvas.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
+		lastTime = System.nanoTime();
+	}
+
+	void init() {
+		try {
+			initDisplay();
+			initiateGlInstances();
+		} catch (LWJGLException e) {
+			throw new GdxRuntimeException(e);
+		}
+
+	}
+
+	private void initDisplay() throws LWJGLException {
+		if (!glCanvas.isDisposed()) {
+			glCanvas.setCurrent();
+			GLContext.useContext(glCanvas);
 		}
 	}
 
-	private void updateSizeByParent() {
+	public void initiateGlInstances() {
+		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
+		major = Integer.parseInt("" + version.charAt(0));
+
+		if (major < 2) {
+			throw new GdxRuntimeException(
+					"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: " + version);
+		}
+
+		minor = Integer.parseInt("" + version.charAt(2));
+
+		if (major > 2) {
+			gl30 = new LwjglGL30();
+			gl20 = gl30;
+		} else if (!supportsExtension("GL_EXT_framebuffer_object") && !supportsExtension("GL_ARB_framebuffer_object")) {
+			String glInfo = glInfo();
+			throw new GdxRuntimeException("OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: "
+					+ version + ", FBO extension: false" + (glInfo.isEmpty() ? "" : ("\n" + glInfo())));
+		} else {
+			gl20 = new LwjglGL20();
+		}
+	}
+
+	private static String glInfo() {
+		try {
+			return GL11.glGetString(GL11.GL_VENDOR) + "\n" + GL11.glGetString(GL11.GL_RENDERER) + "\n"
+					+ GL11.glGetString(GL11.GL_VERSION);
+		} catch (Throwable ignored) {
+			return "";
+		}
+	}
+
+	private void updateSize() {
 		Point size = glCanvas.getSize();
 		sizeX = size.x;
 		sizeY = size.y;
@@ -133,7 +180,7 @@ public class SwtLwjglGraphics implements Graphics {
 		return fps;
 	}
 
-	void updateTime() {
+	void update() {
 		long time = System.nanoTime();
 		deltaTime = (time - lastTime) / 1000000000.0f;
 		lastTime = time;
@@ -146,63 +193,14 @@ public class SwtLwjglGraphics implements Graphics {
 		frames++;
 	}
 
-	void setupDisplay() throws LWJGLException {
-		if (!glCanvas.isDisposed()) {
-			glCanvas.setCurrent();
-			GLContext.useContext(glCanvas);
-		}
-		initiateGlInstances();
-	}
-
-	public void initiateGlInstances() {
-		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
-		major = Integer.parseInt("" + version.charAt(0));
-		minor = Integer.parseInt("" + version.charAt(2));
-
-		if (major >= 3) {
-			gl30 = new LwjglGL30();
-			gl20 = gl30;
-		} else {
-			gl20 = new LwjglGL20();
-		}
-
-		if (major <= 1)
-			throw new GdxRuntimeException(
-					"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: " + version);
-		if (major == 2 || version.contains("2.1")) {
-			if (!supportsExtension("GL_EXT_framebuffer_object") && !supportsExtension("GL_ARB_framebuffer_object")) {
-				String glInfo = glInfo();
-				throw new GdxRuntimeException(
-						"OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: " + version
-								+ ", FBO extension: false" + (glInfo.isEmpty() ? "" : ("\n" + glInfo())));
-			}
-		}
-	}
-
-	private static String glInfo() {
-		try {
-			return GL11.glGetString(GL11.GL_VENDOR) + "\n" //
-					+ GL11.glGetString(GL11.GL_RENDERER) + "\n" //
-					+ GL11.glGetString(GL11.GL_VERSION);
-		} catch (Throwable ignored) {
-		}
-		return "";
-	}
-
 	@Override
 	public float getPpiX() {
-		if (glCanvas.isDisposed()) {
-			return 0;
-		}
-		return glCanvas.getDisplay().getDPI().x;
+		return glCanvas.isDisposed() ? 0 : glCanvas.getDisplay().getDPI().x;
 	}
 
 	@Override
 	public float getPpiY() {
-		if (glCanvas.isDisposed()) {
-			return 0;
-		}
-		return glCanvas.getDisplay().getDPI().y;
+		return glCanvas.isDisposed() ? 0 : glCanvas.getDisplay().getDPI().y;
 	}
 
 	@Override
@@ -217,10 +215,7 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public float getDensity() {
-		if (config.overrideDensity != -1) {
-			return config.overrideDensity / 160f;
-		}
-		return getPpiX() / 160.0f;
+		return overrideDensity == -1 ? getPpiX() / 160.0f : overrideDensity / 160f;
 	}
 
 	@Override
@@ -234,7 +229,6 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public void setVSync(boolean vsync) {
-		this.vsync = vsync;
 	}
 
 	@Override
@@ -257,13 +251,13 @@ public class SwtLwjglGraphics implements Graphics {
 
 	@Override
 	public void requestRendering() {
-		synchronized (this) {
+		synchronized (mutex) {
 			requestRendering = true;
 		}
 	}
 
 	public boolean shouldRender() {
-		synchronized (this) {
+		synchronized (mutex) {
 			boolean rq = requestRendering;
 			requestRendering = false;
 			return rq || isContinuous;
@@ -377,6 +371,7 @@ public class SwtLwjglGraphics implements Graphics {
 		if (display == null) {
 			display = Display.getDefault();
 		}
+
 		return display;
 	}
 
@@ -384,9 +379,5 @@ public class SwtLwjglGraphics implements Graphics {
 		protected SwtLwjglMonitor(int virtualX, int virtualY, String name) {
 			super(virtualX, virtualY, name);
 		}
-	}
-
-	public void dispose() {
-		glCanvas.dispose();
 	}
 }

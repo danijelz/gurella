@@ -78,7 +78,7 @@ public class ModelEditor<T> extends Composite {
 		editors.add(editor);
 
 		if (editor instanceof SimplePropertyEditor) {
-			String name = editor.getDescriptiveName() /*+ (editor.getContext().isNullable() ? "" : "*")*/;
+			String name = editor.getDescriptiveName() /*TODO + (editor.getContext().isNullable() ? "" : "*")*/;
 			boolean longName = name.length() > 20;
 
 			Label label = toolkit.createLabel(this, name + ":");
