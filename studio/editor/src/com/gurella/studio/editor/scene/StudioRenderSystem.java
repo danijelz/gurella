@@ -142,18 +142,24 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 		batch.begin(camera);
 		batch.setEnvironment(environment);
 		scene.spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
+
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			spatial.renderableComponent.render(batch);
-			Array<DebugRenderable> renderables = debugRenderablesByNode.get(spatial.nodeId);
-			if (renderables != null) {
-				for (int j = 0; j < renderables.size; j++) {
-					renderables.get(j).debugRender(batch);
-				}
-			}
+			debugRender(spatial);
 		}
+
 		tempSpatials.clear();
 		batch.end();
+	}
+
+	private void debugRender(Spatial spatial) {
+		Array<DebugRenderable> renderables = debugRenderablesByNode.get(spatial.nodeId);
+		if (renderables != null) {
+			for (int j = 0; j < renderables.size; j++) {
+				renderables.get(j).debugRender(batch);
+			}
+		}
 	}
 
 	@Override

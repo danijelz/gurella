@@ -1,8 +1,10 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.gurella.engine.graphics.GenericBatch;
+import com.gurella.engine.scene.debug.DebugRenderable;
 
-public class TextureComponent extends RenderableComponent2d {
+public class TextureComponent extends RenderableComponent2d implements DebugRenderable {
 	private Texture texture;
 
 	public Texture getTexture() {
@@ -31,6 +33,12 @@ public class TextureComponent extends RenderableComponent2d {
 		if (texture != null) {
 			sprite.setSize(texture.getWidth(), texture.getHeight());
 		}
+	}
+	
+	@Override
+	public void debugRender(GenericBatch batch) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
