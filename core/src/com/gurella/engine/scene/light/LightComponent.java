@@ -11,14 +11,15 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent2 {
 	transient T light;
 	@PropertyDescriptor
-	final Color color = new Color(0, 0, 0, 1);
+	final Color color = new Color(1, 1, 1, 1);
 
 	public LightComponent() {
 		light = createLight();
+		light.setColor(color);
 	}
 
 	protected abstract T createLight();
-	
+
 	public T getLight() {
 		return light;
 	}

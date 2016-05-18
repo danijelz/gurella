@@ -4,11 +4,13 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 
 public class DirectionalLightComponent extends LightComponent<DirectionalLight> {
-	private final Vector3 direction = new Vector3();
+	private final Vector3 direction = new Vector3(0, -1, 0);
 
 	@Override
 	protected DirectionalLight createLight() {
-		return new DirectionalLight();
+		DirectionalLight directionalLight = new DirectionalLight();
+		directionalLight.direction.set(direction);
+		return directionalLight;
 	}
 
 	public Vector3 getDirection() {
