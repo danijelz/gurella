@@ -143,11 +143,13 @@ public class GenericBatch implements Disposable {
 	public void render(final RenderableProvider renderableProvider, final Environment environment,
 			final Shader shader) {
 		ensure3d();
+		modelBatch.render(renderableProvider, environment, shader);
 	}
 
 	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders,
 			final Environment environment, final Shader shader) {
 		ensure3d();
+		modelBatch.render(renderableProviders, environment, shader);
 	}
 
 	// ////////2D
@@ -225,12 +227,14 @@ public class GenericBatch implements Disposable {
 		sprite.draw(polygonSpriteBatch);
 	}
 
+	// SHAPE
+
 	public void rectLine(float x1, float y1, float x2, float y2, float width) {
 		ensureShapes();
 		shapeRenderer.setProjectionMatrix(activeCamera.combined);
 		shapeRenderer.rectLine(x1, y1, x2, y2, width);
 	}
-	
+
 	public void line(float x1, float y1, float x2, float y2) {
 		ensureShapes();
 		shapeRenderer.setProjectionMatrix(activeCamera.combined);
