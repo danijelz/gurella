@@ -53,6 +53,7 @@ import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.renderable.AtlasRegionComponent;
 import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.ShapeComponent;
@@ -136,8 +137,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		addMenuItem(menu, OrtographicCameraComponent.class);
 		addMenuItem(menu, PerspectiveCameraComponent.class);
 		new MenuItem(menu, SEPARATOR);
-		addMenuItem(menu, PointLightComponent.class);
 		addMenuItem(menu, DirectionalLightComponent.class);
+		addMenuItem(menu, PointLightComponent.class);
+		addMenuItem(menu, SpotLightComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, AudioListenerComponent.class);
 		addMenuItem(menu, AudioSourceComponent.class);

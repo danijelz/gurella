@@ -87,7 +87,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		IWorkbenchPage page = window.getActivePage();
 		IEditorPart editor = page.getActiveEditor();
 		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-		dialog.setFilterPath(input.getFile().getLocation().toString());
+		dialog.setFilterPath(input.getFile().getLocation().removeLastSegments(1).toString());
 
 		final String path = dialog.open();
 		if (path != null) {

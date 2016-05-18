@@ -11,8 +11,8 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 		return new DirectionalLight();
 	}
 
-	public Vector3 getDirection(Vector3 out) {
-		return out.set(direction);
+	public Vector3 getDirection() {
+		return light.direction;
 	}
 
 	public void setDirection(Vector3 direction) {

@@ -1,6 +1,9 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -12,17 +15,31 @@ import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
+import com.gurella.engine.scene.light.LightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
+import com.gurella.engine.utils.IdentitySet;
 
 public class RenderSystem extends SceneService implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;
+
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
-	private final LayerMask layerMask = new LayerMask();
 
+	private IdentitySet<LightComponent<?>> lights = new IdentitySet<>(16);
+
+	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
+
+	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
+	private final DepthTestAttribute depthTest = new DepthTestAttribute();
+	/*
+	 * environment.set(new DepthTestAttribute()); TODO environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f,
+	 * -0.8f, -0.2f));
+	 */
+
+	private Environment environment = new Environment();
 
 	@Override
 	protected void init() {
@@ -47,13 +64,21 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 		Camera camera = cameraComponent.camera;
 		cameraComponent.viewport.apply();
 		batch.begin(camera);
+		batch.setEnvironment(updateEnvironment(cameraComponent));
+
 		try {
 			renderSpatials(layer, camera);
 		} catch (Exception e) {
 			throw e instanceof RuntimeException ? (RuntimeException) e : new GdxRuntimeException(e);
 		} finally {
 			batch.end();
+			batch.setEnvironment(null);
 		}
+	}
+
+	private Environment updateEnvironment(CameraComponent<?> cameraComponent) {
+		// TODO Auto-generated method stub
+		return environment;
 	}
 
 	private void renderSpatials(Layer layer, Camera camera) {
@@ -72,8 +97,10 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
 			boolean layersUpdated = false;
 
-			if (cameraComponent.renderingLayers.size > 0) {
-				for (Layer layer : cameraComponent.renderingLayers) {
+			Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+			if (renderingLayers.size > 0) {
+				for (int i = 0, n = renderingLayers.size; i < n; i++) {
+					Layer layer = renderingLayers.get(i);
 					layersUpdated |= addCameraComponent(layer, cameraComponent);
 				}
 			} else {
@@ -83,6 +110,8 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 			if (layersUpdated) {
 				orderedLayers.sort(LayerOrdinalComparator.instance);
 			}
+		} else if (component instanceof LightComponent) {
+			lights.add((LightComponent<?>) component);
 		}
 	}
 
@@ -117,13 +146,18 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 		if (component instanceof CameraComponent) {
 			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
 			boolean layersUpdated = false;
-			for (Layer layer : cameraComponent.renderingLayers) {
+
+			Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+			for (int i = 0, n = renderingLayers.size; i < n; i++) {
+				Layer layer = renderingLayers.get(i);
 				layersUpdated |= removeCameraComponent(layer, cameraComponent);
 			}
 
 			if (layersUpdated) {
 				orderedLayers.sort(LayerOrdinalComparator.instance);
 			}
+		} else if (component instanceof LightComponent) {
+			lights.remove((LightComponent<?>) component);
 		}
 	}
 

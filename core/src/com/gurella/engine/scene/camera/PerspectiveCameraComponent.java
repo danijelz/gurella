@@ -1,11 +1,16 @@
 package com.gurella.engine.scene.camera;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 
 public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> {
 	/** the field of view in degrees **/
 	private float fieldOfView = 67;
+	
+	public boolean depthTest = true;
+	public Color ambientLight;
+	public Color fog;
 
 	@Override
 	PerspectiveCamera createCamera() {

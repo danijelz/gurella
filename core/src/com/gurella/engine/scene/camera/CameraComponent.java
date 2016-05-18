@@ -21,9 +21,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
-	/** the near clipping plane distance, has to be positive **/
 	public float near = 1;
-	/** the far clipping plane distance, has to be positive **/
 	public float far = 1000;
 
 	private int ordinal;
@@ -32,7 +30,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	public final transient T camera;
 	public final transient CameraViewport viewport;
-	transient TransformComponent transformComponent;
+	private transient TransformComponent transformComponent;
 
 	public CameraComponent() {
 		camera = createCamera();
@@ -147,7 +145,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		}
 	}
 
-	protected void updateDefaultTransform() {
+	private void updateDefaultTransform() {
 		camera.position.setZero();
 		camera.direction.set(initialDirection);
 		camera.up.set(initialUp);
@@ -156,7 +154,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	private Matrix4 tempTransform = new Matrix4();
 
-	protected void updateTransform() {
+	private void updateTransform() {
 		camera.position.setZero();
 		camera.direction.set(initialDirection);
 		camera.up.set(initialUp);

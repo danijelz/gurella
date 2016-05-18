@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Disposable;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -86,8 +87,16 @@ public class SceneRenderer implements Disposable {
 	}
 
 	public void setScene(Scene scene) {
+		if (this.scene != null) {
+			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
+		}
+
 		this.scene = scene;
-		this.renderSystem = new StudioRenderSystem(scene);
+		renderSystem = new StudioRenderSystem(scene);
+
+		if (scene != null) {
+			EventService.subscribe(scene.getInstanceId(), renderSystem);
+		}
 	}
 
 	@Override
