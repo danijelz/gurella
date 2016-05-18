@@ -5,11 +5,13 @@ import com.badlogic.gdx.math.Vector3;
 
 public class PointLightComponent extends LightComponent<PointLight> {
 	private final Vector3 position = new Vector3();
-	private float intensity;
+	private float intensity = 0.1f;
 
 	@Override
 	protected PointLight createLight() {
-		return new PointLight();
+		PointLight pointLight = new PointLight();
+		pointLight.intensity = intensity;
+		return pointLight;
 	}
 
 	public float getIntensity() {
