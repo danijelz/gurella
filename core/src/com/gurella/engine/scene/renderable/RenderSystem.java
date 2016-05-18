@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
@@ -15,6 +16,7 @@ import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
@@ -36,11 +38,11 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 
 	private final Environment environment = new Environment();
 	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
+	private final ColorAttribute fog = new ColorAttribute(ColorAttribute.Fog, 1f, 1f, 1f, 1f);
 	private final DepthTestAttribute depthTest = new DepthTestAttribute();
 	private final DirectionalLightsAttribute directionalLights = new DirectionalLightsAttribute();
 	private final PointLightsAttribute pointLights = new PointLightsAttribute();
 	private final SpotLightsAttribute spotLights = new SpotLightsAttribute();
-
 
 	@Override
 	protected void init() {
@@ -83,7 +85,27 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	}
 
 	private Environment updateEnvironment(CameraComponent<?> cameraComponent) {
-		// TODO Auto-generated method stub
+		if (cameraComponent instanceof PerspectiveCameraComponent) {
+			PerspectiveCameraComponent perspectiveCamera = (PerspectiveCameraComponent) cameraComponent;
+
+			Color ambientLightColor = perspectiveCamera.ambientLight;
+			if (ambientLightColor == null) {
+				environment.remove(ambientLight.type);
+			} else {
+				ambientLight.color.set(ambientLightColor);
+				environment.set(ambientLight);
+			}
+
+			Color fogColor = perspectiveCamera.ambientLight;
+			if (fogColor == null) {
+				environment.remove(fog.type);
+			} else {
+				fog.color.set(fogColor);
+				environment.set(fog);
+			}
+		} else {
+			environment.remove(ambientLight.type | fog.type);
+		}
 		return environment;
 	}
 

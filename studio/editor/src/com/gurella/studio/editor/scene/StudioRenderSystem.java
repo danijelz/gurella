@@ -66,7 +66,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		environment.set(pointLights);
 		environment.set(spotLights);
 
-		directionalLights.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
+		//directionalLights.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 	}
 
 	@Override
