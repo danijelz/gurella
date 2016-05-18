@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
@@ -66,34 +65,15 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		environment.set(pointLights);
 		environment.set(spotLights);
 
-		//directionalLights.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
+		// directionalLights.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
-			boolean layersUpdated = false;
-
-			if (cameraComponent.renderingLayers.size > 0) {
-				for (Layer layer : cameraComponent.renderingLayers) {
-					layersUpdated |= addCameraComponent(layer, cameraComponent);
-				}
-			} else {
-				layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
-			}
-
-			if (layersUpdated) {
-				orderedLayers.sort(LayerOrdinalComparator.instance);
-			}
+			addCameraComponent(component);
 		} else if (component instanceof DebugRenderable) {
-			int nodeId = component.getNodeId();
-			Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
-			if (renderables == null) {
-				renderables = new Array<>();
-				debugRenderablesByNode.put(nodeId, renderables);
-			}
-			renderables.add((DebugRenderable) component);
+			addDebugRenderable(component);
 		} else if (component instanceof DirectionalLightComponent) {
 			directionalLights.lights.add(((DirectionalLightComponent) component).getLight());
 		} else if (component instanceof PointLightComponent) {
@@ -101,6 +81,33 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		} else if (component instanceof SpotLightComponent) {
 			spotLights.lights.add(((SpotLightComponent) component).getLight());
 		}
+	}
+
+	private void addCameraComponent(SceneNodeComponent2 component) {
+		CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
+		boolean layersUpdated = false;
+
+		if (cameraComponent.renderingLayers.size > 0) {
+			for (Layer layer : cameraComponent.renderingLayers) {
+				layersUpdated |= addCameraComponent(layer, cameraComponent);
+			}
+		} else {
+			layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
+		}
+
+		if (layersUpdated) {
+			orderedLayers.sort(LayerOrdinalComparator.instance);
+		}
+	}
+
+	private void addDebugRenderable(SceneNodeComponent2 component) {
+		int nodeId = component.getNodeId();
+		Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
+		if (renderables == null) {
+			renderables = new Array<>();
+			debugRenderablesByNode.put(nodeId, renderables);
+		}
+		renderables.add((DebugRenderable) component);
 	}
 
 	private boolean addCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
@@ -132,32 +139,40 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
-			boolean layersUpdated = false;
-			for (Layer layer : cameraComponent.renderingLayers) {
-				layersUpdated |= removeCameraComponent(layer, cameraComponent);
-			}
-
-			if (layersUpdated) {
-				orderedLayers.sort(LayerOrdinalComparator.instance);
-			}
+			removeCameraComponent(component);
 		} else if (component instanceof DebugRenderable) {
-			int nodeId = component.getNodeId();
-			Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
-			if (renderables == null) {
-				return;
-			}
-
-			renderables.removeValue((DebugRenderable) component, true);
-			if (renderables.size < 1) {
-				debugRenderablesByNode.remove(nodeId);
-			}
+			removeDebugRenderable(component);
 		} else if (component instanceof DirectionalLightComponent) {
 			directionalLights.lights.removeValue(((DirectionalLightComponent) component).getLight(), true);
 		} else if (component instanceof PointLightComponent) {
 			pointLights.lights.removeValue(((PointLightComponent) component).getLight(), true);
 		} else if (component instanceof SpotLightComponent) {
 			spotLights.lights.removeValue(((SpotLightComponent) component).getLight(), true);
+		}
+	}
+
+	private void removeCameraComponent(SceneNodeComponent2 component) {
+		CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
+		boolean layersUpdated = false;
+		for (Layer layer : cameraComponent.renderingLayers) {
+			layersUpdated |= removeCameraComponent(layer, cameraComponent);
+		}
+
+		if (layersUpdated) {
+			orderedLayers.sort(LayerOrdinalComparator.instance);
+		}
+	}
+
+	private void removeDebugRenderable(SceneNodeComponent2 component) {
+		int nodeId = component.getNodeId();
+		Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
+		if (renderables == null) {
+			return;
+		}
+
+		renderables.removeValue((DebugRenderable) component, true);
+		if (renderables.size < 1) {
+			debugRenderablesByNode.remove(nodeId);
 		}
 	}
 
