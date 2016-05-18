@@ -67,23 +67,22 @@ public class SwtLwjglGraphics implements Graphics {
 	}
 
 	void init() {
+		useContext();
+		initGlInstances();
+	}
+
+	void useContext() {
 		try {
-			initDisplay();
+			if (!glCanvas.isDisposed()) {
+				glCanvas.setCurrent();
+				GLContext.useContext(glCanvas);
+			}
 		} catch (LWJGLException e) {
 			throw new GdxRuntimeException(e);
 		}
-
 	}
 
-	private void initDisplay() throws LWJGLException {
-		if (!glCanvas.isDisposed()) {
-			glCanvas.setCurrent();
-			GLContext.useContext(glCanvas);
-			initiateGlInstances();
-		}
-	}
-
-	public void initiateGlInstances() {
+	public void initGlInstances() {
 		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
 		int major = Integer.parseInt("" + version.charAt(0));
 
@@ -131,6 +130,7 @@ public class SwtLwjglGraphics implements Graphics {
 		}
 	}
 
+	// TODO make package private
 	public final GLCanvas getGlCanvas() {
 		return glCanvas;
 	}
@@ -251,7 +251,7 @@ public class SwtLwjglGraphics implements Graphics {
 		}
 	}
 
-	public boolean shouldRender() {
+	boolean shouldRender() {
 		synchronized (mutex) {
 			boolean shouldRender = requestRendering;
 			requestRendering = false;

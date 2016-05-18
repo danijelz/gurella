@@ -43,13 +43,13 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	protected void onActivate() {
 		sceneId = getScene().getInstanceId();
 		transformComponent = getNode().getActiveComponent(TransformComponent.class);
-		updateGeometry();
 	}
 
 	@Override
 	protected void onDeactivate() {
 		sceneId = -1;
 		transformComponent = null;
+		dirty = true;
 	}
 
 	@Override

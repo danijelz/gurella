@@ -133,8 +133,11 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		mainContainer.setSelection(sceneHierarchyView);
 
 		Composite center = mainContainer.getCenter();
-		applicationListener = new SceneEditorApplicationListener();
-		application = new SwtLwjglApplication(center, applicationListener);
+
+		synchronized (GurellaStudioPlugin.glMutex) {
+			applicationListener = new SceneEditorApplicationListener();
+			application = new SwtLwjglApplication(center, applicationListener);
+		}
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);

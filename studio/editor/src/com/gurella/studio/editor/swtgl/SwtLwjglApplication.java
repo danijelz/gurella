@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.swtgl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -41,7 +40,7 @@ public class SwtLwjglApplication implements Application {
 	private List<Runnable> runnables = new ArrayList<>();
 	private List<Runnable> executedRunnables = new ArrayList<>();
 
-	private final List<LifecycleListener> lifecycleListeners = Collections.synchronizedList(new ArrayList<>());
+	private final List<LifecycleListener> lifecycleListeners = new ArrayList<>();
 
 	private int logLevel = LOG_INFO;
 
@@ -76,22 +75,10 @@ public class SwtLwjglApplication implements Application {
 		net = new LwjglNet();
 
 		synchronized (GurellaStudioPlugin.glMutex) {
-			initialize();
+			init();
 		}
 
 		parent.getDisplay().asyncExec(() -> mainLoop());
-	}
-
-	private void initGdxGlobals() {
-		Gdx.app = this;
-		Gdx.graphics = graphics;
-		Gdx.audio = audio;
-		Gdx.files = files;
-		Gdx.input = input;
-		Gdx.net = net;
-		Gdx.gl = graphics.gl20;
-		Gdx.gl20 = graphics.gl20;
-		Gdx.gl30 = graphics.gl30;
 	}
 
 	private static SwtApplicationConfig createConfig(int width, int height) {
@@ -101,9 +88,9 @@ public class SwtLwjglApplication implements Application {
 		return config;
 	}
 
-	private void initialize() {
+	private void init() {
 		graphics.init();
-		initGdxGlobals();
+		setCurrent();
 
 		listener.create();
 
@@ -114,11 +101,26 @@ public class SwtLwjglApplication implements Application {
 		glCanvas.addListener(SWT.Dispose, e -> onGlCanvasDisposed());
 	}
 
+	private void setCurrent() {
+		Gdx.app = this;
+		Gdx.graphics = graphics;
+		Gdx.audio = audio;
+		Gdx.files = files;
+		Gdx.input = input;
+		Gdx.net = net;
+		Gdx.gl = graphics.gl20;
+		Gdx.gl20 = graphics.gl20;
+		Gdx.gl30 = graphics.gl30;
+		graphics.useContext();
+	}
+
 	private void onGlCanvasDisposed() {
 		running = false;
 		listener.pause();
 		listener.dispose();
-		lifecycleListeners.stream().forEach(l -> disposeListener(l));
+		synchronized (lifecycleListeners) {
+			lifecycleListeners.stream().forEach(l -> disposeListener(l));
+		}
 		OpenAlAudioSingletone.dispose(audio);
 	}
 
@@ -129,11 +131,13 @@ public class SwtLwjglApplication implements Application {
 
 	private void mainLoop() {
 		GLCanvas glCanvas = graphics.getGlCanvas();
-		if (running && !glCanvas.isDisposed()) {
-			synchronized (GurellaStudioPlugin.glMutex) {
-				initGdxGlobals();
-				update();
-			}
+		if (!running || glCanvas.isDisposed()) {
+			return;
+		}
+
+		synchronized (GurellaStudioPlugin.glMutex) {
+			setCurrent();
+			update();
 		}
 
 		if (running && !glCanvas.isDisposed()) {
@@ -182,12 +186,16 @@ public class SwtLwjglApplication implements Application {
 		boolean isActive = graphics.getGlCanvas().isCurrent();
 		if (wasActive && !isActive) {
 			wasActive = false;
-			lifecycleListeners.stream().forEach(l -> l.pause());
+			synchronized (lifecycleListeners) {
+				lifecycleListeners.stream().forEach(l -> l.pause());
+			}
 			listener.pause();
 		} else if (!wasActive && isActive) {
 			wasActive = true;
 			listener.resume();
-			lifecycleListeners.stream().forEach(l -> l.resume());
+			synchronized (lifecycleListeners) {
+				lifecycleListeners.stream().forEach(l -> l.resume());
+			}
 		}
 		return isActive;
 	}
@@ -358,12 +366,16 @@ public class SwtLwjglApplication implements Application {
 
 	@Override
 	public void addLifecycleListener(LifecycleListener lifecycleListener) {
-		lifecycleListeners.add(lifecycleListener);
+		synchronized (lifecycleListeners) {
+			lifecycleListeners.add(lifecycleListener);
+		}
 	}
 
 	@Override
 	public void removeLifecycleListener(LifecycleListener lifecycleListener) {
-		lifecycleListeners.remove(lifecycleListener);
+		synchronized (lifecycleListeners) {
+			lifecycleListeners.remove(lifecycleListener);
+		}
 	}
 
 	public void setFocus() {
