@@ -9,7 +9,11 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.TreeItem;
+
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class AssetsTreeChangedListener implements IResourceChangeListener {
 	private AssetsExplorerView assetsExplorer;
@@ -58,22 +62,29 @@ public class AssetsTreeChangedListener implements IResourceChangeListener {
 		}
 	}
 
-	private static int getChildItemIndex(TreeItem item, IResource parentResource, IResource childResource) {
+	private int getChildItemIndex(TreeItem item, IResource parentResource, IResource childResource) {
+		try {
+			return getChildItemIndexSafely(item, parentResource, childResource);
+		} catch (Exception e) {
+			String message = "Error updating assets tree";
+			IStatus status = GurellaStudioPlugin.log(e, message);
+			ErrorDialog.openError(assetsExplorer.getShell(), message, e.getLocalizedMessage(), status);
+			return 0;
+		}
+	}
+
+	private static int getChildItemIndexSafely(TreeItem item, IResource parentResource, IResource childResource)
+			throws CoreException {
 		int index = 0;
 		IContainer container = (IContainer) parentResource;
-		IResource[] members;
-		try {
-			members = container.members();
-			for (IResource resource : members) {
-				if (childResource.equals(resource)) {
-					return index;
-				} else if (findChildItem(item, resource) != null) {
-					index++;
-				}
+		IResource[] members = container.members();
+		
+		for (IResource resource : members) {
+			if (childResource.equals(resource)) {
+				return index;
+			} else if (findChildItem(item, resource) != null) {
+				index++;
 			}
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		return index;

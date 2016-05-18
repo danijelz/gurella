@@ -21,6 +21,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.BitmapFontProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditor;
@@ -124,7 +125,6 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 					return ((Region) element).name;
 				}
 			});
-
 		}
 
 		private void createImage() {
@@ -133,9 +133,8 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 				InputStream contents = file.read();
 				image = new Image(getDisplay(), contents);
 				addListener(SWT.Dispose, (e) -> image.dispose());
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (Exception e) {
+				throw new GdxRuntimeException(e);
 			}
 		}
 

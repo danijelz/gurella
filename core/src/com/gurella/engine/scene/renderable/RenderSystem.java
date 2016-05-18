@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -15,11 +18,12 @@ import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
-import com.gurella.engine.scene.light.LightComponent;
+import com.gurella.engine.scene.light.DirectionalLightComponent;
+import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
-import com.gurella.engine.utils.IdentitySet;
 
 public class RenderSystem extends SceneService implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;
@@ -27,23 +31,25 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	private Array<Layer> orderedLayers = new Array<Layer>();
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 
-	private IdentitySet<LightComponent<?>> lights = new IdentitySet<>(16);
-
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
+	private final Environment environment = new Environment();
 	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
 	private final DepthTestAttribute depthTest = new DepthTestAttribute();
-	/*
-	 * environment.set(new DepthTestAttribute()); TODO environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f,
-	 * -0.8f, -0.2f));
-	 */
+	private final DirectionalLightsAttribute directionalLights = new DirectionalLightsAttribute();
+	private final PointLightsAttribute pointLights = new PointLightsAttribute();
+	private final SpotLightsAttribute spotLights = new SpotLightsAttribute();
 
-	private Environment environment = new Environment();
 
 	@Override
 	protected void init() {
 		batch = DisposablesService.add(new GenericBatch());
+
+		environment.set(depthTest);
+		environment.set(directionalLights);
+		environment.set(pointLights);
+		environment.set(spotLights);
 	}
 
 	@Override
@@ -110,8 +116,12 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 			if (layersUpdated) {
 				orderedLayers.sort(LayerOrdinalComparator.instance);
 			}
-		} else if (component instanceof LightComponent) {
-			lights.add((LightComponent<?>) component);
+		} else if (component instanceof DirectionalLightComponent) {
+			directionalLights.lights.add(((DirectionalLightComponent) component).getLight());
+		} else if (component instanceof PointLightComponent) {
+			pointLights.lights.add(((PointLightComponent) component).getLight());
+		} else if (component instanceof SpotLightComponent) {
+			spotLights.lights.add(((SpotLightComponent) component).getLight());
 		}
 	}
 
@@ -156,8 +166,12 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 			if (layersUpdated) {
 				orderedLayers.sort(LayerOrdinalComparator.instance);
 			}
-		} else if (component instanceof LightComponent) {
-			lights.remove((LightComponent<?>) component);
+		} else if (component instanceof DirectionalLightComponent) {
+			directionalLights.lights.removeValue(((DirectionalLightComponent) component).getLight(), true);
+		} else if (component instanceof PointLightComponent) {
+			pointLights.lights.removeValue(((PointLightComponent) component).getLight(), true);
+		} else if (component instanceof SpotLightComponent) {
+			spotLights.lights.removeValue(((SpotLightComponent) component).getLight(), true);
 		}
 	}
 

@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -21,6 +24,9 @@ import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
+import com.gurella.engine.scene.light.DirectionalLightComponent;
+import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.studio.editor.EditorMessageListener;
@@ -37,7 +43,12 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 	private IntMap<Array<DebugRenderable>> debugRenderablesByNode = new IntMap<Array<DebugRenderable>>();
 
-	private Environment environment;
+	private final Environment environment = new Environment();
+	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
+	private final DepthTestAttribute depthTest = new DepthTestAttribute();
+	private final DirectionalLightsAttribute directionalLights = new DirectionalLightsAttribute();
+	private final PointLightsAttribute pointLights = new PointLightsAttribute();
+	private final SpotLightsAttribute spotLights = new SpotLightsAttribute();
 
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
@@ -49,10 +60,13 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		layerMask.allowed(Layer.DEFAULT);
 		batch = new GenericBatch();
 
-		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
-		environment.set(new DepthTestAttribute());
-		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		environment.set(depthTest);
+		environment.set(directionalLights);
+		environment.set(pointLights);
+		environment.set(spotLights);
+
+		directionalLights.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 	}
 
 	@Override
@@ -80,6 +94,12 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 				debugRenderablesByNode.put(nodeId, renderables);
 			}
 			renderables.add((DebugRenderable) component);
+		} else if (component instanceof DirectionalLightComponent) {
+			directionalLights.lights.add(((DirectionalLightComponent) component).getLight());
+		} else if (component instanceof PointLightComponent) {
+			pointLights.lights.add(((PointLightComponent) component).getLight());
+		} else if (component instanceof SpotLightComponent) {
+			spotLights.lights.add(((SpotLightComponent) component).getLight());
 		}
 	}
 
@@ -132,6 +152,12 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 			if (renderables.size < 1) {
 				debugRenderablesByNode.remove(nodeId);
 			}
+		} else if (component instanceof DirectionalLightComponent) {
+			directionalLights.lights.removeValue(((DirectionalLightComponent) component).getLight(), true);
+		} else if (component instanceof PointLightComponent) {
+			pointLights.lights.removeValue(((PointLightComponent) component).getLight(), true);
+		} else if (component instanceof SpotLightComponent) {
+			spotLights.lights.removeValue(((SpotLightComponent) component).getLight(), true);
 		}
 	}
 
@@ -224,6 +250,8 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 			} else {
 				selectedNode = null;
 			}
+		} else {
+			selectedNode = null;
 		}
 	}
 }

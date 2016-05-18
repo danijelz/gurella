@@ -61,7 +61,8 @@ public class AffineTransform implements Poolable {
 	}
 
 	public boolean isIdentity() {
-		return values[0] == 1.0f && values[1] == 0.0f && values[2] == 0.0f && values[3] == 1.0f && values[4] == 0.0f && values[5] == 0.0f;
+		return values[0] == 1.0f && values[1] == 0.0f && values[2] == 0.0f && values[3] == 1.0f && values[4] == 0.0f
+				&& values[5] == 0.0f;
 	}
 
 	public AffineTransform setToTranslation(float tx, float ty) {
@@ -554,134 +555,7 @@ public class AffineTransform implements Poolable {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + "\n\t[" + values[0] + "|" + values[2] + "|" + values[4] + "]\n\t[" + values[1] + "|" + values[3] + "|"
-				+ values[5] + "]";
+		return getClass().getName() + "\n\t[" + values[0] + "|" + values[2] + "|" + values[4] + "]\n\t[" + values[1]
+				+ "|" + values[3] + "|" + values[5] + "]";
 	}
-
-	// TODO
-	/*
-	 * public static class UnmodifiableAffineTransform extends AffineTransform {
-	 * 
-	 * @Override public AffineTransform set(AffineTransform other) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform set(float a, float b, float c, float d,
-	 * float e, float f) { throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform idt() { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToTranslation(float tx, float ty) {
-	 * throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToScaling(float sx, float sy) { throw
-	 * new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToRotation(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToRotationRad(float radians) { throw
-	 * new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToSkewX(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToSkewXRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToSkewY(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToSkewYRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToSkew(float degreesX, float
-	 * degreesY) { throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform setToSkewRad(float radiansX, float
-	 * radiansY) { throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform mul(AffineTransform other) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform mulLeft(AffineTransform other) { throw
-	 * new UnsupportedOperationException(); }
-	 * 
-	 * @Override public boolean inv() { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform trn(float tx, float ty) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform translate(float tx, float ty) { throw
-	 * new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preTranslate(float tx, float ty) { throw
-	 * new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform rotate(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform rotateRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preRotate(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preRotateRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform scale(float scaleX, float scaleY) {
-	 * throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preScale(float scaleX, float scaleY) {
-	 * throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform skewX(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform skewXRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preSkewX(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preSkewXRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform skewY(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform skewYRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preSkewY(float degrees) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preSkewYRad(float radians) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform skew(float degreesX, float degreesY) {
-	 * throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform skewRad(float radiansX, float radiansY)
-	 * { throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preSkew(float degreesX, float degreesY)
-	 * { throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform preSkewRad(float radiansX, float
-	 * radiansY) { throw new UnsupportedOperationException(); }
-	 * 
-	 * @Override public AffineTransform scl(float scale) { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public void reset() { throw new
-	 * UnsupportedOperationException(); }
-	 * 
-	 * @Override public void free() { throw new UnsupportedOperationException();
-	 * }
-	 * 
-	 * @Override public int hashCode() { return super.hashCode() + 31; } }
-	 */
 }

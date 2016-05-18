@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -26,6 +27,7 @@ import org.eclipse.ui.part.ResourceTransfer;
 import com.gurella.engine.asset.AssetType;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
+import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;
@@ -61,10 +63,12 @@ public class AssetsExplorerView extends SceneEditorView {
 	private void initTree(GurellaSceneEditor editor) {
 		try {
 			createItems(editor);
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			tree.dispose();
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String message = "Error creating assets tree";
+			IStatus status = GurellaStudioPlugin.log(e, message);
+			ErrorComposite errorComposite = new ErrorComposite(this, status, message);
+			errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		}
 	}
 

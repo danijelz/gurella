@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.PixmapProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -40,9 +41,8 @@ public class PixmapInspectableContainer extends InspectableContainer<IFile> {
 			InputStream contents = target.getContents(true);
 			image = new Image(getDisplay(), contents);
 			addListener(SWT.Dispose, (e) -> image.dispose());
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (CoreException e) {
+			throw new GdxRuntimeException(e);
 		}
 
 		reflow(true);

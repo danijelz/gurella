@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditor;
@@ -68,19 +69,18 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 			}
 
 			if (image == null) {
-				return;//TODO
+				return;// TODO
 			}
 
 			if (vertices == null) {
-				vertices = new int[0];//TODO
+				vertices = new int[0];// TODO
 			}
 
 			int height = image.getBounds().height;
 			IntStream.range(0, vertices.length / 2).forEach(i -> updateVertice(i, height));
 			addListener(SWT.Dispose, e -> doDispose());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e) {
+			throw new GdxRuntimeException(e);
 		}
 
 		reflow(true);

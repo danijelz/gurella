@@ -18,6 +18,10 @@ public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeCo
 	}
 
 	protected abstract T createLight();
+	
+	public T getLight() {
+		return light;
+	}
 
 	public Color getColor() {
 		return light.color;
