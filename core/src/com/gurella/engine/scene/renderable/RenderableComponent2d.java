@@ -23,6 +23,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 
 	public RenderableComponent2d() {
 		sprite.setColor(tint);
+		sprite.flip(false, true);
 	}
 
 	public float getWidth() {

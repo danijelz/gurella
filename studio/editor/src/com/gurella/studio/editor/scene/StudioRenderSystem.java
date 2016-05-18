@@ -1,5 +1,9 @@
 package com.gurella.studio.editor.scene;
 
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -18,6 +22,8 @@ import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.studio.editor.model.ModelEditor;
+import com.gurella.studio.editor.model.ModelEditorContext;
 
 public class StudioRenderSystem implements ComponentActivityListener, Disposable {
 	private Scene scene;
@@ -142,22 +148,54 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 		batch.begin(camera);
 		batch.setEnvironment(environment);
 		scene.spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
+		SceneNodeComponent2 focusedComponent = findFocusedComponent();
 
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			spatial.renderableComponent.render(batch);
-			debugRender(spatial);
+			debugRender(spatial, focusedComponent);
 		}
 
 		tempSpatials.clear();
 		batch.end();
 	}
 
-	private void debugRender(Spatial spatial) {
+	private static SceneNodeComponent2 findFocusedComponent() {
+		Display current = Display.getCurrent();
+		if (current == null) {
+			return null;
+		}
+
+		Control focusControl = current.getFocusControl();
+		if (focusControl == null) {
+			return null;
+		}
+
+		Composite parent = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
+		while (parent != null) {
+			if (parent instanceof ModelEditor) {
+				ModelEditorContext<?> context = ((ModelEditor<?>) parent).getContext();
+				Object modelInstance = context.modelInstance;
+				if (modelInstance instanceof SceneNodeComponent2) {
+					return (SceneNodeComponent2) modelInstance;
+				} else {
+					return null;
+				}
+			}
+			parent = parent.getParent();
+		}
+
+		return null;
+	}
+
+	private void debugRender(Spatial spatial, SceneNodeComponent2 focusedComponent) {
 		Array<DebugRenderable> renderables = debugRenderablesByNode.get(spatial.nodeId);
 		if (renderables != null) {
 			for (int j = 0; j < renderables.size; j++) {
-				renderables.get(j).debugRender(batch);
+				DebugRenderable debugRenderable = renderables.get(j);
+				if (debugRenderable == focusedComponent) {
+					debugRenderable.debugRender(batch);
+				}
 			}
 		}
 	}

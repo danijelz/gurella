@@ -149,4 +149,8 @@ public class ModelEditor<T> extends Composite {
 			hoverEditorsTemp.clear();
 		}
 	}
+	
+	public ModelEditorContext<T> getContext() {
+		return context;
+	}
 }
