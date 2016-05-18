@@ -131,11 +131,12 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		registeredViews.add(inspectorView);
 
 		mainContainer.setSelection(sceneHierarchyView);
-
 		Composite center = mainContainer.getCenter();
 
+		applicationListener = new SceneEditorApplicationListener();
+		context.addEditorMessageListener(applicationListener);
+		
 		synchronized (GurellaStudioPlugin.glMutex) {
-			applicationListener = new SceneEditorApplicationListener();
 			application = new SwtLwjglApplication(center, applicationListener);
 		}
 
@@ -147,6 +148,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		dirty = false;
 		context.setScene(scene);
 		applicationListener.presentScene(scene);
+		
 		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 		Menu menu = new Menu(glCanvas);
 		MenuItem item = new MenuItem(menu, SWT.PUSH);

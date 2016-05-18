@@ -17,8 +17,9 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.EditorMessageListener;
 
-public class SceneRenderer implements Disposable {
+public class StudioSceneRenderer implements EditorMessageListener, Disposable {
 	private PerspectiveCamera perspectiveCamera;
 	private CameraInputController perspectiveCameraController;
 
@@ -38,7 +39,7 @@ public class SceneRenderer implements Disposable {
 	private Scene scene;
 	private StudioRenderSystem renderSystem;
 
-	public SceneRenderer() {
+	public StudioSceneRenderer() {
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		perspectiveCamera.position.set(0f, 1f, -3f);
 		perspectiveCamera.lookAt(0, 0, 0);
@@ -89,6 +90,7 @@ public class SceneRenderer implements Disposable {
 	public void setScene(Scene scene) {
 		if (this.scene != null) {
 			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
+			renderSystem.dispose();
 		}
 
 		this.scene = scene;
@@ -113,5 +115,12 @@ public class SceneRenderer implements Disposable {
 		perspectiveCamera.viewportHeight = height;
 		perspectiveCamera.update();
 		compass.resize(width, height);
+	}
+
+	@Override
+	public void handleMessage(Object source, Object message) {
+		if (renderSystem != null) {
+			renderSystem.handleMessage(source, message);
+		}
 	}
 }

@@ -5,16 +5,16 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
-import com.gurella.studio.editor.scene.SceneRenderer;
+import com.gurella.studio.editor.scene.StudioSceneRenderer;
 
-final class SceneEditorApplicationListener extends ApplicationAdapter {
+final class SceneEditorApplicationListener extends ApplicationAdapter implements EditorMessageListener {
 	private final Array<ApplicationDebugUpdateListener> listeners = new Array<>(64);
 
-	private SceneRenderer renderer;
+	private StudioSceneRenderer renderer;
 
 	@Override
 	public void create() {
-		renderer = new SceneRenderer();
+		renderer = new StudioSceneRenderer();
 	}
 
 	public void presentScene(Scene scene) {
@@ -39,5 +39,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 			listeners.get(i).debugUpdate();
 		}
 		listeners.clear();
+	}
+
+	@Override
+	public void handleMessage(Object source, Object message) {
+		renderer.handleMessage(source, message);
 	}
 }

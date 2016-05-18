@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.debug.DebugRenderable;
@@ -22,10 +23,13 @@ import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.studio.editor.EditorMessageListener;
 import com.gurella.studio.editor.model.ModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext;
+import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
+import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
 
-public class StudioRenderSystem implements ComponentActivityListener, Disposable {
+public class StudioRenderSystem implements ComponentActivityListener, EditorMessageListener, Disposable {
 	private Scene scene;
 
 	private GenericBatch batch;
@@ -33,10 +37,12 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 	private IntMap<Array<DebugRenderable>> debugRenderablesByNode = new IntMap<Array<DebugRenderable>>();
 
+	private Environment environment;
+
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
-	private Environment environment;
+	SceneNode2 selectedNode;
 
 	public StudioRenderSystem(Scene scene) {
 		this.scene = scene;
@@ -203,5 +209,21 @@ public class StudioRenderSystem implements ComponentActivityListener, Disposable
 	@Override
 	public void dispose() {
 		batch.dispose();
+	}
+
+	@Override
+	public void handleMessage(Object source, Object message) {
+		if (source instanceof SceneHierarchyView && message instanceof SelectionMessage) {
+			SelectionMessage selectionMessage = (SelectionMessage) message;
+			Object selection = selectionMessage.seclection;
+			if (selection instanceof NodeInspectable) {
+				selectedNode = ((NodeInspectable) selection).target;
+			} else if (selection instanceof ComponentInspectable) {
+				SceneNodeComponent2 target = ((ComponentInspectable) selection).target;
+				selectedNode = target == null ? null : target.getNode();
+			} else {
+				selectedNode = null;
+			}
+		}
 	}
 }

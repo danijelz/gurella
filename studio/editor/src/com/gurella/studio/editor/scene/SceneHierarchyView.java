@@ -67,7 +67,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		graph.addListener(SWT.Selection, (e) -> graphSelectionChanged());
+		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
 		createMenu();
@@ -182,7 +182,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private void graphSelectionChanged() {
+	private void selectionChanged() {
 		TreeItem[] selection = graph.getSelection();
 		if (selection.length > 0) {
 			Object data = selection[0].getData();
@@ -390,7 +390,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private static class NodeInspectable implements Inspectable<SceneNode2> {
+	public static class NodeInspectable implements Inspectable<SceneNode2> {
 		SceneNode2 target;
 
 		public NodeInspectable(SceneNode2 target) {
@@ -408,7 +408,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		}
 	}
 
-	private static class ComponentInspectable implements Inspectable<SceneNodeComponent2> {
+	public static class ComponentInspectable implements Inspectable<SceneNodeComponent2> {
 		SceneNodeComponent2 target;
 
 		public ComponentInspectable(SceneNodeComponent2 target) {
