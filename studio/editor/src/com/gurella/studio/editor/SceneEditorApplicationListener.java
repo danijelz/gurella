@@ -178,6 +178,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			Spatial spatial = spatials.get(0);
 			SceneNode2 node = spatial.renderableComponent.getNode();
 		}
+
+		spatials.clear();
 	}
 
 	@Override
