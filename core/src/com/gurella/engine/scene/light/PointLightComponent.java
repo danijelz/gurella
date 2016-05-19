@@ -39,7 +39,7 @@ public class PointLightComponent extends LightComponent<PointLight>
 
 	public void setPosition(Vector3 position) {
 		this.position.set(position);
-		light.position.set(position);
+		dirty = true;
 	}
 
 	@Override
@@ -79,11 +79,10 @@ public class PointLightComponent extends LightComponent<PointLight>
 		if (dirty) {
 			dirty = false;
 			if (transformComponent == null) {
-				light.position.setZero().add(position);
+				light.position.set(position);
 			} else {
 				transformComponent.getWorldTranslation(light.position).add(position);
 			}
-			position.set(light.position);
 		}
 	}
 }

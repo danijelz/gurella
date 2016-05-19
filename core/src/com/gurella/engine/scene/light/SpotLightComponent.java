@@ -25,7 +25,6 @@ public class SpotLightComponent extends LightComponent<SpotLight>
 	@Override
 	protected SpotLight createLight() {
 		SpotLight spotLight = new SpotLight();
-		spotLight.direction.set(0, -1, 0);
 		spotLight.intensity = 0.1f;
 		spotLight.cutoffAngle = 1;
 		spotLight.exponent = 1;
@@ -60,21 +59,21 @@ public class SpotLightComponent extends LightComponent<SpotLight>
 	}
 
 	public Vector3 getPosition() {
-		return light.position;
+		return position;
 	}
 
 	public void setPosition(Vector3 position) {
 		this.position.set(position);
-		light.position.set(position);
+		dirty = true;
 	}
 
 	public Vector3 getDirection() {
-		return light.direction;
+		return direction;
 	}
 
 	public void setDirection(Vector3 direction) {
 		this.direction.set(direction);
-		light.direction.set(direction);
+		dirty = true;
 	}
 
 	@Override
@@ -113,23 +112,19 @@ public class SpotLightComponent extends LightComponent<SpotLight>
 	public void onPreRenderUpdate() {
 		if (dirty) {
 			dirty = false;
+			light.direction.set(direction);
+
 			if (transformComponent == null) {
-				light.position.setZero().add(position);
-				light.direction.setZero().add(direction);
+				light.position.set(position);
 			} else {
-				transformComponent.getWorldTranslation(light.position).add(position);
-				transformComponent.localToWorld(light.direction).sub(position);
-				light.position.add(position);
-				
 				float x = direction.x;
 				float y = direction.y;
 				float z = direction.z;
 				transformComponent.getWorldTranslation(direction);
+				light.position.set(direction).add(position);
 				transformComponent.localToWorld(light.direction).sub(direction);
 				direction.set(x, y, z);
 			}
-			position.set(light.position);
-			direction.set(light.direction);
 		}
 	}
 }
