@@ -7,10 +7,13 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.EventSubscription;
+import com.gurella.engine.event.SubscriptionEvent;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
-public class SceneEditorEventChannelMapper {
+public class SceneEditorUtils {
 	public static final int invalidId = -1;
 
 	private static final IntMap<GurellaSceneEditor> idToEditor = new IntMap<>();
@@ -18,7 +21,7 @@ public class SceneEditorEventChannelMapper {
 	private static final ObjectIntMap<SwtLwjglApplication> gdxAppToEditorId = new ObjectIntMap<>();
 	private static final IntMap<SceneEditorContext> appIdToContext = new IntMap<>();
 
-	private SceneEditorEventChannelMapper() {
+	private SceneEditorUtils() {
 	}
 
 	static void put(GurellaSceneEditor editor, SceneEditorPartControl partControl, SwtLwjglApplication application,
@@ -56,5 +59,13 @@ public class SceneEditorEventChannelMapper {
 		} else {
 			return invalidId;
 		}
+	}
+
+	public static <L extends EventSubscription> void notify(SubscriptionEvent<L> event) {
+		EventService.notify(getCurrentApplicationId(), event);
+	}
+
+	public static <L extends EventSubscription> void notify(Control source, SubscriptionEvent<L> event) {
+		EventService.notify(getApplicationId(source), event);
 	}
 }

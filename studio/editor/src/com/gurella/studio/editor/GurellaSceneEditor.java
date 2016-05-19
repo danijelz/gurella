@@ -131,7 +131,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 			application = new SwtLwjglApplication(partControl.getCenter(), applicationListener);
 		}
 
-		SceneEditorEventChannelMapper.put(this, partControl, application, context);
+		SceneEditorUtils.put(this, partControl, application, context);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
@@ -206,7 +206,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	@Override
 	public void dispose() {
 		super.dispose();
-		SceneEditorEventChannelMapper.remove(this);
+		SceneEditorUtils.remove(this);
 		context.dispose();
 		application.exit();
 	}

@@ -19,6 +19,8 @@ import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.scene.GridModelInstance;
@@ -49,7 +51,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 
 	SceneNode2 selectedNode;
 
-	private final Array<ApplicationDebugUpdateListener> tempListeners = new Array<>(64);
+	private final Array<Object> tempListeners = new Array<>(64);
 
 	@Override
 	public void create() {
@@ -106,15 +108,30 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	public void render() {
 		debugUpdate();
 		inputQueue.drain();
+		preRender();
 		renderScene();
 	}
 
 	private void debugUpdate() {
-		EventService.getSubscribers(ApplicationDebugUpdateListener.class, tempListeners);
-		for (int i = 0; i < tempListeners.size; i++) {
-			tempListeners.get(i).debugUpdate();
+		Array<ApplicationDebugUpdateListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).debugUpdate();
 		}
-		tempListeners.clear();
+		listeners.clear();
+	}
+
+	private void preRender() {
+		if (scene == null) {
+			return;
+		}
+
+		Array<PreRenderUpdateListener> listeners = Values.cast(tempListeners);
+		EventService.getSubscribers(scene.getInstanceId(), PreRenderUpdateListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onPreRenderUpdate();
+		}
+		listeners.clear();
 	}
 
 	public void renderScene() {

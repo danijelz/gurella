@@ -228,10 +228,10 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Vector3 getWorldTranslation() {
+		update();
 		if (parentTransform == null) {
 			return translation;
 		} else {
-			update();
 			return worldTransform.getTranslation(tempVector);
 		}
 	}
@@ -400,10 +400,10 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Vector3 getWorldScale() {
+		update();
 		if (parentTransform == null) {
 			return scale;
 		} else {
-			update();
 			return worldTransform.getScale(tempVector);
 		}
 	}
@@ -651,10 +651,10 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	private Quaternion getWorldRotation() {
+		update();
 		if (parentTransform == null) {
 			return rotation;
 		} else {
-			update();
 			return worldTransform.getRotation(rotator, true);
 		}
 	}

@@ -11,6 +11,7 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 public class PointLightComponent extends LightComponent<PointLight>
 		implements NodeComponentActivityListener, NodeTransformChangedListener, PreRenderUpdateListener {
 	private final Vector3 position = new Vector3();
+	@SuppressWarnings("unused")
 	private float intensity = 0.1f;
 
 	private transient TransformComponent transformComponent;
@@ -76,11 +77,13 @@ public class PointLightComponent extends LightComponent<PointLight>
 	@Override
 	public void onPreRenderUpdate() {
 		if (dirty) {
+			dirty = false;
 			if (transformComponent == null) {
 				light.position.setZero().add(position);
 			} else {
 				transformComponent.getWorldTranslation(light.position).add(position);
 			}
+			position.set(light.position);
 		}
 	}
 }
