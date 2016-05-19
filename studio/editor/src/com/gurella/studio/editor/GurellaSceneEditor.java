@@ -132,6 +132,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		}
 
 		SceneEditorUtils.put(this, partControl, application, context);
+		SceneEditorUtils.subscribe(applicationListener);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);

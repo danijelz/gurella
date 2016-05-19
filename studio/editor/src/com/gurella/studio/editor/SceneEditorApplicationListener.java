@@ -13,11 +13,13 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.Values;
@@ -26,8 +28,10 @@ import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
 import com.gurella.studio.editor.scene.StudioRenderSystem;
+import com.gurella.studio.editor.subscriptions.SceneEditorMouseSelectionListener;
 
-final class SceneEditorApplicationListener extends ApplicationAdapter implements EditorMessageListener {
+final class SceneEditorApplicationListener extends ApplicationAdapter
+		implements EditorMessageListener, SceneEditorMouseSelectionListener {
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
 	private PerspectiveCamera perspectiveCamera;
@@ -51,7 +55,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 
 	SceneNode2 selectedNode;
 
-	private final Array<Object> tempListeners = new Array<>(64);
+	private final Array<Object> tempArray = new Array<>(64);
 
 	@Override
 	public void create() {
@@ -113,7 +117,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	}
 
 	private void debugUpdate() {
-		Array<ApplicationDebugUpdateListener> listeners = Values.cast(tempListeners);
+		Array<ApplicationDebugUpdateListener> listeners = Values.cast(tempArray);
 		EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).debugUpdate();
@@ -126,7 +130,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 			return;
 		}
 
-		Array<PreRenderUpdateListener> listeners = Values.cast(tempListeners);
+		Array<PreRenderUpdateListener> listeners = Values.cast(tempArray);
 		EventService.getSubscribers(scene.getInstanceId(), PreRenderUpdateListener.class, listeners);
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).onPreRenderUpdate();
@@ -157,6 +161,31 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	public void handleMessage(Object source, Object message) {
 		if (renderSystem != null) {
 			renderSystem.handleMessage(source, message);
+		}
+	}
+
+	@Override
+	public void onMouseSelection(float x, float y) {
+		if (scene == null) {
+			return;
+		}
+
+		Ray pickRay = selectedCamera.getPickRay(x, y);
+		Array<Spatial> spatials = Values.cast(tempArray);
+		scene.spatialPartitioningSystem.getSpatials(pickRay, spatials, null);
+
+		if (spatials.size > 0) {
+			Spatial spatial = spatials.get(0);
+			SceneNode2 node = spatial.renderableComponent.getNode();
+		}
+	}
+
+	@Override
+	public void dispose() {
+		SceneEditorUtils.unsubscribe(this);
+		if (this.scene != null) {
+			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
+			renderSystem.dispose();
 		}
 	}
 }

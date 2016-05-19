@@ -1,5 +1,7 @@
 package com.gurella.studio.editor;
 
+import java.util.function.Consumer;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -61,11 +63,50 @@ public class SceneEditorUtils {
 		}
 	}
 
+	public static void subscribe(Object subscriber) {
+		EventService.subscribe(getCurrentApplicationId(), subscriber);
+	}
+
+	public static void unsubscribe(Object subscriber) {
+		EventService.unsubscribe(getCurrentApplicationId(), subscriber);
+	}
+
 	public static <L extends EventSubscription> void notify(SubscriptionEvent<L> event) {
 		EventService.notify(getCurrentApplicationId(), event);
 	}
 
+	public static <L extends EventSubscription> void notify(Class<L> subscriptionType, Consumer<L> handler) {
+		EventService.notify(getCurrentApplicationId(), new GenericSubscriptionEvent<L>(subscriptionType, handler));
+	}
+
+	public static void subscribe(Control subscriber) {
+		EventService.subscribe(getApplicationId(subscriber), subscriber);
+	}
+
+	public static void unsubscribe(Control subscriber) {
+		EventService.unsubscribe(getApplicationId(subscriber), subscriber);
+	}
+
 	public static <L extends EventSubscription> void notify(Control source, SubscriptionEvent<L> event) {
 		EventService.notify(getApplicationId(source), event);
+	}
+
+	public static <L extends EventSubscription> void notify(Control source, Class<L> subscriptionType,
+			Consumer<L> handler) {
+		EventService.notify(getApplicationId(source), new GenericSubscriptionEvent<L>(subscriptionType, handler));
+	}
+
+	private static class GenericSubscriptionEvent<L extends EventSubscription> extends SubscriptionEvent<L> {
+		private Consumer<L> eventHandler;
+
+		public GenericSubscriptionEvent(Class<L> subscriptionType, Consumer<L> eventHandler) {
+			super(subscriptionType);
+			this.eventHandler = eventHandler;
+		}
+
+		@Override
+		protected void notify(L listener) {
+			eventHandler.accept(listener);
+		}
 	}
 }

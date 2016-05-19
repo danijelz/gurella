@@ -92,6 +92,8 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 					// TODO meshPart.size;
 					// Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection);
 				}
+				Intersector.intersectRayBounds(ray, temp, intersection);
+				return true;
 			}
 		}
 

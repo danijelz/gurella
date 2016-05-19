@@ -52,7 +52,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
-	SceneNode2 selectedNode;
+	private SceneNode2 selectedNode;
 
 	public StudioRenderSystem(Scene scene) {
 		this.scene = scene;

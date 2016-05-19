@@ -35,7 +35,7 @@ public class BvhSpatial extends Spatial {
 	@Override
 	public void reset() {
 		super.reset();
-		bounds.inf();
+		bounds.inf(); //TODO remove
 		translate.setZero();
 	}
 }
