@@ -41,7 +41,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.scene.SceneEditorMainContainer;
+import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
@@ -50,7 +50,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	public final int id = SequenceGenerator.next();
 
 	private Composite contentComposite;
-	private SceneEditorMainContainer mainContainer;
+	private SceneEditorPartControl partControl;
 
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 	private SceneEditorContext context;
@@ -121,17 +121,17 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		context = new SceneEditorContext((IPathEditorInput) getEditorInput());
 		context.addEditorMessageListener(this);
 
-		mainContainer = new SceneEditorMainContainer(this, parent, SWT.NONE);
-		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		partControl = new SceneEditorPartControl(this, parent, SWT.NONE);
+		partControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		applicationListener = new SceneEditorApplicationListener();
 		context.addEditorMessageListener(applicationListener);
 
 		synchronized (GurellaStudioPlugin.glMutex) {
-			application = new SwtLwjglApplication(mainContainer.getCenter(), applicationListener);
+			application = new SwtLwjglApplication(partControl.getCenter(), applicationListener);
 		}
 
-		SceneEditorEventChannelMapper.put(this, mainContainer, application, context);
+		SceneEditorEventChannelMapper.put(this, partControl, application, context);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
@@ -140,7 +140,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		InspectorView inspectorView = new InspectorView(this, SWT.RIGHT);
 		registeredViews.add(inspectorView);
 
-		mainContainer.setSelection(sceneHierarchyView);
+		partControl.setSelection(sceneHierarchyView);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
@@ -162,8 +162,8 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		contentComposite.layout();
 	}
 
-	public SceneEditorMainContainer getMainContainer() {
-		return mainContainer;
+	public SceneEditorPartControl getPartControl() {
+		return partControl;
 	}
 
 	public SceneEditorContext getContext() {

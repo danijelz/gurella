@@ -14,11 +14,11 @@ public abstract class SceneEditorView extends Composite implements EditorMessage
 	protected GurellaSceneEditor editor;
 
 	public SceneEditorView(GurellaSceneEditor editor, String title, Image image, int style) {
-		super(editor.getMainContainer().getDockItemParent(style), checkStyle(style));
+		super(editor.getPartControl().getDockItemParent(style), checkStyle(style));
 		this.editor = editor;
 		addDisposeListener(e -> this.editor.removeEditorMessageListener(this));
 		editor.addEditorMessageListener(this);
-		editor.getMainContainer().addItem(style, title, image, this);
+		editor.getPartControl().addItem(style, title, image, this);
 	}
 
 	private static int checkStyle(int style) {

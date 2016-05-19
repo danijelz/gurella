@@ -34,7 +34,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class SceneEditorMainContainer extends Composite {
+public class SceneEditorPartControl extends Composite {
 	private static final int CLOSED_DOCK_EXTENT = 38;
 
 	private GurellaSceneEditor editor;
@@ -50,7 +50,7 @@ public class SceneEditorMainContainer extends Composite {
 	private Cursor dragSouth;
 	private Cursor dragWest;
 
-	public SceneEditorMainContainer(GurellaSceneEditor editor, Composite parent, int style) {
+	public SceneEditorPartControl(GurellaSceneEditor editor, Composite parent, int style) {
 		super(parent, style);
 		this.editor = editor;
 
@@ -231,7 +231,7 @@ public class SceneEditorMainContainer extends Composite {
 
 		private CollapseRunnable collapseRunnable = new CollapseRunnable();
 
-		public DockComponent(SceneEditorMainContainer parent, int position) {
+		public DockComponent(SceneEditorPartControl parent, int position) {
 			super(parent, SWT.NONE);
 			this.position = position;
 
@@ -252,8 +252,8 @@ public class SceneEditorMainContainer extends Composite {
 		}
 
 		@Override
-		public SceneEditorMainContainer getParent() {
-			return (SceneEditorMainContainer) super.getParent();
+		public SceneEditorPartControl getParent() {
+			return (SceneEditorPartControl) super.getParent();
 		}
 
 		protected void createTabFolder() {
@@ -649,7 +649,7 @@ public class SceneEditorMainContainer extends Composite {
 						return;
 					}
 
-					final SceneEditorMainContainer mainView = getParent();
+					final SceneEditorPartControl mainView = getParent();
 					final Tracker tracker = new Tracker(mainView, SWT.NONE);
 					tracker.setStippled(true);
 					tracker.addListener(SWT.Move, e -> onMouseMoved(mainView, tracker));
@@ -665,7 +665,7 @@ public class SceneEditorMainContainer extends Composite {
 			private void completeDrag() {
 				DockComponent dockComponent = findDockComponent();
 				if (dockComponent == null) {
-					final SceneEditorMainContainer mainView = getParent();
+					final SceneEditorPartControl mainView = getParent();
 					Point point = mainView.toControl(getDisplay().getCursorLocation());
 					Rectangle bounds = mainView.getBounds();
 					if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
@@ -746,7 +746,7 @@ public class SceneEditorMainContainer extends Composite {
 
 			private DockComponent findDockComponent() {
 				Point cursorLocation = getDisplay().getCursorLocation();
-				SceneEditorMainContainer parent = getParent();
+				SceneEditorPartControl parent = getParent();
 				Point controlLocation = parent.toControl(cursorLocation);
 				if (parent.east.getBounds().contains(controlLocation)) {
 					return parent.east;
@@ -758,7 +758,7 @@ public class SceneEditorMainContainer extends Composite {
 				return null;
 			}
 
-			private void onMouseMoved(final SceneEditorMainContainer mainView, final Tracker tracker) {
+			private void onMouseMoved(final SceneEditorPartControl mainView, final Tracker tracker) {
 				DockComponent dockComponent = findDockComponent();
 				if (dockComponent == null) {
 					Point point = mainView.toControl(getDisplay().getCursorLocation());
