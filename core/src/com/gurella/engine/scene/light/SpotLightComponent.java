@@ -117,9 +117,16 @@ public class SpotLightComponent extends LightComponent<SpotLight>
 				light.position.setZero().add(position);
 				light.direction.setZero().add(direction);
 			} else {
-				transformComponent.getWorldTranslation(light.position);
+				transformComponent.getWorldTranslation(light.position).add(position);
 				transformComponent.localToWorld(light.direction).sub(position);
 				light.position.add(position);
+				
+				float x = direction.x;
+				float y = direction.y;
+				float z = direction.z;
+				transformComponent.getWorldTranslation(direction);
+				transformComponent.localToWorld(light.direction).sub(direction);
+				direction.set(x, y, z);
 			}
 			position.set(light.position);
 			direction.set(light.direction);

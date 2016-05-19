@@ -17,20 +17,18 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight>
 
 	@Override
 	protected DirectionalLight createLight() {
-		DirectionalLight directionalLight = new DirectionalLight();
-		directionalLight.direction.set(0, -1, 0);
-		return directionalLight;
+		return new DirectionalLight();
 	}
 
 	public Vector3 getDirection() {
-		return light.direction;
+		return direction;
 	}
 
 	public void setDirection(Vector3 direction) {
 		this.direction.set(direction);
-		light.direction.set(direction);
+		dirty = true;
 	}
-	
+
 	@Override
 	protected void onActivate() {
 		transformComponent = getNode().getActiveComponent(TransformComponent.class);
@@ -67,13 +65,15 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight>
 	public void onPreRenderUpdate() {
 		if (dirty) {
 			dirty = false;
-			if (transformComponent == null) {
-				light.direction.setZero().add(direction);
-			} else {
+			light.direction.set(direction);
+			if (transformComponent != null) {
+				float x = direction.x;
+				float y = direction.y;
+				float z = direction.z;
 				transformComponent.getWorldTranslation(direction);
 				transformComponent.localToWorld(light.direction).sub(direction);
+				direction.set(x, y, z);
 			}
-			direction.set(light.direction);
 		}
 	}
 }
