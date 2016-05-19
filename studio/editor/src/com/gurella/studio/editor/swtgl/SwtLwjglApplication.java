@@ -119,7 +119,8 @@ public class SwtLwjglApplication implements Application {
 		listener.pause();
 		listener.dispose();
 		synchronized (lifecycleListeners) {
-			lifecycleListeners.stream().forEach(l -> disposeListener(l));
+			new ArrayList<>(lifecycleListeners).stream().forEach(l -> disposeListener(l));
+			lifecycleListeners.clear();
 		}
 		OpenAlAudioSingletone.dispose(audio);
 	}

@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.gurella.engine.application.ApplicationConfig;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -60,7 +59,7 @@ public class SceneEditorContext {
 	}
 
 	void dispose() {
-		ResourceService.unload(scene);
+		scene.stop();
 		signal.clear();
 		closeJavaProject();
 	}

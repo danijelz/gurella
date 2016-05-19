@@ -122,28 +122,31 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
-			boolean layersUpdated = false;
-
-			Array<Layer> renderingLayers = cameraComponent.renderingLayers;
-			if (renderingLayers.size > 0) {
-				for (int i = 0, n = renderingLayers.size; i < n; i++) {
-					Layer layer = renderingLayers.get(i);
-					layersUpdated |= addCameraComponent(layer, cameraComponent);
-				}
-			} else {
-				layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
-			}
-
-			if (layersUpdated) {
-				orderedLayers.sort(LayerOrdinalComparator.instance);
-			}
+			addCameraComponent((CameraComponent<?>) component);
 		} else if (component instanceof DirectionalLightComponent) {
 			directionalLights.lights.add(((DirectionalLightComponent) component).getLight());
 		} else if (component instanceof PointLightComponent) {
 			pointLights.lights.add(((PointLightComponent) component).getLight());
 		} else if (component instanceof SpotLightComponent) {
 			spotLights.lights.add(((SpotLightComponent) component).getLight());
+		}
+	}
+
+	private void addCameraComponent(CameraComponent<?> cameraComponent) {
+		boolean layersUpdated = false;
+		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+
+		if (renderingLayers.size > 0) {
+			for (int i = 0, n = renderingLayers.size; i < n; i++) {
+				Layer layer = renderingLayers.get(i);
+				layersUpdated |= addCameraComponent(layer, cameraComponent);
+			}
+		} else {
+			layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
+		}
+
+		if (layersUpdated) {
+			orderedLayers.sort(LayerOrdinalComparator.instance);
 		}
 	}
 
@@ -176,24 +179,27 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
-			boolean layersUpdated = false;
-
-			Array<Layer> renderingLayers = cameraComponent.renderingLayers;
-			for (int i = 0, n = renderingLayers.size; i < n; i++) {
-				Layer layer = renderingLayers.get(i);
-				layersUpdated |= removeCameraComponent(layer, cameraComponent);
-			}
-
-			if (layersUpdated) {
-				orderedLayers.sort(LayerOrdinalComparator.instance);
-			}
+			removeCameraComponent((CameraComponent<?>) component);
 		} else if (component instanceof DirectionalLightComponent) {
 			directionalLights.lights.removeValue(((DirectionalLightComponent) component).getLight(), true);
 		} else if (component instanceof PointLightComponent) {
 			pointLights.lights.removeValue(((PointLightComponent) component).getLight(), true);
 		} else if (component instanceof SpotLightComponent) {
 			spotLights.lights.removeValue(((SpotLightComponent) component).getLight(), true);
+		}
+	}
+
+	private void removeCameraComponent(CameraComponent<?> cameraComponent) {
+		boolean layersUpdated = false;
+		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+
+		for (int i = 0, n = renderingLayers.size; i < n; i++) {
+			Layer layer = renderingLayers.get(i);
+			layersUpdated |= removeCameraComponent(layer, cameraComponent);
+		}
+
+		if (layersUpdated) {
+			orderedLayers.sort(LayerOrdinalComparator.instance);
 		}
 	}
 

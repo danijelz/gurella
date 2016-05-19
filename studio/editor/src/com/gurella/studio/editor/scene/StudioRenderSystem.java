@@ -43,7 +43,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 	private IntMap<Array<DebugRenderable>> debugRenderablesByNode = new IntMap<Array<DebugRenderable>>();
 
 	private final Environment environment = new Environment();
-	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
+	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f);
 	private final DepthTestAttribute depthTest = new DepthTestAttribute();
 	private final DirectionalLightsAttribute directionalLights = new DirectionalLightsAttribute();
 	private final PointLightsAttribute pointLights = new PointLightsAttribute();
@@ -59,19 +59,17 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		layerMask.allowed(Layer.DEFAULT);
 		batch = new GenericBatch();
 
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+		environment.set(ambientLight);
 		environment.set(depthTest);
 		environment.set(directionalLights);
 		environment.set(pointLights);
 		environment.set(spotLights);
-
-		// directionalLights.lights.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			addCameraComponent(component);
+			addCameraComponent((CameraComponent<?>) component);
 		} else if (component instanceof DebugRenderable) {
 			addDebugRenderable(component);
 		} else if (component instanceof DirectionalLightComponent) {
@@ -83,12 +81,13 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		}
 	}
 
-	private void addCameraComponent(SceneNodeComponent2 component) {
-		CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
+	private void addCameraComponent(CameraComponent<?> cameraComponent) {
 		boolean layersUpdated = false;
+		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
 
-		if (cameraComponent.renderingLayers.size > 0) {
-			for (Layer layer : cameraComponent.renderingLayers) {
+		if (renderingLayers.size > 0) {
+			for (int i = 0, n = renderingLayers.size; i < n; i++) {
+				Layer layer = renderingLayers.get(i);
 				layersUpdated |= addCameraComponent(layer, cameraComponent);
 			}
 		} else {
@@ -139,7 +138,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			removeCameraComponent(component);
+			removeCameraComponent((CameraComponent<?>) component);
 		} else if (component instanceof DebugRenderable) {
 			removeDebugRenderable(component);
 		} else if (component instanceof DirectionalLightComponent) {
@@ -151,28 +150,17 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		}
 	}
 
-	private void removeCameraComponent(SceneNodeComponent2 component) {
-		CameraComponent<?> cameraComponent = (CameraComponent<?>) component;
+	private void removeCameraComponent(CameraComponent<?> cameraComponent) {
 		boolean layersUpdated = false;
-		for (Layer layer : cameraComponent.renderingLayers) {
+		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+
+		for (int i = 0, n = renderingLayers.size; i < n; i++) {
+			Layer layer = renderingLayers.get(i);
 			layersUpdated |= removeCameraComponent(layer, cameraComponent);
 		}
 
 		if (layersUpdated) {
 			orderedLayers.sort(LayerOrdinalComparator.instance);
-		}
-	}
-
-	private void removeDebugRenderable(SceneNodeComponent2 component) {
-		int nodeId = component.getNodeId();
-		Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
-		if (renderables == null) {
-			return;
-		}
-
-		renderables.removeValue((DebugRenderable) component, true);
-		if (renderables.size < 1) {
-			debugRenderablesByNode.remove(nodeId);
 		}
 	}
 
@@ -188,6 +176,19 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		} else {
 			layerCameras.sort();
 			return false;
+		}
+	}
+
+	private void removeDebugRenderable(SceneNodeComponent2 component) {
+		int nodeId = component.getNodeId();
+		Array<DebugRenderable> renderables = debugRenderablesByNode.get(nodeId);
+		if (renderables == null) {
+			return;
+		}
+
+		renderables.removeValue((DebugRenderable) component, true);
+		if (renderables.size < 1) {
+			debugRenderablesByNode.remove(nodeId);
 		}
 	}
 

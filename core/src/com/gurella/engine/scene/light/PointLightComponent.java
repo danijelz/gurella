@@ -19,7 +19,7 @@ public class PointLightComponent extends LightComponent<PointLight>
 	@Override
 	protected PointLight createLight() {
 		PointLight pointLight = new PointLight();
-		pointLight.intensity = intensity;
+		pointLight.intensity = 0.1f;
 		return pointLight;
 	}
 

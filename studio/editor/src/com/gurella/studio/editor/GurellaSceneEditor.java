@@ -23,8 +23,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -38,6 +36,7 @@ import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.common.ErrorComposite;
@@ -48,6 +47,8 @@ import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class GurellaSceneEditor extends EditorPart implements EditorMessageListener {
+	public final int id = SequenceGenerator.next();
+
 	private Composite contentComposite;
 	private SceneEditorMainContainer mainContainer;
 
@@ -123,6 +124,15 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		mainContainer = new SceneEditorMainContainer(this, parent, SWT.NONE);
 		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+		applicationListener = new SceneEditorApplicationListener();
+		context.addEditorMessageListener(applicationListener);
+
+		synchronized (GurellaStudioPlugin.glMutex) {
+			application = new SwtLwjglApplication(mainContainer.getCenter(), applicationListener);
+		}
+
+		SceneEditorEventChannelMapper.put(this, mainContainer, application, context);
+
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
 		AssetsExplorerView assetsExplorerView = new AssetsExplorerView(this, SWT.LEFT);
@@ -131,14 +141,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		registeredViews.add(inspectorView);
 
 		mainContainer.setSelection(sceneHierarchyView);
-		Composite center = mainContainer.getCenter();
-
-		applicationListener = new SceneEditorApplicationListener();
-		context.addEditorMessageListener(applicationListener);
-		
-		synchronized (GurellaStudioPlugin.glMutex) {
-			application = new SwtLwjglApplication(center, applicationListener);
-		}
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
@@ -146,14 +148,9 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	private void presentScene(Scene scene) {
 		dirty = false;
+
 		context.setScene(scene);
 		applicationListener.presentScene(scene);
-		
-		GLCanvas glCanvas = application.getGraphics().getGlCanvas();
-		Menu menu = new Menu(glCanvas);
-		MenuItem item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Test");
-		glCanvas.setMenu(menu);
 	}
 
 	private void presentException(Throwable exception) {
@@ -209,6 +206,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	@Override
 	public void dispose() {
 		super.dispose();
+		SceneEditorEventChannelMapper.remove(this);
 		context.dispose();
 		application.exit();
 	}

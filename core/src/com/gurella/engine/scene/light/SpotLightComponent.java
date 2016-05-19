@@ -5,14 +5,19 @@ import com.badlogic.gdx.math.Vector3;
 
 public class SpotLightComponent extends LightComponent<SpotLight> {
 	private final Vector3 position = new Vector3();
-	private final Vector3 direction = new Vector3();
-	private float intensity;
-	private float cutoffAngle;
-	private float exponent;
+	private final Vector3 direction = new Vector3(0, -1, 0);
+	private float intensity = 0.1f;
+	private float cutoffAngle = 1;
+	private float exponent = 1;
 
 	@Override
 	protected SpotLight createLight() {
-		return new SpotLight();
+		SpotLight spotLight = new SpotLight();
+		spotLight.direction.set(0, -1, 0);
+		spotLight.intensity = 0.1f;
+		spotLight.cutoffAngle = 1;
+		spotLight.exponent = 1;
+		return spotLight;
 	}
 
 	public float getIntensity() {

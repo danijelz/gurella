@@ -9,7 +9,7 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 	@Override
 	protected DirectionalLight createLight() {
 		DirectionalLight directionalLight = new DirectionalLight();
-		directionalLight.direction.set(direction);
+		directionalLight.direction.set(0, -1, 0);
 		return directionalLight;
 	}
 

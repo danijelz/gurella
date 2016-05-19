@@ -53,7 +53,6 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 
 	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
 
-	// TODO double queue
 	private transient final InputProcessorDelegate delegate = new InputProcessorDelegate();
 	private transient final InputAdapter dummyDelegate = new InputAdapter();
 	private transient final InputEventQueue inputQueue = new InputEventQueue(delegate);
