@@ -126,9 +126,9 @@ public class BvhNode implements Poolable {
 			throw new UnsupportedOperationException();
 		} // TODO: fix this... we should never get called in this case...
 
-		BoundingBox oldbox = new BoundingBox(box);// TODO garbage
+		BoundingBox oldbox = box.isValid() ? new BoundingBox() : new BoundingBox(box);// TODO garbage
 		computeVolume();
-		
+
 		if (!box.max.equals(oldbox.max) || !box.min.equals(oldbox.min)) {
 			if (parent != null) {
 				parent.childRefit(true);
@@ -141,13 +141,16 @@ public class BvhNode implements Poolable {
 
 	private void computeVolume() {
 		//box.set(spatials.get(0).getBounds());
-		for (int i = 1; i < spatials.size; i++) {
+		for (int i = 0; i < spatials.size; i++) {
 			BvhSpatial spatial = spatials.get(i);
 			expandVolume(spatial.getBounds());
 		}
 	}
 
 	private void expandVolume(BoundingBox volume) {
+		if (!volume.isValid()) {
+			return;
+		}
 		if (!box.isValid() || !box.contains(volume)) {
 			box.ext(volume);
 			if (parent != null) {
@@ -508,7 +511,7 @@ public class BvhNode implements Poolable {
 		} else {
 			box.inf();
 		}
-		
+
 		left = keepLeaf.left;
 		right = keepLeaf.right;
 		spatials = keepLeaf.spatials;
@@ -558,14 +561,14 @@ public class BvhNode implements Poolable {
 			parent.childRefit(true);
 		}
 	}
-	
+
 	private void refitBox() {
-		if(left.box.isValid()) {
+		if (left.box.isValid()) {
 			box.set(left.box);
-			if(right.box.isValid()) {
+			if (right.box.isValid()) {
 				box.ext(right.box);
 			}
-		} else if(right.box.isValid()) {
+		} else if (right.box.isValid()) {
 			box.set(right.box);
 		}
 	}
@@ -573,11 +576,6 @@ public class BvhNode implements Poolable {
 	@Override
 	public void reset() {
 		bvh = null;
-
-		if (parent != null) {
-			parent.free();
-			parent = null;
-		}
 
 		if (left != null) {
 			left.free();

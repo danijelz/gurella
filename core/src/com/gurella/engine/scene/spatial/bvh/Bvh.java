@@ -44,7 +44,7 @@ public class Bvh {
 		} else {
 			rootNode = new BvhNode(this);
 			// it's a leaf, so give it an empty object list
-			rootNode.spatials = new Array<BvhSpatial>(BvhSpatial.class);
+			rootNode.spatials = new Array<BvhSpatial>(BvhSpatial.class);//TODO garbage
 		}
 	}
 
