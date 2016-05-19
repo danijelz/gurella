@@ -127,8 +127,8 @@ public class BvhNode implements Poolable {
 		} // TODO: fix this... we should never get called in this case...
 
 		BoundingBox oldbox = new BoundingBox(box);// TODO garbage
-
 		computeVolume();
+		
 		if (!box.max.equals(oldbox.max) || !box.min.equals(oldbox.min)) {
 			if (parent != null) {
 				parent.childRefit(true);
@@ -140,7 +140,7 @@ public class BvhNode implements Poolable {
 	}
 
 	private void computeVolume() {
-		box.set(spatials.get(0).getBounds());
+		//box.set(spatials.get(0).getBounds());
 		for (int i = 1; i < spatials.size; i++) {
 			BvhSpatial spatial = spatials.get(i);
 			expandVolume(spatial.getBounds());
@@ -148,7 +148,7 @@ public class BvhNode implements Poolable {
 	}
 
 	private void expandVolume(BoundingBox volume) {
-		if (!box.contains(volume)) {
+		if (!box.isValid() || !box.contains(volume)) {
 			box.ext(volume);
 			if (parent != null) {
 				parent.childExpanded(this);
@@ -502,8 +502,13 @@ public class BvhNode implements Poolable {
 			throw new IllegalStateException("removeLeaf doesn't match any leaf!");
 		}
 
-		// "become" the leaf we are keeping.
-		box.set(keepLeaf.box);
+		if (keepLeaf.box.isValid()) {
+			// "become" the leaf we are keeping.
+			box.set(keepLeaf.box);
+		} else {
+			box.inf();
+		}
+		
 		left = keepLeaf.left;
 		right = keepLeaf.right;
 		spatials = keepLeaf.spatials;
@@ -537,7 +542,7 @@ public class BvhNode implements Poolable {
 	}
 
 	void childExpanded(BvhNode child) {
-		if (!box.contains(child.box)) {
+		if (!box.isValid() || !box.contains(child.box)) {
 			box.ext(child.box);
 			if (parent != null) {
 				parent.childExpanded(this);
@@ -546,10 +551,22 @@ public class BvhNode implements Poolable {
 	}
 
 	void childRefit(boolean recurse) {
-		box.set(left.box).ext(right.box);
+		//box.set(left.box).ext(right.box);
+		refitBox();
 
 		if (recurse && parent != null) {
 			parent.childRefit(true);
+		}
+	}
+	
+	private void refitBox() {
+		if(left.box.isValid()) {
+			box.set(left.box);
+			if(right.box.isValid()) {
+				box.ext(right.box);
+			}
+		} else if(right.box.isValid()) {
+			box.set(right.box);
 		}
 	}
 
