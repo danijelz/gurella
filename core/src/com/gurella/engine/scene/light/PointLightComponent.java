@@ -1,7 +1,6 @@
 package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -12,7 +11,6 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 public class PointLightComponent extends LightComponent<PointLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
-	private final Vector3 position = new Vector3();
 	@SuppressWarnings("unused")
 	private float intensity = 0.1f;
 
@@ -33,15 +31,6 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	public void setIntensity(float intensity) {
 		this.intensity = intensity;
 		light.intensity = intensity;
-	}
-
-	public Vector3 getPosition() {
-		return light.position;
-	}
-
-	public void setPosition(Vector3 position) {
-		this.position.set(position);
-		dirty = true;
 	}
 
 	@Override
@@ -81,9 +70,9 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 		if (dirty) {
 			dirty = false;
 			if (transformComponent == null) {
-				light.position.set(position);
+				light.position.setZero();
 			} else {
-				transformComponent.getWorldTranslation(light.position).add(position);
+				transformComponent.getWorldTranslation(light.position);
 			}
 		}
 	}

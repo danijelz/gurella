@@ -12,7 +12,6 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 public class SpotLightComponent extends LightComponent<SpotLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
-	private final Vector3 position = new Vector3();
 	private final Vector3 direction = new Vector3(0, -1, 0);
 	@SuppressWarnings("unused")
 	private float intensity = 0.1f;
@@ -58,15 +57,6 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	public void setExponent(float exponent) {
 		this.exponent = exponent;
 		light.exponent = exponent;
-	}
-
-	public Vector3 getPosition() {
-		return position;
-	}
-
-	public void setPosition(Vector3 position) {
-		this.position.set(position);
-		dirty = true;
 	}
 
 	public Vector3 getDirection() {
@@ -117,15 +107,10 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 			light.direction.set(direction);
 
 			if (transformComponent == null) {
-				light.position.set(position);
+				light.position.setZero();
 			} else {
-				float x = direction.x;
-				float y = direction.y;
-				float z = direction.z;
-				transformComponent.getWorldTranslation(direction);
-				light.position.set(direction).add(position);
-				transformComponent.localToWorld(light.direction).sub(direction);
-				direction.set(x, y, z);
+				transformComponent.getWorldTranslation(light.position);
+				transformComponent.localToWorld(light.direction).sub(light.position);
 			}
 		}
 	}
