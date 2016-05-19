@@ -46,6 +46,9 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.extendBoundingBox(bounds);
+			if (transformComponent != null) {
+				bounds.mul(instance.transform);
+			}
 		}
 	}
 
