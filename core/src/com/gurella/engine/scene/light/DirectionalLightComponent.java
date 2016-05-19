@@ -2,14 +2,16 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
-public class DirectionalLightComponent extends LightComponent<DirectionalLight>
-		implements NodeComponentActivityListener, NodeTransformChangedListener, PreRenderUpdateListener {
+public class DirectionalLightComponent extends LightComponent<DirectionalLight> implements
+		NodeComponentActivityListener, NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
 	private final Vector3 direction = new Vector3(0, -1, 0);
 
 	private transient TransformComponent transformComponent;
@@ -74,6 +76,14 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight>
 				transformComponent.localToWorld(light.direction).sub(direction);
 				direction.set(x, y, z);
 			}
+		}
+	}
+
+	@Override
+	public void propertyChanged(PropertyChangeEvent event) {
+		Array<Object> propertyPath = event.propertyPath;
+		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
+			dirty = true;
 		}
 	}
 }
