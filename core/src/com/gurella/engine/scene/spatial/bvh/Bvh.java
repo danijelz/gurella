@@ -188,6 +188,7 @@ public class Bvh {
 		Ray ray;
 		final Vector3 center = new Vector3();
 		final Vector3 dimensions = new Vector3();
+		final Vector3 intersection = new Vector3();
 
 		public RayHitTest(Ray ray) {
 			this.ray = ray;
@@ -196,8 +197,9 @@ public class Bvh {
 		@Override
 		public boolean intersects(BoundingBox box) {
 			box.getCenter(center);
-			box.getDimensions(dimensions);
-			return Intersector.intersectRayBoundsFast(ray, center, dimensions);
+			box.getDimensions(dimensions).scl(0.5f);
+			//return Intersector.intersectRayBoundsFast(ray, center, dimensions);
+			return Intersector.intersectRaySphere(ray, center, dimensions.len(), intersection);
 		}
 	}
 
