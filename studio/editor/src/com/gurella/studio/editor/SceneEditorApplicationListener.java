@@ -170,6 +170,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			return;
 		}
 
+		selectedCamera.update(true);
 		Ray pickRay = selectedCamera.getPickRay(x, y);
 		Array<Spatial> spatials = Values.cast(tempArray);
 		scene.spatialPartitioningSystem.getSpatials(pickRay, spatials, null);

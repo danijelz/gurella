@@ -109,6 +109,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 			sprite.setScale(transformComponent.getWorldScaleX(), transformComponent.getWorldScaleY());
 			sprite.setRotation(transformComponent.getWorldEulerRotationZ());
 			sprite.setCenter(transformComponent.getWorldTranslationX(), y);
+			sprite.setOriginCenter();
 		}
 	}
 
@@ -122,8 +123,8 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	@Override
 	public void doGetBounds(BoundingBox bounds) {
 		Rectangle rect = sprite.getBoundingRectangle();
-		bounds.min.set(rect.x, rect.y, 0);
-		bounds.max.set(rect.x + rect.width, rect.y + rect.height, 0);
+		bounds.min.set(rect.x, rect.y * -1, 0);
+		bounds.max.set(rect.x + rect.width, rect.y * -1 + rect.height, 0);
 	}
 
 	@Override
