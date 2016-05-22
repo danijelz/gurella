@@ -13,6 +13,9 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
@@ -44,6 +47,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private SceneCameraInputController selectedController;
 
 	private ModelBatch modelBatch;
+	private ShapeRenderer shapeRenderer;
 	private Environment environment;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
@@ -54,13 +58,16 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private StudioRenderSystem renderSystem;
 
 	SceneNode2 selectedNode;
+	
+	private Ray pickRay = new Ray();
+	private long pickRayTime = 0;
 
 	private final Array<Object> tempArray = new Array<>(64);
 
 	@Override
 	public void create() {
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		perspectiveCamera.position.set(0f, 1f, -3f);
+		perspectiveCamera.position.set(0f, 0f, -3f);
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 1000;
@@ -79,6 +86,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
+		
+		shapeRenderer = new ShapeRenderer();
 
 		inputQueue.setProcessor(selectedController);
 		InputService.addInputProcessor(inputQueue);
@@ -154,6 +163,20 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			if (scene != null) {
 				renderSystem.renderScene(selectedCamera);
 			}
+			
+			if(System.currentTimeMillis() - 3000 < pickRayTime || true) {
+				shapeRenderer.setAutoShapeType(true);
+				shapeRenderer.begin();
+				shapeRenderer.setProjectionMatrix(selectedCamera.combined);
+				shapeRenderer.setColor(Color.YELLOW);
+				shapeRenderer.set(ShapeType.Line);
+				shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).scl(3).add(pickRay.origin));
+				//shapeRenderer.setColor(Color.BLUE);
+				//shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).add(3).add(pickRay.origin));
+				//shapeRenderer.setColor(Color.RED);
+				//shapeRenderer.box(pickRay.origin.x, pickRay.origin.y, pickRay.origin.z, 0.1f, 0.1f, 0.1f);
+				shapeRenderer.end();
+			}
 		}
 	}
 
@@ -170,8 +193,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			return;
 		}
 
+		pickRayTime = System.currentTimeMillis();
 		selectedCamera.update(true);
-		Ray pickRay = selectedCamera.getPickRay(x, y);
+		pickRay.set(selectedCamera.getPickRay(x, y));
 		Array<Spatial> spatials = Values.cast(tempArray);
 		scene.spatialPartitioningSystem.getSpatials(pickRay, spatials, null);
 
