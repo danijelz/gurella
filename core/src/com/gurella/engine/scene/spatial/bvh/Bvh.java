@@ -186,8 +186,6 @@ public class Bvh {
 	// TODO poolable
 	private static class RayHitTest implements NodeTest {
 		Ray ray;
-		final Vector3 center = new Vector3();
-		final Vector3 dimensions = new Vector3();
 
 		public RayHitTest(Ray ray) {
 			this.ray = ray;
@@ -195,9 +193,7 @@ public class Bvh {
 
 		@Override
 		public boolean intersects(BoundingBox box) {
-			box.getCenter(center);
-			box.getDimensions(dimensions);
-			return Intersector.intersectRayBoundsFast(ray, center, dimensions);
+			return Intersector.intersectRayBoundsFast(ray, box);
 		}
 	}
 

@@ -92,6 +92,7 @@ public class WireframeShader extends BaseShader {
 	@Override
 	public void end() {
 		program.end();
+		Gdx.gl20.glLineWidth(1f);
 	}
 
 	@Override
