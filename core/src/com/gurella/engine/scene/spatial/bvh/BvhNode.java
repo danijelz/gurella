@@ -126,7 +126,7 @@ public class BvhNode implements Poolable {
 			throw new UnsupportedOperationException();
 		} // TODO: fix this... we should never get called in this case...
 
-		BoundingBox oldbox = box.isValid() ? new BoundingBox() : new BoundingBox(box);// TODO garbage
+		BoundingBox oldbox = isValid(box) ? new BoundingBox() : new BoundingBox(box);// TODO garbage
 		computeVolume();
 
 		if (!box.max.equals(oldbox.max) || !box.min.equals(oldbox.min)) {
@@ -138,10 +138,14 @@ public class BvhNode implements Poolable {
 			return false;
 		}
 	}
+	
+	private boolean isValid (BoundingBox bBox) {
+		return bBox.min.x <= bBox.max.x && bBox.min.y <= bBox.max.y && bBox.min.z <= bBox.max.z;
+	}
 
 	private void computeVolume() {
 		BoundingBox firstBounds = spatials.get(0).getBounds();
-		if (firstBounds.isValid()) {
+		if (isValid(firstBounds)) {
 			box.set(firstBounds);
 		}
 
@@ -152,10 +156,10 @@ public class BvhNode implements Poolable {
 	}
 
 	private void expandVolume(BoundingBox volume) {
-		if (!volume.isValid()) {
+		if (!isValid(volume)) {
 			return;
 		}
-		if (!box.isValid() || !box.contains(volume)) {
+		if (!isValid(box) || !box.contains(volume)) {
 			box.ext(volume);
 			if (parent != null) {
 				parent.childExpanded(this);
@@ -509,7 +513,7 @@ public class BvhNode implements Poolable {
 			throw new IllegalStateException("removeLeaf doesn't match any leaf!");
 		}
 
-		if (keepLeaf.box.isValid()) {
+		if (isValid(keepLeaf.box)) {
 			// "become" the leaf we are keeping.
 			box.set(keepLeaf.box);
 		} else {
@@ -549,7 +553,7 @@ public class BvhNode implements Poolable {
 	}
 
 	void childExpanded(BvhNode child) {
-		if (!box.isValid() || !box.contains(child.box)) {
+		if (!isValid(box) || !box.contains(child.box)) {
 			box.ext(child.box);
 			if (parent != null) {
 				parent.childExpanded(this);
@@ -567,12 +571,12 @@ public class BvhNode implements Poolable {
 	}
 
 	private void refitBox() {
-		if (left.box.isValid()) {
+		if (isValid(left.box)) {
 			box.set(left.box);
-			if (right.box.isValid()) {
+			if (isValid(right.box)) {
 				box.ext(right.box);
 			}
-		} else if (right.box.isValid()) {
+		} else if (isValid(right.box)) {
 			box.set(right.box);
 		}
 	}

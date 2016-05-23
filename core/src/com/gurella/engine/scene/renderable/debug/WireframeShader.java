@@ -46,6 +46,7 @@ public class WireframeShader extends BaseShader {
 		if (!program.isCompiled()) {
 			throw new GdxRuntimeException(program.getLog());
 		}
+
 		init();
 	}
 
@@ -67,21 +68,23 @@ public class WireframeShader extends BaseShader {
 	@Override
 	public void begin(Camera camera, RenderContext context) {
 		this.context = context;
+		
 		this.context.setDepthTest(GL20.GL_LEQUAL, 0f, 1f);
 		this.context.setDepthMask(true);
-
+		
 		program.begin();
-
 		set(UNIFORM_PROJ_VIEW_MATRIX, camera.combined);
 	}
 
 	@Override
 	public void render(Renderable renderable) {
 		worldTransform.set(renderable.worldTransform);
-		worldTransform.scale(1.005f, 1.005f, 1.005f);
+		worldTransform.scale(1.01f, 1.01f, 1.01f);
 		set(UNIFORM_TRANS_MATRIX, worldTransform);
+		
 		int primitiveType = renderable.meshPart.primitiveType;
 		renderable.meshPart.primitiveType = GL20.GL_LINE_LOOP;
+		
 		renderable.meshPart.render(program);
 		renderable.meshPart.primitiveType = primitiveType;
 	}

@@ -122,9 +122,18 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 
 	@Override
 	public void doGetBounds(BoundingBox bounds) {
-		Rectangle rect = sprite.getBoundingRectangle();
-		bounds.min.set(rect.x, rect.y * -1, 0);
-		bounds.max.set(rect.x + rect.width, rect.y * -1 + rect.height, 0);
+		float width = sprite.getWidth();
+		float height = sprite.getHeight();
+		float x1 = -width * 0.5f;
+		float y1 = -height * 0.5f;
+		float x2 = x1 + width;
+		float y2 = y1 + height;
+		bounds.ext(x1, y1, 0);
+		bounds.ext(x2, y2, 0);
+		float x = transformComponent.getWorldTranslationX();
+		float y = transformComponent.getWorldTranslationY();
+		bounds.min.add(x, y, 0);
+		bounds.max.add(x, y, 0);
 	}
 
 	@Override
