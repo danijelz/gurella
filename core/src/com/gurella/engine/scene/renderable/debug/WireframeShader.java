@@ -15,8 +15,9 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 /**
  * @author Marcus Brummer
+ * 
+ * https://github.com/mbrlabs/Mundus/blob/master/editor/src/main/com/mbrlabs/mundus/shader/WireframeShader.java
  */
-// https://github.com/mbrlabs/Mundus/blob/master/editor/src/main/com/mbrlabs/mundus/shader/WireframeShader.java
 public class WireframeShader extends BaseShader {
 	private static final ObjectMap<Application, WireframeShader> instances = new ObjectMap<Application, WireframeShader>();
 
@@ -26,7 +27,6 @@ public class WireframeShader extends BaseShader {
 	protected final int UNIFORM_PROJ_VIEW_MATRIX = register(new Uniform("u_projViewMatrix"));
 	protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
 
-	private ShaderProgram program;
 	private final Matrix4 worldTransform = new Matrix4();
 
 	public static WireframeShader getInstance() {
