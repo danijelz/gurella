@@ -35,9 +35,9 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	protected abstract void doRender(GenericBatch batch);
 
-	public abstract void doGetBounds(BoundingBox bounds);
+	protected abstract void doGetBounds(BoundingBox bounds);
 
-	public abstract boolean doGetIntersection(Ray ray, Vector3 intersection);
+	protected abstract boolean doGetIntersection(Ray ray, Vector3 intersection);
 
 	@Override
 	protected void onActivate() {

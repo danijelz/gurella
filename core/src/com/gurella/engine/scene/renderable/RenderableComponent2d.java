@@ -121,7 +121,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	}
 
 	@Override
-	public void doGetBounds(BoundingBox bounds) {
+	protected void doGetBounds(BoundingBox bounds) {
 		float width = sprite.getWidth();
 		float height = sprite.getHeight();
 		float x1 = -width * 0.5f;
@@ -137,7 +137,7 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 	}
 
 	@Override
-	public boolean doGetIntersection(Ray ray, Vector3 intersection) {
+	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
 		return Intersector.intersectRayTriangles(ray, sprite.getVertices(), intersection);
 	}
 

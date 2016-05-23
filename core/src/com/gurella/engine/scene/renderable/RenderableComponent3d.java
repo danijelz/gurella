@@ -45,7 +45,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	}
 
 	@Override
-	public void doGetBounds(BoundingBox bounds) {
+	protected void doGetBounds(BoundingBox bounds) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.extendBoundingBox(bounds);
@@ -56,7 +56,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	}
 
 	@Override
-	public boolean doGetIntersection(Ray ray, Vector3 intersection) {
+	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
 		ModelInstance instance = getModelInstance();
 		if (instance == null) {
 			return false;
