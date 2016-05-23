@@ -188,7 +188,6 @@ public class Bvh {
 		Ray ray;
 		final Vector3 center = new Vector3();
 		final Vector3 dimensions = new Vector3();
-		final Vector3 intersection = new Vector3();
 
 		public RayHitTest(Ray ray) {
 			this.ray = ray;
@@ -196,35 +195,9 @@ public class Bvh {
 
 		@Override
 		public boolean intersects(BoundingBox box) {
-			if(true) {
-				box.getCenter(center);
-				box.getDimensions(dimensions);
-				return Intersector.intersectRayBoundsFast(ray, center, dimensions);
-			}
 			box.getCenter(center);
-			box.getDimensions(dimensions).scl(0.5f);
-			// return Intersector.intersectRayBoundsFast(ray, center, dimensions);
-			// return Intersector.intersectRaySphere(ray, center, dimensions.len(), intersection);
-
-			final float len = ray.direction.dot(center.x - ray.origin.x, center.y - ray.origin.y,
-					center.z - ray.origin.z);
-			if (len < 0.f) {
-				return false;
-			}
-
-			final float dst2 = center.dst2(ray.origin.x + ray.direction.x * len, ray.origin.y + ray.direction.y * len,
-					ray.origin.z + ray.direction.z * len);
-
-			final float r2 = dimensions.len2();
-			if (dst2 > r2) {
-				return false;
-			}
-
-			if (intersection != null) {
-				intersection.set(ray.direction).scl(len - (float) Math.sqrt(r2 - dst2)).add(ray.origin);
-			}
-
-			return true;
+			box.getDimensions(dimensions);
+			return Intersector.intersectRayBoundsFast(ray, center, dimensions);
 		}
 	}
 
