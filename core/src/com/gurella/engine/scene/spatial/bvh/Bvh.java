@@ -44,7 +44,7 @@ public class Bvh {
 		} else {
 			rootNode = new BvhNode(this);
 			// it's a leaf, so give it an empty object list
-			rootNode.spatials = new Array<BvhSpatial>(BvhSpatial.class);//TODO garbage
+			rootNode.spatials = new Array<BvhSpatial>(BvhSpatial.class);// TODO garbage
 		}
 	}
 
@@ -196,10 +196,35 @@ public class Bvh {
 
 		@Override
 		public boolean intersects(BoundingBox box) {
+			if(true) {
+				box.getCenter(center);
+				box.getDimensions(dimensions);
+				return Intersector.intersectRayBoundsFast(ray, center, dimensions);
+			}
 			box.getCenter(center);
 			box.getDimensions(dimensions).scl(0.5f);
-			//return Intersector.intersectRayBoundsFast(ray, center, dimensions);
-			return Intersector.intersectRaySphere(ray, center, dimensions.len(), intersection);
+			// return Intersector.intersectRayBoundsFast(ray, center, dimensions);
+			// return Intersector.intersectRaySphere(ray, center, dimensions.len(), intersection);
+
+			final float len = ray.direction.dot(center.x - ray.origin.x, center.y - ray.origin.y,
+					center.z - ray.origin.z);
+			if (len < 0.f) {
+				return false;
+			}
+
+			final float dst2 = center.dst2(ray.origin.x + ray.direction.x * len, ray.origin.y + ray.direction.y * len,
+					ray.origin.z + ray.direction.z * len);
+
+			final float r2 = dimensions.len2();
+			if (dst2 > r2) {
+				return false;
+			}
+
+			if (intersection != null) {
+				intersection.set(ray.direction).scl(len - (float) Math.sqrt(r2 - dst2)).add(ray.origin);
+			}
+
+			return true;
 		}
 	}
 

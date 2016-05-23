@@ -43,12 +43,10 @@ public class TextureComponent extends RenderableComponent2d implements DebugRend
 			batch.setShapeRendererTransform(transformComponent);
 			batch.setShapeRendererColor(Color.RED);
 			batch.setShapeRendererShapeType(ShapeType.Line);
-			float x = transformComponent == null ? 0 : 0;//transformComponent.getTranslationX();
-			float y = transformComponent == null ? 0 : 0;//transformComponent.getTranslationY();
 			float tempWidth = sprite.getWidth();
 			float tempHeight = sprite.getHeight();
-			float x1 = x - (tempWidth * 0.5f);
-			float y1 = y - (tempHeight * 0.5f);
+			float x1 = tempWidth * 0.5f;
+			float y1 = tempHeight * 0.5f;
 			float x2 = x1 + tempWidth;
 			float y2 = y1 + tempHeight;
 			batch.line(x1, y1, x2, y1);

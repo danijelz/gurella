@@ -226,8 +226,6 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 				Object modelInstance = context.modelInstance;
 				if (modelInstance instanceof SceneNodeComponent2) {
 					return (SceneNodeComponent2) modelInstance;
-				} else {
-					return null;
 				}
 			}
 			parent = parent.getParent();

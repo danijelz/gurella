@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.renderable;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -13,8 +14,10 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.GenericBatch;
+import com.gurella.engine.scene.debug.DebugRenderable;
+import com.gurella.engine.scene.renderable.debug.WireframeShader;
 
-public abstract class RenderableComponent3d extends RenderableComponent {
+public abstract class RenderableComponent3d extends RenderableComponent implements DebugRenderable {
 	private transient final BoundingBox temp = new BoundingBox();
 
 	protected abstract ModelInstance getModelInstance();
@@ -134,4 +137,27 @@ public abstract class RenderableComponent3d extends RenderableComponent {
 	// }
 	// return false;
 	// }
+
+	WireframeShader wfSh;
+	@Override
+	public void debugRender(GenericBatch batch) {
+		ModelInstance instance = getModelInstance();
+		if (instance != null) {
+			Array<MeshPart> meshParts = instance.model.meshParts;
+			int[] old = new int[meshParts.size];
+			for (int i = 0, n = meshParts.size; i < n; i++) {
+				meshParts.get(i).primitiveType = GL20.GL_LINE_LOOP;
+			}
+
+			if(wfSh == null) {
+				wfSh = new WireframeShader();
+				wfSh.init();
+			}
+			batch.render(instance, wfSh);
+
+			for (int i = 0, n = meshParts.size; i < n; i++) {
+				meshParts.get(i).primitiveType = old[i];
+			}
+		}
+	}
 }

@@ -140,8 +140,12 @@ public class BvhNode implements Poolable {
 	}
 
 	private void computeVolume() {
-		//box.set(spatials.get(0).getBounds());
-		for (int i = 0; i < spatials.size; i++) {
+		BoundingBox firstBounds = spatials.get(0).getBounds();
+		if (firstBounds.isValid()) {
+			box.set(firstBounds);
+		}
+
+		for (int i = 1; i < spatials.size; i++) {
 			BvhSpatial spatial = spatials.get(i);
 			expandVolume(spatial.getBounds());
 		}
@@ -554,7 +558,7 @@ public class BvhNode implements Poolable {
 	}
 
 	void childRefit(boolean recurse) {
-		//box.set(left.box).ext(right.box);
+		// box.set(left.box).ext(right.box);
 		refitBox();
 
 		if (recurse && parent != null) {
