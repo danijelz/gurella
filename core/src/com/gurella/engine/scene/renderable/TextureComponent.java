@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.renderable;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -7,6 +8,7 @@ import com.gurella.engine.graphics.GenericBatch;
 import com.gurella.engine.scene.debug.DebugRenderable;
 
 public class TextureComponent extends RenderableComponent2d implements DebugRenderable {
+	private static final Color DEBUG_OUTLINE_COLOR = new Color(1f, 0.451f, 0f, 1.0f);
 	private Texture texture;
 
 	public Texture getTexture() {
@@ -40,8 +42,9 @@ public class TextureComponent extends RenderableComponent2d implements DebugRend
 	@Override
 	public void debugRender(GenericBatch batch) {
 		if (texture != null) {
+			Gdx.gl20.glLineWidth(2.4f);
 			batch.setShapeRendererTransform(transformComponent);
-			batch.setShapeRendererColor(Color.RED);
+			batch.setShapeRendererColor(DEBUG_OUTLINE_COLOR);
 			batch.setShapeRendererShapeType(ShapeType.Line);
 			float width = sprite.getWidth();
 			float height = sprite.getHeight();
@@ -53,6 +56,7 @@ public class TextureComponent extends RenderableComponent2d implements DebugRend
 			batch.line(x2, y1, x2, y2);
 			batch.line(x2, y2, x1, y2);
 			batch.line(x1, y2, x1, y1);
+			Gdx.gl20.glLineWidth(1f);
 		}
 	}
 
