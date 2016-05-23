@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.renderable.debug;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,10 +9,17 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ObjectMap;
 
-//https://github.com/mbrlabs/Mundus/blob/master/editor/src/main/com/mbrlabs/mundus/shader/WireframeShader.java
+/**
+ * @author Marcus Brummer
+ */
+// https://github.com/mbrlabs/Mundus/blob/master/editor/src/main/com/mbrlabs/mundus/shader/WireframeShader.java
 public class WireframeShader extends BaseShader {
+	private static final ObjectMap<Application, WireframeShader> instances = new ObjectMap<Application, WireframeShader>();
+
 	private static final String VERTEX_SHADER = "com/gurella/engine/scene/renderable/debug/wire.vert.glsl";
 	private static final String FRAGMENT_SHADER = "com/gurella/engine/scene/renderable/debug/wire.frag.glsl";
 
@@ -19,9 +27,18 @@ public class WireframeShader extends BaseShader {
 	protected final int UNIFORM_TRANS_MATRIX = register(new Uniform("u_transMatrix"));
 
 	private ShaderProgram program;
+	private final Matrix4 worldTransform = new Matrix4();
 
-	public WireframeShader() {
-		super();
+	public static WireframeShader getInstance() {
+		WireframeShader instance = instances.get(Gdx.app);
+		if (instance == null) {
+			instance = new WireframeShader();
+			instances.put(Gdx.app, instance);
+		}
+		return instance;
+	}
+
+	private WireframeShader() {
 		String vert = Gdx.files.classpath(VERTEX_SHADER).readString();
 		String frag = Gdx.files.classpath(FRAGMENT_SHADER).readString();
 
@@ -29,6 +46,7 @@ public class WireframeShader extends BaseShader {
 		if (!program.isCompiled()) {
 			throw new GdxRuntimeException(program.getLog());
 		}
+		init();
 	}
 
 	@Override
@@ -59,8 +77,9 @@ public class WireframeShader extends BaseShader {
 
 	@Override
 	public void render(Renderable renderable) {
-		renderable.worldTransform.scale(1.01f, 1.01f, 1.01f);
-		set(UNIFORM_TRANS_MATRIX, renderable.worldTransform);
+		worldTransform.set(renderable.worldTransform);
+		worldTransform.scale(1.005f, 1.005f, 1.005f);
+		set(UNIFORM_TRANS_MATRIX, worldTransform);
 		int primitiveType = renderable.meshPart.primitiveType;
 		renderable.meshPart.primitiveType = GL20.GL_LINE_LOOP;
 		renderable.meshPart.render(program);

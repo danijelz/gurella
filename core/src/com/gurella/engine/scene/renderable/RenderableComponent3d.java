@@ -138,7 +138,6 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	// return false;
 	// }
 
-	WireframeShader wfSh;
 	@Override
 	public void debugRender(GenericBatch batch) {
 		ModelInstance instance = getModelInstance();
@@ -149,11 +148,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 				meshParts.get(i).primitiveType = GL20.GL_LINE_LOOP;
 			}
 
-			if(wfSh == null) {
-				wfSh = new WireframeShader();
-				wfSh.init();
-			}
-			batch.render(instance, wfSh);
+			batch.render(instance, WireframeShader.getInstance());
 
 			for (int i = 0, n = meshParts.size; i < n; i++) {
 				meshParts.get(i).primitiveType = old[i];
