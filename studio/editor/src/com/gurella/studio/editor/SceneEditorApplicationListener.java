@@ -171,10 +171,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 				shapeRenderer.setColor(Color.YELLOW);
 				shapeRenderer.set(ShapeType.Line);
 				shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
-				//shapeRenderer.setColor(Color.BLUE);
-				//shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).add(3).add(pickRay.origin));
-				//shapeRenderer.setColor(Color.RED);
-				//shapeRenderer.box(pickRay.origin.x, pickRay.origin.y, pickRay.origin.z, 0.1f, 0.1f, 0.1f);
 				shapeRenderer.end();
 			}
 		}
