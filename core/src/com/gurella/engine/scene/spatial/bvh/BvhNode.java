@@ -50,7 +50,7 @@ public class BvhNode implements Poolable {
 		// Check if we�re at our LEAF node, and if so, save the objects and stop
 		// recursing. Also store the min/max for the leaf node and update the
 		// parent appropriately
-		if (spatials.size <= bvh.LEAF_OBJ_MAX) {
+		if (spatials.size <= bvh.maxLeafSpatials) {
 			// once we reach the leaf node, we must set prev/next to null to
 			// signify the end
 			left = null;// TODO add to pool
@@ -392,7 +392,7 @@ public class BvhNode implements Poolable {
 	}
 
 	void splitIfNecessary() {
-		if (spatials.size > bvh.LEAF_OBJ_MAX) {
+		if (spatials.size > bvh.maxLeafSpatials) {
 			splitNode();
 		}
 	}

@@ -3,6 +3,7 @@ package com.gurella.engine.scene.transform;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
@@ -37,8 +38,9 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	private transient final Matrix4 worldTransform = new Matrix4();
 	private boolean transformDirty = true;
 
-	private final Matrix4 worldTransformInverse = new Matrix4();
+	private final Matrix4 transformInverse = new Matrix4();
 	private boolean transformInvDirty = true;
+	private boolean worldTransformInvDirty = true;
 
 	private TransformComponent parentTransform;
 	private final Array<TransformComponent> childTransforms = new Array<TransformComponent>();
@@ -73,6 +75,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		if (!transformDirty) {
 			transformDirty = true;
 			transformInvDirty = true;
+			worldTransformInvDirty = true;
 			notifyChange(this);
 		}
 	}
@@ -559,6 +562,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 		notifyChange(this);
 	}
 
@@ -585,6 +589,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 		notifyChange(this);
 	}
 
@@ -676,6 +681,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 		notifyChange(this);
 	}
 
@@ -693,6 +699,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 		notifyChange(this);
 	}
 
@@ -700,7 +707,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return outTransform.set(getTransform());
 	}
 
-	public final Matrix4 getTransform() {
+	private final Matrix4 getTransform() {
 		update();
 		return transform;
 	}
@@ -709,7 +716,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return outTransform.set(getWorldTransform());
 	}
 
-	public final Matrix4 getWorldTransform() {
+	private final Matrix4 getWorldTransform() {
 		update();
 		return worldTransform;
 	}
@@ -727,44 +734,79 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public Matrix4 getWorldTransformInverse() {
-		if (transformInvDirty) {
-			worldTransformInverse.set(getWorldTransform()).inv();
-			transformInvDirty = false;
+		if (worldTransformInvDirty) {
+			transformInverse.set(getWorldTransform()).inv();
+			transformInvDirty = true;
+			worldTransformInvDirty = false;
 		}
 
-		return worldTransformInverse;
+		return transformInverse;
 	}
 
-	public Vector3 localToWorld(Vector3 point) {
+	public Matrix4 getTransformInverse() {
+		if (transformInvDirty) {
+			transformInverse.set(getTransform()).inv();
+			transformInvDirty = false;
+			worldTransformInvDirty = true;
+		}
+
+		return transformInverse;
+	}
+
+	/////////// world transfoms
+
+	public Vector3 transformPointToWorld(Vector3 point) {
 		return point.mul(getWorldTransform());
 	}
 
-	public Vector3 localToWorld(Vector3 point, Vector3 out) {
-		return out.set(point).mul(getWorldTransform());
-	}
-
-	public Vector3 worldToLocal(Vector3 point) {
+	public Vector3 transformPointFromWorld(Vector3 point) {
 		return point.mul(getWorldTransformInverse());
 	}
 
-	public Vector3 worldToLocal(Vector3 point, Vector3 out) {
-		return out.set(point).mul(getWorldTransformInverse());
+	public Vector3 transformDirectionToWorld(Vector3 direction) {
+		return direction.mul(getWorldRotation());
+	}
+
+	public Vector3 transformVectorToWorld(Vector3 vector) {
+		return vector.mul(getWorldRotation()).add(getWorldTranslation());
+	}
+
+	public BoundingBox transformBoundsToWorld(BoundingBox out) {
+		return out.mul(getWorldTransform());
 	}
 
 	public Vector3 getWorldUp(Vector3 out) {
-		return transformWorldDirection(out.set(0, 1, 0));
+		return transformDirectionToWorld(out.set(0, 1, 0));
 	}
 
 	public Vector3 getWorldRight(Vector3 out) {
-		return transformWorldDirection(out.set(1, 0, 0));
+		return transformDirectionToWorld(out.set(1, 0, 0));
 	}
 
 	public Vector3 getWorldForward(Vector3 out) {
-		return transformWorldDirection(out.set(0, 0, 1));
+		return transformDirectionToWorld(out.set(0, 0, 1));
 	}
 
-	public Vector3 transformWorldDirection(Vector3 direction) {
-		return direction.mul(getWorldRotation());
+	/////////// local transfoms
+
+	public Vector3 transformPoint(Vector3 point) {
+		return point.mul(getTransform());
+	}
+
+	public Vector3 transformPointFromLocal(Vector3 point) {
+		return point.mul(getTransformInverse());
+	}
+
+	public Vector3 transformDirection(Vector3 direction) {
+		return rotation.transform(direction);
+	}
+
+	public Vector3 transformVector(Vector3 vector) {
+		return vector.mul(rotation).add(translation);
+	}
+
+	public BoundingBox transformBounds(BoundingBox out) {
+		return out.mul(getTransform());
 	}
 
 	public Vector3 getUp(Vector3 out) {
@@ -779,9 +821,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return transformDirection(out.set(0, 0, 1));
 	}
 
-	public Vector3 transformDirection(Vector3 direction) {
-		return rotation.transform(direction);
-	}
+	////// lookAt
 
 	public void lookAt(Vector3 target) {
 		lookAt(target, getUp(tempVector));
@@ -801,6 +841,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 		notifyChange(this);
 	}
 
@@ -827,6 +868,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 		notifyChange(this);
 	}
 
@@ -852,6 +894,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		scale.set(1, 1, 1);
 		transformDirty = true;
 		transformInvDirty = true;
+		worldTransformInvDirty = true;
 	}
 
 	private class NodeParentChangedListener implements ObjectParentChangeListener {

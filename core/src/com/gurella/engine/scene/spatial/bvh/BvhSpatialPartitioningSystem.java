@@ -40,22 +40,22 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 
 	@Override
 	protected void doGetSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask) {
-		bvh.traverseSpatials(bounds, out, mask);
+		bvh.traverse(bounds, out, mask);
 	}
 
 	@Override
 	protected void doGetSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask) {
-		bvh.traverseSpatials(frustum, out, mask);
+		bvh.traverse(frustum, out, mask);
 	}
 
 	@Override
 	protected void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask) {
-		bvh.traverseSpatials(ray, out, mask);
+		bvh.traverse(ray, out, mask);
 	}
 
 	@Override
 	protected void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask) {
-		bvh.traverseSpatials(ray, maxDistance, out, mask);
+		bvh.traverse(ray, maxDistance, out, mask);
 	}
 
 	@Override

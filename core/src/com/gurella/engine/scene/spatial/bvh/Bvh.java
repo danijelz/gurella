@@ -15,23 +15,23 @@ public class Bvh {
 	public BvhNode rootNode;
 	public int nodeCount = 0;
 
-	int LEAF_OBJ_MAX;
+	int maxLeafSpatials;
 	final ObjectSet<BvhNode> refitNodes = new ObjectSet<BvhNode>();
 	private Array<BvhNode> sweepNodes = new Array<BvhNode>(BvhNode.class);
 
 	/**
 	 * 
 	 * @param objects
-	 * @param LEAF_OBJ_MAX
+	 * @param maxLeafSpatials
 	 *            WARNING! currently this must be 1 to use dynamic BVH update
 	 */
-	public Bvh(Array<BvhSpatial> objects, int LEAF_OBJ_MAX) {
-		this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
+	public Bvh(Array<BvhSpatial> objects, int maxLeafSpatials) {
+		this.maxLeafSpatials = maxLeafSpatials;
 		init(objects);
 	}
 
-	public Bvh(int LEAF_OBJ_MAX) {
-		this.LEAF_OBJ_MAX = LEAF_OBJ_MAX;
+	public Bvh(int maxLeafSpatials) {
+		this.maxLeafSpatials = maxLeafSpatials;
 	}
 
 	public void init(Array<BvhSpatial> objects) {
@@ -48,47 +48,54 @@ public class Bvh {
 		}
 	}
 
-	public void traverse(Ray ray, Array<BvhNode> result) {
+	public void traverse(Ray ray, Array<Spatial> result) {
 		traverse(rootNode, new RayHitTest(ray), result);
 	}
 
-	public void traverse(Frustum frustum, Array<BvhNode> result) {
+	public void traverse(Ray ray, float maxDistance, Array<Spatial> result) {
+		traverse(rootNode, new RayDistanceHitTest(ray, maxDistance), result);
+	}
+
+	public void traverse(Frustum frustum, Array<Spatial> result) {
 		traverse(rootNode, new FrustumHitTest(frustum), result);
 	}
 
-	public void traverse(BoundingBox volume, Array<BvhNode> result) {
+	public void traverse(BoundingBox volume, Array<Spatial> result) {
 		traverse(rootNode, new BoundingBoxHitTest(volume), result);
 	}
 
-	private void traverse(BvhNode node, NodeTest hitTest, Array<BvhNode> result) {
+	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result) {
 		if (node == null) {
 			return;
 		}
 
 		if (hitTest.intersects(node.box)) {
-			result.add(node);
+			if (node.spatials != null) {
+				result.addAll(node.spatials);
+			}
+
 			traverse(node.left, hitTest, result);
 			traverse(node.right, hitTest, result);
 		}
 	}
 
-	public void traverseSpatials(Ray ray, Array<Spatial> result, LayerMask mask) {
-		traverseSpatials(rootNode, new RayHitTest(ray), result, mask);
+	public void traverse(Ray ray, Array<Spatial> result, LayerMask mask) {
+		traverse(rootNode, new RayHitTest(ray), result, mask);
 	}
 
-	public void traverseSpatials(Ray ray, float maxDistance, Array<Spatial> result, LayerMask mask) {
-		traverseSpatials(rootNode, new PickRayHitTest(ray, maxDistance), result, mask);
+	public void traverse(Ray ray, float maxDistance, Array<Spatial> result, LayerMask mask) {
+		traverse(rootNode, new RayDistanceHitTest(ray, maxDistance), result, mask);
 	}
 
-	public void traverseSpatials(Frustum frustum, Array<Spatial> result, LayerMask mask) {
-		traverseSpatials(rootNode, new FrustumHitTest(frustum), result, mask);
+	public void traverse(Frustum frustum, Array<Spatial> result, LayerMask mask) {
+		traverse(rootNode, new FrustumHitTest(frustum), result, mask);
 	}
 
-	public void traverseSpatials(BoundingBox volume, Array<Spatial> result, LayerMask mask) {
-		traverseSpatials(rootNode, new BoundingBoxHitTest(volume), result, mask);
+	public void traverse(BoundingBox volume, Array<Spatial> result, LayerMask mask) {
+		traverse(rootNode, new BoundingBoxHitTest(volume), result, mask);
 	}
 
-	private void traverseSpatials(BvhNode node, NodeTest hitTest, Array<Spatial> result, LayerMask mask) {
+	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result, LayerMask mask) {
 		if (node == null) {
 			return;
 		}
@@ -103,8 +110,8 @@ public class Bvh {
 				}
 			}
 
-			traverseSpatials(node.left, hitTest, result, mask);
-			traverseSpatials(node.right, hitTest, result, mask);
+			traverse(node.left, hitTest, result, mask);
+			traverse(node.right, hitTest, result, mask);
 		}
 	}
 
@@ -112,7 +119,7 @@ public class Bvh {
 	// ssBVHNode.refit_ObjectChanged(..). For example, in a game-loop,
 	// call this once per frame.
 	public synchronized void optimize() {
-		if (LEAF_OBJ_MAX != 1) {
+		if (maxLeafSpatials != 1) {
 			throw new IllegalStateException("In order to use optimize, you must set LEAF_OBJ_MAX=1");
 		}
 
@@ -144,7 +151,6 @@ public class Bvh {
 			if (maxDepth == node.depth) {
 				iterator.remove();
 				sweepNodes.add(node);
-			} else {
 			}
 		}
 	}
@@ -186,6 +192,8 @@ public class Bvh {
 	// TODO poolable
 	private static class RayHitTest implements NodeTest {
 		Ray ray;
+		final Vector3 center = new Vector3();
+		final Vector3 dimensions = new Vector3();
 
 		public RayHitTest(Ray ray) {
 			this.ray = ray;
@@ -193,24 +201,30 @@ public class Bvh {
 
 		@Override
 		public boolean intersects(BoundingBox box) {
-			return Intersector.intersectRayBoundsFast(ray, box);
+			box.getCenter(center);
+			box.getDimensions(dimensions);
+			return Intersector.intersectRayBoundsFast(ray, center, dimensions);
 		}
 	}
 
 	// TODO poolable
-	private static class PickRayHitTest implements NodeTest {
+	private static class RayDistanceHitTest implements NodeTest {
 		Ray ray;
-		float maxDistance2;
+		final Vector3 center = new Vector3();
+		final Vector3 dimensions = new Vector3();
 		final Vector3 intersection = new Vector3();
+		float maxDistance2;
 
-		public PickRayHitTest(Ray ray, float maxDistance) {
+		public RayDistanceHitTest(Ray ray, float maxDistance) {
 			this.ray = ray;
 			this.maxDistance2 = maxDistance * maxDistance;
 		}
 
 		@Override
 		public boolean intersects(BoundingBox box) {
-			return Intersector.intersectRayBounds(ray, box, intersection)
+			box.getCenter(center);
+			box.getDimensions(dimensions);
+			return Intersector.intersectRayBoundsFast(ray, center, dimensions)
 					&& ray.origin.dst2(intersection) <= maxDistance2;
 		}
 	}

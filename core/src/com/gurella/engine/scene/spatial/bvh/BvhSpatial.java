@@ -27,7 +27,7 @@ public class BvhSpatial extends Spatial {
 		renderableComponent.getBounds(bounds.inf());
 		TransformComponent transformComponent = renderableComponent.getTransformComponent();
 		if (transformComponent != null) {
-			bounds.mul(transformComponent.getWorldTransform());
+			transformComponent.transformBoundsToWorld(bounds);
 		}
 		return bounds;
 	}

@@ -110,7 +110,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 				light.position.setZero();
 			} else {
 				transformComponent.getWorldTranslation(light.position);
-				transformComponent.localToWorld(light.direction).sub(light.position);
+				transformComponent.transformPointToWorld(light.direction).sub(light.position);
 			}
 		}
 	}

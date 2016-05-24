@@ -73,7 +73,7 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 				float y = direction.y;
 				float z = direction.z;
 				transformComponent.getWorldTranslation(direction);
-				transformComponent.localToWorld(light.direction).sub(direction);
+				transformComponent.transformPointToWorld(light.direction).sub(direction);
 				direction.set(x, y, z);
 			}
 		}
