@@ -287,13 +287,14 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderableComponent = spatial.renderableComponent;
-			renderableComponent.getIntersection(pickRay, intersection);
-			float distance = intersection.dst2(cameraPosition);
-			if (closestDistance > distance) {
-				closestDistance = distance;
-				closestSpatial = spatial;
-				closestIntersection.set(intersection);
-				// TODO Z order of sprites
+			if (renderableComponent.getIntersection(pickRay, intersection)) {
+				float distance = intersection.dst2(cameraPosition);
+				if (closestDistance > distance) {
+					closestDistance = distance;
+					closestSpatial = spatial;
+					closestIntersection.set(intersection);
+					// TODO Z order of sprites
+				}
 			}
 		}
 

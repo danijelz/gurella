@@ -22,6 +22,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
@@ -57,10 +58,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private Scene scene;
 	private StudioRenderSystem renderSystem;
 
-	SceneNode2 selectedNode;
-	
-	private Ray pickRay = new Ray();
+	private final Ray pickRay = new Ray();
 	private long pickRayTime = 0;
+	private final Vector3 intersection = new Vector3();
+	private SceneNode2 selectedNode;
 
 	private final Array<Object> tempArray = new Array<>(64);
 
@@ -86,7 +87,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
-		
+
 		shapeRenderer = new ShapeRenderer();
 
 		inputQueue.setProcessor(selectedController);
@@ -163,8 +164,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			if (scene != null) {
 				renderSystem.renderScene(selectedCamera);
 			}
-			
-			if(System.currentTimeMillis() - 3000 < pickRayTime || true) {
+
+			if (System.currentTimeMillis() - 3000 < pickRayTime || true) {
 				shapeRenderer.setAutoShapeType(true);
 				shapeRenderer.begin();
 				shapeRenderer.setProjectionMatrix(selectedCamera.combined);
@@ -195,12 +196,29 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		Array<Spatial> spatials = Values.cast(tempArray);
 		scene.spatialPartitioningSystem.getSpatials(pickRay, spatials, null);
 
-		if (spatials.size > 0) {
-			Spatial spatial = spatials.get(0);
-			SceneNode2 node = spatial.renderableComponent.getNode();
+		if (spatials.size == 0) {
+			return;
 		}
 
+		Vector3 cameraPosition = selectedCamera.position;
+		Spatial closestSpatial = null;
+		float closestDistance = Float.MAX_VALUE;
+
+		for (int i = 0; i < spatials.size; i++) {
+			Spatial spatial = spatials.get(i);
+			RenderableComponent renderableComponent = spatial.renderableComponent;
+			if (renderableComponent.getIntersection(pickRay, intersection)) {
+				float distance = intersection.dst2(cameraPosition);
+				if (closestDistance > distance) {
+					closestDistance = distance;
+					closestSpatial = spatial;
+					// TODO Z order of sprites
+				}
+			}
+		}
 		spatials.clear();
+
+		selectedNode = closestSpatial == null ? null : closestSpatial.renderableComponent.getNode();
 	}
 
 	@Override
