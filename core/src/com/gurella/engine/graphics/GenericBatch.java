@@ -152,8 +152,18 @@ public class GenericBatch implements Disposable {
 		modelBatch.render(renderableProviders, environment, shader);
 	}
 
-	// ////////2D
+	//////////2D
 
+	public void set2dTransform(TransformComponent transformComponent) {
+		Matrix4 transformMatrix = polygonSpriteBatch.getTransformMatrix();
+		if (transformComponent == null) {
+			transformMatrix.idt();
+		} else {
+			transformComponent.getWorldTransform(transformMatrix);
+		}
+		polygonSpriteBatch.setTransformMatrix(transformMatrix);
+	}
+	
 	public void render(PolygonRegion region, float x, float y) {
 		ensure2d();
 	}

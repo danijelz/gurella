@@ -139,7 +139,7 @@ public class BvhNode implements Poolable {
 		}
 	}
 	
-	private boolean isValid (BoundingBox bBox) {
+	private static boolean isValid (BoundingBox bBox) {
 		return bBox.min.x <= bBox.max.x && bBox.min.y <= bBox.max.y && bBox.min.z <= bBox.max.z;
 	}
 

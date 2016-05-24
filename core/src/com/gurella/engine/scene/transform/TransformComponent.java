@@ -33,8 +33,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	@PropertyDescriptor(flat = true)
 	private final Vector3 scale = new Vector3(1, 1, 1);
 
-	private final Matrix4 transform = new Matrix4();
-	private final Matrix4 worldTransform = new Matrix4();
+	private transient final Matrix4 transform = new Matrix4();
+	private transient final Matrix4 worldTransform = new Matrix4();
 	private boolean transformDirty = true;
 
 	private final Matrix4 worldTransformInverse = new Matrix4();
@@ -700,7 +700,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return outTransform.set(getTransform());
 	}
 
-	private Matrix4 getTransform() {
+	public final Matrix4 getTransform() {
 		update();
 		return transform;
 	}
@@ -709,7 +709,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return outTransform.set(getWorldTransform());
 	}
 
-	private Matrix4 getWorldTransform() {
+	public final Matrix4 getWorldTransform() {
 		update();
 		return worldTransform;
 	}

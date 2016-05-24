@@ -1,6 +1,5 @@
 package com.gurella.engine.scene.renderable;
 
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -49,9 +48,9 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.extendBoundingBox(bounds);
-			if (transformComponent != null) {
-				bounds.mul(instance.transform);
-			}
+			// if (transformComponent != null) {
+			// bounds.mul(instance.transform);
+			// }
 		}
 	}
 
@@ -142,17 +141,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	public void debugRender(GenericBatch batch) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
-			Array<MeshPart> meshParts = instance.model.meshParts;
-			int[] old = new int[meshParts.size];
-			for (int i = 0, n = meshParts.size; i < n; i++) {
-				meshParts.get(i).primitiveType = GL20.GL_LINE_LOOP;
-			}
-
 			batch.render(instance, WireframeShader.getInstance());
-
-			for (int i = 0, n = meshParts.size; i < n; i++) {
-				meshParts.get(i).primitiveType = old[i];
-			}
 		}
 	}
 }

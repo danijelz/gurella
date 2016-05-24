@@ -25,6 +25,10 @@ public class BvhSpatial extends Spatial {
 
 	public BoundingBox getBounds() {
 		renderableComponent.getBounds(bounds.inf());
+		TransformComponent transformComponent = renderableComponent.getTransformComponent();
+		if (transformComponent != null) {
+			bounds.mul(transformComponent.getWorldTransform());
+		}
 		return bounds;
 	}
 
@@ -35,7 +39,7 @@ public class BvhSpatial extends Spatial {
 	@Override
 	public void reset() {
 		super.reset();
-		bounds.inf(); //TODO remove
+		bounds.inf(); // TODO remove
 		translate.setZero();
 	}
 }
