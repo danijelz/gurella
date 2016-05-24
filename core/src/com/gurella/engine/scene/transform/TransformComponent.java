@@ -73,11 +73,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		if (!transformDirty) {
 			transformDirty = true;
 			transformInvDirty = true;
-			notifyChanged(this);
+			notifyChange(this);
 		}
 	}
 
-	private static void notifyChanged(TransformComponent component) {
+	private static void notifyChange(TransformComponent component) {
 		synchronized (mutex) {
 			EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
 			for (int i = 0; i < listeners.size; i++) {
@@ -559,7 +559,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
-		notifyChanged(this);
+		notifyChange(this);
 	}
 
 	public void rotateAroundWorld(Vector3 point, Vector3 axis, float degrees) {
@@ -585,7 +585,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
-		notifyChanged(this);
+		notifyChange(this);
 	}
 
 	public TransformComponent eulerRotate(Vector3 additionalEulerRotation) {
@@ -676,7 +676,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
-		notifyChanged(this);
+		notifyChange(this);
 	}
 
 	public void setWorldTransform(Matrix4 newWorldTransform) {
@@ -693,7 +693,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
-		notifyChanged(this);
+		notifyChange(this);
 	}
 
 	public Matrix4 getTransform(Matrix4 outTransform) {
@@ -801,7 +801,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
-		notifyChanged(this);
+		notifyChange(this);
 	}
 
 	public void lookAtWorld(Vector3 target) {
@@ -827,7 +827,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transformDirty = false;
 		transformInvDirty = true;
-		notifyChanged(this);
+		notifyChange(this);
 	}
 
 	@Override

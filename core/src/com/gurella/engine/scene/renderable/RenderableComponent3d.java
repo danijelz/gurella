@@ -48,9 +48,6 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.extendBoundingBox(bounds);
-			// if (transformComponent != null) {
-			// bounds.mul(instance.transform);
-			// }
 		}
 	}
 
@@ -87,13 +84,10 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 				Array<NodePart> parts = node.parts;
 				for (int i = 0, n = parts.size; i < n; i++) {
 					NodePart nodePart = parts.get(i);
-					if (!nodePart.enabled) {
-						continue;
+					if (nodePart.enabled) {
+						MeshPart meshPart = nodePart.meshPart;
+						Mesh mesh = meshPart.mesh;
 					}
-
-					MeshPart meshPart = nodePart.meshPart;
-					Mesh mesh = meshPart.mesh;
-
 					// TODO meshPart.size;
 					// Intersector.intersectRayTriangles(ray, vertices, indices, vertexSize, intersection);
 				}

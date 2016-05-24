@@ -1,15 +1,20 @@
 package com.gurella.engine.scene.renderable;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.graphics.GenericBatch;
+import com.gurella.engine.scene.debug.DebugRenderable;
 
-public abstract class RenderableComponent2d extends RenderableComponent {
+public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
+	private static final Color DEBUG_OUTLINE_COLOR = new Color(1f, 0.451f, 0f, 1.0f);
+
 	float width;
 	float height;
 	boolean dimensionsFromTexture = true;
@@ -136,15 +141,32 @@ public abstract class RenderableComponent2d extends RenderableComponent {
 		float y2 = y1 + height;
 		bounds.ext(x1, y1, 0);
 		bounds.ext(x2, y2, 0);
-		// float x = transformComponent.getWorldTranslationX();
-		// float y = transformComponent.getWorldTranslationY();
-		// bounds.min.add(x, y, 0);
-		// bounds.max.add(x, y, 0);
 	}
 
 	@Override
 	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
 		return Intersector.intersectRayTriangles(ray, sprite.getVertices(), intersection);
+	}
+
+	@Override
+	public void debugRender(GenericBatch batch) {
+		if (sprite.getTexture() != null) {
+			Gdx.gl20.glLineWidth(2.4f);
+			batch.setShapeRendererTransform(transformComponent);
+			batch.setShapeRendererColor(DEBUG_OUTLINE_COLOR);
+			batch.setShapeRendererShapeType(ShapeType.Line);
+			float width = sprite.getWidth();
+			float height = sprite.getHeight();
+			float x1 = -width * 0.5f;
+			float y1 = -height * 0.5f;
+			float x2 = x1 + width;
+			float y2 = y1 + height;
+			batch.line(x1, y1, x2, y1);
+			batch.line(x2, y1, x2, y2);
+			batch.line(x2, y2, x1, y2);
+			batch.line(x1, y2, x1, y1);
+			Gdx.gl20.glLineWidth(1f);
+		}
 	}
 
 	@Override
