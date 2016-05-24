@@ -80,6 +80,9 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 			}
 		} else {
 			node.extendBoundingBox(temp.inf(), true);
+			if (transformComponent != null) {
+				transformComponent.transformBoundsToWorld(temp);
+			}
 			if (Intersector.intersectRayBoundsFast(ray, temp)) {
 				Array<NodePart> parts = node.parts;
 				for (int i = 0, n = parts.size; i < n; i++) {
