@@ -239,6 +239,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		item.setText("Front");
 		item.addListener(SWT.Selection, e -> toFront());
 		
+		item = new MenuItem(menu, PUSH);
+		item.setText("Back");
+		item.addListener(SWT.Selection, e -> toBack());
+		
 		menu.setLocation(partControl.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
@@ -246,6 +250,14 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private void toFront() {
 		selectedCamera.position.set(0, 0, 3);
 		selectedCamera.direction.set(0, 0, -1);
+		selectedCamera.up.set(0, 1, 0);
+		selectedCamera.lookAt(0, 0, 0);
+		selectedCamera.update(true);
+	}
+
+	private void toBack() {
+		selectedCamera.position.set(0, 0, -3);
+		selectedCamera.direction.set(0, 0, 1);
 		selectedCamera.up.set(0, 1, 0);
 		selectedCamera.lookAt(0, 0, 0);
 		selectedCamera.update(true);
