@@ -155,6 +155,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 			transformComponent.transformRayFromWorld(inv);
 		}
 		
+		//TODO vectors from cache
 		Vector3 v1 = new Vector3();
 		Vector3 v2 = new Vector3();
 		Vector3 v3 = new Vector3();
