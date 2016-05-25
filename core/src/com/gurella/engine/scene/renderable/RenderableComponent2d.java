@@ -121,7 +121,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		}*/
 		
 		sprite.setCenter(0, 0);
-		sprite.setOriginCenter();
 	}
 
 	@Override
