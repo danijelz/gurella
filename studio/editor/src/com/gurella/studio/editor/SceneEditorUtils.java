@@ -63,6 +63,15 @@ public class SceneEditorUtils {
 		}
 	}
 
+	public static GurellaSceneEditor getCurrentEditor() {
+		Application app = Gdx.app;
+		if (app instanceof SwtLwjglApplication) {
+			return idToEditor.get(gdxAppToEditorId.get((SwtLwjglApplication) app, invalidId));
+		} else {
+			return null;
+		}
+	}
+
 	public static void subscribe(Object subscriber) {
 		EventService.subscribe(getCurrentApplicationId(), subscriber);
 	}

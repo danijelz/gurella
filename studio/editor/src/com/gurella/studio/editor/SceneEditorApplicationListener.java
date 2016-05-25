@@ -1,5 +1,12 @@
 package com.gurella.studio.editor;
 
+import static org.eclipse.swt.SWT.POP_UP;
+import static org.eclipse.swt.SWT.PUSH;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputEventQueue;
@@ -31,11 +38,12 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
+import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.StudioRenderSystem;
-import com.gurella.studio.editor.subscriptions.SceneEditorMouseSelectionListener;
+import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements EditorMessageListener, SceneEditorMouseSelectionListener {
+		implements EditorMessageListener, SceneEditorMouseListener {
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
 	private PerspectiveCamera perspectiveCamera;
@@ -219,6 +227,28 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		spatials.clear();
 
 		selectedNode = closestSpatial == null ? null : closestSpatial.renderableComponent.getNode();
+	}
+
+	@Override
+	public void onMouseMenu(float x, float y) {
+		GurellaSceneEditor editor = SceneEditorUtils.getCurrentEditor();
+		SceneEditorPartControl partControl = editor.getPartControl();
+		
+		Menu menu = new Menu(partControl.getShell(), POP_UP);
+		MenuItem item = new MenuItem(menu, PUSH);
+		item.setText("Front");
+		item.addListener(SWT.Selection, e -> toFront());
+		
+		menu.setLocation(partControl.getDisplay().getCursorLocation());
+		menu.setVisible(true);
+	}
+
+	private void toFront() {
+		selectedCamera.position.set(0, 0, 3);
+		selectedCamera.direction.set(0, 0, -1);
+		selectedCamera.up.set(0, 1, 0);
+		selectedCamera.lookAt(0, 0, 0);
+		selectedCamera.update(true);
 	}
 
 	@Override

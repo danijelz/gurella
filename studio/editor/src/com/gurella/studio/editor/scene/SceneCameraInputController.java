@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.gurella.studio.editor.SceneEditorUtils;
-import com.gurella.studio.editor.subscriptions.SceneEditorMouseSelectionListener;
+import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
 
 public class SceneCameraInputController extends CameraInputController {
 	public SceneCameraInputController(Camera camera) {
@@ -20,9 +20,10 @@ public class SceneCameraInputController extends CameraInputController {
 
 			switch (button) {
 			case Buttons.RIGHT:
+				SceneEditorUtils.notify(SceneEditorMouseListener.class, l -> l.onMouseMenu(x, y));
 				return false;
 			case Buttons.LEFT:
-				SceneEditorUtils.notify(SceneEditorMouseSelectionListener.class, l -> l.onMouseSelection(x, y));
+				SceneEditorUtils.notify(SceneEditorMouseListener.class, l -> l.onMouseSelection(x, y));
 				return false;
 			default:
 				return false;

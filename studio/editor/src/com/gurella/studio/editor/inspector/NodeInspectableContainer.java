@@ -202,10 +202,10 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
-		MenuItem item1 = new MenuItem(menu, PUSH);
-		item1.setText(Models.getModel(componentType).getName());
-		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
-		item1.setEnabled(target.getComponent(ComponentType.getBaseType(componentType)) == null);
+		MenuItem item = new MenuItem(menu, PUSH);
+		item.setText(Models.getModel(componentType).getName());
+		item.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
+		item.setEnabled(target.getComponent(ComponentType.getBaseType(componentType)) == null);
 	}
 
 	private void addScriptMenuItem(Menu menu) {
