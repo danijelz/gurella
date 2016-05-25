@@ -2,6 +2,7 @@ package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Intersector;
@@ -30,6 +31,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	public RenderableComponent2d() {
 		sprite.setColor(tint);
 		sprite.flip(false, true);
+		sprite.setOriginCenter();
 	}
 
 	public float getWidth() {
@@ -103,7 +105,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 
 	@Override
 	protected void updateGeometry() {
-		if (transformComponent == null) {
+		/*if (transformComponent == null) {
 			sprite.setScale(1, 1);
 			sprite.setRotation(0);
 			sprite.setCenter(0, 0);
@@ -116,7 +118,10 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 			sprite.setRotation(transformComponent.getWorldEulerRotationZ());
 			sprite.setCenter(transformComponent.getWorldTranslationX(), y);
 			sprite.setOriginCenter();
-		}
+		}*/
+		
+		sprite.setCenter(0, 0);
+		sprite.setOriginCenter();
 	}
 
 	@Override
@@ -136,16 +141,38 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		float width = sprite.getWidth();
 		float height = sprite.getHeight();
 		float x1 = -width * 0.5f;
-		float y1 = -height * 0.5f;
+		float y1 = height * 0.5f;
 		float x2 = x1 + width;
-		float y2 = y1 + height;
+		float y2 = y1 - height;
 		bounds.ext(x1, y1, 0);
 		bounds.ext(x2, y2, 0);
 	}
 
 	@Override
 	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
-		return Intersector.intersectRayTriangles(ray, sprite.getVertices(), intersection);
+		Ray inv = new Ray().set(ray);
+		if(transformComponent != null) {
+			transformComponent.transformRayFromWorld(inv);
+		}
+		
+		Vector3 v1 = new Vector3();
+		Vector3 v2 = new Vector3();
+		Vector3 v3 = new Vector3();
+		
+		float[] vertices = sprite.getVertices();
+		
+		v1.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
+		v2.set(vertices[Batch.X2], vertices[Batch.Y2], 0);
+		v3.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
+		
+		if(Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection)) {
+			return true;
+		}
+		
+		v1.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
+		v2.set(vertices[Batch.X4], vertices[Batch.Y4], 0);
+		v3.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
+		return Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class BvhNode implements Poolable {
 			throw new IllegalArgumentException("spatials constructed with invalid paramaters");
 		}
 
-		// Check if we�re at our LEAF node, and if so, save the objects and stop
+		// Check if we're at our LEAF node, and if so, save the objects and stop
 		// recursing. Also store the min/max for the leaf node and update the
 		// parent appropriately
 		if (spatials.size <= bvh.maxLeafSpatials) {
@@ -108,16 +108,14 @@ public class BvhNode implements Poolable {
 		if (spatials == null) {
 			throw new IllegalStateException("dangling leaf!");
 		}
-		if (refitVolume()) {
-			// add our parent to the optimize list...
-			if (parent != null) {
-				bvh.refitNodes.add(parent);
 
-				// you can force an optimize every time something moves, but
-				// it's not very efficient
-				// instead we do this per-frame after a bunch of updates.
-				// nAda.BVH.optimize();
-			}
+		if (refitVolume() && parent != null) {
+			// add our parent to the optimize list...
+			bvh.refitNodes.add(parent);
+			// you can force an optimize every time something moves, but
+			// it's not very efficient
+			// instead we do this per-frame after a bunch of updates.
+			// nAda.BVH.optimize();
 		}
 	}
 
@@ -138,8 +136,8 @@ public class BvhNode implements Poolable {
 			return false;
 		}
 	}
-	
-	private static boolean isValid (BoundingBox bBox) {
+
+	private static boolean isValid(BoundingBox bBox) {
 		return bBox.min.x <= bBox.max.x && bBox.min.y <= bBox.max.y && bBox.min.z <= bBox.max.z;
 	}
 

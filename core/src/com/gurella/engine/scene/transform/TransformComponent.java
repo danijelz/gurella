@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
@@ -767,12 +768,34 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return direction.mul(getWorldRotation());
 	}
 
+	public Vector3 transformDirectionFromWorld(Vector3 direction) {
+		getWorldTransformInverse().getRotation(rotator);
+		return direction.mul(rotator);
+	}
+
 	public Vector3 transformVectorToWorld(Vector3 vector) {
 		return vector.mul(getWorldRotation()).add(getWorldTranslation());
 	}
 
+	public Vector3 transformVectorFromWorld(Vector3 vector) {
+		Matrix4 worldTransformInverse = getWorldTransformInverse();
+		worldTransformInverse.getRotation(rotator);
+		return vector.mul(rotator).add(worldTransformInverse.getTranslation(tempVector));
+	}
+
 	public BoundingBox transformBoundsToWorld(BoundingBox out) {
 		return out.mul(getWorldTransform());
+	}
+
+	public BoundingBox transformBoundsFromWorld(BoundingBox out) {
+		return out.mul(getWorldTransformInverse());
+	}
+
+	public Ray transformRayFromWorld(Ray out) {
+		transformPointFromWorld(out.origin);
+		transformDirectionFromWorld(out.direction);
+		out.direction.nor();
+		return out;
 	}
 
 	public Vector3 getWorldUp(Vector3 out) {
@@ -801,12 +824,34 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return rotation.transform(direction);
 	}
 
+	public Vector3 transformDirectionFromLocal(Vector3 direction) {
+		getTransformInverse().getRotation(rotator);
+		return direction.mul(rotator);
+	}
+
 	public Vector3 transformVector(Vector3 vector) {
 		return vector.mul(rotation).add(translation);
 	}
 
+	public Vector3 transformVectorFromLocal(Vector3 vector) {
+		Matrix4 transformInverse = getTransformInverse();
+		transformInverse.getRotation(rotator);
+		return vector.mul(rotator).add(transformInverse.getTranslation(tempVector));
+	}
+
 	public BoundingBox transformBounds(BoundingBox out) {
 		return out.mul(getTransform());
+	}
+
+	public BoundingBox transformBoundsFromLocal(BoundingBox out) {
+		return out.mul(getTransformInverse());
+	}
+
+	public Ray transformRayFromLocal(Ray out) {
+		transformPointFromLocal(out.origin);
+		transformDirectionFromLocal(out.direction);
+		out.direction.nor();
+		return out;
 	}
 
 	public Vector3 getUp(Vector3 out) {
@@ -824,7 +869,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	////// lookAt
 
 	public void lookAt(Vector3 target) {
-		lookAt(target, getUp(tempVector));
+		lookAt(target, tempVector.set(0, 1, 0));
 	}
 
 	public void lookAt(Vector3 target, Vector3 up) {
@@ -846,7 +891,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public void lookAtWorld(Vector3 target) {
-		lookAtWorld(target, getUp(tempVector));
+		lookAtWorld(target, tempVector.set(0, 1, 0));
 	}
 
 	public void lookAtWorld(Vector3 target, Vector3 up) {

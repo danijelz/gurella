@@ -77,8 +77,13 @@ public class ModelEditor<T> extends Composite {
 		composite.setLayoutData(layoutData);
 		editors.add(editor);
 
+		PropertyEditorContext<?, V> editorContext = editor.getContext();
+		Class<V> propertyType = editorContext.getPropertyType();
+		boolean required = propertyType.isPrimitive() ? false
+				: (!editorContext.isNullable() && !editorContext.isFixedValue());
+		String name = editor.getDescriptiveName() + (required ? "*" : "");
+
 		if (editor instanceof SimplePropertyEditor) {
-			String name = editor.getDescriptiveName() /*TODO + (editor.getContext().isNullable() ? "" : "*")*/;
 			boolean longName = name.length() > 20;
 
 			Label label = toolkit.createLabel(this, name + ":");
@@ -100,7 +105,7 @@ public class ModelEditor<T> extends Composite {
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
 			section.setLayoutData(sectionLayoutData);
-			section.setText(editor.getDescriptiveName());
+			section.setText(name);
 			composite.setParent(section);
 			section.setClient(composite);
 			section.setExpanded(true);
@@ -149,7 +154,7 @@ public class ModelEditor<T> extends Composite {
 			hoverEditorsTemp.clear();
 		}
 	}
-	
+
 	public ModelEditorContext<T> getContext() {
 		return context;
 	}

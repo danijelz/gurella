@@ -51,13 +51,13 @@ public class Compass implements Disposable {
 		builder.setColor(Color.GREEN);
 		builder.arrow(0, 0, 0, 0, ARROW_LENGTH, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
 		builder.setColor(Color.BLUE);
-		builder.arrow(0, 0, 0, 0, 0, ARROW_LENGTH, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
+		builder.arrow(0, 0, 0, 0, 0, -ARROW_LENGTH, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
 		builder.setColor(Color.YELLOW);
 		builder.box(0.02f, 0.02f, 0.02f);
 		compassModel = modelBuilder.end();
 		compassInstance = new ModelInstance(compassModel);
 
-		// trans to top left corner
+		// trans to top right corner
 		compassInstance.transform.translate(tempTranslation.set(0.92f, 0.92f, 0));
 
 		environment = new Environment();
@@ -81,6 +81,7 @@ public class Compass implements Disposable {
 		//compassInstance.transform.set(worldCamera.view).inv();
 		//compassInstance.transform.setTranslation(tempTranslation);
 		worldCamera.view.getRotation(tempRotation);
+		tempRotation.conjugate();
 		compassInstance.transform.set(tempTranslation, tempRotation);
 	}
 

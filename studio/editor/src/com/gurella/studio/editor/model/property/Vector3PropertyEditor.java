@@ -59,14 +59,15 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			String descriptiveName = context.getDescriptiveName();
-			if (Values.isNotBlank(descriptiveName)) {
+			boolean standalone = Values.isNotBlank(descriptiveName);
+			if (standalone) {
 				Label label = toolkit.createLabel(body, descriptiveName + ":");
 				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 6, 1));
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 			}
 
 			Model<Vector3> model = Models.getModel(Vector3.class);
-			createEditorField(model, "x", "");
+			createEditorField(model, "x", standalone ? "\t" : "");
 			createEditorField(model, "y", "");
 			createEditorField(model, "z", "");
 		}
