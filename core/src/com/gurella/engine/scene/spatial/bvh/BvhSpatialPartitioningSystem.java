@@ -80,4 +80,9 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 			bvh.optimize();
 		}
 	}
+	
+	@Override
+	public BoundingBox getBounds(BoundingBox out) {
+		return out.set(bvh.rootNode.box);
+	}
 }

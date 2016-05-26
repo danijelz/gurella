@@ -243,6 +243,22 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		item.setText("Back");
 		item.addListener(SWT.Selection, e -> toBack());
 		
+		item = new MenuItem(menu, PUSH);
+		item.setText("Top");
+		item.addListener(SWT.Selection, e -> toTop());
+		
+		item = new MenuItem(menu, PUSH);
+		item.setText("Bottom");
+		item.addListener(SWT.Selection, e -> toBottom());
+		
+		item = new MenuItem(menu, PUSH);
+		item.setText("Right");
+		item.addListener(SWT.Selection, e -> toRight());
+		
+		item = new MenuItem(menu, PUSH);
+		item.setText("Left");
+		item.addListener(SWT.Selection, e -> toLeft());
+		
 		menu.setLocation(partControl.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
@@ -258,6 +274,38 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private void toBack() {
 		selectedCamera.position.set(0, 0, -3);
 		selectedCamera.direction.set(0, 0, 1);
+		selectedCamera.up.set(0, 1, 0);
+		selectedCamera.lookAt(0, 0, 0);
+		selectedCamera.update(true);
+	}
+	
+	private void toTop() {
+		selectedCamera.position.set(0, 3, 0);
+		selectedCamera.direction.set(0, -1, 0);
+		selectedCamera.up.set(0, 0, -1);
+		selectedCamera.lookAt(0, 0, 0);
+		selectedCamera.update(true);
+	}
+	
+	private void toBottom() {
+		selectedCamera.position.set(0, -3, 0);
+		selectedCamera.direction.set(0, -1, 0);
+		selectedCamera.up.set(0, 0, 1);
+		selectedCamera.lookAt(0, 0, 0);
+		selectedCamera.update(true);
+	}
+	
+	private void toRight() {
+		selectedCamera.position.set(3, 0, 0);
+		selectedCamera.direction.set(-1, 0, 0);
+		selectedCamera.up.set(0, 1, 0);
+		selectedCamera.lookAt(0, 0, 0);
+		selectedCamera.update(true);
+	}
+	
+	private void toLeft() {
+		selectedCamera.position.set(-3, 0, 0);
+		selectedCamera.direction.set(1, 0, 0);
 		selectedCamera.up.set(0, 1, 0);
 		selectedCamera.lookAt(0, 0, 0);
 		selectedCamera.update(true);

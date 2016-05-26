@@ -1,4 +1,4 @@
-package com.gurella.engine.graphics;
+package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;

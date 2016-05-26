@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.graphics.GenericBatch;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService;
 import com.gurella.engine.scene.camera.CameraComponent;

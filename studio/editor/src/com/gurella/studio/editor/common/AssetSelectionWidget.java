@@ -2,6 +2,7 @@ package com.gurella.studio.editor.common;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -80,7 +81,8 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void showFileDialg() {
 		FileDialog dialog = new FileDialog(getShell());
 		AssetType value = AssetType.value(assetType);
-		dialog.setFilterExtensions(Arrays.stream(value.extensions).map(e -> "*." + e).toArray(s -> new String[s]));
+		dialog.setFilterExtensions(
+				new String[] { Arrays.stream(value.extensions).map(e -> "*." + e).collect(Collectors.joining(";")) });
 
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();

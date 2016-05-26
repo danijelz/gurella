@@ -1,5 +1,6 @@
 package com.gurella.engine.scene;
 
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -244,6 +245,10 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		builder.append("]");
 
 		return builder.toString();
+	}
+
+	public BoundingBox getBounds(BoundingBox out) {
+		return spatialPartitioningSystem.getBounds(out);
 	}
 
 	@Override

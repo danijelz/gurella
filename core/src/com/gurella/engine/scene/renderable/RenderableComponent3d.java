@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.graphics.GenericBatch;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.renderable.debug.WireframeShader;
 

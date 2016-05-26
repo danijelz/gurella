@@ -20,6 +20,8 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 @BaseSceneElement
 public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneService
 		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
+	private Object mutex = new Object();
+
 	protected IntMap<T> allSpatials = new IntMap<T>();
 	protected IntMap<T> dirtySpatials = new IntMap<T>();
 	protected IntMap<T> addedSpatials = new IntMap<T>();
@@ -27,21 +29,29 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	protected IntMap<T> spatialsByRenderableComponent = new IntMap<T>();
 
-	private synchronized void initSpatials() {
-		doInitSpatials();
+	public abstract BoundingBox getBounds(BoundingBox out);
+
+	private void initSpatials() {
+		synchronized (mutex) {
+			doInitSpatials();
+		}
 	}
 
 	protected abstract void doInitSpatials();
 
-	public synchronized void add(T spatial) {
-		addedSpatials.put(spatial.nodeId, spatial);
-		allSpatials.put(spatial.nodeId, spatial);
-		spatialsByRenderableComponent.put(spatial.renderableComponent.getInstanceId(), spatial);
+	private void add(T spatial) {
+		synchronized (mutex) {
+			addedSpatials.put(spatial.nodeId, spatial);
+			allSpatials.put(spatial.nodeId, spatial);
+			spatialsByRenderableComponent.put(spatial.renderableComponent.getInstanceId(), spatial);
+		}
 	}
 
-	public synchronized void remove(T spatial) {
-		if (allSpatials.remove(spatial.nodeId) != null) {
-			removeSpatial(spatial);
+	private void remove(T spatial) {
+		synchronized (mutex) {
+			if (allSpatials.remove(spatial.nodeId) != null) {
+				removeSpatial(spatial);
+			}
 		}
 	}
 
@@ -52,7 +62,7 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 		dirtySpatials.remove(spatial.nodeId);
 	}
 
-	private synchronized void updateSpatials() {
+	private void updateSpatials() {
 		if (removedSpatials.size > 0 || addedSpatials.size > 0 || dirtySpatials.size > 0) {
 			doUpdateSpatials();
 
@@ -64,42 +74,52 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 
 	protected abstract void doUpdateSpatials();
 
-	public void getSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask) {
-		updateSpatials();
-		doGetSpatials(bounds, out, mask);
+	public final void getSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask) {
+		synchronized (mutex) {
+			updateSpatials();
+			doGetSpatials(bounds, out, mask);
+		}
 	}
 
 	protected abstract void doGetSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask);
 
-	public void getSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask) {
-		updateSpatials();
-		doGetSpatials(frustum, out, mask);
+	public final void getSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask) {
+		synchronized (mutex) {
+			updateSpatials();
+			doGetSpatials(frustum, out, mask);
+		}
 	}
 
 	protected abstract void doGetSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask);
 
-	public void getSpatials(Ray ray, Array<Spatial> out, LayerMask mask) {
-		updateSpatials();
-		doGetSpatials(ray, out, mask);
+	public final void getSpatials(Ray ray, Array<Spatial> out, LayerMask mask) {
+		synchronized (mutex) {
+			updateSpatials();
+			doGetSpatials(ray, out, mask);
+		}
 	}
 
 	protected abstract void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask);
 
-	public void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask) {
-		updateSpatials();
-		doGetSpatials(ray, maxDistance, out, mask);
+	public final void getSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask) {
+		synchronized (mutex) {
+			updateSpatials();
+			doGetSpatials(ray, maxDistance, out, mask);
+		}
 	}
 
 	protected abstract void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask);
 
-	public final synchronized void clearSpatials() {
-		Values<T> values = allSpatials.values();
-		while (values.hasNext) {
-			T spatial = values.next();
-			removeSpatial(spatial);
+	public final void clearSpatials() {
+		synchronized (mutex) {
+			Values<T> values = allSpatials.values();
+			while (values.hasNext) {
+				T spatial = values.next();
+				removeSpatial(spatial);
+			}
+			doClearSpatials();
+			allSpatials.clear();
 		}
-		doClearSpatials();
-		allSpatials.clear();
 	}
 
 	protected abstract void doClearSpatials();
@@ -112,10 +132,12 @@ public abstract class SpatialPartitioningSystem<T extends Spatial> extends Scene
 		}
 	}
 
-	public synchronized void markDirty(T spatial) {
-		int nodeId = spatial.nodeId;
-		if (!addedSpatials.containsKey(nodeId)) {
-			dirtySpatials.put(nodeId, spatial);
+	private void markDirty(T spatial) {
+		synchronized (mutex) {
+			int nodeId = spatial.nodeId;
+			if (!addedSpatials.containsKey(nodeId)) {
+				dirtySpatials.put(nodeId, spatial);
+			}
 		}
 	}
 

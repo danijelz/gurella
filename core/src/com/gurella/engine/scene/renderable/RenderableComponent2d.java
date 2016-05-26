@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.graphics.GenericBatch;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.debug.DebugRenderable;
 
 public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
