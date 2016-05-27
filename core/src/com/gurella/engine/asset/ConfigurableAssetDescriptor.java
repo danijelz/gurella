@@ -39,9 +39,6 @@ public class ConfigurableAssetDescriptor<T> {
 	}
 
 	public Class<T> getType() {
-		if (!resolved) {
-			resolve();
-		}
 		return type;
 	}
 

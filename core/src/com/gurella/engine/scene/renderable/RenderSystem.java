@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService;
@@ -24,17 +24,24 @@ import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
+import com.gurella.engine.utils.IdentitySet;
 
 public class RenderSystem extends SceneService implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;
 
-	private Array<Layer> orderedLayers = new Array<Layer>();
-	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
+	private final Array<Layer> orderedLayers = new Array<Layer>();
+	private final IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
 
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
+
+	private IdentitySet<RenderableComponent> lastVisibleRenderables = new IdentitySet<RenderableComponent>(256);
+	private IdentitySet<RenderableComponent> currentVisibleRenderables = new IdentitySet<RenderableComponent>(256);
+	private final Array<RenderableVisibilityListener> visibilityListeners = new Array<RenderableVisibilityListener>();
 
 	private final Environment environment = new Environment();
 	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
@@ -44,9 +51,11 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	private final PointLightsAttribute pointLights = new PointLightsAttribute();
 	private final SpotLightsAttribute spotLights = new SpotLightsAttribute();
 
+	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
+
 	@Override
 	protected void init() {
-		batch = DisposablesService.add(new GenericBatch());
+		batch = new GenericBatch();
 
 		environment.set(depthTest);
 		environment.set(directionalLights);
@@ -55,11 +64,34 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	}
 
 	@Override
+	protected void onActivate() {
+		spatialPartitioningSystem = getScene().spatialPartitioningSystem;
+	}
+
+	@Override
+	protected void onDeactivate() {
+		spatialPartitioningSystem = null;
+		batch.dispose();
+		batch = null;
+	}
+
+	@Override
 	public void onRenderUpdate() {
 		for (int i = 0, n = orderedLayers.size; i < n; i++) {
 			Layer layer = orderedLayers.get(i);
 			render(layer);
 		}
+
+		for (RenderableComponent renderable : lastVisibleRenderables) {
+			if (!currentVisibleRenderables.contains(renderable)) {
+				notifyVisibilityChange(renderable, false);
+			}
+		}
+
+		IdentitySet<RenderableComponent> temp = lastVisibleRenderables;
+		lastVisibleRenderables = currentVisibleRenderables;
+		currentVisibleRenderables = temp;
+		currentVisibleRenderables.clear();
 	}
 
 	private void render(Layer layer) {
@@ -111,12 +143,28 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 
 	private void renderSpatials(Layer layer, Camera camera) {
 		layerMask.reset();
-		getScene().spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask.allowed(layer));
+		spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask.allowed(layer));
+
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
-			spatial.renderableComponent.render(batch);
+			RenderableComponent renderable = spatial.renderableComponent;
+
+			if (!lastVisibleRenderables.contains(renderable) && !currentVisibleRenderables.add(renderable)) {
+				notifyVisibilityChange(renderable, true);
+			}
+
+			renderable.render(batch);
 		}
+
 		tempSpatials.clear();
+	}
+
+	private void notifyVisibilityChange(RenderableComponent renderableComponent, boolean visible) {
+		EventService.getSubscribers(RenderableVisibilityListener.class, visibilityListeners);
+		for (int i = 0; i < visibilityListeners.size; i++) {
+			visibilityListeners.get(i).visibilityChanged(visible);
+		}
+		visibilityListeners.clear();
 	}
 
 	@Override

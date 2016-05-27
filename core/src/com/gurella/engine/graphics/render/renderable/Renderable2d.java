@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render.renderable;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.gurella.engine.asset.properties.TextureProperties;
 
 public class Renderable2d {
 	private Texture texture;
@@ -13,5 +14,9 @@ public class Renderable2d {
 	
 	public enum Origin {
 		center, bottomLeft, topLeft;
+	}
+	
+	public void set(TextureProperties textureProperties) {
+		
 	}
 }
