@@ -74,6 +74,7 @@ class CanvasState implements Poolable {
 	}
 
 	void addClip(Clip clip) {
+		//TODO do not clear all clips 
 		if (clip.clipOperation == ClipOperation.replace) {
 			clips.clear();
 		}
