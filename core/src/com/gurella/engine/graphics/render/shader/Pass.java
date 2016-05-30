@@ -1,0 +1,5 @@
+package com.gurella.engine.graphics.render.shader;
+
+public class Pass {
+
+}

@@ -7,8 +7,9 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.badlogic.gdx.utils.Predicate;
 import com.badlogic.gdx.utils.ObjectSet.ObjectSetIterator;
-import com.gurella.engine.scene.layer.LayerMask;
+import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 
 public class Bvh {
@@ -79,23 +80,23 @@ public class Bvh {
 		}
 	}
 
-	public void traverse(Ray ray, Array<Spatial> result, LayerMask mask) {
-		traverse(rootNode, new RayHitTest(ray), result, mask);
+	public void traverse(Ray ray, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
+		traverse(rootNode, new RayHitTest(ray), result, predicate);
 	}
 
-	public void traverse(Ray ray, float maxDistance, Array<Spatial> result, LayerMask mask) {
-		traverse(rootNode, new RayDistanceHitTest(ray, maxDistance), result, mask);
+	public void traverse(Ray ray, float maxDistance, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
+		traverse(rootNode, new RayDistanceHitTest(ray, maxDistance), result, predicate);
 	}
 
-	public void traverse(Frustum frustum, Array<Spatial> result, LayerMask mask) {
-		traverse(rootNode, new FrustumHitTest(frustum), result, mask);
+	public void traverse(Frustum frustum, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
+		traverse(rootNode, new FrustumHitTest(frustum), result, predicate);
 	}
 
-	public void traverse(BoundingBox volume, Array<Spatial> result, LayerMask mask) {
-		traverse(rootNode, new BoundingBoxHitTest(volume), result, mask);
+	public void traverse(BoundingBox volume, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
+		traverse(rootNode, new BoundingBoxHitTest(volume), result, predicate);
 	}
 
-	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result, LayerMask mask) {
+	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
 		if (node == null) {
 			return;
 		}
@@ -104,14 +105,14 @@ public class Bvh {
 			if (node.spatials != null) {
 				for (int i = 0; i < node.spatials.size; i++) {
 					BvhSpatial spatial = node.spatials.get(i);
-					if (mask == null || mask.isValid(spatial.layer)) {
+					if (predicate == null || predicate.evaluate(spatial.renderableComponent)) {
 						result.add(spatial);
 					}
 				}
 			}
 
-			traverse(node.left, hitTest, result, mask);
-			traverse(node.right, hitTest, result, mask);
+			traverse(node.left, hitTest, result, predicate);
+			traverse(node.right, hitTest, result, predicate);
 		}
 	}
 

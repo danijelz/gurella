@@ -1,5 +1,5 @@
 package com.gurella.engine.graphics.render.command;
 
-public class DrawMeshCommand {
+public class RenderCameraCommand {
 
 }

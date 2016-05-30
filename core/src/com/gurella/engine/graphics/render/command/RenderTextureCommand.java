@@ -1,5 +1,5 @@
 package com.gurella.engine.graphics.render.command;
 
-public class DrawTextureCommand {
+public class RenderTextureCommand {
 
 }

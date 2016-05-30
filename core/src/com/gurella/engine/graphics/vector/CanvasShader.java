@@ -158,7 +158,7 @@ public class CanvasShader implements Poolable {
 			+ "	        } \n"
 			+ "	        float floorAt = floor(at); \n"
 			+ "	        float fraction = at - floorAt; \n"
-		    + "	        if(mod(floorAt, 2) == 0.0) { \n"
+		    + "	        if(mod(floorAt, 2.0) == 0.0) { \n"
 		    + "	            return fraction; \n"
 		    + "	        } \n"
 			+ "	        if(fraction < 0.0) { \n"

@@ -1706,10 +1706,10 @@ public class Canvas implements Disposable, Poolable {
 
 		public GradientBuilder add(float offset, int r, int g, int b, int a) {
 			stops.add(offset);
-			stops.add(r / 255);
-			stops.add(g / 255);
-			stops.add(b / 255);
-			stops.add(a / 255);
+			stops.add(r / 255f);
+			stops.add(g / 255f);
+			stops.add(b / 255f);
+			stops.add(a / 255f);
 			return this;
 		}
 

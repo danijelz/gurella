@@ -1,4 +1,4 @@
-package com.gurella.engine.graphics.render;
+package com.gurella.engine.graphics.render.shader;
 
 import com.badlogic.gdx.utils.Array;
 

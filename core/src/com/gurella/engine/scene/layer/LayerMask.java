@@ -2,8 +2,10 @@ package com.gurella.engine.scene.layer;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.badlogic.gdx.utils.Predicate;
+import com.gurella.engine.scene.renderable.RenderableComponent;
 
-public class LayerMask implements Poolable {
+public class LayerMask implements Predicate<RenderableComponent>, Poolable {
 	private boolean allAlowed = true;
 	private final Bits allowed = new Bits();
 	private final Bits ignored = new Bits();
@@ -23,7 +25,7 @@ public class LayerMask implements Poolable {
 	}
 
 	public boolean isValid(Layer layer) {
-		return ignored.get(layer.id) ? false : allAlowed ? true : allowed.get(layer.id);
+		return layer != null && (ignored.get(layer.id) ? false : allAlowed ? true : allowed.get(layer.id));
 	}
 
 	@Override
@@ -31,5 +33,10 @@ public class LayerMask implements Poolable {
 		allAlowed = true;
 		allowed.clear();
 		ignored.clear();
+	}
+
+	@Override
+	public boolean evaluate(RenderableComponent renderable) {
+		return isValid(renderable.layer);
 	}
 }

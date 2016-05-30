@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Frustum;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.scene.layer.LayerMask;
+import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
@@ -39,23 +39,24 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 	}
 
 	@Override
-	protected void doGetSpatials(BoundingBox bounds, Array<Spatial> out, LayerMask mask) {
-		bvh.traverse(bounds, out, mask);
+	protected void doGetSpatials(BoundingBox bounds, Array<Spatial> out, Predicate<RenderableComponent> predicate) {
+		bvh.traverse(bounds, out, predicate);
 	}
 
 	@Override
-	protected void doGetSpatials(Frustum frustum, Array<Spatial> out, LayerMask mask) {
-		bvh.traverse(frustum, out, mask);
+	protected void doGetSpatials(Frustum frustum, Array<Spatial> out, Predicate<RenderableComponent> predicate) {
+		bvh.traverse(frustum, out, predicate);
 	}
 
 	@Override
-	protected void doGetSpatials(Ray ray, Array<Spatial> out, LayerMask mask) {
-		bvh.traverse(ray, out, mask);
+	protected void doGetSpatials(Ray ray, Array<Spatial> out, Predicate<RenderableComponent> predicate) {
+		bvh.traverse(ray, out, predicate);
 	}
 
 	@Override
-	protected void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out, LayerMask mask) {
-		bvh.traverse(ray, maxDistance, out, mask);
+	protected void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out,
+			Predicate<RenderableComponent> predicate) {
+		bvh.traverse(ray, maxDistance, out, predicate);
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class BvhSpatialPartitioningSystem extends SpatialPartitioningSystem<BvhS
 			bvh.optimize();
 		}
 	}
-	
+
 	@Override
 	public BoundingBox getBounds(BoundingBox out) {
 		return out.set(bvh.rootNode.box);
