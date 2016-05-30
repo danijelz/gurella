@@ -27,7 +27,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	private int ordinal;
 	// TODO notify render system for layer changes
 	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
-	//TODO RenderPath
 
 	public final transient T camera;
 	public final transient CameraViewport viewport;
