@@ -137,6 +137,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	@Override
 	public void debugRender(GenericBatch batch) {
 		ModelInstance instance = getModelInstance();
+		Matrix4 transform = instance.transform;
 		if (instance != null) {
 			batch.render(instance, WireframeShader.getInstance());
 		}

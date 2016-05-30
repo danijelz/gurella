@@ -35,13 +35,13 @@ public enum AssetType {
 	prefab(SceneNode2.class, "pref"),
 	scene(Scene.class, "gscn"),
 	material(MaterialDescriptor.class, "gmat"),
+	renderTarget(null),
 	renderProgram(null),
 	spritterAnimation(null),
 	splineAnimation(null),
 	svg(null),
 	font(null),
 	texture3d(null),
-	renderTexture(null),
 	particleSystem(null);
 
 	private static ObjectMap<Class<?>, AssetType> enumsByType = new ObjectMap<Class<?>, AssetType>();

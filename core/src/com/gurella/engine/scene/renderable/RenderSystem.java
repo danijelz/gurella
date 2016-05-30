@@ -160,6 +160,7 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	}
 
 	private void notifyVisibilityChange(RenderableComponent renderableComponent, boolean visible) {
+		renderableComponent.visible = visible;
 		int nodeId = renderableComponent.getNodeId();
 		EventService.getSubscribers(nodeId, RenderableVisibilityListener.class, visibilityListeners);
 		for (int i = 0; i < visibilityListeners.size; i++) {

@@ -24,6 +24,8 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	private static final Object mutex = new Object();
 
 	private transient int sceneId;
+	
+	transient boolean visible;
 
 	@PropertyDescriptor(nullable = false)
 	public Layer layer = Layer.DEFAULT;
@@ -116,6 +118,10 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	public final boolean getIntersection(Ray ray, Vector3 intersection) {
 		update();
 		return doGetIntersection(ray, intersection);
+	}
+	
+	public boolean isVisible() {
+		return visible;
 	}
 
 	@Override
