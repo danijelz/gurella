@@ -6,4 +6,9 @@ import com.gurella.engine.graphics.render.shader.Shader.ShaderProperties;
 public class Material {
 	Shader shader;
 	ShaderProperties shaderOverrides;
+	
+	public void bind() {
+		// TODO Auto-generated method stub
+		
+	}
 }

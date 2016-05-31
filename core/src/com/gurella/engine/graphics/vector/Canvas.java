@@ -197,6 +197,7 @@ public class Canvas implements Disposable, Poolable {
 	
 	public int newLayer(Effect effect, float left, float top, float width, float height, boolean cloneState) {
 		CanvasLayer newLayer = CanvasLayer.obtain();
+		newLayer.effect = effect;
 		newLayer.bounds.set(left, top, width, height);
 		renderGraph.pushLayer(newLayer);
 		saveState(cloneState);

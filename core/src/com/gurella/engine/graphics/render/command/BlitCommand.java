@@ -1,5 +1,19 @@
 package com.gurella.engine.graphics.render.command;
 
-public class BlitCommand {
+import com.gurella.engine.graphics.render.RenderContext;
+import com.gurella.engine.graphics.render.RenderTarget;
+import com.gurella.engine.graphics.render.material.Material;
 
+public class BlitCommand implements RenderCommand {
+	private RenderTarget source;
+	private RenderTarget destination;
+	private Material material;
+
+	@Override
+	public void render(RenderContext context) {
+		destination.bind();
+		material.bind();
+		// TODO Auto-generated method stub
+
+	}
 }
