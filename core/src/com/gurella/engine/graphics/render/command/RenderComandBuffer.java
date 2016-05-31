@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.render.command;
 
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.graphics.render.RenderContext;
 
 public class RenderComandBuffer {
 	private final Array<RenderCommand> commands = new Array<RenderCommand>();
@@ -11,5 +12,11 @@ public class RenderComandBuffer {
 
 	public void remove(RenderCommand command) {
 		commands.removeValue(command, true);
+	}
+
+	public void render(RenderContext context) {
+		for (int i = 0, n = commands.size; i < n; i++) {
+			commands.get(i).render(context);
+		}
 	}
 }

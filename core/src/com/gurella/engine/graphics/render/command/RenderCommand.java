@@ -1,5 +1,7 @@
 package com.gurella.engine.graphics.render.command;
 
-public interface RenderCommand {
+import com.gurella.engine.graphics.render.RenderContext;
 
+public interface RenderCommand {
+	void render(RenderContext context);
 }

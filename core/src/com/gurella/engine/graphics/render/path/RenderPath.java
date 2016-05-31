@@ -8,6 +8,7 @@ import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.command.CompositeRenderCommand;
 import com.gurella.engine.graphics.render.command.RenderComandBuffer;
 import com.gurella.engine.graphics.render.command.RenderCommand;
+import com.gurella.engine.scene.Scene;
 
 public class RenderPath {
 	private final RenderComandBuffer rootBuffer = new RenderComandBuffer();
@@ -17,14 +18,16 @@ public class RenderPath {
 	private final IntMap<RenderQueue> queues = new IntMap<RenderQueue>();
 	private final IntMap<RenderTarget> targetsById = new IntMap<RenderTarget>();
 	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
+	
+	private final RenderContext context = new RenderContext();
 
 	public RenderPath() {
 		rootBuffer.add(new CompositeRenderCommand(comandBuffer));
 		rootBuffer.add(new CompositeRenderCommand(effectsBuffer));
 	}
 
-	public void render(RenderContext context) {
-
+	public void render(Scene scene) {
+		
 	}
 
 	public void addRenderCommand(RenderCommand command) {
@@ -33,5 +36,13 @@ public class RenderPath {
 
 	public void removeRenderCommand(RenderCommand command) {
 		comandBuffer.remove(command);
+	}
+
+	public void addEffect(Effect effect) {
+		//comandBuffer.add(command);
+	}
+
+	public void removeEffect(Effect effect) {
+		//comandBuffer.remove(command);
 	}
 }

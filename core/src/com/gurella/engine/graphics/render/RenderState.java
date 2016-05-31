@@ -3,6 +3,8 @@ package com.gurella.engine.graphics.render;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.utils.TextureBinder;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.graphics.render.renderable.Renderable;
 
 public class RenderState {
 	private boolean blending;
@@ -36,6 +38,8 @@ public class RenderState {
 	private RenderTarget renderTarget;
 	private IntMap<BindedTexture> bindedTextures;
 
+	//////////////////////////////
 	private TextureBinder textureBinder;
-
+	private Renderable renderable;
+	private MaterialDescriptor material;
 }

@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.render.renderable;
 
 import com.badlogic.gdx.math.Matrix4;
+import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 public interface Renderable {
@@ -9,4 +10,6 @@ public interface Renderable {
 	RenederableGeometry getGeometry();
 
 	RenderableComponent getComponent();
+	
+	MaterialDescriptor getMaterial();
 }
