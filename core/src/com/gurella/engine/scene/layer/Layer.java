@@ -14,8 +14,9 @@ public final class Layer implements Comparable<Layer> {
 	private static ObjectMap<String, Layer> layersByName = new ObjectMap<String, Layer>();
 
 	public static final Layer DEFAULT = new Layer(0, "Default");
-	public static final Layer GUI = new Layer(100, "GUI");
-	public static final Layer DnD = new Layer(200, "DnD");
+	public static final Layer SKY = new Layer(100, "Sky");
+	public static final Layer GUI = new Layer(200, "GUI");
+	public static final Layer DnD = new Layer(300, "DnD");
 
 	public final int id;
 	public final int ordinal;

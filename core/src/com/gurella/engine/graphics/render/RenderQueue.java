@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 public class RenderQueue {
+	private int priority;
 	private RenderableComparator comparator;
 	private final Array<RenderableComponent> renderables = new Array<RenderableComponent>();
 
