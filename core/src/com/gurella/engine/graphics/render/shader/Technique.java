@@ -4,8 +4,14 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.utils.Array;
 
 public class Technique {
-	private Array<Pass> passes = new Array<Pass>();
+	public final Shader shader;
 	
+	private Array<Pass> passes = new Array<Pass>();
+
+	public Technique(Shader shader) {
+		this.shader = shader;
+	}
+
 	public boolean isApplicable(Graphics graphics) {
 		return true;
 	}

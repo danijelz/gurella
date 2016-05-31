@@ -3,5 +3,5 @@ package com.gurella.engine.graphics.render.shader;
 import com.badlogic.gdx.utils.Array;
 
 public class Shader {
-	Array<Pass> passes;
+	Array<Technique> techniques;
 }
