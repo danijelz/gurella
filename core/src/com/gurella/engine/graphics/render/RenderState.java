@@ -29,7 +29,7 @@ public class RenderState {
 	private int cullFace;
 
 	private boolean colorCleared;
-	private Color clearBackgroundColorValue;
+	private Color clearColorValue;
 	private boolean depthCleared;
 	private float clearDepthValue;
 	private boolean stencilCleared;

@@ -37,4 +37,8 @@ public class RenderPath {
 	public void removeEffect(Effect effect) {
 		// comandBuffer.remove(command);
 	}
+	
+	private static class RenderPathMaterialProperties {
+		//TODO when render path is selected all materials can override this properties (eg.: cast shadows, receive shadows...)
+	}
 }
