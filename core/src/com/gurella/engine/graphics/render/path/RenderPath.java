@@ -1,5 +1,6 @@
 package com.gurella.engine.graphics.render.path;
 
+import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.command.CompositeRenderCommand;
 import com.gurella.engine.graphics.render.command.RenderComandBuffer;
@@ -10,6 +11,7 @@ public class RenderPath {
 	private final RenderComandBuffer rootBuffer = new RenderComandBuffer();
 	private final RenderComandBuffer comandBuffer = new RenderComandBuffer();
 	private final RenderComandBuffer effectsBuffer = new RenderComandBuffer();
+	private final Array<Effect> effects = new Array<Effect>();
 
 	private final RenderContext context = new RenderContext();
 
@@ -31,11 +33,11 @@ public class RenderPath {
 	}
 
 	public void addEffect(Effect effect) {
-		// comandBuffer.add(command);
+		effects.add(effect);
 	}
 
 	public void removeEffect(Effect effect) {
-		// comandBuffer.remove(command);
+		effects.removeValue(effect, true);
 	}
 	
 	private static class RenderPathMaterialProperties {
