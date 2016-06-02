@@ -137,9 +137,47 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	@Override
 	public void debugRender(GenericBatch batch) {
 		ModelInstance instance = getModelInstance();
-		Matrix4 transform = instance.transform;
 		if (instance != null) {
 			batch.render(instance, WireframeShader.getInstance());
 		}
+	}
+
+	private void debugRender2(GenericBatch batch) {
+		ModelInstance instance = getModelInstance();
+		if (instance == null) {
+			return;
+		}
+		Matrix4 transform = instance.transform;
+
+		for (Node node : instance.nodes) {
+			debugRender2(batch, node, transform);
+		}
+		batch.render(instance, WireframeShader.getInstance());
+	}
+
+	private void debugRender2(GenericBatch batch, Node node, Matrix4 transform) {
+		if (node.parts.size > 0) {
+			for (NodePart nodePart : node.parts) {
+				if (nodePart.enabled) {
+					debugRender2(batch, node, nodePart, transform);
+				}
+			}
+		}
+
+		for (Node child : node.getChildren()) {
+			debugRender2(batch, child, transform);
+		}
+	}
+
+	private void debugRender2(GenericBatch batch, Node node, NodePart nodePart, Matrix4 transform) {
+		MeshPart meshPart = nodePart.meshPart;
+
+		//		if (nodePart.bones == null && transform != null) {
+		//			out.worldTransform.set(transform).mul(node.globalTransform);
+		//		} else if (transform != null) {
+		//			out.worldTransform.set(transform);
+		//		} else {
+		//			out.worldTransform.idt();
+		//		}
 	}
 }
