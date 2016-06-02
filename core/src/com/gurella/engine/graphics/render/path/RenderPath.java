@@ -41,6 +41,6 @@ public class RenderPath {
 	}
 	
 	private static class RenderPathMaterialProperties {
-		//TODO when render path is selected all materials can override this properties (eg.: cast shadows, receive shadows...)
+		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
 	}
 }
