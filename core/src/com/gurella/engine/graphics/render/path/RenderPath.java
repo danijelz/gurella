@@ -40,7 +40,7 @@ public class RenderPath {
 		effects.removeValue(effect, true);
 	}
 	
-	private static class RenderPathMaterialProperties {
+	public static class RenderPathMaterialProperties {
 		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
 	}
 }
