@@ -1,10 +1,12 @@
 package com.gurella.engine.graphics.render.path;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.command.CompositeRenderCommand;
 import com.gurella.engine.graphics.render.command.RenderComandBuffer;
 import com.gurella.engine.graphics.render.command.RenderCommand;
+import com.gurella.engine.graphics.render.shader.ShaderUnifrom;
 import com.gurella.engine.scene.Scene;
 
 public class RenderPath {
@@ -39,8 +41,9 @@ public class RenderPath {
 	public void removeEffect(Effect effect) {
 		effects.removeValue(effect, true);
 	}
-	
+
 	public static class RenderPathMaterialProperties {
+		private ObjectMap<String, ShaderUnifrom> uniforms;
 		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
 	}
 }

@@ -1,7 +1,32 @@
 package com.gurella.engine.graphics.render.shader;
 
+import com.gurella.engine.graphics.render.RenderContext;
+
 public class ShaderUnifrom {
+	private String name;
+	private ShaderVariableType type;
+	private UniformVisibility visibility;
+	private boolean editable;
+
+	public void setValue(Object value) {
+
+	}
+
+	public Object getValue() {
+		return null;
+	}
+
 	public static class AutomaticUniform extends ShaderUnifrom {
-		
+		public void updateValue(RenderContext context) {
+			
+		}
+	}
+
+	public enum UniformVisibility {
+		global, material;
+	}
+
+	public enum ShaderVariableType {
+		floatType, integerType, vectorType, vector3Type, vector2Type;
 	}
 }
