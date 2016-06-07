@@ -43,7 +43,10 @@ public class RenderPath {
 	}
 
 	public static class RenderPathMaterialProperties {
+		private Object nonGlslProperties;
 		private ObjectMap<String, ShaderUnifrom> uniforms;
+		private Object vetrexStruct;
+		private Object fragmentStruct;
 		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
 	}
 }
