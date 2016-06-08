@@ -38,8 +38,9 @@ public class RenderState {
 	private RenderTarget renderTarget;
 	private IntMap<BindedTexture> bindedTextures;
 
+	private Renderable currentRenderable;
+	private MaterialDescriptor currentMaterial;
+
 	//////////////////////////////
 	private TextureBinder textureBinder;
-	private Renderable renderable;
-	private MaterialDescriptor material;
 }

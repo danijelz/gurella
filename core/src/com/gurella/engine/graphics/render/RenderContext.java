@@ -26,7 +26,7 @@ public class RenderContext {
 	private final IntMap<RenderTarget> targetsById = new IntMap<RenderTarget>();
 	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
 	
-	public final ObjectMap<String, Object> data = new ObjectMap<String, Object>();
+	public final ObjectMap<String, Object> userData = new ObjectMap<String, Object>();
 
 	//	 public int saveState() {
 	//		return saveState(false);
