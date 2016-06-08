@@ -5,7 +5,7 @@ import com.gurella.engine.graphics.render.RenderContext;
 public class ShaderUnifrom {
 	private String name;
 	private ShaderVariableType type;
-	private UniformVisibility visibility;
+	private UniformScope scope;
 	private boolean editable;
 
 	public void setValue(Object value) {
@@ -22,7 +22,7 @@ public class ShaderUnifrom {
 		}
 	}
 
-	public enum UniformVisibility {
+	public enum UniformScope {
 		global, material;
 	}
 
