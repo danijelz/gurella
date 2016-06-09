@@ -40,6 +40,8 @@ public class RenderState {
 
 	private Renderable currentRenderable;
 	private MaterialDescriptor currentMaterial;
+	
+	//TODO scissor
 
 	//////////////////////////////
 	private TextureBinder textureBinder;

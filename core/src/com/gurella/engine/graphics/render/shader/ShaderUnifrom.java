@@ -7,6 +7,8 @@ public class ShaderUnifrom {
 	private ShaderVariableType type;
 	private UniformScope scope;
 	private boolean editable;
+	private boolean required;
+	private int cardinality = 1;
 
 	public void setValue(Object value) {
 
