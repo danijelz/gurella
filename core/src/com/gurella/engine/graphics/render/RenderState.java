@@ -25,11 +25,19 @@ public class RenderState implements Poolable {
 	private int backStencilFailFunction;
 	private int backDepthFailFunction;
 	private int backPassFunction;
+	
+	//TODO scissor
+	private boolean scissorEnabled;
+	private final float[] scissorExtent = new float[4];
 
+	private boolean[] colorMask = new boolean[4];
+	
 	private int cullFace;
+	private int frontFace;
 
 	private boolean colorCleared;
 	private Color clearColorValue;
+	
 	private boolean depthCleared;
 	private float clearDepthValue;
 	private boolean stencilCleared;
@@ -38,8 +46,6 @@ public class RenderState implements Poolable {
 	private RenderTarget renderTarget;
 	private IntMap<BindedTexture> bindedTextures;
 	
-	//TODO scissor
-
 	//////////////////////////////
 	private TextureBinder textureBinder;
 	

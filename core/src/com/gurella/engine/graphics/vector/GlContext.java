@@ -103,59 +103,60 @@ public class GlContext implements Poolable {
 	}
 
 	private void setBlendMode(BlendMode blendMode) {
-		if (this.blendMode != blendMode) {
+		if (this.blendMode == blendMode) {
+			return;
+		}
 
-			if (this.blendMode == BlendMode.src) {
-				gl.glEnable(GL20.GL_BLEND);
-			}
+		if (this.blendMode == BlendMode.src) {
+			gl.glEnable(GL20.GL_BLEND);
+		}
 
-			this.blendMode = blendMode;
+		this.blendMode = blendMode;
 
-			if (blendMode == BlendMode.src) {
-				gl.glDisable(GL20.GL_BLEND);
-				return;
-			}
+		if (blendMode == BlendMode.src) {
+			gl.glDisable(GL20.GL_BLEND);
+			return;
+		}
 
-			switch (blendMode) {
-			case clear:
-				gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ZERO);
-				break;
-			case src:
-				break;
-			case dst:
-				gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE);
-				break;
-			case over:
-				gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-				break;
-			case overReverse:
-				gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
-				break;
-			case in:
-				gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_ZERO);
-				break;
-			case inReverse:
-				gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_SRC_ALPHA);
-				break;
-			case out:
-				gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ZERO);
-				break;
-			case outReverse:
-				gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
-				break;
-			case atop:
-				gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-				break;
-			case atopReverse:
-				gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_SRC_ALPHA);
-				break;
-			case xor:
-				gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-				break;
-			case add:
-				gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
-				break;
-			}
+		switch (blendMode) {
+		case clear:
+			gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ZERO);
+			break;
+		case src:
+			break;
+		case dst:
+			gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE);
+			break;
+		case over:
+			gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case overReverse:
+			gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE);
+			break;
+		case in:
+			gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_ZERO);
+			break;
+		case inReverse:
+			gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_SRC_ALPHA);
+			break;
+		case out:
+			gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ZERO);
+			break;
+		case outReverse:
+			gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case atop:
+			gl.glBlendFunc(GL20.GL_DST_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case atopReverse:
+			gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_SRC_ALPHA);
+			break;
+		case xor:
+			gl.glBlendFunc(GL20.GL_ONE_MINUS_DST_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case add:
+			gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
+			break;
 		}
 	}
 
@@ -265,7 +266,7 @@ public class GlContext implements Poolable {
 		gl.glDisable(GL20.GL_CULL_FACE);
 		gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0);
 		gl.glUseProgram(0);
-		
+
 		bindTexture(0);
 		bindGradient(0);
 	}

@@ -29,6 +29,6 @@ public class ShaderUnifrom {
 	}
 
 	public enum ShaderVariableType {
-		floatType, integerType, vectorType, vector3Type, vector2Type;
+		floatType, integerType, vectorType, booleanType, vector3Type, vector2Type;
 	}
 }

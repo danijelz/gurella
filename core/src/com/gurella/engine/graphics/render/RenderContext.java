@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gurella.engine.graphics.render.command.ClearRenderTargetCommand.ClearType;
+import com.gurella.engine.graphics.render.renderable.Renderable;
 import com.gurella.engine.graphics.render.shader.Pass;
 import com.gurella.engine.graphics.render.shader.Technique;
 import com.gurella.engine.scene.Scene;
@@ -23,18 +24,23 @@ public class RenderContext {
 	private RenderState currentState = new RenderState();
 	private Array<RenderState> states = new Array<RenderState>();
 
-	private final Array<RenderQueue> queues = new Array<RenderQueue>();
+	private RenderQueueKeySupplier renderQueueKeySupplier;
+	private final ObjectMap<RenderQueueKey, RenderQueue> renderQueues = new ObjectMap<RenderQueueKey, RenderQueue>();
 
 	private final IntMap<RenderTarget> targetsById = new IntMap<RenderTarget>();
 	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
 
-	public final ObjectMap<String, Object> userData = new ObjectMap<String, Object>();
+	public final ObjectMap<Object, Object> userData = new ObjectMap<Object, Object>();
 
 	public int saveState() {
 		return saveState(false);
 	}
 
-	public int saveState(boolean cloneState) {
+	public int pushState() {
+		return saveState(true);
+	}
+
+	private int saveState(boolean cloneState) {
 		RenderState newState = RenderState.obtain();
 		if (cloneState) {
 			newState.set(currentState);
@@ -237,10 +243,17 @@ public class RenderContext {
 	}
 
 	public void clear(ClearType type, Color clearColorValue, float clearDepthValue, int clearStencilValue) {
-		if(type.clearColor) {
+		if (type.clearColor) {
 			setClearColorValue(clearColorValue);
 		}
 		// TODO Auto-generated method stub
-		
+	}
+
+	public interface RenderQueueKey extends Comparable<RenderQueueKey> {
+
+	}
+
+	public interface RenderQueueKeySupplier {
+		RenderQueueKey getKey(Renderable renderable);
 	}
 }
