@@ -1,7 +1,9 @@
 package com.gurella.engine.asset;
 
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.utils.Values;
 
@@ -50,7 +52,7 @@ public class Assets {
 		if (Values.isBlank(extension)) {
 			return null;
 		}
-		
+
 		extension = extension.toLowerCase();
 		AssetType[] values = AssetType.values();
 		for (int i = 0; i < values.length; i++) {
@@ -59,5 +61,19 @@ public class Assets {
 			}
 		}
 		return null;
+	}
+
+	public static FileHandle getRelativeFileHandle(FileHandle file, String path) {
+		StringTokenizer tokenizer = new StringTokenizer(path, "\\/");
+		FileHandle result = file.parent();
+		while (tokenizer.hasMoreElements()) {
+			String token = tokenizer.nextToken();
+			if (token.equals(".."))
+				result = result.parent();
+			else {
+				result = result.child(token);
+			}
+		}
+		return result;
 	}
 }

@@ -59,6 +59,8 @@ import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.graphics.render.shader.ShaderTemplate;
+import com.gurella.engine.graphics.render.shader.ShaderTemplateLoader;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -116,8 +118,8 @@ public class AssetRegistry extends AssetManager {
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 			setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
 			setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
-			setLoader(MaterialDescriptor.class, "gmat",
-					new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+			setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+			setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 		}
 	}
 
