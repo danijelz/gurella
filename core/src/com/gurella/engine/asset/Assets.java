@@ -3,6 +3,8 @@ package com.gurella.engine.asset;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.utils.Values;
@@ -61,6 +63,37 @@ public class Assets {
 			}
 		}
 		return null;
+	}
+
+	public static FileHandle getHandle(String path) {
+		boolean hasFileTypeInfo = hasFileTypeInfo(path);
+		char fileTypeInfo = hasFileTypeInfo ? path.charAt(1) : 'i';
+		String pathExtract = hasFileTypeInfo ? path.substring(3) : path;
+		Files files = Gdx.files;
+		switch (fileTypeInfo) {
+		case 'i':
+			return files.internal(pathExtract);
+		case 'c':
+			return files.classpath(pathExtract);
+		case 'e':
+			return files.external(pathExtract);
+		case 'a':
+			return files.absolute(pathExtract);
+		case 'l':
+			return files.local(pathExtract);
+		default:
+			return files.internal(pathExtract);
+		}
+	}
+
+	private static boolean hasFileTypeInfo(String path) {
+		if (path.length() < 4) {
+			return false;
+		}
+
+		char fileTypeInfo = path.charAt(1);
+		return path.charAt(0) == '{' && path.charAt(2) == '}' && (fileTypeInfo == 'c' || fileTypeInfo == 'i'
+				|| fileTypeInfo == 'e' || fileTypeInfo == 'a' || fileTypeInfo == 'l');
 	}
 
 	public static FileHandle getRelativeFileHandle(FileHandle file, String path) {
