@@ -1,9 +1,11 @@
 package com.gurella.engine.graphics.render.shader;
 
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.gurella.engine.graphics.render.RenderContext;
+import com.gurella.engine.graphics.render.renderable.Renderable;
 
 public class ShaderGenerator {
-	public Shader generate(ShaderTemplate template, RenderContext context) {
+	public ShaderProgram generate(ShaderTemplate template, Renderable renderable) {
 		return null;
 	}
 }

@@ -65,7 +65,7 @@ public class Assets {
 		return null;
 	}
 
-	public static FileHandle getHandle(String path) {
+	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
 		char fileTypeInfo = hasFileTypeInfo ? path.charAt(1) : 'i';
 		String pathExtract = hasFileTypeInfo ? path.substring(3) : path;
