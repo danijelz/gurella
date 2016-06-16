@@ -49,4 +49,8 @@ public class RenderPath {
 		private Object fragmentStruct;
 		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
 	}
+	
+	protected void addRenderTarget() {
+		
+	}
 }
