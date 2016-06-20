@@ -7,11 +7,14 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 
 public class RenderState implements Poolable {
+	private boolean[] colorMask = new boolean[] { true, true, true, true };
+
 	private boolean blendingEnabled;
 	private int blendSourceFactor;
 	private int blendDestinationFactor;
 
-	private boolean depthMaskEnabled;
+	private boolean depthEnabled;
+	private boolean depthMask;
 	private int depthFunction;
 	private float depthRangeNear;
 	private float depthRangeFar;
@@ -25,36 +28,37 @@ public class RenderState implements Poolable {
 	private int backStencilFailFunction;
 	private int backDepthFailFunction;
 	private int backPassFunction;
-	
-	//TODO scissor
+
+	// TODO scissor
 	private boolean scissorEnabled;
 	private final float[] scissorExtent = new float[4];
 
-	private boolean[] colorMask = new boolean[4];
-	
+	private boolean cullFaceEnabled;
 	private int cullFace;
 	private int frontFace;
 
 	private boolean colorCleared;
 	private Color clearColorValue;
-	
+
 	private boolean depthCleared;
 	private float clearDepthValue;
 	private boolean stencilCleared;
 	private int clearStencilValue;
 
+	private float lineWidth = 1;
+
 	private RenderTarget renderTarget;
 	private IntMap<BindedTexture> bindedTextures;
-	
+
 	//////////////////////////////
 	private TextureBinder textureBinder;
-	
+
 	////////////////////////
-	
+
 	static RenderState obtain() {
 		return PoolService.obtain(RenderState.class);
 	}
-	
+
 	void free() {
 		PoolService.free(this);
 	}
@@ -83,12 +87,12 @@ public class RenderState implements Poolable {
 		this.blendDestinationFactor = blendDestinationFactor;
 	}
 
-	public boolean isDepthMaskEnabled() {
-		return depthMaskEnabled;
+	public boolean getDepthMask() {
+		return depthMask;
 	}
 
-	public void setDepthMaskEnabled(boolean depthMask) {
-		this.depthMaskEnabled = depthMask;
+	public void setDepthMask(boolean depthMask) {
+		this.depthMask = depthMask;
 	}
 
 	public int getDepthFunction() {
@@ -266,14 +270,14 @@ public class RenderState implements Poolable {
 	public void setTextureBinder(TextureBinder textureBinder) {
 		this.textureBinder = textureBinder;
 	}
-	
+
 	@Override
 	public void reset() {
-		//TODO
+		// TODO
 	}
 
 	public void set(RenderState currentState) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

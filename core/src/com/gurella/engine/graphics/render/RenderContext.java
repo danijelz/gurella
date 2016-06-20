@@ -98,12 +98,12 @@ public class RenderContext {
 		currentState.setBlendDestinationFactor(blendDestinationFactor);
 	}
 
-	public boolean isDepthMaskEnabled() {
-		return currentState.isDepthMaskEnabled();
+	public boolean getDepthMask() {
+		return currentState.getDepthMask();
 	}
 
-	public void setDepthMaskEnabled(boolean depthMask) {
-		currentState.setDepthMaskEnabled(depthMask);
+	public void setDepthMask(boolean depthMask) {
+		currentState.setDepthMask(depthMask);
 	}
 
 	public int getDepthFunction() {
