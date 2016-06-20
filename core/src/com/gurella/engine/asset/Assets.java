@@ -67,7 +67,7 @@ public class Assets {
 
 	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
-		char fileTypeInfo = hasFileTypeInfo ? path.charAt(1) : 'i';
+		char fileTypeInfo = hasFileTypeInfo ? path.charAt(1) : getDefaultFileTypeInfo(path);
 		String pathExtract = hasFileTypeInfo ? path.substring(3) : path;
 		Files files = Gdx.files;
 		switch (fileTypeInfo) {
@@ -84,6 +84,14 @@ public class Assets {
 		default:
 			return files.internal(pathExtract);
 		}
+	}
+
+	private static char getDefaultFileTypeInfo(String path) {
+		if (path.length() < 1) {
+			return 'i';
+		}
+		char firstChar = path.charAt(0);
+		return firstChar == '/' || firstChar == '\\' ? 'a' : 'i';
 	}
 
 	private static boolean hasFileTypeInfo(String path) {
