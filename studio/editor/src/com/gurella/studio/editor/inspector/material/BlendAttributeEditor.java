@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.graphics.material.MaterialDescriptor;
-import com.gurella.engine.graphics.material.MaterialDescriptor.BlendFunction;
 import com.gurella.engine.graphics.material.MaterialDescriptor.BlendingAttributeProperties;
+import com.gurella.engine.graphics.render.gl.BlendFunction;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;

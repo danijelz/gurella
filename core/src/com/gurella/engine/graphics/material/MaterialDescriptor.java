@@ -1,7 +1,6 @@
 package com.gurella.engine.graphics.material;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
@@ -15,9 +14,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.graphics.render.gl.BlendFunction;
+import com.gurella.engine.graphics.render.gl.CullFace;
+import com.gurella.engine.graphics.render.gl.DepthTestFunction;
 
 public class MaterialDescriptor extends ManagedObject {
 	public Color diffuseColor;
@@ -47,7 +48,7 @@ public class MaterialDescriptor extends ManagedObject {
 
 	public float alphaTest = Float.NaN;
 
-	Cullface cullface = null;
+	CullFace cullFace = null;
 
 	public MaterialDescriptor() {
 	}
@@ -69,7 +70,7 @@ public class MaterialDescriptor extends ManagedObject {
 		extractDepthTestAttribute(material);
 		shininess = extractFloatAttribute(material, FloatAttribute.Shininess);
 		alphaTest = extractFloatAttribute(material, FloatAttribute.AlphaTest);
-		extractCullfaceAttribute(material);
+		extractCullFaceAttribute(material);
 	}
 
 	private static Color extractColorAttribute(Color currentValue, Material material, long attributeType) {
@@ -131,12 +132,12 @@ public class MaterialDescriptor extends ManagedObject {
 		}
 	}
 
-	private void extractCullfaceAttribute(Material material) {
-		IntAttribute cullfaceAttribute = (IntAttribute) material.get(IntAttribute.CullFace);
-		if (cullfaceAttribute == null) {
-			cullface = null;
+	private void extractCullFaceAttribute(Material material) {
+		IntAttribute cullFaceAttribute = (IntAttribute) material.get(IntAttribute.CullFace);
+		if (cullFaceAttribute == null) {
+			cullFace = null;
 		} else {
-			cullface = Cullface.value(cullfaceAttribute.value);
+			cullFace = CullFace.value(cullFaceAttribute.value);
 		}
 	}
 
@@ -204,8 +205,8 @@ public class MaterialDescriptor extends ManagedObject {
 		return !Float.isNaN(alphaTest);
 	}
 
-	public boolean isCullfaceEnabled() {
-		return cullface != null;
+	public boolean isCullFaceEnabled() {
+		return CullFace.isEnabled(cullFace);
 	}
 
 	public VertexAttributes createVertexAttributes(boolean addPositionAttribute, boolean addNormalAttribute) {
@@ -291,8 +292,8 @@ public class MaterialDescriptor extends ManagedObject {
 			material.set(FloatAttribute.createAlphaTest(alphaTest));
 		}
 
-		if (isCullfaceEnabled()) {
-			material.set(IntAttribute.createCullFace(cullface.glValue));
+		if (isCullFaceEnabled()) {
+			material.set(IntAttribute.createCullFace(cullFace.glValue));
 		}
 
 		if (isBlendEnabled()) {
@@ -375,116 +376,6 @@ public class MaterialDescriptor extends ManagedObject {
 			depthRangeFar = 1;
 			depthMask = true;
 			enabled = false;
-		}
-	}
-
-	public static enum Cullface {
-		front(GL20.GL_FRONT), back(GL20.GL_BACK), frontAndBack(GL20.GL_FRONT_AND_BACK);
-
-		private static IntMap<Cullface> valuesByGlValue = new IntMap<Cullface>();
-
-		static {
-			Cullface[] values = values();
-			for (int i = 0, n = values.length; i < n; i++) {
-				Cullface value = values[i];
-				valuesByGlValue.put(value.glValue, value);
-			}
-		}
-
-		public final int glValue;
-
-		private Cullface(int glValue) {
-			this.glValue = glValue;
-		}
-
-		public static Cullface value(int glValue) {
-			return valuesByGlValue.get(glValue);
-		}
-	}
-
-	public static enum DepthTestFunction {
-		never(GL20.GL_NEVER),
-
-		less(GL20.GL_LESS),
-
-		equal(GL20.GL_EQUAL),
-
-		lequal(GL20.GL_LEQUAL),
-
-		greater(GL20.GL_GREATER),
-
-		notequal(GL20.GL_NOTEQUAL),
-
-		gequal(GL20.GL_GEQUAL),
-
-		always(GL20.GL_ALWAYS);
-
-		private static IntMap<DepthTestFunction> valuesByGlValue = new IntMap<DepthTestFunction>();
-
-		static {
-			DepthTestFunction[] values = values();
-			for (int i = 0, n = values.length; i < n; i++) {
-				DepthTestFunction value = values[i];
-				valuesByGlValue.put(value.glValue, value);
-			}
-		}
-
-		public final int glValue;
-
-		private DepthTestFunction(int glValue) {
-			this.glValue = glValue;
-		}
-
-		public static DepthTestFunction value(int glValue) {
-			return valuesByGlValue.get(glValue);
-		}
-	}
-
-	public static enum BlendFunction {
-		zero(GL20.GL_ZERO),
-
-		one(GL20.GL_ONE), srcColor(GL20.GL_SRC_COLOR),
-
-		oneMinusSrcColor(GL20.GL_ONE_MINUS_SRC_COLOR),
-
-		dstColor(GL20.GL_DST_COLOR),
-
-		oneMinusDstColor(GL20.GL_ONE_MINUS_DST_COLOR),
-
-		srcAlpha(GL20.GL_SRC_ALPHA),
-
-		oneMinusSrcAlpha(GL20.GL_ONE_MINUS_SRC_ALPHA),
-
-		dstAlpha(GL20.GL_DST_ALPHA),
-
-		oneMinusDstAlpha(GL20.GL_ONE_MINUS_DST_ALPHA),
-
-		constantColor(GL20.GL_CONSTANT_COLOR),
-
-		oneMinusConstantColor(GL20.GL_ONE_MINUS_CONSTANT_COLOR),
-
-		constantAlpha(GL20.GL_CONSTANT_ALPHA),
-
-		oneMinusConstantAlpha(GL20.GL_ONE_MINUS_CONSTANT_ALPHA);
-
-		private static IntMap<BlendFunction> functionsByGlValue = new IntMap<BlendFunction>();
-
-		static {
-			BlendFunction[] values = values();
-			for (int i = 0, n = values.length; i < n; i++) {
-				BlendFunction value = values[i];
-				functionsByGlValue.put(value.glValue, value);
-			}
-		}
-
-		public final int glValue;
-
-		private BlendFunction(int glValue) {
-			this.glValue = glValue;
-		}
-
-		public static BlendFunction value(int glValue) {
-			return functionsByGlValue.get(glValue);
 		}
 	}
 }

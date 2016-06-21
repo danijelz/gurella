@@ -7,6 +7,9 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gurella.engine.graphics.render.command.ClearRenderTargetCommand.ClearType;
+import com.gurella.engine.graphics.render.gl.CullFace;
+import com.gurella.engine.graphics.render.gl.DepthTestFunction;
+import com.gurella.engine.graphics.render.gl.StencilOp;
 import com.gurella.engine.graphics.render.renderable.Renderable;
 import com.gurella.engine.graphics.render.shader.Pass;
 import com.gurella.engine.graphics.render.shader.Technique;
@@ -82,22 +85,6 @@ public class RenderContext {
 		currentState.setBlendingEnabled(blending);
 	}
 
-	public int getBlendSourceFactor() {
-		return currentState.getBlendSourceFactor();
-	}
-
-	public void setBlendSourceFactor(int blendSourceFactor) {
-		currentState.setBlendSourceFactor(blendSourceFactor);
-	}
-
-	public int getBlendDestinationFactor() {
-		return currentState.getBlendDestinationFactor();
-	}
-
-	public void setBlendDestinationFactor(int blendDestinationFactor) {
-		currentState.setBlendDestinationFactor(blendDestinationFactor);
-	}
-
 	public boolean getDepthMask() {
 		return currentState.getDepthMask();
 	}
@@ -106,11 +93,11 @@ public class RenderContext {
 		currentState.setDepthMask(depthMask);
 	}
 
-	public int getDepthFunction() {
+	public DepthTestFunction getDepthFunction() {
 		return currentState.getDepthFunction();
 	}
 
-	public void setDepthFunction(int depthFunction) {
+	public void setDepthFunction(DepthTestFunction depthFunction) {
 		currentState.setDepthFunction(depthFunction);
 	}
 
@@ -146,28 +133,28 @@ public class RenderContext {
 		currentState.setFrontStencilMask(frontStencilMask);
 	}
 
-	public int getFrontStencilFailFunction() {
-		return currentState.getFrontStencilFailFunction();
+	public StencilOp getFrontStencilFailOp() {
+		return currentState.getFrontStencilFailOp();
 	}
 
-	public void setFrontStencilFailFunction(int frontStencilFailFunction) {
-		currentState.setFrontStencilFailFunction(frontStencilFailFunction);
+	public void setFrontStencilFailOp(StencilOp frontStencilFailOp) {
+		currentState.setFrontStencilFailOp(frontStencilFailOp);
 	}
 
-	public int getFrontDepthFailFunction() {
-		return currentState.getFrontDepthFailFunction();
+	public StencilOp getFrontDepthFailOp() {
+		return currentState.getFrontDepthFailOp();
 	}
 
-	public void setFrontDepthFailFunction(int frontDepthFailFunction) {
-		currentState.setFrontDepthFailFunction(frontDepthFailFunction);
+	public void setFrontDepthFailOp(StencilOp frontDepthFailOp) {
+		currentState.setFrontDepthFailOp(frontDepthFailOp);
 	}
 
-	public int getFrontPassFunction() {
-		return currentState.getFrontPassFunction();
+	public StencilOp getFrontPassOp() {
+		return currentState.getFrontPassOp();
 	}
 
-	public void setFrontPassFunction(int frontPassFunction) {
-		currentState.setFrontPassFunction(frontPassFunction);
+	public void setFrontPassOp(StencilOp frontPassOp) {
+		currentState.setFrontPassOp(frontPassOp);
 	}
 
 	public int getBackStencilMask() {
@@ -178,35 +165,35 @@ public class RenderContext {
 		currentState.setBackStencilMask(backStencilMask);
 	}
 
-	public int getBackStencilFailFunction() {
-		return currentState.getBackStencilFailFunction();
+	public StencilOp getBackStencilFailOp() {
+		return currentState.getBackStencilFailOp();
 	}
 
-	public void setBackStencilFailFunction(int backStencilFailFunction) {
-		currentState.setBackStencilFailFunction(backStencilFailFunction);
+	public void setBackStencilFailOp(StencilOp backStencilFailOp) {
+		currentState.setBackStencilFailOp(backStencilFailOp);
 	}
 
-	public int getBackDepthFailFunction() {
-		return currentState.getBackDepthFailFunction();
+	public StencilOp getBackDepthFailOp() {
+		return currentState.getBackDepthFailOp();
 	}
 
-	public void setBackDepthFailFunction(int backDepthFailFunction) {
-		currentState.setBackDepthFailFunction(backDepthFailFunction);
+	public void setBackDepthFailOp(StencilOp backDepthFailOp) {
+		currentState.setBackDepthFailOp(backDepthFailOp);
 	}
 
-	public int getBackPassFunction() {
-		return currentState.getBackPassFunction();
+	public StencilOp getBackPassOp() {
+		return currentState.getBackPassOp();
 	}
 
-	public void setBackPassFunction(int backPassFunction) {
-		currentState.setBackPassFunction(backPassFunction);
+	public void setBackPassOp(StencilOp backPassOp) {
+		currentState.setBackPassOp(backPassOp);
 	}
 
-	public int getCullFace() {
+	public CullFace getCullFace() {
 		return currentState.getCullFace();
 	}
 
-	public void setCullFace(int cullFace) {
+	public void setCullFace(CullFace cullFace) {
 		currentState.setCullFace(cullFace);
 	}
 

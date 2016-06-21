@@ -4,38 +4,54 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.utils.TextureBinder;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.graphics.render.gl.BlendEquation;
+import com.gurella.engine.graphics.render.gl.BlendFunction;
+import com.gurella.engine.graphics.render.gl.ColorMask;
+import com.gurella.engine.graphics.render.gl.CullFace;
+import com.gurella.engine.graphics.render.gl.DepthTestFunction;
+import com.gurella.engine.graphics.render.gl.FrontFace;
+import com.gurella.engine.graphics.render.gl.StencilFunction;
+import com.gurella.engine.graphics.render.gl.StencilOp;
 import com.gurella.engine.pool.PoolService;
 
 public class RenderState implements Poolable {
-	private boolean[] colorMask = new boolean[] { true, true, true, true };
+	private ColorMask colorMask = ColorMask.rgba;
 
 	private boolean blendingEnabled;
-	private int blendSourceFactor;
-	private int blendDestinationFactor;
+	private Color blendColor = new Color(0, 0, 0, 0);
+	private BlendEquation rgbBlendEquation = BlendEquation.add;
+	private BlendEquation aBlendEquation = BlendEquation.add;
+	private BlendFunction rgbBlendSourceFactor = BlendFunction.one;
+	private BlendFunction aBlendSourceFactor = BlendFunction.one;
+	private BlendFunction rgbBlendDestinationFactor = BlendFunction.zero;
+	private BlendFunction aBlendDestinationFactor = BlendFunction.zero;
 
 	private boolean depthEnabled;
-	private boolean depthMask;
-	private int depthFunction;
-	private float depthRangeNear;
-	private float depthRangeFar;
+	private boolean depthMask = true;
+	private DepthTestFunction depthFunction = DepthTestFunction.less;
+	private float depthRangeNear = 0;
+	private float depthRangeFar = 1;
 
 	private boolean stencilEnabled;
-	private int frontStencilMask;
-	private int frontStencilFailFunction;
-	private int frontDepthFailFunction;
-	private int frontPassFunction;
-	private int backStencilMask;
-	private int backStencilFailFunction;
-	private int backDepthFailFunction;
-	private int backPassFunction;
+	private int frontStencilMask = 0xffffffff;
+	private int frontStencilRef = 0x0;
+	private StencilFunction frontStencilFunction = StencilFunction.always;
+	private StencilOp frontStencilFailOp = StencilOp.keep;
+	private StencilOp frontDepthFailOp = StencilOp.keep;
+	private StencilOp frontPassOp = StencilOp.keep;
+	private int backStencilMask = 0xffffffff;
+	private int backStencilRef = 0x0;
+	private StencilFunction backStencilFunction = StencilFunction.always;
+	private StencilOp backStencilFailOp = StencilOp.keep;
+	private StencilOp backDepthFailOp = StencilOp.keep;
+	private StencilOp backPassOp = StencilOp.keep;
 
 	// TODO scissor
 	private boolean scissorEnabled;
 	private final float[] scissorExtent = new float[4];
 
-	private boolean cullFaceEnabled;
-	private int cullFace;
-	private int frontFace;
+	private CullFace cullFace = CullFace.back;
+	private FrontFace frontFace = FrontFace.ccw;
 
 	private boolean colorCleared;
 	private Color clearColorValue;
@@ -71,22 +87,6 @@ public class RenderState implements Poolable {
 		this.blendingEnabled = blending;
 	}
 
-	public int getBlendSourceFactor() {
-		return blendSourceFactor;
-	}
-
-	public void setBlendSourceFactor(int blendSourceFactor) {
-		this.blendSourceFactor = blendSourceFactor;
-	}
-
-	public int getBlendDestinationFactor() {
-		return blendDestinationFactor;
-	}
-
-	public void setBlendDestinationFactor(int blendDestinationFactor) {
-		this.blendDestinationFactor = blendDestinationFactor;
-	}
-
 	public boolean getDepthMask() {
 		return depthMask;
 	}
@@ -95,12 +95,12 @@ public class RenderState implements Poolable {
 		this.depthMask = depthMask;
 	}
 
-	public int getDepthFunction() {
+	public DepthTestFunction getDepthFunction() {
 		return depthFunction;
 	}
 
-	public void setDepthFunction(int depthFunction) {
-		this.depthFunction = depthFunction;
+	public void setDepthFunction(DepthTestFunction depthFunction) {
+		this.depthFunction = depthFunction == null ? DepthTestFunction.less : depthFunction;
 	}
 
 	public float getDepthRangeNear() {
@@ -135,28 +135,28 @@ public class RenderState implements Poolable {
 		this.frontStencilMask = frontStencilMask;
 	}
 
-	public int getFrontStencilFailFunction() {
-		return frontStencilFailFunction;
+	public StencilOp getFrontStencilFailOp() {
+		return frontStencilFailOp;
 	}
 
-	public void setFrontStencilFailFunction(int frontStencilFailFunction) {
-		this.frontStencilFailFunction = frontStencilFailFunction;
+	public void setFrontStencilFailOp(StencilOp frontStencilFailOp) {
+		this.frontStencilFailOp = frontStencilFailOp;
 	}
 
-	public int getFrontDepthFailFunction() {
-		return frontDepthFailFunction;
+	public StencilOp getFrontDepthFailOp() {
+		return frontDepthFailOp;
 	}
 
-	public void setFrontDepthFailFunction(int frontDepthFailFunction) {
-		this.frontDepthFailFunction = frontDepthFailFunction;
+	public void setFrontDepthFailOp(StencilOp frontDepthFailOp) {
+		this.frontDepthFailOp = frontDepthFailOp;
 	}
 
-	public int getFrontPassFunction() {
-		return frontPassFunction;
+	public StencilOp getFrontPassOp() {
+		return frontPassOp;
 	}
 
-	public void setFrontPassFunction(int frontPassFunction) {
-		this.frontPassFunction = frontPassFunction;
+	public void setFrontPassOp(StencilOp frontPassOp) {
+		this.frontPassOp = frontPassOp;
 	}
 
 	public int getBackStencilMask() {
@@ -167,35 +167,35 @@ public class RenderState implements Poolable {
 		this.backStencilMask = backStencilMask;
 	}
 
-	public int getBackStencilFailFunction() {
-		return backStencilFailFunction;
+	public StencilOp getBackStencilFailOp() {
+		return backStencilFailOp;
 	}
 
-	public void setBackStencilFailFunction(int backStencilFailFunction) {
-		this.backStencilFailFunction = backStencilFailFunction;
+	public void setBackStencilFailOp(StencilOp backStencilFailOp) {
+		this.backStencilFailOp = backStencilFailOp;
 	}
 
-	public int getBackDepthFailFunction() {
-		return backDepthFailFunction;
+	public StencilOp getBackDepthFailOp() {
+		return backDepthFailOp;
 	}
 
-	public void setBackDepthFailFunction(int backDepthFailFunction) {
-		this.backDepthFailFunction = backDepthFailFunction;
+	public void setBackDepthFailOp(StencilOp backDepthFailOp) {
+		this.backDepthFailOp = backDepthFailOp;
 	}
 
-	public int getBackPassFunction() {
-		return backPassFunction;
+	public StencilOp getBackPassOp() {
+		return backPassOp;
 	}
 
-	public void setBackPassFunction(int backPassFunction) {
-		this.backPassFunction = backPassFunction;
+	public void setBackPassOp(StencilOp backPassOp) {
+		this.backPassOp = backPassOp;
 	}
 
-	public int getCullFace() {
+	public CullFace getCullFace() {
 		return cullFace;
 	}
 
-	public void setCullFace(int cullFace) {
+	public void setCullFace(CullFace cullFace) {
 		this.cullFace = cullFace;
 	}
 
