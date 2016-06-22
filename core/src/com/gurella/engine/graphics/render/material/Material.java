@@ -47,6 +47,8 @@ public class Material {
 
 	private CullFace cullFace = CullFace.back;
 	private FrontFace frontFace = FrontFace.ccw;
+	
+	private float lineWidth = 1;
 
 	public void bind() {
 		// TODO Auto-generated method stub

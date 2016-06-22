@@ -44,6 +44,8 @@ public class Pass {
 
 	private CullFace cullFace = CullFace.back;
 	private FrontFace frontFace = FrontFace.ccw;
+	
+	private float lineWidth = 1;
 
 	public Pass(Technique technique) {
 		this.technique = technique;
