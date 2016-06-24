@@ -22,9 +22,9 @@ public class RenderState implements Poolable {
 	private BlendEquation rgbBlendEquation = BlendEquation.add;
 	private BlendEquation aBlendEquation = BlendEquation.add;
 	private BlendFunction rgbBlendSourceFactor = BlendFunction.one;
-	private BlendFunction aBlendSourceFactor = BlendFunction.one;
+	private BlendFunction alphaBlendSourceFactor = BlendFunction.one;
 	private BlendFunction rgbBlendDestinationFactor = BlendFunction.zero;
-	private BlendFunction aBlendDestinationFactor = BlendFunction.zero;
+	private BlendFunction alphaBlendDestinationFactor = BlendFunction.zero;
 
 	private boolean depthEnabled;
 	private boolean depthMask = true;
