@@ -48,7 +48,7 @@ public class ShaderTemplateParser {
 				}
 			}
 
-			if (!areCurrentValuesEmpty() && blockStack.size == 0) {
+			if (!areCurrentValuesEmpty(0) && blockStack.size == 0) {
 				Text text = new Text();
 				text.value.append(currentValues);
 				blocks.add(text);
@@ -60,20 +60,18 @@ public class ShaderTemplateParser {
 		}
 	}
 
-	private boolean areCurrentValuesEmpty() {
+	private boolean areCurrentValuesEmpty(int end) {
 		int length = currentValues.length();
 		if (length == 0) {
 			return true;
 		}
 
-		char c;
-		for (int i = 0; i < length; i++) {
-			c = currentValues.charAt(i);
-			if (!Character.isWhitespace(c)) {
-				return true;
+		for (int i = 0; i < length - end; i++) {
+			if (!Character.isWhitespace(currentValues.charAt(i))) {
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	public void parse(char[] data, int length) {
@@ -142,7 +140,7 @@ public class ShaderTemplateParser {
 				pop(0);
 				current = getCurrentBlock();
 			}
-		} else if (!areCurrentValuesEmpty()) {
+		} else if (!areCurrentValuesEmpty(testLen)) {
 			Text text = new Text();
 			text.value.append(currentValues, 0, currLen - testLen);
 			blocks.add(text);
@@ -271,7 +269,8 @@ public class ShaderTemplateParser {
 
 	private void printBlocks() {
 		for (Block block : blocks) {
-			System.out.println(block.toString());
+			System.out.print(block.toString());
+			System.out.print("\n");
 		}
 	}
 }

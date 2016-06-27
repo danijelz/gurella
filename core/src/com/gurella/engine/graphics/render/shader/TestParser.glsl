@@ -28,3 +28,5 @@ test piece
 text after piece
 
 @insertpiece (insertpiece)
+
+text after insertpiece
