@@ -23,6 +23,7 @@ block comments
 
 @piece
 test piece
+@insertpiece (innerInsertpiece)
 @end
 
 text after piece
