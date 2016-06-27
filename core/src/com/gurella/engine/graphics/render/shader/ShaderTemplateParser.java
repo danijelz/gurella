@@ -30,7 +30,7 @@ public class ShaderTemplateParser {
 
 	private char[] insertpieceTest = "@insertpiece".toCharArray();
 	private char[] insertpieceTemp = new char[12];
-	
+
 	private char[] ifdefTest = "@ifdef".toCharArray();
 	private char[] ifdefTemp = new char[6];
 
@@ -118,6 +118,8 @@ public class ShaderTemplateParser {
 				if ('d' == c && testLast(endTest, endTemp)) {
 					type = pop(4);
 					type = pop(0);
+				} else {
+					type = checkBlockStart(type, c);
 				}
 				break;
 			case none:
@@ -146,7 +148,7 @@ public class ShaderTemplateParser {
 				return startBlock(pieceTest, new Piece());
 			} else if (testLast(insertpieceTest, insertpieceTemp)) {
 				return startBlock(insertpieceTest, new InsertPiece());
-			}  else if (testLast(ifdefTest, ifdefTemp)) {
+			} else if (testLast(ifdefTest, ifdefTemp)) {
 				return startBlock(ifdefTest, new Ifdef());
 			}
 		}
@@ -194,7 +196,7 @@ public class ShaderTemplateParser {
 		current = getCurrentBlock();
 		return current == null ? BlockType.none : current.getType();
 	}
-	
+
 	private BlockType push(int valuesSub, Block newBlock) {
 		Block current = blockStack.peek();
 		current.value.append(currentValues, 0, currentValues.length() - valuesSub);
@@ -228,10 +230,24 @@ public class ShaderTemplateParser {
 
 		@Override
 		public String toString() {
-			return getType().name() + ": '" + value.toString() + "'" + toStringChildren();
+			return toString(0);
+		}
+		
+		public String toString(int indent) {
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < indent; i++) {
+				builder.append('\t');
+			}
+			
+			builder.append(getType().name());
+			builder.append(": '");
+			builder.append(value.toString());
+			builder.append("'");
+			builder.append(toStringChildren(indent));
+			return builder.toString();
 		}
 
-		private String toStringChildren() {
+		private String toStringChildren(int indent) {
 			if (children.size == 0) {
 				return "";
 			}
@@ -239,7 +255,12 @@ public class ShaderTemplateParser {
 			StringBuilder builder = new StringBuilder();
 			for (Block child : children) {
 				builder.append("\n\t");
-				builder.append(child.toString());
+				
+				for (int i = 0; i < indent; i++) {
+					builder.append('\t');
+				}
+				
+				builder.append(child.toString(indent + 1));
 			}
 			return builder.toString();
 		}

@@ -23,7 +23,12 @@ block comments
 
 @piece
 test piece
-@insertpiece (innerInsertpiece)
+	@insertpiece (innerInsertpiece)
+	@insertpiece (innerInsertpiece2)
+	
+	@ifdef (abc)
+		ifdef text in piece
+	@end
 @end
 
 text after piece
@@ -33,5 +38,6 @@ text after piece
 text after insertpiece
 
 @ifdef (abc)
-ifdef text
+	ifdef text
+	@insertpiece (ifdefInsertpiece)
 @end
