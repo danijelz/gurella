@@ -11,28 +11,29 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 
-public class ShaderTemplate2 {
+public class ShaderTemplateParser {
 	private Array<Block> blockStack = new Array<Block>();
 	private Array<Block> blocks = new Array<Block>();
-	StringBuffer currentValues = new StringBuffer();
+	private StringBuffer currentValues = new StringBuffer();
 
-	boolean possibleBlockStart;
+	private int possibleBlockStart = -1;
+	private int maxBlockTestChar = 12;
 
-	char[] endTest = "@end".toCharArray();
-	char[] endTemp = new char[4];
+	private char[] endTest = "@end".toCharArray();
+	private char[] endTemp = new char[4];
 
-	char[] includeTest = "@include".toCharArray();
-	char[] includeTemp = new char[8];
+	private char[] includeTest = "@include".toCharArray();
+	private char[] includeTemp = new char[8];
 
-	char[] pieceTest = "@piece".toCharArray();
-	char[] pieceTemp = new char[6];
+	private char[] pieceTest = "@piece".toCharArray();
+	private char[] pieceTemp = new char[6];
 
-	char[] insertpieceTest = "@insertpiece".toCharArray();
-	char[] insertpieceTemp = new char[12];
+	private char[] insertpieceTest = "@insertpiece".toCharArray();
+	private char[] insertpieceTemp = new char[12];
 
-	char[] multiLineCommentStartTest = "/*".toCharArray();
-	char[] singleLineCommentStartTest = "//".toCharArray();
-	char[] commentStartTemp = new char[2];
+	private char[] multiLineCommentStartTest = "/*".toCharArray();
+	private char[] singleLineCommentStartTest = "//".toCharArray();
+	private char[] commentStartTemp = new char[2];
 
 	public void parse(Reader reader) {
 		try {
@@ -47,7 +48,7 @@ public class ShaderTemplate2 {
 				}
 			}
 
-			if (currentValues.length() > 0 && blockStack.size == 0) {
+			if (!areCurrentValuesEmpty() && blockStack.size == 0) {
 				Text text = new Text();
 				text.value.append(currentValues);
 				blocks.add(text);
@@ -57,6 +58,22 @@ public class ShaderTemplate2 {
 		} finally {
 			StreamUtils.closeQuietly(reader);
 		}
+	}
+
+	private boolean areCurrentValuesEmpty() {
+		int length = currentValues.length();
+		if (length == 0) {
+			return true;
+		}
+
+		char c;
+		for (int i = 0; i < length; i++) {
+			c = currentValues.charAt(i);
+			if (!Character.isWhitespace(c)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void parse(char[] data, int length) {
@@ -70,38 +87,42 @@ public class ShaderTemplate2 {
 			switch (type) {
 			case singleLineComment:
 				if ('\n' == c || '\r' == c) {
-					type = pop();
+					type = pop(1);
 				}
 				break;
 			case multiLineComment:
 				if ('/' == c && currentValues.charAt(currentValues.length() - 2) == '*') {
-					type = pop();
+					type = pop(2);
 				}
 				break;
 			case include:
 			case insertpiece:
 				if (')' == c) {
-					type = pop();
+					type = pop(1);
 				}
 				break;
 			case piece:
 				if ('d' == c && testLast(endTest, endTemp)) {
-					type = pop();
+					type = pop(4);
 				}
 				break;
 			case none:
 			case text:
 				if ('@' == c) {
-					possibleBlockStart = true;
+					possibleBlockStart = currentValues.length() - 1;
 				} else if ('/' == c && testLast(singleLineCommentStartTest, commentStartTemp)) {
 					type = startBlock(singleLineCommentStartTest, new SingleLineComment());
 				} else if ('*' == c && testLast(multiLineCommentStartTest, commentStartTemp)) {
 					type = startBlock(multiLineCommentStartTest, new MultiLineComment());
-				} else if (possibleBlockStart) {
+				} else if (possibleBlockStart > -1) {
 					if (testLast(includeTest, includeTemp)) {
 						type = startBlock(includeTest, new Include());
 					} else if (testLast(pieceTest, pieceTemp)) {
 						type = startBlock(pieceTest, new Piece());
+					} else if (testLast(insertpieceTest, insertpieceTemp)) {
+						type = startBlock(insertpieceTest, new InsertPiece());
+					} else if (currentValues.length() - possibleBlockStart > maxBlockTestChar) {
+						possibleBlockStart = -1;
 					}
 				}
 				break;
@@ -118,10 +139,10 @@ public class ShaderTemplate2 {
 
 		if (currLen == testLen) {
 			if (current != null) {
-				pop();
+				pop(0);
 				current = getCurrentBlock();
 			}
-		} else {
+		} else if (!areCurrentValuesEmpty()) {
 			Text text = new Text();
 			text.value.append(currentValues, 0, currLen - testLen);
 			blocks.add(text);
@@ -142,12 +163,12 @@ public class ShaderTemplate2 {
 		return blockStack.size == 0 ? null : blockStack.peek();
 	}
 
-	private BlockType pop() {
+	private BlockType pop(int valuesSub) {
 		Block current = blockStack.peek();
-		current.value.append(currentValues);
+		current.value.append(currentValues, 0, currentValues.length() - valuesSub);
 		currentValues.setLength(0);
 		blockStack.pop();
-		possibleBlockStart = false;
+		possibleBlockStart = -1;
 
 		current = getCurrentBlock();
 		return current == null ? BlockType.none : current.getType();
@@ -169,8 +190,6 @@ public class ShaderTemplate2 {
 	}
 
 	private static abstract class Block {
-		int start;
-		int end;
 		StringBuffer value = new StringBuffer();
 		private Array<Block> children = new Array<Block>();
 
@@ -178,7 +197,20 @@ public class ShaderTemplate2 {
 
 		@Override
 		public String toString() {
-			return value.toString();
+			return getType().name() + ": '" + value.toString() + "'" + toStringChildren();
+		}
+
+		private String toStringChildren() {
+			if (children.size == 0) {
+				return "";
+			}
+
+			StringBuilder builder = new StringBuilder();
+			for (Block child : children) {
+				builder.append("\n\t");
+				builder.append(child.toString());
+			}
+			return builder.toString();
 		}
 	}
 
@@ -225,9 +257,9 @@ public class ShaderTemplate2 {
 	}
 
 	public static void main(String[] args) {
-		InputStream input = ShaderTemplate2.class.getClassLoader()
+		InputStream input = ShaderTemplateParser.class.getClassLoader()
 				.getResourceAsStream("com/gurella/engine/graphics/render/shader/TestParser.glsl");
-		ShaderTemplate2 template = new ShaderTemplate2();
+		ShaderTemplateParser template = new ShaderTemplateParser();
 		try {
 			template.parse(new InputStreamReader(input, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
@@ -239,7 +271,7 @@ public class ShaderTemplate2 {
 
 	private void printBlocks() {
 		for (Block block : blocks) {
-			System.out.print(block.toString());
+			System.out.println(block.toString());
 		}
 	}
 }
