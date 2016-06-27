@@ -46,12 +46,14 @@ public class RenderState implements Poolable {
 	private StencilOp backDepthFailOp = StencilOp.keep;
 	private StencilOp backPassOp = StencilOp.keep;
 
+	private CullFace cullFace = CullFace.back;
+	private FrontFace frontFace = FrontFace.ccw;
+
+	private float lineWidth = 1;
+
 	// TODO scissor
 	private boolean scissorEnabled;
 	private final float[] scissorExtent = new float[4];
-
-	private CullFace cullFace = CullFace.back;
-	private FrontFace frontFace = FrontFace.ccw;
 
 	private boolean colorCleared;
 	private Color clearColorValue;
@@ -60,8 +62,6 @@ public class RenderState implements Poolable {
 	private float clearDepthValue;
 	private boolean stencilCleared;
 	private int clearStencilValue;
-
-	private float lineWidth = 1;
 
 	private RenderTarget renderTarget;
 	private IntMap<BindedTexture> bindedTextures;

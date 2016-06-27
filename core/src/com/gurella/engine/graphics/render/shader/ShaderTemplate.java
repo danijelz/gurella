@@ -22,7 +22,7 @@ public class ShaderTemplate {
 		this.source = file.readString();
 		extractIncludes();
 	}
-	
+
 	public ShaderTemplate(String source) {
 		this.source = source;
 		extractIncludes();
