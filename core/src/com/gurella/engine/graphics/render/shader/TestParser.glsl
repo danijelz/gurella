@@ -22,13 +22,17 @@ text after
 block comments
 
 @piece
-test piece
+	piece text 1
 	@insertpiece (innerInsertpiece)
 	@insertpiece (innerInsertpiece2)
+	
+	piece text 2
 	
 	@ifdef (abc)
 		ifdef text in piece
 	@end
+	
+	piece text 3
 @end
 
 text after piece

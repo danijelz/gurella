@@ -240,9 +240,14 @@ public class ShaderTemplateParser {
 			}
 			
 			builder.append(getType().name());
-			builder.append(": '");
+			builder.append(": {");
 			builder.append(value.toString());
-			builder.append("'");
+			
+			for (int i = 0; i < indent; i++) {
+				builder.append('\t');
+			}
+			
+			builder.append("}");
 			builder.append(toStringChildren(indent));
 			return builder.toString();
 		}
