@@ -30,3 +30,7 @@ text after piece
 @insertpiece (insertpiece)
 
 text after insertpiece
+
+@ifdef (abc)
+ifdef text
+@end

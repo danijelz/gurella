@@ -30,6 +30,9 @@ public class ShaderTemplateParser {
 
 	private char[] insertpieceTest = "@insertpiece".toCharArray();
 	private char[] insertpieceTemp = new char[12];
+	
+	private char[] ifdefTest = "@ifdef".toCharArray();
+	private char[] ifdefTemp = new char[6];
 
 	private char[] multiLineCommentStartTest = "/*".toCharArray();
 	private char[] singleLineCommentStartTest = "//".toCharArray();
@@ -99,9 +102,20 @@ public class ShaderTemplateParser {
 					type = pop(1);
 				}
 				break;
+			case ifdef:
+				if (')' == c) {
+					type = push(1, new IfdefContent());
+				}
+				break;
 			case piece:
 				if ('d' == c && testLast(endTest, endTemp)) {
 					type = pop(4);
+				}
+				break;
+			case ifdefcontent:
+				if ('d' == c && testLast(endTest, endTemp)) {
+					type = pop(4);
+					type = pop(0);
 				}
 				break;
 			case none:
@@ -113,14 +127,16 @@ public class ShaderTemplateParser {
 				} else if ('*' == c && testLast(multiLineCommentStartTest, commentStartTemp)) {
 					type = startBlock(multiLineCommentStartTest, new MultiLineComment());
 				} else if (possibleBlockStart > -1) {
-					if (testLast(includeTest, includeTemp)) {
+					if (currentValues.length() - possibleBlockStart > maxBlockTestChar) {
+						possibleBlockStart = -1;
+					} else if (testLast(includeTest, includeTemp)) {
 						type = startBlock(includeTest, new Include());
 					} else if (testLast(pieceTest, pieceTemp)) {
 						type = startBlock(pieceTest, new Piece());
 					} else if (testLast(insertpieceTest, insertpieceTemp)) {
 						type = startBlock(insertpieceTest, new InsertPiece());
-					} else if (currentValues.length() - possibleBlockStart > maxBlockTestChar) {
-						possibleBlockStart = -1;
+					}  else if (testLast(ifdefTest, ifdefTemp)) {
+						type = startBlock(ifdefTest, new Ifdef());
 					}
 				}
 				break;
@@ -171,6 +187,16 @@ public class ShaderTemplateParser {
 		current = getCurrentBlock();
 		return current == null ? BlockType.none : current.getType();
 	}
+	
+	private BlockType push(int valuesSub, Block newBlock) {
+		Block current = blockStack.peek();
+		current.value.append(currentValues, 0, currentValues.length() - valuesSub);
+		currentValues.setLength(0);
+		blockStack.add(newBlock);
+		current.children.add(newBlock);
+		possibleBlockStart = -1;
+		return newBlock.getType();
+	}
 
 	private boolean testLast(char[] testVal, char[] temp) {
 		int currLen = currentValues.length();
@@ -184,7 +210,7 @@ public class ShaderTemplateParser {
 	}
 
 	private enum BlockType {
-		singleLineComment, multiLineComment, include, piece, insertpiece, text, none;
+		singleLineComment, multiLineComment, include, piece, insertpiece, text, ifdef, ifdefcontent, none;
 	}
 
 	private static abstract class Block {
@@ -251,6 +277,20 @@ public class ShaderTemplateParser {
 		@Override
 		BlockType getType() {
 			return BlockType.text;
+		}
+	}
+
+	private static class Ifdef extends Block {
+		@Override
+		BlockType getType() {
+			return BlockType.ifdef;
+		}
+	}
+
+	private static class IfdefContent extends Block {
+		@Override
+		BlockType getType() {
+			return BlockType.ifdefcontent;
 		}
 	}
 
