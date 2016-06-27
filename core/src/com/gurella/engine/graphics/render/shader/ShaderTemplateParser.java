@@ -110,6 +110,8 @@ public class ShaderTemplateParser {
 			case piece:
 				if ('d' == c && testLast(endTest, endTemp)) {
 					type = pop(4);
+				} else {
+					type = checkBlockStart(type, c);
 				}
 				break;
 			case ifdefcontent:
@@ -120,30 +122,35 @@ public class ShaderTemplateParser {
 				break;
 			case none:
 			case text:
-				if ('@' == c) {
-					possibleBlockStart = currentValues.length() - 1;
-				} else if ('/' == c && testLast(singleLineCommentStartTest, commentStartTemp)) {
-					type = startBlock(singleLineCommentStartTest, new SingleLineComment());
-				} else if ('*' == c && testLast(multiLineCommentStartTest, commentStartTemp)) {
-					type = startBlock(multiLineCommentStartTest, new MultiLineComment());
-				} else if (possibleBlockStart > -1) {
-					if (currentValues.length() - possibleBlockStart > maxBlockTestChar) {
-						possibleBlockStart = -1;
-					} else if (testLast(includeTest, includeTemp)) {
-						type = startBlock(includeTest, new Include());
-					} else if (testLast(pieceTest, pieceTemp)) {
-						type = startBlock(pieceTest, new Piece());
-					} else if (testLast(insertpieceTest, insertpieceTemp)) {
-						type = startBlock(insertpieceTest, new InsertPiece());
-					}  else if (testLast(ifdefTest, ifdefTemp)) {
-						type = startBlock(ifdefTest, new Ifdef());
-					}
-				}
+				type = checkBlockStart(type, c);
 				break;
 			default:
 				break;
 			}
 		}
+	}
+
+	private BlockType checkBlockStart(BlockType type, char c) {
+		if ('@' == c) {
+			possibleBlockStart = currentValues.length() - 1;
+		} else if ('/' == c && testLast(singleLineCommentStartTest, commentStartTemp)) {
+			return startBlock(singleLineCommentStartTest, new SingleLineComment());
+		} else if ('*' == c && testLast(multiLineCommentStartTest, commentStartTemp)) {
+			return startBlock(multiLineCommentStartTest, new MultiLineComment());
+		} else if (possibleBlockStart > -1) {
+			if (currentValues.length() - possibleBlockStart > maxBlockTestChar) {
+				possibleBlockStart = -1;
+			} else if (testLast(includeTest, includeTemp)) {
+				return startBlock(includeTest, new Include());
+			} else if (testLast(pieceTest, pieceTemp)) {
+				return startBlock(pieceTest, new Piece());
+			} else if (testLast(insertpieceTest, insertpieceTemp)) {
+				return startBlock(insertpieceTest, new InsertPiece());
+			}  else if (testLast(ifdefTest, ifdefTemp)) {
+				return startBlock(ifdefTest, new Ifdef());
+			}
+		}
+		return type;
 	}
 
 	private BlockType startBlock(char[] startedType, Block newBlock) {
