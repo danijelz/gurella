@@ -6,4 +6,14 @@ public class TextNode extends ShaderTemplateNode {
 	public TextNode(String text) {
 		this.text = text;
 	}
+
+	@Override
+	protected String toStringValue() {
+		return text.toString().replace("\n", "\\n");
+	}
+
+	@Override
+	protected void generate(ShaderTemplate template, StringBuilder builder) {
+		builder.append(text);
+	}
 }

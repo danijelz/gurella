@@ -1,5 +1,16 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdefContent;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.include;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.insertPiece;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.none;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.pieceContent;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -82,7 +93,7 @@ public class ShaderTemplateParser implements Poolable {
 	protected void finish() {
 		if (!areCurrentValuesEmpty(0) && blockStack.size == 0) {
 			ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
-			textSourceBlock.type = ShaderParserBlockType.text;
+			textSourceBlock.type = text;
 			textSourceBlock.value.append(currentText);
 			rootBlocks.add(textSourceBlock);
 			allBlocks.add(textSourceBlock);
@@ -105,7 +116,7 @@ public class ShaderTemplateParser implements Poolable {
 
 	public void parse(char[] data, int length) {
 		ShaderParserBlock current = getCurrentBlock();
-		ShaderParserBlockType type = current == null ? ShaderParserBlockType.none : current.type;
+		ShaderParserBlockType type = current == null ? none : current.type;
 
 		for (int i = 0; i < length; i++) {
 			char c = data[i];
@@ -142,7 +153,7 @@ public class ShaderTemplateParser implements Poolable {
 					} else if (')' == c) {
 						numIfdefExpressionParenthesis--;
 						if (numIfdefExpressionParenthesis == 0) {
-							type = push(1, ShaderParserBlockType.ifdefContent);
+							type = push(1, ifdefContent);
 						}
 					}
 				} else {
@@ -153,14 +164,21 @@ public class ShaderTemplateParser implements Poolable {
 				}
 				break;
 			case piece:
-				if (potencialBlockStart > -1 && 'd' == c && testLast(endTest, endTemp)) {
-					type = pop(4);
+				if (parenthesisOpened) {
+					if (')' == c) {
+						type = push(1, pieceContent);
+						// type = pop(4);
+					}
 				} else {
-					type = checkBlockStart(type, c);
+					currentText.setLength(currentText.length() - 1);
+					if ('(' == c) {
+						parenthesisOpened = true;
+					}
 				}
 				break;
 			case ifdefContent:
-				if (potencialBlockStart > -1 && 'd' == c && testLast(endTest, endTemp)) {
+			case pieceContent:
+				if (isBlockClosed(c)) {
 					type = pop(4);
 					type = pop(0);
 				} else {
@@ -177,6 +195,10 @@ public class ShaderTemplateParser implements Poolable {
 		}
 	}
 
+	protected boolean isBlockClosed(char c) {
+		return potencialBlockStart > -1 && 'd' == c && testLast(endTest, endTemp);
+	}
+
 	private ShaderParserBlockType checkBlockStart(ShaderParserBlockType type, char c) {
 		switch (c) {
 		case '@':
@@ -184,13 +206,13 @@ public class ShaderTemplateParser implements Poolable {
 			return type;
 		case '/':
 			if (testLast(singleLineCommentStartTest, commentStartTemp)) {
-				return startBlock(singleLineCommentStartTest, ShaderParserBlockType.singleLineComment);
+				return startBlock(singleLineCommentStartTest, singleLineComment);
 			} else {
 				return type;
 			}
 		case '*':
 			if (testLast(multiLineCommentStartTest, commentStartTemp)) {
-				return startBlock(multiLineCommentStartTest, ShaderParserBlockType.multiLineComment);
+				return startBlock(multiLineCommentStartTest, multiLineComment);
 			} else {
 				return type;
 			}
@@ -200,16 +222,17 @@ public class ShaderTemplateParser implements Poolable {
 				return type;
 			} else if (blockStack.size == 0 && testLast(includeTest, includeTemp)) {
 				parenthesisOpened = false;
-				return startBlock(includeTest, ShaderParserBlockType.include);
+				return startBlock(includeTest, include);
 			} else if (blockStack.size == 0 && testLast(pieceTest, pieceTemp)) {
-				return startBlock(pieceTest, ShaderParserBlockType.piece);
+				parenthesisOpened = false;
+				return startBlock(pieceTest, piece);
 			} else if (testLast(insertpieceTest, insertpieceTemp)) {
 				parenthesisOpened = false;
-				return startBlock(insertpieceTest, ShaderParserBlockType.insertPiece);
+				return startBlock(insertpieceTest, insertPiece);
 			} else if (testLast(ifdefTest, ifdefTemp)) {
 				parenthesisOpened = false;
 				numIfdefExpressionParenthesis = 1;
-				return startBlock(ifdefTest, ShaderParserBlockType.ifdef);
+				return startBlock(ifdefTest, ifdef);
 			} else {
 				return type;
 			}
@@ -230,7 +253,7 @@ public class ShaderTemplateParser implements Poolable {
 			}
 		} else if (!areCurrentValuesEmpty(testLen)) {
 			ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
-			textSourceBlock.type = ShaderParserBlockType.text;
+			textSourceBlock.type = text;
 			textSourceBlock.value.append(currentText, 0, currLen - testLen);
 			if (current == null) {
 				rootBlocks.add(textSourceBlock);
@@ -260,9 +283,9 @@ public class ShaderTemplateParser implements Poolable {
 		ShaderParserBlock current = blockStack.peek();
 		ShaderParserBlockType type = current.type;
 
-		if (type == ShaderParserBlockType.piece || type == ShaderParserBlockType.ifdefContent) {
+		if (type == pieceContent || type == ifdefContent) {
 			ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
-			textSourceBlock.type = ShaderParserBlockType.text;
+			textSourceBlock.type = text;
 			textSourceBlock.value.append(currentText, 0, currentText.length() - valuesSub);
 			current.children.add(textSourceBlock);
 		} else {
@@ -274,7 +297,7 @@ public class ShaderTemplateParser implements Poolable {
 		potencialBlockStart = -1;
 
 		current = getCurrentBlock();
-		return current == null ? ShaderParserBlockType.none : current.type;
+		return current == null ? none : current.type;
 	}
 
 	private ShaderParserBlockType push(int valuesSub, ShaderParserBlockType blockType) {
@@ -315,17 +338,40 @@ public class ShaderTemplateParser implements Poolable {
 	public static void main(String[] args) {
 		String name = "com/gurella/engine/graphics/render/shader/TestParser.glsl";
 		InputStream input = ShaderTemplateParser.class.getClassLoader().getResourceAsStream(name);
-		ShaderTemplateParser template = new ShaderTemplateParser();
+		ShaderTemplateParser parser = new ShaderTemplateParser();
 
 		try {
-			template.parse(new InputStreamReader(input, "UTF-8"));
+			parser.parse(new InputStreamReader(input, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 
-		template.printBlocks();
-		template.extractShaderTemplate();
-		template.reset();
+		parser.printBlocks();
+		System.out.print("\n\n\n\n\n");
+		ShaderTemplate template = parser.extractShaderTemplate();
+		System.out.print(template.toString());
+		System.out.print("\n\n\n\n\n");
+		StringBuilder builder = new StringBuilder();
+		template.generate(builder);
+		System.out.print(builder);
+		parser.reset();
+
+		input = ShaderTemplateParser.class.getClassLoader().getResourceAsStream(name);
+		try {
+			parser.parse(new InputStreamReader(input, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+		parser.printBlocks();
+		System.out.print("\n\n\n\n\n");
+		template = parser.extractShaderTemplate();
+		System.out.print(template.toString());
+		System.out.print("\n\n\n\n\n");
+		builder.setLength(0);
+		template.generate(builder);
+		System.out.print(builder);
+		parser.reset();
 	}
 
 	private void printBlocks() {

@@ -21,7 +21,11 @@ text after block comment 1
 text after 
 block comments
 
-@piece
+@piece(innerInsertpiece)innerInsertpieceText@end
+@piece(innerInsertpiece2)innerInsertpiece2Text@end
+@piece(ifdefInsertpiece)ifdefInsertpieceText@end
+
+@piece(piece1name)
 	piece text 1 //comment in piece 1
 	@insertpiece (innerInsertpiece)
 	@insertpiece (innerInsertpiece2)
@@ -39,7 +43,7 @@ block comments
 
 text after piece
 
-@insertpiece (insertpiece)
+@insertpiece (piece1name)
 
 text after insertpiece
 //comment after insertpiece

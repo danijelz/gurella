@@ -1,5 +1,8 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graphics.render.shader.template.IfdefNode;
@@ -14,48 +17,45 @@ class ShaderParserBlock implements Poolable {
 	StringBuffer value = new StringBuffer();
 	Array<ShaderParserBlock> children = new Array<ShaderParserBlock>();
 
-	// -singleLineComment,
-	// -multiLineComment,
-	// -include,
-	// -piece,
-	// -insertPiece,
-	// -text,
-	// -ifdef,
-	// ifdefContent,
-	// -none;
-
 	void initTemplate(ShaderTemplateNode node) {
 		switch (type) {
 		case singleLineComment:
 		case multiLineComment:
 		case none:
-			break;
+			return;
 		case include:
 			if (node instanceof ShaderTemplate) {
 				((ShaderTemplate) node).addDependency(value.toString());
 			}
-			break;
+			return;
 		case insertPiece:
 			node.addChild(new InsertPieceNode(value.toString()));
-			break;
+			return;
 		case text:
-			node.addChild(new TextNode(value.toString()));
-			break;
+			if (value.length() > 0) {
+				node.addChild(new TextNode(value.toString()));
+			}
+			return;
 		case piece:
-			PieceNode piece = new PieceNode();
-			node.addChild(piece);
-			initTemplateChildren(piece);
-			break;
+			if (node instanceof ShaderTemplate) {
+				PieceNode piece = new PieceNode(value.toString());
+				((ShaderTemplate) node).addPiece(piece);
+				initTemplateChildren(piece);
+			}
+			return;
+		case pieceContent:
+			initTemplateChildren(node);
+			return;
 		case ifdef:
 			IfdefNode ifdef = new IfdefNode(value.toString());
 			node.addChild(ifdef);
 			initTemplateChildren(ifdef);
-			break;
+			return;
 		case ifdefContent:
 			initTemplateChildren(node);
-			break;
+			return;
 		default:
-			break;
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -100,8 +100,7 @@ class ShaderParserBlock implements Poolable {
 	}
 
 	protected String toStringValue() {
-		return type == ShaderParserBlockType.text || type == ShaderParserBlockType.multiLineComment
-				? value.toString().replace("\n", "\\n") : value.toString();
+		return type == text || type == multiLineComment ? value.toString().replace("\n", "\\n") : value.toString();
 	}
 
 	private String toStringChildren(int indent) {

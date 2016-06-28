@@ -7,11 +7,12 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.SynchronousAssetLoader;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.graphics.render.shader.ShaderTemplate;
+import com.gurella.engine.graphics.render.shader.parser.ShaderTemplateParser;
 import com.gurella.engine.utils.Values;
 
 public class ShaderTemplateLoader
 		extends SynchronousAssetLoader<ShaderTemplate, AssetLoaderParameters<ShaderTemplate>> {
+	private ShaderTemplateParser parser = new ShaderTemplateParser();
 	private ShaderTemplate result;
 
 	public ShaderTemplateLoader(FileHandleResolver resolver) {
@@ -22,7 +23,8 @@ public class ShaderTemplateLoader
 	@SuppressWarnings("rawtypes")
 	public Array<AssetDescriptor> getDependencies(String fileName, FileHandle file,
 			AssetLoaderParameters<ShaderTemplate> parameter) {
-		result = new ShaderTemplate(file);
+		result = parser.parse(file.reader());
+		parser.reset();
 		Array<AssetDescriptor> dependencies = Values.cast(result.getDependencies());
 		return dependencies;
 	}

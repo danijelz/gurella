@@ -5,6 +5,7 @@ enum ShaderParserBlockType {
 	multiLineComment,
 	include,
 	piece,
+	pieceContent,
 	insertPiece,
 	text,
 	ifdef,

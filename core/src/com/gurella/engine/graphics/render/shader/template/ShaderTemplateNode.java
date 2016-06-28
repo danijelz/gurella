@@ -8,4 +8,56 @@ public abstract class ShaderTemplateNode {
 	public void addChild(ShaderTemplateNode child) {
 		children.add(child);
 	}
+
+	protected abstract void generate(ShaderTemplate template, StringBuilder builder);
+
+	protected void generateChildren(ShaderTemplate template, StringBuilder builder) {
+		for (int i = 0, n = children.size; i < n; i++) {
+			children.get(i).generate(template, builder);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return toString(0);
+	}
+
+	public String toString(int indent) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < indent; i++) {
+			builder.append('\t');
+		}
+
+		builder.append(getClass().getSimpleName());
+		builder.append(": {");
+		builder.append(toStringValue());
+		builder.append(toStringChildren(indent + 1));
+
+		if (children.size > 0) {
+			builder.append("\n");
+			for (int i = 0; i < indent; i++) {
+				builder.append('\t');
+			}
+		}
+
+		builder.append("}");
+		return builder.toString();
+	}
+
+	protected String toStringValue() {
+		return "";
+	}
+
+	private String toStringChildren(int indent) {
+		if (children.size == 0) {
+			return "";
+		}
+
+		StringBuilder builder = new StringBuilder();
+		for (ShaderTemplateNode child : children) {
+			builder.append("\n");
+			builder.append(child.toString(indent));
+		}
+		return builder.toString();
+	}
 }
