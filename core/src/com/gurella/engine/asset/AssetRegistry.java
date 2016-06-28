@@ -59,7 +59,7 @@ import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
-import com.gurella.engine.graphics.render.shader.ShaderTemplate;
+import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplateLoader;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;

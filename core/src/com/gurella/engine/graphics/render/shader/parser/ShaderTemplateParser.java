@@ -336,7 +336,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	public static void main(String[] args) {
-		String name = "com/gurella/engine/graphics/render/shader/TestParser.glsl";
+		String name = "com/gurella/engine/graphics/render/shader/parser/TestParser.glsl";
 		InputStream input = ShaderTemplateParser.class.getClassLoader().getResourceAsStream(name);
 		ShaderTemplateParser parser = new ShaderTemplateParser();
 

@@ -67,8 +67,8 @@ public class Assets {
 
 	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
-		char fileTypeInfo = hasFileTypeInfo ? path.charAt(1) : getDefaultFileTypeInfo(path);
-		String pathExtract = hasFileTypeInfo ? path.substring(3) : path;
+		char fileTypeInfo = hasFileTypeInfo ? path.charAt(0) : getDefaultFileTypeInfo(path);
+		String pathExtract = hasFileTypeInfo ? path.substring(2) : path;
 		Files files = Gdx.files;
 		switch (fileTypeInfo) {
 		case 'i':
@@ -89,19 +89,23 @@ public class Assets {
 	private static char getDefaultFileTypeInfo(String path) {
 		if (path.length() < 1) {
 			return 'i';
+		} else {
+			char firstChar = path.charAt(0);
+			return firstChar == '/' || firstChar == '\\' ? 'a' : 'i';
 		}
-		char firstChar = path.charAt(0);
-		return firstChar == '/' || firstChar == '\\' ? 'a' : 'i';
 	}
 
 	private static boolean hasFileTypeInfo(String path) {
-		if (path.length() < 4) {
+		if (path.length() < 3) {
 			return false;
 		}
 
-		char fileTypeInfo = path.charAt(1);
-		return path.charAt(0) == '{' && path.charAt(2) == '}' && (fileTypeInfo == 'c' || fileTypeInfo == 'i'
-				|| fileTypeInfo == 'e' || fileTypeInfo == 'a' || fileTypeInfo == 'l');
+		if (path.charAt(1) != ':') {
+			return false;
+		}
+
+		char typeInfo = path.charAt(0);
+		return typeInfo == 'c' || typeInfo == 'i' || typeInfo == 'e' || typeInfo == 'a' || typeInfo == 'l';
 	}
 
 	public static FileHandle getRelativeFileHandle(FileHandle file, String path) {
