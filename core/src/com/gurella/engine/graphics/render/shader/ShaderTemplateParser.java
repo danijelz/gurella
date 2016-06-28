@@ -18,6 +18,7 @@ public class ShaderTemplateParser {
 
 	private int possibleBlockStart = -1;
 	private int maxBlockTestChar = 12;
+	private boolean parenthesisOpened = false;
 
 	private char[] endTest = "@end".toCharArray();
 	private char[] endTemp = new char[4];
@@ -40,7 +41,7 @@ public class ShaderTemplateParser {
 
 	public void parse(Reader reader) {
 		try {
-			int size = 1024;
+			int size = 10;
 			char[] data = new char[size];
 			while (true) {
 				int length = reader.read(data);
@@ -97,25 +98,39 @@ public class ShaderTemplateParser {
 				}
 				break;
 			case include:
-			case insertpiece:
-				if (')' == c) {
-					type = pop(1);
+			case insertPiece:
+				if (parenthesisOpened) {
+					if (')' == c) {
+						type = pop(1);
+					}
+				} else {
+					currentValues.setLength(currentValues.length() - 1);
+					if ('(' == c) {
+						parenthesisOpened = true;
+					}
 				}
 				break;
 			case ifdef:
-				if (')' == c) {
-					type = push(1, new IfdefContent());
+				if (parenthesisOpened) {
+					if (')' == c) {
+						type = push(1, new IfdefContent());
+					}
+				} else {
+					currentValues.setLength(currentValues.length() - 1);
+					if ('(' == c) {
+						parenthesisOpened = true;
+					}
 				}
 				break;
 			case piece:
-				if ('d' == c && testLast(endTest, endTemp)) {
+				if (possibleBlockStart > -1 && 'd' == c && testLast(endTest, endTemp)) {
 					type = pop(4);
 				} else {
 					type = checkBlockStart(type, c);
 				}
 				break;
-			case ifdefcontent:
-				if ('d' == c && testLast(endTest, endTemp)) {
+			case ifdefContent:
+				if (possibleBlockStart > -1 && 'd' == c && testLast(endTest, endTemp)) {
 					type = pop(4);
 					type = pop(0);
 				} else {
@@ -133,26 +148,41 @@ public class ShaderTemplateParser {
 	}
 
 	private BlockType checkBlockStart(BlockType type, char c) {
-		if ('@' == c) {
+		switch (c) {
+		case '@':
 			possibleBlockStart = currentValues.length() - 1;
-		} else if ('/' == c && testLast(singleLineCommentStartTest, commentStartTemp)) {
-			return startBlock(singleLineCommentStartTest, new SingleLineComment());
-		} else if ('*' == c && testLast(multiLineCommentStartTest, commentStartTemp)) {
-			return startBlock(multiLineCommentStartTest, new MultiLineComment());
-		} else if (possibleBlockStart > -1) {
+			return type;
+		case '/':
+			if (testLast(singleLineCommentStartTest, commentStartTemp)) {
+				return startBlock(singleLineCommentStartTest, new SingleLineComment());
+			} else {
+				return type;
+			}
+		case '*':
+			if (testLast(multiLineCommentStartTest, commentStartTemp)) {
+				return startBlock(multiLineCommentStartTest, new MultiLineComment());
+			} else {
+				return type;
+			}
+		default:
 			if (currentValues.length() - possibleBlockStart > maxBlockTestChar) {
 				possibleBlockStart = -1;
+				return type;
 			} else if (testLast(includeTest, includeTemp)) {
+				parenthesisOpened = false;
 				return startBlock(includeTest, new Include());
 			} else if (testLast(pieceTest, pieceTemp)) {
 				return startBlock(pieceTest, new Piece());
 			} else if (testLast(insertpieceTest, insertpieceTemp)) {
+				parenthesisOpened = false;
 				return startBlock(insertpieceTest, new InsertPiece());
 			} else if (testLast(ifdefTest, ifdefTemp)) {
+				parenthesisOpened = false;
 				return startBlock(ifdefTest, new Ifdef());
+			} else {
+				return type;
 			}
 		}
-		return type;
 	}
 
 	private BlockType startBlock(char[] startedType, Block newBlock) {
@@ -168,7 +198,11 @@ public class ShaderTemplateParser {
 		} else if (!areCurrentValuesEmpty(testLen)) {
 			Text text = new Text();
 			text.value.append(currentValues, 0, currLen - testLen);
-			blocks.add(text);
+			if (current == null) {
+				blocks.add(text);
+			} else {
+				current.children.add(text);
+			}
 		}
 
 		currentValues.setLength(0);
@@ -188,7 +222,16 @@ public class ShaderTemplateParser {
 
 	private BlockType pop(int valuesSub) {
 		Block current = blockStack.peek();
-		current.value.append(currentValues, 0, currentValues.length() - valuesSub);
+		BlockType type = current.getType();
+
+		if (type == BlockType.piece || type == BlockType.ifdefContent) {
+			Text text = new Text();
+			text.value.append(currentValues, 0, currentValues.length() - valuesSub);
+			current.children.add(text);
+		} else {
+			current.value.append(currentValues, 0, currentValues.length() - valuesSub);
+		}
+
 		currentValues.setLength(0);
 		blockStack.pop();
 		possibleBlockStart = -1;
@@ -219,7 +262,16 @@ public class ShaderTemplateParser {
 	}
 
 	private enum BlockType {
-		singleLineComment, multiLineComment, include, piece, insertpiece, text, ifdef, ifdefcontent, none;
+		singleLineComment,
+		multiLineComment,
+		include,
+		piece,
+		insertPiece,
+		text,
+		ifdef,
+		ifdefExpression,
+		ifdefContent,
+		none;
 	}
 
 	private static abstract class Block {
@@ -232,24 +284,31 @@ public class ShaderTemplateParser {
 		public String toString() {
 			return toString(0);
 		}
-		
+
 		public String toString(int indent) {
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < indent; i++) {
 				builder.append('\t');
 			}
-			
+
 			builder.append(getType().name());
 			builder.append(": {");
-			builder.append(value.toString());
-			
-			for (int i = 0; i < indent; i++) {
-				builder.append('\t');
+			builder.append(toStringValue());
+			builder.append(toStringChildren(indent + 1));
+
+			if (children.size > 0) {
+				builder.append("\n");
+				for (int i = 0; i < indent; i++) {
+					builder.append('\t');
+				}
 			}
-			
+
 			builder.append("}");
-			builder.append(toStringChildren(indent));
 			return builder.toString();
+		}
+
+		protected String toStringValue() {
+			return value.toString();
 		}
 
 		private String toStringChildren(int indent) {
@@ -259,13 +318,8 @@ public class ShaderTemplateParser {
 
 			StringBuilder builder = new StringBuilder();
 			for (Block child : children) {
-				builder.append("\n\t");
-				
-				for (int i = 0; i < indent; i++) {
-					builder.append('\t');
-				}
-				
-				builder.append(child.toString(indent + 1));
+				builder.append("\n");
+				builder.append(child.toString(indent));
 			}
 			return builder.toString();
 		}
@@ -295,7 +349,7 @@ public class ShaderTemplateParser {
 	private static class InsertPiece extends Block {
 		@Override
 		BlockType getType() {
-			return BlockType.insertpiece;
+			return BlockType.insertPiece;
 		}
 	}
 
@@ -311,6 +365,11 @@ public class ShaderTemplateParser {
 		BlockType getType() {
 			return BlockType.text;
 		}
+
+		@Override
+		protected String toStringValue() {
+			return super.toStringValue().replace("\n", "\\n");
+		}
 	}
 
 	private static class Ifdef extends Block {
@@ -323,7 +382,7 @@ public class ShaderTemplateParser {
 	private static class IfdefContent extends Block {
 		@Override
 		BlockType getType() {
-			return BlockType.ifdefcontent;
+			return BlockType.ifdefContent;
 		}
 	}
 

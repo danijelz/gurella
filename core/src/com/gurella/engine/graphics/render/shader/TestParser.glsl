@@ -1,4 +1,4 @@
-@include (123)
+@include (123)   
 @include (223)
 
 text
@@ -22,17 +22,19 @@ text after
 block comments
 
 @piece
-	piece text 1
+	piece text 1 //comment in piece 1
 	@insertpiece (innerInsertpiece)
 	@insertpiece (innerInsertpiece2)
 	
-	piece text 2
+	piece text 2 //comment in piece2
+	//comment in piece 3
 	
 	@ifdef (abc)
-		ifdef text in piece
+		ifdef text in piece //comment in ifdef
 	@end
 	
 	piece text 3
+	//comment in piece 4
 @end
 
 text after piece
@@ -40,6 +42,7 @@ text after piece
 @insertpiece (insertpiece)
 
 text after insertpiece
+//comment after insertpiece
 
 @ifdef (abc)
 	ifdef text
