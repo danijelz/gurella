@@ -9,7 +9,7 @@ public class IfdefNode extends ShaderTemplateNode {
 
 	@Override
 	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		if (condition.apply()) {
+		if (condition.evaluate()) {
 			generateChildren(template, builder);
 		}
 	}
@@ -60,7 +60,7 @@ public class IfdefNode extends ShaderTemplateNode {
 			}
 		}
 
-		boolean apply() {
+		boolean evaluate() {
 			return value != null;// TODO
 		}
 
