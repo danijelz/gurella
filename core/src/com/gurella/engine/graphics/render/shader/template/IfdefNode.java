@@ -25,10 +25,11 @@ public class IfdefNode extends ShaderTemplateNode {
 
 		public Condition(String value) {
 			this.value = value;
-			parseConditionPart();
+			parseConditionPart(value);
 		}
 
-		private ConditionPart parseConditionPart() {
+		private ConditionPart parseConditionPart(String value) {
+			ConditionPart current = new SimpleConditionPart(value);
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0, n = value.length(); i < n; i++) {
 				char c = value.charAt(i);
@@ -48,6 +49,9 @@ public class IfdefNode extends ShaderTemplateNode {
 				case '!':
 
 					break;
+				case '^':
+
+					break;
 				case ' ':
 				case '\t':
 				case '\n':
@@ -58,6 +62,84 @@ public class IfdefNode extends ShaderTemplateNode {
 					break;
 				}
 			}
+		}
+
+		int index = 0;
+
+		String ParseAtom(String expr) {
+			// Read the number from string
+			String res = extractAtom(expr);
+			// Advance the pointer and return the result
+			return res;
+		}
+
+		private String extractAtom(String expr) {
+			StringBuilder builder = new StringBuilder();
+
+			while (index < expr.length()) {
+				char c = expr.charAt(index++);
+
+				switch (c) {
+				case '(':
+				case ')':
+				case '|':
+				case '&':
+				case '!':
+				case '^':
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\r':
+					return builder.toString();
+				default:
+					builder.append(c);
+					break;
+				}
+			}
+
+			return "";
+		}
+
+		//https://www.strchr.com/expression_evaluator
+		// Parse multiplication and division
+		String ParseFactors(String expr) {
+			String num1 = ParseAtom(expr);
+			for (;;) {
+				// Save the operation
+				char op = expr.charAt(index);
+				if (op != '/' && op != '*')
+					return num1;
+				index++;
+				String num2 = ParseAtom(expr);
+				// Perform the saved operation
+				if (op == '/') {
+					num1 /= num2;
+				} else {
+					num1 *= num2;
+				}
+			}
+		}
+
+		// Parse addition and subtraction
+		String ParseSummands(String expr) {
+			String num1 = ParseFactors(expr);
+			for (;;) {
+				char op = expr.charAt(index);
+				if (op != '-' && op != '+') {
+					return num1;
+				}
+				index++;
+				String num2 = ParseFactors(expr);
+				if (op == '-') {
+					num1 -= num2;
+				} else {
+					num1 += num2;
+				}
+			}
+		}
+
+		String EvaluateTheExpression(String expr) {
+			return ParseSummands(expr);
 		}
 
 		boolean evaluate() {
