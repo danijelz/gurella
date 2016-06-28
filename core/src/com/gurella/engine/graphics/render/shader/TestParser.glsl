@@ -44,7 +44,25 @@ text after piece
 text after insertpiece
 //comment after insertpiece
 
-@ifdef (abc)
+@ifdef ((abc | acc) & (bbc | ccc))
 	ifdef text
 	@insertpiece (ifdefInsertpiece)
 @end
+
+bbbbbbbbbbbbbb
+bbbbbbbb
+
+bb
+bbbbbbbbbbbb
+
+@ifdef ((abc | acc) & (bbc | ccc))
+	ifdef text
+	@insertpiece (ifdefInsertpiece)
+	@ifdef ((abc | acc) & (bbc | ccc))
+		ifdef text
+		@insertpiece (ifdefInsertpiece)
+	@end
+@end
+
+
+dddaaannn

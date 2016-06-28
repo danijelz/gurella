@@ -1,4 +1,4 @@
-package com.gurella.engine.graphics.render.shader;
+package com.gurella.engine.graphics.render.shader.template;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.SynchronousAssetLoader;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.graphics.render.shader.ShaderTemplate;
 import com.gurella.engine.utils.Values;
 
 public class ShaderTemplateLoader
