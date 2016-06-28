@@ -21,9 +21,30 @@ public class IfdefNode extends ShaderTemplateNode {
 
 	private static class Condition {
 		String value;
+		ConditionPart conditionPart;
 
 		public Condition(String value) {
 			this.value = value;
+		}
+
+		private ConditionPart parseConditionPart() {
+			for (int i = 0, n = value.length(); i < n; i++) {
+				char c = value.charAt(i);
+				switch (c) {
+				case '(':
+
+					break;
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\r':
+
+					break;
+
+				default:
+					break;
+				}
+			}
 		}
 
 		boolean apply() {
@@ -34,5 +55,33 @@ public class IfdefNode extends ShaderTemplateNode {
 		public String toString() {
 			return value;
 		}
+	}
+
+	private interface ConditionPart {
+
+	}
+
+	private static class SimpleConditionPart {
+		private String value;
+		private boolean negated;
+		private ConditionPart next;
+
+		public SimpleConditionPart(String value) {
+			this.value = value;
+		}
+	}
+
+	private static class CompositeConditionPart {
+		private ConditionPartCompositor compositor;
+		private ConditionPart[] composites;
+
+		public CompositeConditionPart(ConditionPartCompositor compositor, ConditionPart... composites) {
+			this.compositor = compositor;
+			this.composites = composites;
+		}
+	}
+
+	private enum ConditionPartCompositor {
+		and, or;
 	}
 }

@@ -14,6 +14,9 @@ public class InsertPieceNode extends ShaderTemplateNode {
 
 	@Override
 	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		template.getPiece(pieceName).generate(template, builder);
+		PieceNode piece = template.getPiece(pieceName);
+		if (piece != null) {
+			piece.generate(template, builder);
+		}
 	}
 }
