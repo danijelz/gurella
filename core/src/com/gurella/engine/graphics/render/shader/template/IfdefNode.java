@@ -66,14 +66,7 @@ public class IfdefNode extends ShaderTemplateNode {
 
 		int index = 0;
 
-		String ParseAtom(String expr) {
-			// Read the number from string
-			String res = extractAtom(expr);
-			// Advance the pointer and return the result
-			return res;
-		}
-
-		private String extractAtom(String expr) {
+		private String ParseAtom(String expr) {
 			StringBuilder builder = new StringBuilder();
 
 			while (index < expr.length()) {
@@ -90,6 +83,7 @@ public class IfdefNode extends ShaderTemplateNode {
 				case '\t':
 				case '\n':
 				case '\r':
+					index--;
 					return builder.toString();
 				default:
 					builder.append(c);
