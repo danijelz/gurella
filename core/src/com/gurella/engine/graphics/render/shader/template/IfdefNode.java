@@ -25,23 +25,36 @@ public class IfdefNode extends ShaderTemplateNode {
 
 		public Condition(String value) {
 			this.value = value;
+			parseConditionPart();
 		}
 
 		private ConditionPart parseConditionPart() {
+			StringBuilder builder = new StringBuilder();
 			for (int i = 0, n = value.length(); i < n; i++) {
 				char c = value.charAt(i);
 				switch (c) {
 				case '(':
 
 					break;
+				case ')':
+
+					break;
+				case '|':
+
+					break;
+				case '&':
+
+					break;
+				case '!':
+
+					break;
 				case ' ':
 				case '\t':
 				case '\n':
 				case '\r':
-
 					break;
-
 				default:
+					builder.append(c);
 					break;
 				}
 			}
@@ -57,11 +70,11 @@ public class IfdefNode extends ShaderTemplateNode {
 		}
 	}
 
-	private interface ConditionPart {
+	private static abstract class ConditionPart {
 
 	}
 
-	private static class SimpleConditionPart {
+	private static class SimpleConditionPart extends ConditionPart {
 		private String value;
 		private boolean negated;
 		private ConditionPart next;
@@ -71,7 +84,7 @@ public class IfdefNode extends ShaderTemplateNode {
 		}
 	}
 
-	private static class CompositeConditionPart {
+	private static class CompositeConditionPart extends ConditionPart {
 		private ConditionPartCompositor compositor;
 		private ConditionPart[] composites;
 
