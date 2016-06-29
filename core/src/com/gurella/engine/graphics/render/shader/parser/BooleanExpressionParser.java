@@ -6,7 +6,6 @@ import com.gurella.engine.graphics.render.shader.template.BooleanExpression.And;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Not;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Or;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Terminal;
-import com.gurella.engine.pool.PoolService;
 
 class BooleanExpressionParser implements Poolable {
 	private int index = 0;
@@ -14,17 +13,10 @@ class BooleanExpressionParser implements Poolable {
 	private CharSequence input;
 	private StringBuilder lastProperty = new StringBuilder();
 
-	private BooleanExpressionParser.Symbol symbol;
+	private Symbol symbol;
 	private BooleanExpression root;
 
-	static BooleanExpression parse(CharSequence input) {
-		BooleanExpressionParser parser = PoolService.obtain(BooleanExpressionParser.class);
-		BooleanExpression expression = parser.parseExpression(input);
-		PoolService.free(parser);
-		return expression;
-	}
-
-	BooleanExpression parseExpression(CharSequence input) {
+	BooleanExpression parse(CharSequence input) {
 		this.input = input;
 		len = input.length();
 		expression();
@@ -199,8 +191,8 @@ class BooleanExpressionParser implements Poolable {
 
 	public static void main(String[] args) {
 		BooleanExpressionParser parser = new BooleanExpressionParser();
-		System.out.println(parser.parseExpression("true & ((true | false) & !(true & false))").toString());
+		System.out.println(parser.parse("true & ((true | false) & !(true & false))").toString());
 		parser.reset();
-		System.out.println(parser.parseExpression("\n\nA & ((B | C) & !\n(!DEF & !GHI))").toString());
+		System.out.println(parser.parse("\n\nA & ((B | C) & !\n(!DEF & !GHI))").toString());
 	}
 }

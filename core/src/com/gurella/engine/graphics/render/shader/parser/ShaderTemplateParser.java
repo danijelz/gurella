@@ -50,6 +50,8 @@ public class ShaderTemplateParser implements Poolable {
 
 	private final char[] data = new char[dataSize];
 
+	private BooleanExpressionParser booleanExpressionParser = new BooleanExpressionParser();
+
 	private Array<ShaderParserBlock> blockStack = new Array<ShaderParserBlock>();
 	private Array<ShaderParserBlock> rootBlocks = new Array<ShaderParserBlock>();
 	private Array<ShaderParserBlock> allBlocks = new Array<ShaderParserBlock>();
@@ -92,12 +94,18 @@ public class ShaderTemplateParser implements Poolable {
 
 	protected void finish() {
 		if (!areCurrentValuesEmpty(0) && blockStack.size == 0) {
-			ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
-			textSourceBlock.type = text;
+			ShaderParserBlock textSourceBlock = obtainShaderParserBlock(text);
 			textSourceBlock.value.append(currentText);
 			rootBlocks.add(textSourceBlock);
-			allBlocks.add(textSourceBlock);
 		}
+	}
+
+	private ShaderParserBlock obtainShaderParserBlock(ShaderParserBlockType type) {
+		ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
+		allBlocks.add(textSourceBlock);
+		textSourceBlock.type = type;
+		textSourceBlock.booleanExpressionParser = booleanExpressionParser;
+		return textSourceBlock;
 	}
 
 	private boolean areCurrentValuesEmpty(int end) {
@@ -158,7 +166,6 @@ public class ShaderTemplateParser implements Poolable {
 				if (parenthesisOpened) {
 					if (')' == c) {
 						type = push(1, pieceContent);
-						// type = pop(4);
 					}
 				} else {
 					currentText.setLength(currentText.length() - 1);
@@ -186,7 +193,7 @@ public class ShaderTemplateParser implements Poolable {
 		}
 	}
 
-	protected boolean isBlockClosed(char c) {
+	private boolean isBlockClosed(char c) {
 		return potencialBlockStart > -1 && 'd' == c && testLast(endTest, endTemp);
 	}
 
@@ -231,8 +238,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private ShaderParserBlockType startBlock(char[] startedType, ShaderParserBlockType blockType) {
-		ShaderParserBlock newBlock = PoolService.obtain(ShaderParserBlock.class);
-		newBlock.type = blockType;
+		ShaderParserBlock newBlock = obtainShaderParserBlock(blockType);
 		int currLen = currentText.length();
 		int testLen = startedType.length;
 		ShaderParserBlock current = getCurrentBlock();
@@ -243,15 +249,13 @@ public class ShaderTemplateParser implements Poolable {
 				current = getCurrentBlock();
 			}
 		} else if (!areCurrentValuesEmpty(testLen)) {
-			ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
-			textSourceBlock.type = text;
+			ShaderParserBlock textSourceBlock = obtainShaderParserBlock(text);
 			textSourceBlock.value.append(currentText, 0, currLen - testLen);
 			if (current == null) {
 				rootBlocks.add(textSourceBlock);
 			} else {
 				current.children.add(textSourceBlock);
 			}
-			allBlocks.add(textSourceBlock);
 		}
 
 		currentText.setLength(0);
@@ -261,7 +265,6 @@ public class ShaderTemplateParser implements Poolable {
 		} else {
 			current.children.add(newBlock);
 		}
-		allBlocks.add(newBlock);
 
 		return newBlock.type;
 	}
@@ -275,8 +278,7 @@ public class ShaderTemplateParser implements Poolable {
 		ShaderParserBlockType type = current.type;
 
 		if (type == pieceContent || type == ifdefContent) {
-			ShaderParserBlock textSourceBlock = PoolService.obtain(ShaderParserBlock.class);
-			textSourceBlock.type = text;
+			ShaderParserBlock textSourceBlock = obtainShaderParserBlock(text);
 			textSourceBlock.value.append(currentText, 0, currentText.length() - valuesSub);
 			current.children.add(textSourceBlock);
 		} else {
@@ -292,8 +294,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private ShaderParserBlockType push(int valuesSub, ShaderParserBlockType blockType) {
-		ShaderParserBlock newBlock = PoolService.obtain(ShaderParserBlock.class);
-		newBlock.type = blockType;
+		ShaderParserBlock newBlock = obtainShaderParserBlock(blockType);
 		ShaderParserBlock current = blockStack.peek();
 		current.value.append(currentText, 0, currentText.length() - valuesSub);
 		currentText.setLength(0);

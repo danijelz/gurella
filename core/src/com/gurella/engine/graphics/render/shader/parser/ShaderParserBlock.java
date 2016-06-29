@@ -14,6 +14,8 @@ import com.gurella.engine.graphics.render.shader.template.TextNode;
 
 class ShaderParserBlock implements Poolable {
 	ShaderParserBlockType type;
+	BooleanExpressionParser booleanExpressionParser;
+	
 	StringBuffer value = new StringBuffer();
 	Array<ShaderParserBlock> children = new Array<ShaderParserBlock>();
 
@@ -47,7 +49,8 @@ class ShaderParserBlock implements Poolable {
 			initTemplateChildren(node);
 			return;
 		case ifdef:
-			IfdefNode ifdef = new IfdefNode(BooleanExpressionParser.parse(value));
+			IfdefNode ifdef = new IfdefNode(booleanExpressionParser.parse(value));
+			booleanExpressionParser.reset();
 			node.addChild(ifdef);
 			initTemplateChildren(ifdef);
 			return;
@@ -68,6 +71,8 @@ class ShaderParserBlock implements Poolable {
 
 	@Override
 	public void reset() {
+		type = null;
+		booleanExpressionParser = null;
 		value.setLength(0);
 		children.clear();
 	}
