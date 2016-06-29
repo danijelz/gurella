@@ -5,6 +5,12 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Values {
+	private static final char[] whitespaces = { (char) 0x0009, (char) 0x000A, (char) 0x000B, (char) 0x000C,
+			(char) 0x000D, (char) 0x0020, (char) 0x0085, (char) 0x00A0, (char) 0x1680, (char) 0x180E, (char) 0x2000,
+			(char) 0x2001, (char) 0x2002, (char) 0x2003, (char) 0x2004, (char) 0x2005, (char) 0x2006, (char) 0x2007,
+			(char) 0x2008, (char) 0x2009, (char) 0x200A, (char) 0x200B, (char) 0x200C, (char) 0x200D, (char) 0x2028,
+			(char) 0x2029, (char) 0x202F, (char) 0x205F, (char) 0x2060, (char) 0x3000, (char) 0xFEFF };
+
 	private Values() {
 	}
 
@@ -53,7 +59,18 @@ public class Values {
 	}
 
 	public static boolean isBlank(final CharSequence sequence) {
-		return sequence == null ? true : sequence.toString().trim().length() > 0 ? false : true;
+		if (sequence == null) {
+			return true;
+		}
+
+		int length = sequence.length();
+		int index = 0;
+
+		while ((index < length) && (sequence.charAt(index) == ' ')) {
+			index++;
+		}
+
+		return index == length;
 	}
 
 	public static boolean isEqual(Object first, Object second) {
@@ -140,5 +157,9 @@ public class Values {
 		}
 		msg.append(split[split.length - 1]);
 		return msg.toString();
+	}
+
+	public static boolean isWhitespace(char c) {
+		return Arrays.binarySearch(whitespaces, c) > -1;
 	}
 }

@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.utils.Values;
 
 public class ShaderTemplateParser implements Poolable {
 	private static final int maxBlockTestChar = 12;
@@ -102,16 +103,17 @@ public class ShaderTemplateParser implements Poolable {
 
 	private boolean areCurrentValuesEmpty(int end) {
 		int length = currentText.length();
-		if (length == 0) {
+		/*if (length == 0) {
 			return true;
 		}
 
 		for (int i = 0; i < length - end; i++) {
-			if (!Character.isWhitespace(currentText.charAt(i))) {
+			if (!Values.isWhitespace(currentText.charAt(i))) {
 				return false;
 			}
 		}
-		return true;
+		return true;*/
+		return length - end < 1;
 	}
 
 	public void parse(char[] data, int length) {
@@ -125,7 +127,8 @@ public class ShaderTemplateParser implements Poolable {
 			switch (type) {
 			case singleLineComment:
 				if ('\n' == c || '\r' == c) {
-					type = pop(1);
+					type = pop(0);
+					i--;
 				}
 				break;
 			case multiLineComment:
@@ -352,23 +355,6 @@ public class ShaderTemplateParser implements Poolable {
 		System.out.print(template.toString());
 		System.out.print("\n\n\n\n\n");
 		StringBuilder builder = new StringBuilder();
-		template.generate(builder);
-		System.out.print(builder);
-		parser.reset();
-
-		input = ShaderTemplateParser.class.getClassLoader().getResourceAsStream(name);
-		try {
-			parser.parse(new InputStreamReader(input, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-
-		parser.printBlocks();
-		System.out.print("\n\n\n\n\n");
-		template = parser.extractShaderTemplate();
-		System.out.print(template.toString());
-		System.out.print("\n\n\n\n\n");
-		builder.setLength(0);
 		template.generate(builder);
 		System.out.print(builder);
 		parser.reset();
