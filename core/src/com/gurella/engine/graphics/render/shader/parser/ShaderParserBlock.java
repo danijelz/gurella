@@ -47,7 +47,7 @@ class ShaderParserBlock implements Poolable {
 			initTemplateChildren(node);
 			return;
 		case ifdef:
-			IfdefNode ifdef = new IfdefNode(value.toString());
+			IfdefNode ifdef = new IfdefNode(BooleanExpressionParser.parse(value));
 			node.addChild(ifdef);
 			initTemplateChildren(ifdef);
 			return;

@@ -319,6 +319,7 @@ public class ShaderTemplateParser implements Poolable {
 		blockStack.clear();
 		rootBlocks.clear();
 		PoolService.freeAll(allBlocks);
+		allBlocks.clear();
 
 		currentText.setLength(0);
 
