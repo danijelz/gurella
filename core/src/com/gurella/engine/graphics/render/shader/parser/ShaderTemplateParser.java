@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
-import com.gurella.engine.utils.Values;
 
 public class ShaderTemplateParser implements Poolable {
 	private static final int maxBlockTestChar = 12;
@@ -102,18 +101,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private boolean areCurrentValuesEmpty(int end) {
-		int length = currentText.length();
-		/*if (length == 0) {
-			return true;
-		}
-
-		for (int i = 0; i < length - end; i++) {
-			if (!Values.isWhitespace(currentText.charAt(i))) {
-				return false;
-			}
-		}
-		return true;*/
-		return length - end < 1;
+		return currentText.length() - end < 1;
 	}
 
 	public void parse(char[] data, int length) {
