@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public abstract class ShaderTemplateNode {
 	Array<ShaderTemplateNode> children = new Array<ShaderTemplateNode>();
@@ -9,11 +10,11 @@ public abstract class ShaderTemplateNode {
 		children.add(child);
 	}
 
-	protected abstract void generate(ShaderTemplate template, StringBuilder builder);
+	protected abstract void generate(ShaderGeneratorContext context);
 
-	protected void generateChildren(ShaderTemplate template, StringBuilder builder) {
+	protected void generateChildren(ShaderGeneratorContext context) {
 		for (int i = 0, n = children.size; i < n; i++) {
-			children.get(i).generate(template, builder);
+			children.get(i).generate(context);
 		}
 	}
 

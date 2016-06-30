@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
 
@@ -204,12 +205,14 @@ public class ShaderTemplateParser implements Poolable {
 			return type;
 		case '/':
 			if (testLast(singleLineCommentStartTest, commentStartTemp)) {
+				potencialBlockStart = -1;
 				return startBlock(singleLineCommentStartTest, singleLineComment);
 			} else {
 				return type;
 			}
 		case '*':
 			if (testLast(multiLineCommentStartTest, commentStartTemp)) {
+				potencialBlockStart = -1;
 				return startBlock(multiLineCommentStartTest, multiLineComment);
 			} else {
 				return type;
@@ -219,16 +222,12 @@ public class ShaderTemplateParser implements Poolable {
 				potencialBlockStart = -1;
 				return type;
 			} else if (blockStack.size == 0 && testLast(includeTest, includeTemp)) {
-				parenthesisOpened = false;
 				return startBlock(includeTest, include);
 			} else if (blockStack.size == 0 && testLast(pieceTest, pieceTemp)) {
-				parenthesisOpened = false;
 				return startBlock(pieceTest, piece);
 			} else if (testLast(insertpieceTest, insertpieceTemp)) {
-				parenthesisOpened = false;
 				return startBlock(insertpieceTest, insertPiece);
 			} else if (testLast(ifdefTest, ifdefTemp)) {
-				parenthesisOpened = false;
 				numIfdefExpressionParenthesis = 1;
 				return startBlock(ifdefTest, ifdef);
 			} else {
@@ -238,6 +237,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private ShaderParserBlockType startBlock(char[] startedType, ShaderParserBlockType blockType) {
+		parenthesisOpened = false;
 		ShaderParserBlock newBlock = obtainShaderParserBlock(blockType);
 		int currLen = currentText.length();
 		int testLen = startedType.length;
@@ -344,9 +344,10 @@ public class ShaderTemplateParser implements Poolable {
 		ShaderTemplate template = parser.extractShaderTemplate();
 		System.out.print(template.toString());
 		System.out.print("\n\n\n\n\n");
-		StringBuilder builder = new StringBuilder();
-		template.generate(builder);
-		System.out.print(builder);
+		ShaderGeneratorContext context = new ShaderGeneratorContext();
+		context.init(template);
+		template.generate(context);
+		System.out.print(context.getShaderSource());
 		parser.reset();
 	}
 

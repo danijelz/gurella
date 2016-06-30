@@ -1,7 +1,9 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+
 public interface BooleanExpression {
-	public boolean evaluate();
+	public boolean evaluate(ShaderGeneratorContext context);
 
 	static abstract class NonTerminal implements BooleanExpression {
 		protected BooleanExpression left, right;
@@ -23,8 +25,8 @@ public interface BooleanExpression {
 		}
 
 		@Override
-		public boolean evaluate() {
-			return !negated.evaluate();
+		public boolean evaluate(ShaderGeneratorContext context) {
+			return !negated.evaluate(context);
 		}
 
 		@Override
@@ -35,8 +37,8 @@ public interface BooleanExpression {
 
 	public static class Or extends NonTerminal {
 		@Override
-		public boolean evaluate() {
-			return left.evaluate() || right.evaluate();
+		public boolean evaluate(ShaderGeneratorContext context) {
+			return left.evaluate(context) || right.evaluate(context);
 		}
 
 		@Override
@@ -47,8 +49,8 @@ public interface BooleanExpression {
 
 	public static class And extends NonTerminal {
 		@Override
-		public boolean evaluate() {
-			return left.evaluate() && right.evaluate();
+		public boolean evaluate(ShaderGeneratorContext context) {
+			return left.evaluate(context) && right.evaluate(context);
 		}
 
 		@Override
@@ -57,22 +59,21 @@ public interface BooleanExpression {
 		}
 	}
 	
-	public static class Terminal implements BooleanExpression {
-		protected String value;
+	public static class Property implements BooleanExpression {
+		protected String propertyName;
 
-		public Terminal(String value) {
-			this.value = value;
+		public Property(String propertyName) {
+			this.propertyName = propertyName;
 		}
 
 		@Override
 		public String toString() {
-			return value;
+			return propertyName;
 		}
 
 		@Override
-		public boolean evaluate() {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean evaluate(ShaderGeneratorContext context) {
+			return context.isDefined(propertyName);
 		}
 	}
 }

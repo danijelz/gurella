@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public class ShaderTemplate extends ShaderTemplateNode {
 	private final ObjectMap<String, FileHandle> dependenciesByPath = new ObjectMap<String, FileHandle>();
@@ -41,13 +42,9 @@ public class ShaderTemplate extends ShaderTemplateNode {
 		piecesByName.put(piece.name, piece);
 	}
 
-	public void generate(StringBuilder builder) {
-		generateChildren(this, builder);
-	}
-
 	@Override
-	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		generateChildren(template, builder);
+	public void generate(ShaderGeneratorContext context) {
+		generateChildren(context);
 	}
 
 	public PieceNode getPiece(String pieceName) {

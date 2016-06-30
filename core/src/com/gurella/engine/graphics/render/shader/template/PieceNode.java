@@ -1,5 +1,7 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+
 public class PieceNode extends ShaderTemplateNode {
 	String name;
 
@@ -13,7 +15,6 @@ public class PieceNode extends ShaderTemplateNode {
 	}
 
 	@Override
-	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		generateChildren(template, builder);
+	protected void generate(ShaderGeneratorContext context) {
 	}
 }

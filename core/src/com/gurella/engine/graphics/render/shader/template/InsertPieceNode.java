@@ -1,5 +1,7 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+
 public class InsertPieceNode extends ShaderTemplateNode {
 	String pieceName;
 
@@ -13,10 +15,10 @@ public class InsertPieceNode extends ShaderTemplateNode {
 	}
 
 	@Override
-	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		PieceNode piece = template.getPiece(pieceName);
+	protected void generate(ShaderGeneratorContext context) {
+		PieceNode piece = context.getPiece(pieceName);
 		if (piece != null) {
-			piece.generate(template, builder);
+			piece.generateChildren(context);
 		}
 	}
 }
