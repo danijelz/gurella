@@ -1,4 +1,4 @@
-package com.gurella.engine.graphics.render.shader;
+package com.gurella.engine.graphics.render.shader.generator;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.gurella.engine.graphics.render.renderable.Renderable;
