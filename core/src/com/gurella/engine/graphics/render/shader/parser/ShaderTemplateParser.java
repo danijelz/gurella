@@ -16,6 +16,7 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.sub;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.value;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +72,9 @@ public class ShaderTemplateParser implements Poolable {
 
 	private static final char[] modTest = "@mod".toCharArray();
 	private final char[] modTemp = new char[modTest.length];
+
+	private static final char[] valueTest = "@value".toCharArray();
+	private final char[] valueTemp = new char[valueTest.length];
 
 	private static final char[] multiLineCommentStartTest = "/*".toCharArray();
 	private static final char[] singleLineCommentStartTest = "//".toCharArray();
@@ -168,6 +172,7 @@ public class ShaderTemplateParser implements Poolable {
 			case sub:
 			case div:
 			case mod:
+			case value:
 				if (parenthesisOpened) {
 					if (')' == c) {
 						type = pop(1);
@@ -277,6 +282,8 @@ public class ShaderTemplateParser implements Poolable {
 				return startBlock(divTest, div);
 			} else if (testLast(modTest, modTemp)) {
 				return startBlock(modTest, mod);
+			} else if (testLast(valueTest, valueTemp)) {
+				return startBlock(valueTest, value);
 			} else {
 				return type;
 			}

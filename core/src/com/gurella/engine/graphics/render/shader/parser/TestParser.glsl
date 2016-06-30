@@ -92,5 +92,5 @@ dddaaannn
 @sub (testVar, 1)
 
 @for (testVar, n)
-    inTestVarForLoop
+    inTestVarForLoop@value(testVar) + @value(n)
 @end

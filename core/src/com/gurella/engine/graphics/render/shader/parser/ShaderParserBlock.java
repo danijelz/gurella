@@ -15,11 +15,12 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplateNode;
 import com.gurella.engine.graphics.render.shader.template.SubNode;
 import com.gurella.engine.graphics.render.shader.template.TextNode;
+import com.gurella.engine.graphics.render.shader.template.ValueNode;
 
 class ShaderParserBlock implements Poolable {
 	ShaderParserBlockType type;
 	BooleanExpressionParser booleanExpressionParser;
-	
+
 	StringBuffer value = new StringBuffer();
 	Array<ShaderParserBlock> children = new Array<ShaderParserBlock>();
 
@@ -45,6 +46,9 @@ class ShaderParserBlock implements Poolable {
 			return;
 		case sub:
 			node.addChild(new SubNode(value.toString()));
+			return;
+		case value:
+			node.addChild(new ValueNode(value.toString()));
 			return;
 		case text:
 			if (value.length() > 0) {
@@ -120,7 +124,8 @@ class ShaderParserBlock implements Poolable {
 	}
 
 	protected String toStringValue() {
-		return type == text || type == multiLineComment ? value.toString().replace("\r\n", "\\n").replace("\n", "\\n") : value.toString();
+		return type == text || type == multiLineComment ? value.toString().replace("\r\n", "\\n").replace("\n", "\\n")
+				: value.toString();
 	}
 
 	private String toStringChildren(int indent) {
