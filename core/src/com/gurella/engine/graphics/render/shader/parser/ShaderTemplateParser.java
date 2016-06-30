@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -52,8 +51,6 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] valueTest = "@value".toCharArray();
 	private static final char[] multiLineCommentStartTest = "/*".toCharArray();
 	private static final char[] singleLineCommentStartTest = "//".toCharArray();
-
-	private final char[] temp = new char[insertpieceTest.length];
 
 	private final char[] data = new char[dataSize];
 
@@ -340,8 +337,13 @@ public class ShaderTemplateParser implements Poolable {
 			return false;
 		}
 
-		currentText.getChars(currLen - testLen, currLen, temp, temp.length - testVal.length);
-		return Arrays.equals(testVal, temp);
+		for (int i = 0, n = currLen - testLen; i < testLen; i++) {
+			if (testVal[i] != currentText.charAt(n + i)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override
