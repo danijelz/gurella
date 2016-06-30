@@ -331,15 +331,15 @@ public class ShaderTemplateParser implements Poolable {
 		return newBlock.type;
 	}
 
-	private boolean testToken(char[] testVal) {
+	private boolean testToken(char[] token) {
 		int currLen = currentText.length();
-		int testLen = testVal.length;
+		int testLen = token.length;
 		if (currLen < testLen) {
 			return false;
 		}
 
 		for (int i = 0, n = currLen - testLen; i < testLen; i++) {
-			if (testVal[i] != currentText.charAt(n + i)) {
+			if (token[i] != currentText.charAt(n + i)) {
 				return false;
 			}
 		}
