@@ -16,5 +16,6 @@ enum ShaderParserBlockType {
 	sub,
 	div,
 	mod,
+	value,//TODO
 	none;
 }
