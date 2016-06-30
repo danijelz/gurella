@@ -38,47 +38,22 @@ public class ShaderTemplateParser implements Poolable {
 	private static final int dataSize = 1024;
 
 	private static final char[] endTest = "@end".toCharArray();
-	private final char[] endTemp = new char[endTest.length];
-
 	private static final char[] includeTest = "@include".toCharArray();
-	private final char[] includeTemp = new char[includeTest.length];
-
 	private static final char[] pieceTest = "@piece".toCharArray();
-	private final char[] pieceTemp = new char[pieceTest.length];
-
 	private static final char[] insertpieceTest = "@insertpiece".toCharArray();
-	private final char[] insertpieceTemp = new char[insertpieceTest.length];
-
 	private static final char[] ifdefTest = "@ifdef".toCharArray();
-	private final char[] ifdefTemp = new char[ifdefTest.length];
-
 	private static final char[] forTest = "@for".toCharArray();
-	private final char[] forTemp = new char[forTest.length];
-
 	private static final char[] setTest = "@set".toCharArray();
-	private final char[] setTemp = new char[setTest.length];
-
 	private static final char[] mulTest = "@mul".toCharArray();
-	private final char[] mulTemp = new char[mulTest.length];
-
 	private static final char[] addTest = "@add".toCharArray();
-	private final char[] addTemp = new char[addTest.length];
-
 	private static final char[] subTest = "@sub".toCharArray();
-	private final char[] subTemp = new char[subTest.length];
-
 	private static final char[] divTest = "@div".toCharArray();
-	private final char[] divTemp = new char[divTest.length];
-
 	private static final char[] modTest = "@mod".toCharArray();
-	private final char[] modTemp = new char[modTest.length];
-
 	private static final char[] valueTest = "@value".toCharArray();
-	private final char[] valueTemp = new char[valueTest.length];
-
 	private static final char[] multiLineCommentStartTest = "/*".toCharArray();
 	private static final char[] singleLineCommentStartTest = "//".toCharArray();
-	private final char[] commentStartTemp = new char[2];
+
+	private final char[] temp = new char[insertpieceTest.length];
 
 	private final char[] data = new char[dataSize];
 
@@ -233,7 +208,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private boolean isBlockClosed(char c) {
-		return potencialBlockStart > -1 && 'd' == c && testLast(endTest, endTemp);
+		return potencialBlockStart > -1 && 'd' == c && testLast(endTest);
 	}
 
 	private ShaderParserBlockType checkBlockStart(ShaderParserBlockType type, char c) {
@@ -242,14 +217,14 @@ public class ShaderTemplateParser implements Poolable {
 			potencialBlockStart = currentText.length() - 1;
 			return type;
 		case '/':
-			if (testLast(singleLineCommentStartTest, commentStartTemp)) {
+			if (testLast(singleLineCommentStartTest)) {
 				potencialBlockStart = -1;
 				return startBlock(singleLineCommentStartTest, singleLineComment);
 			} else {
 				return type;
 			}
 		case '*':
-			if (testLast(multiLineCommentStartTest, commentStartTemp)) {
+			if (testLast(multiLineCommentStartTest)) {
 				potencialBlockStart = -1;
 				return startBlock(multiLineCommentStartTest, multiLineComment);
 			} else {
@@ -259,30 +234,30 @@ public class ShaderTemplateParser implements Poolable {
 			if (currentText.length() - potencialBlockStart > maxBlockTestChar) {
 				potencialBlockStart = -1;
 				return type;
-			} else if (blockStack.size == 0 && testLast(includeTest, includeTemp)) {
+			} else if (blockStack.size == 0 && testLast(includeTest)) {
 				return startBlock(includeTest, include);
-			} else if (blockStack.size == 0 && testLast(pieceTest, pieceTemp)) {
+			} else if (blockStack.size == 0 && testLast(pieceTest)) {
 				return startBlock(pieceTest, piece);
-			} else if (testLast(insertpieceTest, insertpieceTemp)) {
+			} else if (testLast(insertpieceTest)) {
 				return startBlock(insertpieceTest, insertPiece);
-			} else if (testLast(ifdefTest, ifdefTemp)) {
+			} else if (testLast(ifdefTest)) {
 				numIfdefExpressionParenthesis = 1;
 				return startBlock(ifdefTest, ifdef);
-			} else if (testLast(forTest, forTemp)) {
+			} else if (testLast(forTest)) {
 				return startBlock(forTest, fordef);
-			} else if (testLast(setTest, setTemp)) {
+			} else if (testLast(setTest)) {
 				return startBlock(setTest, set);
-			} else if (testLast(mulTest, mulTemp)) {
+			} else if (testLast(mulTest)) {
 				return startBlock(mulTest, mul);
-			} else if (testLast(addTest, addTemp)) {
+			} else if (testLast(addTest)) {
 				return startBlock(addTest, add);
-			} else if (testLast(subTest, subTemp)) {
+			} else if (testLast(subTest)) {
 				return startBlock(subTest, sub);
-			} else if (testLast(divTest, divTemp)) {
+			} else if (testLast(divTest)) {
 				return startBlock(divTest, div);
-			} else if (testLast(modTest, modTemp)) {
+			} else if (testLast(modTest)) {
 				return startBlock(modTest, mod);
-			} else if (testLast(valueTest, valueTemp)) {
+			} else if (testLast(valueTest)) {
 				return startBlock(valueTest, value);
 			} else {
 				return type;
@@ -358,14 +333,14 @@ public class ShaderTemplateParser implements Poolable {
 		return newBlock.type;
 	}
 
-	private boolean testLast(char[] testVal, char[] temp) {
+	private boolean testLast(char[] testVal) {
 		int currLen = currentText.length();
 		int testLen = testVal.length;
 		if (currLen < testLen) {
 			return false;
 		}
 
-		currentText.getChars(currLen - testLen, currLen, temp, 0);
+		currentText.getChars(currLen - testLen, currLen, temp, temp.length - testVal.length);
 		return Arrays.equals(testVal, temp);
 	}
 
