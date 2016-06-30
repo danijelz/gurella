@@ -10,5 +10,11 @@ enum ShaderParserBlockType {
 	text,
 	ifdef,
 	fordef,
+	set,
+	mul,
+	add,
+	sub,
+	div,
+	mod,
 	none;
 }

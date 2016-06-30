@@ -47,6 +47,9 @@ public class ShaderTemplateParser implements Poolable {
 	
 	private static final char[] forTest = "@for".toCharArray();
 	private final char[] forTemp = new char[forTest.length];
+	
+	private static final char[] varTest = "@var".toCharArray();
+	private final char[] varTemp = new char[varTest.length];
 
 	private static final char[] multiLineCommentStartTest = "/*".toCharArray();
 	private static final char[] singleLineCommentStartTest = "//".toCharArray();
