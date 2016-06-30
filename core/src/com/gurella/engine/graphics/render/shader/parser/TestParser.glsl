@@ -87,9 +87,39 @@ dddaaannn
 
 @set (testVar, 2)
 
+@for (testVar, n)
+    set + @value(n)
+@end
+
 @add (testVar, 2)
 
+@for (testVar, n)
+    add + @value(n)
+@end
+
 @sub (testVar, 1)
+
+@for (testVar, n)
+    sub + @value(n)
+@end
+
+@mul (testVar, 2)
+
+@for (testVar, n)
+    mul + @value(n)
+@end
+
+@div (testVar, 2)
+
+@for (testVar, n)
+    div + @value(n)
+@end
+
+@mod (testVar, 2)
+
+@for (testVar, n)
+    mod + @value(n)
+@end
 
 @for (testVar, n)
     inTestVarForLoop@value(testVar) + @value(n)

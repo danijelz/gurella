@@ -2,11 +2,11 @@ package com.gurella.engine.graphics.render.shader.template;
 
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
-public class SubNode extends ShaderTemplateNode {
+public class MulNode extends ShaderTemplateNode {
 	private String varName;
 	private int varValue;
 
-	public SubNode(String value) {
+	public MulNode(String value) {
 		String[] params = value.split(",");
 		varName = params[0].trim();
 		try {
@@ -18,11 +18,11 @@ public class SubNode extends ShaderTemplateNode {
 
 	@Override
 	protected String toStringValue() {
-		return varName + " - " + varValue;
+		return varName + " * " + varValue;
 	}
 
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
-		context.setValue(varName, context.getValue(varName) - varValue);
+		context.setValue(varName, context.getValue(varName) * varValue);
 	}
 }

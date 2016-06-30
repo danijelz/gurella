@@ -18,7 +18,7 @@ public class AddNode extends ShaderTemplateNode {
 
 	@Override
 	protected String toStringValue() {
-		return varName + ", " + varValue;
+		return varName + " + " + varValue;
 	}
 
 	@Override

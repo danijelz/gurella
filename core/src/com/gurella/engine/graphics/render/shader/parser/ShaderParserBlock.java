@@ -6,9 +6,12 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graphics.render.shader.template.AddNode;
+import com.gurella.engine.graphics.render.shader.template.DivNode;
 import com.gurella.engine.graphics.render.shader.template.ForNode;
 import com.gurella.engine.graphics.render.shader.template.IfdefNode;
 import com.gurella.engine.graphics.render.shader.template.InsertPieceNode;
+import com.gurella.engine.graphics.render.shader.template.ModNode;
+import com.gurella.engine.graphics.render.shader.template.MulNode;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
 import com.gurella.engine.graphics.render.shader.template.SetNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
@@ -46,6 +49,15 @@ class ShaderParserBlock implements Poolable {
 			return;
 		case sub:
 			node.addChild(new SubNode(value.toString()));
+			return;
+		case mul:
+			node.addChild(new MulNode(value.toString()));
+			return;
+		case div:
+			node.addChild(new DivNode(value.toString()));
+			return;
+		case mod:
+			node.addChild(new ModNode(value.toString()));
 			return;
 		case value:
 			node.addChild(new ValueNode(value.toString()));

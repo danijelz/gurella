@@ -4,7 +4,6 @@ import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContex
 
 public class ValueNode extends ShaderTemplateNode {
 	private String varName;
-	private int varValue;
 
 	public ValueNode(String value) {
 		varName = value;
@@ -12,7 +11,7 @@ public class ValueNode extends ShaderTemplateNode {
 
 	@Override
 	protected String toStringValue() {
-		return varName + ", " + varValue;
+		return "'" + varName + "'";
 	}
 
 	@Override
