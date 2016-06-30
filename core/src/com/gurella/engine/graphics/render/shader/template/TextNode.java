@@ -9,7 +9,7 @@ public class TextNode extends ShaderTemplateNode {
 
 	@Override
 	protected String toStringValue() {
-		return text.toString().replace("\n", "\\n");
+		return text.toString().replace("\r\n", "\\n").replace("\n", "\\n");
 	}
 
 	@Override

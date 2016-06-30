@@ -94,7 +94,7 @@ class ShaderParserBlock implements Poolable {
 		builder.append(toStringChildren(indent + 1));
 
 		if (children.size > 0) {
-			builder.append("\n");
+			builder.append('\n');
 			for (int i = 0; i < indent; i++) {
 				builder.append('\t');
 			}
@@ -105,7 +105,7 @@ class ShaderParserBlock implements Poolable {
 	}
 
 	protected String toStringValue() {
-		return type == text || type == multiLineComment ? value.toString().replace("\n", "\\n") : value.toString();
+		return type == text || type == multiLineComment ? value.toString().replace("\r\n", "\\n").replace("\n", "\\n") : value.toString();
 	}
 
 	private String toStringChildren(int indent) {
