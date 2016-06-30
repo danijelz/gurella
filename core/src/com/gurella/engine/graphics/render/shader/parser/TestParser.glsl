@@ -70,3 +70,17 @@ bbbbbbbbbbbb
 
 
 dddaaannn
+
+@ifdef ((abc | acc) & (bbca | ccc))
+	ifdef(abc | acc) & (bbc | ccc)
+	@insertpiece (ifdefInsertpiece)
+@end
+
+@for (2, n)
+    inForLoop
+@end
+
+
+@for (dddVar, n)
+    inDddVarForLoop
+@end

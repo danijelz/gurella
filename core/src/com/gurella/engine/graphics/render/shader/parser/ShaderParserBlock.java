@@ -5,6 +5,7 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.graphics.render.shader.template.ForNode;
 import com.gurella.engine.graphics.render.shader.template.IfdefNode;
 import com.gurella.engine.graphics.render.shader.template.InsertPieceNode;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
@@ -45,7 +46,7 @@ class ShaderParserBlock implements Poolable {
 				initTemplateChildren(piece);
 			}
 			return;
-		case pieceContent:
+		case blockContent:
 			initTemplateChildren(node);
 			return;
 		case ifdef:
@@ -54,8 +55,10 @@ class ShaderParserBlock implements Poolable {
 			node.addChild(ifdef);
 			initTemplateChildren(ifdef);
 			return;
-		case ifdefContent:
-			initTemplateChildren(node);
+		case fordef:
+			ForNode forNode = new ForNode(value.toString());
+			node.addChild(forNode);
+			initTemplateChildren(forNode);
 			return;
 		default:
 			throw new IllegalArgumentException();

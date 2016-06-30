@@ -19,11 +19,11 @@ public class ShaderGeneratorContext {
 		this.template = template;
 		builder.setLength(0);
 	}
-	
+
 	public void define(String propertyName) {
 		defines.add(propertyName);
 	}
-	
+
 	public void undefine(String propertyName) {
 		defines.remove(propertyName);
 	}
@@ -38,6 +38,25 @@ public class ShaderGeneratorContext {
 
 	public void append(CharSequence sequence) {
 		builder.append(sequence);
+	}
+	
+	public boolean isValueSet(String valueName) {
+		return values.containsKey(valueName);
+	}
+
+	public int getValue(String valueName) {
+		if (!values.containsKey(valueName)) {
+			values.put(valueName, 0);
+		}
+		return values.get(valueName, 0);
+	}
+
+	public void setValue(String valueName, int value) {
+		values.put(valueName, value);
+	}
+
+	public void unsetValue(String valueName) {
+		values.remove(valueName, 0);
 	}
 
 	public String getShaderSource() {
