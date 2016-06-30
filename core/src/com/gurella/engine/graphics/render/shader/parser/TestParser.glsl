@@ -87,6 +87,10 @@ dddaaannn
 
 @set (testVar, 2)
 
+@add (testVar, 2)
+
+@sub (testVar, 1)
+
 @for (testVar, n)
     inTestVarForLoop
 @end
