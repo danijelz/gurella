@@ -5,7 +5,7 @@ import com.gurella.engine.graphics.render.shader.template.BooleanExpression;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.And;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Not;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Or;
-import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Terminal;
+import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Property;
 
 class BooleanExpressionParser implements Poolable {
 	private int index = 0;
@@ -48,7 +48,7 @@ class BooleanExpressionParser implements Poolable {
 	private void factor() {
 		symbol = nextSymbol();
 		if (symbol == Symbol.PROPERTY) {
-			root = new Terminal(lastProperty.toString());
+			root = new Property(lastProperty.toString());
 			symbol = nextSymbol();
 		} else if (symbol == Symbol.NOT) {
 			factor();

@@ -1,5 +1,7 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+
 public class IfdefNode extends ShaderTemplateNode {
 	private BooleanExpression expression;
 
@@ -8,9 +10,9 @@ public class IfdefNode extends ShaderTemplateNode {
 	}
 
 	@Override
-	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		if (expression.evaluate()) {
-			generateChildren(template, builder);
+	protected void generate(ShaderGeneratorContext context) {
+		if (expression.evaluate(context)) {
+			generateChildren(context);
 		}
 	}
 

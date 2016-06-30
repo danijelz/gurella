@@ -1,15 +1,15 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdefContent;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.blockContent;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.include;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.insertPiece;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.none;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.pieceContent;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.fordef;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
 
@@ -30,19 +31,22 @@ public class ShaderTemplateParser implements Poolable {
 	private static final int dataSize = 1024;
 
 	private static final char[] endTest = "@end".toCharArray();
-	private final char[] endTemp = new char[4];
+	private final char[] endTemp = new char[endTest.length];
 
 	private static final char[] includeTest = "@include".toCharArray();
-	private final char[] includeTemp = new char[8];
+	private final char[] includeTemp = new char[includeTest.length];
 
 	private static final char[] pieceTest = "@piece".toCharArray();
-	private final char[] pieceTemp = new char[6];
+	private final char[] pieceTemp = new char[pieceTest.length];
 
 	private static final char[] insertpieceTest = "@insertpiece".toCharArray();
-	private final char[] insertpieceTemp = new char[12];
+	private final char[] insertpieceTemp = new char[insertpieceTest.length];
 
 	private static final char[] ifdefTest = "@ifdef".toCharArray();
-	private final char[] ifdefTemp = new char[6];
+	private final char[] ifdefTemp = new char[ifdefTest.length];
+	
+	private static final char[] forTest = "@for".toCharArray();
+	private final char[] forTemp = new char[forTest.length];
 
 	private static final char[] multiLineCommentStartTest = "/*".toCharArray();
 	private static final char[] singleLineCommentStartTest = "//".toCharArray();
@@ -152,7 +156,7 @@ public class ShaderTemplateParser implements Poolable {
 					} else if (')' == c) {
 						numIfdefExpressionParenthesis--;
 						if (numIfdefExpressionParenthesis == 0) {
-							type = push(1, ifdefContent);
+							type = push(1, blockContent);
 						}
 					}
 				} else {
@@ -162,10 +166,11 @@ public class ShaderTemplateParser implements Poolable {
 					}
 				}
 				break;
+			case fordef:
 			case piece:
 				if (parenthesisOpened) {
 					if (')' == c) {
-						type = push(1, pieceContent);
+						type = push(1, blockContent);
 					}
 				} else {
 					currentText.setLength(currentText.length() - 1);
@@ -174,8 +179,7 @@ public class ShaderTemplateParser implements Poolable {
 					}
 				}
 				break;
-			case ifdefContent:
-			case pieceContent:
+			case blockContent:
 				if (isBlockClosed(c)) {
 					type = pop(4);
 					type = pop(0);
@@ -204,12 +208,14 @@ public class ShaderTemplateParser implements Poolable {
 			return type;
 		case '/':
 			if (testLast(singleLineCommentStartTest, commentStartTemp)) {
+				potencialBlockStart = -1;
 				return startBlock(singleLineCommentStartTest, singleLineComment);
 			} else {
 				return type;
 			}
 		case '*':
 			if (testLast(multiLineCommentStartTest, commentStartTemp)) {
+				potencialBlockStart = -1;
 				return startBlock(multiLineCommentStartTest, multiLineComment);
 			} else {
 				return type;
@@ -219,18 +225,16 @@ public class ShaderTemplateParser implements Poolable {
 				potencialBlockStart = -1;
 				return type;
 			} else if (blockStack.size == 0 && testLast(includeTest, includeTemp)) {
-				parenthesisOpened = false;
 				return startBlock(includeTest, include);
 			} else if (blockStack.size == 0 && testLast(pieceTest, pieceTemp)) {
-				parenthesisOpened = false;
 				return startBlock(pieceTest, piece);
 			} else if (testLast(insertpieceTest, insertpieceTemp)) {
-				parenthesisOpened = false;
 				return startBlock(insertpieceTest, insertPiece);
 			} else if (testLast(ifdefTest, ifdefTemp)) {
-				parenthesisOpened = false;
 				numIfdefExpressionParenthesis = 1;
 				return startBlock(ifdefTest, ifdef);
+			} else if (testLast(forTest, forTemp)) {
+				return startBlock(forTest, fordef);
 			} else {
 				return type;
 			}
@@ -238,6 +242,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private ShaderParserBlockType startBlock(char[] startedType, ShaderParserBlockType blockType) {
+		parenthesisOpened = false;
 		ShaderParserBlock newBlock = obtainShaderParserBlock(blockType);
 		int currLen = currentText.length();
 		int testLen = startedType.length;
@@ -277,7 +282,7 @@ public class ShaderTemplateParser implements Poolable {
 		ShaderParserBlock current = blockStack.peek();
 		ShaderParserBlockType type = current.type;
 
-		if (type == pieceContent || type == ifdefContent) {
+		if (type == blockContent) {
 			ShaderParserBlock textSourceBlock = obtainShaderParserBlock(text);
 			textSourceBlock.value.append(currentText, 0, currentText.length() - valuesSub);
 			current.children.add(textSourceBlock);
@@ -344,9 +349,13 @@ public class ShaderTemplateParser implements Poolable {
 		ShaderTemplate template = parser.extractShaderTemplate();
 		System.out.print(template.toString());
 		System.out.print("\n\n\n\n\n");
-		StringBuilder builder = new StringBuilder();
-		template.generate(builder);
-		System.out.print(builder);
+		ShaderGeneratorContext context = new ShaderGeneratorContext();
+		context.init(template);
+		context.define("abc");
+		context.define("bbca");
+		context.setValue("dddVar", 2);
+		template.generate(context);
+		System.out.print(context.getShaderSource());
 		parser.reset();
 	}
 

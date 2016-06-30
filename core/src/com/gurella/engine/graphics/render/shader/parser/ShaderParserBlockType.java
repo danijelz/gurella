@@ -5,10 +5,10 @@ enum ShaderParserBlockType {
 	multiLineComment,
 	include,
 	piece,
-	pieceContent,
+	blockContent,
 	insertPiece,
 	text,
 	ifdef,
-	ifdefContent,
+	fordef,
 	none;
 }

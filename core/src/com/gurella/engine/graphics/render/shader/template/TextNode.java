@@ -1,5 +1,7 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+
 public class TextNode extends ShaderTemplateNode {
 	String text;
 
@@ -13,7 +15,7 @@ public class TextNode extends ShaderTemplateNode {
 	}
 
 	@Override
-	protected void generate(ShaderTemplate template, StringBuilder builder) {
-		builder.append(text);
+	protected void generate(ShaderGeneratorContext context) {
+		context.append(text);
 	}
 }
