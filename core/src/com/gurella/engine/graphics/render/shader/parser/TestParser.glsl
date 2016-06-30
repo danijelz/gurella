@@ -84,3 +84,9 @@ dddaaannn
 @for (dddVar, n)
     inDddVarForLoop
 @end
+
+@set (testVar, 2)
+
+@for (testVar, n)
+    inTestVarForLoop
+@end

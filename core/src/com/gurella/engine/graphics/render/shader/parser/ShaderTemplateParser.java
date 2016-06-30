@@ -1,15 +1,21 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.add;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.blockContent;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.div;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.fordef;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.include;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.insertPiece;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mod;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mul;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.none;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.set;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.sub;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.fordef;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,12 +50,27 @@ public class ShaderTemplateParser implements Poolable {
 
 	private static final char[] ifdefTest = "@ifdef".toCharArray();
 	private final char[] ifdefTemp = new char[ifdefTest.length];
-	
+
 	private static final char[] forTest = "@for".toCharArray();
 	private final char[] forTemp = new char[forTest.length];
-	
-	private static final char[] varTest = "@var".toCharArray();
-	private final char[] varTemp = new char[varTest.length];
+
+	private static final char[] setTest = "@set".toCharArray();
+	private final char[] setTemp = new char[setTest.length];
+
+	private static final char[] mulTest = "@mul".toCharArray();
+	private final char[] mulTemp = new char[mulTest.length];
+
+	private static final char[] addTest = "@add".toCharArray();
+	private final char[] addTemp = new char[addTest.length];
+
+	private static final char[] subTest = "@sub".toCharArray();
+	private final char[] subTemp = new char[subTest.length];
+
+	private static final char[] divTest = "@div".toCharArray();
+	private final char[] divTemp = new char[divTest.length];
+
+	private static final char[] modTest = "@mod".toCharArray();
+	private final char[] modTemp = new char[modTest.length];
 
 	private static final char[] multiLineCommentStartTest = "/*".toCharArray();
 	private static final char[] singleLineCommentStartTest = "//".toCharArray();
@@ -141,6 +162,12 @@ public class ShaderTemplateParser implements Poolable {
 				break;
 			case include:
 			case insertPiece:
+			case set:
+			case mul:
+			case add:
+			case sub:
+			case div:
+			case mod:
 				if (parenthesisOpened) {
 					if (')' == c) {
 						type = pop(1);
@@ -238,6 +265,18 @@ public class ShaderTemplateParser implements Poolable {
 				return startBlock(ifdefTest, ifdef);
 			} else if (testLast(forTest, forTemp)) {
 				return startBlock(forTest, fordef);
+			} else if (testLast(setTest, setTemp)) {
+				return startBlock(setTest, set);
+			} else if (testLast(mulTest, mulTemp)) {
+				return startBlock(mulTest, mul);
+			} else if (testLast(addTest, addTemp)) {
+				return startBlock(addTest, add);
+			} else if (testLast(subTest, subTemp)) {
+				return startBlock(subTest, sub);
+			} else if (testLast(divTest, divTemp)) {
+				return startBlock(divTest, div);
+			} else if (testLast(modTest, modTemp)) {
+				return startBlock(modTest, mod);
 			} else {
 				return type;
 			}

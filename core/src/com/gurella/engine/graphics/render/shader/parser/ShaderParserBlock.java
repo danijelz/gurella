@@ -9,6 +9,7 @@ import com.gurella.engine.graphics.render.shader.template.ForNode;
 import com.gurella.engine.graphics.render.shader.template.IfdefNode;
 import com.gurella.engine.graphics.render.shader.template.InsertPieceNode;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
+import com.gurella.engine.graphics.render.shader.template.SetNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplateNode;
 import com.gurella.engine.graphics.render.shader.template.TextNode;
@@ -33,6 +34,9 @@ class ShaderParserBlock implements Poolable {
 			return;
 		case insertPiece:
 			node.addChild(new InsertPieceNode(value.toString()));
+			return;
+		case set:
+			node.addChild(new SetNode(value.toString()));
 			return;
 		case text:
 			if (value.length() > 0) {
