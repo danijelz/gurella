@@ -3,7 +3,7 @@ package com.gurella.engine.graphics.render.shader.template;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public class TextNode extends ShaderTemplateNode {
-	StringBuffer text = new StringBuffer();
+	StringBuilder text = new StringBuilder();
 
 	public TextNode(CharSequence sequence) {
 		append(sequence);

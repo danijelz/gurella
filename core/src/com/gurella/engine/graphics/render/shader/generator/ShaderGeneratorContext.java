@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.graphics.render.material.Material;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
+import com.gurella.engine.utils.Values;
 
 public class ShaderGeneratorContext {
 	private StringBuilder builder = new StringBuilder();
@@ -39,7 +40,7 @@ public class ShaderGeneratorContext {
 	public void append(CharSequence sequence) {
 		builder.append(sequence);
 	}
-	
+
 	public boolean isValueSet(String valueName) {
 		return values.containsKey(valueName);
 	}
@@ -60,6 +61,30 @@ public class ShaderGeneratorContext {
 	}
 
 	public String getShaderSource() {
+		format();
 		return builder.toString();
+	}
+
+	private void format() {
+		int index = 0;
+		int length = builder.length();
+		while(index < length && Values.isWhitespace(builder.charAt(index))) {
+			index++;
+		}
+		builder.delete(0, index);
+		
+		while ((index = builder.indexOf("\r\n\r\n\r\n", index)) > -1) {
+			builder.delete(index, index + 2);
+		}
+
+		index = 0;
+		while ((index = builder.indexOf("\n\n\n", index)) > -1) {
+			builder.delete(index, index + 1);
+		}
+
+		index = 0;
+		while ((index = builder.indexOf("\r\r\n", index)) > -1) {
+			builder.delete(index, index + 1);
+		}
 	}
 }

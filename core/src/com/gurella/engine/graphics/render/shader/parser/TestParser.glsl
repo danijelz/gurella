@@ -1,4 +1,4 @@
-@include (123)   
+@include (123)
 @include (223)
 
 text
@@ -29,14 +29,13 @@ block comments
 	piece text 1 //comment in piece 1
 	@insertpiece (innerInsertpiece)
 	@insertpiece (innerInsertpiece2)
-	
+
 	piece text 2 //comment in piece2
 	//comment in piece 3
-	
-	@ifdef (abc)
-		ifdef text in piece //comment in ifdef
-	@end
-	
+
+	@ifdef (abc)    ifdef text in piece //comment in ifdef
+@end
+
 	piece text 3
 	//comment in piece 4
 @end
@@ -77,53 +76,37 @@ dddaaannn
 @end
 
 @for (2, n)
-    inForLoop
-@end
-
+inForLoop@end
 
 @for (dddVar, n)
-    inDddVarForLoop
-@end
+inDddVarForLoop@end
 
 @set (testVar, 2)
-
 @for (testVar, n)
-    set + @value(n)
-@end
+set + @value(n)@end
 
 @add (testVar, 2)
-
 @for (testVar, n)
-    add + @value(n)
-@end
+add + @value(n)@end
 
 @sub (testVar, 1)
-
 @for (testVar, n)
-    sub + @value(n)
-@end
+sub + @value(n)@end
 
 @mul (testVar, 2)
-
 @for (testVar, n)
-    mul + @value(n)
-@end
+mul + @value(n)@end
 
 @div (testVar, 2)
-
 @for (testVar, n)
-    div + @value(n)
-@end
+div + @value(n)@end
 
 @mod (testVar, 2)
+@for (testVar, n)
+mod + @value(n)@end
 
 @for (testVar, n)
-    mod + @value(n)
-@end
-
-@for (testVar, n)
-    inTestVarForLoop@value(testVar) + @value(n)
-@end
+inTestVarForLoop@value(testVar) + @value(n)@end
 
 pre add variable: @value(testVar), @add (testVar, dddVar)post: @value(testVar) 
 
