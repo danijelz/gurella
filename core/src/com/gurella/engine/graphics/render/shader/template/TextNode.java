@@ -6,7 +6,7 @@ public class TextNode extends ShaderTemplateNode {
 	StringBuffer text = new StringBuffer();
 
 	public TextNode(CharSequence sequence) {
-		text.append(sequence);
+		append(sequence);
 	}
 
 	void append(CharSequence sequence) {
