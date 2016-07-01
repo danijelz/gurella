@@ -4,37 +4,37 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public abstract class EvaluateNode extends ShaderTemplateNode {
-	private String firstName;
-	private String secondName;
+	private String firstProperty;
+	private String secondProperty;
 	private Integer constant;
 
 	public EvaluateNode(String expression) {
 		String[] params = expression.split(",");
 		if (params.length != 2) {
 			throw new GdxRuntimeException(
-					"Invalid expression. Correct form: '@expType (variableName, value)'. Value can be name of variable or int literal.");
+					"Invalid expression: " + expression + " Correct form: '@expType (variableName, value)'. Value can be name of variable or int literal.");
 		}
 
-		firstName = params[0].trim();
-		secondName = params[1].trim();
+		firstProperty = params[0].trim();
+		secondProperty = params[1].trim();
 		try {
-			constant = Integer.valueOf(secondName);
+			constant = Integer.valueOf(secondProperty);
 		} catch (Exception e) {
 		}
 	}
 
 	@Override
 	protected void generate(ShaderGeneratorContext context) {
-		int first = context.getValue(firstName);
-		int second = constant == null ? context.getValue(secondName) : constant.intValue();
-		context.setValue(firstName, evaluate(first, second));
+		int first = context.getValue(firstProperty);
+		int second = constant == null ? context.getValue(secondProperty) : constant.intValue();
+		context.setValue(firstProperty, evaluate(first, second));
 	}
 
 	protected abstract int evaluate(int first, int second);
 
 	@Override
 	protected String toStringValue() {
-		return firstName + getOperatorString() + secondName;
+		return firstProperty + getOperatorString() + secondProperty;
 	}
 
 	protected abstract String getOperatorString();

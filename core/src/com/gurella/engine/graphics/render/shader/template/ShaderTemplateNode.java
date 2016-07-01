@@ -10,6 +10,18 @@ public abstract class ShaderTemplateNode {
 		children.add(child);
 	}
 
+	public void addText(CharSequence sequence) {
+		if (children.size > 0) {
+			ShaderTemplateNode child = children.peek();
+			if (child instanceof TextNode) {
+				((TextNode) child).append(sequence);
+				return;
+			}
+		}
+
+		children.add(new TextNode(new StringBuffer(sequence)));
+	}
+
 	protected abstract void generate(ShaderGeneratorContext context);
 
 	protected void generateChildren(ShaderGeneratorContext context) {

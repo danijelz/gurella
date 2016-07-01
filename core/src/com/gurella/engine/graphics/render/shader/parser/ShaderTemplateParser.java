@@ -36,7 +36,7 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
 
 public class ShaderTemplateParser implements Poolable {
-	private static final int dataSize = 1024;
+	private static final int dataSize = 10;
 
 	private static final char[] endToken = "@end".toCharArray();
 	private static final char[] includeToken = "@include".toCharArray();
@@ -57,6 +57,7 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] multiLineCommentStartToken = "/*".toCharArray();
 	private static final char[] singleLineCommentStartToken = "//".toCharArray();
 
+	private static final int minTokenLength = endToken.length;
 	private static final int maxTokenLength = insertpieceToken.length;
 
 	private final char[] data = new char[dataSize];
@@ -238,14 +239,17 @@ public class ShaderTemplateParser implements Poolable {
 				return type;
 			}
 		default:
-			if (currentText.length() - potencialBlockStart > maxTokenLength) {
+			int length = currentText.length();
+			if (length < minTokenLength) {
+				return type;
+			} else if (length - potencialBlockStart > maxTokenLength) {
 				potencialBlockStart = -1;
 				return type;
 			} else if (blockStack.size == 0 && testToken(includeToken)) {
 				return startBlock(includeToken, include);
 			} else if (blockStack.size == 0 && testToken(pieceToken)) {
 				return startBlock(pieceToken, piece);
-			} else if (blockStack.size == 0 && testToken(ifexpToken)) {
+			} else if (testToken(ifexpToken)) {
 				return startBlock(ifexpToken, ifexp);
 			} else if (testToken(insertpieceToken)) {
 				return startBlock(insertpieceToken, insertPiece);

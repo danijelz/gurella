@@ -20,7 +20,6 @@ import com.gurella.engine.graphics.render.shader.template.SetNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplateNode;
 import com.gurella.engine.graphics.render.shader.template.SubNode;
-import com.gurella.engine.graphics.render.shader.template.TextNode;
 import com.gurella.engine.graphics.render.shader.template.ValueNode;
 
 class ShaderParserBlock implements Poolable {
@@ -73,7 +72,7 @@ class ShaderParserBlock implements Poolable {
 			return;
 		case text:
 			if (value.length() > 0) {
-				node.addChild(new TextNode(value.toString()));
+				node.addText(value.toString());
 			}
 			return;
 		case piece:
@@ -150,7 +149,7 @@ class ShaderParserBlock implements Poolable {
 	}
 
 	protected String toStringValue() {
-		return type == text || type == multiLineComment ? value.toString().replace("\r\n", "\\n").replace("\n", "\\n")
+		return type == text || type == multiLineComment ? value.toString().replaceAll("(\r\n|\n|\r)", "\\\\n")
 				: value.toString();
 	}
 
