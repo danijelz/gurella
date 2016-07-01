@@ -19,7 +19,7 @@ public abstract class ShaderTemplateNode {
 			}
 		}
 
-		children.add(new TextNode(new StringBuffer(sequence)));
+		children.add(new TextNode(sequence));
 	}
 
 	protected abstract void generate(ShaderGeneratorContext context);

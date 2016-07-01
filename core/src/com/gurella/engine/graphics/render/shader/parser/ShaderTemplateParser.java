@@ -74,6 +74,8 @@ public class ShaderTemplateParser implements Poolable {
 	private boolean parenthesisOpened;
 	private int numIfdefExpressionParenthesis;
 
+	ShaderParserBlockType type = none;
+
 	public ShaderTemplate parse(Reader reader) {
 		try {
 			return parseSafely(reader);
@@ -125,9 +127,6 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	public void parse(char[] data, int length) {
-		ShaderParserBlock current = getCurrentBlock();
-		ShaderParserBlockType type = current == null ? none : current.type;
-
 		for (int i = 0; i < length; i++) {
 			char c = data[i];
 			currentText.append(c);
@@ -135,13 +134,13 @@ public class ShaderTemplateParser implements Poolable {
 			switch (type) {
 			case singleLineComment:
 				if ('\n' == c || '\r' == c) {
-					type = pop(0);
+					pop(0);
 					i--;
 				}
 				break;
 			case multiLineComment:
 				if ('/' == c && currentText.charAt(currentText.length() - 2) == '*') {
-					type = pop(2);
+					pop(2);
 				}
 				break;
 			case include:
@@ -157,7 +156,7 @@ public class ShaderTemplateParser implements Poolable {
 			case value:
 				if (parenthesisOpened) {
 					if (')' == c) {
-						type = pop(1);
+						pop(1);
 					}
 				} else {
 					currentText.setLength(currentText.length() - 1);
@@ -173,7 +172,7 @@ public class ShaderTemplateParser implements Poolable {
 					} else if (')' == c) {
 						numIfdefExpressionParenthesis--;
 						if (numIfdefExpressionParenthesis == 0) {
-							type = push(1, blockContent);
+							push(1, blockContent);
 						}
 					}
 				} else {
@@ -188,7 +187,7 @@ public class ShaderTemplateParser implements Poolable {
 			case piece:
 				if (parenthesisOpened) {
 					if (')' == c) {
-						type = push(1, blockContent);
+						push(1, blockContent);
 					}
 				} else {
 					currentText.setLength(currentText.length() - 1);
@@ -199,15 +198,15 @@ public class ShaderTemplateParser implements Poolable {
 				break;
 			case blockContent:
 				if (isBlockClosed(c)) {
-					type = pop(4);
-					type = pop(0);
+					pop(4);
+					pop(0);
 				} else {
-					type = checkBlockStart(type, c);
+					checkBlockStart(c);
 				}
 				break;
 			case none:
 			case text:
-				type = checkBlockStart(type, c);
+				checkBlockStart(c);
 				break;
 			default:
 				break;
@@ -219,70 +218,70 @@ public class ShaderTemplateParser implements Poolable {
 		return potencialBlockStart > -1 && 'd' == c && testToken(endToken);
 	}
 
-	private ShaderParserBlockType checkBlockStart(ShaderParserBlockType type, char c) {
+	private void checkBlockStart(char c) {
 		switch (c) {
 		case '@':
 			potencialBlockStart = currentText.length() - 1;
-			return type;
+			return;
 		case '/':
 			if (testToken(singleLineCommentStartToken)) {
 				potencialBlockStart = -1;
-				return startBlock(singleLineCommentStartToken, singleLineComment);
-			} else {
-				return type;
+				startBlock(singleLineCommentStartToken, singleLineComment);
 			}
+			return;
 		case '*':
 			if (testToken(multiLineCommentStartToken)) {
 				potencialBlockStart = -1;
-				return startBlock(multiLineCommentStartToken, multiLineComment);
-			} else {
-				return type;
+				startBlock(multiLineCommentStartToken, multiLineComment);
 			}
+			return;
 		default:
 			int length = currentText.length();
 			if (length < minTokenLength) {
-				return type;
+				return;
 			} else if (length - potencialBlockStart > maxTokenLength) {
 				potencialBlockStart = -1;
-				return type;
-			} else if (blockStack.size == 0 && testToken(includeToken)) {
-				return startBlock(includeToken, include);
+				return;
+			}
+
+			if (blockStack.size == 0 && testToken(includeToken)) {
+				startBlock(includeToken, include);
 			} else if (blockStack.size == 0 && testToken(pieceToken)) {
-				return startBlock(pieceToken, piece);
+				startBlock(pieceToken, piece);
 			} else if (testToken(ifexpToken)) {
-				return startBlock(ifexpToken, ifexp);
+				startBlock(ifexpToken, ifexp);
 			} else if (testToken(insertpieceToken)) {
-				return startBlock(insertpieceToken, insertPiece);
+				startBlock(insertpieceToken, insertPiece);
 			} else if (testToken(ifdefToken)) {
 				numIfdefExpressionParenthesis = 1;
-				return startBlock(ifdefToken, ifdef);
+				startBlock(ifdefToken, ifdef);
 			} else if (testToken(forToken)) {
-				return startBlock(forToken, foreach);
+				startBlock(forToken, foreach);
 			} else if (testToken(setToken)) {
-				return startBlock(setToken, set);
+				startBlock(setToken, set);
 			} else if (testToken(mulToken)) {
-				return startBlock(mulToken, mul);
+				startBlock(mulToken, mul);
 			} else if (testToken(addToken)) {
-				return startBlock(addToken, add);
+				startBlock(addToken, add);
 			} else if (testToken(subToken)) {
-				return startBlock(subToken, sub);
+				startBlock(subToken, sub);
 			} else if (testToken(divToken)) {
-				return startBlock(divToken, div);
+				startBlock(divToken, div);
 			} else if (testToken(modToken)) {
-				return startBlock(modToken, mod);
+				startBlock(modToken, mod);
 			} else if (testToken(minToken)) {
-				return startBlock(minToken, min);
+				startBlock(minToken, min);
 			} else if (testToken(maxToken)) {
-				return startBlock(maxToken, max);
+				startBlock(maxToken, max);
 			} else if (testToken(valueToken)) {
-				return startBlock(valueToken, value);
-			} else {
-				return type;
+				startBlock(valueToken, value);
 			}
+
+			return;
 		}
 	}
 
-	private ShaderParserBlockType startBlock(char[] startedType, ShaderParserBlockType blockType) {
+	private void startBlock(char[] startedType, ShaderParserBlockType blockType) {
 		parenthesisOpened = false;
 		ShaderParserBlock newBlock = obtainShaderParserBlock(blockType);
 		int currLen = currentText.length();
@@ -312,16 +311,15 @@ public class ShaderTemplateParser implements Poolable {
 			current.children.add(newBlock);
 		}
 
-		return newBlock.type;
+		type = newBlock.type;
 	}
 
 	private ShaderParserBlock getCurrentBlock() {
 		return blockStack.size == 0 ? null : blockStack.peek();
 	}
 
-	private ShaderParserBlockType pop(int valuesSub) {
+	private void pop(int valuesSub) {
 		ShaderParserBlock current = blockStack.peek();
-		ShaderParserBlockType type = current.type;
 
 		if (type == blockContent) {
 			ShaderParserBlock textSourceBlock = obtainShaderParserBlock(text);
@@ -336,10 +334,10 @@ public class ShaderTemplateParser implements Poolable {
 		potencialBlockStart = -1;
 
 		current = getCurrentBlock();
-		return current == null ? none : current.type;
+		type = current == null ? none : current.type;
 	}
 
-	private ShaderParserBlockType push(int valuesSub, ShaderParserBlockType blockType) {
+	private void push(int valuesSub, ShaderParserBlockType blockType) {
 		ShaderParserBlock newBlock = obtainShaderParserBlock(blockType);
 		ShaderParserBlock current = blockStack.peek();
 		current.value.append(currentText, 0, currentText.length() - valuesSub);
@@ -347,7 +345,7 @@ public class ShaderTemplateParser implements Poolable {
 		blockStack.add(newBlock);
 		current.children.add(newBlock);
 		potencialBlockStart = -1;
-		return newBlock.type;
+		type = newBlock.type;
 	}
 
 	private boolean testToken(char[] token) {

@@ -3,10 +3,10 @@ package com.gurella.engine.graphics.render.shader.template;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public class TextNode extends ShaderTemplateNode {
-	StringBuffer text;
+	StringBuffer text = new StringBuffer();
 
-	public TextNode(StringBuffer text) {
-		this.text = text;
+	public TextNode(CharSequence sequence) {
+		text.append(sequence);
 	}
 
 	void append(CharSequence sequence) {
