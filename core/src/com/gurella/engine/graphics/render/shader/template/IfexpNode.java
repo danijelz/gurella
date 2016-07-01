@@ -11,10 +11,9 @@ public class IfexpNode extends ShaderTemplateNode {
 
 	public IfexpNode(String expression) {
 		String[] params = expression.split(",");
-		if (params.length < 2 || params.length > 3) {
+		if (params.length < 2 || params.length > 2) {
 			throw new GdxRuntimeException(
-					"Invalid expression: @ifexp(" + expression + ")\nCorrect form: '@ifexp (variableName, value [, operator])'.\n"
-							+ "Value can be name of variable or int literal. "
+					"Invalid expression: @ifexp(" + expression + ")\nCorrect form: '@ifexp (variableName, variableNameOrIntLiteral [, operator])'.\n"
 							+ "Valid operators:\n - '=' equal\n - '!' not equal\n - '>' greater\n - '<' less\n\n"
 							+ "If no operator is specified it defaults to '='.");
 		}

@@ -12,7 +12,7 @@ public abstract class EvaluateNode extends ShaderTemplateNode {
 		String[] params = expression.split(",");
 		if (params.length != 2) {
 			throw new GdxRuntimeException(
-					"Invalid expression: " + expression + " Correct form: '@expType (variableName, value)'. Value can be name of variable or int literal.");
+					"Invalid expression: " + expression + " Correct form: '@expType (variableName, variableNameOrIntLiteral)'.");
 		}
 
 		firstProperty = params[0].trim();

@@ -25,8 +25,7 @@ public class ShaderTemplateLoader
 			AssetLoaderParameters<ShaderTemplate> parameter) {
 		result = parser.parse(file.reader());
 		parser.reset();
-		Array<AssetDescriptor> dependencies = Values.cast(result.getDependencies());
-		return dependencies;
+		return Values.cast(result.getDependencies());
 	}
 
 	@Override
