@@ -10,7 +10,7 @@ public class ForNode extends ShaderTemplateNode {
 	public ForNode(String value) {
 		String[] params = value.split(",");
 		countProperty = params[0].trim();
-		variableName = params.length > 1 ? params[1].trim() : "n";
+		variableName = params.length > 1 ? params[1].trim() : "i";
 
 		try {
 			countValue = Integer.valueOf(countProperty);
