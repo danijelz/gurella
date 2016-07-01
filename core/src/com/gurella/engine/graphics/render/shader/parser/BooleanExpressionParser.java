@@ -7,6 +7,7 @@ import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Not;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Or;
 import com.gurella.engine.graphics.render.shader.template.BooleanExpression.Property;
 
+//https://unnikked.ga/how-to-evaluate-a-boolean-expression/
 class BooleanExpressionParser implements Poolable {
 	private int index = 0;
 	private int len = 0;
@@ -58,7 +59,7 @@ class BooleanExpressionParser implements Poolable {
 			expression();
 			symbol = nextSymbol();
 		} else {
-			throw new RuntimeException("Expression Malformed");
+			throw new RuntimeException("Expression Malformed: " + input);
 		}
 	}
 

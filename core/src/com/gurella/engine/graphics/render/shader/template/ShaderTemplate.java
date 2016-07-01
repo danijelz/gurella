@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public class ShaderTemplate extends ShaderTemplateNode {
@@ -26,7 +27,11 @@ public class ShaderTemplate extends ShaderTemplateNode {
 			ShaderDependency dependency = dependencies.get(i);
 			ShaderTemplate template = assetManager.get(dependency.dependencyFile.path());
 			dependency.template = template;
-			piecesByName.putAll(template.piecesByName);
+			for (Entry<String, PieceNode> entry : template.piecesByName) {
+				if (!piecesByName.containsKey(entry.key)) {
+					piecesByName.put(entry.key, entry.value);
+				}
+			}
 		}
 	}
 

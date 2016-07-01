@@ -1,5 +1,6 @@
 package com.gurella.engine.graphics.render.shader.template;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
 public class IfexpNode extends ShaderTemplateNode {
@@ -10,6 +11,14 @@ public class IfexpNode extends ShaderTemplateNode {
 
 	public IfexpNode(String expression) {
 		String[] params = expression.split(",");
+		if (params.length < 2 || params.length > 2) {
+			throw new GdxRuntimeException(
+					"Invalid expression. Correct form: '@ifexp (variableName, value [, operator])'. "
+							+ "Value can be name of variable or int literal. "
+							+ "Valid operators:\n  - '=' equal\n - '!' not equal\n - '>' greater\n - '<' less\n\n"
+							+ "If no operator is specified id defaults to '='.");
+		}
+
 		firstName = params[0].trim();
 		secondName = params[1].trim();
 		operator = params.length > 2 ? params[2].trim().charAt(0) : '=';
