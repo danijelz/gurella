@@ -45,9 +45,7 @@ public abstract class ShaderTemplateNode {
 		return builder.toString();
 	}
 
-	protected String toStringValue() {
-		return "";
-	}
+	protected abstract String toStringValue();
 
 	private String toStringChildren(int indent) {
 		if (children.size == 0) {

@@ -1,28 +1,17 @@
 package com.gurella.engine.graphics.render.shader.template;
 
-import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
-
-public class AddNode extends ShaderTemplateNode {
-	private String varName;
-	private int varValue;
-
-	public AddNode(String value) {
-		String[] params = value.split(",");
-		varName = params[0].trim();
-		try {
-			varValue = Integer.parseInt(params[1].trim());
-		} catch (Exception e) {
-			varValue = 0;
-		}
+public class AddNode extends EvaluateNode {
+	public AddNode(String expression) {
+		super(expression);
 	}
 
 	@Override
-	protected String toStringValue() {
-		return varName + " + " + varValue;
+	protected int evaluate(int first, int second) {
+		return first + second;
 	}
 
 	@Override
-	protected void generate(ShaderGeneratorContext context) {
-		context.setValue(varName, context.getValue(varName) + varValue);
+	protected String getOperatorString() {
+		return " + ";
 	}
 }

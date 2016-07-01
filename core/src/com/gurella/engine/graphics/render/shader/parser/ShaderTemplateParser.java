@@ -3,10 +3,13 @@ package com.gurella.engine.graphics.render.shader.parser;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.add;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.blockContent;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.div;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.fordef;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.foreach;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifexp;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.include;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.insertPiece;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.max;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.min;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mod;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mul;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
@@ -40,6 +43,7 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] pieceToken = "@piece".toCharArray();
 	private static final char[] insertpieceToken = "@insertpiece".toCharArray();
 	private static final char[] ifdefToken = "@ifdef".toCharArray();
+	private static final char[] ifexpToken = "@ifexp".toCharArray();
 	private static final char[] forToken = "@for".toCharArray();
 	private static final char[] setToken = "@set".toCharArray();
 	private static final char[] mulToken = "@mul".toCharArray();
@@ -47,12 +51,14 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] subToken = "@sub".toCharArray();
 	private static final char[] divToken = "@div".toCharArray();
 	private static final char[] modToken = "@mod".toCharArray();
+	private static final char[] minToken = "@min".toCharArray();
+	private static final char[] maxToken = "@max".toCharArray();
 	private static final char[] valueToken = "@value".toCharArray();
 	private static final char[] multiLineCommentStartToken = "/*".toCharArray();
 	private static final char[] singleLineCommentStartToken = "//".toCharArray();
 
 	private static final int maxTokenLength = insertpieceToken.length;
-	
+
 	private final char[] data = new char[dataSize];
 
 	private BooleanExpressionParser booleanExpressionParser = new BooleanExpressionParser();
@@ -145,6 +151,8 @@ public class ShaderTemplateParser implements Poolable {
 			case sub:
 			case div:
 			case mod:
+			case min:
+			case max:
 			case value:
 				if (parenthesisOpened) {
 					if (')' == c) {
@@ -174,7 +182,8 @@ public class ShaderTemplateParser implements Poolable {
 					}
 				}
 				break;
-			case fordef:
+			case ifexp:
+			case foreach:
 			case piece:
 				if (parenthesisOpened) {
 					if (')' == c) {
@@ -236,13 +245,15 @@ public class ShaderTemplateParser implements Poolable {
 				return startBlock(includeToken, include);
 			} else if (blockStack.size == 0 && testToken(pieceToken)) {
 				return startBlock(pieceToken, piece);
+			} else if (blockStack.size == 0 && testToken(ifexpToken)) {
+				return startBlock(ifexpToken, ifexp);
 			} else if (testToken(insertpieceToken)) {
 				return startBlock(insertpieceToken, insertPiece);
 			} else if (testToken(ifdefToken)) {
 				numIfdefExpressionParenthesis = 1;
 				return startBlock(ifdefToken, ifdef);
 			} else if (testToken(forToken)) {
-				return startBlock(forToken, fordef);
+				return startBlock(forToken, foreach);
 			} else if (testToken(setToken)) {
 				return startBlock(setToken, set);
 			} else if (testToken(mulToken)) {
@@ -255,6 +266,10 @@ public class ShaderTemplateParser implements Poolable {
 				return startBlock(divToken, div);
 			} else if (testToken(modToken)) {
 				return startBlock(modToken, mod);
+			} else if (testToken(minToken)) {
+				return startBlock(minToken, min);
+			} else if (testToken(maxToken)) {
+				return startBlock(maxToken, max);
 			} else if (testToken(valueToken)) {
 				return startBlock(valueToken, value);
 			} else {

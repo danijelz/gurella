@@ -50,4 +50,9 @@ public class ShaderTemplate extends ShaderTemplateNode {
 	public PieceNode getPiece(String pieceName) {
 		return piecesByName.get(pieceName);
 	}
+
+	@Override
+	protected String toStringValue() {
+		return "";
+	}
 }

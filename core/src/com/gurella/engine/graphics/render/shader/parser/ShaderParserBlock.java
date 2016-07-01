@@ -9,7 +9,10 @@ import com.gurella.engine.graphics.render.shader.template.AddNode;
 import com.gurella.engine.graphics.render.shader.template.DivNode;
 import com.gurella.engine.graphics.render.shader.template.ForNode;
 import com.gurella.engine.graphics.render.shader.template.IfdefNode;
+import com.gurella.engine.graphics.render.shader.template.IfexpNode;
 import com.gurella.engine.graphics.render.shader.template.InsertPieceNode;
+import com.gurella.engine.graphics.render.shader.template.MaxNode;
+import com.gurella.engine.graphics.render.shader.template.MinNode;
 import com.gurella.engine.graphics.render.shader.template.ModNode;
 import com.gurella.engine.graphics.render.shader.template.MulNode;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
@@ -59,6 +62,12 @@ class ShaderParserBlock implements Poolable {
 		case mod:
 			node.addChild(new ModNode(value.toString()));
 			return;
+		case max:
+			node.addChild(new MaxNode(value.toString()));
+			return;
+		case min:
+			node.addChild(new MinNode(value.toString()));
+			return;
 		case value:
 			node.addChild(new ValueNode(value.toString()));
 			return;
@@ -83,7 +92,12 @@ class ShaderParserBlock implements Poolable {
 			node.addChild(ifdef);
 			initTemplateChildren(ifdef);
 			return;
-		case fordef:
+		case ifexp:
+			IfexpNode ifexp = new IfexpNode(value.toString());
+			node.addChild(ifexp);
+			initTemplateChildren(ifexp);
+			return;
+		case foreach:
 			ForNode forNode = new ForNode(value.toString());
 			node.addChild(forNode);
 			initTemplateChildren(forNode);

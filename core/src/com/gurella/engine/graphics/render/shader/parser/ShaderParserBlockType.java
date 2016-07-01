@@ -9,13 +9,16 @@ enum ShaderParserBlockType {
 	insertPiece,
 	text,
 	ifdef,
-	fordef,
+	ifexp,
+	foreach,
 	set,
 	mul,
 	add,
 	sub,
 	div,
 	mod,
+	min,
+	max,
 	value,
 	none;
 }
