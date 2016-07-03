@@ -1,7 +1,6 @@
 package com.gurella.engine.graphics.render.shader.generator;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
@@ -10,7 +9,6 @@ import com.gurella.engine.utils.Values;
 public class ShaderGeneratorContext implements Poolable {
 	private StringBuilder builder = new StringBuilder();
 
-	private final ObjectSet<String> defines = new ObjectSet<String>();
 	private final ObjectIntMap<String> values = new ObjectIntMap<String>();
 
 	private ShaderTemplate template;
@@ -21,15 +19,15 @@ public class ShaderGeneratorContext implements Poolable {
 	}
 
 	public void define(String propertyName) {
-		defines.add(propertyName);
+		values.put(propertyName, 0);
 	}
 
 	public void undefine(String propertyName) {
-		defines.remove(propertyName);
+		values.remove(propertyName, 0);
 	}
 
 	public boolean isDefined(String propertyName) {
-		return defines.contains(propertyName);
+		return values.containsKey(propertyName);
 	}
 
 	public PieceNode getPiece(String pieceName) {
@@ -90,7 +88,6 @@ public class ShaderGeneratorContext implements Poolable {
 	@Override
 	public void reset() {
 		builder.setLength(0);
-		defines.clear();
 		values.clear();
 		template = null;
 	}
