@@ -9,6 +9,7 @@ public class Technique {
 
 	GlCompliance glCompliance;
 	Array<String> requiredExtensions;
+	Array<String> defines;
 
 	private Array<Pass> passes = new Array<Pass>();
 
