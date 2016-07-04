@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
@@ -43,6 +44,7 @@ public final class Application implements ApplicationListener {
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		//TODO config.init(this);
 		// TODO add init scripts to initializer
+		GraphicsService.init();
 		sceneManager.showScene(initialScenePath);
 	}
 

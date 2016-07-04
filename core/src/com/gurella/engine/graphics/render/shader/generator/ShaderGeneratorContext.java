@@ -2,6 +2,7 @@ package com.gurella.engine.graphics.render.shader.generator;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.graphics.render.shader.template.PieceNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.utils.Values;
@@ -16,6 +17,13 @@ public class ShaderGeneratorContext implements Poolable {
 	public void init(ShaderTemplate template) {
 		this.template = template;
 		builder.setLength(0);
+		define("GL20");
+		if (GraphicsService.isGL30Available()) {
+			define("GL30");
+		}
+		for (String extension : GraphicsService.getGlExtensions()) {
+			define(extension);
+		}
 	}
 
 	public void define(String propertyName) {
