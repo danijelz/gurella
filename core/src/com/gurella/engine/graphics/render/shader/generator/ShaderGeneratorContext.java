@@ -51,9 +51,6 @@ public class ShaderGeneratorContext implements Poolable {
 	}
 
 	public int getValue(String valueName) {
-		if (!values.containsKey(valueName)) {
-			values.put(valueName, 0);
-		}
 		return values.get(valueName, 0);
 	}
 
