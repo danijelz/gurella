@@ -66,4 +66,8 @@ public class GraphicsService {
 	public static boolean isGL30Available() {
 		return gl30 != null;
 	}
+	
+	public static int getDefaultFramebufferHandle() {
+		return defaultFramebufferHandle;
+	}
 }
