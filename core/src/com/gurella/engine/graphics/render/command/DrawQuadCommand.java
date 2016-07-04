@@ -4,7 +4,7 @@ import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.material.Material;
 
-public class BlitCommand implements RenderCommand {
+public class DrawQuadCommand implements RenderCommand {
 	private RenderTarget source;
 	private RenderTarget destination;
 	private Material material;

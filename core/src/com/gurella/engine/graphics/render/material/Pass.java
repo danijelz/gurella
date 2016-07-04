@@ -1,4 +1,4 @@
-package com.gurella.engine.graphics.render.shader;
+package com.gurella.engine.graphics.render.material;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.graphics.render.gl.BlendEquation;

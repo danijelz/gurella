@@ -10,9 +10,9 @@ import com.gurella.engine.graphics.render.command.ClearRenderTargetCommand.Clear
 import com.gurella.engine.graphics.render.gl.CullFace;
 import com.gurella.engine.graphics.render.gl.DepthTestFunction;
 import com.gurella.engine.graphics.render.gl.StencilOp;
+import com.gurella.engine.graphics.render.material.Pass;
+import com.gurella.engine.graphics.render.material.Technique;
 import com.gurella.engine.graphics.render.renderable.Renderable;
-import com.gurella.engine.graphics.render.shader.Pass;
-import com.gurella.engine.graphics.render.shader.Technique;
 import com.gurella.engine.scene.Scene;
 
 public class RenderContext {
