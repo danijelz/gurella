@@ -15,6 +15,7 @@ public class RenderSceneCommand implements RenderCommand {
 	LayerMask layerMask;
 	TagMask tagMask;
 	ObjectInstanceMask<CameraComponent<?>> cameraMask;
+	boolean renderGui;
 	
 	Predicate<RenderableComponent> filter;
 	
