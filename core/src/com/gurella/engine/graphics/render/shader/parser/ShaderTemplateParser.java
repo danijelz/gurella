@@ -400,7 +400,7 @@ public class ShaderTemplateParser implements Poolable {
 		context.setValue("dddVar", 2);
 		template.generate(context);
 		System.out.println("----------------------");
-		System.out.print(context.getShaderSource());
+		System.out.print(context.getShaderSource(true));
 		parser.reset();
 	}
 

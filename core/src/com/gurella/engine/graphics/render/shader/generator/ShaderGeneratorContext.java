@@ -62,8 +62,10 @@ public class ShaderGeneratorContext implements Poolable {
 		values.remove(valueName, 0);
 	}
 
-	public String getShaderSource() {
-		format();
+	public String getShaderSource(boolean format) {
+		if (format) {
+			format();
+		}
 		return builder.toString();
 	}
 
