@@ -49,7 +49,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	protected void onActivate() {
 		initCamera();
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		transformComponent = getNode().getActiveComponent(TransformComponent.class);
+		transformComponent = getNode().getComponent(TransformComponent.class);
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {

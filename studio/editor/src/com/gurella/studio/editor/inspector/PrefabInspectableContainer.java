@@ -208,7 +208,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(Models.getModel(componentType).getName());
 		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
-		item1.setEnabled(prefab.getComponent(componentType) == null);
+		item1.setEnabled(prefab.getComponent(componentType, true) == null);
 	}
 
 	private void addScriptMenuItem(Menu menu) {

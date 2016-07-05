@@ -18,6 +18,7 @@ import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 
+//TODO make logic to reparent node and 
 @ModelDescriptor(descriptiveName = "Transform")
 public class TransformComponent extends SceneNodeComponent2 implements PropertyChangeListener, Poolable {
 	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
@@ -61,7 +62,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		SceneNode2 parentNode = node.getParentNode();
 		if (parentNode != null) {
-			parentTransform = parentNode.getActiveComponent(TransformComponent.class);
+			parentTransform = parentNode.getComponent(TransformComponent.class);
 			subscribeTo(parentNode, parentComponentActivityListener);
 			subscribeTo(parentNode, parentNodeTransformChangedListener);
 		}
@@ -946,7 +947,12 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		@Override
 		public void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
 			boolean notify = false;
+			boolean updateWorldTransform = false;
+			
 			if (oldParent instanceof SceneNode2) {
+				updateWorldTransform = true;
+				getWorldTransform(transformInverse);
+				
 				SceneNode2 parentNode = (SceneNode2) oldParent;
 				unsubscribeFrom(parentNode, parentComponentActivityListener);
 				unsubscribeFrom(parentNode, parentNodeTransformChangedListener);
@@ -958,7 +964,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 			if (newParent instanceof SceneNode2) {
 				SceneNode2 parentNode = (SceneNode2) newParent;
-				TransformComponent newParentTransform = parentNode.getActiveComponent(TransformComponent.class);
+				TransformComponent newParentTransform = parentNode.getComponent(TransformComponent.class);
 				if (newParentTransform != null) {
 					notify = true;
 					parentTransform = newParentTransform;
@@ -966,6 +972,10 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 				subscribeTo(parentNode, parentComponentActivityListener);
 				subscribeTo(parentNode, parentNodeTransformChangedListener);
+			}
+			
+			if(updateWorldTransform) {
+				setWorldTransform(transformInverse);
 			}
 
 			if (notify) {

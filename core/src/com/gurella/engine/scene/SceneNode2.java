@@ -1,5 +1,7 @@
 package com.gurella.engine.scene;
 
+import static com.gurella.engine.scene.ComponentType.isSubtype;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -189,37 +191,37 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	public <T extends SceneNodeComponent2> void removeComponent(Class<T> componentType) {
 		int typeId = ComponentType.findType(componentType);
 		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(typeId));
-		if (component != null && ComponentType.isSubtype(typeId, component.componentType)) {
+		if (component != null && isSubtype(typeId, component.componentType)) {
 			component.destroy();
 		}
 	}
 
 	public void removeComponent(int componentTypeId) {
 		SceneNodeComponent2 component = _components.get(ComponentType.findBaseType(componentTypeId));
-		if (component != null && ComponentType.isSubtype(componentTypeId, component.componentType)) {
+		if (component != null && isSubtype(componentTypeId, component.componentType)) {
 			component.destroy();
 		}
 	}
 
-	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
+	public <T extends SceneNodeComponent2> T getComponent(int typeId, boolean includeInactive) {
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
-		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.<T> cast(value) : null;
+		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType)
+				? Values.<T> cast(value) : null;
+	}
+
+	public <T extends SceneNodeComponent2> T getComponent(Class<T> type, boolean includeInactive) {
+		int typeId = ComponentType.findType(type);
+		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType)
+				? Values.<T> cast(value) : null;
+	}
+
+	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
+		return getComponent(typeId, false);
 	}
 
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
-		int typeId = ComponentType.findType(type);
-		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
-		return value != null && ComponentType.isSubtype(typeId, value.componentType) ? Values.<T> cast(value) : null;
-	}
-
-	public <T extends SceneNodeComponent2> T getActiveComponent(int typeId) {
-		SceneNodeComponent2 value = getComponent(typeId);
-		return value == null || !value.isActive() ? null : Values.<T> cast(value);
-	}
-
-	public <T extends SceneNodeComponent2> T getActiveComponent(Class<T> type) {
-		SceneNodeComponent2 value = getComponent(type);
-		return value == null || !value.isActive() ? null : Values.<T> cast(value);
+		return getComponent(type, false);
 	}
 
 	public String getDiagnostics() {

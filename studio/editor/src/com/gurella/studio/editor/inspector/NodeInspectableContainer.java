@@ -205,7 +205,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		MenuItem item = new MenuItem(menu, PUSH);
 		item.setText(Models.getModel(componentType).getName());
 		item.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
-		item.setEnabled(target.getComponent(ComponentType.getBaseType(componentType)) == null);
+		item.setEnabled(target.getComponent(ComponentType.getBaseType(componentType), true) == null);
 	}
 
 	private void addScriptMenuItem(Menu menu) {

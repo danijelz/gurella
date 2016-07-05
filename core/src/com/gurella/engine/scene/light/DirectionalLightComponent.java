@@ -33,7 +33,7 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 
 	@Override
 	protected void onActivate() {
-		transformComponent = getNode().getActiveComponent(TransformComponent.class);
+		transformComponent = getNode().getComponent(TransformComponent.class);
 	}
 
 	@Override

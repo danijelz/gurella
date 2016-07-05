@@ -70,7 +70,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 
 	@Override
 	protected void onActivate() {
-		transformComponent = getNode().getActiveComponent(TransformComponent.class);
+		transformComponent = getNode().getComponent(TransformComponent.class);
 	}
 
 	@Override

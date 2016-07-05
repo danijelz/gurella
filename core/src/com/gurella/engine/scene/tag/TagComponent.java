@@ -53,7 +53,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public static void addTag(SceneNode2 node, Tag tag) {
-		TagComponent component = node.getComponent(TagComponent.class);
+		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component == null) {
 			component = node.newComponent(TagComponent.class);
 		}
@@ -61,7 +61,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public static void addTags(SceneNode2 node, Tag... tags) {
-		TagComponent component = node.getComponent(TagComponent.class);
+		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component == null) {
 			component = node.newComponent(TagComponent.class);
 		}
@@ -69,14 +69,14 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public static void removeTag(SceneNode2 node, Tag tag) {
-		TagComponent component = node.getComponent(TagComponent.class);
+		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component != null) {
 			component.removeTag(tag);
 		}
 	}
 
 	public static void removeTags(SceneNode2 node, Tag... tags) {
-		TagComponent component = node.getComponent(TagComponent.class);
+		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component != null) {
 			component.removeTags(tags);
 		}

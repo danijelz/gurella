@@ -45,7 +45,7 @@ class AudioSourceData implements Poolable {
 	void init(AudioSourceComponent initAudioSourceComponent) {
 		SceneNode2 node = initAudioSourceComponent.getNode();
 		this.audioSourceComponent = initAudioSourceComponent;
-		this.transformComponent = node.getActiveComponent(TransformComponent.class);
+		this.transformComponent = node.getComponent(TransformComponent.class);
 	}
 
 	Vector3 getPosition() {

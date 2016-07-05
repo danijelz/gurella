@@ -30,7 +30,7 @@ class AudioListenerData implements Poolable {
 
 	void init(AudioListenerComponent initAudioListenerComponent) {
 		SceneNode2 node = initAudioListenerComponent.getNode();
-		this.transformComponent = node.getActiveComponent(TransformComponent.class);
+		this.transformComponent = node.getComponent(TransformComponent.class);
 	}
 
 	Vector3 getPosition() {
