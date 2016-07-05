@@ -11,6 +11,10 @@ public class Material extends ManagedObject implements Disposable {
 	RenderPathMaterialProperties renderPathOverrides;
 
 	transient ShaderProgram shaderProgram;
+	
+	public MaterialInstance createInstance() {
+		return null;
+	}
 
 	public void bind() {
 		// TODO Auto-generated method stub
