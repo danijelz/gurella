@@ -6,13 +6,13 @@ import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 public interface Renderable {
+	CameraComponent<?> getCamera();
+
 	Matrix4 getWorldTransform();
 
 	RenederableGeometry getGeometry();
 
 	RenderableComponent getComponent();
-	
-	CameraComponent<?> getCamera();
-	
+
 	Material getMaterial();
 }
