@@ -6,24 +6,42 @@ import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContex
 public class IfexpNode extends ShaderTemplateNode {
 	private String firstProperty;
 	private String secondProperty;
-	private char operator;
+	private Operator operator;
 	private Integer constant;
 
 	public IfexpNode(String expression) {
 		String[] params = expression.split(",");
 		if (params.length < 2 || params.length > 3) {
-			throw new GdxRuntimeException(
-					"Invalid expression: @ifexp(" + expression + ")\nCorrect form: '@ifexp (variableName, variableNameOrIntLiteral [, operator])'.\n"
-							+ "Valid operators:\n - '=' equal\n - '!' not equal\n - '>' greater\n - '<' less\n\n"
-							+ "If no operator is specified it defaults to '='.");
+			throw new GdxRuntimeException("Invalid expression: @ifexp(" + expression
+					+ ")\nCorrect form: '@ifexp (variableName, variableNameOrIntLiteral [, operator])'.\n"
+					+ "Valid operators:\n - '=' equal\n - '!' not equal\n - '>' greater\n - '<' less\n\n"
+					+ "If no operator is specified it defaults to '='.");
 		}
 
 		firstProperty = params[0].trim();
 		secondProperty = params[1].trim();
-		operator = params.length > 2 ? params[2].trim().charAt(0) : '=';
+		operator = params.length > 2 ? parseOperator(params[2]) : Operator.eq;
 		try {
 			constant = Integer.valueOf(secondProperty);
 		} catch (Exception e) {
+		}
+	}
+
+	private static Operator parseOperator(String operatorStr) {
+		if (operatorStr.contains("==")) {
+			return Operator.eq;
+		} else if (operatorStr.contains("!=")) {
+			return Operator.neq;
+		} else if (operatorStr.contains(">=")) {
+			return Operator.gte;
+		} else if (operatorStr.contains("<=")) {
+			return Operator.lte;
+		} else if (operatorStr.contains(">")) {
+			return Operator.gt;
+		} else if (operatorStr.contains("<")) {
+			return Operator.lt;
+		} else {
+			throw new IllegalArgumentException(operatorStr);
 		}
 	}
 
@@ -31,26 +49,36 @@ public class IfexpNode extends ShaderTemplateNode {
 	protected void generate(ShaderGeneratorContext context) {
 		int first = context.getValue(firstProperty);
 		int second = constant == null ? context.getValue(secondProperty) : constant.intValue();
-		if (evaluate(first, second)) {
+		if (operator.evaluate(first, second)) {
 			generateChildren(context);
-		}
-	}
-
-	protected boolean evaluate(int first, int second) {
-		switch (operator) {
-		case '!':
-			return first != second;
-		case '>':
-			return first > second;
-		case '<':
-			return first < second;
-		default:
-			return first == second;
 		}
 	}
 
 	@Override
 	protected String toStringValue() {
 		return "if ('" + firstProperty + "' " + operator + " '" + secondProperty + "')";
+	}
+
+	private enum Operator {
+		eq, neq, gt, lt, gte, lte;
+
+		protected boolean evaluate(int first, int second) {
+			switch (this) {
+			case eq:
+				return first == second;
+			case neq:
+				return first != second;
+			case gt:
+				return first > second;
+			case lt:
+				return first < second;
+			case gte:
+				return first >= second;
+			case lte:
+				return first <= second;
+			default:
+				throw new IllegalArgumentException();
+			}
+		}
 	}
 }

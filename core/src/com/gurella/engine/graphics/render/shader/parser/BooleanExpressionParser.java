@@ -48,22 +48,26 @@ class BooleanExpressionParser implements Poolable {
 
 	private void factor() {
 		symbol = nextSymbol();
-		if (symbol == Symbol.PROPERTY) {
+		switch (symbol) {
+		case PROPERTY:
 			root = new Property(lastProperty.toString());
 			symbol = nextSymbol();
-		} else if (symbol == Symbol.NOT) {
+			return;
+		case NOT:
 			factor();
 			Not not = new Not(root);
 			root = not;
-		} else if (symbol == Symbol.LEFT) {
+			return;
+		case LEFT:
 			expression();
 			symbol = nextSymbol();
-		} else {
+			return;
+		default:
 			throw new RuntimeException("Expression Malformed: " + input);
 		}
 	}
 
-	public BooleanExpressionParser.Symbol nextSymbol() {
+	public Symbol nextSymbol() {
 		while (index < len) {
 			char c = input.charAt(index++);
 			switch (c) {

@@ -113,9 +113,11 @@ pre add variable: @value(testVar), @add (testVar, dddVar)post: @value(testVar)
 min: @min(testVar, -1) @value(testVar)
 
 @ifexp(testVar, -1)ifexp(testVar, -1)@end
-@ifexp(testVar, -1, =)ifexp(testVar, -1, =)@end
-@ifexp(testVar, 1, !)ifexp(testVar, 1, !)@end
+@ifexp(testVar, -1, ==)ifexp(testVar, -1, ==)@end
+@ifexp(testVar, 1, !=)ifexp(testVar, 1, !=)@end
 @ifexp(testVar, -10, >)ifexp(testVar, -10, >)@end
 @ifexp(testVar, 10, <)ifexp(testVar, 10, <)@end
+@ifexp(testVar, -10, >=)ifexp(testVar, -10, >=)@end
+@ifexp(testVar, 10, <=)ifexp(testVar, 10, <=)@end
 
 max: @max(testVar, 100) @value(testVar)
