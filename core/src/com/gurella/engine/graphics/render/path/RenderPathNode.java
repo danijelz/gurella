@@ -10,7 +10,9 @@ public class RenderPathNode {
 	Array<Connection> outputs;
 
 	private static class Connection {
-		String outName;
 		String inName;
+		String outName;
+		
+		RenderPathNode other;
 	}
 }
