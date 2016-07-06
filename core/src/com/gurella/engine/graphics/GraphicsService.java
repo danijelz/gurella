@@ -17,6 +17,18 @@ public class GraphicsService {
 
 	private static int defaultFramebufferHandle;
 	private static int maxTextureImageUnits;
+	//GL_MAX_FRAGMENT_UNIFORM_VECTORS
+	//GL_MAX_RENDERBUFFER_SIZE
+	//GL_MAX_TEXTURE_IMAGE_UNITS
+	//GL_MAX_TEXTURE_SIZE
+	//GL_MAX_VARYING_VECTORS
+	//GL_MAX_VERTEX_ATTRIBS
+	//GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS
+	//GL_MAX_VERTEX_UNIFORM_VECTORS
+	//GL_MAX_VIEWPORT_DIMS
+	//GL_MAX_COLOR_ATTACHMENTS
+	//GL_MAX_DRAW_BUFFERS
+	//https://www.khronos.org/opengles/sdk/docs/man/xhtml/glGet.xml
 	private static ObjectSet<String> glExtensions = new ObjectSet<String>();
 
 	private static IntBuffer buffer = BufferUtils.newIntBuffer(16);
@@ -47,7 +59,6 @@ public class GraphicsService {
 
 		Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer);
 		maxTextureImageUnits = buffer.get(0);
-
 		// TODO Auto-generated method stub
 	}
 
