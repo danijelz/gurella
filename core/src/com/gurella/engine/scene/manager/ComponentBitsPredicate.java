@@ -21,21 +21,42 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 	@Override
 	public boolean evaluate(SceneNode2 node) {
 		ImmutableBits componentBits = node.componentBits;
+		int componentId;
 
-		int componentId = all.nextSetBit(0);
-		while (componentId != -1) {
-			if (!componentBits.intersects(getSubtypes(componentId))) {
-				return false;
+		if (!all.isEmpty() && !componentBits.containsAll(all)) {
+			componentId = 0;
+			while ((componentId = all.nextSetBit(componentId)) != -1) {
+				if (!componentBits.get(componentId) || !componentBits.intersects(getSubtypes(componentId))) {
+					return false;
+				}
 			}
-			componentId = all.nextSetBit(componentId);
 		}
 
 		if (!any.isEmpty() && !componentBits.intersects(any)) {
-			return false;
+			componentId = 0;
+			boolean pass = false;
+			while ((componentId = any.nextSetBit(componentId)) != -1 && !pass) {
+				if (componentBits.intersects(getSubtypes(componentId))) {
+					pass = true;
+				}
+			}
+
+			if (!pass) {
+				return false;
+			}
 		}
 
-		if (!exclude.isEmpty() && componentBits.intersects(exclude)) {
-			return false;
+		if (!exclude.isEmpty()) {
+			if (componentBits.intersects(exclude)) {
+				return false;
+			}
+
+			componentId = 0;
+			while ((componentId = exclude.nextSetBit(componentId)) != -1) {
+				if (componentBits.get(componentId) || componentBits.intersects(getSubtypes(componentId))) {
+					return false;
+				}
+			}
 		}
 
 		return true;

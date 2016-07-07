@@ -127,8 +127,8 @@ public final class ComponentType {
 		}
 	}
 
-	public static Bits getBitsFor(Bits out, SceneNodeComponent2... components){
-	for (int i = 0; i < components.length; i++) {
+	public static Bits getBitsFor(Bits out, SceneNodeComponent2... components) {
+		for (int i = 0; i < components.length; i++) {
 			out.set(components[i].baseComponentType);
 		}
 		return out;

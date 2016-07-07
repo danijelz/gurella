@@ -3,12 +3,14 @@ package com.gurella.engine.scene;
 import static com.gurella.engine.scene.ComponentType.isSubtype;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.ImmutableBits;
 import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
@@ -23,6 +25,9 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	transient final OrderedValuesIntMap<SceneNodeComponent2> _components = new OrderedValuesIntMap<SceneNodeComponent2>();
 	@PropertyDescriptor(property = NodeComponentsProperty.class)
 	public final ImmutableArray<SceneNodeComponent2> components = _components.orderedValues();
+
+	transient final Bits _componentBits = new Bits(1);
+	public transient final ImmutableBits componentBits = new ImmutableBits(_componentBits);
 
 	public String getName() {
 		return name;
@@ -114,6 +119,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 			}
 			component.scene = scene;
 			_components.put(baseType, component);
+			_componentBits.set(component.componentType);
 		} else {
 			SceneNode2 node = (SceneNode2) child;
 			node.scene = scene;
@@ -127,6 +133,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 			SceneNodeComponent2 component = (SceneNodeComponent2) child;
 			component.scene = null;
 			_components.remove(component.baseComponentType);
+			_componentBits.clear(component.componentType);
 		} else {
 			SceneNode2 node = (SceneNode2) child;
 			node.scene = null;

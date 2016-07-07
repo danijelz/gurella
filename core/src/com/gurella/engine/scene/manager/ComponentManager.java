@@ -1,7 +1,10 @@
 package com.gurella.engine.scene.manager;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.pool.PoolService;
@@ -23,8 +26,14 @@ public class ComponentManager extends SceneService implements ComponentActivityL
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
-		for (FamilyComponents<?> familyComponents : families.values()) {
+		for (Iterator<Entry<FamilyComponents<?>>> iter = families.iterator(); iter.hasNext();) {
+			Entry<FamilyComponents<?>> next = iter.next();
+			FamilyComponents<?> familyComponents = next.value;
 			familyComponents.remove(component);
+			if (familyComponents.components.size == 0) {
+				iter.remove();
+				PoolService.free(familyComponents);
+			}
 		}
 	}
 
