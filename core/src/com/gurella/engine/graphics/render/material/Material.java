@@ -12,8 +12,9 @@ public class Material extends ManagedObject implements Disposable {
 
 	transient ShaderProgram shaderProgram;
 
-	public void bind() {
+	public void begin() {
 		// TODO Auto-generated method stub
+		shaderProgram.begin();
 	}
 
 	@Override

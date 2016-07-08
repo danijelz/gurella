@@ -13,7 +13,7 @@ public class DrawQuadCommand implements RenderCommand {
 	@Override
 	public void render(RenderContext context) {
 		destination.bind();
-		material.bind();
+		material.begin();
 		// TODO Auto-generated method stub
 
 	}
