@@ -1,10 +1,6 @@
 @include (123)
 @include (223)
 
-@for (2, n) @skip
-inSkippedForLoop + @value(n) @skip
-@end
-
 text
 text
 
