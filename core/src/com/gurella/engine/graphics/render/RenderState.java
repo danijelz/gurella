@@ -64,7 +64,7 @@ public class RenderState implements Poolable {
 	private int clearStencilValue;
 
 	private RenderTarget renderTarget;
-	private IntMap<BindedTexture> bindedTextures;
+	private IntMap<BoundTexture> boundTextures;
 
 	//////////////////////////////
 	private TextureBinder textureBinder;
@@ -255,12 +255,12 @@ public class RenderState implements Poolable {
 		this.renderTarget = renderTarget;
 	}
 
-	public IntMap<BindedTexture> getBindedTextures() {
-		return bindedTextures;
+	public IntMap<BoundTexture> getBindedTextures() {
+		return boundTextures;
 	}
 
-	public void setBindedTextures(IntMap<BindedTexture> bindedTextures) {
-		this.bindedTextures = bindedTextures;
+	public void setBindedTextures(IntMap<BoundTexture> boundTextures) {
+		this.boundTextures = boundTextures;
 	}
 
 	public TextureBinder getTextureBinder() {
