@@ -303,7 +303,13 @@ public class ShaderTemplateParser implements Poolable {
 		int testLen = startedType.length;
 		ShaderParserBlock current = getCurrentBlock();
 
-		if (currLen == testLen) {
+		// if (currLen == testLen) {
+		// if (current != null) {
+		// pop(0);
+		// current = getCurrentBlock();
+		// }
+		// }
+		if (!type.isComposite()) {
 			if (current != null) {
 				pop(0);
 				current = getCurrentBlock();

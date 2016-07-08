@@ -22,4 +22,8 @@ enum ShaderParserBlockType {
 	max,
 	value,
 	none;
+
+	public boolean isComposite() {
+		return piece == this || blockContent == this || ifdef == this || ifexp == this || foreach == this || none == this;
+	}
 }
