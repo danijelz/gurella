@@ -3,6 +3,7 @@ package com.gurella.engine.graphics.render.shader.template;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
 
+//http://algs4.cs.princeton.edu/13stacks/EvaluateDeluxe.java.html
 public class IfexpNode extends ShaderTemplateNode {
 	private String firstProperty;
 	private String secondProperty;
