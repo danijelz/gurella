@@ -33,6 +33,7 @@ class ShaderParserBlock implements Poolable {
 		switch (type) {
 		case singleLineComment:
 		case multiLineComment:
+		case skipLine:
 		case none:
 			return;
 		case include:

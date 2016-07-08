@@ -3,6 +3,7 @@ package com.gurella.engine.graphics.render.shader.parser;
 enum ShaderParserBlockType {
 	singleLineComment,
 	multiLineComment,
+	skipLine,
 	include,
 	piece,
 	blockContent,

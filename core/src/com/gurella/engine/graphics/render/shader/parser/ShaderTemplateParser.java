@@ -17,6 +17,7 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.set;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.skipLine;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.sub;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.value;
@@ -54,6 +55,7 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] minToken = "@min".toCharArray();
 	private static final char[] maxToken = "@max".toCharArray();
 	private static final char[] valueToken = "@value".toCharArray();
+	private static final char[] skipLineToken = "@skip".toCharArray();
 	private static final char[] multiLineCommentStartToken = "/*".toCharArray();
 	private static final char[] singleLineCommentStartToken = "//".toCharArray();
 
@@ -73,6 +75,7 @@ public class ShaderTemplateParser implements Poolable {
 	private int potencialBlockStart = -1;
 	private boolean parenthesisOpened;
 	private int numIfdefExpressionParenthesis;
+	private boolean skipLineEnded;
 
 	ShaderParserBlockType type = none;
 
@@ -141,6 +144,15 @@ public class ShaderTemplateParser implements Poolable {
 			case multiLineComment:
 				if ('/' == c && currentText.charAt(currentText.length() - 2) == '*') {
 					pop(2);
+				}
+				break;
+			case skipLine:
+				boolean linebreak = '\n' == c || '\r' == c;
+				if (linebreak && !skipLineEnded) {
+					skipLineEnded = true;
+				} else if (!linebreak && skipLineEnded) {
+					pop(0);
+					i--;
 				}
 				break;
 			case include:
@@ -275,6 +287,9 @@ public class ShaderTemplateParser implements Poolable {
 				startBlock(maxToken, max);
 			} else if (testToken(valueToken)) {
 				startBlock(valueToken, value);
+			} else if (testToken(skipLineToken)) {
+				skipLineEnded = false;
+				startBlock(skipLineToken, skipLine);
 			}
 
 			return;

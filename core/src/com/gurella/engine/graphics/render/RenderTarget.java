@@ -52,6 +52,7 @@ public class RenderTarget implements Disposable {
 		}
 	}
 
+	//TODO EXT_draw_buffers
 	private class FrameBufferExt extends FrameBuffer {
 		public FrameBufferExt(Format format, int width, int height, boolean hasDepth, boolean hasStencil) {
 			super(format, width, height, hasDepth, hasStencil);
