@@ -121,9 +121,9 @@ min: @min(testVar, -1) @value(testVar)
 @ifexp(testVar, 10, <=)ifexp(testVar, 10, <=)@end
 
 max: @max(testVar, 100) @value(testVar)
-// @skip
+// @@
 dd
 
-@for (2, n) @@
+@for (2, n)@@
 inSkippedForLoop + @value(n)@@
-@end
+@end@@

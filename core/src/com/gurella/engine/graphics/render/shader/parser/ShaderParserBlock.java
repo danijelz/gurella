@@ -150,8 +150,7 @@ class ShaderParserBlock implements Poolable {
 	}
 
 	protected String toStringValue() {
-		return type == text || type == multiLineComment ? value.toString().replaceAll("(\r\n|\n|\r)", "\\\\n")
-				: value.toString();
+		return value.toString().replaceAll("(\r\n|\n|\r)", "\\\\n");
 	}
 
 	private String toStringChildren(int indent) {

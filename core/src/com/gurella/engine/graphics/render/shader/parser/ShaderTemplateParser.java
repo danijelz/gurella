@@ -137,7 +137,7 @@ public class ShaderTemplateParser implements Poolable {
 			switch (type) {
 			case singleLineComment:
 				if ('\n' == c || '\r' == c) {
-					pop(0);
+					pop(1);
 					i--;
 				}
 				break;
@@ -151,7 +151,7 @@ public class ShaderTemplateParser implements Poolable {
 				if (linebreak && !skipLineEnded) {
 					skipLineEnded = true;
 				} else if (!linebreak && skipLineEnded) {
-					pop(0);
+					pop(1);
 					i--;
 				}
 				break;
