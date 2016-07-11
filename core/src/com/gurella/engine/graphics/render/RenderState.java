@@ -27,8 +27,8 @@ public class RenderState implements Poolable {
 	private BlendFunction rgbBlendDestinationFactor = BlendFunction.zero;
 	private BlendFunction alphaBlendDestinationFactor = BlendFunction.zero;
 
-	private boolean depthEnabled;
 	private boolean depthMask = true;
+	private boolean depthTestEnabled;
 	private DepthTestFunction depthFunction = DepthTestFunction.less;
 	private float depthRangeNear = 0;
 	private float depthRangeFar = 1;
