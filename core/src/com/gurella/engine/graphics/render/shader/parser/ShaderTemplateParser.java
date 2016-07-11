@@ -37,7 +37,7 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
 
 public class ShaderTemplateParser implements Poolable {
-	private static final int dataSize = 10;
+	private static final int dataSize = 1024;
 
 	private static final char[] endToken = "@end".toCharArray();
 	private static final char[] includeToken = "@include".toCharArray();
@@ -110,7 +110,7 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	protected void finish() {
-		if (!areCurrentValuesEmpty(0) && blockStack.size == 0) {
+		if (mustAttachTextNode(0)) {
 			ShaderParserBlock textSourceBlock = obtainBlock(text);
 			textSourceBlock.value.append(currentText);
 			rootBlocks.add(textSourceBlock);
@@ -125,8 +125,8 @@ public class ShaderTemplateParser implements Poolable {
 		return textSourceBlock;
 	}
 
-	private boolean areCurrentValuesEmpty(int end) {
-		return currentText.length() - end < 1;
+	private boolean mustAttachTextNode(int end) {
+		return type.composite && currentText.length() - end > 0;
 	}
 
 	public void parse(char[] data, int length) {
@@ -213,12 +213,12 @@ public class ShaderTemplateParser implements Poolable {
 					pop(4);
 					pop(0);
 				} else {
-					tryStartBlock(c);
+					checkBlockStart(c);
 				}
 				break;
 			case root:
 			case text:
-				tryStartBlock(c);
+				checkBlockStart(c);
 				break;
 			default:
 				break;
@@ -230,7 +230,7 @@ public class ShaderTemplateParser implements Poolable {
 		return potencialBlockStart > -1 && 'd' == c && testToken(endToken);
 	}
 
-	private void tryStartBlock(char c) {
+	private void checkBlockStart(char c) {
 		switch (c) {
 		case '@':
 			int currentLength = currentText.length();
@@ -307,7 +307,7 @@ public class ShaderTemplateParser implements Poolable {
 		int tokenLen = token.length;
 		ShaderParserBlock current = getCurrentBlock();
 
-		if (type.composite && !areCurrentValuesEmpty(tokenLen)) {
+		if (mustAttachTextNode(tokenLen)) {
 			ShaderParserBlock textSourceBlock = obtainBlock(text);
 			textSourceBlock.value.append(currentText, 0, currLen - tokenLen);
 			if (current == null) {
@@ -335,7 +335,7 @@ public class ShaderTemplateParser implements Poolable {
 	private void pop(int valuesSub) {
 		ShaderParserBlock current = blockStack.peek();
 
-		if (type == blockContent) {
+		if (mustAttachTextNode(0)) {
 			ShaderParserBlock textSourceBlock = obtainBlock(text);
 			textSourceBlock.value.append(currentText, 0, currentText.length() - valuesSub);
 			current.children.add(textSourceBlock);
@@ -389,6 +389,8 @@ public class ShaderTemplateParser implements Poolable {
 
 		potencialBlockStart = -1;
 		parenthesisOpened = false;
+		skipLineEnded = false;
+		type = root;
 	}
 
 	public static void main(String[] args) {
