@@ -1,17 +1,18 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
 enum ShaderParserBlockType {
+	root(true),
 	singleLineComment,
 	multiLineComment,
 	skipLine,
 	include,
-	piece,
-	blockContent,
+	piece(true),
+	blockContent(true),
 	insertPiece,
 	text,
-	ifdef,
-	ifexp,
-	foreach,
+	ifdef(true),
+	ifexp(true),
+	foreach(true),
 	set,
 	mul,
 	add,
@@ -20,10 +21,15 @@ enum ShaderParserBlockType {
 	mod,
 	min,
 	max,
-	value,
-	none;
+	value;
 
-	public boolean isComposite() {
-		return piece == this || blockContent == this || ifdef == this || ifexp == this || foreach == this || none == this;
+	public final boolean composite;
+
+	private ShaderParserBlockType() {
+		this.composite = false;
+	}
+
+	private ShaderParserBlockType(boolean composite) {
+		this.composite = composite;
 	}
 }

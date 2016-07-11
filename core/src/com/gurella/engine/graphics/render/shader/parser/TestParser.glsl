@@ -1,4 +1,4 @@
-@include (123)
+@include (123) 
 @include (223)
 
 text
@@ -124,6 +124,6 @@ max: @max(testVar, 100) @value(testVar)
 // @skip
 dd
 
-@for (2, n)@skip
+@for (2, n) @skip
 inSkippedForLoop + @value(n)@skip
 @end

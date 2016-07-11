@@ -12,6 +12,7 @@ import com.gurella.engine.graphics.render.gl.DepthTestFunction;
 import com.gurella.engine.graphics.render.gl.FrontFace;
 import com.gurella.engine.graphics.render.gl.StencilFunction;
 import com.gurella.engine.graphics.render.gl.StencilOp;
+import com.gurella.engine.graphics.render.shader.ShaderProgramExt;
 import com.gurella.engine.pool.PoolService;
 
 public class RenderState implements Poolable {
@@ -63,10 +64,11 @@ public class RenderState implements Poolable {
 	private boolean stencilCleared;
 	private int clearStencilValue;
 
-	private RenderTarget renderTarget;
-	private IntMap<BoundTexture> boundTextures;
-
 	//////////////////////////////
+	private RenderTarget activeRenderTarget;
+	private ShaderProgramExt activeShaderProgram;
+	private IntMap<BoundTexture> activeTextures;
+
 	private TextureBinder textureBinder;
 
 	////////////////////////
@@ -247,20 +249,20 @@ public class RenderState implements Poolable {
 		this.clearStencilValue = clearStencilValue;
 	}
 
-	public RenderTarget getRenderTarget() {
-		return renderTarget;
+	public RenderTarget getActiveRenderTarget() {
+		return activeRenderTarget;
 	}
 
-	public void setRenderTarget(RenderTarget renderTarget) {
-		this.renderTarget = renderTarget;
+	public void setActiveRenderTarget(RenderTarget renderTarget) {
+		this.activeRenderTarget = renderTarget;
 	}
 
 	public IntMap<BoundTexture> getBindedTextures() {
-		return boundTextures;
+		return activeTextures;
 	}
 
 	public void setBindedTextures(IntMap<BoundTexture> boundTextures) {
-		this.boundTextures = boundTextures;
+		this.activeTextures = boundTextures;
 	}
 
 	public TextureBinder getTextureBinder() {

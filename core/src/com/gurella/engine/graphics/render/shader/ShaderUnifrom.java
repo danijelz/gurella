@@ -20,7 +20,7 @@ public class ShaderUnifrom {
 
 	public static class AutomaticUniform extends ShaderUnifrom {
 		public void updateValue(RenderContext context) {
-			
+
 		}
 	}
 
@@ -29,6 +29,6 @@ public class ShaderUnifrom {
 	}
 
 	public enum ShaderVariableType {
-		floatType, integerType, vectorType, booleanType, vector3Type, vector2Type;
+		booleanType, floatType, integerType, vectorType, vector3Type, vector2Type;
 	}
 }

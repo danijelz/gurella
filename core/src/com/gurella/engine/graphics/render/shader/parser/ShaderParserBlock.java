@@ -34,7 +34,7 @@ class ShaderParserBlock implements Poolable {
 		case singleLineComment:
 		case multiLineComment:
 		case skipLine:
-		case none:
+		case root:
 			return;
 		case include:
 			if (node instanceof ShaderTemplate) {

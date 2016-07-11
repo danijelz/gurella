@@ -13,8 +13,8 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mod;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mul;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.none;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.root;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.set;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.skipLine;
@@ -39,28 +39,28 @@ import com.gurella.engine.pool.PoolService;
 public class ShaderTemplateParser implements Poolable {
 	private static final int dataSize = 10;
 
-	private static final char[] endToken = "@end".toCharArray();
-	private static final char[] includeToken = "@include".toCharArray();
-	private static final char[] pieceToken = "@piece".toCharArray();
-	private static final char[] insertpieceToken = "@insertpiece".toCharArray();
-	private static final char[] ifdefToken = "@ifdef".toCharArray();
-	private static final char[] ifexpToken = "@ifexp".toCharArray();
-	private static final char[] forToken = "@for".toCharArray();
-	private static final char[] setToken = "@set".toCharArray();
-	private static final char[] mulToken = "@mul".toCharArray();
-	private static final char[] addToken = "@add".toCharArray();
-	private static final char[] subToken = "@sub".toCharArray();
-	private static final char[] divToken = "@div".toCharArray();
-	private static final char[] modToken = "@mod".toCharArray();
-	private static final char[] minToken = "@min".toCharArray();
-	private static final char[] maxToken = "@max".toCharArray();
-	private static final char[] valueToken = "@value".toCharArray();
-	private static final char[] skipLineToken = "@skip".toCharArray();
-	private static final char[] multiLineCommentStartToken = "/*".toCharArray();
-	private static final char[] singleLineCommentStartToken = "//".toCharArray();
+	private static final char[] endKeyword = "@end".toCharArray();
+	private static final char[] includeKeyword = "@include".toCharArray();
+	private static final char[] pieceKeyword = "@piece".toCharArray();
+	private static final char[] insertpieceKeyword = "@insertpiece".toCharArray();
+	private static final char[] ifdefKeyword = "@ifdef".toCharArray();
+	private static final char[] ifexpKeyword = "@ifexp".toCharArray();
+	private static final char[] forKeyword = "@for".toCharArray();
+	private static final char[] setKeyword = "@set".toCharArray();
+	private static final char[] mulKeyword = "@mul".toCharArray();
+	private static final char[] addKeyword = "@add".toCharArray();
+	private static final char[] subKeyword = "@sub".toCharArray();
+	private static final char[] divKeyword = "@div".toCharArray();
+	private static final char[] modKeyword = "@mod".toCharArray();
+	private static final char[] minKeyword = "@min".toCharArray();
+	private static final char[] maxKeyword = "@max".toCharArray();
+	private static final char[] valueKeyword = "@value".toCharArray();
+	private static final char[] skipLineKeyword = "@skip".toCharArray();
+	private static final char[] multiLineCommentStartKeyword = "/*".toCharArray();
+	private static final char[] singleLineCommentStartKeyword = "//".toCharArray();
 
-	private static final int minTokenLength = endToken.length;
-	private static final int maxTokenLength = insertpieceToken.length;
+	private static final int minKeywordLength = endKeyword.length;
+	private static final int maxKeywordLength = insertpieceKeyword.length;
 
 	private final char[] data = new char[dataSize];
 
@@ -77,7 +77,7 @@ public class ShaderTemplateParser implements Poolable {
 	private int numIfdefExpressionParenthesis;
 	private boolean skipLineEnded;
 
-	ShaderParserBlockType type = none;
+	ShaderParserBlockType type = root;
 
 	public ShaderTemplate parse(Reader reader) {
 		try {
@@ -171,7 +171,7 @@ public class ShaderTemplateParser implements Poolable {
 						pop(1);
 					}
 				} else {
-					currentText.setLength(currentText.length() - 1);
+					currentText.setLength(0);
 					if ('(' == c) {
 						parenthesisOpened = true;
 					}
@@ -188,7 +188,7 @@ public class ShaderTemplateParser implements Poolable {
 						}
 					}
 				} else {
-					currentText.setLength(currentText.length() - 1);
+					currentText.setLength(0);
 					if ('(' == c) {
 						parenthesisOpened = true;
 					}
@@ -202,7 +202,7 @@ public class ShaderTemplateParser implements Poolable {
 						push(1, blockContent);
 					}
 				} else {
-					currentText.setLength(currentText.length() - 1);
+					currentText.setLength(0);
 					if ('(' == c) {
 						parenthesisOpened = true;
 					}
@@ -213,12 +213,12 @@ public class ShaderTemplateParser implements Poolable {
 					pop(4);
 					pop(0);
 				} else {
-					checkBlockStart(c);
+					tryStartBlock(c);
 				}
 				break;
-			case none:
+			case root:
 			case text:
-				checkBlockStart(c);
+				tryStartBlock(c);
 				break;
 			default:
 				break;
@@ -227,69 +227,69 @@ public class ShaderTemplateParser implements Poolable {
 	}
 
 	private boolean isBlockClosed(char c) {
-		return potencialBlockStart > -1 && 'd' == c && testToken(endToken);
+		return potencialBlockStart > -1 && 'd' == c && testKeyword(endKeyword);
 	}
 
-	private void checkBlockStart(char c) {
+	private void tryStartBlock(char c) {
 		switch (c) {
 		case '@':
 			potencialBlockStart = currentText.length() - 1;
 			return;
 		case '/':
-			if (testToken(singleLineCommentStartToken)) {
+			if (testKeyword(singleLineCommentStartKeyword)) {
 				potencialBlockStart = -1;
-				startBlock(singleLineCommentStartToken, singleLineComment);
+				startBlock(singleLineCommentStartKeyword, singleLineComment);
 			}
 			return;
 		case '*':
-			if (testToken(multiLineCommentStartToken)) {
+			if (testKeyword(multiLineCommentStartKeyword)) {
 				potencialBlockStart = -1;
-				startBlock(multiLineCommentStartToken, multiLineComment);
+				startBlock(multiLineCommentStartKeyword, multiLineComment);
 			}
 			return;
 		default:
 			int length = currentText.length();
-			if (length < minTokenLength) {
+			if (length < minKeywordLength) {
 				return;
-			} else if (length - potencialBlockStart > maxTokenLength) {
+			} else if (length - potencialBlockStart > maxKeywordLength) {
 				potencialBlockStart = -1;
 				return;
 			}
 
-			if (blockStack.size == 0 && testToken(includeToken)) {
-				startBlock(includeToken, include);
-			} else if (blockStack.size == 0 && testToken(pieceToken)) {
-				startBlock(pieceToken, piece);
-			} else if (testToken(ifexpToken)) {
-				startBlock(ifexpToken, ifexp);
-			} else if (testToken(insertpieceToken)) {
-				startBlock(insertpieceToken, insertPiece);
-			} else if (testToken(ifdefToken)) {
+			if (blockStack.size == 0 && testKeyword(includeKeyword)) {
+				startBlock(includeKeyword, include);
+			} else if (blockStack.size == 0 && testKeyword(pieceKeyword)) {
+				startBlock(pieceKeyword, piece);
+			} else if (testKeyword(ifexpKeyword)) {
+				startBlock(ifexpKeyword, ifexp);
+			} else if (testKeyword(insertpieceKeyword)) {
+				startBlock(insertpieceKeyword, insertPiece);
+			} else if (testKeyword(ifdefKeyword)) {
 				numIfdefExpressionParenthesis = 1;
-				startBlock(ifdefToken, ifdef);
-			} else if (testToken(forToken)) {
-				startBlock(forToken, foreach);
-			} else if (testToken(setToken)) {
-				startBlock(setToken, set);
-			} else if (testToken(mulToken)) {
-				startBlock(mulToken, mul);
-			} else if (testToken(addToken)) {
-				startBlock(addToken, add);
-			} else if (testToken(subToken)) {
-				startBlock(subToken, sub);
-			} else if (testToken(divToken)) {
-				startBlock(divToken, div);
-			} else if (testToken(modToken)) {
-				startBlock(modToken, mod);
-			} else if (testToken(minToken)) {
-				startBlock(minToken, min);
-			} else if (testToken(maxToken)) {
-				startBlock(maxToken, max);
-			} else if (testToken(valueToken)) {
-				startBlock(valueToken, value);
-			} else if (testToken(skipLineToken)) {
+				startBlock(ifdefKeyword, ifdef);
+			} else if (testKeyword(forKeyword)) {
+				startBlock(forKeyword, foreach);
+			} else if (testKeyword(setKeyword)) {
+				startBlock(setKeyword, set);
+			} else if (testKeyword(mulKeyword)) {
+				startBlock(mulKeyword, mul);
+			} else if (testKeyword(addKeyword)) {
+				startBlock(addKeyword, add);
+			} else if (testKeyword(subKeyword)) {
+				startBlock(subKeyword, sub);
+			} else if (testKeyword(divKeyword)) {
+				startBlock(divKeyword, div);
+			} else if (testKeyword(modKeyword)) {
+				startBlock(modKeyword, mod);
+			} else if (testKeyword(minKeyword)) {
+				startBlock(minKeyword, min);
+			} else if (testKeyword(maxKeyword)) {
+				startBlock(maxKeyword, max);
+			} else if (testKeyword(valueKeyword)) {
+				startBlock(valueKeyword, value);
+			} else if (testKeyword(skipLineKeyword)) {
 				skipLineEnded = false;
-				startBlock(skipLineToken, skipLine);
+				startBlock(skipLineKeyword, skipLine);
 			}
 
 			return;
@@ -303,13 +303,7 @@ public class ShaderTemplateParser implements Poolable {
 		int testLen = startedType.length;
 		ShaderParserBlock current = getCurrentBlock();
 
-		// if (currLen == testLen) {
-		// if (current != null) {
-		// pop(0);
-		// current = getCurrentBlock();
-		// }
-		// }
-		if (!type.isComposite()) {
+		if (!type.composite) {
 			if (current != null) {
 				pop(0);
 				current = getCurrentBlock();
@@ -355,7 +349,7 @@ public class ShaderTemplateParser implements Poolable {
 		potencialBlockStart = -1;
 
 		current = getCurrentBlock();
-		type = current == null ? none : current.type;
+		type = current == null ? root : current.type;
 	}
 
 	private void push(int valuesSub, ShaderParserBlockType blockType) {
@@ -369,15 +363,15 @@ public class ShaderTemplateParser implements Poolable {
 		type = newBlock.type;
 	}
 
-	private boolean testToken(char[] token) {
+	private boolean testKeyword(char[] keyword) {
 		int currLen = currentText.length();
-		int testLen = token.length;
+		int testLen = keyword.length;
 		if (currLen < testLen) {
 			return false;
 		}
 
 		for (int i = 0, n = currLen - testLen; i < testLen; i++) {
-			if (token[i] != currentText.charAt(n + i)) {
+			if (keyword[i] != currentText.charAt(n + i)) {
 				return false;
 			}
 		}

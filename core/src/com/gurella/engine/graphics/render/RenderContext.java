@@ -222,11 +222,11 @@ public class RenderContext {
 	}
 
 	public RenderTarget getRenderTarget() {
-		return currentState.getRenderTarget();
+		return currentState.getActiveRenderTarget();
 	}
 
 	public void setRenderTarget(RenderTarget renderTarget) {
-		currentState.setRenderTarget(renderTarget);
+		currentState.setActiveRenderTarget(renderTarget);
 	}
 
 	public void clear(ClearType type, Color clearColorValue, float clearDepthValue, int clearStencilValue) {
