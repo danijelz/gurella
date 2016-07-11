@@ -124,6 +124,6 @@ max: @max(testVar, 100) @value(testVar)
 // @skip
 dd
 
-@for (2, n) @skip
-inSkippedForLoop + @value(n)@skip
+@for (2, n) @@
+inSkippedForLoop + @value(n)@@
 @end
