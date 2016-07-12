@@ -27,8 +27,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
@@ -58,6 +60,11 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] multiLineCommentToken = "/*".toCharArray();
 	private static final char[] singleLineCommentToken = "//".toCharArray();
 	private static final char[] skipLineCommentToken = "@@".toCharArray();
+	
+	private static IntMap<ShaderParserBlockType> blockTypes = new IntMap<ShaderParserBlockType>();
+	static {
+		//blockTypes.put(Arrays.hashCode(endToken), value)
+	}
 
 	private static final int minTokenLength = endToken.length;
 	private static final int maxTokenLength = insertpieceToken.length;
@@ -255,10 +262,14 @@ public class ShaderTemplateParser implements Poolable {
 			}
 			return;
 		default:
+			if(potencialBlockStart == -1) {
+				return;
+			}
+			
 			int length = currentText.length();
 			if (length < minTokenLength) {
 				return;
-			} else if (potencialBlockStart > -1 && length - potencialBlockStart > maxTokenLength) {
+			} else if (length - potencialBlockStart > maxTokenLength) {
 				potencialBlockStart = -1;
 				return;
 			}
@@ -364,12 +375,12 @@ public class ShaderTemplateParser implements Poolable {
 
 	private boolean testToken(char[] token) {
 		int currLen = currentText.length();
-		int testLen = token.length;
-		if (currLen < testLen) {
+		int tokenLen = token.length;
+		if (currLen < tokenLen) {
 			return false;
 		}
 
-		for (int i = 0, n = currLen - testLen; i < testLen; i++) {
+		for (int i = 0, n = currLen - tokenLen; i < tokenLen; i++) {
 			if (token[i] != currentText.charAt(n + i)) {
 				return false;
 			}
