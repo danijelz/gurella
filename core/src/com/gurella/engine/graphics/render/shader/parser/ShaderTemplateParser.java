@@ -1,103 +1,38 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.add;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.blockContent;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.div;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.foreach;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifexp;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.include;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.insertPiece;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.max;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.min;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mod;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.mul;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.root;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.set;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.singleLineComment;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.skipLine;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.sub;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.value;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.contenetTokens;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.endToken;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.maxTokenLength;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.minTokenLength;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.multiLineCommentToken;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.singleLineCommentToken;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.skipLineCommentToken;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.gurella.engine.graphics.render.shader.generator.ShaderGeneratorContext;
+import com.gurella.engine.graphics.render.shader.parser.ShaderTemplateTokens.ContentTokenInfo;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
 
 public class ShaderTemplateParser implements Poolable {
-	private static final char[] endToken = "@end".toCharArray();
-	private static final char[] includeToken = "@include".toCharArray();
-	private static final char[] pieceToken = "@piece".toCharArray();
-	private static final char[] insertpieceToken = "@insertpiece".toCharArray();
-	private static final char[] ifdefToken = "@ifdef".toCharArray();
-	private static final char[] ifexpToken = "@ifexp".toCharArray();
-	private static final char[] forToken = "@for".toCharArray();
-	private static final char[] setToken = "@set".toCharArray();
-	private static final char[] mulToken = "@mul".toCharArray();
-	private static final char[] addToken = "@add".toCharArray();
-	private static final char[] subToken = "@sub".toCharArray();
-	private static final char[] divToken = "@div".toCharArray();
-	private static final char[] modToken = "@mod".toCharArray();
-	private static final char[] minToken = "@min".toCharArray();
-	private static final char[] maxToken = "@max".toCharArray();
-	private static final char[] valueToken = "@value".toCharArray();
-	private static final char[] multiLineCommentToken = "/*".toCharArray();
-	private static final char[] singleLineCommentToken = "//".toCharArray();
-	private static final char[] skipLineCommentToken = "@@".toCharArray();
-
-	private static final IntMap<TokenInfo> blockTokens = new IntMap<TokenInfo>();
-	static {
-		putToken(includeToken, include);
-		putToken(pieceToken, piece);
-		putToken(insertpieceToken, insertPiece);
-		putToken(ifdefToken, ifdef);
-		putToken(ifexpToken, ifexp);
-		putToken(forToken, foreach);
-		putToken(setToken, set);
-		putToken(mulToken, mul);
-		putToken(addToken, add);
-		putToken(subToken, sub);
-		putToken(divToken, div);
-		putToken(modToken, mod);
-		putToken(minToken, min);
-		putToken(maxToken, max);
-		putToken(valueToken, value);
-	}
-
-	private static void putToken(char[] token, ShaderParserBlockType blockType) {
-		if (blockTokens.put(Arrays.hashCode(token), new TokenInfo(token, blockType)) != null) {
-			throw new GdxRuntimeException("Hash collision!");
-		}
-	}
-
-	private static class TokenInfo {
-		char[] token;
-		ShaderParserBlockType blockType;
-
-		public TokenInfo(char[] token, ShaderParserBlockType blockType) {
-			this.token = token;
-			this.blockType = blockType;
-		}
-	}
-
-	private static final int minTokenLength = endToken.length;
-	private static final int maxTokenLength = insertpieceToken.length;
-
 	private static final int dataSize = 1024;
 	private final char[] data = new char[dataSize];
 
@@ -304,23 +239,20 @@ public class ShaderTemplateParser implements Poolable {
 				return;
 			}
 
-			int seqHashCode = potencialTokenHashCode();
-			TokenInfo tokenInfo = blockTokens.get(seqHashCode);
-			if (tokenInfo == null) {
+			int seqHashCode = getPotencialTokenHashCode();
+			ContentTokenInfo contentTokenInfo = contenetTokens.get(seqHashCode);
+			if (contentTokenInfo == null) {
 				return;
 			}
 
-			ShaderParserBlockType blockType = tokenInfo.blockType;
+			ShaderParserBlockType blockType = contentTokenInfo.blockType;
 			if ((blockType == include || blockType == piece) && blockStack.size != 0) {
 				return;
 			} else if (blockType == ifdef) {
 				numIfdefExpressionParenthesis = 1;
-				startBlock(tokenInfo.token, blockType);
-				return;
-			} else {
-				startBlock(tokenInfo.token, blockType);
-				return;
 			}
+
+			startBlock(contentTokenInfo.token, blockType);
 		}
 	}
 
@@ -352,13 +284,11 @@ public class ShaderTemplateParser implements Poolable {
 		type = newBlock.type;
 	}
 
-	private int potencialTokenHashCode() {
+	private int getPotencialTokenHashCode() {
 		int result = 1;
-
 		for (int i = potencialBlockStart, n = currentText.length(); i < n; i++) {
 			result = 31 * result + currentText.charAt(i);
 		}
-
 		return result;
 	}
 
