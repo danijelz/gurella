@@ -30,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
@@ -39,8 +40,6 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.pool.PoolService;
 
 public class ShaderTemplateParser implements Poolable {
-	private static final int dataSize = 1024;
-
 	private static final char[] endToken = "@end".toCharArray();
 	private static final char[] includeToken = "@include".toCharArray();
 	private static final char[] pieceToken = "@piece".toCharArray();
@@ -60,15 +59,46 @@ public class ShaderTemplateParser implements Poolable {
 	private static final char[] multiLineCommentToken = "/*".toCharArray();
 	private static final char[] singleLineCommentToken = "//".toCharArray();
 	private static final char[] skipLineCommentToken = "@@".toCharArray();
-	
-	private static IntMap<ShaderParserBlockType> blockTypes = new IntMap<ShaderParserBlockType>();
+
+	private static final IntMap<TokenInfo> blockTokens = new IntMap<TokenInfo>();
 	static {
-		//blockTypes.put(Arrays.hashCode(endToken), value)
+		putToken(includeToken, include);
+		putToken(pieceToken, piece);
+		putToken(insertpieceToken, insertPiece);
+		putToken(ifdefToken, ifdef);
+		putToken(ifexpToken, ifexp);
+		putToken(forToken, foreach);
+		putToken(setToken, set);
+		putToken(mulToken, mul);
+		putToken(addToken, add);
+		putToken(subToken, sub);
+		putToken(divToken, div);
+		putToken(modToken, mod);
+		putToken(minToken, min);
+		putToken(maxToken, max);
+		putToken(valueToken, value);
+	}
+
+	private static void putToken(char[] token, ShaderParserBlockType blockType) {
+		if (blockTokens.put(Arrays.hashCode(token), new TokenInfo(token, blockType)) != null) {
+			throw new GdxRuntimeException("Hash collision!");
+		}
+	}
+
+	private static class TokenInfo {
+		char[] token;
+		ShaderParserBlockType blockType;
+
+		public TokenInfo(char[] token, ShaderParserBlockType blockType) {
+			this.token = token;
+			this.blockType = blockType;
+		}
 	}
 
 	private static final int minTokenLength = endToken.length;
 	private static final int maxTokenLength = insertpieceToken.length;
 
+	private static final int dataSize = 1024;
 	private final char[] data = new char[dataSize];
 
 	private BooleanExpressionParser booleanExpressionParser = new BooleanExpressionParser();
@@ -262,10 +292,10 @@ public class ShaderTemplateParser implements Poolable {
 			}
 			return;
 		default:
-			if(potencialBlockStart == -1) {
+			if (potencialBlockStart == -1) {
 				return;
 			}
-			
+
 			int length = currentText.length();
 			if (length < minTokenLength) {
 				return;
@@ -274,40 +304,23 @@ public class ShaderTemplateParser implements Poolable {
 				return;
 			}
 
-			if (blockStack.size == 0 && testToken(includeToken)) {
-				startBlock(includeToken, include);
-			} else if (blockStack.size == 0 && testToken(pieceToken)) {
-				startBlock(pieceToken, piece);
-			} else if (testToken(ifexpToken)) {
-				startBlock(ifexpToken, ifexp);
-			} else if (testToken(insertpieceToken)) {
-				startBlock(insertpieceToken, insertPiece);
-			} else if (testToken(ifdefToken)) {
-				numIfdefExpressionParenthesis = 1;
-				startBlock(ifdefToken, ifdef);
-			} else if (testToken(forToken)) {
-				startBlock(forToken, foreach);
-			} else if (testToken(setToken)) {
-				startBlock(setToken, set);
-			} else if (testToken(mulToken)) {
-				startBlock(mulToken, mul);
-			} else if (testToken(addToken)) {
-				startBlock(addToken, add);
-			} else if (testToken(subToken)) {
-				startBlock(subToken, sub);
-			} else if (testToken(divToken)) {
-				startBlock(divToken, div);
-			} else if (testToken(modToken)) {
-				startBlock(modToken, mod);
-			} else if (testToken(minToken)) {
-				startBlock(minToken, min);
-			} else if (testToken(maxToken)) {
-				startBlock(maxToken, max);
-			} else if (testToken(valueToken)) {
-				startBlock(valueToken, value);
+			int seqHashCode = potencialTokenHashCode();
+			TokenInfo tokenInfo = blockTokens.get(seqHashCode);
+			if (tokenInfo == null) {
+				return;
 			}
 
-			return;
+			ShaderParserBlockType blockType = tokenInfo.blockType;
+			if ((blockType == include || blockType == piece) && blockStack.size != 0) {
+				return;
+			} else if (blockType == ifdef) {
+				numIfdefExpressionParenthesis = 1;
+				startBlock(tokenInfo.token, blockType);
+				return;
+			} else {
+				startBlock(tokenInfo.token, blockType);
+				return;
+			}
 		}
 	}
 
@@ -337,6 +350,16 @@ public class ShaderTemplateParser implements Poolable {
 		}
 
 		type = newBlock.type;
+	}
+
+	private int potencialTokenHashCode() {
+		int result = 1;
+
+		for (int i = potencialBlockStart, n = currentText.length(); i < n; i++) {
+			result = 31 * result + currentText.charAt(i);
+		}
+
+		return result;
 	}
 
 	private ShaderParserBlock getCurrentBlock() {
