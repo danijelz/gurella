@@ -12,10 +12,10 @@ public class ShaderGeneratorContext implements Poolable {
 
 	private final ObjectIntMap<String> values = new ObjectIntMap<String>();
 
-	private ShaderTemplate template;
+	private ShaderTemplate root;
 
 	public void init(ShaderTemplate template) {
-		this.template = template;
+		this.root = template;
 		builder.setLength(0);
 		define("GL20");
 		if (GraphicsService.isGL30Available()) {
@@ -39,7 +39,7 @@ public class ShaderGeneratorContext implements Poolable {
 	}
 
 	public PieceNode getPiece(String pieceName) {
-		return template.getPiece(pieceName);
+		return root.getPiece(pieceName);
 	}
 
 	public void append(CharSequence sequence) {
@@ -96,6 +96,6 @@ public class ShaderGeneratorContext implements Poolable {
 	public void reset() {
 		builder.setLength(0);
 		values.clear();
-		template = null;
+		root = null;
 	}
 }

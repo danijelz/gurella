@@ -6,7 +6,7 @@ public class PieceNode extends ShaderTemplateNode {
 	String name;
 
 	public PieceNode(String name) {
-		this.name = name;
+		this.name = name.trim();
 	}
 
 	@Override

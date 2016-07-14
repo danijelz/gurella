@@ -6,6 +6,8 @@ public class ShaderUnifrom {
 	private String name;
 	private ShaderVariableType type;
 	private UniformScope scope;
+	private String defineProperty;
+	
 	private boolean editable;
 	private boolean required;
 	private int cardinality = 1;
