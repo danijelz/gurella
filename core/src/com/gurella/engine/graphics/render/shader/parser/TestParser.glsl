@@ -126,4 +126,16 @@ dd
 
 @for (2, n)@@
 inSkippedForLoop + @value(n)@@
+@end
+
+@define( dddAaa   )@@
+@ifdef(  dddAaa )@@
+ifdefText dddAaa@@
+@end
+
+@undefine( dddAaa   )@@
+@ifdef(  !dddAaa )@@
+ifdefText !dddAaa@@
 @end@@
+
+

@@ -21,7 +21,9 @@ enum ShaderParserBlockType {
 	mod,
 	min,
 	max,
-	value;
+	value,
+	define,
+	undefine;
 
 	public final boolean composite;
 

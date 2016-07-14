@@ -1,6 +1,7 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.add;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.define;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.div;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.foreach;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.ifdef;
@@ -14,6 +15,7 @@ import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlock
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.piece;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.set;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.sub;
+import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.undefine;
 import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.value;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -36,6 +38,8 @@ class ShaderTemplateTokens {
 	static final char[] minToken = "@min".toCharArray();
 	static final char[] maxToken = "@max".toCharArray();
 	static final char[] valueToken = "@value".toCharArray();
+	static final char[] defineToken = "@define".toCharArray();
+	static final char[] undefineToken = "@undefine".toCharArray();
 	static final char[] multiLineCommentToken = "/*".toCharArray();
 	static final char[] singleLineCommentToken = "//".toCharArray();
 	static final char[] skipLineCommentToken = "@@".toCharArray();
@@ -60,6 +64,8 @@ class ShaderTemplateTokens {
 		putToken(minToken, min);
 		putToken(maxToken, max);
 		putToken(valueToken, value);
+		putToken(defineToken, define);
+		putToken(undefineToken, undefine);
 	}
 
 	private static void putToken(char[] token, ShaderParserBlockType blockType) {

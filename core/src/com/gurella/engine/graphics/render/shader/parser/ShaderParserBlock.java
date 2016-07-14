@@ -1,11 +1,9 @@
 package com.gurella.engine.graphics.render.shader.parser;
 
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.multiLineComment;
-import static com.gurella.engine.graphics.render.shader.parser.ShaderParserBlockType.text;
-
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.graphics.render.shader.template.AddNode;
+import com.gurella.engine.graphics.render.shader.template.DefineNode;
 import com.gurella.engine.graphics.render.shader.template.DivNode;
 import com.gurella.engine.graphics.render.shader.template.ForNode;
 import com.gurella.engine.graphics.render.shader.template.IfdefNode;
@@ -20,6 +18,7 @@ import com.gurella.engine.graphics.render.shader.template.SetNode;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplateNode;
 import com.gurella.engine.graphics.render.shader.template.SubNode;
+import com.gurella.engine.graphics.render.shader.template.UndefineNode;
 import com.gurella.engine.graphics.render.shader.template.ValueNode;
 
 class ShaderParserBlock implements Poolable {
@@ -70,6 +69,12 @@ class ShaderParserBlock implements Poolable {
 			return;
 		case value:
 			node.addChild(new ValueNode(value.toString()));
+			return;
+		case define:
+			node.addChild(new DefineNode(value.toString()));
+			return;
+		case undefine:
+			node.addChild(new UndefineNode(value.toString()));
 			return;
 		case text:
 			if (value.length() > 0) {
