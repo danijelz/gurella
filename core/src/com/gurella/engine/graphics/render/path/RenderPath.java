@@ -41,6 +41,10 @@ public class RenderPath {
 	public void removeEffect(Effect effect) {
 		effects.removeValue(effect, true);
 	}
+	
+	protected void addRenderTarget() {
+		
+	}
 
 	public static class RenderPathMaterialProperties {
 		private Object nonGlslProperties;
@@ -48,9 +52,5 @@ public class RenderPath {
 		private Object vetrexStruct;
 		private Object fragmentStruct;
 		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
-	}
-	
-	protected void addRenderTarget() {
-		
 	}
 }
