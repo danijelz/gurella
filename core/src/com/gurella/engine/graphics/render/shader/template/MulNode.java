@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class MulNode extends EvaluateNode {
-	public MulNode(String expression) {
-		super(expression);
+	public MulNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

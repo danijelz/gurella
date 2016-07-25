@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class AddNode extends EvaluateNode {
-	public AddNode(String expression) {
-		super(expression);
+	public AddNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

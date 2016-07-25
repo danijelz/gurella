@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class MaxNode extends EvaluateNode {
-	public MaxNode(String expression) {
-		super(expression);
+	public MaxNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class ModNode extends EvaluateNode {
-	public ModNode(String expression) {
-		super(expression);
+	public ModNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

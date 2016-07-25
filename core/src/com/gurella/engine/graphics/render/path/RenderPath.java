@@ -30,6 +30,10 @@ public class RenderPath {
 		comandBuffer.add(command);
 	}
 
+	public void insertRenderCommand(int index, RenderCommand command) {
+		comandBuffer.insert(index, command);
+	}
+
 	public void removeRenderCommand(RenderCommand command) {
 		comandBuffer.remove(command);
 	}
@@ -41,9 +45,9 @@ public class RenderPath {
 	public void removeEffect(Effect effect) {
 		effects.removeValue(effect, true);
 	}
-	
+
 	protected void addRenderTarget() {
-		
+
 	}
 
 	public static class RenderPathMaterialProperties {
@@ -51,6 +55,7 @@ public class RenderPath {
 		private ObjectMap<String, ShaderUnifrom> uniforms;
 		private Object vetrexStruct;
 		private Object fragmentStruct;
-		//TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive shadows...)
+		// TODO when render path is selected all materials can provide this properties (eg.: cast shadows, receive
+		// shadows...)
 	}
 }

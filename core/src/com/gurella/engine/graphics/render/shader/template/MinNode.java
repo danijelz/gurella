@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class MinNode extends EvaluateNode {
-	public MinNode(String expression) {
-		super(expression);
+	public MinNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

@@ -137,9 +137,19 @@ public class ShaderTemplateParser implements Poolable {
 			case mod:
 			case min:
 			case max:
-			case value:
 			case define:
 			case undefine:
+			case pset:
+			case pmul:
+			case padd:
+			case psub:
+			case pdiv:
+			case pmod:
+			case pmin:
+			case pmax:
+			case pdefine:
+			case pundefine:
+			case value:
 				if (parenthesisOpened) {
 					if (')' == c) {
 						pop(1);

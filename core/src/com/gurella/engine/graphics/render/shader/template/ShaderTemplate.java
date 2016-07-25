@@ -49,6 +49,7 @@ public class ShaderTemplate extends ShaderTemplateNode {
 
 	@Override
 	public void generate(ShaderGeneratorContext context) {
+		preprocessChildren(context);
 		generateChildren(context);
 	}
 

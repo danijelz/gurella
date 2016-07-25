@@ -2,17 +2,21 @@ package com.gurella.engine.graphics.render.shader.parser;
 
 enum ShaderParserBlockType {
 	root(true),
+
 	singleLineComment,
 	multiLineComment,
 	skipLine,
+
 	include,
 	piece(true),
 	blockContent(true),
 	insertPiece,
 	text,
+
 	ifdef(true),
 	ifexp(true),
 	foreach(true),
+
 	set,
 	mul,
 	add,
@@ -21,9 +25,21 @@ enum ShaderParserBlockType {
 	mod,
 	min,
 	max,
-	value,
 	define,
-	undefine;
+	undefine,
+
+	pset,
+	pmul,
+	padd,
+	psub,
+	pdiv,
+	pmod,
+	pmin,
+	pmax,
+	pdefine,
+	pundefine,
+
+	value;
 
 	public final boolean composite;
 

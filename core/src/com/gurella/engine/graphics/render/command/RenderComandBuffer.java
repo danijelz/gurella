@@ -10,6 +10,10 @@ public class RenderComandBuffer {
 		commands.add(command);
 	}
 
+	public void insert(int index, RenderCommand command) {
+		commands.insert(index, command);
+	}
+
 	public void remove(RenderCommand command) {
 		commands.removeValue(command, true);
 	}

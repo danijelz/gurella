@@ -22,6 +22,16 @@ public abstract class ShaderTemplateNode {
 		children.add(new TextNode(sequence));
 	}
 
+	protected void preprocessChildren(ShaderGeneratorContext context) {
+		for (int i = 0, n = children.size; i < n; i++) {
+			ShaderTemplateNode child = children.get(i);
+			if (child instanceof PreprocessedShaderTemplateNode) {
+				((PreprocessedShaderTemplateNode) child).preprocess(context);
+			}
+			child.preprocessChildren(context);
+		}
+	}
+
 	protected abstract void generate(ShaderGeneratorContext context);
 
 	protected void generateChildren(ShaderGeneratorContext context) {

@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class DivNode extends EvaluateNode {
-	public DivNode(String expression) {
-		super(expression);
+	public DivNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

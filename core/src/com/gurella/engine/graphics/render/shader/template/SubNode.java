@@ -1,8 +1,8 @@
 package com.gurella.engine.graphics.render.shader.template;
 
 public class SubNode extends EvaluateNode {
-	public SubNode(String expression) {
-		super(expression);
+	public SubNode(boolean preprocessed, String expression) {
+		super(preprocessed, expression);
 	}
 
 	@Override

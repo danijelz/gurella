@@ -139,3 +139,11 @@ ifdefText !dddAaa@@
 @end@@
 
 
+@ifexp(testPsetVar, 0)ifexp(testPsetVar, 0)@end
+
+@pset(testPsetVar, 1)@@
+@padd(testPsetVar, 1)@@
+@psub(testPsetVar, 1)@@
+@pmul(testPsetVar, 1)@@
+@pdiv(testPsetVar, 1)@@
+@pmod(testPsetVar, 1)@@
