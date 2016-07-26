@@ -120,11 +120,16 @@ public class ShaderTemplateParser implements Poolable {
 				break;
 			case skipLine:
 				boolean linebreak = '\n' == c || '\r' == c;
-				if (linebreak && !skipLineEnded) {
+				if (skipLineEnded) {
+					int currentLength = currentText.length();
+					if (linebreak && currentText.charAt(currentLength - 1) != currentText.charAt(currentLength - 2)) {
+						pop(0);
+					} else {
+						pop(1);
+						i--;
+					}
+				} else if (linebreak) {
 					skipLineEnded = true;
-				} else if (!linebreak && skipLineEnded) {
-					pop(1);
-					i--;
 				}
 				break;
 			case include:

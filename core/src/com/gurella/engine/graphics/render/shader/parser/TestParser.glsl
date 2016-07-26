@@ -147,3 +147,7 @@ ifdefText !dddAaa@@
 @pmul(testPsetVar, 1)@@
 @pdiv(testPsetVar, 1)@@
 @pmod(testPsetVar, 1)@@
+
+@for (2, n, 1)@@
+forStatementWithStartIndex@@
+@end
