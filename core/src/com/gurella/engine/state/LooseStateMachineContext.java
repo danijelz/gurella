@@ -1,14 +1,15 @@
 package com.gurella.engine.state;
 
-public abstract class LooseStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
-	public LooseStateMachineContext(STATE initialState) {
+public class LooseStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
+	private StateTransition<STATE> defaultTransition;
+
+	public LooseStateMachineContext(STATE initialState, StateTransition<STATE> defaultTransition) {
 		super(initialState);
+		this.defaultTransition = defaultTransition;
 	}
 
 	@Override
-	public StateTransition<STATE> getStateTransition(STATE newState) {
-		return getStateTransition(getInitialState(), newState);
+	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
+		return defaultTransition;
 	}
-
-	protected abstract StateTransition<STATE> getStateTransition(STATE currentState, STATE newState);
 }

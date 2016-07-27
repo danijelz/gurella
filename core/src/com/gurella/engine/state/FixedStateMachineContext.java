@@ -27,9 +27,8 @@ public class FixedStateMachineContext<STATE> extends BaseStateMachineContext<STA
 	}
 
 	@Override
-	public StateTransition<STATE> getStateTransition(STATE newState) {
-		STATE currentState = getInitialState();
-		ObjectMap<STATE, StateTransition<STATE>> stateTransitions = validTransitions.get(currentState);
-		return stateTransitions == null ? null : stateTransitions.get(newState);
+	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
+		ObjectMap<STATE, StateTransition<STATE>> stateTransitions = validTransitions.get(sourceState);
+		return stateTransitions == null ? null : stateTransitions.get(destinationState);
 	}
 }

@@ -38,10 +38,9 @@ public abstract class HierarchicalStateMachineContext<STATE> extends BaseStateMa
 	}
 
 	@Override
-	public StateTransition<STATE> getStateTransition(STATE newState) {
-		STATE currentState = getInitialState();
-		if (isValidTransition(currentState, newState)) {
-			return getStateTransition(currentState, newState, areInSameBranch(currentState, newState));
+	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
+		if (isValidTransition(sourceState, destinationState)) {
+			return getStateTransition(sourceState, destinationState, areInSameBranch(sourceState, destinationState));
 		} else {
 			return null;
 		}

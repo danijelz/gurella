@@ -14,21 +14,7 @@ public class StackStateMachineContext<STATE> implements StateMachineContext<STAT
 		this.delegate = delegate;
 		this.popState = popState;
 		this.defaultPopTransition = defaultPopTransition;
-	}
-
-	@Override
-	public void stateChanged(STATE newState) {
 		stateStack.add(getInitialState());
-		delegate.stateChanged(newState);
-	}
-
-	@Override
-	public StateTransition<STATE> getStateTransition(STATE newState) {
-		StateTransition<STATE> transition = delegate.getStateTransition(newState);
-		if (transition == null && newState == popState) {
-			return defaultPopTransition;
-		}
-		return transition;
 	}
 
 	@Override
@@ -37,8 +23,24 @@ public class StackStateMachineContext<STATE> implements StateMachineContext<STAT
 	}
 
 	@Override
+	public void stateChanged(STATE newState) {
+		stateStack.add(newState);
+		delegate.stateChanged(newState);
+	}
+
+	@Override
+	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
+		StateTransition<STATE> transition = delegate.getStateTransition(sourceState, destinationState);
+		if (transition == null && destinationState == popState) {
+			return defaultPopTransition;
+		}
+		return transition;
+	}
+
+	@Override
 	public void reset() {
 		delegate.reset();
 		stateStack.clear();
+		stateStack.add(getInitialState());
 	}
 }

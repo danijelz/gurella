@@ -16,7 +16,7 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	private STATE currentState;
 
 	private StateTransition<STATE> currentTransition;
-	private STATE transitionDestinationState;
+	private STATE destinationState;
 
 	public StateMachine(StateMachineContext<STATE> context) {
 		this.context = context;
@@ -24,23 +24,23 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	}
 
 	public boolean apply(STATE newState) {
-		StateTransition<STATE> stateTransition = getStateTransition(newState);
+		StateTransition<STATE> stateTransition = getStateTransition();
 
 		if (stateTransition == null) {
 			return false;
 		} else {
 			currentTransition = stateTransition;
-			transitionDestinationState = newState;
+			destinationState = newState;
 			processTransition();
 			return true;
 		}
 	}
 
-	private StateTransition<STATE> getStateTransition(STATE newState) {
+	private StateTransition<STATE> getStateTransition() {
 		if (isInTransition()) {
 			return null;
 		} else {
-			return context.getStateTransition(newState);
+			return context.getStateTransition(currentState, destinationState);
 		}
 	}
 
@@ -53,19 +53,19 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	}
 
 	private void endTransition() {
-		context.stateChanged(transitionDestinationState);
+		context.stateChanged(destinationState);
 		dispatchStateChanged();
-		currentState = transitionDestinationState;
+		currentState = destinationState;
 
 		currentTransition = null;
-		transitionDestinationState = null;
+		destinationState = null;
 	}
 
 	private void dispatchStateChanged() {
-		signal.dispatch(currentState, transitionDestinationState);
-		StateChangedSignal signal = stateListeners.get(transitionDestinationState);
+		signal.dispatch(currentState, destinationState);
+		StateChangedSignal signal = stateListeners.get(destinationState);
 		if (signal != null) {
-			signal.dispatch(currentState, transitionDestinationState);
+			signal.dispatch(currentState, destinationState);
 		}
 	}
 
@@ -128,6 +128,7 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	public void reset() {
 		stateListeners.clear();
 		context.reset();
+		currentState = context.getInitialState();
 	}
 
 	public interface StateChangedListener<STATE> {
