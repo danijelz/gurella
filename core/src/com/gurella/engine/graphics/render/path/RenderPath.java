@@ -3,6 +3,7 @@ package com.gurella.engine.graphics.render.path;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.RenderContext;
+import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.command.CompositeRenderCommand;
 import com.gurella.engine.graphics.render.command.RenderComandBuffer;
 import com.gurella.engine.graphics.render.command.RenderCommand;
@@ -16,6 +17,7 @@ public class RenderPath {
 	private final Array<Effect> effects = new Array<Effect>();
 
 	private final RenderContext context = new RenderContext();
+	private final ObjectMap<String, RenderTarget> targetsByName = new ObjectMap<String, RenderTarget>();
 
 	public RenderPath() {
 		rootBuffer.add(new CompositeRenderCommand(comandBuffer));
@@ -46,7 +48,7 @@ public class RenderPath {
 		effects.removeValue(effect, true);
 	}
 
-	protected void addRenderTarget() {
+	protected void addRenderTarget(String name) {
 
 	}
 

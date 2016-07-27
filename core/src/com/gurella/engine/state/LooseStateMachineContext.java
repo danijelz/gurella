@@ -1,8 +1,6 @@
-package com.gurella.engine.state.transitionmanager;
+package com.gurella.engine.state;
 
-import com.gurella.engine.state.StateTransition;
-
-public abstract class LooseStateMachineContext<STATE> extends AbstractStateContext<STATE> {
+public abstract class LooseStateMachineContext<STATE> extends BaseStateContext<STATE> {
 	public LooseStateMachineContext(STATE initialState) {
 		super(initialState);
 	}

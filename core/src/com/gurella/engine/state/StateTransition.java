@@ -5,14 +5,12 @@ public interface StateTransition<STATE> {
 
 	STATE getDestination();
 
-	void process();
-
-	boolean isFinished();
+	boolean process();
 
 	public static class SimpleStateTransition<STATE> implements StateTransition<STATE> {
 		private STATE source;
 		private STATE destination;
-		
+
 		public SimpleStateTransition(STATE source, STATE destination) {
 			this.source = source;
 			this.destination = destination;
@@ -29,11 +27,7 @@ public interface StateTransition<STATE> {
 		}
 
 		@Override
-		public void process() {
-		}
-
-		@Override
-		public boolean isFinished() {
+		public boolean process() {
 			return true;
 		}
 	}

@@ -1,6 +1,4 @@
-package com.gurella.engine.state.transitionmanager;
-
-import com.gurella.engine.state.StateTransition;
+package com.gurella.engine.state;
 
 public interface StateContext<STATE> {
 	StateTransition<STATE> getStateTransition(STATE newState);
@@ -9,5 +7,5 @@ public interface StateContext<STATE> {
 
 	STATE getCurrentState();
 	
-	STATE getInitialState();
+	void reset();
 }

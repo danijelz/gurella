@@ -1,10 +1,10 @@
-package com.gurella.engine.state.transitionmanager;
+package com.gurella.engine.state;
 
-public abstract class AbstractStateContext<STATE> implements StateContext<STATE> {
+public abstract class BaseStateContext<STATE> implements StateContext<STATE> {
 	private STATE initialState;
 	private STATE currentState;
 
-	public AbstractStateContext(STATE initialState) {
+	public BaseStateContext(STATE initialState) {
 		this.initialState = initialState;
 		stateChanged(initialState);
 	}
@@ -18,9 +18,9 @@ public abstract class AbstractStateContext<STATE> implements StateContext<STATE>
 	public void stateChanged(STATE newState) {
 		currentState = newState;
 	}
-	
+
 	@Override
-	public STATE getInitialState() {
-		return initialState;
+	public void reset() {
+		stateChanged(initialState);
 	}
 }

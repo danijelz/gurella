@@ -1,11 +1,10 @@
-package com.gurella.engine.state.transitionmanager;
+package com.gurella.engine.state;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.state.StateTransition;
 
-public abstract class HierarchicalStateMachineContext<STATE> extends AbstractStateContext<STATE> {
+public abstract class HierarchicalStateMachineContext<STATE> extends BaseStateContext<STATE> {
 	private ObjectMap<STATE, ObjectSet<STATE>> validTransitions = new ObjectMap<STATE, ObjectSet<STATE>>();
 	private ObjectMap<STATE, Array<STATE>> subsStates = new ObjectMap<STATE, Array<STATE>>();
 	private ObjectMap<STATE, STATE> parentStates = new ObjectMap<STATE, STATE>();

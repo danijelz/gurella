@@ -1,10 +1,9 @@
-package com.gurella.engine.state.transitionmanager;
+package com.gurella.engine.state;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.state.StateTransition;
 import com.gurella.engine.state.StateTransition.SimpleStateTransition;
 
-public class FixedStateMachineContext<STATE> extends AbstractStateContext<STATE> {
+public class FixedStateMachineContext<STATE> extends BaseStateContext<STATE> {
 	private ObjectMap<STATE, ObjectMap<STATE, StateTransition<STATE>>> validTransitions = new ObjectMap<STATE, ObjectMap<STATE, StateTransition<STATE>>>();
 
 	public FixedStateMachineContext(STATE initialState) {
@@ -31,10 +30,7 @@ public class FixedStateMachineContext<STATE> extends AbstractStateContext<STATE>
 	@Override
 	public StateTransition<STATE> getStateTransition(STATE newState) {
 		STATE currentState = getCurrentState();
-		if (!validTransitions.containsKey(currentState)) {
-			return null;
-		} else {
-			return validTransitions.get(currentState).get(newState);
-		}
+		ObjectMap<STATE, StateTransition<STATE>> stateTransitions = validTransitions.get(currentState);
+		return stateTransitions == null ? null : stateTransitions.get(newState);
 	}
 }
