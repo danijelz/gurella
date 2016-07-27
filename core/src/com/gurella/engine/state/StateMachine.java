@@ -12,12 +12,15 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	private StateChangedSignal signal = new StateChangedSignal();
 	private ObjectMap<STATE, StateChangedSignal> stateListeners = new ObjectMap<STATE, StateChangedSignal>();
 
-	private StateContext<STATE> context;
+	private StateMachineContext<STATE> context;
+	private STATE currentState;
 
 	private StateTransition<STATE> currentTransition;
+	private STATE transitionDestinationState;
 
-	public StateMachine(StateContext<STATE> stateTransitionManager) {
-		this.context = stateTransitionManager;
+	public StateMachine(StateMachineContext<STATE> context) {
+		this.context = context;
+		currentState = context.getInitialState();
 	}
 
 	public boolean apply(STATE newState) {
@@ -27,6 +30,7 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 			return false;
 		} else {
 			currentTransition = stateTransition;
+			transitionDestinationState = newState;
 			processTransition();
 			return true;
 		}
@@ -49,23 +53,24 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	}
 
 	private void endTransition() {
-		STATE oldState = currentTransition.getSource();
-		STATE newState = currentTransition.getDestination();
-		context.stateChanged(newState);
-		dispatchStateChanged(oldState, newState);
+		context.stateChanged(transitionDestinationState);
+		dispatchStateChanged();
+		currentState = transitionDestinationState;
+
 		currentTransition = null;
+		transitionDestinationState = null;
 	}
 
-	private void dispatchStateChanged(STATE oldState, STATE newState) {
-		signal.dispatch(oldState, newState);
-		StateChangedSignal signal = stateListeners.get(newState);
+	private void dispatchStateChanged() {
+		signal.dispatch(currentState, transitionDestinationState);
+		StateChangedSignal signal = stateListeners.get(transitionDestinationState);
 		if (signal != null) {
-			signal.dispatch(oldState, newState);
+			signal.dispatch(currentState, transitionDestinationState);
 		}
 	}
 
 	public STATE getCurrentState() {
-		return context.getCurrentState();
+		return currentState;
 	}
 
 	public boolean isInState(STATE... states) {

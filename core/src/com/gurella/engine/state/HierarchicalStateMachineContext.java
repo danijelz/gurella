@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 
-public abstract class HierarchicalStateMachineContext<STATE> extends BaseStateContext<STATE> {
+public abstract class HierarchicalStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
 	private ObjectMap<STATE, ObjectSet<STATE>> validTransitions = new ObjectMap<STATE, ObjectSet<STATE>>();
 	private ObjectMap<STATE, Array<STATE>> subsStates = new ObjectMap<STATE, Array<STATE>>();
 	private ObjectMap<STATE, STATE> parentStates = new ObjectMap<STATE, STATE>();
@@ -39,7 +39,7 @@ public abstract class HierarchicalStateMachineContext<STATE> extends BaseStateCo
 
 	@Override
 	public StateTransition<STATE> getStateTransition(STATE newState) {
-		STATE currentState = getCurrentState();
+		STATE currentState = getInitialState();
 		if (isValidTransition(currentState, newState)) {
 			return getStateTransition(currentState, newState, areInSameBranch(currentState, newState));
 		} else {
