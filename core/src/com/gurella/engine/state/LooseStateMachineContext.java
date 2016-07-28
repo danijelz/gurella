@@ -9,7 +9,7 @@ public class LooseStateMachineContext<STATE> extends BaseStateMachineContext<STA
 	}
 
 	@Override
-	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
+	public StateTransition<STATE> getTransition(STATE sourceState, STATE destinationState) {
 		return defaultTransition;
 	}
 }

@@ -14,6 +14,12 @@ public abstract class BaseStateMachineContext<STATE> implements StateMachineCont
 	}
 
 	@Override
+	public StateTransition<STATE> getInterruptTransition(STATE source, STATE originalDestination,
+			StateTransition<STATE> originalTransition, STATE newDestination) {
+		return null;
+	}
+
+	@Override
 	public void stateChanged(STATE newState) {
 	}
 

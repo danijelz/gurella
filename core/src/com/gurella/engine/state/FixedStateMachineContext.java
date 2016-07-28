@@ -11,10 +11,25 @@ public class FixedStateMachineContext<STATE> extends BaseStateMachineContext<STA
 	}
 
 	public FixedStateMachineContext<STATE> put(STATE source, STATE destination) {
-		return put(source, destination, SimpleStateTransition.<STATE> getInstance());
+		return put(SimpleStateTransition.<STATE> getInstance(), source, destination);
 	}
 
-	public FixedStateMachineContext<STATE> put(STATE source, STATE destination, StateTransition<STATE> transition) {
+	public FixedStateMachineContext<STATE> put(STATE source, STATE... destinations) {
+		SimpleStateTransition<STATE> transition = SimpleStateTransition.<STATE> getInstance();
+		for (STATE destination : destinations) {
+			put(transition, source, destination);
+		}
+		return this;
+	}
+
+	public FixedStateMachineContext<STATE> put(StateTransition<STATE> transition, STATE source, STATE... destinations) {
+		for (STATE destination : destinations) {
+			put(transition, source, destination);
+		}
+		return this;
+	}
+
+	public FixedStateMachineContext<STATE> put(StateTransition<STATE> transition, STATE source, STATE destination) {
 		ObjectMap<STATE, StateTransition<STATE>> triggersMap = validTransitions.get(source);
 
 		if (triggersMap == null) {
@@ -27,7 +42,7 @@ public class FixedStateMachineContext<STATE> extends BaseStateMachineContext<STA
 	}
 
 	@Override
-	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
+	public StateTransition<STATE> getTransition(STATE sourceState, STATE destinationState) {
 		ObjectMap<STATE, StateTransition<STATE>> stateTransitions = validTransitions.get(sourceState);
 		return stateTransitions == null ? null : stateTransitions.get(destinationState);
 	}

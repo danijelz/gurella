@@ -1,16 +1,18 @@
 package com.gurella.engine.state;
 
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.event.Signal;
+import com.gurella.engine.event.SubscriptionEvent;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 @TypePriority(priority = CommonUpdatePriority.logicPriority, type = ApplicationUpdateListener.class)
 public class StateMachine<STATE> implements ApplicationUpdateListener {
+	// private int instanceId;
+	// private StateChangedEvent<STATE> stateChangedEvent = new StateChangedEvent<STATE>();
 	private StateChangedSignal signal = new StateChangedSignal();
-	private ObjectMap<STATE, StateChangedSignal> stateListeners = new ObjectMap<STATE, StateChangedSignal>();
 
 	private StateMachineContext<STATE> context;
 	private STATE currentState;
@@ -19,28 +21,29 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	private STATE destinationState;
 
 	public StateMachine(StateMachineContext<STATE> context) {
+		// instanceId = SequenceGenerator.next();
 		this.context = context;
 		currentState = context.getInitialState();
 	}
 
-	public boolean apply(STATE newState) {
-		StateTransition<STATE> stateTransition = getStateTransition();
+	public boolean apply(STATE destination) {
+		StateTransition<STATE> stateTransition = getStateTransition(destination);
 
 		if (stateTransition == null) {
 			return false;
 		} else {
 			currentTransition = stateTransition;
-			destinationState = newState;
+			destinationState = destination;
 			processTransition();
 			return true;
 		}
 	}
 
-	private StateTransition<STATE> getStateTransition() {
+	private StateTransition<STATE> getStateTransition(STATE destination) {
 		if (isInTransition()) {
-			return null;
+			return context.getInterruptTransition(currentState, destinationState, currentTransition, destination);
 		} else {
-			return context.getStateTransition(currentState, destinationState);
+			return context.getTransition(currentState, destination);
 		}
 	}
 
@@ -54,19 +57,11 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 
 	private void endTransition() {
 		context.stateChanged(destinationState);
-		dispatchStateChanged();
+		signal.dispatch(currentState, destinationState);
 		currentState = destinationState;
 
 		currentTransition = null;
 		destinationState = null;
-	}
-
-	private void dispatchStateChanged() {
-		signal.dispatch(currentState, destinationState);
-		StateChangedSignal signal = stateListeners.get(destinationState);
-		if (signal != null) {
-			signal.dispatch(currentState, destinationState);
-		}
 	}
 
 	public STATE getCurrentState() {
@@ -106,33 +101,18 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 		}
 	}
 
-	public void addListener(StateChangedListener<STATE> listener, STATE... states) {
-		if (listener != null) {
-			for (STATE state : states) {
-				StateMachine<STATE>.StateChangedSignal signal = stateListeners.get(state);
-				if (signal != null) {
-					signal = new StateChangedSignal();
-					stateListeners.put(state, signal);
-				}
-				signal.addListener(listener);
-			}
-		}
-	}
-
 	public void removeListener(STATE state, StateChangedListener<STATE> listener) {
-		if (listener != null && stateListeners.containsKey(state)) {
-			stateListeners.get(state).removeListener(listener);
-		}
+		signal.removeListener(listener);
 	}
 
 	public void reset() {
-		stateListeners.clear();
+		signal.clear();
 		context.reset();
 		currentState = context.getInitialState();
 	}
 
-	public interface StateChangedListener<STATE> {
-		void stateChanged(STATE oldState, STATE newState);
+	public interface StateChangedListener<STATE> extends EventSubscription {
+		void stateChanged(STATE sourceState, STATE destinationState);
 	}
 
 	private class StateChangedSignal extends Signal<StateChangedListener<STATE>> {
@@ -142,6 +122,21 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 				items[i].stateChanged(oldState, newState);
 			}
 			listeners.end();
+		}
+	}
+
+	private static class StateChangedEvent<STATE> extends SubscriptionEvent<StateChangedListener> {
+		STATE sourceState;
+		STATE destinationState;
+
+		private StateChangedEvent() {
+			super(StateChangedListener.class);
+		}
+
+		@Override
+		protected void notify(StateChangedListener listener) {
+			listener.stateChanged(sourceState, destinationState);
+
 		}
 	}
 }

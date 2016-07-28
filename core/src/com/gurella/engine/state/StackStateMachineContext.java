@@ -23,18 +23,24 @@ public class StackStateMachineContext<STATE> implements StateMachineContext<STAT
 	}
 
 	@Override
-	public void stateChanged(STATE newState) {
+	public final void stateChanged(STATE newState) {
 		stateStack.add(newState);
 		delegate.stateChanged(newState);
 	}
 
 	@Override
-	public StateTransition<STATE> getStateTransition(STATE sourceState, STATE destinationState) {
-		StateTransition<STATE> transition = delegate.getStateTransition(sourceState, destinationState);
+	public StateTransition<STATE> getTransition(STATE sourceState, STATE destinationState) {
+		StateTransition<STATE> transition = delegate.getTransition(sourceState, destinationState);
 		if (transition == null && destinationState == popState) {
 			return defaultPopTransition;
 		}
 		return transition;
+	}
+
+	@Override
+	public StateTransition<STATE> getInterruptTransition(STATE source, STATE originalDestination,
+			StateTransition<STATE> originalTransition, STATE newDestination) {
+		return delegate.getInterruptTransition(source, originalDestination, originalTransition, newDestination);
 	}
 
 	@Override
