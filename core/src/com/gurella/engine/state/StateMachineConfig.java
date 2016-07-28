@@ -37,7 +37,7 @@ public class StateMachineConfig<STATE> {
 		return setParent(parent);
 	}
 
-	private StateMachineConfig<STATE> setParent(STATE parent) {
+	public StateMachineConfig<STATE> setParent(STATE parent) {
 		stateConfig.parent = parent;
 		getStateConfig(parent).children.add(stateConfig.state);
 		return this;
@@ -58,6 +58,12 @@ public class StateMachineConfig<STATE> {
 		return this;
 	}
 
+	public StateMachineConfig interruption(STATE destination) {
+		getStateConfig(destination);
+		transition = transition.getInterruptConfig(destination);
+		return this;
+	}
+
 	public StateMachineConfig enterAction(TransitionAction enterAction) {
 		transition.enterAction = enterAction;
 		return this;
@@ -71,6 +77,11 @@ public class StateMachineConfig<STATE> {
 	public StateMachineConfig guard(Predicate<StateMachineContext<STATE>> guard) {
 		transition.guard = guard;
 		return this;
+	}
+
+	public StateMachineContext<STATE> build() {
+		// TODO
+		return null;
 	}
 
 	public interface TransitionAction {
@@ -99,10 +110,20 @@ public class StateMachineConfig<STATE> {
 	}
 
 	private static class StateTransitionConfig<STATE> implements StateTransition<STATE> {
-		TransitionAction exitAction;
-		TransitionAction enterAction;
-		TransitionAction currentAction;
-		Predicate<StateMachineContext<STATE>> guard;
+		private TransitionAction exitAction;
+		private TransitionAction enterAction;
+		private TransitionAction currentAction;
+		private Predicate<StateMachineContext<STATE>> guard;
+		private ObjectMap<STATE, StateTransitionConfig<STATE>> validInterrupts = new ObjectMap<STATE, StateTransitionConfig<STATE>>();
+
+		StateTransitionConfig<STATE> getInterruptConfig(STATE destination) {
+			StateTransitionConfig<STATE> transitionConfig = validInterrupts.get(destination);
+			if (transitionConfig == null) {
+				transitionConfig = new StateTransitionConfig<STATE>();
+				validInterrupts.put(destination, transitionConfig);
+			}
+			return transitionConfig;
+		}
 
 		@Override
 		public boolean process() {
@@ -123,6 +144,37 @@ public class StateMachineConfig<STATE> {
 
 			return false;
 		}
+	}
 
+	private static class ConfigurableStateMachineContext<STATE> implements StateMachineContext<STATE> {
+		private STATE initial;
+		private Array<STATE> stateStack;
+		private ObjectMap<STATE, StateConfig<STATE>> states = new ObjectMap<STATE, StateConfig<STATE>>();
+
+		@Override
+		public STATE getInitialState() {
+			return initial;
+		}
+
+		@Override
+		public StateTransition<STATE> getTransition(STATE source, STATE destination) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public StateTransition<STATE> getInterruptTransition(STATE source, STATE currentDestination,
+				StateTransition<STATE> currentTransition, STATE newDestination) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void stateChanged(STATE newState) {
+		}
+
+		@Override
+		public void reset() {
+		}
 	}
 }
