@@ -101,7 +101,7 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 		}
 	}
 
-	public void removeListener(STATE state, StateChangedListener<STATE> listener) {
+	public void removeListener(StateChangedListener<STATE> listener) {
 		signal.removeListener(listener);
 	}
 
