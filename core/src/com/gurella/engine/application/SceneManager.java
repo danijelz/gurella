@@ -104,13 +104,13 @@ public class SceneManager {
 		TransitionWorker() {
 			FixedStateMachineContext<SceneTransitionState> context = new FixedStateMachineContext<SceneTransitionState>(
 					SceneTransitionState.OUT);
-			context.put(SceneTransitionState.OUT, SceneTransitionState.HOLD);
-			context.put(SceneTransitionState.HOLD, SceneTransitionState.IN);
-			context.put(SceneTransitionState.IN, SceneTransitionState.OUT);
-			context.put(SceneTransitionState.OUT, SceneTransitionState.EXCEPTION);
-			context.put(SceneTransitionState.HOLD, SceneTransitionState.EXCEPTION);
-			context.put(SceneTransitionState.IN, SceneTransitionState.EXCEPTION);
-			context.put(SceneTransitionState.EXCEPTION, SceneTransitionState.OUT);
+			context.addTransition(SceneTransitionState.OUT, SceneTransitionState.HOLD);
+			context.addTransition(SceneTransitionState.HOLD, SceneTransitionState.IN);
+			context.addTransition(SceneTransitionState.IN, SceneTransitionState.OUT);
+			context.addTransition(SceneTransitionState.OUT, SceneTransitionState.EXCEPTION);
+			context.addTransition(SceneTransitionState.HOLD, SceneTransitionState.EXCEPTION);
+			context.addTransition(SceneTransitionState.IN, SceneTransitionState.EXCEPTION);
+			context.addTransition(SceneTransitionState.EXCEPTION, SceneTransitionState.OUT);
 
 			transitionStateManager = new StateMachine<SceneTransitionState>(context);
 		}
