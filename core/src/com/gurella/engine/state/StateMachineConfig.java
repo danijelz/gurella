@@ -11,7 +11,7 @@ public class StateMachineConfig<STATE> {
 	private ObjectMap<STATE, StateConfig<STATE>> states = new ObjectMap<STATE, StateConfig<STATE>>();
 
 	private StateConfig<STATE> stateConfig;
-	private StateTransitionConfig<STATE> transition;
+	private TransitionConfig<STATE> transition;
 
 	public static <STATE> StateMachineConfig<STATE> initial(STATE initial) {
 		return new StateMachineConfig<STATE>(initial, false);
@@ -34,12 +34,13 @@ public class StateMachineConfig<STATE> {
 
 	public StateMachineConfig<STATE> configure(STATE state, STATE parent) {
 		configure(state);
-		return setParent(parent);
+		return parent(parent);
 	}
 
-	public StateMachineConfig<STATE> setParent(STATE parent) {
-		stateConfig.parent = parent;
-		getStateConfig(parent).children.add(stateConfig.state);
+	public StateMachineConfig<STATE> parent(STATE parent) {
+		StateConfig parentConfig = getStateConfig(parent);
+		stateConfig.parent = parentConfig;
+		parentConfig.children.add(stateConfig.state);
 		return this;
 	}
 
@@ -53,14 +54,14 @@ public class StateMachineConfig<STATE> {
 	}
 
 	public StateMachineConfig transition(STATE destination) {
-		getStateConfig(destination);
-		transition = stateConfig.getTransitionConfig(destination);
+		StateConfig destinationConfig = getStateConfig(destination);
+		transition = stateConfig.getTransitionConfig(destinationConfig);
 		return this;
 	}
 
 	public StateMachineConfig interruption(STATE destination) {
-		getStateConfig(destination);
-		transition = transition.getInterruptConfig(destination);
+		StateConfig destinationConfig = getStateConfig(destination);
+		transition = transition.getInterruptConfig(destinationConfig);
 		return this;
 	}
 
@@ -90,36 +91,44 @@ public class StateMachineConfig<STATE> {
 
 	private static class StateConfig<STATE> {
 		private STATE state;
-		private boolean reentrant;
-		private ObjectMap<STATE, StateTransitionConfig<STATE>> validTransitions = new ObjectMap<STATE, StateTransitionConfig<STATE>>();
-		private STATE parent;
-		private Array<STATE> children = new Array<STATE>();
+		private StateConfig parent;
+		private Array<STATE> children = new Array<STATE>();//TODO remove
+		
+		private TransitionConfig<STATE> reentrant;
+		private ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>> validTransitions = new ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>>();
 
 		StateConfig(STATE state) {
 			this.state = state;
 		}
 
-		StateTransitionConfig<STATE> getTransitionConfig(STATE destination) {
-			StateTransitionConfig<STATE> transitionConfig = validTransitions.get(destination);
+		TransitionConfig<STATE> getTransitionConfig(StateConfig<STATE> destination) {
+			TransitionConfig<STATE> transitionConfig = validTransitions.get(destination);
 			if (transitionConfig == null) {
-				transitionConfig = new StateTransitionConfig<STATE>();
+				transitionConfig = new TransitionConfig<STATE>(this, destination);
 				validTransitions.put(destination, transitionConfig);
 			}
 			return transitionConfig;
 		}
 	}
 
-	private static class StateTransitionConfig<STATE> implements StateTransition<STATE> {
+	private static class TransitionConfig<STATE> implements StateTransition<STATE> {
+		private StateConfig<STATE> source;
+		private StateConfig<STATE> destination;
 		private TransitionAction exitAction;
 		private TransitionAction enterAction;
 		private TransitionAction currentAction;
 		private Predicate<ConfigurableStateMachineContext<STATE>> guard;
-		private ObjectMap<STATE, StateTransitionConfig<STATE>> validInterrupts = new ObjectMap<STATE, StateTransitionConfig<STATE>>();
+		private ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>> validInterrupts = new ObjectMap<StateConfig<STATE>, TransitionConfig<STATE>>();
 
-		StateTransitionConfig<STATE> getInterruptConfig(STATE destination) {
-			StateTransitionConfig<STATE> transitionConfig = validInterrupts.get(destination);
+		public TransitionConfig(StateConfig source, StateConfig destination) {
+			this.source = source;
+			this.destination = destination;
+		}
+
+		TransitionConfig<STATE> getInterruptConfig(StateConfig<STATE> destination) {
+			TransitionConfig<STATE> transitionConfig = validInterrupts.get(destination);
 			if (transitionConfig == null) {
-				transitionConfig = new StateTransitionConfig<STATE>();
+				transitionConfig = new TransitionConfig<STATE>(source, destination);
 				validInterrupts.put(destination, transitionConfig);
 			}
 			return transitionConfig;
@@ -161,7 +170,7 @@ public class StateMachineConfig<STATE> {
 				return null;
 			}
 
-			StateTransitionConfig<STATE> transition = getTransition(config, destination);
+			TransitionConfig<STATE> transition = getTransition(config, destination);
 			if (transition != null && (transition.guard == null || transition.guard.evaluate(this))) {
 				return transition;
 			}
@@ -169,10 +178,14 @@ public class StateMachineConfig<STATE> {
 			return null;
 		}
 
-		private StateTransitionConfig<STATE> getTransition(StateConfig<STATE> config, STATE destination) {
+		private TransitionConfig<STATE> getTransition(StateConfig<STATE> config, STATE destination) {
+			if (config.state.equals(destination) && config.reentrant != null) {
+				return config.reentrant;
+			}
+
 			StateConfig<STATE> temp = config;
 			while (temp != null) {
-				StateTransitionConfig<STATE> transition = temp.getTransitionConfig(destination);
+				TransitionConfig<STATE> transition = temp.getTransitionConfig(stateConfigs.get(destination));
 				if (transition != null) {
 					return transition;
 				}
