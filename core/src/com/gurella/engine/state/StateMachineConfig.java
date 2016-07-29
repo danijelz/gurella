@@ -74,7 +74,7 @@ public class StateMachineConfig<STATE> {
 		return this;
 	}
 
-	public StateMachineConfig guard(Predicate<StateMachineContext<STATE>> guard) {
+	public StateMachineConfig guard(Predicate<ConfigurableStateMachineContext<STATE>> guard) {
 		transition.guard = guard;
 		return this;
 	}
@@ -113,7 +113,7 @@ public class StateMachineConfig<STATE> {
 		private TransitionAction exitAction;
 		private TransitionAction enterAction;
 		private TransitionAction currentAction;
-		private Predicate<StateMachineContext<STATE>> guard;
+		private Predicate<ConfigurableStateMachineContext<STATE>> guard;
 		private ObjectMap<STATE, StateTransitionConfig<STATE>> validInterrupts = new ObjectMap<STATE, StateTransitionConfig<STATE>>();
 
 		StateTransitionConfig<STATE> getInterruptConfig(STATE destination) {
@@ -146,19 +146,37 @@ public class StateMachineConfig<STATE> {
 		}
 	}
 
-	private static class ConfigurableStateMachineContext<STATE> implements StateMachineContext<STATE> {
-		private STATE initial;
-		private Array<STATE> stateStack;
-		private ObjectMap<STATE, StateConfig<STATE>> states = new ObjectMap<STATE, StateConfig<STATE>>();
+	private static class ConfigurableStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
+		private ObjectMap<STATE, StateConfig<STATE>> stateConfigs = new ObjectMap<STATE, StateConfig<STATE>>();
+		private ObjectMap<Object, Object> data;
 
-		@Override
-		public STATE getInitialState() {
-			return initial;
+		public ConfigurableStateMachineContext(STATE initialState) {
+			super(initialState);
 		}
 
 		@Override
 		public StateTransition<STATE> getTransition(STATE source, STATE destination) {
-			// TODO Auto-generated method stub
+			StateConfig<STATE> config = stateConfigs.get(source);
+			if (config == null) {
+				return null;
+			}
+
+			StateTransitionConfig<STATE> transition = getTransition(config, destination);
+			if (transition != null && (transition.guard == null || transition.guard.evaluate(this))) {
+				return transition;
+			}
+
+			return null;
+		}
+
+		private StateTransitionConfig<STATE> getTransition(StateConfig<STATE> config, STATE destination) {
+			StateConfig<STATE> temp = config;
+			while (temp != null) {
+				StateTransitionConfig<STATE> transition = temp.getTransitionConfig(destination);
+				if (transition != null) {
+					return transition;
+				}
+			}
 			return null;
 		}
 
@@ -169,12 +187,29 @@ public class StateMachineConfig<STATE> {
 			return null;
 		}
 
-		@Override
-		public void stateChanged(STATE newState) {
+		public <V> V put(Object key, V value) {
+			if (data == null) {
+				data = new ObjectMap<Object, Object>();
+			}
+			return (V) data.put(key, value);
 		}
 
-		@Override
-		public void reset() {
+		public <V> V get(Object key) {
+			if (data == null) {
+				return null;
+			}
+			return (V) data.get(key);
+		}
+
+		public <V> V remove(Object key) {
+			if (data == null) {
+				return null;
+			}
+			return remove(key);
+		}
+
+		public boolean containsKey(Object key) {
+			return data != null && data.containsKey(key);
 		}
 	}
 }

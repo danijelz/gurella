@@ -10,26 +10,26 @@ public class FixedStateMachineContext<STATE> extends BaseStateMachineContext<STA
 		super(initialState);
 	}
 
-	public FixedStateMachineContext<STATE> put(STATE source, STATE destination) {
-		return put(SimpleStateTransition.<STATE> getInstance(), source, destination);
+	public FixedStateMachineContext<STATE> addTransition(STATE source, STATE destination) {
+		return addTransition(SimpleStateTransition.<STATE> getInstance(), source, destination);
 	}
 
-	public FixedStateMachineContext<STATE> put(STATE source, STATE... destinations) {
+	public FixedStateMachineContext<STATE> addTransition(STATE source, STATE... destinations) {
 		SimpleStateTransition<STATE> transition = SimpleStateTransition.<STATE> getInstance();
 		for (STATE destination : destinations) {
-			put(transition, source, destination);
+			addTransition(transition, source, destination);
 		}
 		return this;
 	}
 
-	public FixedStateMachineContext<STATE> put(StateTransition<STATE> transition, STATE source, STATE... destinations) {
+	public FixedStateMachineContext<STATE> addTransition(StateTransition<STATE> transition, STATE source, STATE... destinations) {
 		for (STATE destination : destinations) {
-			put(transition, source, destination);
+			addTransition(transition, source, destination);
 		}
 		return this;
 	}
 
-	public FixedStateMachineContext<STATE> put(StateTransition<STATE> transition, STATE source, STATE destination) {
+	public FixedStateMachineContext<STATE> addTransition(StateTransition<STATE> transition, STATE source, STATE destination) {
 		ObjectMap<STATE, StateTransition<STATE>> triggersMap = validTransitions.get(source);
 
 		if (triggersMap == null) {

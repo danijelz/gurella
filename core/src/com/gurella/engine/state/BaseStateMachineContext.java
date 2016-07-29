@@ -5,7 +5,6 @@ public abstract class BaseStateMachineContext<STATE> implements StateMachineCont
 
 	public BaseStateMachineContext(STATE initialState) {
 		this.initialState = initialState;
-		stateChanged(initialState);
 	}
 
 	@Override
