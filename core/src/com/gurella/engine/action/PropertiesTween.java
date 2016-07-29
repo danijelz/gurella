@@ -3,6 +3,7 @@ package com.gurella.engine.action;
 import java.util.Date;
 
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -12,9 +13,9 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class PropertiesTween<T> implements Tween, Poolable {
-	private static final ArrayExt<Class<?>> tweenableTypes = ArrayExt.<Class<?>> with(byte.class, Byte.class,
+	private static final ObjectSet<Class<?>> tweenableTypes = ObjectSet.<Class<?>> with(byte.class, Byte.class,
 			char.class, Character.class, short.class, Short.class, int.class, Integer.class, long.class, Long.class,
-			float.class, Float.class, double.class, Double.class, Date.class);
+			float.class, Float.class, double.class, Double.class, Date.class, boolean.class, Boolean.class);
 	private static final IdentityMap<Class<?>, Accessor<?>> accessorsByType = new IdentityMap<Class<?>, Accessor<?>>();
 
 	static {
@@ -33,6 +34,8 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		accessorsByType.put(double.class, DoubleAccessor.instance);
 		accessorsByType.put(Double.class, DoubleAccessor.instance);
 		accessorsByType.put(Date.class, DateAccessor.instance);
+		accessorsByType.put(boolean.class, BooleanAccessor.instance);
+		accessorsByType.put(Boolean.class, BooleanAccessor.instance);
 	}
 
 	private T target;
@@ -41,13 +44,14 @@ public class PropertiesTween<T> implements Tween, Poolable {
 	private final ArrayExt<Accessor<?>> accessors = new ArrayExt<Accessor<?>>();
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
 	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
+	private final ArrayExt<PropertiesTween<?>> children = new ArrayExt<PropertiesTween<?>>();
 
 	public PropertiesTween(T target, T end) {
-		this(target, target, end, Models.<T>getCommonModel(target, end));
+		this(target, target, end, Models.<T> getCommonModel(target, end));
 	}
 
 	public PropertiesTween(T target, T start, T end) {
-		this(target, start, end, Models.<T>getCommonModel(target, start, end));
+		this(target, start, end, Models.<T> getCommonModel(target, start, end));
 	}
 
 	private PropertiesTween(T target, T start, T end, Model<T> model) {
@@ -55,18 +59,39 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		ImmutableArray<Property<?>> allProperties = model.getProperties();
 		for (int i = 0, n = allProperties.size(); i < n; i++) {
 			Property<?> property = allProperties.get(i);
-			Class<?> type = property.getType();
-			if (tweenableTypes.contains(type, true)) {
-				Object startValue = property.getValue(start);
-				Object endValue = property.getValue(end);
-				if (Values.isNotEqual(startValue, endValue)) {
-					properties.add(property);
-					accessors.add(accessorsByType.get(type));
-					startValues.add(startValue);
-					endValues.add(endValue);
-				}
+			Object startValue = property.getValue(start);
+			Object endValue = property.getValue(end);
+			if (startValue != null && endValue != null) {
+				appendProperty(target, property, startValue, endValue);
 			}
 		}
+	}
+
+	protected void appendProperty(T target, Property<?> property, Object startValue, Object endValue) {
+		Class<?> type = property.getType();
+		if (tweenableTypes.contains(type)) {
+			if (Values.isNotEqual(startValue, endValue)) {
+				properties.add(property);
+				accessors.add(accessorsByType.get(type));
+				startValues.add(startValue);
+				endValues.add(endValue);
+			}
+		} else {
+			initChild(property.getValue(target), startValue, endValue);
+		}
+	}
+
+	private <P> void initChild(P target, P start, P end) {
+		if (target == null || start == null || end == null) {
+			return;
+		}
+
+		Model<P> model = Models.<P> getCommonModel(target, end);
+		if (model.getProperties().size() == 0) {
+			return;
+		}
+
+		children.add(new PropertiesTween<P>(target, start, end));
 	}
 
 	@Override
@@ -74,7 +99,9 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		for (int i = 0, n = properties.size; i < n; i++) {
 			update(percent, i);
 		}
-		System.out.println(getDiagnostics());
+		for (int i = 0, n = children.size; i < n; i++) {
+			children.get(i).update(percent);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -87,7 +114,15 @@ public class PropertiesTween<T> implements Tween, Poolable {
 	}
 
 	public String getDiagnostics() {
+		return getDiagnostics(0);
+	}
+
+	public String getDiagnostics(int level) {
 		StringBuilder builder = new StringBuilder();
+		for (int j = 0; j < level; j++) {
+			builder.append(" ");
+		}
+
 		for (int i = 0, n = properties.size; i < n; i++) {
 			Property<?> property = properties.get(i);
 			builder.append(property.getName());
@@ -97,6 +132,11 @@ public class PropertiesTween<T> implements Tween, Poolable {
 				builder.append(", ");
 			}
 		}
+
+		for (int i = 0, n = children.size; i < n; i++) {
+			builder.append(children.get(i).getDiagnostics(level + 1));
+		}
+
 		return builder.toString();
 	}
 
@@ -111,7 +151,7 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Byte> property, Byte startValue, Byte endValue, float percent) {
 			byte start = startValue.byteValue();
 			byte end = endValue.byteValue();
-			property.setValue(target, Byte.valueOf((byte) (start + (end - start) * percent)));
+			property.setValue(target, Byte.valueOf((byte) Math.round(start + (end - start) * percent)));
 		}
 	}
 
@@ -123,7 +163,7 @@ public class PropertiesTween<T> implements Tween, Poolable {
 				float percent) {
 			char start = startValue.charValue();
 			char end = endValue.charValue();
-			property.setValue(target, Character.valueOf((char) (start + (end - start) * percent)));
+			property.setValue(target, Character.valueOf((char) Math.round(start + (end - start) * percent)));
 		}
 	}
 
@@ -134,7 +174,7 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Short> property, Short startValue, Short endValue, float percent) {
 			short start = startValue.shortValue();
 			short end = endValue.shortValue();
-			property.setValue(target, Short.valueOf((short) (start + (end - start) * percent)));
+			property.setValue(target, Short.valueOf((short) Math.round(start + (end - start) * percent)));
 		}
 	}
 
@@ -146,7 +186,7 @@ public class PropertiesTween<T> implements Tween, Poolable {
 				float percent) {
 			int start = startValue.intValue();
 			int end = endValue.intValue();
-			property.setValue(target, Integer.valueOf((int) (start + (end - start) * percent)));
+			property.setValue(target, Integer.valueOf(Math.round(start + (end - start) * percent)));
 		}
 	}
 
@@ -157,7 +197,7 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Long> property, Long startValue, Long endValue, float percent) {
 			long start = startValue.longValue();
 			long end = endValue.longValue();
-			property.setValue(target, Long.valueOf((long) (start + (end - start) * percent)));
+			property.setValue(target, Long.valueOf(Math.round(start + (end - start) * percent)));
 		}
 	}
 
@@ -191,7 +231,17 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Date> property, Date startValue, Date endValue, float percent) {
 			long start = startValue.getTime();
 			long end = endValue.getTime();
-			property.getValue(target).setTime((long) (start + (end - start) * percent));
+			property.getValue(target).setTime(Math.round(start + (end - start) * percent));
+		}
+	}
+
+	private static class BooleanAccessor implements Accessor<Boolean> {
+		private static final BooleanAccessor instance = new BooleanAccessor();
+
+		@Override
+		public void update(Object target, Property<Boolean> property, Boolean startValue, Boolean endValue,
+				float percent) {
+			property.setValue(target, percent > 0.5f ? endValue : startValue);
 		}
 	}
 
