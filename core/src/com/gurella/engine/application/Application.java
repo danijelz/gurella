@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.base.resource.ResourceService;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
@@ -84,7 +84,7 @@ public final class Application implements ApplicationListener {
 	public final void resume() {
 		paused = false;
 		if (Gdx.app.getType() == ApplicationType.Android) {
-			ResourceService.reloadInvalidated();
+			AssetService.reloadInvalidated();
 		}
 		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationActivityListener.class, listeners);

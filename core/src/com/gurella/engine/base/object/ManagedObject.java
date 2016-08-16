@@ -3,11 +3,11 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.model.PropertyEditor;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
@@ -191,8 +191,8 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		clear();
 		// TODO EventService.removeChannel(instanceId);
 
-		if (ResourceService.isManaged(this)) {
-			ResourceService.unload(this);
+		if (AssetService.isManaged(this)) {
+			AssetService.unload(this);
 		}
 
 		if (this instanceof Poolable) {

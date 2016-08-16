@@ -1,9 +1,9 @@
 package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.FileService;
 import com.gurella.engine.base.model.ModelDescriptor;
-import com.gurella.engine.base.resource.FileService;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Uuid;
 
@@ -61,7 +61,7 @@ public final class PrefabReference implements Poolable {
 
 	public ManagedObject get() {
 		if (prefab == null) {
-			prefab = ResourceService.get(FileService.getFileName(fileUuid)/* TODO, uuid*/);
+			prefab = AssetService.get(FileService.getFileName(fileUuid)/* TODO, uuid*/);
 		}
 		return prefab;
 	}

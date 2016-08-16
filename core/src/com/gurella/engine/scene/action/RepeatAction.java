@@ -1,7 +1,7 @@
-package com.gurella.engine.action;
+package com.gurella.engine.scene.action;
 
 public class RepeatAction extends SceneAction {
-	public static final int FOREVER = -1;
+	public static final int infiniteRepeatCount = -1;
 
 	private SceneAction delegate;
 	private int repeatCount;
@@ -16,7 +16,7 @@ public class RepeatAction extends SceneAction {
 
 	public RepeatAction(SceneAction delegate) {
 		this.delegate = delegate;
-		this.repeatCount = FOREVER;
+		this.repeatCount = infiniteRepeatCount;
 	}
 
 	@Override

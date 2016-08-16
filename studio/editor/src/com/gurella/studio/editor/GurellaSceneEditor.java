@@ -32,8 +32,8 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.SequenceGenerator;
@@ -144,7 +144,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		partControl.setSelection(sceneHierarchyView);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
-		ResourceService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
+		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
 	}
 
 	private void presentScene(Scene scene) {

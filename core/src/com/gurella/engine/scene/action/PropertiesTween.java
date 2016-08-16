@@ -1,5 +1,8 @@
-package com.gurella.engine.action;
+package com.gurella.engine.scene.action;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.Date;
 
 import com.badlogic.gdx.utils.IdentityMap;
@@ -36,15 +39,18 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		accessorsByType.put(Date.class, DateAccessor.instance);
 		accessorsByType.put(boolean.class, BooleanAccessor.instance);
 		accessorsByType.put(Boolean.class, BooleanAccessor.instance);
+		accessorsByType.put(BigInteger.class, BigIntegerAccessor.instance);
+		accessorsByType.put(BigDecimal.class, BigDecimalAccessor.instance);
 	}
 
 	private T target;
 
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ArrayExt<Accessor<?>> accessors = new ArrayExt<Accessor<?>>();
+	private final ArrayExt<PropertiesTween<?>> children = new ArrayExt<PropertiesTween<?>>();
+
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
 	private final ArrayExt<Object> endValues = new ArrayExt<Object>();
-	private final ArrayExt<PropertiesTween<?>> children = new ArrayExt<PropertiesTween<?>>();
 
 	public PropertiesTween(T target, T end) {
 		this(target, target, end, Models.<T> getCommonModel(target, end));
@@ -231,7 +237,9 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Date> property, Date startValue, Date endValue, float percent) {
 			long start = startValue.getTime();
 			long end = endValue.getTime();
-			property.getValue(target).setTime(Math.round(start + (end - start) * percent));
+			Date currentValue = property.getValue(target);
+			currentValue.setTime(Math.round(start + (end - start) * percent));
+			property.setValue(target, currentValue);
 		}
 	}
 
@@ -242,6 +250,30 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Boolean> property, Boolean startValue, Boolean endValue,
 				float percent) {
 			property.setValue(target, percent > 0.5f ? endValue : startValue);
+		}
+	}
+
+	private static class BigIntegerAccessor implements Accessor<BigInteger> {
+		private static final BigIntegerAccessor instance = new BigIntegerAccessor();
+
+		@Override
+		public void update(Object target, Property<BigInteger> property, BigInteger startValue, BigInteger endValue,
+				float percent) {
+			BigInteger result = new BigDecimal(startValue)
+					.add(new BigDecimal(endValue.subtract(startValue)).multiply(new BigDecimal(percent)))
+					.round(MathContext.UNLIMITED).toBigInteger();
+			property.setValue(target, result);
+		}
+	}
+
+	private static class BigDecimalAccessor implements Accessor<BigDecimal> {
+		private static final BigDecimalAccessor instance = new BigDecimalAccessor();
+
+		@Override
+		public void update(Object target, Property<BigDecimal> property, BigDecimal startValue, BigDecimal endValue,
+				float percent) {
+			BigDecimal result = endValue.subtract(startValue).multiply(new BigDecimal(percent)).add(startValue);
+			property.setValue(target, result);
 		}
 	}
 

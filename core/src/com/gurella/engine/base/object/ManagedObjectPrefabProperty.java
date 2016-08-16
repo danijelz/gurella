@@ -1,9 +1,9 @@
 package com.gurella.engine.base.object;
 
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Range;
@@ -122,7 +122,7 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 		PrefabReference originalPrefab = originalObj.prefab;
 
 		if (originalPrefab == null) {
-			String fileUuid = ResourceService.getFileNameUuid(originalObj);
+			String fileUuid = AssetService.getFileNameUuid(originalObj);
 			if (fileUuid != null) {
 				PrefabReference prefab = PrefabReference.obtain(fileUuid, originalObj.ensureUuid());
 				((ManagedObject) duplicate).prefab = prefab;

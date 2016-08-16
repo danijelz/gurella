@@ -51,11 +51,10 @@ import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.asset.AssetLoadingTask.LoadingState;
+import com.gurella.engine.asset.loader.JsonObjectLoader;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.loader.SoundClip;
 import com.gurella.engine.audio.loader.SoundClipLoader;
-import com.gurella.engine.base.resource.JsonObjectLoader;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -508,7 +507,7 @@ public class AssetRegistry extends AssetManager {
 				fileNamesByAsset.remove(asset);
 				Class<T> type = Values.cast(asset.getClass());
 				DisposablesService.tryDispose(asset);
-				ConfigurableAssetDescriptor<T> descriptor = ResourceService.getAssetDescriptor(fileName);
+				ConfigurableAssetDescriptor<T> descriptor = AssetService.getAssetDescriptor(fileName);
 				AssetLoaderParameters<T> parameters = descriptor == null ? null : descriptor.getParameters();
 				asyncQueue.add(obtain(this, callback, fileName, type, reference, parameters, priority));
 				asyncQueue.sort();
@@ -537,7 +536,7 @@ public class AssetRegistry extends AssetManager {
 					fileNamesByAsset.remove(asset);
 					Class<Object> type = Values.cast(asset.getClass());
 					DisposablesService.tryDispose(asset);
-					ConfigurableAssetDescriptor<Object> descriptor = ResourceService.getAssetDescriptor(fileName);
+					ConfigurableAssetDescriptor<Object> descriptor = AssetService.getAssetDescriptor(fileName);
 					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
 					asyncQueue.add(obtain(this, null, fileName, type, reference, params, Integer.MAX_VALUE));
 				}

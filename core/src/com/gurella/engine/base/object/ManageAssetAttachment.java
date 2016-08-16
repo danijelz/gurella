@@ -1,8 +1,8 @@
 package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.base.object.ObjectDestroyedListener;
 
@@ -16,7 +16,7 @@ public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable 
 	}
 
 	static <T> void loadAsync(ManagedObject object, String fileName, Class<T> assetType, AsyncCallback<T> callback) {
-		ResourceService.loadAsync(fileName, assetType, Callback.obtain(object, callback), 0);
+		AssetService.loadAsync(fileName, assetType, Callback.obtain(object, callback), 0);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable 
 
 	@Override
 	public void reset() {
-		ResourceService.unload(value);
+		AssetService.unload(value);
 		value = null;
 	}
 
@@ -52,7 +52,7 @@ public class ManageAssetAttachment<T> extends Attachment<T> implements Poolable 
 		public void onSuccess(T value) {
 			synchronized (mutex) {
 				if (objectDestroyed) {
-					ResourceService.unload(value);
+					AssetService.unload(value);
 				} else {
 					object.bindAsset(value);
 					delegate.onSuccess(value);

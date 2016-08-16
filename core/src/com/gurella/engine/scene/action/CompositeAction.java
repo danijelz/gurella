@@ -1,10 +1,11 @@
-package com.gurella.engine.action;
+package com.gurella.engine.scene.action;
 
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 
 public abstract class CompositeAction extends SceneAction {
 	int currentAction = 0;
+	final ArrayExt<SceneAction> owned = new ArrayExt<SceneAction>();
 	final ArrayExt<SceneAction> actions = new ArrayExt<SceneAction>();
 
 	public CompositeAction() {
@@ -45,6 +46,11 @@ public abstract class CompositeAction extends SceneAction {
 		actions.add(action);
 	}
 
+	public void addOwnedAction(SceneAction action) {
+		owned.add(action);
+		actions.add(action);
+	}
+
 	@Override
 	public void restart() {
 		super.restart();
@@ -57,7 +63,8 @@ public abstract class CompositeAction extends SceneAction {
 	public void reset() {
 		super.reset();
 		currentAction = 0;
-		PoolService.freeAll(actions);
+		PoolService.freeAll(owned);
+		owned.reset();
 		actions.reset();
 	}
 }

@@ -1,4 +1,4 @@
-package com.gurella.engine.base.resource;
+package com.gurella.engine.asset;
 
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.graphics.Cubemap;
@@ -6,9 +6,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.asset.AssetRegistry;
-import com.gurella.engine.asset.Assets;
-import com.gurella.engine.asset.ConfigurableAssetDescriptor;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
@@ -18,7 +15,7 @@ import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
 
-public final class ResourceService {
+public final class AssetService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();
 
 	private static final MockAssetManager mockManager = new MockAssetManager();
@@ -31,7 +28,7 @@ public final class ResourceService {
 		EventService.subscribe(updateListener);
 	}
 
-	private ResourceService() {
+	private AssetService() {
 	}
 
 	public static <T> ConfigurableAssetDescriptor<T> getAssetDescriptor(String fileName) {
@@ -62,7 +59,7 @@ public final class ResourceService {
 
 	public static <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback, int priority,
 			boolean sticky) {
-		AssetLoaderParameters<T> parameters = ResourceService.<T> getAssetLoaderParameters(fileName);
+		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
 		assetRegistry.load(fileName, type, parameters, callback, priority, sticky);
 	}
 
@@ -80,7 +77,7 @@ public final class ResourceService {
 	}
 
 	public static <T> T load(String fileName, Class<T> type, int priority, boolean sticky) {
-		AssetLoaderParameters<T> parameters = ResourceService.<T> getAssetLoaderParameters(fileName);
+		AssetLoaderParameters<T> parameters = AssetService.<T> getAssetLoaderParameters(fileName);
 		assetRegistry.load(fileName, type, parameters, null, priority, sticky);
 		return assetRegistry.finishLoading(fileName);
 	}

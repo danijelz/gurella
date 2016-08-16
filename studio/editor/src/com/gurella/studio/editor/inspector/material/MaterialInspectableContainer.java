@@ -45,7 +45,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.gurella.engine.base.resource.ResourceService;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -90,7 +90,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 
-		materialDescriptor = ResourceService.load(target.getLocation().toString());
+		materialDescriptor = AssetService.load(target.getLocation().toString());
 
 		Composite body = getBody();
 		body.setLayout(new GridLayout());
@@ -295,7 +295,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model.dispose();
 			modelBatch.dispose();
 			compass.dispose();
-			ResourceService.unload(materialDescriptor);
+			AssetService.unload(materialDescriptor);
 			glCanvas.dispose();
 		}
 	}

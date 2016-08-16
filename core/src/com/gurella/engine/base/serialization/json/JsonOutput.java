@@ -12,9 +12,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
@@ -82,7 +82,7 @@ public class JsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String fileNameUuid = ResourceService.getFileNameUuid(object);
+		String fileNameUuid = AssetService.getFileNameUuid(object);
 		if (fileNameUuid != null) {
 			//TODO
 		}

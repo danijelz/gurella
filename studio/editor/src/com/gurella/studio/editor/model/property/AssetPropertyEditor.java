@@ -5,7 +5,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.gurella.engine.base.resource.ResourceService;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.studio.editor.common.AssetSelectionWidget;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -30,7 +30,7 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 	private void assetSelectionChanged(T oldAsset, T newAsset) {
 		if (oldAsset != null) {
-			ResourceService.unload(oldAsset); //TODO resource deprendencies
+			AssetService.unload(oldAsset); //TODO resource deprendencies
 		}
 		setValue(newAsset);
 	}

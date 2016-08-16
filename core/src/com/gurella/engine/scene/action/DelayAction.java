@@ -1,4 +1,4 @@
-package com.gurella.engine.action;
+package com.gurella.engine.scene.action;
 
 import com.badlogic.gdx.Gdx;
 

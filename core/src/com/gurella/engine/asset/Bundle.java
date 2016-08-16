@@ -1,4 +1,4 @@
-package com.gurella.engine.base.resource;
+package com.gurella.engine.asset;
 
 import com.badlogic.gdx.utils.ObjectMap;
 

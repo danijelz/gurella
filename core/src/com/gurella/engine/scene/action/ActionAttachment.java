@@ -1,4 +1,4 @@
-package com.gurella.engine.action;
+package com.gurella.engine.scene.action;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.object.Attachment;
@@ -18,6 +18,7 @@ import com.gurella.engine.subscriptions.scene.update.UpdateListener;
 
 public abstract class ActionAttachment extends Attachment<SceneAction> implements Poolable {
 	protected SceneElement2 owner;
+	protected ActionFinishedStrategy actionFinishedStrategy;
 
 	ActionAttachment() {
 	}
@@ -41,9 +42,16 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 
 	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority,
 			SceneAction action) {
+		return obtain(owner, updatePriority, action, DetachOnFinishedStrategy.instance);
+	}
+
+	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority, SceneAction action,
+			ActionFinishedStrategy finishedStrategy) {
 		ActionAttachment attachment = obtain(updatePriority);
 		attachment.value = action;
 		attachment.owner = owner;
+		attachment.actionFinishedStrategy = finishedStrategy == null ? DetachOnFinishedStrategy.instance
+				: finishedStrategy;
 		return attachment;
 	}
 
@@ -75,8 +83,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class IoActionAttachment extends ActionAttachment implements IoUpdateListener {
 		@Override
 		public void onIoUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -84,8 +92,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class InputActionAttachment extends ActionAttachment implements InputUpdateListener {
 		@Override
 		public void onInputUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -93,8 +101,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class LogicActionAttachment extends ActionAttachment implements LogicUpdateListener {
 		@Override
 		public void onLogicUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -102,8 +110,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class PhysicsActionAttachment extends ActionAttachment implements PhysicsUpdateListener {
 		@Override
 		public void onPhysicsUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -111,8 +119,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class UpdateActionAttachment extends ActionAttachment implements UpdateListener {
 		@Override
 		public void onUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -120,8 +128,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class PreRenderActionAttachment extends ActionAttachment implements PreRenderUpdateListener {
 		@Override
 		public void onPreRenderUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -129,8 +137,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class RenderActionAttachment extends ActionAttachment implements RenderUpdateListener {
 		@Override
 		public void onRenderUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -138,8 +146,8 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class PostRenderActionAttachment extends ActionAttachment implements PostRenderUpdateListener {
 		@Override
 		public void onPostRenderUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
 		}
 	}
@@ -147,9 +155,48 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	private static class CleanupActionAttachment extends ActionAttachment implements CleanupUpdateListener {
 		@Override
 		public void onCleanupUpdate() {
-			if (value.act()) {
-				owner.detach(this);
+			if (!value.isComplete() && value.act()) {
+				actionFinishedStrategy.actionFinished(this);
 			}
+		}
+	}
+
+	public interface ActionFinishedStrategy {
+		void actionFinished(ActionAttachment actionAttachment);
+	}
+
+	public static final class DetachOnFinishedStrategy implements ActionFinishedStrategy {
+		public static final DetachOnFinishedStrategy instance = new DetachOnFinishedStrategy();
+
+		private DetachOnFinishedStrategy() {
+		}
+
+		@Override
+		public void actionFinished(ActionAttachment actionAttachment) {
+			actionAttachment.owner.detach(actionAttachment);
+		}
+	}
+
+	public static final class RestartOnFinishedStrategy implements ActionFinishedStrategy {
+		public static final RestartOnFinishedStrategy instance = new RestartOnFinishedStrategy();
+
+		private RestartOnFinishedStrategy() {
+		}
+
+		@Override
+		public void actionFinished(ActionAttachment actionAttachment) {
+			actionAttachment.value.restart();
+		}
+	}
+
+	public static final class NopFinishedStrategy implements ActionFinishedStrategy {
+		public static final NopFinishedStrategy instance = new NopFinishedStrategy();
+
+		private NopFinishedStrategy() {
+		}
+
+		@Override
+		public void actionFinished(ActionAttachment actionAttachment) {
 		}
 	}
 }

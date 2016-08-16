@@ -28,8 +28,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -99,7 +99,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void assetSelected(final String path) {
 		T oldAsset = asset;
-		asset = ResourceService.load(path);
+		asset = AssetService.load(path);
 		text.setText(extractFileName(path));
 		text.setMessage("");
 		if (selectionChangedListener != null) {
@@ -126,7 +126,7 @@ public class AssetSelectionWidget<T> extends Composite {
 			text.setText("");
 			text.setMessage("null");
 		} else {
-			String path = ResourceService.getFileName(asset);
+			String path = AssetService.getFileName(asset);
 			text.setText(extractFileName(path));
 			text.setMessage("");
 		}

@@ -42,8 +42,8 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.resource.ResourceService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
@@ -67,8 +67,8 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.model.ModelEditor;
+import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 
@@ -91,7 +91,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		layout.marginRight = 10;
 		getBody().setLayout(layout);
 
-		prefab = ResourceService.load(target.getLocation().toString());
+		prefab = AssetService.load(target.getLocation().toString());
 
 		Label nameLabel = toolkit.createLabel(getBody(), " Name: ");
 		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
@@ -118,7 +118,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		componentsComposite.setLayoutData(new GridData(FILL, FILL, true, true, 4, 1));
 		initComponentContainers();
 		layout(true, true);
-		addDisposeListener(e -> ResourceService.unload(prefab));
+		addDisposeListener(e -> AssetService.unload(prefab));
 	}
 
 	private void nodeNameChanged() {
