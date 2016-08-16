@@ -32,6 +32,10 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	protected void detach() {
 		EventService.unsubscribe(owner.getScene().getInstanceId(), this);
 	}
+	
+	public void restart() {
+		value.restart();
+	}
 
 	@Override
 	public void reset() {

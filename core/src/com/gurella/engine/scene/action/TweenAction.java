@@ -26,7 +26,6 @@ public class TweenAction extends SceneAction {
 
 	@Override
 	public boolean act() {
-		float delta = Application.deltaTime;
 		if (complete) {
 			return true;
 		}
@@ -36,6 +35,7 @@ public class TweenAction extends SceneAction {
 			began = true;
 		}
 
+		float delta = Application.deltaTime;
 		time += delta;
 		complete = time >= duration;
 		float percent;
