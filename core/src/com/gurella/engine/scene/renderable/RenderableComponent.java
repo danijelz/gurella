@@ -26,12 +26,12 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	private transient int sceneId;
 	
 	transient boolean visible;
+	transient TransformComponent transformComponent;
+	private transient boolean dirty = true;
 
 	@PropertyDescriptor(nullable = false)
 	public Layer layer = Layer.DEFAULT;
-	transient TransformComponent transformComponent;
-
-	private transient boolean dirty = true;
+	public byte inputEvents = (byte) 0xff;//TODO flags to disable input events (tap, touch, doubleTuch, longPress, mouseMove, scroll)
 
 	protected abstract void updateGeometry();
 
