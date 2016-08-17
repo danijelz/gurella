@@ -16,35 +16,39 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class PropertiesTween<T> implements Tween, Poolable {
-	private static final ObjectSet<Class<?>> tweenableTypes = ObjectSet.<Class<?>> with(byte.class, Byte.class,
-			char.class, Character.class, short.class, Short.class, int.class, Integer.class, long.class, Long.class,
-			float.class, Float.class, double.class, Double.class, Date.class, boolean.class, Boolean.class);
+	private static final ObjectSet<Class<?>> tweenableTypes = new ObjectSet<Class<?>>();
 	private static final IdentityMap<Class<?>, Accessor<?>> accessorsByType = new IdentityMap<Class<?>, Accessor<?>>();
 
 	static {
-		accessorsByType.put(byte.class, ByteAccessor.instance);
-		accessorsByType.put(Byte.class, ByteAccessor.instance);
-		accessorsByType.put(char.class, CharAccessor.instance);
-		accessorsByType.put(Character.class, CharAccessor.instance);
-		accessorsByType.put(short.class, ShortAccessor.instance);
-		accessorsByType.put(Short.class, ShortAccessor.instance);
-		accessorsByType.put(int.class, IntAccessor.instance);
-		accessorsByType.put(Integer.class, IntAccessor.instance);
-		accessorsByType.put(long.class, LongAccessor.instance);
-		accessorsByType.put(Long.class, LongAccessor.instance);
-		accessorsByType.put(float.class, FloatAccessor.instance);
-		accessorsByType.put(Float.class, FloatAccessor.instance);
-		accessorsByType.put(double.class, DoubleAccessor.instance);
-		accessorsByType.put(Double.class, DoubleAccessor.instance);
-		accessorsByType.put(Date.class, DateAccessor.instance);
-		accessorsByType.put(boolean.class, BooleanAccessor.instance);
-		accessorsByType.put(Boolean.class, BooleanAccessor.instance);
-		accessorsByType.put(BigInteger.class, BigIntegerAccessor.instance);
-		accessorsByType.put(BigDecimal.class, BigDecimalAccessor.instance);
+		registerAccessor(byte.class, ByteAccessor.instance);
+		registerAccessor(Byte.class, ByteAccessor.instance);
+		registerAccessor(char.class, CharAccessor.instance);
+		registerAccessor(Character.class, CharAccessor.instance);
+		registerAccessor(short.class, ShortAccessor.instance);
+		registerAccessor(Short.class, ShortAccessor.instance);
+		registerAccessor(int.class, IntAccessor.instance);
+		registerAccessor(Integer.class, IntAccessor.instance);
+		registerAccessor(long.class, LongAccessor.instance);
+		registerAccessor(Long.class, LongAccessor.instance);
+		registerAccessor(float.class, FloatAccessor.instance);
+		registerAccessor(Float.class, FloatAccessor.instance);
+		registerAccessor(double.class, DoubleAccessor.instance);
+		registerAccessor(Double.class, DoubleAccessor.instance);
+		registerAccessor(Date.class, DateAccessor.instance);
+		registerAccessor(boolean.class, BooleanAccessor.instance);
+		registerAccessor(Boolean.class, BooleanAccessor.instance);
+		registerAccessor(BigInteger.class, BigIntegerAccessor.instance);
+		registerAccessor(BigDecimal.class, BigDecimalAccessor.instance);
+	}
+
+	private static <T> void registerAccessor(Class<T> type, Accessor<T> accessor) {
+		tweenableTypes.add(type);
+		accessorsByType.put(type, accessor);
 	}
 
 	private T target;
 
+	// TODO cache data by class
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ArrayExt<Accessor<?>> accessors = new ArrayExt<Accessor<?>>();
 	private final ArrayExt<PropertiesTween<?>> children = new ArrayExt<PropertiesTween<?>>();
@@ -237,6 +241,7 @@ public class PropertiesTween<T> implements Tween, Poolable {
 		public void update(Object target, Property<Date> property, Date startValue, Date endValue, float percent) {
 			long start = startValue.getTime();
 			long end = endValue.getTime();
+			// TODO updates start value
 			Date currentValue = property.getValue(target);
 			currentValue.setTime(Math.round(start + (end - start) * percent));
 			property.setValue(target, currentValue);
