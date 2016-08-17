@@ -1,4 +1,4 @@
-package com.gurella.engine.audio.loader.ogg;
+package com.gurella.engine.asset.loader.audio.ogg;
 
 import java.math.BigDecimal;
 
@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.audio.loader.PushBackArrayInputStream;
+import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 import com.badlogic.gdx.utils.Pools;
 
 // https://github.com/MWisBest/JOrbis/blob/master/src/com/jcraft/jorbis/VorbisFile.java

@@ -4,24 +4,24 @@ public class ParallelAction extends CompositeAction {
 	ParallelAction() {
 	}
 
-	public ParallelAction(SceneAction action1) {
+	public ParallelAction(Action action1) {
 		super(action1);
 	}
 
-	public ParallelAction(SceneAction action1, SceneAction action2) {
+	public ParallelAction(Action action1, Action action2) {
 		super(action1, action2);
 	}
 
-	public ParallelAction(SceneAction action1, SceneAction action2, SceneAction action3) {
+	public ParallelAction(Action action1, Action action2, Action action3) {
 		super(action1, action2, action3);
 	}
 
-	public ParallelAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4) {
+	public ParallelAction(Action action1, Action action2, Action action3, Action action4) {
 		super(action1, action2, action3, action4);
 	}
 
-	public ParallelAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4,
-			SceneAction action5) {
+	public ParallelAction(Action action1, Action action2, Action action3, Action action4,
+			Action action5) {
 		super(action1, action2, action3, action4, action5);
 	}
 
@@ -29,7 +29,7 @@ public class ParallelAction extends CompositeAction {
 	public boolean doAct() {
 		boolean complete = actions.size == 0;
 		for (int i = 0, n = actions.size; i < n; i++) {
-			SceneAction currentAction = actions.get(i);
+			Action currentAction = actions.get(i);
 			if (!currentAction.isComplete()) {
 				complete |= currentAction.act();
 			}

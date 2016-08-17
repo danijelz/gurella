@@ -1,4 +1,4 @@
-package com.gurella.engine.audio.loader.mp3;
+package com.gurella.engine.asset.loader.audio.mp3;
 
 import java.util.Arrays;
 

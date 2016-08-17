@@ -42,7 +42,6 @@ import com.gurella.engine.scene.renderable.shape.ShapeModel;
 import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -162,7 +161,6 @@ public class SceneHierarchyView extends SceneEditorView {
 		addMenuItem(subMenu, ShapeComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, TestPropertyEditorsComponnent.class);
-		addMenuItem(subMenu, TestInputComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 	}
 

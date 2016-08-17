@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.audio.loader.SoundClip;
+import com.gurella.engine.asset.loader.audio.SoundClip;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;

@@ -1,11 +1,11 @@
-package com.gurella.engine.audio.loader.mp3;
+package com.gurella.engine.asset.loader.audio.mp3;
 
 import java.io.IOException;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.audio.loader.PushBackArrayInputStream;
+import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 import com.badlogic.gdx.utils.Pools;
 
 // https://github.com/cosenary/Battleship/blob/master/javazoom/jl/decoder/Bitstream.java

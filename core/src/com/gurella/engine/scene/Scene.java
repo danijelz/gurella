@@ -17,6 +17,7 @@ import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
 import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
 import com.gurella.engine.scene.tag.TagManager;
+import com.gurella.engine.scene.ui.UiSystem;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
@@ -54,6 +55,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	public final transient RenderSystem renderSystem = addService(new RenderSystem());
 	public final transient AudioSystem audioSystem = addService(new AudioSystem());
 	public final transient BulletPhysicsSystem bulletPhysicsSystem = addService(new BulletPhysicsSystem());
+	public final transient UiSystem uiSystem = addService(new UiSystem());
 
 	public final void start() {
 		if (isActive()) {

@@ -12,7 +12,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.gurella.engine.audio.loader.SoundDuration;
+import com.gurella.engine.asset.loader.audio.SoundDuration;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class AudioInspectableContainer extends InspectableContainer<IFile> {

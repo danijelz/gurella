@@ -6,14 +6,16 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.Listener0;
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.action.CoroutineAction.Coroutine;
 
-public abstract class SceneAction implements Poolable {
+public abstract class Action implements Poolable {
 	private boolean began;
 	private boolean complete;
 
 	private Listener0 beginListener;
+	private Listener1<Boolean> actListener;
 	private Listener0 completeListener;
 
 	public final boolean act() {
@@ -29,6 +31,9 @@ public abstract class SceneAction implements Poolable {
 		}
 
 		complete = doAct();
+		if (actListener != null) {
+			actListener.handle(Boolean.valueOf(complete));
+		}
 
 		if (complete) {
 			if (completeListener != null) {
@@ -55,62 +60,69 @@ public abstract class SceneAction implements Poolable {
 		restart();
 	}
 
-	public static ActionBuilder delay(float duration) {
+	private static ActionBuilder obtainBuilder() {
 		ActionBuilder builder = obtain(ActionBuilder.class);
+		builder.free = true;
+		return builder;
+	}
+
+	public static ActionBuilder delay(float duration) {
+		ActionBuilder builder = obtainBuilder();
 		builder.delay(duration);
 		return builder;
 	}
 
 	public static ActionBuilder repeat(int repeatCount) {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.repeat(repeatCount);
 		return builder;
 	}
 
 	public static ActionBuilder runnable(Runnable runnable) {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.runnable(runnable);
 		return builder;
 	}
 
 	public static ActionBuilder coroutine(Coroutine coroutine) {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.coroutine(coroutine);
 		return builder;
 	}
 
 	public static ActionBuilder parallel() {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.parallel();
 		return builder;
 	}
 
 	public static ActionBuilder sequence() {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.sequence();
 		return builder;
 	}
 
 	public static ActionBuilder tween(Tween tween, float duration) {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.tween(tween, duration);
 		return builder;
 	}
 
 	public static ActionBuilder tween(Tween tween, float duration, Interpolation interpolation) {
-		ActionBuilder builder = obtain(ActionBuilder.class);
+		ActionBuilder builder = obtainBuilder();
 		builder.tween(tween, duration, interpolation);
 		return builder;
 	}
 
 	public static class ActionBuilder implements Poolable {
-		private Array<SceneAction> stack = new Array<SceneAction>();
+		boolean free;
+		private Array<Action> stack = new Array<Action>();
 
 		ActionBuilder() {
 		}
 
-		private void append(SceneAction action) {
-			SceneAction current = stack.size > 0 ? stack.peek() : null;
+		private void append(Action action) {
+			Action current = stack.size > 0 ? stack.peek() : null;
 			if (current == null) {
 				stack.add(action);
 				return;
@@ -197,8 +209,8 @@ public abstract class SceneAction implements Poolable {
 			return this;
 		}
 
-		private SceneAction getLastAdded() {
-			SceneAction top = stack.peek();
+		private Action getLastAdded() {
+			Action top = stack.peek();
 			if (top instanceof CompositeAction) {
 				CompositeAction composite = (CompositeAction) top;
 				return composite.actions.size == 0 ? composite : composite.actions.peek();
@@ -210,28 +222,47 @@ public abstract class SceneAction implements Poolable {
 			}
 		}
 
+		public ActionBuilder onAct(Listener1<Boolean> actListener) {
+			getLastAdded().actListener = actListener;
+			return this;
+		}
+
 		public ActionBuilder onComplete(Listener0 completeListener) {
 			getLastAdded().completeListener = completeListener;
 			return this;
 		}
 
-		public SceneAction build() {
-			SceneAction action = stack.get(0);
+		public Action build() {
+			Action action = stack.get(0);
 			stack.clear();
-			PoolService.free(this);
+			if (free) {
+				PoolService.free(this);
+			}
 			return action;
+		}
+
+		@Override
+		public void reset() {
+			free = false;
+			if (stack.size > 0) {
+				PoolService.freeAll(stack);
+				stack.clear();
+			}
 		}
 
 		private void print() {
 			System.out.println(print(build(), 0));
 		}
 
-		private String print(SceneAction action, int level) {
+		private String print(Action action, int level) {
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < level; i++) {
 				builder.append('\t');
 			}
 			builder.append(action.getClass().getSimpleName());
+			if (action.beginListener != null) {
+				builder.append('*');
+			}
 			if (action instanceof CompositeAction) {
 				CompositeAction compositeAction = (CompositeAction) action;
 				for (int i = 0; i < compositeAction.actions.size; i++) {
@@ -245,19 +276,19 @@ public abstract class SceneAction implements Poolable {
 			}
 			return builder.toString();
 		}
-
-		@Override
-		public void reset() {
-			if (stack.size > 0) {
-				PoolService.freeAll(stack);
-				stack.clear();
-			}
-		}
 	}
 
 	public static void main(String[] args) {
-		SceneAction.sequence().delay(1).coroutine(null).parallel().delay(1).coroutine(null).end().delay(1).repeat(2)
-				.sequence().coroutine(null).delay(0).repeat(2).delay(0).end().delay(0).repeat(2).parallel().delay(0)
-				.delay(0).end().print();
+		Listener0 l = new Listener0() {
+			@Override
+			public void handle() {
+			}
+		};
+
+		Action.sequence().onBegin(l).delay(1).onBegin(l).coroutine(null).onBegin(l).parallel().onBegin(l).delay(1)
+				.onBegin(l).coroutine(null).onBegin(l).end().delay(1).onBegin(l).repeat(2).onBegin(l).sequence()
+				.onBegin(l).coroutine(null).onBegin(l).delay(0).onBegin(l).repeat(2).onBegin(l).delay(0).onBegin(l)
+				.end().delay(0).onBegin(l).repeat(2).onBegin(l).parallel().onBegin(l).delay(0).onBegin(l).delay(0)
+				.onBegin(l).end().print();
 	}
 }

@@ -3,13 +3,13 @@ package com.gurella.engine.scene.action;
 import com.badlogic.gdx.math.Interpolation;
 import com.gurella.engine.application.Application;
 
-public class TweenAction extends SceneAction {
+public class TweenAction extends Action {
 	Tween tween;
 	float duration;
 	Interpolation interpolation;
+	boolean reverse;
 
 	private float time;
-	private boolean reverse;
 
 	TweenAction() {
 	}
@@ -64,10 +64,6 @@ public class TweenAction extends SceneAction {
 
 	public float getTime() {
 		return time;
-	}
-
-	public void setTime(float time) {
-		this.time = time;
 	}
 
 	public float getDuration() {

@@ -1,4 +1,4 @@
-package com.gurella.engine.audio.loader.ogg;
+package com.gurella.engine.asset.loader.audio.ogg;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 

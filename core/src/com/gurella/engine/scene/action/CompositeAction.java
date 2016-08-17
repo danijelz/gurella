@@ -3,38 +3,38 @@ package com.gurella.engine.scene.action;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 
-public abstract class CompositeAction extends SceneAction {
+public abstract class CompositeAction extends Action {
 	int currentAction = 0;
-	final ArrayExt<SceneAction> owned = new ArrayExt<SceneAction>();
-	final ArrayExt<SceneAction> actions = new ArrayExt<SceneAction>();
+	final ArrayExt<Action> owned = new ArrayExt<Action>();
+	final ArrayExt<Action> actions = new ArrayExt<Action>();
 
 	CompositeAction() {
 	}
 
-	public CompositeAction(SceneAction action1) {
+	public CompositeAction(Action action1) {
 		addAction(action1);
 	}
 
-	public CompositeAction(SceneAction action1, SceneAction action2) {
+	public CompositeAction(Action action1, Action action2) {
 		addAction(action1);
 		addAction(action2);
 	}
 
-	public CompositeAction(SceneAction action1, SceneAction action2, SceneAction action3) {
+	public CompositeAction(Action action1, Action action2, Action action3) {
 		addAction(action1);
 		addAction(action2);
 		addAction(action3);
 	}
 
-	public CompositeAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4) {
+	public CompositeAction(Action action1, Action action2, Action action3, Action action4) {
 		addAction(action1);
 		addAction(action2);
 		addAction(action3);
 		addAction(action4);
 	}
 
-	public CompositeAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4,
-			SceneAction action5) {
+	public CompositeAction(Action action1, Action action2, Action action3, Action action4,
+			Action action5) {
 		addAction(action1);
 		addAction(action2);
 		addAction(action3);
@@ -42,11 +42,11 @@ public abstract class CompositeAction extends SceneAction {
 		addAction(action5);
 	}
 
-	public void addAction(SceneAction action) {
+	public void addAction(Action action) {
 		actions.add(action);
 	}
 
-	public void addOwnedAction(SceneAction action) {
+	public void addOwnedAction(Action action) {
 		owned.add(action);
 		actions.add(action);
 	}

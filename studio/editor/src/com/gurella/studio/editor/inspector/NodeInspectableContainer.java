@@ -61,15 +61,14 @@ import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.model.ModelEditor;
+import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 
@@ -155,7 +154,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		addMenuItem(menu, ShapeComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TestPropertyEditorsComponnent.class);
-		addMenuItem(menu, TestInputComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 

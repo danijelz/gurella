@@ -16,7 +16,7 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.UpdateListener;
 
-public abstract class ActionAttachment extends Attachment<SceneAction> implements Poolable {
+public abstract class ActionAttachment extends Attachment<Action> implements Poolable {
 	protected SceneElement2 owner;
 	protected CompletionListener completionListener;
 
@@ -45,11 +45,11 @@ public abstract class ActionAttachment extends Attachment<SceneAction> implement
 	}
 
 	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority,
-			SceneAction action) {
+			Action action) {
 		return obtain(owner, updatePriority, action, DetachOnFinishedStrategy.instance);
 	}
 
-	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority, SceneAction action,
+	public static ActionAttachment obtain(SceneElement2 owner, CommonUpdatePriority updatePriority, Action action,
 			CompletionListener finishedStrategy) {
 		ActionAttachment attachment = obtain(updatePriority);
 		attachment.value = action;

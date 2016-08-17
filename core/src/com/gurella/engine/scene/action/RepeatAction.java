@@ -1,23 +1,22 @@
 package com.gurella.engine.scene.action;
 
-public class RepeatAction extends SceneAction {
+public class RepeatAction extends Action {
 	public static final int infiniteRepeatCount = -1;
 
-	SceneAction delegate;
+	Action delegate;
 	int repeatCount;
 
 	private int executedCount;
-	private boolean finished;
 
 	RepeatAction() {
 	}
 
-	public RepeatAction(SceneAction delegate, int repeatCount) {
+	public RepeatAction(Action delegate, int repeatCount) {
 		this.delegate = delegate;
 		this.repeatCount = repeatCount;
 	}
 
-	public RepeatAction(SceneAction delegate) {
+	public RepeatAction(Action delegate) {
 		this.delegate = delegate;
 		this.repeatCount = infiniteRepeatCount;
 	}
@@ -28,7 +27,7 @@ public class RepeatAction extends SceneAction {
 			if (repeatCount > 0) {
 				executedCount++;
 			}
-			if (finished || executedCount == repeatCount) {
+			if (executedCount == repeatCount) {
 				return true;
 			}
 			delegate.restart();
@@ -37,14 +36,9 @@ public class RepeatAction extends SceneAction {
 		return false;
 	}
 
-	public void finish() {
-		finished = true;
-	}
-
 	@Override
 	public void restart() {
 		super.restart();
 		executedCount = 0;
-		finished = false;
 	}
 }

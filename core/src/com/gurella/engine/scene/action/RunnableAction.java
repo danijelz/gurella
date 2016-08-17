@@ -1,6 +1,6 @@
 package com.gurella.engine.scene.action;
 
-public class RunnableAction extends SceneAction {
+public class RunnableAction extends Action {
 	Runnable runnable;
 
 	RunnableAction() {

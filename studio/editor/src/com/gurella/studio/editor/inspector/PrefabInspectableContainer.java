@@ -60,7 +60,6 @@ import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
@@ -158,7 +157,6 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		addMenuItem(menu, ShapeComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TestPropertyEditorsComponnent.class);
-		addMenuItem(menu, TestInputComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 

@@ -6,24 +6,24 @@ public class SequenceAction extends CompositeAction {
 	SequenceAction() {
 	}
 
-	public SequenceAction(SceneAction action1) {
+	public SequenceAction(Action action1) {
 		super(action1);
 	}
 
-	public SequenceAction(SceneAction action1, SceneAction action2) {
+	public SequenceAction(Action action1, Action action2) {
 		super(action1, action2);
 	}
 
-	public SequenceAction(SceneAction action1, SceneAction action2, SceneAction action3) {
+	public SequenceAction(Action action1, Action action2, Action action3) {
 		super(action1, action2, action3);
 	}
 
-	public SequenceAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4) {
+	public SequenceAction(Action action1, Action action2, Action action3, Action action4) {
 		super(action1, action2, action3, action4);
 	}
 
-	public SequenceAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4,
-			SceneAction action5) {
+	public SequenceAction(Action action1, Action action2, Action action3, Action action4,
+			Action action5) {
 		super(action1, action2, action3, action4, action5);
 	}
 
