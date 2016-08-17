@@ -23,11 +23,7 @@ public class RepeatAction extends SceneAction {
 	}
 
 	@Override
-	public boolean act() {
-		if (isComplete()) {
-			return true;
-		}
-
+	public boolean doAct() {
 		if (delegate.act()) {
 			if (repeatCount > 0) {
 				executedCount++;
@@ -43,11 +39,6 @@ public class RepeatAction extends SceneAction {
 
 	public void finish() {
 		finished = true;
-	}
-
-	@Override
-	public boolean isComplete() {
-		return finished || (repeatCount > 0 && executedCount == repeatCount);
 	}
 
 	@Override

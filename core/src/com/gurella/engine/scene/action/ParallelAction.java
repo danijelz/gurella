@@ -1,9 +1,7 @@
 package com.gurella.engine.scene.action;
 
 public class ParallelAction extends CompositeAction {
-	boolean complete = false;
-
-	public ParallelAction() {
+	ParallelAction() {
 	}
 
 	public ParallelAction(SceneAction action1) {
@@ -28,11 +26,8 @@ public class ParallelAction extends CompositeAction {
 	}
 
 	@Override
-	public boolean act() {
-		if (complete) {
-			return true;
-		}
-
+	public boolean doAct() {
+		boolean complete = actions.size == 0;
 		for (int i = 0, n = actions.size; i < n; i++) {
 			SceneAction currentAction = actions.get(i);
 			if (!currentAction.isComplete()) {
@@ -40,16 +35,5 @@ public class ParallelAction extends CompositeAction {
 			}
 		}
 		return complete;
-	}
-
-	@Override
-	public boolean isComplete() {
-		return complete;
-	}
-
-	@Override
-	public void restart() {
-		super.restart();
-		complete = false;
 	}
 }

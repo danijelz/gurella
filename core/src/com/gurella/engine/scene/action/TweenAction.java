@@ -9,7 +9,7 @@ public class TweenAction extends SceneAction {
 	Interpolation interpolation;
 
 	private float time;
-	private boolean reverse, began, complete;
+	private boolean reverse;
 
 	TweenAction() {
 	}
@@ -26,19 +26,10 @@ public class TweenAction extends SceneAction {
 	}
 
 	@Override
-	public boolean act() {
-		if (complete) {
-			return true;
-		}
-
-		if (!began) {
-			begin();
-			began = true;
-		}
-
+	public boolean doAct() {
 		float delta = Application.deltaTime;
 		time += delta;
-		complete = time >= duration;
+		boolean complete = time >= duration;
 		float percent;
 		if (complete) {
 			percent = 1;
@@ -50,17 +41,7 @@ public class TweenAction extends SceneAction {
 		}
 
 		tween.update(reverse ? 1 - percent : percent);
-		if (complete) {
-			end();
-		}
-
 		return complete;
-	}
-
-	protected void begin() {
-	}
-
-	protected void end() {
 	}
 
 	public void finish() {
@@ -71,8 +52,6 @@ public class TweenAction extends SceneAction {
 	public void restart() {
 		super.restart();
 		time = 0;
-		began = false;
-		complete = false;
 	}
 
 	@Override
@@ -112,10 +91,5 @@ public class TweenAction extends SceneAction {
 
 	public void setReverse(boolean reverse) {
 		this.reverse = reverse;
-	}
-
-	@Override
-	public boolean isComplete() {
-		return complete;
 	}
 }

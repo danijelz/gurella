@@ -2,7 +2,6 @@ package com.gurella.engine.scene.action;
 
 public final class CoroutineAction extends SceneAction {
 	Coroutine coroutine;
-	private boolean complete = false;
 
 	private long waitStartTime;
 	private long waitDuration;
@@ -15,11 +14,7 @@ public final class CoroutineAction extends SceneAction {
 	}
 
 	@Override
-	public final boolean act() {
-		if (complete) {
-			return true;
-		}
-
+	public final boolean doAct() {
 		if (waitDuration > 0) {
 			if (System.currentTimeMillis() - waitStartTime >= waitDuration) {
 				waitDuration = 0;
@@ -30,24 +25,18 @@ public final class CoroutineAction extends SceneAction {
 
 		long result = coroutine.act();
 		if (result < 0f) {
-			complete = true;
+			return true;
 		} else if (result > 0) {
 			waitDuration = result;
 			waitStartTime = System.currentTimeMillis();
 		}
 
-		return complete;
-	}
-
-	@Override
-	public boolean isComplete() {
-		return complete;
+		return false;
 	}
 
 	@Override
 	public void restart() {
 		super.restart();
-		complete = false;
 		waitStartTime = 0;
 		waitDuration = 0;
 	}

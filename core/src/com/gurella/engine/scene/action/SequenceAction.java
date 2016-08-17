@@ -3,7 +3,7 @@ package com.gurella.engine.scene.action;
 public class SequenceAction extends CompositeAction {
 	private int index;
 
-	public SequenceAction() {
+	SequenceAction() {
 	}
 
 	public SequenceAction(SceneAction action1) {
@@ -28,20 +28,11 @@ public class SequenceAction extends CompositeAction {
 	}
 
 	@Override
-	public boolean act() {
-		if (index >= actions.size) {
-			return true;
-		}
-
+	public boolean doAct() {
 		if (actions.get(index).act()) {
 			index++;
 		}
 
-		return index >= actions.size;
-	}
-
-	@Override
-	public boolean isComplete() {
 		return index >= actions.size;
 	}
 

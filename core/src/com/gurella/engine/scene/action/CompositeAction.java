@@ -8,7 +8,7 @@ public abstract class CompositeAction extends SceneAction {
 	final ArrayExt<SceneAction> owned = new ArrayExt<SceneAction>();
 	final ArrayExt<SceneAction> actions = new ArrayExt<SceneAction>();
 
-	public CompositeAction() {
+	CompositeAction() {
 	}
 
 	public CompositeAction(SceneAction action1) {

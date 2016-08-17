@@ -14,17 +14,8 @@ public class DelayAction extends SceneAction {
 	}
 
 	@Override
-	public boolean act() {
-		if (time >= duration) {
-			return true;
-		}
-
+	public boolean doAct() {
 		time += Gdx.graphics.getDeltaTime();
-		return time >= duration;
-	}
-
-	@Override
-	public boolean isComplete() {
 		return time >= duration;
 	}
 

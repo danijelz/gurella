@@ -1,17 +1,53 @@
 package com.gurella.engine.scene.action;
 
+import static com.gurella.engine.pool.PoolService.obtain;
+
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.event.Listener0;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.action.CoroutineAction.Coroutine;
 
 public abstract class SceneAction implements Poolable {
-	abstract public boolean act();
+	private boolean began;
+	private boolean complete;
 
-	abstract public boolean isComplete();
+	private Listener0 beginCallback;
+	private Listener0 endCallback;
+
+	public final boolean act() {
+		if (complete) {
+			return true;
+		}
+
+		if (!began) {
+			if (beginCallback != null) {
+				beginCallback.handle();
+			}
+			began = true;
+		}
+
+		complete = doAct();
+
+		if (complete) {
+			if (endCallback != null) {
+				endCallback.handle();
+			}
+		}
+
+		return complete;
+	}
+
+	abstract public boolean doAct();
+
+	public final boolean isComplete() {
+		return complete;
+	}
 
 	public void restart() {
+		began = false;
+		complete = false;
 	}
 
 	@Override
@@ -20,49 +56,49 @@ public abstract class SceneAction implements Poolable {
 	}
 
 	public static ActionBuilder delay(float duration) {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.delay(duration);
 		return builder;
 	}
 
 	public static ActionBuilder repeat(int repeatCount) {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.repeat(repeatCount);
 		return builder;
 	}
 
 	public static ActionBuilder runnable(Runnable runnable) {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.runnable(runnable);
 		return builder;
 	}
 
 	public static ActionBuilder coroutine(Coroutine coroutine) {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.coroutine(coroutine);
 		return builder;
 	}
 
 	public static ActionBuilder parallel() {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.parallel();
 		return builder;
 	}
 
 	public static ActionBuilder sequence() {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.sequence();
 		return builder;
 	}
 
 	public static ActionBuilder tween(Tween tween, float duration) {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.tween(tween, duration);
 		return builder;
 	}
 
 	public static ActionBuilder tween(Tween tween, float duration, Interpolation interpolation) {
-		ActionBuilder builder = PoolService.obtain(ActionBuilder.class);
+		ActionBuilder builder = obtain(ActionBuilder.class);
 		builder.tween(tween, duration, interpolation);
 		return builder;
 	}
@@ -86,7 +122,7 @@ public abstract class SceneAction implements Poolable {
 				((RepeatAction) current).delegate = action;
 				end();
 			} else {
-				SequenceAction sequenceAction = PoolService.obtain(SequenceAction.class);
+				SequenceAction sequenceAction = obtain(SequenceAction.class);
 				sequenceAction.addOwnedAction(current);
 				sequenceAction.addOwnedAction(action);
 				stack.pop();
@@ -99,28 +135,28 @@ public abstract class SceneAction implements Poolable {
 		}
 
 		public ActionBuilder delay(float duration) {
-			DelayAction action = PoolService.obtain(DelayAction.class);
+			DelayAction action = obtain(DelayAction.class);
 			action.duration = duration;
 			append(action);
 			return this;
 		}
 
 		public ActionBuilder repeat(int repeatCount) {
-			RepeatAction action = PoolService.obtain(RepeatAction.class);
+			RepeatAction action = obtain(RepeatAction.class);
 			action.repeatCount = repeatCount;
 			append(action);
 			return this;
 		}
 
 		public ActionBuilder runnable(Runnable runnable) {
-			RunnableAction action = PoolService.obtain(RunnableAction.class);
+			RunnableAction action = obtain(RunnableAction.class);
 			action.runnable = runnable;
 			append(action);
 			return this;
 		}
 
 		public ActionBuilder coroutine(Coroutine coroutine) {
-			CoroutineAction action = PoolService.obtain(CoroutineAction.class);
+			CoroutineAction action = obtain(CoroutineAction.class);
 			action.coroutine = coroutine;
 			append(action);
 			return this;
@@ -131,7 +167,7 @@ public abstract class SceneAction implements Poolable {
 		}
 
 		public ActionBuilder tween(Tween tween, float duration, Interpolation interpolation) {
-			TweenAction action = PoolService.obtain(TweenAction.class);
+			TweenAction action = obtain(TweenAction.class);
 			action.tween = tween;
 			action.duration = duration;
 			action.interpolation = interpolation;
@@ -140,12 +176,12 @@ public abstract class SceneAction implements Poolable {
 		}
 
 		public ActionBuilder sequence() {
-			append(PoolService.obtain(SequenceAction.class));
+			append(obtain(SequenceAction.class));
 			return this;
 		}
 
 		public ActionBuilder parallel() {
-			append(PoolService.obtain(ParallelAction.class));
+			append(obtain(ParallelAction.class));
 			return this;
 		}
 
@@ -199,6 +235,7 @@ public abstract class SceneAction implements Poolable {
 
 	public static void main(String[] args) {
 		SceneAction.sequence().delay(1).coroutine(null).parallel().delay(1).coroutine(null).end().delay(1).repeat(2)
-				.sequence().coroutine(null).delay(0).repeat(2).delay(0).end().delay(0).print();
+				.sequence().coroutine(null).delay(0).repeat(2).delay(0).end().delay(0).repeat(2).parallel().delay(0)
+				.delay(0).end().print();
 	}
 }
