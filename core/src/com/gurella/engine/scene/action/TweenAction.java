@@ -51,6 +51,7 @@ public class TweenAction extends SceneAction {
 	@Override
 	public void restart() {
 		super.restart();
+		tween.update(reverse ? 1 : 0);
 		time = 0;
 	}
 

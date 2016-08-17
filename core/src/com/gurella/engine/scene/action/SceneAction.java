@@ -13,8 +13,8 @@ public abstract class SceneAction implements Poolable {
 	private boolean began;
 	private boolean complete;
 
-	private Listener0 beginCallback;
-	private Listener0 endCallback;
+	private Listener0 beginListener;
+	private Listener0 completeListener;
 
 	public final boolean act() {
 		if (complete) {
@@ -22,8 +22,8 @@ public abstract class SceneAction implements Poolable {
 		}
 
 		if (!began) {
-			if (beginCallback != null) {
-				beginCallback.handle();
+			if (beginListener != null) {
+				beginListener.handle();
 			}
 			began = true;
 		}
@@ -31,8 +31,8 @@ public abstract class SceneAction implements Poolable {
 		complete = doAct();
 
 		if (complete) {
-			if (endCallback != null) {
-				endCallback.handle();
+			if (completeListener != null) {
+				completeListener.handle();
 			}
 		}
 
@@ -192,6 +192,29 @@ public abstract class SceneAction implements Poolable {
 			return this;
 		}
 
+		public ActionBuilder onBegin(Listener0 beginListener) {
+			getLastAdded().beginListener = beginListener;
+			return this;
+		}
+
+		private SceneAction getLastAdded() {
+			SceneAction top = stack.peek();
+			if (top instanceof CompositeAction) {
+				CompositeAction composite = (CompositeAction) top;
+				return composite.actions.size == 0 ? composite : composite.actions.peek();
+			} else if (top instanceof RepeatAction && ((RepeatAction) top).delegate == null) {
+				RepeatAction repeatAction = (RepeatAction) top;
+				return repeatAction.delegate == null ? repeatAction : repeatAction.delegate;
+			} else {
+				return top;
+			}
+		}
+
+		public ActionBuilder onComplete(Listener0 completeListener) {
+			getLastAdded().completeListener = completeListener;
+			return this;
+		}
+
 		public SceneAction build() {
 			SceneAction action = stack.get(0);
 			stack.clear();
@@ -201,7 +224,6 @@ public abstract class SceneAction implements Poolable {
 
 		private void print() {
 			System.out.println(print(build(), 0));
-
 		}
 
 		private String print(SceneAction action, int level) {
