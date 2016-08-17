@@ -6,6 +6,9 @@ public class DelayAction extends SceneAction {
 	float duration;
 	private float time;
 
+	DelayAction() {
+	}
+
 	public DelayAction(float duration) {
 		this.duration = duration;
 	}

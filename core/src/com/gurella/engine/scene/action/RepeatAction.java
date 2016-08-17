@@ -3,11 +3,14 @@ package com.gurella.engine.scene.action;
 public class RepeatAction extends SceneAction {
 	public static final int infiniteRepeatCount = -1;
 
-	private SceneAction delegate;
-	private int repeatCount;
+	SceneAction delegate;
+	int repeatCount;
 
 	private int executedCount;
 	private boolean finished;
+
+	RepeatAction() {
+	}
 
 	public RepeatAction(SceneAction delegate, int repeatCount) {
 		this.delegate = delegate;

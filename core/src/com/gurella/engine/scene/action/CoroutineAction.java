@@ -1,11 +1,14 @@
 package com.gurella.engine.scene.action;
 
 public final class CoroutineAction extends SceneAction {
-	private Coroutine coroutine;
+	Coroutine coroutine;
 	private boolean complete = false;
 
 	private long waitStartTime;
 	private long waitDuration;
+
+	CoroutineAction() {
+	}
 
 	public CoroutineAction(Coroutine coroutine) {
 		this.coroutine = coroutine;

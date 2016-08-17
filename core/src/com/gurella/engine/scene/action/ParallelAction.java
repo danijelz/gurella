@@ -1,28 +1,28 @@
 package com.gurella.engine.scene.action;
 
-public class ParalelAction extends CompositeAction {
+public class ParallelAction extends CompositeAction {
 	boolean complete = false;
 
-	public ParalelAction() {
+	public ParallelAction() {
 	}
 
-	public ParalelAction(SceneAction action1) {
+	public ParallelAction(SceneAction action1) {
 		super(action1);
 	}
 
-	public ParalelAction(SceneAction action1, SceneAction action2) {
+	public ParallelAction(SceneAction action1, SceneAction action2) {
 		super(action1, action2);
 	}
 
-	public ParalelAction(SceneAction action1, SceneAction action2, SceneAction action3) {
+	public ParallelAction(SceneAction action1, SceneAction action2, SceneAction action3) {
 		super(action1, action2, action3);
 	}
 
-	public ParalelAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4) {
+	public ParallelAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4) {
 		super(action1, action2, action3, action4);
 	}
 
-	public ParalelAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4,
+	public ParallelAction(SceneAction action1, SceneAction action2, SceneAction action3, SceneAction action4,
 			SceneAction action5) {
 		super(action1, action2, action3, action4, action5);
 	}

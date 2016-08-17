@@ -1,12 +1,12 @@
 package com.gurella.engine.scene.action;
 
 public class RunnableAction extends SceneAction {
-	private Runnable runnable;
-	private boolean ran;
+	Runnable runnable;
+	private boolean complete;
 
 	@Override
 	public boolean act() {
-		if (!ran) {
+		if (!complete) {
 			runnable.run();
 		}
 		return true;
@@ -15,7 +15,7 @@ public class RunnableAction extends SceneAction {
 	@Override
 	public void restart() {
 		super.restart();
-		ran = false;
+		complete = false;
 	}
 
 	@Override
@@ -26,6 +26,6 @@ public class RunnableAction extends SceneAction {
 
 	@Override
 	public boolean isComplete() {
-		return ran;
+		return complete;
 	}
 }

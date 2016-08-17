@@ -4,13 +4,14 @@ import com.badlogic.gdx.math.Interpolation;
 import com.gurella.engine.application.Application;
 
 public class TweenAction extends SceneAction {
-	private Tween tween;
-	private float duration, time;
-	private Interpolation interpolation;
+	Tween tween;
+	float duration;
+	Interpolation interpolation;
+
+	private float time;
 	private boolean reverse, began, complete;
 
-	public TweenAction(Tween tween) {
-		this.tween = tween;
+	TweenAction() {
 	}
 
 	public TweenAction(Tween tween, float duration) {
