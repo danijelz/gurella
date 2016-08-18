@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.action;
 
+import static com.gurella.engine.pool.PoolService.obtain;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -12,6 +14,8 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.PropertyChangeListener;
+import com.gurella.engine.base.model.PropertyChangeListener.PropertyChangeEvent;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
@@ -48,6 +52,7 @@ public class ModelTween<T> implements Tween, Poolable {
 	}
 
 	private T target;
+	private PropertyChangeEvent propertyChangeEvent;
 
 	// TODO cache data by class
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
@@ -69,6 +74,7 @@ public class ModelTween<T> implements Tween, Poolable {
 
 	private ModelTween(T target, T start, T end, Model<T> model) {
 		this.target = target;
+
 		ImmutableArray<Property<?>> allProperties = model.getProperties();
 		for (int i = 0, n = allProperties.size(); i < n; i++) {
 			Property<?> property = allProperties.get(i);
@@ -110,21 +116,45 @@ public class ModelTween<T> implements Tween, Poolable {
 
 	@Override
 	public void update(float percent) {
-		for (int i = 0, n = properties.size; i < n; i++) {
-			update(percent, i);
-		}
-		
-		for (int i = 0, n = children.size; i < n; i++) {
-			children.get(i).update(percent);
+		if (target instanceof PropertyChangeListener) {
+			update(percent, getPropertyChangeEvent());
+		} else {
+			for (int i = 0, n = children.size; i < n; i++) {
+				children.get(i).update(percent);
+			}
+
+			for (int i = 0, n = properties.size; i < n; i++) {
+				updateProperty(percent, i);
+			}
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private <V> void update(float percent, int index) {
+	public void update(float percent, PropertyChangeEvent propertyChangeEvent) {
+		for (int i = 0, n = children.size; i < n; i++) {
+			children.get(i).update(percent, propertyChangeEvent);
+		}
+
+		for (int i = 0, n = properties.size; i < n; i++) {
+			updateProperty(percent, i);
+		}
+	}
+
+	private PropertyChangeEvent getPropertyChangeEvent() {
+		if (propertyChangeEvent == null) {
+			propertyChangeEvent = obtain(PropertyChangeEvent.class);
+		}
+		return propertyChangeEvent;
+	}
+
+	private <V> void updateProperty(float percent, int index) {
+		@SuppressWarnings("unchecked")
 		Property<V> property = (Property<V>) properties.get(index);
+		@SuppressWarnings("unchecked")
 		Interpolator<V> interpolator = (Interpolator<V>) interpolators.get(index);
 
+		@SuppressWarnings("unchecked")
 		V startValue = (V) startValues.get(index);
+		@SuppressWarnings("unchecked")
 		V endValue = (V) endValues.get(index);
 		V interpolatedValue = interpolator.interpolate(startValue, endValue, percent);
 
@@ -293,5 +323,23 @@ public class ModelTween<T> implements Tween, Poolable {
 		interpolators.reset();
 		startValues.reset();
 		endValues.reset();
+		if (propertyChangeEvent != null) {
+			PoolService.free(propertyChangeEvent);
+		}
+	}
+
+	private static class TestDdd {
+		int i = 0;
+	}
+
+	public static void main(String[] args) {
+		TestDdd ddd = new TestDdd();
+		TestDdd ddd1 = new TestDdd();
+		ddd1.i = 100;
+		ModelTween<TestDdd> tween = new ModelTween<ModelTween.TestDdd>(ddd, ddd1);
+		for (int i = 0; i < 100; i++) {
+			tween.update((float) (i * 0.01 + 0.01));
+			System.out.println(ddd.i);
+		}
 	}
 }

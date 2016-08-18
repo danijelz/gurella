@@ -68,8 +68,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		PropertyChangeEvent event = new PropertyChangeEvent();
 		event.oldValue = oldValue;
 		event.newValue = newValue;
-		Array<Object> propertyPath = new Array<Object>();
-		event.propertyPath = propertyPath;
+		Array<Object> propertyPath = event.propertyPath;
 
 		while (temp != null) {
 			if (temp instanceof PropertyEditorContext) {
@@ -90,7 +89,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	public boolean isFixedValue() {
 		return getPropertyType().isPrimitive() || property.isFinal();
 	}
-	
+
 	public Class<P> getPropertyType() {
 		return property.getType();
 	}
