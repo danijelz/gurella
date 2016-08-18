@@ -7,6 +7,7 @@ import java.util.Date;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.Model;
@@ -21,6 +22,7 @@ import com.gurella.engine.utils.Values;
 public class ModelTween<T> implements Tween, Poolable {
 	private static final ObjectSet<Class<?>> tweenableTypes = new ObjectSet<Class<?>>();
 	private static final IdentityMap<Class<?>, Interpolator<?>> interpolatorsByType = new IdentityMap<Class<?>, Interpolator<?>>();
+	private static final ObjectMap<Class<?>, ModelTweenProperties> tweenProperties = new ObjectMap<Class<?>, ModelTweenProperties>();
 
 	static {
 		registerInterpolator(byte.class, ByteInterpolator.instance);
@@ -47,6 +49,14 @@ public class ModelTween<T> implements Tween, Poolable {
 	private static <T> void registerInterpolator(Class<T> type, Interpolator<T> interpolator) {
 		tweenableTypes.add(type);
 		interpolatorsByType.put(type, interpolator);
+	}
+	
+	private static ModelTweenProperties getTweenProperties(Class<?> type) {
+		ModelTweenProperties modelTweenProperties = tweenProperties.get(type);
+		if(modelTweenProperties == null) {
+			modelTweenProperties = null;//todo
+		}
+		return modelTweenProperties;
 	}
 
 	private T target;
@@ -296,6 +306,13 @@ public class ModelTween<T> implements Tween, Poolable {
 		public BigDecimal interpolate(BigDecimal startValue, BigDecimal endValue, float percent) {
 			return endValue.subtract(startValue).multiply(new BigDecimal(percent)).add(startValue);
 		}
+	}
+	
+	private static class ModelTweenProperties {
+		final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
+		final ArrayExt<Interpolator<?>> interpolators = new ArrayExt<Interpolator<?>>();
+		final ArrayExt<Property<?>> childrenProperties = new ArrayExt<Property<?>>();
+		final ArrayExt<ModelTween<?>> children = new ArrayExt<ModelTween<?>>();
 	}
 
 	@Override
