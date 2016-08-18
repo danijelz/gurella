@@ -59,7 +59,6 @@ public class ModelTween<T> implements Tween, Poolable {
 	// TODO cache data by class
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ArrayExt<Interpolator<?>> interpolators = new ArrayExt<Interpolator<?>>();
-
 	private final ArrayExt<ModelTween<?>> children = new ArrayExt<ModelTween<?>>();
 
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
