@@ -920,13 +920,10 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	@Override
 	public void propertyChanged(PropertyChangeEvent event) {
-		Array<Object> propertyPath = event.propertyPath;
-		if (propertyPath.peek() == this) {
-			if (propertyPath.size > 1 && propertyPath.get(propertyPath.size - 2) == eulerRotation) {
-				rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-			}
-			notifyChanged();
+		if ("eulerRotation".equals(event.propertyName)) {
+			rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
 		}
+		notifyChanged();
 	}
 
 	@Override

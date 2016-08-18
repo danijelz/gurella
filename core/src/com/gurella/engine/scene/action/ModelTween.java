@@ -59,6 +59,7 @@ public class ModelTween<T> implements Tween, Poolable {
 	// TODO cache data by class
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ArrayExt<Interpolator<?>> interpolators = new ArrayExt<Interpolator<?>>();
+	private final ArrayExt<Property<?>> childrenProperties = new ArrayExt<Property<?>>();
 	private final ArrayExt<ModelTween<?>> children = new ArrayExt<ModelTween<?>>();
 
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
@@ -77,16 +78,17 @@ public class ModelTween<T> implements Tween, Poolable {
 
 		ImmutableArray<Property<?>> allProperties = model.getProperties();
 		for (int i = 0, n = allProperties.size(); i < n; i++) {
-			Property<?> property = allProperties.get(i);
+			@SuppressWarnings("unchecked")
+			Property<Object> property = (Property<Object>) allProperties.get(i);
 			Object startValue = property.getValue(start);
 			Object endValue = property.getValue(end);
 			if (startValue != null && endValue != null) {
-				appendProperty(target, property, startValue, endValue);
+				appendProperty(property, startValue, endValue);
 			}
 		}
 	}
 
-	protected void appendProperty(T target, Property<?> property, Object startValue, Object endValue) {
+	protected void appendProperty(Property<Object> property, Object startValue, Object endValue) {
 		Class<?> type = property.getType();
 		if (tweenableTypes.contains(type)) {
 			if (Values.isNotEqual(startValue, endValue)) {
@@ -96,11 +98,11 @@ public class ModelTween<T> implements Tween, Poolable {
 				endValues.add(endValue);
 			}
 		} else {
-			initChild(property.getValue(target), startValue, endValue);
+			initChild(property, startValue, endValue);
 		}
 	}
 
-	private <P> void initChild(P target, P start, P end) {
+	private <P> void initChild(Property<P> property, P start, P end) {
 		if (target == null || start == null || end == null) {
 			return;
 		}
@@ -110,7 +112,8 @@ public class ModelTween<T> implements Tween, Poolable {
 			return;
 		}
 
-		children.add(new ModelTween<P>(target, start, end));
+		childrenProperties.add(property);
+		children.add(new ModelTween<P>(property.getValue(target), start, end));
 	}
 
 	@Override
@@ -131,13 +134,12 @@ public class ModelTween<T> implements Tween, Poolable {
 	private void updateAndNotifyListener(float percent, PropertyChangeEvent propertyChangeEvent) {
 		for (int i = 0, n = children.size; i < n; i++) {
 			ModelTween<?> child = children.get(i);
+			Property<?> childProperty = childrenProperties.get(i);
 
+			child.update(percent, propertyChangeEvent);
 			propertyChangeEvent.oldValue = child.target;
 			propertyChangeEvent.newValue = child.target;
-
-			propertyChangeEvent.propertyPath.clear();
-			child.update(percent, propertyChangeEvent);
-			propertyChangeEvent.propertyPath.add(target);
+			propertyChangeEvent.propertyName = childProperty.getName();
 
 			PropertyChangeListener listener = (PropertyChangeListener) target;
 			listener.propertyChanged(propertyChangeEvent);
@@ -149,7 +151,6 @@ public class ModelTween<T> implements Tween, Poolable {
 	}
 
 	private void update(float percent, PropertyChangeEvent propertyChangeEvent) {
-		propertyChangeEvent.propertyPath.add(target);
 		if (target instanceof PropertyChangeListener) {
 			updateAndNotifyListener(percent, propertyChangeEvent);
 		} else {
@@ -201,6 +202,7 @@ public class ModelTween<T> implements Tween, Poolable {
 		PropertyChangeListener listener = (PropertyChangeListener) target;
 		propertyChangeEvent.oldValue = currentValue;
 		propertyChangeEvent.newValue = interpolatedValue;
+		propertyChangeEvent.propertyName = property.getName();
 		listener.propertyChanged(propertyChangeEvent);
 	}
 

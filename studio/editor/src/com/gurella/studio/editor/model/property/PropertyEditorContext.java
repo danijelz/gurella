@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model.property;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.PropertyChangeListener;
@@ -68,11 +67,11 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		PropertyChangeEvent event = new PropertyChangeEvent();
 		event.oldValue = oldValue;
 		event.newValue = newValue;
-		Array<Object> propertyPath = event.propertyPath;
 
 		while (temp != null) {
 			if (temp instanceof PropertyEditorContext) {
-				propertyPath.add(temp.modelInstance);
+				PropertyEditorContext<?, ?> propertyEditorContext = (PropertyEditorContext<?, ?>) temp;
+				event.propertyName = propertyEditorContext.property.getName();
 				if (temp.modelInstance instanceof PropertyChangeListener) {
 					PropertyChangeListener listener = (PropertyChangeListener) temp.modelInstance;
 					listener.propertyChanged(event);

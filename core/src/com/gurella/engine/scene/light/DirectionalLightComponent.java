@@ -2,7 +2,6 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -81,9 +80,6 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 
 	@Override
 	public void propertyChanged(PropertyChangeEvent event) {
-		Array<Object> propertyPath = event.propertyPath;
-		if (!dirty && propertyPath.peek() == this) {
-			dirty = true;
-		}
+		dirty = true;
 	}
 }
