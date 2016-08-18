@@ -115,7 +115,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	@Override
-	public void propertyChanged(PropertyChangeEvent event) {
+	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
 		dirty = true;
 	}
 }

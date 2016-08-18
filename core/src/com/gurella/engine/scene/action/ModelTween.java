@@ -1,7 +1,5 @@
 package com.gurella.engine.scene.action;
 
-import static com.gurella.engine.pool.PoolService.obtain;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -15,8 +13,6 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.PropertyChangeListener;
-import com.gurella.engine.base.model.PropertyChangeListener.PropertyChangeEvent;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
@@ -54,7 +50,6 @@ public class ModelTween<T> implements Tween, Poolable {
 	}
 
 	private T target;
-	private PropertyChangeEvent propertyChangeEvent;
 
 	// TODO cache data by class
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
@@ -119,57 +114,20 @@ public class ModelTween<T> implements Tween, Poolable {
 
 	@Override
 	public void update(float percent) {
-		if (target instanceof PropertyChangeListener) {
-			updateAndNotifyListener(percent, getPropertyChangeEvent());
-		} else {
-			for (int i = 0, n = children.size; i < n; i++) {
-				children.get(i).update(percent);
-			}
-
-			for (int i = 0, n = properties.size; i < n; i++) {
-				updateProperty(percent, i);
-			}
-		}
-	}
-
-	private void updateAndNotifyListener(float percent, PropertyChangeEvent event) {
 		for (int i = 0, n = children.size; i < n; i++) {
 			ModelTween<?> child = children.get(i);
-			Property<?> childProperty = childrenProperties.get(i);
-
-			child.update(percent, event);
-			event.oldValue = child.target;
-			event.newValue = child.target;
-			event.propertyName = childProperty.getName();
-
-			PropertyChangeListener listener = (PropertyChangeListener) target;
-			listener.propertyChanged(event);
+			child.update(percent);
+			if (target instanceof PropertyChangeListener) {
+				Property<?> childProperty = childrenProperties.get(i);
+				PropertyChangeListener listener = (PropertyChangeListener) target;
+				Object value = childProperty.getValue(target);
+				listener.propertyChanged(childProperty.getName(), value, value);
+			}
 		}
 
 		for (int i = 0, n = properties.size; i < n; i++) {
-			updatePropertyAndNotifyListener(percent, i, event);
+			updateProperty(percent, i);
 		}
-	}
-
-	private void update(float percent, PropertyChangeEvent event) {
-		if (target instanceof PropertyChangeListener) {
-			updateAndNotifyListener(percent, event);
-		} else {
-			for (int i = 0, n = children.size; i < n; i++) {
-				children.get(i).update(percent, event);
-			}
-
-			for (int i = 0, n = properties.size; i < n; i++) {
-				updateProperty(percent, i);
-			}
-		}
-	}
-
-	private PropertyChangeEvent getPropertyChangeEvent() {
-		if (propertyChangeEvent == null) {
-			propertyChangeEvent = obtain(PropertyChangeEvent.class);
-		}
-		return propertyChangeEvent;
 	}
 
 	private <V> void updateProperty(float percent, int index) {
@@ -183,28 +141,13 @@ public class ModelTween<T> implements Tween, Poolable {
 		@SuppressWarnings("unchecked")
 		V endValue = (V) endValues.get(index);
 		V interpolatedValue = interpolator.interpolate(startValue, endValue, percent);
-		property.setValue(target, interpolatedValue);
-	}
 
-	private <V> void updatePropertyAndNotifyListener(float percent, int index, PropertyChangeEvent event) {
-		@SuppressWarnings("unchecked")
-		Property<V> property = (Property<V>) properties.get(index);
-		@SuppressWarnings("unchecked")
-		Interpolator<V> interpolator = (Interpolator<V>) interpolators.get(index);
-
-		@SuppressWarnings("unchecked")
-		V startValue = (V) startValues.get(index);
-		@SuppressWarnings("unchecked")
-		V endValue = (V) endValues.get(index);
-		V interpolatedValue = interpolator.interpolate(startValue, endValue, percent);
-		V currentValue = property.getValue(target);
-		property.setValue(target, interpolatedValue);
-
-		PropertyChangeListener listener = (PropertyChangeListener) target;
-		event.oldValue = currentValue;
-		event.newValue = interpolatedValue;
-		event.propertyName = property.getName();
-		listener.propertyChanged(event);
+		if (target instanceof PropertyChangeListener) {
+			PropertyChangeListener listener = (PropertyChangeListener) target;
+			listener.propertyChanged(property.getName(), property.getValue(target), interpolatedValue);
+		} else {
+			property.setValue(target, interpolatedValue);
+		}
 	}
 
 	public String getDiagnostics() {
@@ -362,9 +305,6 @@ public class ModelTween<T> implements Tween, Poolable {
 		interpolators.reset();
 		startValues.reset();
 		endValues.reset();
-		if (propertyChangeEvent != null) {
-			PoolService.free(propertyChangeEvent);
-		}
 	}
 
 	public static void main(String[] args) {

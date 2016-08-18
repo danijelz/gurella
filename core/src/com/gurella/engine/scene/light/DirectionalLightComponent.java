@@ -79,7 +79,7 @@ public class DirectionalLightComponent extends LightComponent<DirectionalLight> 
 	}
 
 	@Override
-	public void propertyChanged(PropertyChangeEvent event) {
+	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
 		dirty = true;
 	}
 }

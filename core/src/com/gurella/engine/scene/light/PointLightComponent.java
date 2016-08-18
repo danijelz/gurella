@@ -77,7 +77,7 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	}
 
 	@Override
-	public void propertyChanged(PropertyChangeEvent event) {
+	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
 		dirty = true;
 	}
 }
