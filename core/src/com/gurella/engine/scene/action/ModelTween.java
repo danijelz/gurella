@@ -103,17 +103,18 @@ public class ModelTween<T> implements Tween, Poolable {
 	}
 
 	private <P> void initChild(Property<P> property, P start, P end) {
-		if (target == null || start == null || end == null) {
+		P childTarget = property.getValue(target);
+		if (childTarget == null || start == null || end == null) {
 			return;
 		}
 
-		Model<P> model = Models.<P> getCommonModel(target, end);
+		Model<P> model = Models.<P> getCommonModel(childTarget, start, end);
 		if (model.getProperties().size() == 0) {
 			return;
 		}
 
 		childrenProperties.add(property);
-		children.add(new ModelTween<P>(property.getValue(target), start, end));
+		children.add(new ModelTween<P>(childTarget, start, end));
 	}
 
 	@Override
@@ -131,31 +132,31 @@ public class ModelTween<T> implements Tween, Poolable {
 		}
 	}
 
-	private void updateAndNotifyListener(float percent, PropertyChangeEvent propertyChangeEvent) {
+	private void updateAndNotifyListener(float percent, PropertyChangeEvent event) {
 		for (int i = 0, n = children.size; i < n; i++) {
 			ModelTween<?> child = children.get(i);
 			Property<?> childProperty = childrenProperties.get(i);
 
-			child.update(percent, propertyChangeEvent);
-			propertyChangeEvent.oldValue = child.target;
-			propertyChangeEvent.newValue = child.target;
-			propertyChangeEvent.propertyName = childProperty.getName();
+			child.update(percent, event);
+			event.oldValue = child.target;
+			event.newValue = child.target;
+			event.propertyName = childProperty.getName();
 
 			PropertyChangeListener listener = (PropertyChangeListener) target;
-			listener.propertyChanged(propertyChangeEvent);
+			listener.propertyChanged(event);
 		}
 
 		for (int i = 0, n = properties.size; i < n; i++) {
-			updateProperty(percent, i, propertyChangeEvent);
+			updatePropertyAndNotifyListener(percent, i, event);
 		}
 	}
 
-	private void update(float percent, PropertyChangeEvent propertyChangeEvent) {
+	private void update(float percent, PropertyChangeEvent event) {
 		if (target instanceof PropertyChangeListener) {
-			updateAndNotifyListener(percent, propertyChangeEvent);
+			updateAndNotifyListener(percent, event);
 		} else {
 			for (int i = 0, n = children.size; i < n; i++) {
-				children.get(i).update(percent, propertyChangeEvent);
+				children.get(i).update(percent, event);
 			}
 
 			for (int i = 0, n = properties.size; i < n; i++) {
@@ -185,7 +186,7 @@ public class ModelTween<T> implements Tween, Poolable {
 		property.setValue(target, interpolatedValue);
 	}
 
-	private <V> void updateProperty(float percent, int index, PropertyChangeEvent propertyChangeEvent) {
+	private <V> void updatePropertyAndNotifyListener(float percent, int index, PropertyChangeEvent event) {
 		@SuppressWarnings("unchecked")
 		Property<V> property = (Property<V>) properties.get(index);
 		@SuppressWarnings("unchecked")
@@ -200,10 +201,10 @@ public class ModelTween<T> implements Tween, Poolable {
 		property.setValue(target, interpolatedValue);
 
 		PropertyChangeListener listener = (PropertyChangeListener) target;
-		propertyChangeEvent.oldValue = currentValue;
-		propertyChangeEvent.newValue = interpolatedValue;
-		propertyChangeEvent.propertyName = property.getName();
-		listener.propertyChanged(propertyChangeEvent);
+		event.oldValue = currentValue;
+		event.newValue = interpolatedValue;
+		event.propertyName = property.getName();
+		listener.propertyChanged(event);
 	}
 
 	public String getDiagnostics() {
