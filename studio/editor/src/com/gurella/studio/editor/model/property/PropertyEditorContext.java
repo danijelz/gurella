@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.PropertyChangeListener;
-import com.gurella.engine.base.model.PropertyChangeListener.PropertyChangeEvent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.model.ModelEditorContext;
 
@@ -64,17 +63,12 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		signal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
 
 		ModelEditorContext<?> temp = this;
-		PropertyChangeEvent event = new PropertyChangeEvent();
-		event.oldValue = oldValue;
-		event.newValue = newValue;
-
 		while (temp != null) {
 			if (temp instanceof PropertyEditorContext) {
 				PropertyEditorContext<?, ?> propertyEditorContext = (PropertyEditorContext<?, ?>) temp;
-				event.propertyName = propertyEditorContext.property.getName();
 				if (temp.modelInstance instanceof PropertyChangeListener) {
 					PropertyChangeListener listener = (PropertyChangeListener) temp.modelInstance;
-					listener.propertyChanged(event);
+					listener.propertyChanged(propertyEditorContext.property.getName(), oldValue, newValue);
 				}
 			}
 			temp = temp.parent;
