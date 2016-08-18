@@ -129,7 +129,7 @@ public class ModelTween<T> implements Tween, Poolable {
 		}
 	}
 
-	public void update(float percent, PropertyChangeEvent propertyChangeEvent) {
+	private void update(float percent, PropertyChangeEvent propertyChangeEvent) {
 		for (int i = 0, n = children.size; i < n; i++) {
 			children.get(i).update(percent, propertyChangeEvent);
 		}
