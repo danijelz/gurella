@@ -73,7 +73,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 
 		while (temp != null) {
 			if (temp instanceof PropertyEditorContext) {
-				propertyPath.insert(0, temp.modelInstance);
+				propertyPath.add(temp.modelInstance);
 				if (temp.modelInstance instanceof PropertyChangeListener) {
 					PropertyChangeListener listener = (PropertyChangeListener) temp.modelInstance;
 					listener.propertyChanged(event);

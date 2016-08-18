@@ -69,6 +69,9 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	private transient final DoubleTouchProcessor doubleTouchProcessor = new DoubleTouchProcessor(tempListeners,
 			dragAndDropProcessor);
 
+	public byte inputActionsPerSecond;// TODO limit mouse moves;
+	private transient long lastActionHandled;
+
 	public InputSystem() {
 		pointerActivitySignal.addListener(dragAndDropProcessor);
 		pointerActivitySignal.addListener(touchProcessor);

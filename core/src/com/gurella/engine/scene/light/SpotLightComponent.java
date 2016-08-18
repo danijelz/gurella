@@ -118,7 +118,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	@Override
 	public void propertyChanged(PropertyChangeEvent event) {
 		Array<Object> propertyPath = event.propertyPath;
-		if (propertyPath.size == 2 && propertyPath.indexOf(this, true) == 0) {
+		if (!dirty && propertyPath.peek() == this) {
 			dirty = true;
 		}
 	}
