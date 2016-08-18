@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Date;
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -16,6 +17,7 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.base.model.PropertyChangeListener.PropertyChangeEvent;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
@@ -58,7 +60,6 @@ public class ModelTween<T> implements Tween, Poolable {
 	private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 	private final ArrayExt<Interpolator<?>> interpolators = new ArrayExt<Interpolator<?>>();
 
-	private final ArrayExt<Property<?>> childrenProperties = new ArrayExt<Property<?>>();
 	private final ArrayExt<ModelTween<?>> children = new ArrayExt<ModelTween<?>>();
 
 	private final ArrayExt<Object> startValues = new ArrayExt<Object>();
@@ -96,11 +97,11 @@ public class ModelTween<T> implements Tween, Poolable {
 				endValues.add(endValue);
 			}
 		} else {
-			initChild(property, property.getValue(target), startValue, endValue);
+			initChild(property.getValue(target), startValue, endValue);
 		}
 	}
 
-	private <P> void initChild(Property<?> property, P target, P start, P end) {
+	private <P> void initChild(P target, P start, P end) {
 		if (target == null || start == null || end == null) {
 			return;
 		}
@@ -110,32 +111,56 @@ public class ModelTween<T> implements Tween, Poolable {
 			return;
 		}
 
-		childrenProperties.add(property);
 		children.add(new ModelTween<P>(target, start, end));
 	}
 
 	@Override
 	public void update(float percent) {
 		if (target instanceof PropertyChangeListener) {
-			update(percent, getPropertyChangeEvent());
+			updateAndNotifyListener(percent, getPropertyChangeEvent());
 		} else {
 			for (int i = 0, n = children.size; i < n; i++) {
 				children.get(i).update(percent);
 			}
 
 			for (int i = 0, n = properties.size; i < n; i++) {
-				updateProperty(percent, i);
+				updateProperty(percent, i, null);
 			}
 		}
 	}
 
-	private void update(float percent, PropertyChangeEvent propertyChangeEvent) {
+	private void updateAndNotifyListener(float percent, PropertyChangeEvent propertyChangeEvent) {
 		for (int i = 0, n = children.size; i < n; i++) {
-			children.get(i).update(percent, propertyChangeEvent);
+			ModelTween<?> child = children.get(i);
+
+			propertyChangeEvent.oldValue = child.target;
+			propertyChangeEvent.newValue = child.target;
+
+			propertyChangeEvent.propertyPath.clear();
+			child.update(percent, propertyChangeEvent);
+			propertyChangeEvent.propertyPath.add(target);
+
+			PropertyChangeListener listener = (PropertyChangeListener) target;
+			listener.propertyChanged(propertyChangeEvent);
 		}
 
 		for (int i = 0, n = properties.size; i < n; i++) {
-			updateProperty(percent, i);
+			updateProperty(percent, i, propertyChangeEvent);
+		}
+	}
+
+	private void update(float percent, PropertyChangeEvent propertyChangeEvent) {
+		propertyChangeEvent.propertyPath.add(target);
+		if (target instanceof PropertyChangeListener) {
+			updateAndNotifyListener(percent, propertyChangeEvent);
+		} else {
+			for (int i = 0, n = children.size; i < n; i++) {
+				children.get(i).update(percent, propertyChangeEvent);
+			}
+
+			for (int i = 0, n = properties.size; i < n; i++) {
+				updateProperty(percent, i, propertyChangeEvent);
+			}
 		}
 	}
 
@@ -146,7 +171,7 @@ public class ModelTween<T> implements Tween, Poolable {
 		return propertyChangeEvent;
 	}
 
-	private <V> void updateProperty(float percent, int index) {
+	private <V> void updateProperty(float percent, int index, PropertyChangeEvent propertyChangeEvent) {
 		@SuppressWarnings("unchecked")
 		Property<V> property = (Property<V>) properties.get(index);
 		@SuppressWarnings("unchecked")
@@ -161,8 +186,10 @@ public class ModelTween<T> implements Tween, Poolable {
 		if (target instanceof PropertyChangeListener) {
 			V currentValue = property.getValue(target);
 			property.setValue(target, interpolatedValue);
-			PropertyChangeListener propertyChangeListener = (PropertyChangeListener) target;
-			// TODO notify
+			PropertyChangeListener listener = (PropertyChangeListener) target;
+			propertyChangeEvent.oldValue = currentValue;
+			propertyChangeEvent.newValue = interpolatedValue;
+			listener.propertyChanged(propertyChangeEvent);
 		} else {
 			property.setValue(target, interpolatedValue);
 		}
@@ -328,18 +355,15 @@ public class ModelTween<T> implements Tween, Poolable {
 		}
 	}
 
-	private static class TestDdd {
-		int i = 0;
-	}
-
 	public static void main(String[] args) {
-		TestDdd ddd = new TestDdd();
-		TestDdd ddd1 = new TestDdd();
-		ddd1.i = 100;
-		ModelTween<TestDdd> tween = new ModelTween<ModelTween.TestDdd>(ddd, ddd1);
+		TransformComponent tc1 = new TransformComponent();
+		TransformComponent tc2 = new TransformComponent();
+		tc2.setEulerRotation(100, 100, 100);
+		ModelTween<TransformComponent> tween = new ModelTween<TransformComponent>(tc1, tc2);
+		Vector3 outRotation = new Vector3();
 		for (int i = 0; i < 100; i++) {
 			tween.update((float) (i * 0.01 + 0.01));
-			System.out.println(ddd.i);
+			System.out.println(tc1.getEulerRotation(outRotation));
 		}
 	}
 }

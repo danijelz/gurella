@@ -921,8 +921,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	@Override
 	public void propertyChanged(PropertyChangeEvent event) {
 		Array<Object> propertyPath = event.propertyPath;
-		if (propertyPath.size == 2 && propertyPath.peek() == this) {
-			if (propertyPath.get(0) == eulerRotation) {
+		if (propertyPath.peek() == this) {
+			if (propertyPath.size > 1 && propertyPath.get(propertyPath.size - 2) == eulerRotation) {
 				rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
 			}
 			notifyChanged();
@@ -948,11 +948,11 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		public void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
 			boolean notify = false;
 			boolean updateWorldTransform = false;
-			
+
 			if (oldParent instanceof SceneNode2) {
 				updateWorldTransform = true;
 				getWorldTransform(transformInverse);
-				
+
 				SceneNode2 parentNode = (SceneNode2) oldParent;
 				unsubscribeFrom(parentNode, parentComponentActivityListener);
 				unsubscribeFrom(parentNode, parentNodeTransformChangedListener);
@@ -973,8 +973,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 				subscribeTo(parentNode, parentComponentActivityListener);
 				subscribeTo(parentNode, parentNodeTransformChangedListener);
 			}
-			
-			if(updateWorldTransform) {
+
+			if (updateWorldTransform) {
 				setWorldTransform(transformInverse);
 			}
 
