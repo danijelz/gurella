@@ -123,7 +123,7 @@ public class ModelTween<T> implements Tween, Poolable {
 			}
 
 			for (int i = 0, n = properties.size; i < n; i++) {
-				updateProperty(percent, i, null);
+				updateProperty(percent, i);
 			}
 		}
 	}
@@ -158,7 +158,7 @@ public class ModelTween<T> implements Tween, Poolable {
 			}
 
 			for (int i = 0, n = properties.size; i < n; i++) {
-				updateProperty(percent, i, propertyChangeEvent);
+				updateProperty(percent, i);
 			}
 		}
 	}
@@ -168,6 +168,20 @@ public class ModelTween<T> implements Tween, Poolable {
 			propertyChangeEvent = obtain(PropertyChangeEvent.class);
 		}
 		return propertyChangeEvent;
+	}
+
+	private <V> void updateProperty(float percent, int index) {
+		@SuppressWarnings("unchecked")
+		Property<V> property = (Property<V>) properties.get(index);
+		@SuppressWarnings("unchecked")
+		Interpolator<V> interpolator = (Interpolator<V>) interpolators.get(index);
+
+		@SuppressWarnings("unchecked")
+		V startValue = (V) startValues.get(index);
+		@SuppressWarnings("unchecked")
+		V endValue = (V) endValues.get(index);
+		V interpolatedValue = interpolator.interpolate(startValue, endValue, percent);
+		property.setValue(target, interpolatedValue);
 	}
 
 	private <V> void updateProperty(float percent, int index, PropertyChangeEvent propertyChangeEvent) {
@@ -181,17 +195,13 @@ public class ModelTween<T> implements Tween, Poolable {
 		@SuppressWarnings("unchecked")
 		V endValue = (V) endValues.get(index);
 		V interpolatedValue = interpolator.interpolate(startValue, endValue, percent);
+		V currentValue = property.getValue(target);
+		property.setValue(target, interpolatedValue);
 
-		if (target instanceof PropertyChangeListener) {
-			V currentValue = property.getValue(target);
-			property.setValue(target, interpolatedValue);
-			PropertyChangeListener listener = (PropertyChangeListener) target;
-			propertyChangeEvent.oldValue = currentValue;
-			propertyChangeEvent.newValue = interpolatedValue;
-			listener.propertyChanged(propertyChangeEvent);
-		} else {
-			property.setValue(target, interpolatedValue);
-		}
+		PropertyChangeListener listener = (PropertyChangeListener) target;
+		propertyChangeEvent.oldValue = currentValue;
+		propertyChangeEvent.newValue = interpolatedValue;
+		listener.propertyChanged(propertyChangeEvent);
 	}
 
 	public String getDiagnostics() {
