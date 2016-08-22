@@ -5,6 +5,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.gurella.engine.editor.EditorComposite;
 import com.gurella.engine.editor.EditorControl;
@@ -50,5 +51,45 @@ public abstract class SwtEditorControl<T extends Control> implements EditorContr
 	@Override
 	public void setData(String key, Object value) {
 		control.setData(key, value);
+	}
+
+	@Override
+	public boolean forceFocus() {
+		return control.forceFocus();
+	}
+
+	@Override
+	public void redraw() {
+		control.redraw();
+	}
+
+	@Override
+	public void pack() {
+		control.pack();
+	}
+
+	@Override
+	public void moveAbove(EditorControl control) {
+		SwtEditorControl<?> swtControl = (SwtEditorControl<?>) control;
+		this.control.moveAbove(swtControl.control);
+	}
+
+	@Override
+	public void moveBelow(EditorControl control) {
+		SwtEditorControl<?> swtControl = (SwtEditorControl<?>) control;
+		this.control.moveBelow(swtControl.control);
+	}
+
+	@Override
+	public Color getBackground() {
+		org.eclipse.swt.graphics.Color background = this.control.getBackground();
+		return new Color(background.getRed() / 255f, background.getGreen() / 255f, background.getBlue() / 255f,
+				background.getAlpha() / 255f);
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		// TODO Auto-generated method stub
+
 	}
 }
