@@ -54,6 +54,11 @@ public abstract class SwtEditorControl<T extends Control> implements EditorContr
 	}
 
 	@Override
+	public int getBorderWidth() {
+		return control.getBorderWidth();
+	}
+
+	@Override
 	public boolean forceFocus() {
 		return control.forceFocus();
 	}
@@ -82,14 +87,16 @@ public abstract class SwtEditorControl<T extends Control> implements EditorContr
 
 	@Override
 	public Color getBackground() {
-		org.eclipse.swt.graphics.Color background = this.control.getBackground();
+		org.eclipse.swt.graphics.Color background = control.getBackground();
 		return new Color(background.getRed() / 255f, background.getGreen() / 255f, background.getBlue() / 255f,
 				background.getAlpha() / 255f);
 	}
 
 	@Override
 	public void setBackground(Color color) {
-		// TODO Auto-generated method stub
-
+		org.eclipse.swt.graphics.Color swtColor = new org.eclipse.swt.graphics.Color(control.getDisplay(),
+				(int) color.r * 255, (int) color.g * 255, (int) color.b * 255, (int) color.a * 255);
+		control.addListener(SWT.Dispose, e -> swtColor.dispose());
+		control.setBackground(swtColor);
 	}
 }
