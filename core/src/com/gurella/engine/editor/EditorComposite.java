@@ -1,5 +1,7 @@
 package com.gurella.engine.editor;
 
-public interface EditorComposite extends EditorControl {
+import java.util.List;
 
+public interface EditorComposite extends EditorControl {
+	List<EditorControl> getChildren();
 }

@@ -61,6 +61,7 @@ import com.gurella.studio.editor.model.property.bullet.BulletCollisionShapePrope
 
 public class PropertyEditorFactory {
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
+		//TODO check for extension
 		Class<T> propertyType = context.property.getType();
 		return createEditor(parent, context, propertyType);
 	}
