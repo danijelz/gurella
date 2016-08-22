@@ -1,5 +1,11 @@
 package com.gurella.engine.editor;
 
-public class EditorLabel extends EditorControl {
-	public String text;
+public interface EditorLabel extends EditorControl {
+	public String getText();
+
+	public void setText(String string);
+	
+	public Alignment getAlignment();
+	
+	public void setAlignment(Alignment alignment);
 }
