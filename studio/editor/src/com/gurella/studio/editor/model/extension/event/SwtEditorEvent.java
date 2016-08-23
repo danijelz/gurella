@@ -1,11 +1,13 @@
 package com.gurella.studio.editor.model.extension.event;
 
+import static com.gurella.studio.editor.model.extension.SwtEditorWidget.getEditorWidget;
+
 import org.eclipse.swt.widgets.Event;
 
-import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.engine.editor.ui.EditorWidget;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventType;
-import com.gurella.studio.editor.model.extension.SwtEditorControl;
+import com.gurella.studio.editor.model.extension.SwtEditorWidget;
 
 public class SwtEditorEvent implements EditorEvent {
 	private Event event;
@@ -105,14 +107,13 @@ public class SwtEditorEvent implements EditorEvent {
 	}
 
 	@Override
-	public EditorControl getItem() {
-		return SwtEditorControl.getEditorWidget(event.item);
+	public EditorWidget getItem() {
+		return getEditorWidget(event.item);
 	}
 
 	@Override
-	public void setItem(EditorControl item) {
-		// TODO Auto-generated method stub
-
+	public void setItem(EditorWidget item) {
+		event.item = item == null ? null : ((SwtEditorWidget<?>) item).getWidget();
 	}
 
 	@Override
@@ -242,15 +243,13 @@ public class SwtEditorEvent implements EditorEvent {
 	}
 
 	@Override
-	public EditorControl getWidget() {
-		// TODO Auto-generated method stub
-		return null;
+	public EditorWidget getWidget() {
+		return getEditorWidget(event.widget);
 	}
 
 	@Override
-	public void setWidget(EditorControl widget) {
-		// TODO Auto-generated method stub
-
+	public void setWidget(EditorWidget widget) {
+		event.widget = widget == null ? null : ((SwtEditorWidget<?>) widget).getWidget();
 	}
 
 	@Override

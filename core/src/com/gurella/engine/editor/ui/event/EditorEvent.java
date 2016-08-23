@@ -1,6 +1,7 @@
 package com.gurella.engine.editor.ui.event;
 
 import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.engine.editor.ui.EditorWidget;
 
 public interface EditorEvent {
 	int getButton();
@@ -39,9 +40,9 @@ public interface EditorEvent {
 
 	void setIndex(int index);
 
-	EditorControl getItem();
+	EditorWidget getItem();
 
-	void setItem(EditorControl item);
+	void setItem(EditorWidget item);
 
 	int getKeyCode();
 
@@ -87,9 +88,9 @@ public interface EditorEvent {
 
 	void setType(EditorEventType type);
 
-	EditorControl getWidget();
+	EditorWidget getWidget();
 
-	void setWidget(EditorControl widget);
+	void setWidget(EditorWidget widget);
 
 	int getWidth();
 

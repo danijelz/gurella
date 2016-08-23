@@ -36,6 +36,10 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	}
 
 	abstract T createWidget(Composite parent, FormToolkit toolkit);
+	
+	public T getWidget() {
+		return widget;
+	}
 
 	public static <T extends EditorWidget> T getEditorWidget(Widget widget) {
 		return Values.cast(instances.get(widget));
