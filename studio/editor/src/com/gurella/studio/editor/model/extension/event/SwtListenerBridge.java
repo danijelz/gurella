@@ -15,16 +15,7 @@ public class SwtListenerBridge implements Listener {
 
 	@Override
 	public void handleEvent(Event event) {
-		EditorEvent editorEvent = toEditorEvent(event);
+		EditorEvent editorEvent = new SwtEditorEvent(event);
 		listener.handleEvent(editorEvent);
-		syncEvent(editorEvent, event);
-	}
-
-	private static EditorEvent toEditorEvent(Event event) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private static void syncEvent(EditorEvent editorEvent, Event event) {
 	}
 }

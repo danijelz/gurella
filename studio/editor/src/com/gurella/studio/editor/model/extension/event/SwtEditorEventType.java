@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model.extension.event;
 
 import org.eclipse.swt.SWT;
 
+import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.editor.event.EditorEventType;
 
 public enum SwtEditorEventType {
@@ -57,13 +58,28 @@ public enum SwtEditorEventType {
 	Traverse(SWT.Traverse),
 	Verify(SWT.Verify);
 
+	private static IntMap<SwtEditorEventType> swtValues;
+
 	public final int swtValue;
 
 	private SwtEditorEventType(int swtValue) {
 		this.swtValue = swtValue;
+		getSwtValues().put(swtValue, this);
+	}
+
+	private static IntMap<SwtEditorEventType> getSwtValues() {
+		if (swtValues == null) {
+			swtValues = new IntMap<>();
+		}
+		return swtValues;
 	}
 
 	public static int toSwtConstant(EditorEventType eventType) {
 		return valueOf(eventType.name()).swtValue;
+	}
+
+	public static EditorEventType fromSwtConstant(int type) {
+		SwtEditorEventType swtEditorEventType = getSwtValues().get(type);
+		return swtEditorEventType == null ? null : EditorEventType.valueOf(swtEditorEventType.name());
 	}
 }

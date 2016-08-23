@@ -38,7 +38,11 @@ public abstract class SwtEditorControl<T extends Control> implements EditorContr
 	@Override
 	public EditorComposite getParent() {
 		Composite parent = control.getParent();
-		return (EditorComposite) instances.get(parent);
+		return getEditorControl(parent);
+	}
+
+	public static <T extends EditorControl> T getEditorControl(Control control) {
+		return Values.cast(instances.get(control));
 	}
 
 	@Override
@@ -93,6 +97,11 @@ public abstract class SwtEditorControl<T extends Control> implements EditorContr
 	@Override
 	public int getBorderWidth() {
 		return control.getBorderWidth();
+	}
+	
+	@Override
+	public boolean setFocus() {
+		return control.setFocus();
 	}
 
 	@Override

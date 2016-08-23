@@ -32,4 +32,9 @@ public class SwtEditorComposite extends SwtEditorControl<Composite> implements E
 	public List<EditorControl> getChildren() {
 		return Arrays.<Control> stream(control.getChildren()).map(c -> instances.get(c)).collect(Collectors.toList());
 	}
+
+	@Override
+	public void layout() {
+		control.layout();
+	}
 }

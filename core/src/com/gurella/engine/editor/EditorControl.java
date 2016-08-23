@@ -24,6 +24,8 @@ public interface EditorControl {
 	void setData(String key, Object value);
 
 	int getBorderWidth();
+	
+	boolean setFocus();
 
 	boolean forceFocus();
 
