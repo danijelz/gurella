@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui;
 
+import java.io.InputStream;
+
 public interface EditorLabel extends EditorControl {
 	public String getText();
 
@@ -8,4 +10,8 @@ public interface EditorLabel extends EditorControl {
 	public Alignment getAlignment();
 	
 	public void setAlignment(Alignment alignment);
+	
+	EditorImage getImage();
+
+	void setImage(InputStream imageStream);
 }

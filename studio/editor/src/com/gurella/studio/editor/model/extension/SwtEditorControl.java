@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.model.extension;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -126,13 +127,14 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	@Override
-	public FontData getFontData() {
-		Font font = widget.getFont();
-	}
-
-	@Override
-	public void setFontData(FontData fontData) {
-		//TODO
+	public void setFont(FontData fontData) {
+		int style = 0;
+		style |= fontData.styleBold ? SWT.BOLD : 0;
+		style |= fontData.styleItalic ? SWT.ITALIC : SWT.NORMAL;
+		Font font = FontDescriptor.createFrom(widget.getFont()).setHeight(fontData.height).setStyle(style)
+				.createFont(widget.getDisplay());
+		widget.addListener(SWT.Dispose, e -> font.dispose());
+		widget.setFont(font);
 	}
 
 	@Override

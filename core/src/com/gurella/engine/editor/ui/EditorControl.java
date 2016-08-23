@@ -25,7 +25,6 @@ public interface EditorControl extends EditorWidget {
 
 	void setBackground(Color color);
 
-	//
 	GridRectangle getBounds();
 
 	void setBounds(int x, int y, int width, int height);
@@ -38,9 +37,7 @@ public interface EditorControl extends EditorWidget {
 
 	boolean isEnabled();
 
-	FontData getFontData();
-
-	void setFontData(FontData fontData);
+	void setFont(FontData fontData);
 
 	Color getForeground();
 

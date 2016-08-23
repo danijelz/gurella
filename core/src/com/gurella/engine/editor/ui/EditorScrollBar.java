@@ -6,21 +6,37 @@ import com.gurella.engine.utils.GridRectangle;
 public interface EditorScrollBar extends EditorWidget {
 	boolean getEnabled();
 
+	boolean isEnabled();
+
+	void setEnabled(boolean enabled);
+
 	int getIncrement();
+
+	void setIncrement(int value);
 
 	int getMaximum();
 
+	void setMaximum(int value);
+
 	int getMinimum();
 
+	void setMinimum(int value);
+
 	int getPageIncrement();
+
+	void setPageIncrement(int value);
 
 	EditorScrollable getParent();
 
 	int getSelection();
 
+	void setSelection(int selection);
+
 	GridPoint2 getSize();
 
 	int getThumb();
+
+	void setThumb(int value);
 
 	GridRectangle getThumbBounds();
 
@@ -28,25 +44,9 @@ public interface EditorScrollBar extends EditorWidget {
 
 	boolean getVisible();
 
-	boolean isEnabled();
-
 	boolean isVisible();
 
-	void setEnabled(boolean enabled);
-
-	void setIncrement(int value);
-
-	void setMaximum(int value);
-
-	void setMinimum(int value);
-
-	void setPageIncrement(int value);
-
-	void setSelection(int selection);
-
-	void setThumb(int value);
+	void setVisible(boolean visible);
 
 	void setValues(int selection, int minimum, int maximum, int thumb, int increment, int pageIncrement);
-
-	void setVisible(boolean visible);
 }
