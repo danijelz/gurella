@@ -1,15 +1,23 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.studio.editor.model.extension.event.SwtEditorEventType.toSwtConstant;
+
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.IdentityMap;
 import com.gurella.engine.editor.EditorComposite;
 import com.gurella.engine.editor.EditorControl;
+import com.gurella.engine.editor.event.EditorEventListener;
+import com.gurella.engine.editor.event.EditorEventType;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.model.extension.event.SwtListenerBridge;
 
 public abstract class SwtEditorControl<T extends Control> implements EditorControl {
 	static final IdentityMap<Control, EditorControl> instances = new IdentityMap<>();
@@ -31,6 +39,35 @@ public abstract class SwtEditorControl<T extends Control> implements EditorContr
 	public EditorComposite getParent() {
 		Composite parent = control.getParent();
 		return (EditorComposite) instances.get(parent);
+	}
+
+	@Override
+	public void addListener(EditorEventType eventType, EditorEventListener listener) {
+		control.addListener(toSwtConstant(eventType), new SwtListenerBridge(listener));
+	}
+
+	@Override
+	public EditorEventListener[] getListeners(EditorEventType eventType) {
+		Listener[] listeners = control.getListeners(toSwtConstant(eventType));
+		return Arrays.stream(listeners).filter(l -> l instanceof SwtListenerBridge)
+				.map(l -> ((SwtListenerBridge) l).listener).toArray(i -> new EditorEventListener[i]);
+	}
+
+	@Override
+	public void removeListener(EditorEventType eventType, EditorEventListener listener) {
+		int swtEvent = toSwtConstant(eventType);
+		Listener[] listeners = control.getListeners(swtEvent);
+		Arrays.stream(listeners).filter(l -> equalsBridge(listener, l)).findFirst()
+				.ifPresent(l -> control.removeListener(swtEvent, l));
+	}
+
+	private static boolean equalsBridge(EditorEventListener listener, Listener l) {
+		return l instanceof SwtListenerBridge && ((SwtListenerBridge) l).listener == listener;
+	}
+
+	@Override
+	public boolean isListening(EditorEventType eventType) {
+		return control.isListening(toSwtConstant(eventType));
 	}
 
 	@Override
