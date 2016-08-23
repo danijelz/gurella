@@ -3,8 +3,8 @@ package com.gurella.studio.editor.model.extension.event;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import com.gurella.engine.editor.event.EditorEvent;
-import com.gurella.engine.editor.event.EditorEventListener;
+import com.gurella.engine.editor.ui.event.EditorEvent;
+import com.gurella.engine.editor.ui.event.EditorEventListener;
 
 public class SwtListenerBridge implements Listener {
 	public final EditorEventListener listener;

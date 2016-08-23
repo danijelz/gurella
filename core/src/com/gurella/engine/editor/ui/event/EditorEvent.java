@@ -1,6 +1,6 @@
-package com.gurella.engine.editor.event;
+package com.gurella.engine.editor.ui.event;
 
-import com.gurella.engine.editor.EditorControl;
+import com.gurella.engine.editor.ui.EditorControl;
 
 public interface EditorEvent {
 	int getButton();

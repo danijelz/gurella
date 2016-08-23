@@ -1,4 +1,4 @@
-package com.gurella.engine.editor.layout;
+package com.gurella.engine.editor.ui.layout;
 
 public class GridLayout {
 	public int numColumns = 1;

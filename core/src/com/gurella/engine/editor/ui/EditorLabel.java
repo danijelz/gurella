@@ -1,4 +1,4 @@
-package com.gurella.engine.editor;
+package com.gurella.engine.editor.ui;
 
 public interface EditorLabel extends EditorControl {
 	public String getText();

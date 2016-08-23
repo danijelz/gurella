@@ -3,7 +3,7 @@ package com.gurella.studio.editor.model.extension.event;
 import org.eclipse.swt.SWT;
 
 import com.badlogic.gdx.utils.IntMap;
-import com.gurella.engine.editor.event.EditorEventType;
+import com.gurella.engine.editor.ui.event.EditorEventType;
 
 public enum SwtEditorEventType {
 	Activate(SWT.Activate),

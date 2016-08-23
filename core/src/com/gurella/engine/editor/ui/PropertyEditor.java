@@ -1,4 +1,4 @@
-package com.gurella.engine.editor;
+package com.gurella.engine.editor.ui;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

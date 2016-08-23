@@ -1,4 +1,4 @@
-package com.gurella.engine.editor;
+package com.gurella.engine.editor.ui;
 
 public interface EditorUiFactory {
 	EditorComposite createComposite(EditorComposite parent);

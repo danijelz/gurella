@@ -1,4 +1,4 @@
-package com.gurella.engine.editor.event;
+package com.gurella.engine.editor.ui.event;
 
 public enum EditorEventType {
 	Activate,

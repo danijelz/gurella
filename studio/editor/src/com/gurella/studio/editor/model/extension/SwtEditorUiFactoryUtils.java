@@ -2,7 +2,7 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.SWT;
 
-import com.gurella.engine.editor.Alignment;
+import com.gurella.engine.editor.ui.Alignment;
 
 public class SwtEditorUiFactoryUtils {
 	private SwtEditorUiFactoryUtils() {

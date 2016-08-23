@@ -2,9 +2,9 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.gurella.engine.editor.EditorComposite;
-import com.gurella.engine.editor.EditorLabel;
-import com.gurella.engine.editor.EditorUiFactory;
+import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorLabel;
+import com.gurella.engine.editor.ui.EditorUiFactory;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorUiFactory implements EditorUiFactory {

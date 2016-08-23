@@ -2,9 +2,10 @@ package com.gurella.studio.editor.model.extension.event;
 
 import org.eclipse.swt.widgets.Event;
 
-import com.gurella.engine.editor.EditorControl;
-import com.gurella.engine.editor.event.EditorEvent;
-import com.gurella.engine.editor.event.EditorEventType;
+import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.engine.editor.ui.event.EditorEvent;
+import com.gurella.engine.editor.ui.event.EditorEventType;
+import com.gurella.studio.editor.model.extension.SwtEditorControl;
 
 public class SwtEditorEvent implements EditorEvent {
 	private Event event;
@@ -105,8 +106,7 @@ public class SwtEditorEvent implements EditorEvent {
 
 	@Override
 	public EditorControl getItem() {
-		// TODO Auto-generated method stub
-		return null;
+		return SwtEditorControl.getEditorWidget(event.item);
 	}
 
 	@Override
@@ -117,14 +117,12 @@ public class SwtEditorEvent implements EditorEvent {
 
 	@Override
 	public int getKeyCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.keyCode;
 	}
 
 	@Override
 	public void setKeyCode(int keyCode) {
-		// TODO Auto-generated method stub
-
+		event.keyCode = keyCode;
 	}
 
 	@Override

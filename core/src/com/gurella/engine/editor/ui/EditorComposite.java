@@ -1,4 +1,4 @@
-package com.gurella.engine.editor;
+package com.gurella.engine.editor.ui;
 
 import java.util.List;
 
