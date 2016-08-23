@@ -132,6 +132,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void setFontData(FontData fontData) {
+		//TODO
 	}
 
 	@Override
@@ -178,6 +179,8 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void setMenu(EditorMenu menu) {
+		SwtEditorMenu swtMenu = (SwtEditorMenu) menu;
+		widget.setMenu(swtMenu.widget);
 	}
 
 	@Override

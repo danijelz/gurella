@@ -1,8 +1,11 @@
 package com.gurella.studio.editor.model.extension;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.Direction;
@@ -19,17 +22,18 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	}
 
 	SwtEditorMenu(SwtEditorMenuItem parentItem) {
+		init(new Menu(parentItem.widget));
 	}
 
 	@Override
-	public EditorMenuItem getDefaultItem() {
+	public SwtEditorMenuItem getDefaultItem() {
 		return getEditorWidget(widget.getDefaultItem());
 	}
 
 	@Override
 	public void setDefaultItem(EditorMenuItem item) {
-		// TODO Auto-generated method stub
-
+		SwtEditorMenuItem swtItem = (SwtEditorMenuItem) item;
+		widget.setDefaultItem(swtItem == null ? null : swtItem.widget);
 	}
 
 	@Override
@@ -38,9 +42,9 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	}
 
 	@Override
-	public EditorMenuItem getItem(int index) {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorMenuItem getItem(int index) {
+		MenuItem item = widget.getItem(index);
+		return getEditorWidget(item);
 	}
 
 	@Override
@@ -50,8 +54,7 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 
 	@Override
 	public EditorMenuItem[] getItems() {
-		// TODO Auto-generated method stub
-		return null;
+		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new EditorMenuItem[i]);
 	}
 
 	@Override
@@ -74,8 +77,7 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 
 	@Override
 	public EditorMenuItem getParentItem() {
-		// TODO Auto-generated method stub
-		return null;
+		return getEditorWidget(widget.getParentItem());
 	}
 
 	@Override
@@ -90,8 +92,8 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 
 	@Override
 	public int indexOf(EditorMenuItem item) {
-		// TODO Auto-generated method stub
-		return 0;
+		SwtEditorMenuItem swtItem = (SwtEditorMenuItem) item;
+		return widget.indexOf(swtItem.widget);
 	}
 
 	@Override
