@@ -7,10 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Inherited
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(value = { ElementType.FIELD })
 public @interface PropertyEditorDescriptor {
-	Class<? extends PropertyEditorFactory> factory();
+	Class<? extends PropertyEditorFactory<?>> factory();
 
 	boolean complex() default true;
 }

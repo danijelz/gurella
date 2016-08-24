@@ -1,14 +1,22 @@
 package com.gurella.studio.editor.model;
 
-import static com.gurella.engine.utils.Reflection.getDeclaredAnnotation;
+import static com.gurella.engine.utils.Reflection.forName;
 import static com.gurella.engine.utils.Reflection.newInstance;
 import static com.gurella.engine.utils.Values.cast;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMemberValuePair;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.graphics.Color;
@@ -68,26 +76,63 @@ import com.gurella.studio.editor.model.property.Vector3PropertyEditor;
 import com.gurella.studio.editor.model.property.bullet.BulletCollisionShapePropertyEditor;
 
 public class PropertyEditorFactory {
+	private static final Map<CustomFactoryKey, CustomFactoryData> customFactories = new HashMap<>();
+
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
-		PropertyEditorDescriptor editorDescriptor = getEditorDescriptor(context);
-		if (editorDescriptor == null) {
+		PropertyEditor<T> customEditor = createCustomEditor(parent, context);
+		if (customEditor == null) {
 			Class<T> propertyType = context.property.getType();
 			return createEditor(parent, context, propertyType);
 		} else {
-			return editorDescriptor.complex()
-					? new CustomComplexPropertyEditor<>(parent, context, cast(newInstance(editorDescriptor.factory())))
-					: new CustomSimplePropertyEditor<>(parent, context, cast(newInstance(editorDescriptor.factory())));
+			return customEditor;
 		}
 	}
 
-	private static <T> PropertyEditorDescriptor getEditorDescriptor(PropertyEditorContext<?, T> context) {
-		Property<T> property = context.property;
+	private static <T> PropertyEditor<T> createCustomEditor(Composite parent, PropertyEditorContext<?, T> context) {
+		try {
+			CustomFactoryData data = getCustomFactoryClass(context);
+			return data.complex
+					? new CustomComplexPropertyEditor<>(parent, context, cast(newInstance(data.factoryClass)))
+					: new CustomSimplePropertyEditor<>(parent, context, cast(newInstance(data.factoryClass)));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private static CustomFactoryData getCustomFactoryClass(PropertyEditorContext<?, ?> context) throws Exception {
+		Property<?> property = context.property;
 		if (!(property instanceof ReflectionProperty)) {
 			return null;
 		}
 
-		ReflectionProperty<T> reflectionProperty = cast(property);
-		return getDeclaredAnnotation(reflectionProperty.getField(), PropertyEditorDescriptor.class);
+		Class<?> modelInstanceType = context.modelInstance.getClass();
+		Field field = modelInstanceType.getField(property.getName());
+		Class<?> declaringClass = field.getDeclaringClass();
+		Field declaredField = declaringClass.getDeclaredField(property.getName());
+		CustomFactoryKey key = new CustomFactoryKey(declaredField, declaringClass);
+		CustomFactoryData data = customFactories.get(key);
+		if (data != null) {
+			return data;
+		}
+
+		IJavaProject javaProject = context.sceneEditorContext.javaProject;
+		IType type = javaProject.findType(declaringClass.getName());
+		IField jdtField = type.getField(property.getName());
+		IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
+		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
+		String factoryName = null;
+		boolean complex = true;
+		for (IMemberValuePair memberValuePair : memberValuePairs) {
+			if ("factory".equals(memberValuePair.getMemberName())) {
+				factoryName = (String) memberValuePair.getValue();
+			} else if ("complex".equals(memberValuePair.getMemberName())) {
+				complex = !Boolean.FALSE.equals(memberValuePair.getValue());
+			}
+		}
+
+		data = new CustomFactoryData(complex, forName(factoryName));
+		customFactories.put(key, data);
+		return data;
 	}
 
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context,
@@ -180,5 +225,46 @@ public class PropertyEditorFactory {
 		}
 
 		return editableProperty != null && Models.getModel(editableProperty.getType()) instanceof SimpleModel;
+	}
+
+	private static class CustomFactoryKey {
+		Field declaredField;
+		Class<?> declaringClass;
+
+		public CustomFactoryKey(Field declaredField, Class<?> declaringClass) {
+			this.declaredField = declaredField;
+			this.declaringClass = declaringClass;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + declaringClass.hashCode();
+			result = prime * result + declaredField.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null || getClass() != obj.getClass()) {
+				return false;
+			}
+			CustomFactoryKey other = (CustomFactoryKey) obj;
+			return declaringClass.equals(other.declaringClass) && declaredField.equals(other.declaredField);
+		}
+	}
+
+	private static class CustomFactoryData {
+		boolean complex;
+		Class<?> factoryClass;
+
+		public CustomFactoryData(boolean complex, Class<?> factoryClass) {
+			this.complex = complex;
+			this.factoryClass = factoryClass;
+		}
 	}
 }

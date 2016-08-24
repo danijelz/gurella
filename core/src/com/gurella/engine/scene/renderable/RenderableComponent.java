@@ -25,16 +25,17 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	private static final Object mutex = new Object();
 
 	private transient int sceneId;
-	
+
 	transient boolean visible;
 	transient TransformComponent transformComponent;
 	private transient boolean dirty = true;
 
 	@PropertyDescriptor(nullable = false)
 	public Layer layer = Layer.DEFAULT;
-	
+
 	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class, complex = false)
-	public byte inputEvents = (byte) 0xff;//TODO flags to disable input events (tap, touch, doubleTuch, longPress, mouseMove, scroll)
+	public byte inputEvents = (byte) 0xff;// TODO flags to disable input events (tap, touch, doubleTuch, longPress,
+											// mouseMove, scroll)
 
 	protected abstract void updateGeometry();
 
@@ -122,7 +123,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		update();
 		return doGetIntersection(ray, intersection);
 	}
-	
+
 	public boolean isVisible() {
 		return visible;
 	}
