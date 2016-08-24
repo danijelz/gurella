@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorSash;
 
 public class SwtEditorSash extends SwtEditorControl<Sash> implements EditorSash {
 	public SwtEditorSash(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

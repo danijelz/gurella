@@ -10,7 +10,7 @@ import com.gurella.engine.editor.ui.EditorCombo;
 
 public class SwtEditorCombo extends SwtEditorBaseComposite<Combo> implements EditorCombo {
 	public SwtEditorCombo(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

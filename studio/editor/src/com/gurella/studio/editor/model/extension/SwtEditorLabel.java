@@ -6,7 +6,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorImage;
@@ -14,12 +13,12 @@ import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
-	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+	public SwtEditorLabel(SwtEditorBaseComposite<?> parent) {
+		super(parent);
 	}
 
-	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, FormToolkit toolkit, String text) {
-		super(parent, toolkit);
+	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, String text) {
+		super(parent);
 		setText(text);
 	}
 

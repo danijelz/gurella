@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model.extension;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorScrollable;
 import com.gurella.engine.utils.GridRectangle;
@@ -13,8 +12,8 @@ public abstract class SwtEditorScrollable<T extends Scrollable> extends SwtEdito
 	SwtEditorScrollable() {
 	}
 
-	public SwtEditorScrollable(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+	public SwtEditorScrollable(SwtEditorBaseComposite<?> parent) {
+		super(parent);
 	}
 
 	@Override

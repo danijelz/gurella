@@ -15,7 +15,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
 	public SwtEditorButton(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

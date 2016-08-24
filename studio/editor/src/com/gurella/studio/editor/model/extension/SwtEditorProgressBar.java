@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorProgressBar;
 
 public class SwtEditorProgressBar extends SwtEditorControl<ProgressBar> implements EditorProgressBar {
 	public SwtEditorProgressBar(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

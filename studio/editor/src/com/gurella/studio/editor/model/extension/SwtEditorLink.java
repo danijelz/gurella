@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorLink;
 
 public class SwtEditorLink extends SwtEditorControl<Link> implements EditorLink {
 	public SwtEditorLink(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

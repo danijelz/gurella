@@ -5,7 +5,7 @@ import com.gurella.engine.base.model.Property;
 public interface PropertyEditorContext<P> {
 	Property<P> getProperty();
 
-	Object getModelInstance();
+	Object getModel();
 
 	P getPropertyValue();
 

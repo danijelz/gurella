@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorScale;
 
 public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorScale {
 	public SwtEditorScale(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

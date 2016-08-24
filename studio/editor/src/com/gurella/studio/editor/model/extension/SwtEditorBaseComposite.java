@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
@@ -17,8 +16,8 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 		init(composite);
 	}
 
-	public SwtEditorBaseComposite(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+	public SwtEditorBaseComposite(SwtEditorBaseComposite<?> parent) {
+		super(parent);
 	}
 
 	@Override

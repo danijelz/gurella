@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorDateTime;
 
 public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implements EditorDateTime {
 	public SwtEditorDateTime(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

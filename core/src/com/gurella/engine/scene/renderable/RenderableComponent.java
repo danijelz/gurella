@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -31,6 +32,8 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 	@PropertyDescriptor(nullable = false)
 	public Layer layer = Layer.DEFAULT;
+	
+	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class, complex = false)
 	public byte inputEvents = (byte) 0xff;//TODO flags to disable input events (tap, touch, doubleTuch, longPress, mouseMove, scroll)
 
 	protected abstract void updateGeometry();

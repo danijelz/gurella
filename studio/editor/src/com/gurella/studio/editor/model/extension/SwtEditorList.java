@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorList;
 
 public class SwtEditorList extends SwtEditorScrollable<List> implements EditorList {
 	public SwtEditorList(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

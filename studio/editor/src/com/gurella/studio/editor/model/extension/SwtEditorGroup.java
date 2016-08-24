@@ -8,7 +8,7 @@ import com.gurella.engine.editor.ui.EditorGroup;
 
 public class SwtEditorGroup extends SwtEditorBaseComposite<Group> implements EditorGroup {
 	public SwtEditorGroup(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

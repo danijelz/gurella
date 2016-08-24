@@ -13,7 +13,7 @@ import com.gurella.engine.editor.ui.EditorCoolItem;
 
 public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements EditorCoolBar {
 	public SwtEditorCoolBar(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override

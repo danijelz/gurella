@@ -8,7 +8,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
@@ -23,7 +22,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	SwtEditorControl() {
 	}
 
-	public SwtEditorControl(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorControl(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
