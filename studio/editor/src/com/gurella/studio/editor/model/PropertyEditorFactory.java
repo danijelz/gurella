@@ -117,7 +117,7 @@ public class PropertyEditorFactory {
 		Field declaredField = declaringClass.getDeclaredField(property.getName());
 		CustomFactoryKey key = new CustomFactoryKey(declaredField, declaringClass);
 		CustomFactoryData data = customFactories.get(key);
-		if (data != null && !"level".equals(property.getName())) {
+		if (data != null) {
 			return data;
 		}
 
