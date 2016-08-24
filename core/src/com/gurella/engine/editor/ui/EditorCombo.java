@@ -59,8 +59,6 @@ public interface EditorCombo extends EditorComposite {
 
 	void select(int index);
 
-	void setFont(FontData font);
-
 	void setItem(int index, String string);
 
 	void setItems(String... items);

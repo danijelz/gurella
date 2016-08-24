@@ -1,8 +1,6 @@
 package com.gurella.engine.editor.ui;
 
 public interface EditorSlider extends EditorControl {
-	boolean getEnabled();
-
 	int getIncrement();
 
 	int getMaximum();

@@ -1,6 +1,5 @@
 package com.gurella.engine.editor.ui.event;
 
-import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorWidget;
 
 public interface EditorEvent {

@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(value = { ElementType.TYPE })
 public @interface ModelEditorDescriptor {
-	Class<? extends ModelEditorFactory> factory();
+	Class<? extends ModelEditorFactory<?>> factory();
 }
