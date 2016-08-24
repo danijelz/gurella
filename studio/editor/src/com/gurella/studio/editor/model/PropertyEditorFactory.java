@@ -131,7 +131,19 @@ public class PropertyEditorFactory {
 				boolean complex = true;
 				for (IMemberValuePair memberValuePair : memberValuePairs) {
 					if ("factory".equals(memberValuePair.getMemberName())) {
-						factoryName = (String) memberValuePair.getValue();
+						String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
+						if (resolveType.length != 1) {
+							return null;
+						}
+						String[] path = resolveType[0];
+						StringBuilder builder = new StringBuilder();
+						for (String part : path) {
+							if (builder.length() > 0) {
+								builder.append(".");
+							}
+							builder.append(part);
+						}
+						factoryName = builder.toString();
 					} else if ("complex".equals(memberValuePair.getMemberName())) {
 						complex = !Boolean.FALSE.equals(memberValuePair.getValue());
 					}
