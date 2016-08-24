@@ -13,11 +13,11 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
-	public SwtEditorLabel(SwtEditorComposite parent, FormToolkit toolkit) {
+	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
 		super(parent, toolkit);
 	}
 
-	public SwtEditorLabel(SwtEditorComposite parent, FormToolkit toolkit, String text) {
+	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, FormToolkit toolkit, String text) {
 		super(parent, toolkit);
 		setText(text);
 	}

@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.engine.utils.Values.cast;
+
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorComposite;
@@ -12,19 +14,16 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 
 	@Override
 	public EditorComposite createComposite(EditorComposite parent) {
-		SwtEditorComposite swtParent = (SwtEditorComposite) parent;
-		return new SwtEditorComposite(swtParent, toolkit);
+		return new SwtEditorComposite(cast(parent), toolkit);
 	}
 
 	@Override
 	public EditorLabel createLabel(EditorComposite parent) {
-		SwtEditorComposite swtParent = (SwtEditorComposite) parent;
-		return new SwtEditorLabel(swtParent, toolkit);
+		return new SwtEditorLabel(cast(parent), toolkit);
 	}
 
 	@Override
 	public EditorLabel createLabel(EditorComposite parent, String text) {
-		SwtEditorComposite swtParent = (SwtEditorComposite) parent;
-		return new SwtEditorLabel(swtParent, toolkit, text);
+		return new SwtEditorLabel(cast(parent), toolkit, text);
 	}
 }

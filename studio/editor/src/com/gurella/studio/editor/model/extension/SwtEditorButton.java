@@ -13,7 +13,7 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorImage;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
-	public SwtEditorButton(SwtEditorComposite parent, FormToolkit toolkit) {
+	public SwtEditorButton(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
 		super(parent, toolkit);
 	}
 

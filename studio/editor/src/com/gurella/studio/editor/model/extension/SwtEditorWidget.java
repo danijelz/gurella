@@ -25,7 +25,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	SwtEditorWidget() {
 	}
 
-	public SwtEditorWidget(SwtEditorComposite parent, FormToolkit toolkit) {
+	public SwtEditorWidget(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
 		init(createWidget(parent.widget, toolkit));
 	}
 

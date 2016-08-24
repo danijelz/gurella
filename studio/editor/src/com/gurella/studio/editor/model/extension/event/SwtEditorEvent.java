@@ -128,98 +128,82 @@ public class SwtEditorEvent implements EditorEvent {
 
 	@Override
 	public int getKeyLocation() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.keyLocation;
 	}
 
 	@Override
 	public void setKeyLocation(int keyLocation) {
-		// TODO Auto-generated method stub
-
+		event.keyLocation = keyLocation;
 	}
 
 	@Override
 	public double getMagnification() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.magnification;
 	}
 
 	@Override
 	public void setMagnification(double magnification) {
-		// TODO Auto-generated method stub
-
+		event.magnification = magnification;
 	}
 
 	@Override
 	public double getRotation() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.rotation;
 	}
 
 	@Override
 	public void setRotation(double rotation) {
-		// TODO Auto-generated method stub
-
+		event.rotation = rotation;
 	}
 
 	@Override
 	public int[] getSegments() {
-		// TODO Auto-generated method stub
-		return null;
+		return event.segments;
 	}
 
 	@Override
 	public void setSegments(int[] segments) {
-		// TODO Auto-generated method stub
-
+		event.segments = segments;
 	}
 
 	@Override
 	public char[] getSegmentsChars() {
-		// TODO Auto-generated method stub
-		return null;
+		return event.segmentsChars;
 	}
 
 	@Override
 	public void setSegmentsChars(char[] segmentsChars) {
-		// TODO Auto-generated method stub
-
+		event.segmentsChars = segmentsChars;
 	}
 
 	@Override
 	public int getStart() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.start;
 	}
 
 	@Override
 	public void setStart(int start) {
-		// TODO Auto-generated method stub
-
+		event.start = start;
 	}
 
 	@Override
 	public int getStateMask() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.stateMask;
 	}
 
 	@Override
 	public void setStateMask(int stateMask) {
-		// TODO Auto-generated method stub
-
+		event.stateMask = stateMask;
 	}
 
 	@Override
 	public String getText() {
-		// TODO Auto-generated method stub
-		return null;
+		return event.text;
 	}
 
 	@Override
 	public void setText(String text) {
-		// TODO Auto-generated method stub
-
+		event.text = text;
 	}
 
 	@Override
@@ -254,61 +238,51 @@ public class SwtEditorEvent implements EditorEvent {
 
 	@Override
 	public int getWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.width;
 	}
 
 	@Override
 	public void setWidth(int width) {
-		// TODO Auto-generated method stub
-
+		event.width = width;
 	}
 
 	@Override
 	public int getX() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.x;
 	}
 
 	@Override
 	public void setX(int x) {
-		// TODO Auto-generated method stub
-
+		event.x = x;
 	}
 
 	@Override
 	public int getxDirection() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.xDirection;
 	}
 
 	@Override
 	public void setxDirection(int xDirection) {
-		// TODO Auto-generated method stub
-
+		event.xDirection = xDirection;
 	}
 
 	@Override
 	public int getY() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.y;
 	}
 
 	@Override
 	public void setY(int y) {
-		// TODO Auto-generated method stub
-
+		event.y = y;
 	}
 
 	@Override
 	public int getyDirection() {
-		// TODO Auto-generated method stub
-		return 0;
+		return event.yDirection;
 	}
 
 	@Override
 	public void setyDirection(int yDirection) {
-		// TODO Auto-generated method stub
-
+		event.yDirection = yDirection;
 	}
 }

@@ -18,24 +18,19 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.utils.GridRectangle;
-import com.gurella.engine.utils.Values;
 
 public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidget<T> implements EditorControl {
 	SwtEditorControl() {
 	}
 
-	public SwtEditorControl(SwtEditorComposite parent, FormToolkit toolkit) {
+	public SwtEditorControl(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
 		super(parent, toolkit);
 	}
 
 	@Override
-	public SwtEditorComposite getParent() {
+	public SwtEditorBaseComposite<?> getParent() {
 		Composite parent = widget.getParent();
 		return getEditorWidget(parent);
-	}
-
-	public static <T extends EditorControl> T getEditorControl(Control control) {
-		return Values.cast(instances.get(control));
 	}
 
 	@Override
@@ -60,7 +55,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void pack() {
-		widget.pack();
+		widget.pack(true);
 	}
 
 	@Override
@@ -298,7 +293,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public boolean setParent(EditorComposite parent) {
-		return widget.setParent(((SwtEditorComposite) parent).widget);
+		return widget.setParent(((SwtEditorBaseComposite<?>) parent).widget);
 	}
 
 	@Override
