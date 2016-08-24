@@ -11,6 +11,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
 	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
@@ -23,8 +24,8 @@ public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLab
 	}
 
 	@Override
-	Label createWidget(Composite parent, FormToolkit toolkit) {
-		return toolkit.createLabel(parent, "");
+	Label createWidget(Composite parent) {
+		return GurellaStudioPlugin.getToolkit().createLabel(parent, "");
 	}
 
 	@Override

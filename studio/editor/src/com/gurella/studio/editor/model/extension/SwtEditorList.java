@@ -192,7 +192,7 @@ public class SwtEditorList extends SwtEditorScrollable<List> implements EditorLi
 	}
 
 	@Override
-	List createWidget(Composite parent, FormToolkit toolkit) {
+	List createWidget(Composite parent) {
 		return new List(parent, 0);
 	}
 }

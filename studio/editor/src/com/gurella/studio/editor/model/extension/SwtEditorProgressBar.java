@@ -52,7 +52,7 @@ public class SwtEditorProgressBar extends SwtEditorControl<ProgressBar> implemen
 	}
 
 	@Override
-	ProgressBar createWidget(Composite parent, FormToolkit toolkit) {
+	ProgressBar createWidget(Composite parent) {
 		return new ProgressBar(parent, 0);
 	}
 }

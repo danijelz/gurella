@@ -19,4 +19,6 @@ public interface EditorWidget {
 	<V> V getData(String key);
 
 	void setData(String key, Object value);
+	
+	EditorUiFactory getUiFactory();
 }

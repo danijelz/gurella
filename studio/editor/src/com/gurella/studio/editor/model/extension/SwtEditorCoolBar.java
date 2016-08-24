@@ -73,7 +73,7 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 	}
 
 	@Override
-	CoolBar createWidget(Composite parent, FormToolkit toolkit) {
+	CoolBar createWidget(Composite parent) {
 		return new CoolBar(parent, 0);
 	}
 }

@@ -8,7 +8,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.utils.IdentityMap;
 import com.gurella.engine.editor.ui.EditorWidget;
@@ -25,8 +24,8 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	SwtEditorWidget() {
 	}
 
-	public SwtEditorWidget(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		init(createWidget(parent.widget, toolkit));
+	public SwtEditorWidget(SwtEditorBaseComposite<?> parent) {
+		init(createWidget(parent.widget));
 	}
 
 	void init(T widget) {
@@ -35,8 +34,8 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 		instances.put(widget, this);
 	}
 
-	abstract T createWidget(Composite parent, FormToolkit toolkit);
-	
+	abstract T createWidget(Composite parent);
+
 	public T getWidget() {
 		return widget;
 	}
@@ -92,5 +91,10 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	@Override
 	public void setData(String key, Object value) {
 		widget.setData(key, value);
+	}
+
+	@Override
+	public SwtEditorUiFactory getUiFactory() {
+		return SwtEditorUiFactory.instance;
 	}
 }

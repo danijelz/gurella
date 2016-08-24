@@ -14,7 +14,7 @@ public class SwtEditorCombo extends SwtEditorBaseComposite<Combo> implements Edi
 	}
 
 	@Override
-	Combo createWidget(Composite parent, FormToolkit toolkit) {
+	Combo createWidget(Composite parent) {
 		return new Combo(parent, 0);
 	}
 

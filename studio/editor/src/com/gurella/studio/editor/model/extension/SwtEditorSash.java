@@ -12,7 +12,7 @@ public class SwtEditorSash extends SwtEditorControl<Sash> implements EditorSash 
 	}
 
 	@Override
-	Sash createWidget(Composite parent, FormToolkit toolkit) {
+	Sash createWidget(Composite parent) {
 		return new Sash(parent, 0);
 	}
 }

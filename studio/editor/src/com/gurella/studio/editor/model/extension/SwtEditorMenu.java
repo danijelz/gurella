@@ -6,7 +6,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.Direction;
 import com.gurella.engine.editor.ui.EditorMenu;
@@ -134,7 +133,7 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	}
 
 	@Override
-	Menu createWidget(Composite parent, FormToolkit toolkit) {
+	Menu createWidget(Composite parent) {
 		return null;
 	}
 }

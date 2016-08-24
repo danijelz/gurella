@@ -10,7 +10,12 @@ import com.gurella.engine.editor.ui.EditorUiFactory;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorUiFactory implements EditorUiFactory {
+	public static final SwtEditorUiFactory instance = new SwtEditorUiFactory();
+
 	private FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+
+	private SwtEditorUiFactory() {
+	}
 
 	@Override
 	public EditorComposite createComposite(EditorComposite parent) {

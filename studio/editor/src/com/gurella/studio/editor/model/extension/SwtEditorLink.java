@@ -22,7 +22,7 @@ public class SwtEditorLink extends SwtEditorControl<Link> implements EditorLink 
 	}
 
 	@Override
-	Link createWidget(Composite parent, FormToolkit toolkit) {
+	Link createWidget(Composite parent) {
 		return new Link(parent, 0);
 	}
 }

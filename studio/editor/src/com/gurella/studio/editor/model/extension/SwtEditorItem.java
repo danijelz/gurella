@@ -6,7 +6,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Item;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorItem;
@@ -19,7 +18,7 @@ public abstract class SwtEditorItem<T extends Item> extends SwtEditorWidget<T> i
 	abstract T createItem(SwtEditorWidget<?> parent);
 
 	@Override
-	T createWidget(Composite parent, FormToolkit toolkit) {
+	T createWidget(Composite parent) {
 		return null;
 	}
 

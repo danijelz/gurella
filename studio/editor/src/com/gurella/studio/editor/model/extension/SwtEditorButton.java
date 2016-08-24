@@ -11,6 +11,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorImage;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
 	public SwtEditorButton(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
@@ -71,7 +72,7 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 	}
 
 	@Override
-	Button createWidget(Composite parent, FormToolkit toolkit) {
-		return toolkit.createButton(parent, "", 0);
+	Button createWidget(Composite parent) {
+		return GurellaStudioPlugin.getToolkit().createButton(parent, "", 0);
 	}
 }

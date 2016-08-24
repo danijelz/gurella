@@ -82,7 +82,7 @@ public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implemen
 	}
 
 	@Override
-	DateTime createWidget(Composite parent, FormToolkit toolkit) {
+	DateTime createWidget(Composite parent) {
 		return new DateTime(parent, 0);
 	}
 }

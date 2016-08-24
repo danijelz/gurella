@@ -62,7 +62,7 @@ public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorSca
 	}
 
 	@Override
-	Scale createWidget(Composite parent, FormToolkit toolkit) {
+	Scale createWidget(Composite parent) {
 		return new Scale(parent, 0);
 	}
 

@@ -22,7 +22,7 @@ public class SwtEditorGroup extends SwtEditorBaseComposite<Group> implements Edi
 	}
 
 	@Override
-	Group createWidget(Composite parent, FormToolkit toolkit) {
+	Group createWidget(Composite parent) {
 		return new Group(parent, 0);
 	}
 }

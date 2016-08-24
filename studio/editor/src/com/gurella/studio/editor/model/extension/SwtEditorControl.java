@@ -24,7 +24,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	public SwtEditorControl(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
-		super(parent, toolkit);
+		super(parent);
 	}
 
 	@Override
