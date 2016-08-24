@@ -1,12 +1,11 @@
 package com.gurella.studio.editor.model;
 
-import static com.gurella.engine.utils.Reflection.forName;
-import static com.gurella.engine.utils.Reflection.newInstance;
 import static com.gurella.engine.utils.Values.cast;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,9 +90,16 @@ public class PropertyEditorFactory {
 	private static <T> PropertyEditor<T> createCustomEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		try {
 			CustomFactoryData data = getCustomFactoryClass(context);
+			if (data == null) {
+				return null;
+			}
+
+			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
 			return data.complex
-					? new CustomComplexPropertyEditor<>(parent, context, cast(newInstance(data.factoryClass)))
-					: new CustomSimplePropertyEditor<>(parent, context, cast(newInstance(data.factoryClass)));
+					? new CustomComplexPropertyEditor<>(parent, context,
+							cast(classLoader.loadClass(data.factoryClass).newInstance()))
+					: new CustomSimplePropertyEditor<>(parent, context,
+							cast(classLoader.loadClass(data.factoryClass).newInstance()));
 		} catch (Exception e) {
 			return null;
 		}
@@ -111,13 +117,32 @@ public class PropertyEditorFactory {
 		Field declaredField = declaringClass.getDeclaredField(property.getName());
 		CustomFactoryKey key = new CustomFactoryKey(declaredField, declaringClass);
 		CustomFactoryData data = customFactories.get(key);
-		if (data != null) {
+		if (data != null && !"level".equals(property.getName())) {
 			return data;
 		}
 
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		IType type = javaProject.findType(declaringClass.getName());
 		IField jdtField = type.getField(property.getName());
+		for (IAnnotation annotation : jdtField.getAnnotations()) {
+			if (annotation.getElementName().equals(PropertyEditorDescriptor.class.getSimpleName())) {
+				IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
+				String factoryName = null;
+				boolean complex = true;
+				for (IMemberValuePair memberValuePair : memberValuePairs) {
+					if ("factory".equals(memberValuePair.getMemberName())) {
+						factoryName = (String) memberValuePair.getValue();
+					} else if ("complex".equals(memberValuePair.getMemberName())) {
+						complex = !Boolean.FALSE.equals(memberValuePair.getValue());
+					}
+				}
+
+				data = new CustomFactoryData(complex, factoryName);
+				customFactories.put(key, data);
+				return data;
+			}
+		}
+
 		IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		String factoryName = null;
@@ -130,7 +155,7 @@ public class PropertyEditorFactory {
 			}
 		}
 
-		data = new CustomFactoryData(complex, forName(factoryName));
+		data = new CustomFactoryData(complex, factoryName);
 		customFactories.put(key, data);
 		return data;
 	}
@@ -260,9 +285,9 @@ public class PropertyEditorFactory {
 
 	private static class CustomFactoryData {
 		boolean complex;
-		Class<?> factoryClass;
+		String factoryClass;
 
-		public CustomFactoryData(boolean complex, Class<?> factoryClass) {
+		public CustomFactoryData(boolean complex, String factoryClass) {
 			this.complex = complex;
 			this.factoryClass = factoryClass;
 		}
