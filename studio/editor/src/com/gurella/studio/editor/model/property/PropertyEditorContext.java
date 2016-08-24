@@ -11,43 +11,43 @@ import com.gurella.studio.editor.model.ModelEditorContext;
 
 public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	public Property<P> property;
-	public Supplier<P> valueExtractor;
-	public Consumer<P> valueUpdater;
+	public Supplier<P> valueGetter;
+	public Consumer<P> valueSetter;
 
 	public PropertyEditorContext(ModelEditorContext<M> parent, Property<P> property) {
 		super(parent.sceneEditorContext, parent, parent.model, parent.modelInstance);
 		this.property = property;
-		valueExtractor = this::getValueDefault;
-		valueUpdater = this::setValueDefault;
+		valueGetter = this::defaultValueGetter;
+		valueSetter = this::defaultValueSetter;
 	}
 
 	public PropertyEditorContext(ModelEditorContext<?> parent, M modelInstance, Property<P> property) {
 		super(parent, modelInstance);
 		this.property = property;
-		valueExtractor = this::getValueDefault;
-		valueUpdater = this::setValueDefault;
+		valueGetter = this::defaultValueGetter;
+		valueSetter = this::defaultValueSetter;
 	}
 
 	public PropertyEditorContext(ModelEditorContext<?> parent, Model<M> model, M modelInstance, Property<P> property) {
 		super(parent.sceneEditorContext, parent, model, modelInstance);
 		this.property = property;
-		valueExtractor = this::getValueDefault;
-		valueUpdater = this::setValueDefault;
+		valueGetter = this::defaultValueGetter;
+		valueSetter = this::defaultValueSetter;
 	}
 
 	protected P getValue() {
-		return valueExtractor.get();
+		return valueGetter.get();
 	}
 
-	private P getValueDefault() {
+	private P defaultValueGetter() {
 		return property.getValue(modelInstance);
 	}
 
 	protected void setValue(P newValue) {
-		valueUpdater.accept(newValue);
+		valueSetter.accept(newValue);
 	}
 
-	private void setValueDefault(P newValue) {
+	private void defaultValueSetter(P newValue) {
 		P oldValue = getValue();
 		if (!Values.isEqual(oldValue, newValue)) {
 			property.setValue(modelInstance, newValue);

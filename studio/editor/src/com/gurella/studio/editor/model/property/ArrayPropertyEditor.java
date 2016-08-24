@@ -181,8 +181,8 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			super(parent, model, modelInstance, property);
 			parentModelInstance = parent.getValue();
 			this.index = index;
-			valueExtractor = this::getItemValue;
-			valueUpdater = this::setItemValue;
+			valueGetter = this::getItemValue;
+			valueSetter = this::setItemValue;
 		}
 
 		protected P getItemValue() {

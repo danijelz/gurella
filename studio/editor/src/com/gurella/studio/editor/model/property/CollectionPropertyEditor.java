@@ -261,8 +261,8 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 			super(parent, model, modelInstance, property);
 			this.index = index;
 			collection = Values.cast(parent.getValue());
-			valueExtractor = this::getItemValue;
-			valueUpdater = this::setItemValue;
+			valueGetter = this::getItemValue;
+			valueSetter = this::setItemValue;
 		}
 
 		protected P getItemValue() {

@@ -251,8 +251,8 @@ public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
 			super(parent, model, modelInstance, property);
 			this.index = index;
 			array = Values.cast(parent.getValue());
-			valueExtractor = this::getItemValue;
-			valueUpdater = this::setItemValue;
+			valueGetter = this::getItemValue;
+			valueSetter = this::setItemValue;
 		}
 
 		protected P getItemValue() {
