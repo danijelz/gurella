@@ -15,7 +15,7 @@ class ContextAdapter<P> implements com.gurella.engine.editor.property.PropertyEd
 	}
 
 	@Override
-	public Object getModel() {
+	public Object getModelInstance() {
 		return context.model;
 	}
 
