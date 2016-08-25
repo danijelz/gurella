@@ -71,6 +71,6 @@ public class SwtEditorCoolItem extends SwtEditorItem<CoolItem> implements Editor
 
 	@Override
 	CoolItem createItem(SwtEditorWidget<?> parent) {
-		return new CoolItem((CoolBar) parent.widget, 0);
+		return new CoolItem((CoolBar) parent.widget, style);
 	}
 }

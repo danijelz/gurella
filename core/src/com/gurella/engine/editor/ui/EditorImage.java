@@ -4,4 +4,6 @@ import com.gurella.engine.utils.GridRectangle;
 
 public interface EditorImage {
 	GridRectangle getBounds();
+
+	void dispose();
 }

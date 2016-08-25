@@ -2,12 +2,11 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorDateTime;
 
 public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implements EditorDateTime {
-	public SwtEditorDateTime(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorDateTime(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
@@ -83,6 +82,6 @@ public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implemen
 
 	@Override
 	DateTime createWidget(Composite parent) {
-		return new DateTime(parent, 0);
+		return new DateTime(parent, style);
 	}
 }

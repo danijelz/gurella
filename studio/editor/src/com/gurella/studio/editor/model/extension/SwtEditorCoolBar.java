@@ -5,14 +5,13 @@ import java.util.Arrays;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.CoolBar;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCoolBar;
 import com.gurella.engine.editor.ui.EditorCoolItem;
 
 public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements EditorCoolBar {
-	public SwtEditorCoolBar(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorCoolBar(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
@@ -74,6 +73,6 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 
 	@Override
 	CoolBar createWidget(Composite parent) {
-		return new CoolBar(parent, 0);
+		return new CoolBar(parent, style);
 	}
 }

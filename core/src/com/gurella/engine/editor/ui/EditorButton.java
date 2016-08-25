@@ -22,4 +22,6 @@ public interface EditorButton extends EditorControl {
 	String getText();
 
 	void setText(String string);
+
+	void setImage(EditorImage image);
 }

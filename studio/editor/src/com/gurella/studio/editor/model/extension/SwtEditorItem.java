@@ -33,15 +33,24 @@ public abstract class SwtEditorItem<T extends Item> extends SwtEditorWidget<T> i
 	}
 
 	@Override
-	public EditorImage getImage() {
+	public SwtEditorImage getImage() {
 		Image image = widget.getImage();
 		return image == null ? null : new SwtEditorImage(image);
 	}
 
 	@Override
 	public void setImage(InputStream imageStream) {
-		Image image = new Image(widget.getDisplay(), imageStream);
-		widget.addListener(SWT.Dispose, e -> image.dispose());
-		widget.setImage(image);
+		if (imageStream == null) {
+			widget.setImage(null);
+		} else {
+			Image image = new Image(widget.getDisplay(), imageStream);
+			widget.addListener(SWT.Dispose, e -> image.dispose());
+			widget.setImage(image);
+		}
+	}
+
+	@Override
+	public void setImage(EditorImage image) {
+		widget.setImage(image == null ? null : ((SwtEditorImage) image).image);
 	}
 }

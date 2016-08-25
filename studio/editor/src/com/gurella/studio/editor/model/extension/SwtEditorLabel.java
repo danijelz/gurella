@@ -24,7 +24,7 @@ public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLab
 
 	@Override
 	Label createWidget(Composite parent) {
-		return GurellaStudioPlugin.getToolkit().createLabel(parent, "");
+		return GurellaStudioPlugin.getToolkit().createLabel(parent, "", style);
 	}
 
 	@Override
@@ -55,8 +55,17 @@ public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLab
 
 	@Override
 	public void setImage(InputStream imageStream) {
-		Image image = new Image(widget.getDisplay(), imageStream);
-		widget.addListener(SWT.Dispose, e -> image.dispose());
-		widget.setImage(image);
+		if (imageStream == null) {
+			widget.setImage(null);
+		} else {
+			Image image = new Image(widget.getDisplay(), imageStream);
+			widget.addListener(SWT.Dispose, e -> image.dispose());
+			widget.setImage(image);
+		}
+	}
+
+	@Override
+	public void setImage(EditorImage image) {
+		widget.setImage(image == null ? null : ((SwtEditorImage) image).image);
 	}
 }

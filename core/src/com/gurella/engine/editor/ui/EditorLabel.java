@@ -6,12 +6,14 @@ public interface EditorLabel extends EditorControl {
 	public String getText();
 
 	public void setText(String string);
-	
+
 	public Alignment getAlignment();
-	
+
 	public void setAlignment(Alignment alignment);
-	
+
 	EditorImage getImage();
 
 	void setImage(InputStream imageStream);
+
+	void setImage(EditorImage image);
 }

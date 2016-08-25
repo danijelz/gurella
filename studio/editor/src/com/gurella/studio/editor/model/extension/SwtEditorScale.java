@@ -2,12 +2,11 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Scale;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorScale;
 
 public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorScale {
-	public SwtEditorScale(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorScale(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
@@ -63,7 +62,7 @@ public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorSca
 
 	@Override
 	Scale createWidget(Composite parent) {
-		return new Scale(parent, 0);
+		return new Scale(parent, style);
 	}
 
 }

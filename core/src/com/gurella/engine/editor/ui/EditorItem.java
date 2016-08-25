@@ -6,8 +6,10 @@ public interface EditorItem extends EditorWidget {
 	String getText();
 
 	void setText(String string);
-	
+
 	EditorImage getImage();
 
 	void setImage(InputStream imageStream);
+
+	void setImage(EditorImage image);
 }

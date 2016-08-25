@@ -7,9 +7,12 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorImage implements EditorImage {
-	private Image image;
+	final Image image;
 
 	public SwtEditorImage(Image image) {
+		if (image == null) {
+			throw new NullPointerException("image is null");
+		}
 		this.image = image;
 	}
 
@@ -17,5 +20,27 @@ public class SwtEditorImage implements EditorImage {
 	public GridRectangle getBounds() {
 		Rectangle bounds = image.getBounds();
 		return new GridRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+
+	@Override
+	public void dispose() {
+		image.dispose();
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 + image.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		SwtEditorImage other = (SwtEditorImage) obj;
+		return image.equals(other.image);
 	}
 }

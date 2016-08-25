@@ -38,6 +38,6 @@ public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTa
 	@Override
 	TabItem createItem(SwtEditorWidget<?> parent) {
 		SwtEditorTabFolder tabFolder = (SwtEditorTabFolder) parent;
-		return new TabItem(tabFolder.widget, 0);
+		return new TabItem(tabFolder.widget, style);
 	}
 }

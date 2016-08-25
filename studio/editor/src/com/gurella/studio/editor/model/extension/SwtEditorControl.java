@@ -201,6 +201,8 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 		case rightToLeft:
 			widget.setOrientation(SWT.RIGHT_TO_LEFT);
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -237,6 +239,8 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 		case rightToLeft:
 			widget.setTextDirection(SWT.RIGHT_TO_LEFT);
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 

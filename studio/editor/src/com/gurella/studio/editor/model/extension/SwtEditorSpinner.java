@@ -107,6 +107,6 @@ public class SwtEditorSpinner extends SwtEditorBaseComposite<Spinner> implements
 
 	@Override
 	Spinner createWidget(Composite parent) {
-		return new Spinner(parent, 0);
+		return new Spinner(parent, style);
 	}
 }

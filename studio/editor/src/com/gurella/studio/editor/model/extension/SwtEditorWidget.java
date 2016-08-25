@@ -20,6 +20,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	static final IdentityMap<Widget, EditorWidget> instances = new IdentityMap<>();
 
 	T widget;
+	int style;//TODO
 
 	SwtEditorWidget() {
 	}

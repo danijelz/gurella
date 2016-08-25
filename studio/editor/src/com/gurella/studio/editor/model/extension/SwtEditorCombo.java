@@ -3,19 +3,18 @@ package com.gurella.studio.editor.model.extension;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCombo;
 
 public class SwtEditorCombo extends SwtEditorBaseComposite<Combo> implements EditorCombo {
-	public SwtEditorCombo(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorCombo(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
 	@Override
 	Combo createWidget(Composite parent) {
-		return new Combo(parent, 0);
+		return new Combo(parent, style);
 	}
 
 	@Override

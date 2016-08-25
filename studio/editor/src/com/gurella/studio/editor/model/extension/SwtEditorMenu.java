@@ -124,6 +124,8 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 		case rightToLeft:
 			widget.setOrientation(SWT.RIGHT_TO_LEFT);
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 

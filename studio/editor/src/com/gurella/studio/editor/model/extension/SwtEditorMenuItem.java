@@ -74,6 +74,6 @@ public class SwtEditorMenuItem extends SwtEditorItem<MenuItem> implements Editor
 	@Override
 	MenuItem createItem(SwtEditorWidget<?> parent) {
 		SwtEditorMenu menu = (SwtEditorMenu) parent;
-		return new MenuItem(menu.widget, 0);
+		return new MenuItem(menu.widget, style);
 	}
 }

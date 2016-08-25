@@ -6,7 +6,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
@@ -14,7 +13,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
-	public SwtEditorButton(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorButton(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
@@ -46,9 +45,18 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 
 	@Override
 	public void setImage(InputStream imageStream) {
-		Image image = new Image(widget.getDisplay(), imageStream);
-		widget.addListener(SWT.Dispose, e -> image.dispose());
-		widget.setImage(image);
+		if (imageStream == null) {
+			widget.setImage(null);
+		} else {
+			Image image = new Image(widget.getDisplay(), imageStream);
+			widget.addListener(SWT.Dispose, e -> image.dispose());
+			widget.setImage(image);
+		}
+	}
+
+	@Override
+	public void setImage(EditorImage image) {
+		widget.setImage(image == null ? null : ((SwtEditorImage) image).image);
 	}
 
 	@Override
@@ -73,6 +81,6 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 
 	@Override
 	Button createWidget(Composite parent) {
-		return GurellaStudioPlugin.getToolkit().createButton(parent, "", 0);
+		return GurellaStudioPlugin.getToolkit().createButton(parent, "", style);
 	}
 }

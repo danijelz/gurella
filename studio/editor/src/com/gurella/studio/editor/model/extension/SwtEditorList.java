@@ -2,12 +2,11 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.editor.ui.EditorList;
 
 public class SwtEditorList extends SwtEditorScrollable<List> implements EditorList {
-	public SwtEditorList(SwtEditorBaseComposite<?> parent, FormToolkit toolkit) {
+	public SwtEditorList(SwtEditorBaseComposite<?> parent) {
 		super(parent);
 	}
 
@@ -193,6 +192,6 @@ public class SwtEditorList extends SwtEditorScrollable<List> implements EditorLi
 
 	@Override
 	List createWidget(Composite parent) {
-		return new List(parent, 0);
+		return new List(parent, style);
 	}
 }

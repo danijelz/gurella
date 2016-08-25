@@ -77,7 +77,7 @@ public class SwtEditorSlider extends SwtEditorControl<Slider> implements EditorS
 
 	@Override
 	Slider createWidget(Composite parent) {
-		return new Slider(parent, 0);
+		return new Slider(parent, style);
 	}
 
 }
