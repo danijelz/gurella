@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model;
 
 import static com.gurella.engine.utils.Values.cast;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -95,11 +96,12 @@ public class PropertyEditorFactory {
 			}
 
 			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			return data.complex
-					? new CustomComplexPropertyEditor<>(parent, context,
-							cast(classLoader.loadClass(data.factoryClass).newInstance()))
-					: new CustomSimplePropertyEditor<>(parent, context,
-							cast(classLoader.loadClass(data.factoryClass).newInstance()));
+			Class<?> factoryClass = classLoader.loadClass(data.factoryClass);
+			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
+			constructor.setAccessible(true);
+			Object factory = constructor.newInstance(new Object[0]);
+			return data.complex ? new CustomComplexPropertyEditor<>(parent, context, cast(factory))
+					: new CustomSimplePropertyEditor<>(parent, context, cast(factory));
 		} catch (Exception e) {
 			return null;
 		}
@@ -120,6 +122,15 @@ public class PropertyEditorFactory {
 		if (data != null) {
 			return data;
 		}
+		
+		/*if (data != null && !"testEditor".equals(property.getName())) {
+			return data;
+		}
+
+		if ("testEditor".equals(property.getName())) {
+			int i = 0;
+			i++;
+		}*/
 
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		IType type = javaProject.findType(declaringClass.getName());
@@ -141,7 +152,7 @@ public class PropertyEditorFactory {
 							if (builder.length() > 0) {
 								builder.append(".");
 							}
-							builder.append(part);
+							builder.append(part.replaceAll("\\.", "\\$"));
 						}
 						factoryName = builder.toString();
 					} else if ("complex".equals(memberValuePair.getMemberName())) {

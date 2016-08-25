@@ -6,7 +6,11 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorFactory;
+import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorUiFactory;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -134,5 +138,13 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		layer = Layer.DEFAULT;
 		transformComponent = null;
 		dirty = true;
+	}
+
+	static class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
+		@Override
+		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
+			EditorUiFactory uiFactory = parent.getUiFactory();
+			uiFactory.createLabel(parent, "test");
+		}
 	}
 }
