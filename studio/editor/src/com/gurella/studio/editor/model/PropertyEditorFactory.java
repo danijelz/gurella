@@ -122,12 +122,12 @@ public class PropertyEditorFactory {
 		if (data != null) {
 			return data;
 		}
-		
-		/*if (data != null && !"testEditor".equals(property.getName())) {
+
+		/*if (data != null && !"inputEvents".equals(property.getName())) {
 			return data;
 		}
 
-		if ("testEditor".equals(property.getName())) {
+		if ("inputEvents".equals(property.getName())) {
 			int i = 0;
 			i++;
 		}*/
@@ -147,12 +147,13 @@ public class PropertyEditorFactory {
 							return null;
 						}
 						String[] path = resolveType[0];
+						path[path.length - 1] = path[path.length - 1].replaceAll("\\.", "\\$");
 						StringBuilder builder = new StringBuilder();
 						for (String part : path) {
 							if (builder.length() > 0) {
 								builder.append(".");
 							}
-							builder.append(part.replaceAll("\\.", "\\$"));
+							builder.append(part);
 						}
 						factoryName = builder.toString();
 					} else if ("complex".equals(memberValuePair.getMemberName())) {
@@ -172,7 +173,20 @@ public class PropertyEditorFactory {
 		boolean complex = true;
 		for (IMemberValuePair memberValuePair : memberValuePairs) {
 			if ("factory".equals(memberValuePair.getMemberName())) {
-				factoryName = (String) memberValuePair.getValue();
+				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
+				if (resolveType.length != 1) {
+					return null;
+				}
+				String[] path = resolveType[0];
+				path[path.length - 1] = path[path.length - 1].replaceAll("\\.", "\\$");
+				StringBuilder builder = new StringBuilder();
+				for (String part : path) {
+					if (builder.length() > 0) {
+						builder.append(".");
+					}
+					builder.append(part);
+				}
+				factoryName = builder.toString();
 			} else if ("complex".equals(memberValuePair.getMemberName())) {
 				complex = !Boolean.FALSE.equals(memberValuePair.getValue());
 			}
