@@ -117,13 +117,8 @@ public class PropertyEditorFactory {
 		Field declaredField = declaringClass.getDeclaredField(property.getName());
 		CustomFactoryKey key = new CustomFactoryKey(declaredField, declaringClass);
 		CustomFactoryData data = customFactories.get(key);
-		if (data != null && !"testEditor".equals(property.getName())) {
+		if (data != null) {
 			return data;
-		}
-		
-		if("testEditor".equals(property.getName())) {
-			int i = 0; 
-			i++;
 		}
 
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
