@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.graphics.Color;
@@ -126,7 +127,7 @@ public class PropertyEditorFactory {
 		/*if (data != null && !"inputEvents".equals(property.getName())) {
 			return data;
 		}
-
+		
 		if ("inputEvents".equals(property.getName())) {
 			int i = 0;
 			i++;
@@ -137,37 +138,19 @@ public class PropertyEditorFactory {
 		IField jdtField = type.getField(property.getName());
 		for (IAnnotation annotation : jdtField.getAnnotations()) {
 			if (annotation.getElementName().equals(PropertyEditorDescriptor.class.getSimpleName())) {
-				IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
-				String factoryName = null;
-				boolean complex = true;
-				for (IMemberValuePair memberValuePair : memberValuePairs) {
-					if ("factory".equals(memberValuePair.getMemberName())) {
-						String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
-						if (resolveType.length != 1) {
-							return null;
-						}
-						String[] path = resolveType[0];
-						path[path.length - 1] = path[path.length - 1].replaceAll("\\.", "\\$");
-						StringBuilder builder = new StringBuilder();
-						for (String part : path) {
-							if (builder.length() > 0) {
-								builder.append(".");
-							}
-							builder.append(part);
-						}
-						factoryName = builder.toString();
-					} else if ("complex".equals(memberValuePair.getMemberName())) {
-						complex = !Boolean.FALSE.equals(memberValuePair.getValue());
-					}
-				}
-
-				data = new CustomFactoryData(complex, factoryName);
+				data = parseAnnotation(type, annotation);
 				customFactories.put(key, data);
 				return data;
 			}
 		}
 
 		IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
+		data = parseAnnotation(type, annotation);
+		customFactories.put(key, data);
+		return data;
+	}
+
+	private static CustomFactoryData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		String factoryName = null;
 		boolean complex = true;
@@ -178,7 +161,8 @@ public class PropertyEditorFactory {
 					return null;
 				}
 				String[] path = resolveType[0];
-				path[path.length - 1] = path[path.length - 1].replaceAll("\\.", "\\$");
+				int last = path.length - 1;
+				path[last] = path[last].replaceAll("\\.", "\\$");
 				StringBuilder builder = new StringBuilder();
 				for (String part : path) {
 					if (builder.length() > 0) {
@@ -192,9 +176,7 @@ public class PropertyEditorFactory {
 			}
 		}
 
-		data = new CustomFactoryData(complex, factoryName);
-		customFactories.put(key, data);
-		return data;
+		return new CustomFactoryData(complex, factoryName);
 	}
 
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context,
