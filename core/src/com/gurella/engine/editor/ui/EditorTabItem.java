@@ -9,7 +9,5 @@ public interface EditorTabItem extends EditorItem {
 
 	void setControl(EditorControl control);
 
-	void setImage(EditorImage image);
-
 	void setToolTipText(String string);
 }

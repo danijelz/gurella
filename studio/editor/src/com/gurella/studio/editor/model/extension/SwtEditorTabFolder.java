@@ -1,7 +1,11 @@
 package com.gurella.studio.editor.model.extension;
 
+import java.util.Arrays;
+
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorTabFolder;
@@ -13,68 +17,57 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 	}
 
 	@Override
-	public EditorTabItem getItem(int index) {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorTabItem getItem(int index) {
+		return getEditorWidget(widget.getItem(index));
 	}
 
 	@Override
-	public EditorTabItem getItem(GridPoint2 point) {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorTabItem getItem(GridPoint2 point) {
+		return getEditorWidget(widget.getItem(new Point(point.x, point.y)));
 	}
 
 	@Override
 	public int getItemCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return widget.getItemCount();
 	}
 
 	@Override
-	public EditorTabItem[] getItems() {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorTabItem[] getItems() {
+		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTabItem[i]);
 	}
 
 	@Override
-	public EditorTabItem[] getSelection() {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorTabItem[] getSelection() {
+		return Arrays.stream(widget.getSelection()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTabItem[i]);
 	}
 
 	@Override
 	public int getSelectionIndex() {
-		// TODO Auto-generated method stub
-		return 0;
+		return widget.getSelectionIndex();
 	}
 
 	@Override
 	public int indexOf(EditorTabItem item) {
-		// TODO Auto-generated method stub
-		return 0;
+		return widget.indexOf(((SwtEditorTabItem) item).widget);
 	}
 
 	@Override
 	public void setSelection(int index) {
-		// TODO Auto-generated method stub
-
+		widget.setSelection(index);
 	}
 
 	@Override
 	public void setSelection(EditorTabItem item) {
-		// TODO Auto-generated method stub
-
+		widget.setSelection(item == null ? null : ((SwtEditorTabItem) item).widget);
 	}
 
 	@Override
 	public void setSelection(EditorTabItem[] items) {
-		// TODO Auto-generated method stub
-
+		widget.setSelection(Arrays.stream(items).map(i -> ((SwtEditorTabItem) i).widget).toArray(i -> new TabItem[i]));
 	}
 
 	@Override
 	TabFolder createWidget(Composite parent) {
-		// TODO Auto-generated method stub
-		return null;
+		return new TabFolder(parent, 0);
 	}
 }

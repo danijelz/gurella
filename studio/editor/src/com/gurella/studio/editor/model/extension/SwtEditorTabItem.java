@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model.extension;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.gurella.engine.editor.ui.EditorControl;
-import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorTabItem;
 
 public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTabItem {
@@ -13,44 +12,32 @@ public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTa
 
 	@Override
 	public SwtEditorControl<?> getControl() {
-		// TODO Auto-generated method stub
-		return null;
+		return getEditorWidget(widget.getControl());
 	}
 
 	@Override
 	public SwtEditorTabFolder getParent() {
-		// TODO Auto-generated method stub
-		return null;
+		return getEditorWidget(widget.getParent());
 	}
 
 	@Override
 	public String getToolTipText() {
-		// TODO Auto-generated method stub
-		return null;
+		return widget.getToolTipText();
 	}
 
 	@Override
 	public void setControl(EditorControl control) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setImage(EditorImage image) {
-		// TODO Auto-generated method stub
-
+		widget.setControl(control == null ? null : ((SwtEditorControl<?>) control).widget);
 	}
 
 	@Override
 	public void setToolTipText(String string) {
-		// TODO Auto-generated method stub
-
+		widget.setToolTipText(string);
 	}
 
 	@Override
 	TabItem createItem(SwtEditorWidget<?> parent) {
-		// TODO Auto-generated method stub
-		return null;
+		SwtEditorTabFolder tabFolder = (SwtEditorTabFolder) parent;
+		return new TabItem(tabFolder.widget, 0);
 	}
-
 }
