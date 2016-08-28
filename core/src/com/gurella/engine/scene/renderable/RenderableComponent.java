@@ -181,7 +181,6 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 			} else {
 				byteValue = (byte) (byteValue & ~(1 << index));
 			}
-
 			contex.setPropertyValue(Byte.valueOf(byteValue));
 		}
 	}
