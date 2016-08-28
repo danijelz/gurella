@@ -10,13 +10,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUiFactory;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorUiFactory implements EditorUiFactory {
 	public static final SwtEditorUiFactory instance = new SwtEditorUiFactory();
@@ -58,6 +58,11 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 
 	@Override
 	public EditorLabel createSeparatorLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles) {
-		return new SwtEditorLabel(cast(parent), SwtWidgetStyle.getSwtStyle(SWT.SEPARATOR, styles));
+		return new SwtEditorLabel(cast(parent), getSwtStyle(SWT.SEPARATOR, styles));
+	}
+
+	@Override
+	public EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.CHECK, styles));
 	}
 }
