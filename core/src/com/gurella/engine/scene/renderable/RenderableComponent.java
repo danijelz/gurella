@@ -149,7 +149,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			createCheck(context, parent, "tap", (byte) 1);
-			createCheck(context, parent, "tap", (byte) 2);
+			createCheck(context, parent, "touch", (byte) 2);
 		}
 
 		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
