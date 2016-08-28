@@ -9,8 +9,12 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
+import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorUiFactory;
+import com.gurella.engine.editor.ui.event.EditorEvent;
+import com.gurella.engine.editor.ui.event.EditorEventListener;
+import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -144,8 +148,23 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			EditorUiFactory uiFactory = parent.getUiFactory();
-			uiFactory.createCheckBox(parent, "tap");
+			EditorButton tap = uiFactory.createCheckBox(parent, "tap");
+			tap.addListener(EditorEventType.Selection, new InputEventsSelectionListener((byte) 1));
 			uiFactory.createCheckBox(parent, "touch");
+		}
+	}
+
+	private static class InputEventsSelectionListener implements EditorEventListener {
+		private byte value;
+
+		InputEventsSelectionListener(byte value) {
+			this.value = value;
+		}
+
+		@Override
+		public void handleEvent(EditorEvent event) {
+			// TODO Auto-generated method stub
+
 		}
 	}
 }
