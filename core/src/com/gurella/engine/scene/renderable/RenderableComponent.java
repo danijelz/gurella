@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.renderable;
 
+import static com.gurella.engine.editor.ui.event.EditorEventType.Selection;
+
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -14,7 +16,6 @@ import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorUiFactory;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
-import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -147,16 +148,17 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	static class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
-			EditorUiFactory uiFactory = parent.getUiFactory();
-			EditorButton tap = uiFactory.createCheckBox(parent, "tap");
-			tap.addListener(EditorEventType.Selection, new InputEventsSelectionListener(context, tap, (byte) 1));
-			uiFactory.createCheckBox(parent, "touch");
+			createCheck(context, parent, "tap", (byte) 1);
+			createCheck(context, parent, "tap", (byte) 2);
 		}
 
-		private void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text, byte index) {
+		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
+				byte index) {
 			EditorUiFactory uiFactory = parent.getUiFactory();
-			EditorButton tap = uiFactory.createCheckBox(parent, "tap");
-			tap.addListener(EditorEventType.Selection, new InputEventsSelectionListener(context, tap, (byte) 1));
+			EditorButton check = uiFactory.createCheckBox(parent, text);
+			byte byteValue = context.getPropertyValue().byteValue();
+			check.setSelection((byteValue & (1 << index)) != 0);
+			check.addListener(Selection, new InputEventsSelectionListener(context, check, index));
 		}
 	}
 
