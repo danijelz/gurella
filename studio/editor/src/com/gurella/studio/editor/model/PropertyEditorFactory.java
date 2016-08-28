@@ -124,15 +124,6 @@ public class PropertyEditorFactory {
 			return data;
 		}
 
-		/*if (data != null && !"inputEvents".equals(property.getName())) {
-			return data;
-		}
-		
-		if ("inputEvents".equals(property.getName())) {
-			int i = 0;
-			i++;
-		}*/
-
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		IType type = javaProject.findType(declaringClass.getName());
 		IField jdtField = type.getField(property.getName());

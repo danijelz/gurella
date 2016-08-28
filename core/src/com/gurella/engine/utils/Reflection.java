@@ -184,6 +184,10 @@ public class Reflection {
 		}
 	}
 
+	public static Field[] getDeclaredFields(Class<?> c) {
+		return ClassReflection.getDeclaredFields(c);
+	}
+
 	public static Field getDeclaredField(Class<?> c, String name) {
 		try {
 			return ClassReflection.getDeclaredField(c, name);

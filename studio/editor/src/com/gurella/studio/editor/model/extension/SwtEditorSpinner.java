@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.Spinner;
 import com.gurella.engine.editor.ui.EditorSpinner;
 
 public class SwtEditorSpinner extends SwtEditorBaseComposite<Spinner> implements EditorSpinner {
-	public SwtEditorSpinner(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorSpinner(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class SwtEditorSpinner extends SwtEditorBaseComposite<Spinner> implements
 	}
 
 	@Override
-	Spinner createWidget(Composite parent) {
+	Spinner createWidget(Composite parent, int style) {
 		return new Spinner(parent, style);
 	}
 }

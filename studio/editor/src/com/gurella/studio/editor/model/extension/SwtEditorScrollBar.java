@@ -133,7 +133,7 @@ public class SwtEditorScrollBar extends SwtEditorWidget<ScrollBar> implements Ed
 	}
 
 	@Override
-	ScrollBar createWidget(Composite parent) {
+	ScrollBar createWidget(Composite parent, int style) {
 		return null;
 	}
 }

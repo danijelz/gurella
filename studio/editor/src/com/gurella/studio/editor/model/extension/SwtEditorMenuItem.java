@@ -6,8 +6,8 @@ import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorMenuItem;
 
 public class SwtEditorMenuItem extends SwtEditorItem<MenuItem> implements EditorMenuItem {
-	SwtEditorMenuItem(SwtEditorMenu parent) {
-		super(parent);
+	SwtEditorMenuItem(SwtEditorMenu parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class SwtEditorMenuItem extends SwtEditorItem<MenuItem> implements Editor
 	}
 
 	@Override
-	MenuItem createItem(SwtEditorWidget<?> parent) {
+	MenuItem createItem(SwtEditorWidget<?> parent, int style) {
 		SwtEditorMenu menu = (SwtEditorMenu) parent;
 		return new MenuItem(menu.widget, style);
 	}

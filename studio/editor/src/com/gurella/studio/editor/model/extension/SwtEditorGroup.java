@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.Group;
 import com.gurella.engine.editor.ui.EditorGroup;
 
 public class SwtEditorGroup extends SwtEditorBaseComposite<Group> implements EditorGroup {
-	public SwtEditorGroup(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorGroup(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class SwtEditorGroup extends SwtEditorBaseComposite<Group> implements Edi
 	}
 
 	@Override
-	Group createWidget(Composite parent) {
+	Group createWidget(Composite parent, int style) {
 		return new Group(parent, style);
 	}
 }

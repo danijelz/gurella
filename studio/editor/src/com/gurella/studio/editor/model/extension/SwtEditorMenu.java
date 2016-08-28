@@ -135,7 +135,7 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	}
 
 	@Override
-	Menu createWidget(Composite parent) {
+	Menu createWidget(Composite parent, int style) {
 		return null;
 	}
 }

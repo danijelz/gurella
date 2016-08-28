@@ -6,8 +6,8 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorTabItem;
 
 public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTabItem {
-	SwtEditorTabItem(SwtEditorTabFolder parent) {
-		super(parent);
+	SwtEditorTabItem(SwtEditorTabFolder parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTa
 	}
 
 	@Override
-	TabItem createItem(SwtEditorWidget<?> parent) {
+	TabItem createItem(SwtEditorWidget<?> parent, int style) {
 		SwtEditorTabFolder tabFolder = (SwtEditorTabFolder) parent;
 		return new TabItem(tabFolder.widget, style);
 	}

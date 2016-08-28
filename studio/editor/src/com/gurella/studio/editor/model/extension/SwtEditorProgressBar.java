@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.ProgressBar;
 import com.gurella.engine.editor.ui.EditorProgressBar;
 
 public class SwtEditorProgressBar extends SwtEditorControl<ProgressBar> implements EditorProgressBar {
-	public SwtEditorProgressBar(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorProgressBar(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class SwtEditorProgressBar extends SwtEditorControl<ProgressBar> implemen
 	}
 
 	@Override
-	ProgressBar createWidget(Composite parent) {
+	ProgressBar createWidget(Composite parent, int style) {
 		return new ProgressBar(parent, style);
 	}
 }

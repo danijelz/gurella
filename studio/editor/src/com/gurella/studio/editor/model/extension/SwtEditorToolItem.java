@@ -13,8 +13,8 @@ import com.gurella.engine.editor.ui.EditorToolItem;
 import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorToolItem extends SwtEditorItem<ToolItem> implements EditorToolItem {
-	SwtEditorToolItem(SwtEditorToolBar parent) {
-		super(parent);
+	SwtEditorToolItem(SwtEditorToolBar parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem> implements Editor
 	}
 
 	@Override
-	ToolItem createItem(SwtEditorWidget<?> parent) {
+	ToolItem createItem(SwtEditorWidget<?> parent, int style) {
 		SwtEditorToolBar toolBar = (SwtEditorToolBar) parent;
 		return new ToolItem(toolBar.widget, style);
 	}

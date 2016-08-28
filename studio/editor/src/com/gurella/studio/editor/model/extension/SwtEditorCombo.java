@@ -8,12 +8,12 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCombo;
 
 public class SwtEditorCombo extends SwtEditorBaseComposite<Combo> implements EditorCombo {
-	public SwtEditorCombo(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorCombo(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
-	Combo createWidget(Composite parent) {
+	Combo createWidget(Composite parent, int style) {
 		return new Combo(parent, style);
 	}
 

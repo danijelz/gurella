@@ -13,17 +13,17 @@ import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
-	public SwtEditorLabel(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
-	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, String text) {
-		super(parent);
+	public SwtEditorLabel(SwtEditorBaseComposite<?> parent, String text, int style) {
+		super(parent, style);
 		setText(text);
 	}
 
 	@Override
-	Label createWidget(Composite parent) {
+	Label createWidget(Composite parent, int style) {
 		return GurellaStudioPlugin.getToolkit().createLabel(parent, "", style);
 	}
 

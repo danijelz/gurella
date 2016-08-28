@@ -13,8 +13,8 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
-	public SwtEditorButton(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorButton(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 	}
 
 	@Override
-	Button createWidget(Composite parent) {
+	Button createWidget(Composite parent, int style) {
 		return GurellaStudioPlugin.getToolkit().createButton(parent, "", style);
 	}
 }

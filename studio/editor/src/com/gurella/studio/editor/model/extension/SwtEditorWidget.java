@@ -20,13 +20,12 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	static final IdentityMap<Widget, EditorWidget> instances = new IdentityMap<>();
 
 	T widget;
-	int style;//TODO
 
 	SwtEditorWidget() {
 	}
 
-	public SwtEditorWidget(SwtEditorBaseComposite<?> parent) {
-		init(createWidget(parent.widget));
+	public SwtEditorWidget(SwtEditorBaseComposite<?> parent, int style) {
+		init(createWidget(parent.widget, style));
 	}
 
 	void init(T widget) {
@@ -35,7 +34,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 		instances.put(widget, this);
 	}
 
-	abstract T createWidget(Composite parent);
+	abstract T createWidget(Composite parent, int style);
 
 	public T getWidget() {
 		return widget;

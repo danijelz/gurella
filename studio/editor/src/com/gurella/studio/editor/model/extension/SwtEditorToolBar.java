@@ -10,8 +10,8 @@ import com.gurella.engine.editor.ui.EditorToolBar;
 import com.gurella.engine.editor.ui.EditorToolItem;
 
 public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements EditorToolBar {
-	public SwtEditorToolBar(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorToolBar(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements
 	}
 
 	@Override
-	ToolBar createWidget(Composite parent) {
+	ToolBar createWidget(Composite parent, int style) {
 		return new ToolBar(parent, style);
 	}
 }

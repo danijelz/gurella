@@ -6,12 +6,12 @@ import org.eclipse.swt.widgets.Sash;
 import com.gurella.engine.editor.ui.EditorSash;
 
 public class SwtEditorSash extends SwtEditorControl<Sash> implements EditorSash {
-	public SwtEditorSash(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorSash(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
-	Sash createWidget(Composite parent) {
+	Sash createWidget(Composite parent, int style) {
 		return new Sash(parent, style);
 	}
 }

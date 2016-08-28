@@ -12,8 +12,8 @@ public abstract class SwtEditorScrollable<T extends Scrollable> extends SwtEdito
 	SwtEditorScrollable() {
 	}
 
-	public SwtEditorScrollable(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorScrollable(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override

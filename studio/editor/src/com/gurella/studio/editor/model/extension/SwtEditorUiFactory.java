@@ -1,9 +1,11 @@
 package com.gurella.studio.editor.model.extension;
 
 import static com.gurella.engine.utils.Values.cast;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
 
 import java.io.InputStream;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -12,7 +14,9 @@ import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUiFactory;
+import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorUiFactory implements EditorUiFactory {
 	public static final SwtEditorUiFactory instance = new SwtEditorUiFactory();
@@ -38,17 +42,22 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 	}
 
 	@Override
-	public EditorComposite createComposite(EditorComposite parent) {
-		return new SwtEditorComposite(Values.<SwtEditorComposite> cast(parent));
+	public EditorComposite createComposite(EditorComposite parent, WidgetStyle<? super EditorComposite>... styles) {
+		return new SwtEditorComposite(Values.<SwtEditorComposite> cast(parent), getSwtStyle(styles));
 	}
 
 	@Override
-	public EditorLabel createLabel(EditorComposite parent) {
-		return new SwtEditorLabel(cast(parent));
+	public EditorLabel createLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles) {
+		return new SwtEditorLabel(cast(parent), getSwtStyle(styles));
 	}
 
 	@Override
-	public EditorLabel createLabel(EditorComposite parent, String text) {
-		return new SwtEditorLabel(cast(parent), text);
+	public EditorLabel createLabel(EditorComposite parent, String text, WidgetStyle<? super EditorLabel>... styles) {
+		return new SwtEditorLabel(cast(parent), text, getSwtStyle(styles));
+	}
+
+	@Override
+	public EditorLabel createSeparatorLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles) {
+		return new SwtEditorLabel(cast(parent), SwtWidgetStyle.getSwtStyle(SWT.SEPARATOR, styles));
 	}
 }

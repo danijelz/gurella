@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui.layout;
 
-public class GridData {
+public class GridData implements EditorLayoutData {
 	public int verticalAlignment;
 	public int horizontalAlignment;
 	public int widthHint;

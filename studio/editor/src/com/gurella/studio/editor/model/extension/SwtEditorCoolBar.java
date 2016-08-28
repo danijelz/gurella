@@ -11,8 +11,8 @@ import com.gurella.engine.editor.ui.EditorCoolBar;
 import com.gurella.engine.editor.ui.EditorCoolItem;
 
 public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements EditorCoolBar {
-	public SwtEditorCoolBar(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorCoolBar(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 	}
 
 	@Override
-	CoolBar createWidget(Composite parent) {
+	CoolBar createWidget(Composite parent, int style) {
 		return new CoolBar(parent, style);
 	}
 }

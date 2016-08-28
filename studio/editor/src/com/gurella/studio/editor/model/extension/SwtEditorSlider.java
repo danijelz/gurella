@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.Slider;
 import com.gurella.engine.editor.ui.EditorSlider;
 
 public class SwtEditorSlider extends SwtEditorControl<Slider> implements EditorSlider {
-	public SwtEditorSlider(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorSlider(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class SwtEditorSlider extends SwtEditorControl<Slider> implements EditorS
 	}
 
 	@Override
-	Slider createWidget(Composite parent) {
+	Slider createWidget(Composite parent, int style) {
 		return new Slider(parent, style);
 	}
 

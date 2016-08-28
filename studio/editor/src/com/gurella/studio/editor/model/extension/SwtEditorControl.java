@@ -22,8 +22,8 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	SwtEditorControl() {
 	}
 
-	public SwtEditorControl(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorControl(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override

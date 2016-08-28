@@ -12,8 +12,8 @@ import com.gurella.engine.editor.ui.EditorTabFolder;
 import com.gurella.engine.editor.ui.EditorTabItem;
 
 public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implements EditorTabFolder {
-	public SwtEditorTabFolder(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorTabFolder(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 	}
 
 	@Override
-	TabFolder createWidget(Composite parent) {
+	TabFolder createWidget(Composite parent, int style) {
 		return new TabFolder(parent, style);
 	}
 }

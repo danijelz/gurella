@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.DateTime;
 import com.gurella.engine.editor.ui.EditorDateTime;
 
 public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implements EditorDateTime {
-	public SwtEditorDateTime(SwtEditorBaseComposite<?> parent) {
-		super(parent);
+	public SwtEditorDateTime(SwtEditorBaseComposite<?> parent, int style) {
+		super(parent, style);
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implemen
 	}
 
 	@Override
-	DateTime createWidget(Composite parent) {
+	DateTime createWidget(Composite parent, int style) {
 		return new DateTime(parent, style);
 	}
 }
