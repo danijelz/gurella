@@ -65,4 +65,10 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 	public EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
 		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.CHECK, styles));
 	}
+	
+	@Override
+	public EditorButton createCheckBox(EditorComposite parent, String text,
+			WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.CHECK, styles));
+	}
 }

@@ -16,4 +16,6 @@ public interface EditorUiFactory {
 	EditorLabel createSeparatorLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles);
 
 	EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+
+	EditorButton createCheckBox(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
 }

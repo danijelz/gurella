@@ -17,6 +17,11 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 		super(parent, style);
 	}
 
+	public SwtEditorButton(SwtEditorBaseComposite<?> parent, String text, int style) {
+		super(parent, style);
+		setText(text);
+	}
+
 	@Override
 	public Alignment getAlignment() {
 		return SwtEditorUiFactoryUtils.alignmentFromSwt(widget.getAlignment());
