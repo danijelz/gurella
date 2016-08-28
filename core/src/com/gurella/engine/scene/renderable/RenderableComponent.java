@@ -149,22 +149,38 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			EditorUiFactory uiFactory = parent.getUiFactory();
 			EditorButton tap = uiFactory.createCheckBox(parent, "tap");
-			tap.addListener(EditorEventType.Selection, new InputEventsSelectionListener((byte) 1));
+			tap.addListener(EditorEventType.Selection, new InputEventsSelectionListener(context, tap, (byte) 1));
 			uiFactory.createCheckBox(parent, "touch");
+		}
+
+		private void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text, byte index) {
+			EditorUiFactory uiFactory = parent.getUiFactory();
+			EditorButton tap = uiFactory.createCheckBox(parent, "tap");
+			tap.addListener(EditorEventType.Selection, new InputEventsSelectionListener(context, tap, (byte) 1));
 		}
 	}
 
 	private static class InputEventsSelectionListener implements EditorEventListener {
-		private byte value;
+		private PropertyEditorContext<Byte> contex;
+		private EditorButton check;
+		private byte index;
 
-		InputEventsSelectionListener(byte value) {
-			this.value = value;
+		public InputEventsSelectionListener(PropertyEditorContext<Byte> contex, EditorButton check, byte index) {
+			this.contex = contex;
+			this.check = check;
+			this.index = index;
 		}
 
 		@Override
 		public void handleEvent(EditorEvent event) {
-			// TODO Auto-generated method stub
+			byte byteValue = contex.getPropertyValue().byteValue();
+			if (check.getSelection()) {
+				byteValue = (byte) (byteValue | (1 << index));
+			} else {
+				byteValue = (byte) (byteValue & ~(1 << index));
+			}
 
+			contex.setPropertyValue(Byte.valueOf(byteValue));
 		}
 	}
 }
