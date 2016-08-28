@@ -11,7 +11,6 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorUiFactory;
-import com.gurella.engine.editor.ui.style.WidgetStyle.LabelOrientation;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -145,7 +144,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			EditorUiFactory uiFactory = parent.getUiFactory();
-			uiFactory.createSeparatorLabel(parent, LabelOrientation.HORIZONTAL);
+			uiFactory.createCheckBox(parent);
 		}
 	}
 }
