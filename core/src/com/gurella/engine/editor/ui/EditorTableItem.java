@@ -28,9 +28,7 @@ public interface EditorTableItem extends EditorItem {
 
 	GridRectangle getImageBounds(int index);
 
-	int getImageIndent();
-
-	Table getParent();
+	EditorTable getParent();
 
 	String getText(int index);
 
@@ -55,8 +53,6 @@ public interface EditorTableItem extends EditorItem {
 	void setImage(EditorImage[] images);
 
 	void setImage(int index, EditorImage image);
-
-	void setImageIndent(int indent);
 
 	void setText(int index, String string);
 
