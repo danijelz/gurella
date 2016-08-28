@@ -144,8 +144,8 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			EditorUiFactory uiFactory = parent.getUiFactory();
-			uiFactory.createCheckBox(parent);
-			uiFactory.createCheckBox(parent);
+			uiFactory.createCheckBox(parent, "tap");
+			uiFactory.createCheckBox(parent, "touch");
 		}
 	}
 }
