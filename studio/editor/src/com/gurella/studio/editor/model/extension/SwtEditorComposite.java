@@ -9,7 +9,7 @@ public class SwtEditorComposite extends SwtEditorBaseComposite<Composite> {
 		super(composite);
 	}
 
-	public SwtEditorComposite(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorComposite(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

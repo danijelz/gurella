@@ -1,11 +1,12 @@
 package com.gurella.studio.editor.model.extension;
 
+import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorTabItem;
 
-public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTabItem {
+public class SwtEditorTabItem extends SwtEditorItem<TabItem, TabFolder> implements EditorTabItem {
 	SwtEditorTabItem(SwtEditorTabFolder parent, int style) {
 		super(parent, style);
 	}
@@ -36,8 +37,7 @@ public class SwtEditorTabItem extends SwtEditorItem<TabItem> implements EditorTa
 	}
 
 	@Override
-	TabItem createItem(SwtEditorWidget<?> parent, int style) {
-		SwtEditorTabFolder tabFolder = (SwtEditorTabFolder) parent;
-		return new TabItem(tabFolder.widget, style);
+	TabItem createItem(TabFolder parent, int style) {
+		return new TabItem(parent, style);
 	}
 }

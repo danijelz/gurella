@@ -11,7 +11,7 @@ import com.gurella.engine.editor.ui.EditorCoolBar;
 import com.gurella.engine.editor.ui.EditorCoolItem;
 
 public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements EditorCoolBar {
-	public SwtEditorCoolBar(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorCoolBar(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

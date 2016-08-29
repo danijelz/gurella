@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.List;
 import com.gurella.engine.editor.ui.EditorList;
 
 public class SwtEditorList extends SwtEditorScrollable<List> implements EditorList {
-	public SwtEditorList(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorList(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

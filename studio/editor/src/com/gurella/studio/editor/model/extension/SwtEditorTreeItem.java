@@ -6,18 +6,18 @@ import java.util.Arrays;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorImage;
-import com.gurella.engine.editor.ui.EditorTableItem;
+import com.gurella.engine.editor.ui.EditorTreeItem;
 import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
-	SwtEditorTableItem(SwtEditorTable parent, int style) {
+public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements EditorTreeItem {
+	SwtEditorTreeItem(SwtEditorTree parent, int style) {
 		super(parent, style);
 	}
 
@@ -96,7 +96,7 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 	}
 
 	@Override
-	public SwtEditorTable getParent() {
+	public SwtEditorTree getParent() {
 		return getEditorWidget(widget.getParent());
 	}
 
@@ -193,7 +193,63 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 	}
 
 	@Override
-	TableItem createItem(Table parent, int style) {
-		return new TableItem(parent, style);
+	public void clear(int index, boolean all) {
+		widget.clear(index, all);
+	}
+
+	@Override
+	public void clearAll(boolean all) {
+		widget.clearAll(all);
+	}
+
+	@Override
+	public boolean getExpanded() {
+		return widget.getExpanded();
+	}
+
+	@Override
+	public SwtEditorTreeItem getItem(int index) {
+		return getEditorWidget(widget.getItem(index));
+	}
+
+	@Override
+	public int getItemCount() {
+		return widget.getItemCount();
+	}
+
+	@Override
+	public SwtEditorTreeItem[] getItems() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SwtEditorTreeItem getParentItem() {
+		return getEditorWidget(widget.getParentItem());
+	}
+
+	@Override
+	public int indexOf(EditorTreeItem item) {
+		return widget.indexOf(((SwtEditorTreeItem) item).widget);
+	}
+
+	@Override
+	public void removeAll() {
+		widget.removeAll();
+	}
+
+	@Override
+	public void setExpanded(boolean expanded) {
+		widget.setExpanded(expanded);
+	}
+
+	@Override
+	public void setItemCount(int count) {
+		widget.setItemCount(count);
+	}
+
+	@Override
+	TreeItem createItem(Tree parent, int style) {
+		return new TreeItem(parent, style);
 	}
 }

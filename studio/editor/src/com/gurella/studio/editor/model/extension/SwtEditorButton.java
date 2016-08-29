@@ -13,11 +13,11 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
-	public SwtEditorButton(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorButton(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 
-	public SwtEditorButton(SwtEditorBaseComposite<?> parent, String text, int style) {
+	public SwtEditorButton(SwtEditorComposite parent, String text, int style) {
 		super(parent, style);
 		setText(text);
 	}

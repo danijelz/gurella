@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui;
 
+import java.io.InputStream;
+
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.utils.GridRectangle;
 
@@ -30,8 +32,6 @@ public interface EditorTreeItem extends EditorItem {
 
 	boolean getGrayed();
 
-	EditorImage getImage();
-
 	EditorImage getImage(int index);
 
 	GridRectangle getImageBounds(int index);
@@ -45,8 +45,6 @@ public interface EditorTreeItem extends EditorItem {
 	EditorTree getParent();
 
 	EditorTreeItem getParentItem();
-
-	String getText();
 
 	String getText(int index);
 
@@ -74,17 +72,15 @@ public interface EditorTreeItem extends EditorItem {
 
 	void setGrayed(boolean grayed);
 
-	void setImage(EditorImage image);
-
 	void setImage(EditorImage[] images);
 
 	void setImage(int index, EditorImage image);
 
+	void setImage(int index, InputStream imageStream);
+
 	void setItemCount(int count);
 
 	void setText(int index, String string);
-
-	void setText(String string);
 
 	void setText(String[] strings);
 }

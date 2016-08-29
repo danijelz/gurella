@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCombo;
 
 public class SwtEditorCombo extends SwtEditorBaseComposite<Combo> implements EditorCombo {
-	public SwtEditorCombo(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorCombo(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

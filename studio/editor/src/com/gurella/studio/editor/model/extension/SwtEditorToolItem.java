@@ -5,6 +5,7 @@ import java.io.InputStream;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.gurella.engine.editor.ui.EditorControl;
@@ -12,7 +13,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorToolItem;
 import com.gurella.engine.utils.GridRectangle;
 
-public class SwtEditorToolItem extends SwtEditorItem<ToolItem> implements EditorToolItem {
+public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implements EditorToolItem {
 	SwtEditorToolItem(SwtEditorToolBar parent, int style) {
 		super(parent, style);
 	}
@@ -128,8 +129,7 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem> implements Editor
 	}
 
 	@Override
-	ToolItem createItem(SwtEditorWidget<?> parent, int style) {
-		SwtEditorToolBar toolBar = (SwtEditorToolBar) parent;
-		return new ToolItem(toolBar.widget, style);
+	ToolItem createItem(ToolBar parent, int style) {
+		return new ToolItem(parent, style);
 	}
 }

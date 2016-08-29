@@ -10,7 +10,7 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorCoolItem;
 import com.gurella.engine.utils.GridRectangle;
 
-public class SwtEditorCoolItem extends SwtEditorItem<CoolItem> implements EditorCoolItem {
+public class SwtEditorCoolItem extends SwtEditorItem<CoolItem, CoolBar> implements EditorCoolItem {
 	SwtEditorCoolItem(SwtEditorCoolBar parent, int style) {
 		super(parent, style);
 	}
@@ -70,7 +70,7 @@ public class SwtEditorCoolItem extends SwtEditorItem<CoolItem> implements Editor
 	}
 
 	@Override
-	CoolItem createItem(SwtEditorWidget<?> parent, int style) {
-		return new CoolItem((CoolBar) parent.widget, style);
+	CoolItem createItem(CoolBar parent, int style) {
+		return new CoolItem(parent, style);
 	}
 }

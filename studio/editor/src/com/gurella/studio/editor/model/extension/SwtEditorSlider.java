@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Slider;
 import com.gurella.engine.editor.ui.EditorSlider;
 
 public class SwtEditorSlider extends SwtEditorControl<Slider> implements EditorSlider {
-	public SwtEditorSlider(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorSlider(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

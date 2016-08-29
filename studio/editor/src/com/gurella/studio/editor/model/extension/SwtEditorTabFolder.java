@@ -12,7 +12,7 @@ import com.gurella.engine.editor.ui.EditorTabFolder;
 import com.gurella.engine.editor.ui.EditorTabItem;
 
 public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implements EditorTabFolder {
-	public SwtEditorTabFolder(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorTabFolder(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

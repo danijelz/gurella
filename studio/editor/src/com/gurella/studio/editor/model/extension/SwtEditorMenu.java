@@ -70,7 +70,7 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	}
 
 	@Override
-	public SwtEditorBaseComposite<?> getParent() {
+	public SwtEditorComposite getParent() {
 		return getEditorWidget(widget.getParent());
 	}
 

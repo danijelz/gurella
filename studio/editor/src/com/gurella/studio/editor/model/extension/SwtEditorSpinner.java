@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Spinner;
 import com.gurella.engine.editor.ui.EditorSpinner;
 
 public class SwtEditorSpinner extends SwtEditorBaseComposite<Spinner> implements EditorSpinner {
-	public SwtEditorSpinner(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorSpinner(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

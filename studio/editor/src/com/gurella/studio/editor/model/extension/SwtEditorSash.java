@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Sash;
 import com.gurella.engine.editor.ui.EditorSash;
 
 public class SwtEditorSash extends SwtEditorControl<Sash> implements EditorSash {
-	public SwtEditorSash(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorSash(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

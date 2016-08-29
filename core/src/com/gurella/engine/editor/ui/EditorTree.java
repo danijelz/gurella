@@ -67,8 +67,6 @@ public interface EditorTree extends EditorComposite {
 
 	void setLinesVisible(boolean show);
 
-	void setRedraw(boolean redraw);
-
 	void setSelection(EditorTreeItem item);
 
 	void setSelection(EditorTreeItem[] items);

@@ -12,7 +12,7 @@ import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorTableItem;
 
 public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements EditorTable {
-	public SwtEditorTable(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorTable(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

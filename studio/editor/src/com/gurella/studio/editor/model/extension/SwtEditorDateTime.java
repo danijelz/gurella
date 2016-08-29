@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.DateTime;
 import com.gurella.engine.editor.ui.EditorDateTime;
 
 public class SwtEditorDateTime extends SwtEditorBaseComposite<DateTime> implements EditorDateTime {
-	public SwtEditorDateTime(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorDateTime(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

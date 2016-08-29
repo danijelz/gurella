@@ -16,7 +16,7 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 		init(composite);
 	}
 
-	public SwtEditorBaseComposite(SwtEditorBaseComposite<?> parent, int style) {
+	public SwtEditorBaseComposite(SwtEditorComposite parent, int style) {
 		super(parent, style);
 	}
 

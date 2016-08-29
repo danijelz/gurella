@@ -1,13 +1,13 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 
 import com.gurella.engine.editor.ui.Alignment;
-import com.gurella.engine.editor.ui.EditorTableColumn;
+import com.gurella.engine.editor.ui.EditorTreeColumn;
 
-public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> implements EditorTableColumn {
-	SwtEditorTableColumn(SwtEditorTable parent, int style) {
+public class SwtEditorTreeColumn extends SwtEditorItem<TreeColumn, Tree> implements EditorTreeColumn {
+	SwtEditorTreeColumn(SwtEditorTree parent, int style) {
 		super(parent, style);
 	}
 
@@ -22,7 +22,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> impl
 	}
 
 	@Override
-	public SwtEditorTable getParent() {
+	public SwtEditorTree getParent() {
 		return getEditorWidget(widget.getParent());
 	}
 
@@ -72,7 +72,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> impl
 	}
 
 	@Override
-	TableColumn createItem(Table parent, int style) {
-		return new TableColumn(parent, style);
+	TreeColumn createItem(Tree parent, int style) {
+		return new TreeColumn(parent, style);
 	}
 }
