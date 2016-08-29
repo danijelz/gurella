@@ -211,8 +211,7 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 
 	@Override
 	public SwtEditorTreeItem[] getItems() {
-		// TODO Auto-generated method stub
-		return null;
+		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTreeItem[i]);
 	}
 
 	@Override
