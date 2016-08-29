@@ -72,12 +72,12 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 	}
 
 	@Override
-	public SwtEditorTabItem mewItem() {
+	public SwtEditorTabItem createItem() {
 		return new SwtEditorTabItem(this);
 	}
 
 	@Override
-	public SwtEditorTabItem mewItem(int index) {
+	public SwtEditorTabItem createItem(int index) {
 		return new SwtEditorTabItem(this, index);
 	}
 }
