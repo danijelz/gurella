@@ -12,22 +12,35 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Widget;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
-import com.gurella.engine.editor.ui.EditorUiFactory;
+import com.gurella.engine.editor.ui.EditorLogLevel;
+import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
 
 //TODO import methods from UiUtils
-public class SwtEditorUiFactory implements EditorUiFactory {
-	public static final SwtEditorUiFactory instance = new SwtEditorUiFactory();
+public class SwtEditorUi implements EditorUi {
+	public static final SwtEditorUi instance = new SwtEditorUi();
 
-	private SwtEditorUiFactory() {
+	private SwtEditorUi() {
+	}
+
+	@Override
+	public void log(EditorLogLevel level, String message) {
+		GurellaStudioPlugin.log(level, message);
+	}
+
+	@Override
+	public void logError(Throwable t, String message) {
+		GurellaStudioPlugin.log(t, message);
 	}
 
 	@Override
@@ -43,7 +56,7 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 		return display;
 	}
 
-	public static Alignment alignmentFromSwt(int alignment) {
+	public static Alignment alignment(int alignment) {
 		switch (alignment) {
 		case SWT.LEFT:
 			return Alignment.LEFT;
@@ -56,7 +69,7 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 		}
 	}
 
-	public static int alignmentToSwt(Alignment alignment) {
+	public static int alignment(Alignment alignment) {
 		switch (alignment) {
 		case LEFT:
 			return SWT.LEFT;
@@ -74,12 +87,16 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 	}
 
 	public static Font createFont(Control control, int height, boolean bold, boolean italic) {
+		return createFont(control, control.getFont(), height, bold, italic);
+	}
+
+	public static Font createFont(Widget widget, Font startingFont, int height, boolean bold, boolean italic) {
 		int style = 0;
 		style |= bold ? SWT.BOLD : 0;
 		style |= italic ? SWT.ITALIC : SWT.NORMAL;
-		Font font = FontDescriptor.createFrom(control.getFont()).setHeight(height).setStyle(style)
-				.createFont(control.getDisplay());
-		control.addListener(SWT.Dispose, e -> font.dispose());
+		Font font = FontDescriptor.createFrom(startingFont).setHeight(height).setStyle(style)
+				.createFont(widget.getDisplay());
+		widget.addListener(SWT.Dispose, e -> font.dispose());
 		return font;
 	}
 

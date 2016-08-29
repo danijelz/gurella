@@ -94,7 +94,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	}
 
 	@Override
-	public SwtEditorUiFactory getUiFactory() {
-		return SwtEditorUiFactory.instance;
+	public SwtEditorUi getUiFactory() {
+		return SwtEditorUi.instance;
 	}
 }

@@ -39,12 +39,12 @@ public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLab
 
 	@Override
 	public Alignment getAlignment() {
-		return SwtEditorUiFactory.alignmentFromSwt(widget.getAlignment());
+		return SwtEditorUi.alignment(widget.getAlignment());
 	}
 
 	@Override
 	public void setAlignment(Alignment alignment) {
-		widget.setAlignment(SwtEditorUiFactory.alignmentToSwt(alignment));
+		widget.setAlignment(SwtEditorUi.alignment(alignment));
 	}
 
 	@Override

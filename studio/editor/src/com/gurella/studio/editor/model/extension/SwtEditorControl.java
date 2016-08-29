@@ -120,7 +120,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void setFont(FontData fontData) {
-		widget.setFont(SwtEditorUiFactory.createFont(widget, fontData));
+		widget.setFont(SwtEditorUi.createFont(widget, fontData));
 	}
 
 	@Override

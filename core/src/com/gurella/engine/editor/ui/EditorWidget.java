@@ -1,9 +1,10 @@
 package com.gurella.engine.editor.ui;
 
+import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 
-public interface EditorWidget {
+public interface EditorWidget extends Disposable {
 	void addListener(EditorEventType eventType, EditorEventListener listener);
 
 	EditorEventListener[] getListeners(EditorEventType eventType);
@@ -14,11 +15,9 @@ public interface EditorWidget {
 
 	boolean isDisposed();
 
-	void dispose();
-
 	<V> V getData(String key);
 
 	void setData(String key, Object value);
-	
-	EditorUiFactory getUiFactory();
+
+	EditorUi getUiFactory();
 }

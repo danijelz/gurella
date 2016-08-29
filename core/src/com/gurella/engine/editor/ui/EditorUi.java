@@ -4,7 +4,11 @@ import java.io.InputStream;
 
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 
-public interface EditorUiFactory {
+public interface EditorUi {
+	void log(EditorLogLevel level, String message);
+
+	void logError(Throwable t, String message);
+
 	EditorImage createImage(InputStream imageStream);
 
 	EditorComposite createComposite(EditorComposite parent, WidgetStyle<? super EditorComposite>... styles);

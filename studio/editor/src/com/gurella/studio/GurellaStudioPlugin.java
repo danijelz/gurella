@@ -1,11 +1,14 @@
 package com.gurella.studio;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ColorDescriptor;
+import org.eclipse.jface.resource.DeviceResourceDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -22,6 +25,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.studio.editor.utils.RGBAColorDescriptor;
 
 public class GurellaStudioPlugin extends AbstractUIPlugin {
@@ -30,6 +34,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	private static GurellaStudioPlugin plugin;
 
+	private static Map<DeviceResourceDescriptor, Object> pluginResources = new HashMap<>();
 	private static DeviceResourceManager resourceManager;
 	private static FormToolkit toolkit;
 
@@ -57,6 +62,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		super.stop(context);
 		toolkit.dispose();
 		resourceManager.dispose();
+		pluginResources.entrySet().forEach(e -> e.getKey().destroyResource(e.getValue()));
 	}
 
 	/**
@@ -188,12 +194,101 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		resourceManager.destroyFont(FontDescriptor.createFrom(font));
 	}
 
+	private static <T> T getResource(DeviceResourceDescriptor descriptor) {
+		Object resource = pluginResources.get(descriptor);
+		if (resource == null) {
+			resource = descriptor.createResource(getDisplay());
+			pluginResources.put(descriptor, resource);
+		}
+		@SuppressWarnings("unchecked")
+		T casted = (T) resource;
+		return casted;
+	}
+
+	public static Image getImage(String path) {
+		return getResource(getImageDescriptor(path));
+	}
+
+	public static Image getImage(ImageDescriptor descriptor) {
+		return getResource(descriptor);
+	}
+
+	public static Color getColor(ColorDescriptor descriptor) {
+		return getResource(descriptor);
+	}
+
+	public static Color getColor(RGB rgb) {
+		return getResource(ColorDescriptor.createFrom(rgb));
+	}
+
+	public static Color getColor(int red, int green, int blue) {
+		return getColor(new RGB(red, green, blue));
+	}
+
+	public static Color getColor(RGBA rgba) {
+		RGB rgb = rgba.rgb;
+		return getResource(new RGBAColorDescriptor(rgb.red, rgb.green, rgb.blue, rgba.alpha));
+	}
+
+	public static Color getColor(int red, int green, int blue, int alpha) {
+		return getResource(new RGBAColorDescriptor(red, green, blue, alpha));
+	}
+
+	public static Color getColor(com.badlogic.gdx.graphics.Color color) {
+		return getColor((int) color.r * 255, (int) color.g * 255, (int) color.b * 255, (int) color.a * 255);
+	}
+
+	public static Font getFont(FontDescriptor descriptor) {
+		return getResource(descriptor);
+	}
+
+	public static Font getFont(Control control, int newStyle) {
+		return getResource(FontDescriptor.createFrom(control.getFont()).setStyle(newStyle));
+	}
+
+	public static Font getFontWithStyle(Control control, int additionalStyle) {
+		return getResource(FontDescriptor.createFrom(control.getFont()).withStyle(additionalStyle));
+	}
+
+	public static Font getFont(Control control, int newHeight, int newStyle) {
+		return getResource(FontDescriptor.createFrom(control.getFont()).setHeight(newHeight).setStyle(newStyle));
+	}
+
+	public static Font getFontWithStyle(Control control, int newHeight, int additionalStyle) {
+		return getResource(
+				FontDescriptor.createFrom(control.getFont()).setHeight(newHeight).withStyle(additionalStyle));
+	}
+
 	public static FormToolkit getToolkit() {
 		return toolkit;
 	}
 
 	public static void log(IStatus status) {
 		getDefault().getLog().log(status);
+	}
+
+	public static void log(EditorLogLevel level, String message) {
+		int swtLevel;
+		switch (level) {
+		case OK:
+			swtLevel = IStatus.OK;
+			break;
+		case INFO:
+			swtLevel = IStatus.INFO;
+			break;
+		case WARNING:
+			swtLevel = IStatus.WARNING;
+			break;
+		case ERROR:
+			swtLevel = IStatus.ERROR;
+			break;
+		case CANCEL:
+			swtLevel = IStatus.CANCEL;
+			break;
+		default:
+			throw new IllegalArgumentException();
+		}
+		log(new Status(swtLevel, PLUGIN_ID, message));
 	}
 
 	public static IStatus log(Throwable t, String message) {

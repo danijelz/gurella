@@ -28,6 +28,11 @@ public class SwtEditorImage implements EditorImage {
 	}
 
 	@Override
+	public boolean isDisposed() {
+		return image.isDisposed();
+	}
+
+	@Override
 	public int hashCode() {
 		return 31 + image.hashCode();
 	}

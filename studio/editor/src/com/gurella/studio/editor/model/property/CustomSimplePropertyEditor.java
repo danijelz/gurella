@@ -4,7 +4,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.property.PropertyEditorFactory;
-import com.gurella.studio.editor.model.extension.SwtEditorUiFactory;
+import com.gurella.studio.editor.model.extension.SwtEditorUi;
 
 public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 	public CustomSimplePropertyEditor(Composite parent, PropertyEditorContext<?, P> context,
@@ -18,6 +18,6 @@ public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
-		factory.buildUi(SwtEditorUiFactory.instance.createComposite(body), new ContextAdapter<P>(context));
+		factory.buildUi(SwtEditorUi.instance.createComposite(body), new ContextAdapter<P>(context));
 	}
 }

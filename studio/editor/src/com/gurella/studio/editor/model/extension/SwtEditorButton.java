@@ -24,12 +24,12 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 
 	@Override
 	public Alignment getAlignment() {
-		return SwtEditorUiFactoryUtils.alignmentFromSwt(widget.getAlignment());
+		return SwtEditorUi.alignment(widget.getAlignment());
 	}
 
 	@Override
 	public void setAlignment(Alignment alignment) {
-		widget.setAlignment(SwtEditorUiFactoryUtils.alignmentToSwt(alignment));
+		widget.setAlignment(SwtEditorUi.alignment(alignment));
 	}
 
 	@Override

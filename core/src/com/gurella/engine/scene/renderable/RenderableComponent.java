@@ -13,7 +13,7 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
-import com.gurella.engine.editor.ui.EditorUiFactory;
+import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.event.EventService;
@@ -154,7 +154,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 
 		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
 				byte index) {
-			EditorUiFactory uiFactory = parent.getUiFactory();
+			EditorUi uiFactory = parent.getUiFactory();
 			@SuppressWarnings("unchecked")
 			EditorButton check = uiFactory.createCheckBox(parent, text);
 			byte byteValue = context.getPropertyValue().byteValue();
