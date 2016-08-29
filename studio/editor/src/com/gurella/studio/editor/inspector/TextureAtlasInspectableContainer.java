@@ -30,10 +30,10 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Page;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
 import com.gurella.engine.asset.properties.TextureAtlasProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditor;
+import com.gurella.studio.editor.model.MetaModelEditor;
 
 public class TextureAtlasInspectableContainer extends InspectableContainer<IFile> {
-	private ModelEditor<TextureAtlasProperties> textureProperties;
+	private MetaModelEditor<TextureAtlasProperties> textureProperties;
 	private CTabFolder pages;
 
 	public TextureAtlasInspectableContainer(InspectorView parent, IFile target) {
@@ -45,7 +45,7 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new ModelEditor<>(getBody(), getEditorContext(), findProperties(target));
+		textureProperties = new MetaModelEditor<>(getBody(), getEditorContext(), findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

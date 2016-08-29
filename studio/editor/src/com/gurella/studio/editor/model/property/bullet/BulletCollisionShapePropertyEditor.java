@@ -31,7 +31,7 @@ import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.TetrahedronCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.TriangleCollisionShape;
 import com.gurella.studio.editor.model.ModelEditorContext;
-import com.gurella.studio.editor.model.ModelEditor;
+import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
 import com.gurella.studio.editor.model.property.PropertyEditorContext;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -79,7 +79,7 @@ public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<Bu
 
 			if (!(value instanceof EmptyCollisionShape)) {
 				ModelEditorContext<BulletCollisionShape> shapeContext = new ModelEditorContext<>(context, value);
-				ModelEditor<BulletCollisionShape> shapeModelEditor = new ModelEditor<>(body, shapeContext);
+				MetaModelEditor<BulletCollisionShape> shapeModelEditor = new MetaModelEditor<>(body, shapeContext);
 				shapeModelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 			}
 

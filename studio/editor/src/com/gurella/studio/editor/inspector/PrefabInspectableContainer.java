@@ -66,7 +66,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.model.ModelEditor;
+import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
@@ -76,7 +76,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private Button enabledCheck;
 	private Label menuButton;
 	private Composite componentsComposite;
-	private Array<ModelEditor<?>> componentContainers = new Array<>();
+	private Array<MetaModelEditor<?>> componentContainers = new Array<>();
 
 	SceneNode2 prefab;
 
@@ -172,12 +172,12 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		ImmutableArray<SceneNodeComponent2> components = prefab.components;
 		for (int i = 0; i < components.size(); i++) {
 			SceneNodeComponent2 component = components.get(i);
-			ModelEditor<SceneNodeComponent2> propertiesContainer = createSection(component);
+			MetaModelEditor<SceneNodeComponent2> propertiesContainer = createSection(component);
 			componentContainers.add(propertiesContainer);
 		}
 	}
 
-	private ModelEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
+	private MetaModelEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR);
 		section.setText(Models.getModel(component).getName());
@@ -187,14 +187,14 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getEditorContext(), component);
 		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 
-		ModelEditor<SceneNodeComponent2> propertiesContainer = new ModelEditor<>(section, context);
+		MetaModelEditor<SceneNodeComponent2> propertiesContainer = new MetaModelEditor<>(section, context);
 		section.setClient(propertiesContainer);
 		return propertiesContainer;
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
 		prefab.addComponent(component);
-		ModelEditor<SceneNodeComponent2> propertiesContainer = createSection(component);
+		MetaModelEditor<SceneNodeComponent2> propertiesContainer = createSection(component);
 		propertiesContainer.pack(true);
 		propertiesContainer.layout(true, true);
 		componentContainers.add(propertiesContainer);
