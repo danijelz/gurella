@@ -33,7 +33,7 @@ public interface EditorTable extends EditorComposite {
 
 	EditorTableItem getItem(int index);
 
-	EditorTableItem getItem(Point point);
+	EditorTableItem getItem(int x, int y);
 
 	int getItemCount();
 
@@ -82,8 +82,6 @@ public interface EditorTable extends EditorComposite {
 	void setItemCount(int count);
 
 	void setLinesVisible(boolean show);
-
-	void setRedraw(boolean redraw);
 
 	void setSelection(int index);
 

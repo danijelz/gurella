@@ -1,7 +1,7 @@
 package com.gurella.engine.editor.ui;
 
 public interface EditorTableColumn extends EditorItem {
-	int getAlignment();
+	Alignment getAlignment();
 
 	boolean getMoveable();
 
@@ -15,7 +15,7 @@ public interface EditorTableColumn extends EditorItem {
 
 	void pack();
 
-	void setAlignment(int alignment);
+	void setAlignment(Alignment alignment);
 
 	void setMoveable(boolean moveable);
 
