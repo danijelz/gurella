@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-public interface EditorText extends EditorControl {
+public interface EditorText extends EditorScrollable {
 	void append(String string);
 
 	void clearSelection();
@@ -66,10 +66,6 @@ public interface EditorText extends EditorControl {
 	void setEditable(boolean editable);
 
 	void setMessage(String message);
-
-	void setOrientation(int orientation);
-
-	void setRedraw(boolean redraw);
 
 	void setSelection(int start);
 
