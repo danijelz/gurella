@@ -23,16 +23,12 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 
 	@Override
 	public Color getBackground() {
-		org.eclipse.swt.graphics.Color color = widget.getBackground();
-		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-				color.getAlpha() / 255f);
+		return SwtEditorUi.toGdxColor(widget.getBackground());
 	}
 
 	@Override
 	public Color getBackground(int index) {
-		org.eclipse.swt.graphics.Color color = widget.getBackground(index);
-		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-				color.getAlpha() / 255f);
+		return SwtEditorUi.toGdxColor(widget.getBackground(index));
 	}
 
 	@Override
@@ -66,16 +62,12 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 
 	@Override
 	public Color getForeground() {
-		org.eclipse.swt.graphics.Color color = widget.getForeground();
-		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-				color.getAlpha() / 255f);
+		return SwtEditorUi.toGdxColor(widget.getForeground());
 	}
 
 	@Override
 	public Color getForeground(int index) {
-		org.eclipse.swt.graphics.Color color = widget.getForeground(index);
-		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-				color.getAlpha() / 255f);
+		return SwtEditorUi.toGdxColor(widget.getForeground(index));
 	}
 
 	@Override

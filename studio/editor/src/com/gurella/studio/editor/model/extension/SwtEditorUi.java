@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Widget;
 
+import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
@@ -80,6 +81,11 @@ public class SwtEditorUi implements EditorUi {
 		default:
 			throw new IllegalArgumentException();
 		}
+	}
+
+	public static Color toGdxColor(org.eclipse.swt.graphics.Color color) {
+		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+				color.getAlpha() / 255f);
 	}
 
 	public static Font createFont(Control control, FontData fontData) {

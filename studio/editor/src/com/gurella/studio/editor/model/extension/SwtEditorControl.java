@@ -70,9 +70,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public Color getBackground() {
-		org.eclipse.swt.graphics.Color background = widget.getBackground();
-		return new Color(background.getRed() / 255f, background.getGreen() / 255f, background.getBlue() / 255f,
-				background.getAlpha() / 255f);
+		return SwtEditorUi.toGdxColor(widget.getBackground());
 	}
 
 	@Override
@@ -125,9 +123,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public Color getForeground() {
-		org.eclipse.swt.graphics.Color background = widget.getForeground();
-		return new Color(background.getRed() / 255f, background.getGreen() / 255f, background.getBlue() / 255f,
-				background.getAlpha() / 255f);
+		return SwtEditorUi.toGdxColor(widget.getForeground());
 	}
 
 	@Override
