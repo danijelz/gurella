@@ -1,8 +1,6 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -17,6 +15,7 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.utils.GridRectangle;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidget<T> implements EditorControl {
 	SwtEditorControl() {
@@ -78,9 +77,8 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void setBackground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = new org.eclipse.swt.graphics.Color(widget.getDisplay(),
-				(int) color.r * 255, (int) color.g * 255, (int) color.b * 255, (int) color.a * 255);
-		widget.addListener(SWT.Dispose, e -> swtColor.dispose());
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
 		widget.setBackground(swtColor);
 	}
 
@@ -122,13 +120,7 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void setFont(FontData fontData) {
-		int style = 0;
-		style |= fontData.styleBold ? SWT.BOLD : 0;
-		style |= fontData.styleItalic ? SWT.ITALIC : SWT.NORMAL;
-		Font font = FontDescriptor.createFrom(widget.getFont()).setHeight(fontData.height).setStyle(style)
-				.createFont(widget.getDisplay());
-		widget.addListener(SWT.Dispose, e -> font.dispose());
-		widget.setFont(font);
+		widget.setFont(SwtEditorUiFactory.createFont(widget, fontData));
 	}
 
 	@Override
@@ -140,9 +132,8 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public void setForeground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = new org.eclipse.swt.graphics.Color(widget.getDisplay(),
-				(int) color.r * 255, (int) color.g * 255, (int) color.b * 255, (int) color.a * 255);
-		widget.addListener(SWT.Dispose, e -> swtColor.dispose());
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
 		widget.setForeground(swtColor);
 	}
 

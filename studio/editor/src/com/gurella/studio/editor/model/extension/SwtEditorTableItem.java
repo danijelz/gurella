@@ -1,5 +1,11 @@
 package com.gurella.studio.editor.model.extension;
 
+import java.io.InputStream;
+import java.util.Arrays;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -8,6 +14,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorTableItem;
 import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.utils.GridRectangle;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements EditorTableItem {
 	SwtEditorTableItem(SwtEditorTable parent, int style) {
@@ -16,26 +23,28 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements Edit
 
 	@Override
 	public Color getBackground() {
-		// TODO Auto-generated method stub
-		return null;
+		org.eclipse.swt.graphics.Color color = widget.getBackground();
+		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+				color.getAlpha() / 255f);
 	}
 
 	@Override
 	public Color getBackground(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		org.eclipse.swt.graphics.Color color = widget.getBackground(index);
+		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+				color.getAlpha() / 255f);
 	}
 
 	@Override
 	public GridRectangle getBounds() {
-		// TODO Auto-generated method stub
-		return null;
+		Rectangle bounds = widget.getBounds();
+		return new GridRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 
 	@Override
 	public GridRectangle getBounds(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		Rectangle bounds = widget.getBounds(index);
+		return new GridRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 
 	@Override
@@ -57,14 +66,16 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements Edit
 
 	@Override
 	public Color getForeground() {
-		// TODO Auto-generated method stub
-		return null;
+		org.eclipse.swt.graphics.Color color = widget.getForeground();
+		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+				color.getAlpha() / 255f);
 	}
 
 	@Override
 	public Color getForeground(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		org.eclipse.swt.graphics.Color color = widget.getForeground(index);
+		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+				color.getAlpha() / 255f);
 	}
 
 	@Override
@@ -74,14 +85,14 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements Edit
 
 	@Override
 	public EditorImage getImage(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		Image image = widget.getImage(index);
+		return image == null ? null : new SwtEditorImage(image);
 	}
 
 	@Override
 	public GridRectangle getImageBounds(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		Rectangle bounds = widget.getImageBounds(index);
+		return new GridRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 
 	@Override
@@ -96,20 +107,22 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements Edit
 
 	@Override
 	public GridRectangle getTextBounds(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		Rectangle bounds = widget.getTextBounds(index);
+		return new GridRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 
 	@Override
 	public void setBackground(Color color) {
-		// TODO Auto-generated method stub
-
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setBackground(swtColor);
 	}
 
 	@Override
 	public void setBackground(int index, Color color) {
-		// TODO Auto-generated method stub
-
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setBackground(index, swtColor);
 	}
 
 	@Override
@@ -131,14 +144,16 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements Edit
 
 	@Override
 	public void setForeground(Color color) {
-		// TODO Auto-generated method stub
-
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setForeground(swtColor);
 	}
 
 	@Override
 	public void setForeground(int index, Color color) {
-		// TODO Auto-generated method stub
-
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setForeground(index, swtColor);
 	}
 
 	@Override
@@ -148,14 +163,23 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem> implements Edit
 
 	@Override
 	public void setImage(EditorImage[] images) {
-		// TODO Auto-generated method stub
-
+		widget.setImage(Arrays.stream(images).map(i -> ((SwtEditorImage) i).image).toArray(i -> new Image[i]));
 	}
 
 	@Override
 	public void setImage(int index, EditorImage image) {
-		// TODO Auto-generated method stub
+		widget.setImage(index, image == null ? null : ((SwtEditorImage) image).image);
+	}
 
+	@Override
+	public void setImage(int index, InputStream imageStream) {
+		if (imageStream == null) {
+			widget.setImage(index, null);
+		} else {
+			Image image = new Image(widget.getDisplay(), imageStream);
+			widget.addListener(SWT.Dispose, e -> image.dispose());
+			widget.setImage(index, image);
+		}
 	}
 
 	@Override

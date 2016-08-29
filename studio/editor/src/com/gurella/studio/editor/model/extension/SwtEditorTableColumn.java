@@ -13,7 +13,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn> implements 
 
 	@Override
 	public Alignment getAlignment() {
-		return SwtEditorUiFactoryUtils.alignmentFromSwt(widget.getAlignment());
+		return SwtEditorUiFactory.alignmentFromSwt(widget.getAlignment());
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn> implements 
 
 	@Override
 	public void setAlignment(Alignment alignment) {
-		widget.setAlignment(SwtEditorUiFactoryUtils.alignmentToSwt(alignment));
+		widget.setAlignment(SwtEditorUiFactory.alignmentToSwt(alignment));
 	}
 
 	@Override

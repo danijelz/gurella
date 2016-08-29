@@ -88,7 +88,7 @@ public class ModelEditor<T> extends Composite {
 
 			Label label = toolkit.createLabel(this, name + ":");
 			label.setAlignment(SWT.RIGHT);
-			label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+			label.setFont(createFont(label, SWT.BOLD));
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(composite);

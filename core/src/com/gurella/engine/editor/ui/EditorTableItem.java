@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui;
 
+import java.io.InputStream;
+
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.utils.GridRectangle;
 
@@ -53,6 +55,8 @@ public interface EditorTableItem extends EditorItem {
 	void setImage(EditorImage[] images);
 
 	void setImage(int index, EditorImage image);
+	
+	void setImage(int index, InputStream imageStream);
 
 	void setText(int index, String string);
 

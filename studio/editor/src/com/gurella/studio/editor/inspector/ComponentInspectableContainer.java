@@ -1,6 +1,5 @@
 package com.gurella.studio.editor.inspector;
 
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -20,7 +19,7 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 	public ComponentInspectableContainer(InspectorView parent, SceneNodeComponent2 target) {
 		super(parent, target);
 		Composite head = getForm().getHead();
-		head.setFont(GurellaStudioPlugin.createFont(FontDescriptor.createFrom(head.getFont()).setStyle(SWT.BOLD)));
+		head.setFont(GurellaStudioPlugin.createFont(head, SWT.BOLD));
 		setText(Models.getModel(target).getName());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);

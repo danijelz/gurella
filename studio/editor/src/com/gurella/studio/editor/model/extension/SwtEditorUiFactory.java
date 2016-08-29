@@ -5,19 +5,25 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.get
 
 import java.io.InputStream;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUiFactory;
+import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.engine.utils.Values;
 
+//TODO import methods from UiUtils
 public class SwtEditorUiFactory implements EditorUiFactory {
 	public static final SwtEditorUiFactory instance = new SwtEditorUiFactory();
 
@@ -35,6 +41,46 @@ public class SwtEditorUiFactory implements EditorUiFactory {
 			display = Display.getDefault();
 		}
 		return display;
+	}
+
+	public static Alignment alignmentFromSwt(int alignment) {
+		switch (alignment) {
+		case SWT.LEFT:
+			return Alignment.LEFT;
+		case SWT.CENTER:
+			return Alignment.CENTER;
+		case SWT.RIGHT:
+			return Alignment.RIGHT;
+		default:
+			return null;
+		}
+	}
+
+	public static int alignmentToSwt(Alignment alignment) {
+		switch (alignment) {
+		case LEFT:
+			return SWT.LEFT;
+		case CENTER:
+			return SWT.CENTER;
+		case RIGHT:
+			return SWT.RIGHT;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static Font createFont(Control control, FontData fontData) {
+		return createFont(control, fontData.height, fontData.styleBold, fontData.styleItalic);
+	}
+
+	public static Font createFont(Control control, int height, boolean bold, boolean italic) {
+		int style = 0;
+		style |= bold ? SWT.BOLD : 0;
+		style |= italic ? SWT.ITALIC : SWT.NORMAL;
+		Font font = FontDescriptor.createFrom(control.getFont()).setHeight(height).setStyle(style)
+				.createFont(control.getDisplay());
+		control.addListener(SWT.Dispose, e -> font.dispose());
+		return font;
 	}
 
 	public EditorComposite createComposite(Composite parent) {

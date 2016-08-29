@@ -23,7 +23,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		this.id = nextId();
 	}
 
-	//Control
+	// Control
 
 	static abstract class ControlStyle extends WidgetStyle<EditorControl> {
 		ControlStyle(int baseId) {
@@ -58,7 +58,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		}
 	}
 
-	//Scrollable
+	// Scrollable
 
 	public static final class ScrollableBar extends WidgetStyle<EditorScrollable> {
 		private static final int base = nextId();
@@ -71,7 +71,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		}
 	}
 
-	//Button
+	// Button
 
 	static abstract class ButtonStyle extends WidgetStyle<EditorButton> {
 		ButtonStyle(int baseId) {
@@ -79,6 +79,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		}
 	}
 
+	//TODO remove
 	public static final class ButtonType extends ButtonStyle {
 		private static final int base = nextId();
 
@@ -108,19 +109,11 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		}
 	}
 
-	//Label
+	// Label
 
 	static abstract class LabelStyle extends WidgetStyle<EditorLabel> {
 		LabelStyle(int baseId) {
 			super(baseId);
-		}
-	}
-
-	public static final class LabelSeparator extends LabelStyle {
-		public static LabelSeparator SEPARATOR = new LabelSeparator();
-
-		public LabelSeparator() {
-			super(nextId());
 		}
 	}
 

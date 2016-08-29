@@ -9,11 +9,13 @@ import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.RGBA;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -39,7 +41,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		Display display = getDisplay();
-		//http://www.eclipsezone.com/eclipse/forums/t61092.html  colors...
+		// http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
 		toolkit = new FormToolkit(display);
 		resourceManager = new DeviceResourceManager(display);
 	}
@@ -79,6 +81,10 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		return resourceManager;
 	}
 
+	public static LocalResourceManager newResourceManager(Control owner) {
+		return new LocalResourceManager(resourceManager, owner);
+	}
+
 	public static Image createImage(String path) {
 		return resourceManager.createImage(getImageDescriptor(path));
 	}
@@ -107,28 +113,41 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		return resourceManager.createColor(descriptor);
 	}
 
-	public static Color createColor(RGB descriptor) {
-		return resourceManager.createColor(descriptor);
+	public static Color createColor(RGB rgb) {
+		return resourceManager.createColor(rgb);
 	}
 
 	public static Color createColor(int red, int green, int blue) {
 		return resourceManager.createColor(new RGB(red, green, blue));
 	}
 
+	public static Color createColor(RGBA rgba) {
+		RGB rgb = rgba.rgb;
+		return resourceManager.createColor(new RGBAColorDescriptor(rgb.red, rgb.green, rgb.blue, rgba.alpha));
+	}
+
 	public static Color createColor(int red, int green, int blue, int alpha) {
 		return resourceManager.createColor(new RGBAColorDescriptor(red, green, blue, alpha));
 	}
 
-	public static void destroyColor(RGB descriptor) {
-		resourceManager.destroyColor(descriptor);
+	public static Color createColor(com.badlogic.gdx.graphics.Color color) {
+		return createColor((int) color.r * 255, (int) color.g * 255, (int) color.b * 255, (int) color.a * 255);
+	}
+
+	public static void destroyColor(Color color) {
+		resourceManager.destroyColor(new RGBAColorDescriptor(color.getRGBA()));
+	}
+
+	public static void destroyColor(RGB rgb) {
+		resourceManager.destroyColor(rgb);
 	}
 
 	public static void destroyColor(int red, int green, int blue) {
 		resourceManager.destroyColor(new RGB(red, green, blue));
 	}
 
-	public static void destroyColor(RGBA descriptor) {
-		resourceManager.destroyColor(new RGBAColorDescriptor(descriptor));
+	public static void destroyColor(RGBA rgba) {
+		resourceManager.destroyColor(new RGBAColorDescriptor(rgba));
 	}
 
 	public static void destroyColor(int red, int green, int blue, int alpha) {
@@ -143,8 +162,30 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		return resourceManager.createFont(descriptor);
 	}
 
+	public static Font createFont(Control control, int newStyle) {
+		return resourceManager.createFont(FontDescriptor.createFrom(control.getFont()).setStyle(newStyle));
+	}
+
+	public static Font createFontWithStyle(Control control, int additionalStyle) {
+		return resourceManager.createFont(FontDescriptor.createFrom(control.getFont()).withStyle(additionalStyle));
+	}
+
+	public static Font createFont(Control control, int newHeight, int newStyle) {
+		return resourceManager
+				.createFont(FontDescriptor.createFrom(control.getFont()).setHeight(newHeight).setStyle(newStyle));
+	}
+
+	public static Font createFontWithStyle(Control control, int newHeight, int additionalStyle) {
+		return resourceManager.createFont(
+				FontDescriptor.createFrom(control.getFont()).setHeight(newHeight).withStyle(additionalStyle));
+	}
+
 	public static void destroyFont(FontDescriptor descriptor) {
 		resourceManager.destroyFont(descriptor);
+	}
+
+	public static void destroyFont(Font font) {
+		resourceManager.destroyFont(FontDescriptor.createFrom(font));
 	}
 
 	public static FormToolkit getToolkit() {
