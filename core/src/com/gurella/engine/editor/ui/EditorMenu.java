@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui;
 
+import com.gurella.engine.editor.ui.style.WidgetStyle;
+
 public interface EditorMenu extends EditorWidget {
 	EditorMenuItem getDefaultItem();
 
@@ -36,4 +38,8 @@ public interface EditorMenu extends EditorWidget {
 	void setEnabled(boolean enabled);
 
 	void setLocation(int x, int y);
+
+	EditorMenuItem createMenuItem(WidgetStyle<? super EditorMenuItem>... styles);
+
+	EditorMenuItem createMenuItem(int index, WidgetStyle<? super EditorMenuItem>... styles);
 }

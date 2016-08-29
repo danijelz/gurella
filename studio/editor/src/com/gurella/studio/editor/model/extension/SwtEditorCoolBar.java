@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model.extension;
 
 import java.util.Arrays;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.CoolBar;
@@ -74,5 +75,10 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 	@Override
 	CoolBar createWidget(Composite parent, int style) {
 		return new CoolBar(parent, style);
+	}
+
+	@Override
+	public SwtEditorCoolItem createItem(boolean dropDown) {
+		return new SwtEditorCoolItem(this, dropDown ? SWT.DROP_DOWN : SWT.NONE);
 	}
 }

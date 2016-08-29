@@ -7,6 +7,10 @@ import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorMenuItem;
 
 public class SwtEditorMenuItem extends SwtEditorItem<MenuItem, Menu> implements EditorMenuItem {
+	SwtEditorMenuItem(SwtEditorMenu parent, int style, int index) {
+		init(new MenuItem(parent.widget, style, index));
+	}
+
 	SwtEditorMenuItem(SwtEditorMenu parent, int style) {
 		super(parent, style);
 	}

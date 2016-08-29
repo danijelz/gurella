@@ -18,9 +18,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorLogLevel;
+import com.gurella.engine.editor.ui.EditorMenu;
+import com.gurella.engine.editor.ui.EditorMenuItem;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
@@ -139,5 +142,29 @@ public class SwtEditorUi implements EditorUi {
 	public EditorButton createCheckBox(EditorComposite parent, String text,
 			WidgetStyle<? super EditorButton>... styles) {
 		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.CHECK, styles));
+	}
+
+	@Override
+	public EditorMenu createMenu(EditorControl parent) {
+		return new SwtEditorMenu((SwtEditorControl<?>) parent);
+	}
+
+	@Override
+	public EditorMenu createMenu(EditorMenu parentMenu) {
+		return new SwtEditorMenu((SwtEditorMenu) parentMenu);
+	}
+
+	@Override
+	public EditorMenu createMenu(EditorMenuItem parentItem) {
+		return new SwtEditorMenu((SwtEditorMenuItem) parentItem);
+	}
+
+	public SwtEditorMenuItem createMenuItem(SwtEditorMenu parentMenu, WidgetStyle<? super EditorMenuItem>... styles) {
+		return new SwtEditorMenuItem(parentMenu, getSwtStyle(styles));
+	}
+
+	public SwtEditorMenuItem createMenuItem(SwtEditorMenu parentItem, int index,
+			WidgetStyle<? super EditorMenuItem>... styles) {
+		return new SwtEditorMenuItem(parentItem, getSwtStyle(styles), index);
 	}
 }

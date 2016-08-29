@@ -24,4 +24,6 @@ public interface EditorCoolBar extends EditorComposite {
 	void setLocked(boolean locked);
 
 	void setWrapIndices(int[] indices);
+	
+	EditorCoolItem createItem(boolean dropDown);
 }

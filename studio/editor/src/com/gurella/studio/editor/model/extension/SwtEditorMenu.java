@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import com.gurella.engine.editor.ui.Direction;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorMenuItem;
+import com.gurella.engine.editor.ui.style.WidgetStyle;
 
 public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	SwtEditorMenu(SwtEditorControl<?> parent) {
@@ -137,5 +138,15 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	@Override
 	Menu createWidget(Composite parent, int style) {
 		return null;
+	}
+
+	@Override
+	public SwtEditorMenuItem createMenuItem(WidgetStyle<? super EditorMenuItem>... styles) {
+		return SwtEditorUi.instance.createMenuItem(this, styles);
+	}
+
+	@Override
+	public SwtEditorMenuItem createMenuItem(int index, WidgetStyle<? super EditorMenuItem>... styles) {
+		return SwtEditorUi.instance.createMenuItem(this, index, styles);
 	}
 }

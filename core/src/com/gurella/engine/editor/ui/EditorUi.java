@@ -22,4 +22,10 @@ public interface EditorUi {
 	EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
 
 	EditorButton createCheckBox(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+
+	EditorMenu createMenu(EditorControl parent);
+
+	EditorMenu createMenu(EditorMenu parentMenu);
+
+	EditorMenu createMenu(EditorMenuItem parentItem);
 }

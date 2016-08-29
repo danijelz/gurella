@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorLabel;
+import com.gurella.engine.editor.ui.EditorMenu;
+import com.gurella.engine.editor.ui.EditorMenuItem;
 import com.gurella.engine.editor.ui.EditorScrollable;
 import com.gurella.engine.editor.ui.EditorWidget;
 
@@ -156,6 +158,56 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 
 		public LabelWrap() {
 			super(nextId());
+		}
+	}
+
+	// Menu
+
+	static abstract class MenuStyle extends WidgetStyle<EditorMenu> {
+		MenuStyle(int baseId) {
+			super(baseId);
+		}
+	}
+
+	public static final class MenuType extends MenuStyle {
+		private static final int base = nextId();
+
+		public static MenuType BAR = new MenuType();
+		public static MenuType DROP_DOWN = new MenuType();
+		public static MenuType POP_UP = new MenuType();
+
+		public MenuType() {
+			super(base);
+		}
+	}
+
+	public static final class MenuNoRadioGroup extends MenuStyle {
+		public static MenuNoRadioGroup NO_RADIO_GROUP = new MenuNoRadioGroup();
+
+		public MenuNoRadioGroup() {
+			super(nextId());
+		}
+	}
+
+	// MenuItem
+
+	static abstract class MenuItemStyle extends WidgetStyle<EditorMenuItem> {
+		MenuItemStyle(int baseId) {
+			super(baseId);
+		}
+	}
+
+	public static final class MenuItemType extends MenuItemStyle {
+		private static final int base = nextId();
+
+		public static MenuItemType CHECK = new MenuItemType();
+		public static MenuItemType CASCADE = new MenuItemType();
+		public static MenuItemType PUSH = new MenuItemType();
+		public static MenuItemType RADIO = new MenuItemType();
+		public static MenuItemType SEPARATOR = new MenuItemType();
+
+		public MenuItemType() {
+			super(base);
 		}
 	}
 }
