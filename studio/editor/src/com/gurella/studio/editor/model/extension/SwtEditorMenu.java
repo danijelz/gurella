@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
+
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
@@ -142,11 +144,11 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 
 	@Override
 	public SwtEditorMenuItem createMenuItem(WidgetStyle<? super EditorMenuItem>... styles) {
-		return SwtEditorUi.instance.createMenuItem(this, styles);
+		return new SwtEditorMenuItem(this, getSwtStyle(styles));
 	}
 
 	@Override
 	public SwtEditorMenuItem createMenuItem(int index, WidgetStyle<? super EditorMenuItem>... styles) {
-		return SwtEditorUi.instance.createMenuItem(this, index, styles);
+		return new SwtEditorMenuItem(this, getSwtStyle(styles), index);
 	}
 }

@@ -158,13 +158,4 @@ public class SwtEditorUi implements EditorUi {
 	public EditorMenu createMenu(EditorMenuItem parentItem) {
 		return new SwtEditorMenu((SwtEditorMenuItem) parentItem);
 	}
-
-	public SwtEditorMenuItem createMenuItem(SwtEditorMenu parentMenu, WidgetStyle<? super EditorMenuItem>... styles) {
-		return new SwtEditorMenuItem(parentMenu, getSwtStyle(styles));
-	}
-
-	public SwtEditorMenuItem createMenuItem(SwtEditorMenu parentItem, int index,
-			WidgetStyle<? super EditorMenuItem>... styles) {
-		return new SwtEditorMenuItem(parentItem, getSwtStyle(styles), index);
-	}
 }
