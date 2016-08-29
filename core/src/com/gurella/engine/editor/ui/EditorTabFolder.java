@@ -22,4 +22,8 @@ public interface EditorTabFolder extends EditorComposite {
 	void setSelection(EditorTabItem item);
 
 	void setSelection(EditorTabItem[] items);
+
+	EditorTabItem mewItem();
+
+	EditorTabItem mewItem(int index);
 }

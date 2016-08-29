@@ -70,4 +70,14 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 	TabFolder createWidget(Composite parent, int style) {
 		return new TabFolder(parent, style);
 	}
+
+	@Override
+	public SwtEditorTabItem mewItem() {
+		return new SwtEditorTabItem(this);
+	}
+
+	@Override
+	public SwtEditorTabItem mewItem(int index) {
+		return new SwtEditorTabItem(this, index);
+	}
 }
