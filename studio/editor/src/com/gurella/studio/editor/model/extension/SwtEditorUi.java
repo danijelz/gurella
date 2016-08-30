@@ -44,6 +44,7 @@ import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.Orientation;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 //TODO import methods from UiUtils
 public class SwtEditorUi implements EditorUi {
@@ -410,7 +411,6 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public EditorToolBar createToolBar(EditorComposite parent, Orientation orientation, ToolBarStyle style) {
-		// TODO Auto-generated method stub
-		return null;
+		return new SwtEditorToolBar(cast(parent), orientation(orientation) | SwtWidgetStyle.extractToolBarStyle(style));
 	}
 }

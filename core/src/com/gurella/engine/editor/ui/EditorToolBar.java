@@ -1,6 +1,5 @@
 package com.gurella.engine.editor.ui;
 
-import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
 import com.gurella.engine.editor.ui.EditorToolItem.ToolItemType;
 
 public interface EditorToolBar extends EditorComposite {
@@ -19,7 +18,7 @@ public interface EditorToolBar extends EditorComposite {
 	EditorToolItem createItem(ToolItemType type);
 
 	EditorToolItem createItem(int index, ToolItemType type);
-	
+
 	public static class ToolBarStyle extends ScrollableStyle {
 		public boolean wrap;
 		public boolean right;
