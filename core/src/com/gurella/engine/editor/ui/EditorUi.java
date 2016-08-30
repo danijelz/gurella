@@ -26,7 +26,7 @@ public interface EditorUi {
 
 	EditorLabel createLabel(EditorComposite parent, String text, WidgetStyle<? super EditorLabel>... styles);
 
-	EditorLabel createSeparatorLabel(EditorComposite parent, Orientation orientation,
+	EditorLabel createSeparator(EditorComposite parent, Orientation orientation,
 			WidgetStyle<? super EditorLabel>... styles);
 
 	EditorLink createLink(EditorComposite parent, WidgetStyle<? super EditorLink>... styles);
@@ -62,6 +62,9 @@ public interface EditorUi {
 	EditorTabFolder createTabFolder(EditorComposite parent, boolean top,
 			WidgetStyle<? super EditorTabFolder>... styles);
 
+	EditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll,
+			WidgetStyle<? super EditorExpandBar>... styles);
+
 	EditorList createList(EditorComposite parent, boolean multi, WidgetStyle<? super EditorList>... styles);
 
 	EditorText createText(EditorComposite parent, WidgetStyle<? super EditorText>... styles);
@@ -73,8 +76,4 @@ public interface EditorUi {
 	EditorButton createCheckBox(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
 
 	EditorMenu createMenu(EditorControl parent);
-
-	EditorMenu createMenu(EditorMenu parentMenu);
-
-	EditorMenu createMenu(EditorMenuItem parentItem);
 }

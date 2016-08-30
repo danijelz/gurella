@@ -20,6 +20,7 @@ import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorDateTime;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorExpandBar;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorGroup;
 import com.gurella.engine.editor.ui.EditorImage;
@@ -27,8 +28,6 @@ import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorList;
 import com.gurella.engine.editor.ui.EditorLogLevel;
-import com.gurella.engine.editor.ui.EditorMenu;
-import com.gurella.engine.editor.ui.EditorMenuItem;
 import com.gurella.engine.editor.ui.EditorMenuItem.MenuItemType;
 import com.gurella.engine.editor.ui.EditorProgressBar;
 import com.gurella.engine.editor.ui.EditorSash;
@@ -169,7 +168,7 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorLabel createSeparatorLabel(EditorComposite parent, Orientation orientation,
+	public SwtEditorLabel createSeparator(EditorComposite parent, Orientation orientation,
 			WidgetStyle<? super EditorLabel>... styles) {
 		int style = orientation == Orientation.VERTICAL ? SWT.VERTICAL : SWT.HORIZONTAL;
 		return new SwtEditorLabel(cast(parent), getSwtStyle(style | SWT.SEPARATOR, styles));
@@ -278,6 +277,12 @@ public class SwtEditorUi implements EditorUi {
 		return new SwtEditorTabFolder(cast(parent), getSwtStyle(styles));
 	}
 
+	@Override
+	public SwtEditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll,
+			WidgetStyle<? super EditorExpandBar>... styles) {
+		return new SwtEditorExpandBar(cast(parent), getSwtStyle(verticalScroll ? SWT.V_SCROLL : 0, styles));
+	}
+
 	public static int length(DateTimeLength length) {
 		switch (length) {
 		case SHORT:
@@ -305,16 +310,6 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public SwtEditorMenu createMenu(EditorControl parent) {
 		return new SwtEditorMenu((SwtEditorControl<?>) parent);
-	}
-
-	@Override
-	public SwtEditorMenu createMenu(EditorMenu parentMenu) {
-		return new SwtEditorMenu((SwtEditorMenu) parentMenu);
-	}
-
-	@Override
-	public SwtEditorMenu createMenu(EditorMenuItem parentItem) {
-		return new SwtEditorMenu((SwtEditorMenuItem) parentItem);
 	}
 
 	public static int getMenuItemStyle(MenuItemType type) {

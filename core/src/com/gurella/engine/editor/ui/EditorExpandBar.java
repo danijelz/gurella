@@ -12,4 +12,8 @@ public interface EditorExpandBar extends EditorComposite {
 	int indexOf(EditorExpandItem item);
 
 	void setSpacing(int spacing);
+
+	EditorExpandItem createItem();
+
+	EditorExpandItem createItem(int index);
 }

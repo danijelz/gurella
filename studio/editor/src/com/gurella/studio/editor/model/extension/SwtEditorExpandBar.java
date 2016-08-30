@@ -46,4 +46,14 @@ public class SwtEditorExpandBar extends SwtEditorBaseComposite<ExpandBar> implem
 	ExpandBar createWidget(Composite parent, int style) {
 		return new ExpandBar(parent, style);
 	}
+
+	@Override
+	public SwtEditorExpandItem createItem() {
+		return new SwtEditorExpandItem(this);
+	}
+
+	@Override
+	public SwtEditorExpandItem createItem(int index) {
+		return new SwtEditorExpandItem(this, index);
+	}
 }

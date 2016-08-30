@@ -7,8 +7,12 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorExpandItem;
 
 public class SwtEditorExpandItem extends SwtEditorItem<ExpandItem, ExpandBar> implements EditorExpandItem {
-	public SwtEditorExpandItem(SwtEditorWidget<ExpandBar> parent, int style) {
-		super(parent, style);
+	public SwtEditorExpandItem(SwtEditorExpandBar parent) {
+		super(parent, 0);
+	}
+
+	public SwtEditorExpandItem(SwtEditorExpandBar parent, int index) {
+		init(new ExpandItem(parent.widget, 0, index));
 	}
 
 	@Override
