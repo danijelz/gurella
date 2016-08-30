@@ -28,4 +28,8 @@ public interface EditorDateTime extends EditorComposite {
 	void setDate(int year, int month, int day);
 
 	void setTime(int hours, int minutes, int seconds);
+
+	public enum DateTimeLength {
+		SHORT, MEDIUM, LONG;
+	}
 }

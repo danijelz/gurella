@@ -18,6 +18,6 @@ public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
-		factory.buildUi(SwtEditorUi.instance.createComposite(body), new ContextAdapter<P>(context));
+		factory.buildUi(SwtEditorUi.createComposite(body), new ContextAdapter<P>(context));
 	}
 }

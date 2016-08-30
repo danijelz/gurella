@@ -3,10 +3,12 @@ package com.gurella.engine.editor.ui.style;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.gurella.engine.editor.ui.EditorButton;
+import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorLabel;
-import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorScrollable;
+import com.gurella.engine.editor.ui.EditorSpinner;
+import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorWidget;
 
 public abstract class WidgetStyle<T extends EditorWidget> {
@@ -17,146 +19,126 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 	}
 
 	public final int baseId;
-	public final int id;
 
 	public WidgetStyle(int baseId) {
 		this.baseId = baseId;
-		this.id = nextId();
 	}
 
 	// Control
 
-	static abstract class ControlStyle extends WidgetStyle<EditorControl> {
-		ControlStyle(int baseId) {
+	public static final class ControlStyle extends WidgetStyle<EditorControl> {
+		private static final int textDirectionBase = nextId();
+		public static final ControlStyle LEFT_TO_RIGHT = new ControlStyle(textDirectionBase);
+		public static final ControlStyle RIGHT_TO_LEFT = new ControlStyle(textDirectionBase);
+
+		public static final ControlStyle BORDER = new ControlStyle(nextId());
+
+		public static final ControlStyle FLIP_TEXT_DIRECTION = new ControlStyle(nextId());
+
+		private ControlStyle(int baseId) {
 			super(baseId);
-		}
-	}
-
-	public static final class ControlBorder extends ControlStyle {
-		public static ControlBorder BORDER = new ControlBorder();
-
-		private ControlBorder() {
-			super(nextId());
-		}
-	}
-
-	public static final class ControlTextDirection extends ControlStyle {
-		private static final int base = nextId();
-
-		public static ControlTextDirection LEFT_TO_RIGHT = new ControlTextDirection();
-		public static ControlTextDirection RIGHT_TO_LEFT = new ControlTextDirection();
-
-		private ControlTextDirection() {
-			super(base);
-		}
-	}
-
-	public static final class ControlFlipTextDirection extends ControlStyle {
-		public static ControlFlipTextDirection FLIP_TEXT_DIRECTION = new ControlFlipTextDirection();
-
-		private ControlFlipTextDirection() {
-			super(nextId());
 		}
 	}
 
 	// Scrollable
 
-	public static final class ScrollableBar extends WidgetStyle<EditorScrollable> {
+	public static final class ScrollableStyle extends WidgetStyle<EditorScrollable> {
 		private static final int base = nextId();
 
-		public static ScrollableBar H_SCROLL = new ScrollableBar();
-		public static ScrollableBar V_SCROLL = new ScrollableBar();
+		public static final ScrollableStyle H_SCROLL = new ScrollableStyle();
+		public static final ScrollableStyle V_SCROLL = new ScrollableStyle();
 
-		private ScrollableBar() {
+		private ScrollableStyle() {
 			super(base);
 		}
 	}
 
 	// Button
 
-	static abstract class ButtonStyle extends WidgetStyle<EditorButton> {
-		ButtonStyle(int baseId) {
+	public static final class ButtonStyle extends WidgetStyle<EditorButton> {
+		// TODO remove
+		private static final int typeBase = nextId();
+		public static final ButtonStyle ARROW_UP = new ButtonStyle(typeBase);
+		public static final ButtonStyle ARROW_DOWN = new ButtonStyle(typeBase);
+		public static final ButtonStyle ARROW_LEFT = new ButtonStyle(typeBase);
+		public static final ButtonStyle ARROW_RIGHT = new ButtonStyle(typeBase);
+		public static final ButtonStyle CHECK = new ButtonStyle(typeBase);
+		public static final ButtonStyle PUSH = new ButtonStyle(typeBase);
+		public static final ButtonStyle RADIO = new ButtonStyle(typeBase);
+		public static final ButtonStyle TOGGLE = new ButtonStyle(typeBase);
+
+		private static final int alignBase = nextId();
+		public static final ButtonStyle RIGHT = new ButtonStyle(alignBase);
+		public static final ButtonStyle LEFT = new ButtonStyle(alignBase);
+		public static final ButtonStyle CENTER = new ButtonStyle(alignBase);
+
+		private ButtonStyle(int baseId) {
 			super(baseId);
-		}
-	}
-
-	// TODO remove
-	public static final class ButtonType extends ButtonStyle {
-		private static final int base = nextId();
-
-		public static ButtonType ARROW_UP = new ButtonType();
-		public static ButtonType ARROW_DOWN = new ButtonType();
-		public static ButtonType ARROW_LEFT = new ButtonType();
-		public static ButtonType ARROW_RIGHT = new ButtonType();
-		public static ButtonType CHECK = new ButtonType();
-		public static ButtonType PUSH = new ButtonType();
-		public static ButtonType RADIO = new ButtonType();
-		public static ButtonType TOGGLE = new ButtonType();
-
-		private ButtonType() {
-			super(base);
-		}
-	}
-
-	public static final class ButtonTextAlign extends ButtonStyle {
-		private static final int base = nextId();
-
-		public static ButtonTextAlign LEFT = new ButtonTextAlign();
-		public static ButtonTextAlign RIGHT = new ButtonTextAlign();
-		public static ButtonTextAlign CENTER = new ButtonTextAlign();
-
-		private ButtonTextAlign() {
-			super(base);
 		}
 	}
 
 	// Label
 
-	static abstract class LabelStyle extends WidgetStyle<EditorLabel> {
-		LabelStyle(int baseId) {
+	public static final class LabelStyle extends WidgetStyle<EditorLabel> {
+		private static final int shadowBase = nextId();
+		public static final LabelStyle SHADOW_IN = new LabelStyle(shadowBase);
+		public static final LabelStyle SHADOW_OUT = new LabelStyle(shadowBase);
+
+		private static final int alignBase = nextId();
+		public static final LabelStyle RIGHT = new LabelStyle(alignBase);
+		public static final LabelStyle LEFT = new LabelStyle(alignBase);
+		public static final LabelStyle CENTER = new LabelStyle(alignBase);
+
+		public static final LabelStyle WRAP = new LabelStyle(nextId());
+
+		private LabelStyle(int baseId) {
 			super(baseId);
 		}
 	}
 
-	public static final class LabelOrientation extends LabelStyle {
-		private static final int base = nextId();
+	// Text
 
-		public static LabelOrientation HORIZONTAL = new LabelOrientation();
-		public static LabelOrientation VERTICAL = new LabelOrientation();
+	public static final class TextStyle extends WidgetStyle<EditorText> {
+		private static final int alignBase = nextId();
 
-		private LabelOrientation() {
-			super(base);
+		public static final TextStyle RIGHT = new TextStyle(alignBase);
+		public static final TextStyle LEFT = new TextStyle(alignBase);
+		public static final TextStyle CENTER = new TextStyle(alignBase);
+
+		public static final TextStyle WRAP = new TextStyle(nextId());
+
+		public static final TextStyle READ_ONLY = new TextStyle(nextId());
+
+		public static final TextStyle PASSWORD = new TextStyle(nextId());
+
+		private TextStyle(int baseId) {
+			super(baseId);
 		}
 	}
 
-	public static final class LabelShadow extends LabelStyle {
-		private static final int base = nextId();
+	// Combo
 
-		public static LabelShadow SHADOW_IN = new LabelShadow();
-		public static LabelShadow SHADOW_OUT = new LabelShadow();
+	public static final class ComboStyle extends WidgetStyle<EditorCombo> {
+		private static final int typeBase = nextId();
 
-		private LabelShadow() {
-			super(base);
+		public static final ComboStyle DROP_DOWN = new ComboStyle(typeBase);
+		public static final ComboStyle SIMPLE = new ComboStyle(typeBase);
+
+		public static final ComboStyle READ_ONLY = new ComboStyle(nextId());
+
+		private ComboStyle(int baseId) {
+			super(baseId);
 		}
 	}
 
-	public static final class LabelTextAlign extends LabelStyle {
-		private static final int base = nextId();
+	// Spinner
 
-		public static LabelTextAlign RIGHT = new LabelTextAlign();
-		public static LabelTextAlign LEFT = new LabelTextAlign();
-		public static LabelTextAlign CENTER = new LabelTextAlign();
+	public static final class SpinnerStyle extends WidgetStyle<EditorSpinner> {
+		public static final SpinnerStyle READ_ONLY = new SpinnerStyle(nextId());
+		public static final SpinnerStyle WRAP = new SpinnerStyle(nextId());
 
-		private LabelTextAlign() {
-			super(base);
-		}
-	}
-
-	public static final class LabelWrap extends LabelStyle {
-		public static LabelWrap WRAP = new LabelWrap();
-
-		private LabelWrap() {
-			super(nextId());
+		private SpinnerStyle(int baseId) {
+			super(baseId);
 		}
 	}
 }

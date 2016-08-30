@@ -9,6 +9,6 @@ public class CustomComplexPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	public CustomComplexPropertyEditor(Composite parent, PropertyEditorContext<?, P> context,
 			PropertyEditorFactory<P> factory) {
 		super(parent, context);
-		factory.buildUi(SwtEditorUi.instance.createComposite(body), new ContextAdapter<P>(context));
+		factory.buildUi(SwtEditorUi.createComposite(body), new ContextAdapter<P>(context));
 	}
 }
