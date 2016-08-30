@@ -39,7 +39,6 @@ import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorToolBar;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorUi;
-import com.gurella.engine.editor.ui.Orientation;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
@@ -170,13 +169,13 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorLabel createSeparator(EditorComposite parent, Orientation orientation,
+	public SwtEditorLabel createSeparator(EditorComposite parent, boolean vertical,
 			WidgetStyle<? super EditorLabel>... styles) {
-		return new SwtEditorLabel(cast(parent), getSwtStyle(orientation(orientation) | SWT.SEPARATOR, styles));
+		return new SwtEditorLabel(cast(parent), getSwtStyle(orientation(vertical) | SWT.SEPARATOR, styles));
 	}
 
-	protected int orientation(Orientation orientation) {
-		return orientation == Orientation.VERTICAL ? SWT.VERTICAL : SWT.HORIZONTAL;
+	protected int orientation(boolean vertical) {
+		return vertical ? SWT.VERTICAL : SWT.HORIZONTAL;
 	}
 
 	@Override
@@ -192,9 +191,9 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorProgressBar createProgressBar(EditorComposite parent, Orientation orientation, boolean smooth,
+	public SwtEditorProgressBar createProgressBar(EditorComposite parent, boolean vertical, boolean smooth,
 			boolean indeterminate, WidgetStyle<? super EditorProgressBar>... styles) {
-		int style = orientation(orientation);
+		int style = orientation(vertical);
 		if (smooth) {
 			style |= SWT.SMOOTH;
 		}
@@ -205,9 +204,9 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorSash createSash(EditorComposite parent, Orientation orientation, boolean smooth,
+	public SwtEditorSash createSash(EditorComposite parent, boolean vertical, boolean smooth,
 			WidgetStyle<? super EditorSash>... styles) {
-		int style = orientation(orientation);
+		int style = orientation(vertical);
 		if (smooth) {
 			style |= SWT.SMOOTH;
 		}
@@ -215,15 +214,15 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorScale createScale(EditorComposite parent, Orientation orientation,
+	public SwtEditorScale createScale(EditorComposite parent, boolean vertical,
 			WidgetStyle<? super EditorScale>... styles) {
-		return new SwtEditorScale(cast(parent), getSwtStyle(orientation(orientation), styles));
+		return new SwtEditorScale(cast(parent), getSwtStyle(orientation(vertical), styles));
 	}
 
 	@Override
-	public SwtEditorSlider createSlider(EditorComposite parent, Orientation orientation,
+	public SwtEditorSlider createSlider(EditorComposite parent, boolean vertical,
 			WidgetStyle<? super EditorSlider>... styles) {
-		return new SwtEditorSlider(cast(parent), getSwtStyle(orientation(orientation), styles));
+		return new SwtEditorSlider(cast(parent), getSwtStyle(orientation(vertical), styles));
 	}
 
 	@Override
@@ -369,12 +368,12 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorToolBar createToolBar(EditorComposite parent, Orientation orientation) {
-		return new SwtEditorToolBar(cast(parent), orientation(orientation));
+	public SwtEditorToolBar createToolBar(EditorComposite parent, boolean vertical) {
+		return new SwtEditorToolBar(cast(parent), orientation(vertical));
 	}
 
 	@Override
-	public EditorToolBar createToolBar(EditorComposite parent, Orientation orientation, ToolBarStyle style) {
-		return new SwtEditorToolBar(cast(parent), orientation(orientation) | SwtWidgetStyle.extractToolBarStyle(style));
+	public EditorToolBar createToolBar(EditorComposite parent, boolean vertical, ToolBarStyle style) {
+		return new SwtEditorToolBar(cast(parent), orientation(vertical) | SwtWidgetStyle.extractToolBarStyle(style));
 	}
 }

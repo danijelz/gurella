@@ -28,24 +28,21 @@ public interface EditorUi {
 
 	EditorLabel createLabel(EditorComposite parent, String text, WidgetStyle<? super EditorLabel>... styles);
 
-	EditorLabel createSeparator(EditorComposite parent, Orientation orientation,
-			WidgetStyle<? super EditorLabel>... styles);
+	EditorLabel createSeparator(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorLabel>... styles);
 
 	EditorLink createLink(EditorComposite parent, WidgetStyle<? super EditorLink>... styles);
 
 	EditorLink createLink(EditorComposite parent, String text, WidgetStyle<? super EditorLink>... styles);
 
-	EditorProgressBar createProgressBar(EditorComposite parent, Orientation orientation, boolean smooth,
-			boolean indeterminate, WidgetStyle<? super EditorProgressBar>... styles);
+	EditorProgressBar createProgressBar(EditorComposite parent, boolean vertical, boolean smooth, boolean indeterminate,
+			WidgetStyle<? super EditorProgressBar>... styles);
 
-	EditorSash createSash(EditorComposite parent, Orientation orientation, boolean smooth,
+	EditorSash createSash(EditorComposite parent, boolean vertical, boolean smooth,
 			WidgetStyle<? super EditorSash>... styles);
 
-	EditorScale createScale(EditorComposite parent, Orientation orientation,
-			WidgetStyle<? super EditorScale>... styles);
+	EditorScale createScale(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorScale>... styles);
 
-	EditorSlider createSlider(EditorComposite parent, Orientation orientation,
-			WidgetStyle<? super EditorSlider>... styles);
+	EditorSlider createSlider(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorSlider>... styles);
 
 	EditorCombo createCombo(EditorComposite parent, WidgetStyle<? super EditorCombo>... styles);
 
@@ -76,24 +73,25 @@ public interface EditorUi {
 	EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
 
 	EditorButton createCheckBox(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
-	
+
 	EditorButton createButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
-	
+
 	EditorButton createButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
-	
+
 	EditorButton createToggleButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
-	
+
 	EditorButton createToggleButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
-	
+
 	EditorButton createRadioButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
-	
+
 	EditorButton createRadioButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
-	
-	EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection, WidgetStyle<? super EditorButton>... styles);
+
+	EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection,
+			WidgetStyle<? super EditorButton>... styles);
 
 	EditorMenu createMenu(EditorControl parent);
-	
-	EditorToolBar createToolBar(EditorComposite parent, Orientation orientation);
-	
-	EditorToolBar createToolBar(EditorComposite parent, Orientation orientation, ToolBarStyle style);
+
+	EditorToolBar createToolBar(EditorComposite parent, boolean vertical);
+
+	EditorToolBar createToolBar(EditorComposite parent, boolean vertical, ToolBarStyle style);
 }
