@@ -10,4 +10,9 @@ public interface EditorScrollable extends EditorControl {
 	int getScrollbarsMode();
 
 	EditorScrollBar getVerticalBar();
+	
+	public static class ScrollableStyle extends ControlStyle {
+		public boolean hScroll;
+		public boolean vScroll;
+	}
 }

@@ -100,4 +100,10 @@ public interface EditorControl extends EditorWidget {
 	GridPoint2 toControl(int x, int y);
 
 	GridPoint2 toDisplay(int x, int y);
+	
+	public static class ControlStyle {
+		public Direction textDirection;
+		public boolean border;
+		public boolean flipTextDirection;
+	}
 }

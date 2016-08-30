@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Display;
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
+import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
@@ -305,6 +306,59 @@ public class SwtEditorUi implements EditorUi {
 	public SwtEditorButton createCheckBox(EditorComposite parent, String text,
 			WidgetStyle<? super EditorButton>... styles) {
 		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.CHECK, styles));
+	}
+
+	@Override
+	public EditorButton createButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.PUSH, styles));
+	}
+
+	@Override
+	public EditorButton createButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.PUSH, styles));
+	}
+
+	@Override
+	public EditorButton createToggleButton(EditorComposite parent, String text,
+			WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.TOGGLE, styles));
+	}
+
+	@Override
+	public EditorButton createToggleButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.TOGGLE, styles));
+	}
+
+	@Override
+	public EditorButton createRadioButton(EditorComposite parent, String text,
+			WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.RADIO, styles));
+	}
+
+	@Override
+	public EditorButton createRadioButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.RADIO, styles));
+	}
+
+	@Override
+	public EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection,
+			WidgetStyle<? super EditorButton>... styles) {
+		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.ARROW | getArrowStyle(arrowDirection), styles));
+	}
+
+	public static int getArrowStyle(ArrowDirection arrowDirection) {
+		switch (arrowDirection) {
+		case UP:
+			return SWT.UP;
+		case DOWN:
+			return SWT.DOWN;
+		case LEFT:
+			return SWT.LEFT;
+		case RIGHT:
+			return SWT.RIGHT;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 
 	@Override

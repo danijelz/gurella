@@ -43,34 +43,24 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 	// Scrollable
 
 	public static final class ScrollableStyle extends WidgetStyle<EditorScrollable> {
-		private static final int base = nextId();
-
 		public static final ScrollableStyle H_SCROLL = new ScrollableStyle();
 		public static final ScrollableStyle V_SCROLL = new ScrollableStyle();
 
 		private ScrollableStyle() {
-			super(base);
+			super(nextId());
 		}
 	}
 
 	// Button
 
 	public static final class ButtonStyle extends WidgetStyle<EditorButton> {
-		// TODO remove
-		private static final int typeBase = nextId();
-		public static final ButtonStyle ARROW_UP = new ButtonStyle(typeBase);
-		public static final ButtonStyle ARROW_DOWN = new ButtonStyle(typeBase);
-		public static final ButtonStyle ARROW_LEFT = new ButtonStyle(typeBase);
-		public static final ButtonStyle ARROW_RIGHT = new ButtonStyle(typeBase);
-		public static final ButtonStyle CHECK = new ButtonStyle(typeBase);
-		public static final ButtonStyle PUSH = new ButtonStyle(typeBase);
-		public static final ButtonStyle RADIO = new ButtonStyle(typeBase);
-		public static final ButtonStyle TOGGLE = new ButtonStyle(typeBase);
-
 		private static final int alignBase = nextId();
 		public static final ButtonStyle RIGHT = new ButtonStyle(alignBase);
 		public static final ButtonStyle LEFT = new ButtonStyle(alignBase);
 		public static final ButtonStyle CENTER = new ButtonStyle(alignBase);
+
+		public static final ButtonStyle FLAT = new ButtonStyle(nextId());
+		public static final ButtonStyle WRAP = new ButtonStyle(nextId());
 
 		private ButtonStyle(int baseId) {
 			super(baseId);

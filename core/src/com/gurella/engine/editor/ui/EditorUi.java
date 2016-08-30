@@ -2,6 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import java.io.InputStream;
 
+import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 
@@ -74,6 +75,20 @@ public interface EditorUi {
 	EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
 
 	EditorButton createCheckBox(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createToggleButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createToggleButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createRadioButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createRadioButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	
+	EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection, WidgetStyle<? super EditorButton>... styles);
 
 	EditorMenu createMenu(EditorControl parent);
 }

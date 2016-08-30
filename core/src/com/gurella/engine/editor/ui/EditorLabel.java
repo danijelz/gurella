@@ -16,4 +16,14 @@ public interface EditorLabel extends EditorControl {
 	void setImage(InputStream imageStream);
 
 	void setImage(EditorImage image);
+
+	public static class LabelStyle extends ControlStyle {
+		public boolean wrap;
+		public Alignment textAlignment;
+		public LabelShadow labelShadow;
+	}
+
+	public enum LabelShadow {
+		SHADOW_IN, SHADOW_OUT;
+	}
 }

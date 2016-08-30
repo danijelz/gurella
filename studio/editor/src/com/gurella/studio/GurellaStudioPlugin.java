@@ -47,7 +47,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		plugin = this;
 		Display display = getDisplay();
 		// http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
-		toolkit = new FormToolkit(display);
+		toolkit = new ImmutableFormToolkit(display);
 		resourceManager = new DeviceResourceManager(display);
 	}
 
@@ -302,5 +302,23 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		Status[] childStatuses = Arrays.stream(stackTraces)
 				.map(st -> new Status(IStatus.ERROR, PLUGIN_ID, st.toString())).toArray(i -> new Status[i]);
 		return new MultiStatus(PLUGIN_ID, IStatus.ERROR, childStatuses, message, t);
+	}
+
+	private static final class ImmutableFormToolkit extends FormToolkit {
+		private ImmutableFormToolkit(Display display) {
+			super(display);
+		}
+
+		@Override
+		public void setOrientation(int orientation) {
+		}
+
+		@Override
+		public void setBackground(Color bg) {
+		}
+
+		@Override
+		public void setBorderStyle(int style) {
+		}
 	}
 }
