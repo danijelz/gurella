@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorTableItem;
@@ -283,5 +284,35 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 	@Override
 	Table createWidget(Composite parent, int style) {
 		return new Table(parent, style);
+	}
+
+	@Override
+	public EditorTableColumn createColumn() {
+		return new SwtEditorTableColumn(this, 0);
+	}
+
+	@Override
+	public EditorTableColumn createColumn(int index) {
+		return new SwtEditorTableColumn(this, index, 0);
+	}
+
+	@Override
+	public SwtEditorTableColumn createColumn(Alignment alignment) {
+		return new SwtEditorTableColumn(this, SwtEditorUi.alignment(alignment));
+	}
+
+	@Override
+	public SwtEditorTableColumn createColumn(int index, Alignment alignment) {
+		return new SwtEditorTableColumn(this, index, SwtEditorUi.alignment(alignment));
+	}
+
+	@Override
+	public SwtEditorTableItem createItem() {
+		return new SwtEditorTableItem(this);
+	}
+
+	@Override
+	public SwtEditorTableItem createItem(int index) {
+		return new SwtEditorTableItem(this, index);
 	}
 }

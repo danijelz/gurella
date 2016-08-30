@@ -37,7 +37,13 @@ public interface EditorControl extends EditorWidget {
 
 	boolean isEnabled();
 
-	void setFont(FontData fontData);
+	EditorFont getFont();
+
+	void setFont(EditorFont font);
+
+	void setFont(String name, int height, boolean bold, boolean italic);
+
+	void setFont(int height, boolean bold, boolean italic);
 
 	Color getForeground();
 

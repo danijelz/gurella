@@ -22,9 +22,21 @@ public interface EditorTreeItem extends EditorItem {
 
 	boolean getExpanded();
 
-	FontData getFont();
+	EditorFont getFont();
 
-	FontData getFont(int index);
+	EditorFont getFont(int index);
+
+	void setFont(EditorFont font);
+
+	void setFont(String name, int height, boolean bold, boolean italic);
+
+	void setFont(int height, boolean bold, boolean italic);
+
+	void setFont(int index, EditorFont font);
+
+	void setFont(int index, String name, int height, boolean bold, boolean italic);
+
+	void setFont(int index, int height, boolean bold, boolean italic);
 
 	Color getForeground();
 
@@ -62,10 +74,6 @@ public interface EditorTreeItem extends EditorItem {
 
 	void setExpanded(boolean expanded);
 
-	void setFont(FontData font);
-
-	void setFont(int index, FontData font);
-
 	void setForeground(Color color);
 
 	void setForeground(int index, Color color);
@@ -83,4 +91,8 @@ public interface EditorTreeItem extends EditorItem {
 	void setText(int index, String string);
 
 	void setText(String[] strings);
+
+	EditorTreeItem createItem();
+
+	EditorTreeItem createItem(int index);
 }

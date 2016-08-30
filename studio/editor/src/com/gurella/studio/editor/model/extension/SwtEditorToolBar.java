@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.ToolBar;
 
 import com.gurella.engine.editor.ui.EditorToolBar;
 import com.gurella.engine.editor.ui.EditorToolItem;
+import com.gurella.engine.editor.ui.EditorToolItem.ToolItemType;
 
 public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements EditorToolBar {
 	public SwtEditorToolBar(SwtEditorComposite parent, int style) {
@@ -47,5 +48,15 @@ public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements
 	@Override
 	ToolBar createWidget(Composite parent, int style) {
 		return new ToolBar(parent, style);
+	}
+
+	@Override
+	public SwtEditorToolItem createItem(ToolItemType type) {
+		return new SwtEditorToolItem(this, SwtEditorUi.getToolItemStyle(type));
+	}
+
+	@Override
+	public SwtEditorToolItem createItem(int index, ToolItemType type) {
+		return new SwtEditorToolItem(this, index, SwtEditorUi.getToolItemStyle(type));
 	}
 }

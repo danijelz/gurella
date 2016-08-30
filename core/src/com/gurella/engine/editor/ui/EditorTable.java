@@ -104,4 +104,16 @@ public interface EditorTable extends EditorComposite {
 	void showItem(EditorTableItem item);
 
 	void showSelection();
+
+	EditorTableColumn createColumn();
+
+	EditorTableColumn createColumn(int index);
+
+	EditorTableColumn createColumn(Alignment alignment);
+
+	EditorTableColumn createColumn(int index, Alignment alignment);
+
+	EditorTableItem createItem();
+
+	EditorTableItem createItem(int index);
 }

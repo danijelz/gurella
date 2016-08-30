@@ -11,6 +11,10 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> impl
 		super(parent, style);
 	}
 
+	SwtEditorTableColumn(SwtEditorTable parent, int style, int index) {
+		init(new TableColumn(parent.widget, style, index));
+	}
+
 	@Override
 	public Alignment getAlignment() {
 		return SwtEditorUi.alignment(widget.getAlignment());

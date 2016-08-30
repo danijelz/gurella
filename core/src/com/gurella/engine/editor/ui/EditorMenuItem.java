@@ -24,4 +24,10 @@ public interface EditorMenuItem extends EditorItem {
 	boolean getSelection();
 
 	void setSelection(boolean selected);
+	
+	EditorMenu createSubMenu();
+
+	public enum MenuItemType {
+		CHECK, CASCADE, PUSH, RADIO, SEPARATOR;
+	}
 }

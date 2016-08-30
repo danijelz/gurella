@@ -16,9 +16,21 @@ public interface EditorTableItem extends EditorItem {
 
 	boolean getChecked();
 
-	FontData getFont();
+	EditorFont getFont();
 
-	FontData getFont(int index);
+	EditorFont getFont(int index);
+
+	void setFont(EditorFont font);
+
+	void setFont(String name, int height, boolean bold, boolean italic);
+
+	void setFont(int height, boolean bold, boolean italic);
+
+	void setFont(int index, EditorFont font);
+
+	void setFont(int index, String name, int height, boolean bold, boolean italic);
+
+	void setFont(int index, int height, boolean bold, boolean italic);
 
 	Color getForeground();
 
@@ -42,10 +54,6 @@ public interface EditorTableItem extends EditorItem {
 
 	void setChecked(boolean checked);
 
-	void setFont(FontData font);
-
-	void setFont(int index, FontData font);
-
 	void setForeground(Color color);
 
 	void setForeground(int index, Color color);
@@ -55,7 +63,7 @@ public interface EditorTableItem extends EditorItem {
 	void setImage(EditorImage[] images);
 
 	void setImage(int index, EditorImage image);
-	
+
 	void setImage(int index, InputStream imageStream);
 
 	void setText(int index, String string);

@@ -4,21 +4,26 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.badlogic.gdx.graphics.Color;
+import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorTableItem;
-import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
-	SwtEditorTableItem(SwtEditorTable parent, int style) {
-		super(parent, style);
+	SwtEditorTableItem(SwtEditorTable parent) {
+		super(parent, 0);
+	}
+
+	SwtEditorTableItem(SwtEditorTable parent, int index) {
+		init(new TableItem(parent.widget, 0, index));
 	}
 
 	@Override
@@ -49,15 +54,61 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 	}
 
 	@Override
-	public FontData getFont() {
-		// TODO Auto-generated method stub
-		return null;
+	public EditorFont getFont() {
+		Font font = widget.getFont();
+		return font == null ? null : new SwtEditorFont(font);
 	}
 
 	@Override
-	public FontData getFont(int index) {
-		// TODO Auto-generated method stub
-		return null;
+	public EditorFont getFont(int index) {
+		Font font = widget.getFont(index);
+		return font == null ? null : new SwtEditorFont(font);
+	}
+
+	@Override
+	public void setFont(EditorFont font) {
+		widget.setFont(font == null ? null : ((SwtEditorFont) font).font);
+	}
+
+	@Override
+	public void setFont(String name, int height, boolean bold, boolean italic) {
+		Font font = SwtEditorUi.instance.createSwtFont(name, height, bold, italic);
+		if (font != null) {
+			widget.addDisposeListener(e -> font.dispose());
+		}
+		widget.setFont(font);
+	}
+
+	@Override
+	public void setFont(int height, boolean bold, boolean italic) {
+		Font font = SwtEditorUi.instance.createSwtFont(widget.getFont(), height, bold, italic);
+		if (font != null) {
+			widget.addDisposeListener(e -> font.dispose());
+		}
+		widget.setFont(font);
+	}
+
+	@Override
+	public void setFont(int index, EditorFont font) {
+		widget.setFont(index, font == null ? null : ((SwtEditorFont) font).font);
+	}
+
+	@Override
+	public void setFont(int index, String name, int height, boolean bold, boolean italic) {
+		Font font = SwtEditorUi.instance.createSwtFont(name, height, bold, italic);
+		if (font != null) {
+			widget.addDisposeListener(e -> font.dispose());
+		}
+		widget.setFont(index, font);
+	}
+
+	@Override
+	public void setFont(int index, int height, boolean bold, boolean italic) {
+		Font font = SwtEditorUi.instance.createSwtFont(widget.getFont(), height, bold, italic);
+		if (font != null) {
+			widget.addDisposeListener(e -> font.dispose());
+		}
+		widget.setFont(index, font);
 	}
 
 	@Override
@@ -120,18 +171,6 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 	@Override
 	public void setChecked(boolean checked) {
 		widget.setChecked(checked);
-	}
-
-	@Override
-	public void setFont(FontData font) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setFont(int index, FontData font) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

@@ -18,6 +18,10 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implemen
 		super(parent, style);
 	}
 
+	SwtEditorToolItem(SwtEditorToolBar parent, int index, int style) {
+		init(new ToolItem(parent.widget, style, index));
+	}
+
 	@Override
 	public GridRectangle getBounds() {
 		Rectangle bounds = widget.getBounds();

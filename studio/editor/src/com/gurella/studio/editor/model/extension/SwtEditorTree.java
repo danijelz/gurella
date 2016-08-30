@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTreeColumn;
 import com.gurella.engine.editor.ui.EditorTreeItem;
@@ -226,5 +227,35 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 	@Override
 	Tree createWidget(Composite parent, int style) {
 		return new Tree(parent, style);
+	}
+
+	@Override
+	public SwtEditorTreeColumn createColumn() {
+		return new SwtEditorTreeColumn(this, 0);
+	}
+
+	@Override
+	public SwtEditorTreeColumn createColumn(int index) {
+		return new SwtEditorTreeColumn(this, index, 0);
+	}
+
+	@Override
+	public SwtEditorTreeColumn createColumn(Alignment alignment) {
+		return new SwtEditorTreeColumn(this, SwtEditorUi.alignment(alignment));
+	}
+
+	@Override
+	public SwtEditorTreeColumn createColumn(int index, Alignment alignment) {
+		return new SwtEditorTreeColumn(this, index, SwtEditorUi.alignment(alignment));
+	}
+
+	@Override
+	public SwtEditorTreeItem createItem() {
+		return new SwtEditorTreeItem(this);
+	}
+
+	@Override
+	public SwtEditorTreeItem createItem(int index) {
+		return new SwtEditorTreeItem(this, index);
 	}
 }

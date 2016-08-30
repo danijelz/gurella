@@ -42,4 +42,8 @@ public interface EditorToolItem extends EditorItem {
 	void setToolTipText(String string);
 
 	void setWidth(int width);
+
+	public enum ToolItemType {
+		PUSH, CHECK, RADIO, SEPARATOR, DROP_DOWN
+	}
 }

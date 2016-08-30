@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.model.extension;
 
-import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
-
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
@@ -12,7 +10,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import com.gurella.engine.editor.ui.Direction;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorMenuItem;
-import com.gurella.engine.editor.ui.style.WidgetStyle;
+import com.gurella.engine.editor.ui.EditorMenuItem.MenuItemType;
 
 public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	SwtEditorMenu(SwtEditorControl<?> parent) {
@@ -143,12 +141,17 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	}
 
 	@Override
-	public SwtEditorMenuItem createMenuItem(WidgetStyle<? super EditorMenuItem>... styles) {
-		return new SwtEditorMenuItem(this, getSwtStyle(styles));
+	public SwtEditorMenuItem createItem(MenuItemType type) {
+		return new SwtEditorMenuItem(this, SwtEditorUi.getMenuItemStyle(type));
 	}
 
 	@Override
-	public SwtEditorMenuItem createMenuItem(int index, WidgetStyle<? super EditorMenuItem>... styles) {
-		return new SwtEditorMenuItem(this, getSwtStyle(styles), index);
+	public SwtEditorMenuItem createItem(int index, MenuItemType type) {
+		return new SwtEditorMenuItem(this, SwtEditorUi.getMenuItemStyle(type), index);
+	}
+
+	@Override
+	public SwtEditorMenu createSubMenu() {
+		return new SwtEditorMenu(this);
 	}
 }

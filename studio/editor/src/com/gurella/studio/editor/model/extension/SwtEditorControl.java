@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -12,8 +13,8 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.Direction;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorMenu;
-import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -117,8 +118,32 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	@Override
-	public void setFont(FontData fontData) {
-		widget.setFont(SwtEditorUi.createFont(widget, fontData));
+	public EditorFont getFont() {
+		Font font = widget.getFont();
+		return font == null ? null : new SwtEditorFont(font);
+	}
+
+	@Override
+	public void setFont(EditorFont font) {
+		widget.setFont(font == null ? null : ((SwtEditorFont) font).font);
+	}
+
+	@Override
+	public void setFont(String name, int height, boolean bold, boolean italic) {
+		Font font = SwtEditorUi.instance.createSwtFont(name, height, bold, italic);
+		if (font != null) {
+			widget.addDisposeListener(e -> font.dispose());
+		}
+		widget.setFont(font);
+	}
+
+	@Override
+	public void setFont(int height, boolean bold, boolean italic) {
+		Font font = SwtEditorUi.instance.createSwtFont(widget.getFont(), height, bold, italic);
+		if (font != null) {
+			widget.addDisposeListener(e -> font.dispose());
+		}
+		widget.setFont(font);
 	}
 
 	@Override

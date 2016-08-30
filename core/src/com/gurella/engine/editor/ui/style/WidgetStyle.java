@@ -6,7 +6,6 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorMenu;
-import com.gurella.engine.editor.ui.EditorMenuItem;
 import com.gurella.engine.editor.ui.EditorScrollable;
 import com.gurella.engine.editor.ui.EditorWidget;
 
@@ -36,7 +35,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 	public static final class ControlBorder extends ControlStyle {
 		public static ControlBorder BORDER = new ControlBorder();
 
-		public ControlBorder() {
+		private ControlBorder() {
 			super(nextId());
 		}
 	}
@@ -47,7 +46,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static ControlTextDirection LEFT_TO_RIGHT = new ControlTextDirection();
 		public static ControlTextDirection RIGHT_TO_LEFT = new ControlTextDirection();
 
-		public ControlTextDirection() {
+		private ControlTextDirection() {
 			super(base);
 		}
 	}
@@ -55,7 +54,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 	public static final class ControlFlipTextDirection extends ControlStyle {
 		public static ControlFlipTextDirection FLIP_TEXT_DIRECTION = new ControlFlipTextDirection();
 
-		public ControlFlipTextDirection() {
+		private ControlFlipTextDirection() {
 			super(nextId());
 		}
 	}
@@ -68,7 +67,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static ScrollableBar H_SCROLL = new ScrollableBar();
 		public static ScrollableBar V_SCROLL = new ScrollableBar();
 
-		public ScrollableBar() {
+		private ScrollableBar() {
 			super(base);
 		}
 	}
@@ -81,7 +80,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		}
 	}
 
-	//TODO remove
+	// TODO remove
 	public static final class ButtonType extends ButtonStyle {
 		private static final int base = nextId();
 
@@ -94,7 +93,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static ButtonType RADIO = new ButtonType();
 		public static ButtonType TOGGLE = new ButtonType();
 
-		public ButtonType() {
+		private ButtonType() {
 			super(base);
 		}
 	}
@@ -106,7 +105,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static ButtonTextAlign RIGHT = new ButtonTextAlign();
 		public static ButtonTextAlign CENTER = new ButtonTextAlign();
 
-		public ButtonTextAlign() {
+		private ButtonTextAlign() {
 			super(base);
 		}
 	}
@@ -125,7 +124,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static LabelOrientation HORIZONTAL = new LabelOrientation();
 		public static LabelOrientation VERTICAL = new LabelOrientation();
 
-		public LabelOrientation() {
+		private LabelOrientation() {
 			super(base);
 		}
 	}
@@ -136,7 +135,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static LabelShadow SHADOW_IN = new LabelShadow();
 		public static LabelShadow SHADOW_OUT = new LabelShadow();
 
-		public LabelShadow() {
+		private LabelShadow() {
 			super(base);
 		}
 	}
@@ -148,7 +147,7 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 		public static LabelTextAlign LEFT = new LabelTextAlign();
 		public static LabelTextAlign CENTER = new LabelTextAlign();
 
-		public LabelTextAlign() {
+		private LabelTextAlign() {
 			super(base);
 		}
 	}
@@ -156,58 +155,8 @@ public abstract class WidgetStyle<T extends EditorWidget> {
 	public static final class LabelWrap extends LabelStyle {
 		public static LabelWrap WRAP = new LabelWrap();
 
-		public LabelWrap() {
+		private LabelWrap() {
 			super(nextId());
-		}
-	}
-
-	// Menu
-
-	static abstract class MenuStyle extends WidgetStyle<EditorMenu> {
-		MenuStyle(int baseId) {
-			super(baseId);
-		}
-	}
-
-	public static final class MenuType extends MenuStyle {
-		private static final int base = nextId();
-
-		public static MenuType BAR = new MenuType();
-		public static MenuType DROP_DOWN = new MenuType();
-		public static MenuType POP_UP = new MenuType();
-
-		public MenuType() {
-			super(base);
-		}
-	}
-
-	public static final class MenuNoRadioGroup extends MenuStyle {
-		public static MenuNoRadioGroup NO_RADIO_GROUP = new MenuNoRadioGroup();
-
-		public MenuNoRadioGroup() {
-			super(nextId());
-		}
-	}
-
-	// MenuItem
-
-	static abstract class MenuItemStyle extends WidgetStyle<EditorMenuItem> {
-		MenuItemStyle(int baseId) {
-			super(baseId);
-		}
-	}
-
-	public static final class MenuItemType extends MenuItemStyle {
-		private static final int base = nextId();
-
-		public static MenuItemType CHECK = new MenuItemType();
-		public static MenuItemType CASCADE = new MenuItemType();
-		public static MenuItemType PUSH = new MenuItemType();
-		public static MenuItemType RADIO = new MenuItemType();
-		public static MenuItemType SEPARATOR = new MenuItemType();
-
-		public MenuItemType() {
-			super(base);
 		}
 	}
 }

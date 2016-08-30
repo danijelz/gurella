@@ -11,6 +11,10 @@ public class SwtEditorTreeColumn extends SwtEditorItem<TreeColumn, Tree> impleme
 		super(parent, style);
 	}
 
+	SwtEditorTreeColumn(SwtEditorTree parent, int index, int style) {
+		init(new TreeColumn(parent.widget, style, index));
+	}
+
 	@Override
 	public Alignment getAlignment() {
 		return SwtEditorUi.alignment(widget.getAlignment());

@@ -80,4 +80,9 @@ public class SwtEditorMenuItem extends SwtEditorItem<MenuItem, Menu> implements 
 	MenuItem createItem(Menu parent, int style) {
 		return new MenuItem(parent, style);
 	}
+
+	@Override
+	public SwtEditorMenu createSubMenu() {
+		return new SwtEditorMenu(this);
+	}
 }

@@ -11,6 +11,12 @@ public interface EditorUi {
 
 	EditorImage createImage(InputStream imageStream);
 
+	EditorFont createFont(String name, int height, boolean bold, boolean italic);
+
+	EditorFont createFont(EditorFont initial, int height, boolean bold, boolean italic);
+
+	EditorFont createFont(EditorControl control, int height, boolean bold, boolean italic);
+
 	EditorComposite createComposite(EditorComposite parent, WidgetStyle<? super EditorComposite>... styles);
 
 	EditorLabel createLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles);

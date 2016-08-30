@@ -10,22 +10,22 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Widget;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorMenuItem;
+import com.gurella.engine.editor.ui.EditorMenuItem.MenuItemType;
+import com.gurella.engine.editor.ui.EditorToolItem.ToolItemType;
 import com.gurella.engine.editor.ui.EditorUi;
-import com.gurella.engine.editor.ui.FontData;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -50,6 +50,46 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public EditorImage createImage(InputStream imageStream) {
 		return new SwtEditorImage(new Image(getDisplay(), imageStream));
+	}
+
+	@Override
+	public SwtEditorFont createFont(String name, int height, boolean bold, boolean italic) {
+		Font font = createSwtFont(name, height, bold, italic);
+		return font == null ? null : new SwtEditorFont(font);
+	}
+
+	public Font createSwtFont(String name, int height, boolean bold, boolean italic) {
+		return FontDescriptor.createFrom(name, height, getFontStyle(bold, italic)).createFont(getDisplay());
+	}
+
+	protected static int getFontStyle(boolean bold, boolean italic) {
+		int style = bold ? SWT.BOLD : 0;
+		style |= italic ? SWT.ITALIC : SWT.NORMAL;
+		return style;
+	}
+
+	@Override
+	public SwtEditorFont createFont(EditorFont initial, int height, boolean bold, boolean italic) {
+		Font oldFont = ((SwtEditorFont) initial).font;
+		Font font = createSwtFont(oldFont, height, bold, italic);
+		return font == null ? null : new SwtEditorFont(font);
+	}
+
+	protected Font createSwtFont(Font oldFont, int height, boolean bold, boolean italic) {
+		if (oldFont == null) {
+			return null;
+		}
+
+		int style = getFontStyle(bold, italic);
+		Font font = FontDescriptor.createFrom(oldFont).setHeight(height).setStyle(style).createFont(getDisplay());
+		return font;
+	}
+
+	@Override
+	public SwtEditorFont createFont(EditorControl control, int height, boolean bold, boolean italic) {
+		Font oldFont = ((SwtEditorControl<?>) control).widget.getFont();
+		Font font = createSwtFont(oldFont, height, bold, italic);
+		return font == null ? null : new SwtEditorFont(font);
 	}
 
 	public static Display getDisplay() {
@@ -89,24 +129,6 @@ public class SwtEditorUi implements EditorUi {
 	public static Color toGdxColor(org.eclipse.swt.graphics.Color color) {
 		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
 				color.getAlpha() / 255f);
-	}
-
-	public static Font createFont(Control control, FontData fontData) {
-		return createFont(control, fontData.height, fontData.styleBold, fontData.styleItalic);
-	}
-
-	public static Font createFont(Control control, int height, boolean bold, boolean italic) {
-		return createFont(control, control.getFont(), height, bold, italic);
-	}
-
-	public static Font createFont(Widget widget, Font startingFont, int height, boolean bold, boolean italic) {
-		int style = 0;
-		style |= bold ? SWT.BOLD : 0;
-		style |= italic ? SWT.ITALIC : SWT.NORMAL;
-		Font font = FontDescriptor.createFrom(startingFont).setHeight(height).setStyle(style)
-				.createFont(widget.getDisplay());
-		widget.addListener(SWT.Dispose, e -> font.dispose());
-		return font;
 	}
 
 	public EditorComposite createComposite(Composite parent) {
@@ -157,5 +179,39 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public EditorMenu createMenu(EditorMenuItem parentItem) {
 		return new SwtEditorMenu((SwtEditorMenuItem) parentItem);
+	}
+
+	public static int getMenuItemStyle(MenuItemType type) {
+		switch (type) {
+		case CHECK:
+			return SWT.CHECK;
+		case CASCADE:
+			return SWT.CASCADE;
+		case PUSH:
+			return SWT.PUSH;
+		case RADIO:
+			return SWT.RADIO;
+		case SEPARATOR:
+			return SWT.SEPARATOR;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static int getToolItemStyle(ToolItemType type) {
+		switch (type) {
+		case CHECK:
+			return SWT.CHECK;
+		case DROP_DOWN:
+			return SWT.DROP_DOWN;
+		case PUSH:
+			return SWT.PUSH;
+		case RADIO:
+			return SWT.RADIO;
+		case SEPARATOR:
+			return SWT.SEPARATOR;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 }

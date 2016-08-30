@@ -82,4 +82,16 @@ public interface EditorTree extends EditorComposite {
 	void showItem(EditorTreeItem item);
 
 	void showSelection();
+	
+	EditorTreeColumn createColumn();
+
+	EditorTreeColumn createColumn(int index);
+	
+	EditorTreeColumn createColumn(Alignment alignment);
+
+	EditorTreeColumn createColumn(int index, Alignment alignment);
+
+	EditorTreeItem createItem();
+
+	EditorTreeItem createItem(int index);
 }
