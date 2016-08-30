@@ -10,4 +10,7 @@ public interface EditorComposite extends EditorScrollable {
 	EditorControl[] getTabList();
 
 	void setTabList(EditorControl[] tabList);
+
+	public static class CompositeStyle extends ScrollableStyle {
+	}
 }

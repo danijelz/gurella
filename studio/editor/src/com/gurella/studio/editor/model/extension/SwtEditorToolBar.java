@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model.extension;
 
 import java.util.Arrays;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
@@ -52,11 +53,28 @@ public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements
 
 	@Override
 	public SwtEditorToolItem createItem(ToolItemType type) {
-		return new SwtEditorToolItem(this, SwtEditorUi.getToolItemStyle(type));
+		return new SwtEditorToolItem(this, getToolItemStyle(type));
 	}
 
 	@Override
 	public SwtEditorToolItem createItem(int index, ToolItemType type) {
-		return new SwtEditorToolItem(this, index, SwtEditorUi.getToolItemStyle(type));
+		return new SwtEditorToolItem(this, index, getToolItemStyle(type));
+	}
+
+	public static int getToolItemStyle(ToolItemType type) {
+		switch (type) {
+		case CHECK:
+			return SWT.CHECK;
+		case DROP_DOWN:
+			return SWT.DROP_DOWN;
+		case PUSH:
+			return SWT.PUSH;
+		case RADIO:
+			return SWT.RADIO;
+		case SEPARATOR:
+			return SWT.SEPARATOR;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 }

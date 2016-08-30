@@ -142,16 +142,33 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 
 	@Override
 	public SwtEditorMenuItem createItem(MenuItemType type) {
-		return new SwtEditorMenuItem(this, SwtEditorUi.getMenuItemStyle(type));
+		return new SwtEditorMenuItem(this, getMenuItemStyle(type));
 	}
 
 	@Override
 	public SwtEditorMenuItem createItem(int index, MenuItemType type) {
-		return new SwtEditorMenuItem(this, SwtEditorUi.getMenuItemStyle(type), index);
+		return new SwtEditorMenuItem(this, getMenuItemStyle(type), index);
 	}
 
 	@Override
 	public SwtEditorMenu createSubMenu() {
 		return new SwtEditorMenu(this);
+	}
+
+	public static int getMenuItemStyle(MenuItemType type) {
+		switch (type) {
+		case CHECK:
+			return SWT.CHECK;
+		case CASCADE:
+			return SWT.CASCADE;
+		case PUSH:
+			return SWT.PUSH;
+		case RADIO:
+			return SWT.RADIO;
+		case SEPARATOR:
+			return SWT.SEPARATOR;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 }

@@ -29,7 +29,6 @@ import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorList;
 import com.gurella.engine.editor.ui.EditorLogLevel;
-import com.gurella.engine.editor.ui.EditorMenuItem.MenuItemType;
 import com.gurella.engine.editor.ui.EditorProgressBar;
 import com.gurella.engine.editor.ui.EditorSash;
 import com.gurella.engine.editor.ui.EditorScale;
@@ -39,7 +38,6 @@ import com.gurella.engine.editor.ui.EditorTabFolder;
 import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorToolBar;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
-import com.gurella.engine.editor.ui.EditorToolItem.ToolItemType;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.Orientation;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
@@ -368,40 +366,6 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public SwtEditorMenu createMenu(EditorControl parent) {
 		return new SwtEditorMenu((SwtEditorControl<?>) parent);
-	}
-
-	public static int getMenuItemStyle(MenuItemType type) {
-		switch (type) {
-		case CHECK:
-			return SWT.CHECK;
-		case CASCADE:
-			return SWT.CASCADE;
-		case PUSH:
-			return SWT.PUSH;
-		case RADIO:
-			return SWT.RADIO;
-		case SEPARATOR:
-			return SWT.SEPARATOR;
-		default:
-			throw new IllegalArgumentException();
-		}
-	}
-
-	public static int getToolItemStyle(ToolItemType type) {
-		switch (type) {
-		case CHECK:
-			return SWT.CHECK;
-		case DROP_DOWN:
-			return SWT.DROP_DOWN;
-		case PUSH:
-			return SWT.PUSH;
-		case RADIO:
-			return SWT.RADIO;
-		case SEPARATOR:
-			return SWT.SEPARATOR;
-		default:
-			throw new IllegalArgumentException();
-		}
 	}
 
 	@Override
