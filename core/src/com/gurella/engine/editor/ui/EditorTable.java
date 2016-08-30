@@ -116,4 +116,12 @@ public interface EditorTable extends EditorComposite {
 	EditorTableItem createItem();
 
 	EditorTableItem createItem(int index);
+	
+	public static class TableStyle extends ScrollableStyle {
+		//TODO
+	}
+	
+	public enum TableType {
+		SINGLE, MULTI;
+	}
 }

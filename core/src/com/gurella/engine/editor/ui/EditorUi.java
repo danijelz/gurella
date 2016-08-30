@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 
 public interface EditorUi {
@@ -91,4 +92,8 @@ public interface EditorUi {
 	EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection, WidgetStyle<? super EditorButton>... styles);
 
 	EditorMenu createMenu(EditorControl parent);
+	
+	EditorToolBar createToolBar(EditorComposite parent, Orientation orientation);
+	
+	EditorToolBar createToolBar(EditorComposite parent, Orientation orientation, ToolBarStyle style);
 }

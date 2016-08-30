@@ -38,4 +38,9 @@ public interface EditorSpinner extends EditorComposite {
 	void setTextLimit(int limit);
 
 	void setValues(int selection, int minimum, int maximum, int digits, int increment, int pageIncrement);
+
+	public static class ComboStyle extends ScrollableStyle {
+		public boolean wrap;
+		public boolean readOnly;
+	}
 }

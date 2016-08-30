@@ -82,11 +82,11 @@ public interface EditorTree extends EditorComposite {
 	void showItem(EditorTreeItem item);
 
 	void showSelection();
-	
+
 	EditorTreeColumn createColumn();
 
 	EditorTreeColumn createColumn(int index);
-	
+
 	EditorTreeColumn createColumn(Alignment alignment);
 
 	EditorTreeColumn createColumn(int index, Alignment alignment);
@@ -94,4 +94,10 @@ public interface EditorTree extends EditorComposite {
 	EditorTreeItem createItem();
 
 	EditorTreeItem createItem(int index);
+
+	public static class TreeStyle extends ScrollableStyle {
+		public boolean check;
+		public boolean fullSelection;
+		public boolean noScroll;
+	}
 }

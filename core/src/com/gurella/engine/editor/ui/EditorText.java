@@ -82,4 +82,11 @@ public interface EditorText extends EditorScrollable {
 	void setTopIndex(int index);
 
 	void showSelection();
+
+	public static class TextStyle extends ScrollableStyle {
+		public boolean wrap;
+		public boolean readOnly;
+		public boolean password;
+		public Alignment textAlignment;
+	}
 }

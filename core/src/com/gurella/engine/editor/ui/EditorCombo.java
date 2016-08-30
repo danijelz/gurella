@@ -72,4 +72,8 @@ public interface EditorCombo extends EditorComposite {
 	void setTextLimit(int limit);
 
 	void setVisibleItemCount(int count);
+
+	public static class ComboStyle extends ScrollableStyle {
+		public boolean readOnly;
+	}
 }
