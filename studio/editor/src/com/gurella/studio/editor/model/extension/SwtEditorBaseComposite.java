@@ -12,8 +12,7 @@ import com.gurella.engine.editor.ui.EditorControl;
 
 public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEditorScrollable<T>
 		implements EditorComposite {
-	public SwtEditorBaseComposite(T composite) {
-		init(composite);
+	public SwtEditorBaseComposite() {
 	}
 
 	public SwtEditorBaseComposite(SwtEditorComposite parent, int style) {

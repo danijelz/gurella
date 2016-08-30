@@ -6,7 +6,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorComposite extends SwtEditorBaseComposite<Composite> {
 	public SwtEditorComposite(Composite composite) {
-		super(composite);
+		init(composite);
 	}
 
 	public SwtEditorComposite(SwtEditorComposite parent, int style) {
