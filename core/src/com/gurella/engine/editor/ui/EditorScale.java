@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui;
 
+import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
+
 public interface EditorScale extends EditorControl {
 	int getIncrement();
 
@@ -20,4 +22,8 @@ public interface EditorScale extends EditorControl {
 	void setPageIncrement(int pageIncrement);
 
 	void setSelection(int value);
+	
+	public static class ScaleStyle extends ControlStyle {
+		public boolean vertical;
+	}
 }

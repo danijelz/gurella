@@ -11,6 +11,7 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
 	public SwtEditorButton(SwtEditorComposite parent, int style) {
@@ -24,12 +25,12 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 
 	@Override
 	public Alignment getAlignment() {
-		return SwtEditorUi.alignment(widget.getAlignment());
+		return SwtWidgetStyle.alignment(widget.getAlignment());
 	}
 
 	@Override
 	public void setAlignment(Alignment alignment) {
-		widget.setAlignment(SwtEditorUi.alignment(alignment));
+		widget.setAlignment(SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override

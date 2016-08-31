@@ -6,11 +6,15 @@ import java.util.HashMap;
 import org.eclipse.swt.SWT;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
+import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.Direction;
-import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
+import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
-import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
+import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
+import com.gurella.engine.editor.ui.EditorLabel.ShadowType;
 import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
+import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
@@ -110,7 +114,7 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	public static int extractCompositeStyle(CompositeStyle style) {
+	public static int extractSimpleScrollableStyle(ScrollableStyle style) {
 		return style == null ? SWT.NONE : extractScrollableStyle(style);
 	}
 
@@ -172,7 +176,100 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	public static int extractSimpleCompositeStyle(LinkStyle style) {
+	public static int extractSimpleControlStyle(ControlStyle style) {
 		return style == null ? SWT.NONE : extractControlStyle(style);
+	}
+
+	public static int extractLabelStyle(LabelStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractControlStyle(style);
+
+		if (style.alignment != null) {
+			result |= alignment(style.alignment);
+		}
+
+		if (style.shadowType != null) {
+			result |= (style.shadowType == ShadowType.SHADOW_IN ? SWT.SHADOW_IN : SWT.SHADOW_OUT);
+		}
+
+		if (style.wrap) {
+			result |= SWT.WRAP;
+		}
+
+		return result;
+	}
+
+	public static int alignment(Alignment alignment) {
+		switch (alignment) {
+		case LEFT:
+			return SWT.LEFT;
+		case CENTER:
+			return SWT.CENTER;
+		case RIGHT:
+			return SWT.RIGHT;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static Alignment alignment(int alignment) {
+		switch (alignment) {
+		case SWT.LEFT:
+			return Alignment.LEFT;
+		case SWT.CENTER:
+			return Alignment.CENTER;
+		case SWT.RIGHT:
+			return Alignment.RIGHT;
+		default:
+			return null;
+		}
+	}
+
+	public static int extractSpinnerStyle(SpinnerStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+
+		if (style.wrap) {
+			result |= SWT.WRAP;
+		}
+
+		if (style.readOnly) {
+			result |= SWT.READ_ONLY;
+		}
+
+		return result;
+	}
+
+	public static int length(DateTimeLength length) {
+		switch (length) {
+		case SHORT:
+			return SWT.SHORT;
+		case MEDIUM:
+			return SWT.MEDIUM;
+		case LONG:
+			return SWT.LONG;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static int extractComboStyle(ComboStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+
+		if (style.readOnly) {
+			result |= SWT.READ_ONLY;
+		}
+
+		return result;
 	}
 }

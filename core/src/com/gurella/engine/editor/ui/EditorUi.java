@@ -3,10 +3,22 @@ package com.gurella.engine.editor.ui;
 import java.io.InputStream;
 
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
+import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
+import com.gurella.engine.editor.ui.EditorDateTime.CalendarStyle;
+import com.gurella.engine.editor.ui.EditorDateTime.DateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorDateTime.DropDownDateStyle;
+import com.gurella.engine.editor.ui.EditorDateTime.TimeStyle;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
+import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
+import com.gurella.engine.editor.ui.EditorLabel.SeparatorStyle;
 import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
+import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
+import com.gurella.engine.editor.ui.EditorSash.SashStyle;
+import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
+import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
@@ -33,11 +45,17 @@ public interface EditorUi {
 
 	EditorGroup createGroup(EditorComposite parent, GroupStyle style);
 
-	EditorLabel createLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles);
+	EditorLabel createLabel(EditorComposite parent);
 
-	EditorLabel createLabel(EditorComposite parent, String text, WidgetStyle<? super EditorLabel>... styles);
+	EditorLabel createLabel(EditorComposite parent, LabelStyle style);
 
-	EditorLabel createSeparator(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorLabel>... styles);
+	EditorLabel createLabel(EditorComposite parent, String text);
+
+	EditorLabel createLabel(EditorComposite parent, String text, LabelStyle style);
+
+	EditorLabel createSeparator(EditorComposite parent, boolean vertical);
+
+	EditorLabel createSeparator(EditorComposite parent, SeparatorStyle style);
 
 	EditorLink createLink(EditorComposite parent);
 
@@ -47,29 +65,46 @@ public interface EditorUi {
 
 	EditorLink createLink(EditorComposite parent, String text, LinkStyle style);
 
-	EditorProgressBar createProgressBar(EditorComposite parent, boolean vertical, boolean smooth, boolean indeterminate,
-			WidgetStyle<? super EditorProgressBar>... styles);
+	EditorProgressBar createProgressBar(EditorComposite parent, boolean vertical, boolean smooth,
+			boolean indeterminate);
 
-	EditorSash createSash(EditorComposite parent, boolean vertical, boolean smooth,
-			WidgetStyle<? super EditorSash>... styles);
+	EditorProgressBar createProgressBar(EditorComposite parent, ProgressBarStyle style);
 
-	EditorScale createScale(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorScale>... styles);
+	EditorSash createSash(EditorComposite parent, boolean vertical, boolean smooth);
 
-	EditorSlider createSlider(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorSlider>... styles);
+	EditorSash createSash(EditorComposite parent, SashStyle style);
 
-	EditorCombo createCombo(EditorComposite parent, WidgetStyle<? super EditorCombo>... styles);
+	EditorScale createScale(EditorComposite parent, boolean vertical);
 
-	EditorDateTime createDate(EditorComposite parent, DateTimeLength length,
-			WidgetStyle<? super EditorDateTime>... styles);
+	EditorScale createScale(EditorComposite parent, ScaleStyle style);
 
-	EditorDateTime createDropDownDate(EditorComposite parent, WidgetStyle<? super EditorDateTime>... styles);
+	EditorSlider createSlider(EditorComposite parent, boolean vertical);
 
-	EditorDateTime createTime(EditorComposite parent, DateTimeLength length,
-			WidgetStyle<? super EditorDateTime>... styles);
+	EditorSlider createSlider(EditorComposite parent, SliderStyle style);
 
-	EditorDateTime createCalendar(EditorComposite parent, WidgetStyle<? super EditorDateTime>... styles);
+	EditorCombo createCombo(EditorComposite parent);
 
-	EditorSpinner createSpinner(EditorComposite parent, WidgetStyle<? super EditorSpinner>... styles);
+	EditorCombo createCombo(EditorComposite parent, ComboStyle style);
+
+	EditorDateTime createDate(EditorComposite parent, DateTimeLength length);
+
+	EditorDateTime createDate(EditorComposite parent, DateStyle styles);
+
+	EditorDateTime createDropDownDate(EditorComposite parent);
+
+	EditorDateTime createDropDownDate(EditorComposite parent, DropDownDateStyle style);
+
+	EditorDateTime createTime(EditorComposite parent, DateTimeLength length);
+
+	EditorDateTime createTime(EditorComposite parent, TimeStyle style);
+
+	EditorDateTime createCalendar(EditorComposite parent);
+
+	EditorDateTime createCalendar(EditorComposite parent, CalendarStyle style);
+
+	EditorSpinner createSpinner(EditorComposite parent);
+
+	EditorSpinner createSpinner(EditorComposite parent, SpinnerStyle style);
 
 	EditorTabFolder createTabFolder(EditorComposite parent, boolean top,
 			WidgetStyle<? super EditorTabFolder>... styles);

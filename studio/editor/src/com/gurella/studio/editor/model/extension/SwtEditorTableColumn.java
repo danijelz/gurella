@@ -5,6 +5,7 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTableColumn;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> implements EditorTableColumn {
 	SwtEditorTableColumn(SwtEditorTable parent, int style) {
@@ -17,7 +18,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> impl
 
 	@Override
 	public Alignment getAlignment() {
-		return SwtEditorUi.alignment(widget.getAlignment());
+		return SwtWidgetStyle.alignment(widget.getAlignment());
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> impl
 
 	@Override
 	public void setAlignment(Alignment alignment) {
-		widget.setAlignment(SwtEditorUi.alignment(alignment));
+		widget.setAlignment(SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override

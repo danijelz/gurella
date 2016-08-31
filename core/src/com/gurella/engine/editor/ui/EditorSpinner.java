@@ -39,7 +39,7 @@ public interface EditorSpinner extends EditorBaseComposite {
 
 	void setValues(int selection, int minimum, int maximum, int digits, int increment, int pageIncrement);
 
-	public static class ComboStyle extends ScrollableStyle {
+	public static class SpinnerStyle extends ScrollableStyle {
 		public boolean wrap;
 		public boolean readOnly;
 	}

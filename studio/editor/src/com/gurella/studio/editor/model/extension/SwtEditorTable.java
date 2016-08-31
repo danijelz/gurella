@@ -11,6 +11,7 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorTableItem;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements EditorTable {
 	public SwtEditorTable(SwtEditorComposite parent, int style) {
@@ -298,12 +299,12 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	public SwtEditorTableColumn createColumn(Alignment alignment) {
-		return new SwtEditorTableColumn(this, SwtEditorUi.alignment(alignment));
+		return new SwtEditorTableColumn(this, SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override
 	public SwtEditorTableColumn createColumn(int index, Alignment alignment) {
-		return new SwtEditorTableColumn(this, index, SwtEditorUi.alignment(alignment));
+		return new SwtEditorTableColumn(this, index, SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override

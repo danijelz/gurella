@@ -29,6 +29,20 @@ public interface EditorDateTime extends EditorBaseComposite {
 
 	void setTime(int hours, int minutes, int seconds);
 
+	public static class DateStyle extends ScrollableStyle {
+		public DateTimeLength length;
+	}
+
+	public static class DropDownDateStyle extends ScrollableStyle {
+	}
+
+	public static class TimeStyle extends ScrollableStyle {
+		public DateTimeLength length;
+	}
+
+	public static class CalendarStyle extends ScrollableStyle {
+	}
+
 	public enum DateTimeLength {
 		SHORT, MEDIUM, LONG;
 	}

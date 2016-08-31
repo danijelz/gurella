@@ -19,11 +19,15 @@ public interface EditorLabel extends EditorControl {
 
 	public static class LabelStyle extends ControlStyle {
 		public boolean wrap;
-		public Alignment textAlignment;
-		public LabelShadow labelShadow;
+		public Alignment alignment;
+		public ShadowType shadowType;
 	}
 
-	public enum LabelShadow {
+	public enum ShadowType {
 		SHADOW_IN, SHADOW_OUT;
+	}
+
+	public static class SeparatorStyle extends LabelStyle {
+		public boolean vertical;
 	}
 }

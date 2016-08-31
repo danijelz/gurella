@@ -26,4 +26,8 @@ public interface EditorSlider extends EditorControl {
 	void setThumb(int value);
 
 	void setValues(int selection, int minimum, int maximum, int thumb, int increment, int pageIncrement);
+
+	public static class SliderStyle extends ControlStyle {
+		public boolean vertical;
+	}
 }

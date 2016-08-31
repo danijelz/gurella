@@ -11,6 +11,7 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTreeColumn;
 import com.gurella.engine.editor.ui.EditorTreeItem;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements EditorTree {
 	public SwtEditorTree(SwtEditorComposite parent, int style) {
@@ -241,12 +242,12 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 
 	@Override
 	public SwtEditorTreeColumn createColumn(Alignment alignment) {
-		return new SwtEditorTreeColumn(this, SwtEditorUi.alignment(alignment));
+		return new SwtEditorTreeColumn(this, SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override
 	public SwtEditorTreeColumn createColumn(int index, Alignment alignment) {
-		return new SwtEditorTreeColumn(this, index, SwtEditorUi.alignment(alignment));
+		return new SwtEditorTreeColumn(this, index, SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
 	public SwtEditorLabel(SwtEditorComposite parent, int style) {
@@ -39,12 +40,12 @@ public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLab
 
 	@Override
 	public Alignment getAlignment() {
-		return SwtEditorUi.alignment(widget.getAlignment());
+		return SwtWidgetStyle.alignment(widget.getAlignment());
 	}
 
 	@Override
 	public void setAlignment(Alignment alignment) {
-		widget.setAlignment(SwtEditorUi.alignment(alignment));
+		widget.setAlignment(SwtWidgetStyle.alignment(alignment));
 	}
 
 	@Override

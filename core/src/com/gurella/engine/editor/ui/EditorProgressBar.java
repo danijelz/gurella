@@ -17,4 +17,9 @@ public interface EditorProgressBar extends EditorControl {
 
 	void setState(int state);
 
+	public static class ProgressBarStyle extends ControlStyle {
+		public boolean vertical;
+		public boolean smooth;
+		public boolean indeterminate;
+	}
 }

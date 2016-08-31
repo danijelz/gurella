@@ -1,11 +1,16 @@
 package com.gurella.studio.editor.model.extension;
 
 import static com.gurella.engine.utils.Values.cast;
-import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleCompositeStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractComboStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractLabelStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleControlStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleScrollableStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSpinnerStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTableStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractToolBarStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTreeStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.length;
 
 import java.io.InputStream;
 
@@ -17,28 +22,32 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.badlogic.gdx.graphics.Color;
-import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
-import com.gurella.engine.editor.ui.EditorCombo;
+import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
 import com.gurella.engine.editor.ui.EditorControl;
-import com.gurella.engine.editor.ui.EditorDateTime;
+import com.gurella.engine.editor.ui.EditorDateTime.CalendarStyle;
+import com.gurella.engine.editor.ui.EditorDateTime.DateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorDateTime.DropDownDateStyle;
+import com.gurella.engine.editor.ui.EditorDateTime.TimeStyle;
 import com.gurella.engine.editor.ui.EditorExpandBar;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
+import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
+import com.gurella.engine.editor.ui.EditorLabel.SeparatorStyle;
 import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
 import com.gurella.engine.editor.ui.EditorList;
 import com.gurella.engine.editor.ui.EditorLogLevel;
-import com.gurella.engine.editor.ui.EditorProgressBar;
-import com.gurella.engine.editor.ui.EditorSash;
-import com.gurella.engine.editor.ui.EditorScale;
-import com.gurella.engine.editor.ui.EditorSlider;
-import com.gurella.engine.editor.ui.EditorSpinner;
+import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
+import com.gurella.engine.editor.ui.EditorSash.SashStyle;
+import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
+import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTabFolder;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText;
@@ -119,32 +128,6 @@ public class SwtEditorUi implements EditorUi {
 		return display;
 	}
 
-	public static Alignment alignment(int alignment) {
-		switch (alignment) {
-		case SWT.LEFT:
-			return Alignment.LEFT;
-		case SWT.CENTER:
-			return Alignment.CENTER;
-		case SWT.RIGHT:
-			return Alignment.RIGHT;
-		default:
-			return null;
-		}
-	}
-
-	public static int alignment(Alignment alignment) {
-		switch (alignment) {
-		case LEFT:
-			return SWT.LEFT;
-		case CENTER:
-			return SWT.CENTER;
-		case RIGHT:
-			return SWT.RIGHT;
-		default:
-			throw new IllegalArgumentException();
-		}
-	}
-
 	public static Color toGdxColor(org.eclipse.swt.graphics.Color color) {
 		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
 				color.getAlpha() / 255f);
@@ -161,7 +144,7 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorComposite createComposite(EditorComposite parent, CompositeStyle style) {
-		return new SwtEditorComposite(cast(parent), SwtWidgetStyle.extractCompositeStyle(style));
+		return new SwtEditorComposite(cast(parent), extractSimpleScrollableStyle(style));
 	}
 
 	@Override
@@ -171,23 +154,37 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorGroup createGroup(EditorComposite parent, GroupStyle style) {
-		return new SwtEditorGroup(cast(parent), SwtWidgetStyle.extractCompositeStyle(style));
+		return new SwtEditorGroup(cast(parent), extractSimpleScrollableStyle(style));
 	}
 
 	@Override
-	public EditorLabel createLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles) {
-		return new SwtEditorLabel(cast(parent), getSwtStyle(styles));
+	public EditorLabel createLabel(EditorComposite parent) {
+		return new SwtEditorLabel(cast(parent), SWT.NONE);
 	}
 
 	@Override
-	public EditorLabel createLabel(EditorComposite parent, String text, WidgetStyle<? super EditorLabel>... styles) {
-		return new SwtEditorLabel(cast(parent), text, getSwtStyle(styles));
+	public EditorLabel createLabel(EditorComposite parent, LabelStyle style) {
+		return new SwtEditorLabel(cast(parent), extractLabelStyle(style));
 	}
 
 	@Override
-	public SwtEditorLabel createSeparator(EditorComposite parent, boolean vertical,
-			WidgetStyle<? super EditorLabel>... styles) {
-		return new SwtEditorLabel(cast(parent), getSwtStyle(orientation(vertical) | SWT.SEPARATOR, styles));
+	public EditorLabel createLabel(EditorComposite parent, String text) {
+		return new SwtEditorLabel(cast(parent), text, SWT.NONE);
+	}
+
+	@Override
+	public EditorLabel createLabel(EditorComposite parent, String text, LabelStyle style) {
+		return new SwtEditorLabel(cast(parent), text, extractLabelStyle(style));
+	}
+
+	@Override
+	public SwtEditorLabel createSeparator(EditorComposite parent, boolean vertical) {
+		return new SwtEditorLabel(cast(parent), SWT.SEPARATOR | orientation(vertical));
+	}
+
+	@Override
+	public SwtEditorLabel createSeparator(EditorComposite parent, SeparatorStyle style) {
+		return new SwtEditorLabel(cast(parent), SWT.SEPARATOR | orientation(style.vertical) | extractLabelStyle(style));
 	}
 
 	protected int orientation(boolean vertical) {
@@ -201,7 +198,7 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorLink createLink(EditorComposite parent, LinkStyle style) {
-		return new SwtEditorLink(cast(parent), extractSimpleCompositeStyle(style));
+		return new SwtEditorLink(cast(parent), extractSimpleControlStyle(style));
 	}
 
 	@Override
@@ -220,7 +217,7 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorProgressBar createProgressBar(EditorComposite parent, boolean vertical, boolean smooth,
-			boolean indeterminate, WidgetStyle<? super EditorProgressBar>... styles) {
+			boolean indeterminate) {
 		int style = orientation(vertical);
 		if (smooth) {
 			style |= SWT.SMOOTH;
@@ -228,29 +225,57 @@ public class SwtEditorUi implements EditorUi {
 		if (indeterminate) {
 			style |= SWT.INDETERMINATE;
 		}
-		return new SwtEditorProgressBar(cast(parent), getSwtStyle(style, styles));
+		return new SwtEditorProgressBar(cast(parent), style);
 	}
 
 	@Override
-	public SwtEditorSash createSash(EditorComposite parent, boolean vertical, boolean smooth,
-			WidgetStyle<? super EditorSash>... styles) {
+	public SwtEditorProgressBar createProgressBar(EditorComposite parent, ProgressBarStyle style) {
+		int result = orientation(style.vertical) | extractSimpleControlStyle(style);
+		if (style.smooth) {
+			result |= SWT.SMOOTH;
+		}
+		if (style.indeterminate) {
+			result |= SWT.INDETERMINATE;
+		}
+		return new SwtEditorProgressBar(cast(parent), result);
+	}
+
+	@Override
+	public SwtEditorSash createSash(EditorComposite parent, boolean vertical, boolean smooth) {
 		int style = orientation(vertical);
 		if (smooth) {
 			style |= SWT.SMOOTH;
 		}
-		return new SwtEditorSash(cast(parent), getSwtStyle(style, styles));
+		return new SwtEditorSash(cast(parent), style);
 	}
 
 	@Override
-	public SwtEditorScale createScale(EditorComposite parent, boolean vertical,
-			WidgetStyle<? super EditorScale>... styles) {
-		return new SwtEditorScale(cast(parent), getSwtStyle(orientation(vertical), styles));
+	public SwtEditorSash createSash(EditorComposite parent, SashStyle style) {
+		int result = orientation(style.vertical) | extractSimpleControlStyle(style);
+		if (style.smooth) {
+			result |= SWT.SMOOTH;
+		}
+		return new SwtEditorSash(cast(parent), result);
 	}
 
 	@Override
-	public SwtEditorSlider createSlider(EditorComposite parent, boolean vertical,
-			WidgetStyle<? super EditorSlider>... styles) {
-		return new SwtEditorSlider(cast(parent), getSwtStyle(orientation(vertical), styles));
+	public SwtEditorScale createScale(EditorComposite parent, boolean vertical) {
+		return new SwtEditorScale(cast(parent), orientation(vertical));
+	}
+
+	@Override
+	public SwtEditorScale createScale(EditorComposite parent, ScaleStyle style) {
+		return new SwtEditorScale(cast(parent), orientation(style.vertical) | extractSimpleControlStyle(style));
+	}
+
+	@Override
+	public SwtEditorSlider createSlider(EditorComposite parent, boolean vertical) {
+		return new SwtEditorSlider(cast(parent), orientation(vertical));
+	}
+
+	@Override
+	public SwtEditorSlider createSlider(EditorComposite parent, SliderStyle style) {
+		return new SwtEditorSlider(cast(parent), orientation(style.vertical) | extractSimpleControlStyle(style));
 	}
 
 	@Override
@@ -270,35 +295,64 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorCombo createCombo(EditorComposite parent, WidgetStyle<? super EditorCombo>... styles) {
-		return new SwtEditorCombo(cast(parent), getSwtStyle(SWT.DROP_DOWN, styles));
+	public SwtEditorCombo createCombo(EditorComposite parent) {
+		return new SwtEditorCombo(cast(parent), SWT.DROP_DOWN);
 	}
 
 	@Override
-	public SwtEditorDateTime createDate(EditorComposite parent, DateTimeLength length,
-			WidgetStyle<? super EditorDateTime>... styles) {
-		return new SwtEditorDateTime(cast(parent), getSwtStyle(SWT.DATE | length(length), styles));
+	public SwtEditorCombo createCombo(EditorComposite parent, ComboStyle style) {
+		return new SwtEditorCombo(cast(parent), SWT.DROP_DOWN | extractComboStyle(style));
 	}
 
 	@Override
-	public SwtEditorDateTime createDropDownDate(EditorComposite parent, WidgetStyle<? super EditorDateTime>... styles) {
-		return new SwtEditorDateTime(cast(parent), getSwtStyle(SWT.DATE | SWT.DROP_DOWN, styles));
+	public SwtEditorDateTime createDate(EditorComposite parent, DateTimeLength length) {
+		return new SwtEditorDateTime(cast(parent), SWT.DATE | length(length));
 	}
 
 	@Override
-	public SwtEditorDateTime createTime(EditorComposite parent, DateTimeLength length,
-			WidgetStyle<? super EditorDateTime>... styles) {
-		return new SwtEditorDateTime(cast(parent), getSwtStyle(SWT.TIME | length(length), styles));
+	public SwtEditorDateTime createDate(EditorComposite parent, DateStyle style) {
+		return new SwtEditorDateTime(cast(parent),
+				SWT.DATE | SwtWidgetStyle.length(style.length) | extractSimpleScrollableStyle(style));
 	}
 
 	@Override
-	public SwtEditorDateTime createCalendar(EditorComposite parent, WidgetStyle<? super EditorDateTime>... styles) {
-		return new SwtEditorDateTime(cast(parent), getSwtStyle(SWT.CALENDAR, styles));
+	public SwtEditorDateTime createDropDownDate(EditorComposite parent) {
+		return new SwtEditorDateTime(cast(parent), SWT.DATE | SWT.DROP_DOWN);
 	}
 
 	@Override
-	public SwtEditorSpinner createSpinner(EditorComposite parent, WidgetStyle<? super EditorSpinner>... styles) {
-		return new SwtEditorSpinner(cast(parent), getSwtStyle(styles));
+	public SwtEditorDateTime createDropDownDate(EditorComposite parent, DropDownDateStyle style) {
+		return new SwtEditorDateTime(cast(parent), SWT.DATE | SWT.DROP_DOWN | extractSimpleScrollableStyle(style));
+	}
+
+	@Override
+	public SwtEditorDateTime createTime(EditorComposite parent, DateTimeLength length) {
+		return new SwtEditorDateTime(cast(parent), SWT.TIME | length(length));
+	}
+
+	@Override
+	public SwtEditorDateTime createTime(EditorComposite parent, TimeStyle style) {
+		return new SwtEditorDateTime(cast(parent), SWT.TIME | extractSimpleScrollableStyle(style));
+	}
+
+	@Override
+	public SwtEditorDateTime createCalendar(EditorComposite parent) {
+		return new SwtEditorDateTime(cast(parent), SWT.CALENDAR);
+	}
+
+	@Override
+	public SwtEditorDateTime createCalendar(EditorComposite parent, CalendarStyle style) {
+		return new SwtEditorDateTime(cast(parent), SWT.CALENDAR | extractSimpleScrollableStyle(style));
+	}
+
+	@Override
+	public SwtEditorSpinner createSpinner(EditorComposite parent) {
+		return new SwtEditorSpinner(cast(parent), SWT.NONE);
+	}
+
+	@Override
+	public SwtEditorSpinner createSpinner(EditorComposite parent, SpinnerStyle style) {
+		return new SwtEditorSpinner(cast(parent), extractSpinnerStyle(style));
 	}
 
 	@Override
@@ -311,19 +365,6 @@ public class SwtEditorUi implements EditorUi {
 	public SwtEditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll,
 			WidgetStyle<? super EditorExpandBar>... styles) {
 		return new SwtEditorExpandBar(cast(parent), getSwtStyle(verticalScroll ? SWT.V_SCROLL : 0, styles));
-	}
-
-	public static int length(DateTimeLength length) {
-		switch (length) {
-		case SHORT:
-			return SWT.SHORT;
-		case MEDIUM:
-			return SWT.MEDIUM;
-		case LONG:
-			return SWT.LONG;
-		default:
-			throw new IllegalArgumentException();
-		}
 	}
 
 	@Override
