@@ -136,12 +136,13 @@ public class PropertyEditorFactory {
 		}
 
 		IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
-		data = parseAnnotation(type, annotation);
+		data = annotation == null ? null : parseAnnotation(type, annotation);
 		customFactories.put(key, data);
 		return data;
 	}
 
 	private static CustomFactoryData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
+
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		String factoryName = null;
 		boolean complex = true;

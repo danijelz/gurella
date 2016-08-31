@@ -49,17 +49,11 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	static class TestPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
-			createCheck(context, parent, "tap", (byte) 1);
-			createCheck(context, parent, "touch", (byte) 2);
-		}
-
-		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
-				byte index) {
 			EditorUi uiFactory = parent.getUiFactory();
 			EditorButton check = uiFactory.createCheckBox(parent);
-			check.setText(text);
-			byte byteValue = context.getPropertyValue().byteValue();
-			check.setSelection((byteValue & (1 << index)) != 0);
+			check.setText("check");
+			uiFactory.createLabel(parent, "Label");
+			uiFactory.createSeparator(parent, false);
 		}
 	}
 }
