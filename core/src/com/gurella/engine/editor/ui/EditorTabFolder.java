@@ -27,7 +27,12 @@ public interface EditorTabFolder extends EditorBaseComposite {
 
 	EditorTabItem createItem(int index);
 
-	public static class TabFolderStyle extends ScrollableStyle {
+	public static class TabFolderStyle extends ScrollableStyle<TabFolderStyle> {
 		public boolean bottom;
+
+		public TabFolderStyle bottom(boolean bottom) {
+			this.bottom = bottom;
+			return this;
+		}
 	}
 }

@@ -117,12 +117,42 @@ public interface EditorTable extends EditorBaseComposite {
 
 	EditorTableItem createItem(int index);
 
-	public static class TableStyle extends ScrollableStyle {
+	public static class TableStyle extends ScrollableStyle<TableStyle> {
 		public boolean check;
 		public boolean multiSelection;
 		public boolean fullSelection;
 		public boolean hideSelection;
 		public boolean virtual;
 		public boolean noScroll;
+
+		public TableStyle check(boolean check) {
+			this.check = check;
+			return cast();
+		}
+
+		public TableStyle multiSelection(boolean multiSelection) {
+			this.multiSelection = multiSelection;
+			return cast();
+		}
+
+		public TableStyle fullSelection(boolean fullSelection) {
+			this.fullSelection = fullSelection;
+			return cast();
+		}
+
+		public TableStyle hideSelection(boolean hideSelection) {
+			this.hideSelection = hideSelection;
+			return cast();
+		}
+
+		public TableStyle virtual(boolean virtual) {
+			this.virtual = virtual;
+			return cast();
+		}
+
+		public TableStyle noScroll(boolean noScroll) {
+			this.noScroll = noScroll;
+			return cast();
+		}
 	}
 }

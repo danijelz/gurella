@@ -7,6 +7,6 @@ public interface EditorComposite extends EditorBaseComposite {
 
 	void setLayout(EditorLayout layout);
 
-	public static class CompositeStyle extends ScrollableStyle {
+	public static class CompositeStyle extends ScrollableStyle<CompositeStyle> {
 	}
 }

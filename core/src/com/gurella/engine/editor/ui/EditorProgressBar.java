@@ -17,9 +17,24 @@ public interface EditorProgressBar extends EditorControl {
 
 	void setState(int state);
 
-	public static class ProgressBarStyle extends ControlStyle {
+	public static class ProgressBarStyle extends ControlStyle<ProgressBarStyle> {
 		public boolean vertical;
 		public boolean smooth;
 		public boolean indeterminate;
+
+		public ProgressBarStyle vertical(boolean vertical) {
+			this.vertical = vertical;
+			return this;
+		}
+
+		public ProgressBarStyle smooth(boolean smooth) {
+			this.smooth = smooth;
+			return this;
+		}
+
+		public ProgressBarStyle indeterminate(boolean indeterminate) {
+			this.indeterminate = indeterminate;
+			return this;
+		}
 	}
 }

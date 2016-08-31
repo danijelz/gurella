@@ -101,9 +101,29 @@ public interface EditorControl extends EditorWidget {
 
 	GridPoint2 toDisplay(int x, int y);
 
-	public static class ControlStyle {
+	public static class ControlStyle<T extends ControlStyle<T>> {
 		public Direction textDirection;
 		public boolean border;
 		public boolean flipTextDirection;
+
+		public T textDirection(Direction textDirection) {
+			this.textDirection = textDirection;
+			return cast();
+		}
+
+		public T border(boolean border) {
+			this.border = border;
+			return cast();
+		}
+
+		public T flipTextDirection(boolean flipTextDirection) {
+			this.flipTextDirection = flipTextDirection;
+			return cast();
+		}
+
+		@SuppressWarnings("unchecked")
+		protected T cast() {
+			return (T) this;
+		}
 	}
 }

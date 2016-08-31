@@ -5,6 +5,6 @@ public interface EditorGroup extends EditorComposite {
 
 	void setText(String string);
 
-	public static class GroupStyle extends CompositeStyle {
+	public static class GroupStyle extends ScrollableStyle<GroupStyle> {
 	}
 }

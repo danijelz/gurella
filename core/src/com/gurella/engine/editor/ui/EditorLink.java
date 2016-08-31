@@ -5,6 +5,6 @@ public interface EditorLink extends EditorControl {
 
 	void setText(String string);
 
-	public static class LinkStyle extends ControlStyle {
+	public static class LinkStyle extends ControlStyle<LinkStyle> {
 	}
 }

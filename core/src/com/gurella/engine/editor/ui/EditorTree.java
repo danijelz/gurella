@@ -95,11 +95,36 @@ public interface EditorTree extends EditorBaseComposite {
 
 	EditorTreeItem createItem(int index);
 
-	public static class TreeStyle extends ScrollableStyle {
+	public static class TreeStyle extends ScrollableStyle<TreeStyle> {
 		public boolean check;
 		public boolean multiSelection;
 		public boolean fullSelection;
 		public boolean noScroll;
 		public boolean virtual;
+
+		public TreeStyle check(boolean check) {
+			this.check = check;
+			return cast();
+		}
+
+		public TreeStyle multiSelection(boolean multiSelection) {
+			this.multiSelection = multiSelection;
+			return cast();
+		}
+
+		public TreeStyle fullSelection(boolean fullSelection) {
+			this.fullSelection = fullSelection;
+			return cast();
+		}
+
+		public TreeStyle virtual(boolean virtual) {
+			this.virtual = virtual;
+			return cast();
+		}
+
+		public TreeStyle noScroll(boolean noScroll) {
+			this.noScroll = noScroll;
+			return cast();
+		}
 	}
 }

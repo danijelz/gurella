@@ -29,18 +29,28 @@ public interface EditorDateTime extends EditorBaseComposite {
 
 	void setTime(int hours, int minutes, int seconds);
 
-	public static class DateStyle extends ScrollableStyle {
+	public static class DateStyle extends ScrollableStyle<DateStyle> {
 		public DateTimeLength length;
+
+		public DateStyle length(DateTimeLength length) {
+			this.length = length;
+			return this;
+		}
 	}
 
-	public static class DropDownDateStyle extends ScrollableStyle {
+	public static class DropDownDateStyle extends ScrollableStyle<DropDownDateStyle> {
 	}
 
-	public static class TimeStyle extends ScrollableStyle {
+	public static class TimeStyle extends ScrollableStyle<TimeStyle> {
 		public DateTimeLength length;
+
+		public TimeStyle length(DateTimeLength length) {
+			this.length = length;
+			return this;
+		}
 	}
 
-	public static class CalendarStyle extends ScrollableStyle {
+	public static class CalendarStyle extends ScrollableStyle<CalendarStyle> {
 	}
 
 	public enum DateTimeLength {

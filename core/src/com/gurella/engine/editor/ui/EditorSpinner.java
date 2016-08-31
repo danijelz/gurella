@@ -39,8 +39,18 @@ public interface EditorSpinner extends EditorBaseComposite {
 
 	void setValues(int selection, int minimum, int maximum, int digits, int increment, int pageIncrement);
 
-	public static class SpinnerStyle extends ScrollableStyle {
+	public static class SpinnerStyle extends ScrollableStyle<SpinnerStyle> {
 		public boolean wrap;
 		public boolean readOnly;
+
+		public SpinnerStyle wrap(boolean wrap) {
+			this.wrap = wrap;
+			return this;
+		}
+
+		public SpinnerStyle readOnly(boolean readOnly) {
+			this.readOnly = readOnly;
+			return this;
+		}
 	}
 }

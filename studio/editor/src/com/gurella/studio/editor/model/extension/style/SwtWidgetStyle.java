@@ -11,7 +11,7 @@ import com.gurella.engine.editor.ui.Direction;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
-import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
+import com.gurella.engine.editor.ui.EditorLabel.BaseLabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.ShadowType;
 import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
@@ -60,7 +60,7 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	private static int extractControlStyle(ControlStyle style) {
+	private static int extractControlStyle(ControlStyle<?> style) {
 		int result = 0;
 		if (style.textDirection != null) {
 			result |= style.textDirection == Direction.leftToRight ? SWT.LEFT_TO_RIGHT : SWT.RIGHT_TO_LEFT;
@@ -77,7 +77,7 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	private static int extractScrollableStyle(ScrollableStyle style) {
+	private static int extractScrollableStyle(ScrollableStyle<?> style) {
 		int result = extractControlStyle(style);
 
 		if (style.hScroll) {
@@ -117,7 +117,7 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	public static int extractSimpleScrollableStyle(ScrollableStyle style) {
+	public static int extractSimpleScrollableStyle(ScrollableStyle<?> style) {
 		return style == null ? SWT.NONE : extractScrollableStyle(style);
 	}
 
@@ -179,11 +179,11 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	public static int extractSimpleControlStyle(ControlStyle style) {
+	public static int extractSimpleControlStyle(ControlStyle<?> style) {
 		return style == null ? SWT.NONE : extractControlStyle(style);
 	}
 
-	public static int extractLabelStyle(LabelStyle style) {
+	public static int extractLabelStyle(BaseLabelStyle<?> style) {
 		if (style == null) {
 			return SWT.NONE;
 		}

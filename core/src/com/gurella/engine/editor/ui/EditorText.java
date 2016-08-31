@@ -83,10 +83,30 @@ public interface EditorText extends EditorScrollable {
 
 	void showSelection();
 
-	public static class TextStyle extends ScrollableStyle {
+	public static class TextStyle extends ScrollableStyle<TextStyle> {
 		public boolean wrap;
 		public boolean readOnly;
 		public boolean password;
 		public Alignment alignment;
+
+		public TextStyle wWrap(boolean wrap) {
+			this.wrap = wrap;
+			return cast();
+		}
+
+		public TextStyle readOnly(boolean readOnly) {
+			this.readOnly = readOnly;
+			return cast();
+		}
+
+		public TextStyle password(boolean password) {
+			this.password = password;
+			return cast();
+		}
+
+		public TextStyle alignment(Alignment alignment) {
+			this.alignment = alignment;
+			return cast();
+		}
 	}
 }

@@ -27,7 +27,12 @@ public interface EditorSlider extends EditorControl {
 
 	void setValues(int selection, int minimum, int maximum, int thumb, int increment, int pageIncrement);
 
-	public static class SliderStyle extends ControlStyle {
+	public static class SliderStyle extends ControlStyle<SliderStyle> {
 		public boolean vertical;
+
+		public SliderStyle vertical(boolean vertical) {
+			this.vertical = vertical;
+			return this;
+		}
 	}
 }

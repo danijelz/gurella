@@ -73,7 +73,12 @@ public interface EditorCombo extends EditorBaseComposite {
 
 	void setVisibleItemCount(int count);
 
-	public static class ComboStyle extends ScrollableStyle {
+	public static class ComboStyle extends ScrollableStyle<ComboStyle> {
 		public boolean readOnly;
+
+		public ComboStyle readOnly(boolean readOnly) {
+			this.readOnly = readOnly;
+			return this;
+		}
 	}
 }

@@ -73,7 +73,12 @@ public interface EditorList extends EditorScrollable {
 
 	void showSelection();
 
-	public static class ListStyle extends ScrollableStyle {
+	public static class ListStyle extends ScrollableStyle<ListStyle> {
 		public boolean multi;
+
+		public ListStyle multi(boolean multi) {
+			this.multi = multi;
+			return this;
+		}
 	}
 }
