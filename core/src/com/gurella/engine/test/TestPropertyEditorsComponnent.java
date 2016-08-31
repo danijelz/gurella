@@ -43,7 +43,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	public Integer[] testIntegerArray = new Integer[3];
 	public Vector3[] testVectorArray = new Vector3[3];
 
-	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class)
+	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class, complex = false)
 	public Object testCustomEditor;
 
 	static class TestPropertyEditorFactory implements PropertyEditorFactory<Byte> {
