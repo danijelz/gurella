@@ -2,7 +2,12 @@ package com.gurella.engine.editor.ui;
 
 import java.io.InputStream;
 
+import com.gurella.engine.editor.ui.EditorButton.ArrowButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
+import com.gurella.engine.editor.ui.EditorButton.ButtonStyle;
+import com.gurella.engine.editor.ui.EditorButton.CheckBoxStyle;
+import com.gurella.engine.editor.ui.EditorButton.RadioButtonStyle;
+import com.gurella.engine.editor.ui.EditorButton.ToggleButtonStyle;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.CalendarStyle;
@@ -26,7 +31,6 @@ import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
-import com.gurella.engine.editor.ui.style.WidgetStyle;
 
 public interface EditorUi {
 	void log(EditorLogLevel level, String message);
@@ -130,24 +134,25 @@ public interface EditorUi {
 
 	EditorText createTextArea(EditorComposite parent, TextStyle style);
 
-	EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createCheckBox(EditorComposite parent);
 
-	EditorButton createCheckBox(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createCheckBox(EditorComposite parent, CheckBoxStyle style);
 
-	EditorButton createButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createButton(EditorComposite parent);
 
-	EditorButton createButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createButton(EditorComposite parent, ButtonStyle styles);
 
-	EditorButton createToggleButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createToggleButton(EditorComposite parent);
 
-	EditorButton createToggleButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createToggleButton(EditorComposite parent, ToggleButtonStyle style);
 
-	EditorButton createRadioButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createRadioButton(EditorComposite parent);
 
-	EditorButton createRadioButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles);
+	EditorButton createRadioButton(EditorComposite parent, RadioButtonStyle style);
 
-	EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection,
-			WidgetStyle<? super EditorButton>... styles);
+	EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection);
+
+	EditorButton createArrowButton(EditorComposite parent, ArrowButtonStyle arrowDirection);
 
 	EditorMenu createMenu(EditorControl parent);
 

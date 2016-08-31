@@ -49,10 +49,19 @@ public interface EditorButton extends EditorControl {
 	public static class ButtonStyle extends BaseButtonStyle<ButtonStyle> {
 	}
 
-	public static class ArrowStyle extends BaseButtonStyle<ArrowStyle> {
+	public static class ToggleButtonStyle extends BaseButtonStyle<ToggleButtonStyle> {
+	}
+
+	public static class RadioButtonStyle extends BaseButtonStyle<RadioButtonStyle> {
+	}
+
+	public static class CheckBoxStyle extends BaseButtonStyle<CheckBoxStyle> {
+	}
+
+	public static class ArrowButtonStyle extends BaseButtonStyle<ArrowButtonStyle> {
 		public ArrowDirection direction;
 
-		public ArrowStyle direction(ArrowDirection direction) {
+		public ArrowButtonStyle direction(ArrowDirection direction) {
 			this.direction = direction;
 			return this;
 		}

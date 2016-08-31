@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.alignment;
+
 import java.util.Arrays;
 
 import org.eclipse.swt.graphics.Point;
@@ -11,7 +13,7 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorTableItem;
-import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements EditorTable {
 	public SwtEditorTable(SwtEditorComposite parent, int style) {
@@ -284,7 +286,7 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	Table createWidget(Composite parent, int style) {
-		return new Table(parent, style);
+		return GurellaStudioPlugin.getToolkit().createTable(parent, style);
 	}
 
 	@Override
@@ -299,12 +301,12 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	public SwtEditorTableColumn createColumn(Alignment alignment) {
-		return new SwtEditorTableColumn(this, SwtWidgetStyle.alignment(alignment));
+		return new SwtEditorTableColumn(this, alignment(alignment));
 	}
 
 	@Override
 	public SwtEditorTableColumn createColumn(int index, Alignment alignment) {
-		return new SwtEditorTableColumn(this, index, SwtWidgetStyle.alignment(alignment));
+		return new SwtEditorTableColumn(this, index, alignment(alignment));
 	}
 
 	@Override

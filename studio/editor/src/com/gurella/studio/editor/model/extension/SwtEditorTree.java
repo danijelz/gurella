@@ -11,6 +11,7 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTreeColumn;
 import com.gurella.engine.editor.ui.EditorTreeItem;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements EditorTree {
@@ -227,7 +228,7 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 
 	@Override
 	Tree createWidget(Composite parent, int style) {
-		return new Tree(parent, style);
+		return GurellaStudioPlugin.getToolkit().createTree(parent, style);
 	}
 
 	@Override

@@ -1,13 +1,11 @@
 package com.gurella.studio.editor.model.extension.style;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
 import org.eclipse.swt.SWT;
 
-import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.Direction;
+import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
+import com.gurella.engine.editor.ui.EditorButton.BaseButtonStyle;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
@@ -21,45 +19,8 @@ import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
-import com.gurella.engine.editor.ui.style.WidgetStyle;
-import com.gurella.engine.utils.Reflection;
 
 public class SwtWidgetStyle {
-	private static final ObjectIntMap<WidgetStyle<?>> styleToSwtMap = new ObjectIntMap<>();
-
-	static {
-		Class<SWT> swtClass = SWT.class;
-		HashMap<String, Integer> swtValuesByName = new HashMap<>();
-		Arrays.stream(Reflection.getDeclaredFields(swtClass)).filter(f -> int.class.equals(f.getType()))
-				.forEach(f -> swtValuesByName.put(f.getName(), (Integer) Reflection.getFieldValue(f, null)));
-
-		Class<?>[] styleClasses = WidgetStyle.class.getClasses();
-		Arrays.stream(styleClasses).filter(c -> WidgetStyle.class.isAssignableFrom(c))
-				.forEach(c -> Arrays.stream(Reflection.getDeclaredFields(c))
-						.filter(f -> WidgetStyle.class.isAssignableFrom(f.getType())).forEach(f -> styleToSwtMap
-								.put(Reflection.getFieldValue(f, null), swtValuesByName.get(f.getName()).intValue())));
-	}
-
-	public static int getSwtStyle(WidgetStyle<?> style) {
-		return styleToSwtMap.get(style, SWT.DEFAULT);
-	}
-
-	public static int getSwtStyle(WidgetStyle<?>... styles) {
-		int result = 0;
-		for (WidgetStyle<?> style : styles) {
-			result |= getSwtStyle(style);
-		}
-		return result;
-	}
-
-	public static int getSwtStyle(int initialStyle, WidgetStyle<?>... styles) {
-		int result = initialStyle;
-		for (WidgetStyle<?> style : styles) {
-			result |= getSwtStyle(style);
-		}
-		return result;
-	}
-
 	private static int extractControlStyle(ControlStyle<?> style) {
 		int result = 0;
 		if (style.textDirection != null) {
@@ -321,5 +282,41 @@ public class SwtWidgetStyle {
 		}
 
 		return result;
+	}
+
+	public static int extractButtonStyle(BaseButtonStyle<?> style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractControlStyle(style);
+		if (style.alignment != null) {
+			result |= alignment(style.alignment);
+		}
+
+		if (style.wrap) {
+			result |= SWT.WRAP;
+		}
+
+		if (style.flat) {
+			result |= SWT.FLAT;
+		}
+
+		return result;
+	}
+
+	public static int arrowDirection(ArrowDirection arrowDirection) {
+		switch (arrowDirection) {
+		case UP:
+			return SWT.UP;
+		case DOWN:
+			return SWT.DOWN;
+		case LEFT:
+			return SWT.LEFT;
+		case RIGHT:
+			return SWT.RIGHT;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 }

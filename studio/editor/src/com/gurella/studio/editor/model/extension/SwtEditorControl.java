@@ -27,6 +27,12 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	@Override
+	void init(T widget) {
+		GurellaStudioPlugin.getToolkit().adapt(widget, true, true);
+		super.init(widget);
+	}
+
+	@Override
 	public SwtEditorBaseComposite<?> getParent() {
 		Composite parent = widget.getParent();
 		return getEditorWidget(parent);

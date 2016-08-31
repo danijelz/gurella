@@ -1,6 +1,8 @@
 package com.gurella.studio.editor.model.extension;
 
 import static com.gurella.engine.utils.Values.cast;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.arrowDirection;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractButtonStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractComboStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractLabelStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleControlStyle;
@@ -11,7 +13,6 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.ext
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTextStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractToolBarStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTreeStyle;
-import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.length;
 
 import java.io.InputStream;
@@ -25,7 +26,12 @@ import org.eclipse.swt.widgets.Display;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
+import com.gurella.engine.editor.ui.EditorButton.ArrowButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
+import com.gurella.engine.editor.ui.EditorButton.ButtonStyle;
+import com.gurella.engine.editor.ui.EditorButton.CheckBoxStyle;
+import com.gurella.engine.editor.ui.EditorButton.RadioButtonStyle;
+import com.gurella.engine.editor.ui.EditorButton.ToggleButtonStyle;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
@@ -56,7 +62,6 @@ import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
-import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
@@ -392,67 +397,54 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.CHECK, styles));
+	public SwtEditorButton createCheckBox(EditorComposite parent) {
+		return new SwtEditorButton(cast(parent), SWT.CHECK);
 	}
 
 	@Override
-	public SwtEditorButton createCheckBox(EditorComposite parent, String text,
-			WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.CHECK, styles));
+	public SwtEditorButton createCheckBox(EditorComposite parent, CheckBoxStyle style) {
+		return new SwtEditorButton(cast(parent), SWT.CHECK | extractButtonStyle(style));
 	}
 
 	@Override
-	public EditorButton createButton(EditorComposite parent, String text, WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.PUSH, styles));
+	public EditorButton createButton(EditorComposite parent) {
+		return new SwtEditorButton(cast(parent), SWT.PUSH);
 	}
 
 	@Override
-	public EditorButton createButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.PUSH, styles));
+	public EditorButton createButton(EditorComposite parent, ButtonStyle style) {
+		return new SwtEditorButton(cast(parent), SWT.PUSH | extractButtonStyle(style));
 	}
 
 	@Override
-	public EditorButton createToggleButton(EditorComposite parent, String text,
-			WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.TOGGLE, styles));
+	public EditorButton createToggleButton(EditorComposite parent) {
+		return new SwtEditorButton(cast(parent), SWT.TOGGLE);
 	}
 
 	@Override
-	public EditorButton createToggleButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.TOGGLE, styles));
+	public EditorButton createToggleButton(EditorComposite parent, ToggleButtonStyle style) {
+		return new SwtEditorButton(cast(parent), SWT.TOGGLE | extractButtonStyle(style));
 	}
 
 	@Override
-	public EditorButton createRadioButton(EditorComposite parent, String text,
-			WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), text, getSwtStyle(SWT.RADIO, styles));
+	public EditorButton createRadioButton(EditorComposite parent) {
+		return new SwtEditorButton(cast(parent), SWT.RADIO);
 	}
 
 	@Override
-	public EditorButton createRadioButton(EditorComposite parent, WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.RADIO, styles));
+	public EditorButton createRadioButton(EditorComposite parent, RadioButtonStyle style) {
+		return new SwtEditorButton(cast(parent), SWT.RADIO | extractButtonStyle(style));
 	}
 
 	@Override
-	public EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection,
-			WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.ARROW | extractArrowDirection(arrowDirection), styles));
+	public EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection) {
+		return new SwtEditorButton(cast(parent), SWT.ARROW | arrowDirection(arrowDirection));
 	}
 
-	public static int extractArrowDirection(ArrowDirection arrowDirection) {
-		switch (arrowDirection) {
-		case UP:
-			return SWT.UP;
-		case DOWN:
-			return SWT.DOWN;
-		case LEFT:
-			return SWT.LEFT;
-		case RIGHT:
-			return SWT.RIGHT;
-		default:
-			throw new IllegalArgumentException();
-		}
+	@Override
+	public EditorButton createArrowButton(EditorComposite parent, ArrowButtonStyle style) {
+		return new SwtEditorButton(cast(parent),
+				SWT.ARROW | arrowDirection(style.direction) | extractButtonStyle(style));
 	}
 
 	@Override

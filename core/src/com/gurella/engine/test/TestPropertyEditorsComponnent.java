@@ -56,8 +56,8 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
 				byte index) {
 			EditorUi uiFactory = parent.getUiFactory();
-			@SuppressWarnings("unchecked")
-			EditorButton check = uiFactory.createCheckBox(parent, text);
+			EditorButton check = uiFactory.createCheckBox(parent);
+			check.setText(text);
 			byte byteValue = context.getPropertyValue().byteValue();
 			check.setSelection((byteValue & (1 << index)) != 0);
 		}
