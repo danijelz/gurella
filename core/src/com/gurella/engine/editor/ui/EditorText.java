@@ -87,6 +87,6 @@ public interface EditorText extends EditorScrollable {
 		public boolean wrap;
 		public boolean readOnly;
 		public boolean password;
-		public Alignment textAlignment;
+		public Alignment alignment;
 	}
 }

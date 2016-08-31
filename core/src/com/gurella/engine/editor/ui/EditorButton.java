@@ -28,7 +28,7 @@ public interface EditorButton extends EditorControl {
 	public static class ButtonStyle extends ControlStyle {
 		public boolean flat;
 		public boolean wrap;
-		public Alignment textAlignment;
+		public Alignment alignment;
 	}
 
 	public static class ArrowStyle extends ButtonStyle {

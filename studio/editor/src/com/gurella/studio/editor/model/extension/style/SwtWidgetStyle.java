@@ -13,9 +13,12 @@ import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.ShadowType;
+import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
+import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
+import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
@@ -268,6 +271,53 @@ public class SwtWidgetStyle {
 
 		if (style.readOnly) {
 			result |= SWT.READ_ONLY;
+		}
+
+		return result;
+	}
+
+	public static int extractTabFolderStyle(TabFolderStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+		result |= style.bottom ? SWT.BOTTOM : SWT.TOP;
+
+		return result;
+	}
+
+	public static int extractListStyle(ListStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+		result |= style.multi ? SWT.MULTI : SWT.SINGLE;
+
+		return result;
+	}
+
+	public static int extractTextStyle(TextStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+		if (style.alignment != null) {
+			result |= alignment(style.alignment);
+		}
+
+		if (style.wrap) {
+			result |= SWT.WRAP;
+		}
+
+		if (style.readOnly) {
+			result |= SWT.READ_ONLY;
+		}
+
+		if (style.password) {
+			result |= SWT.PASSWORD;
 		}
 
 		return result;

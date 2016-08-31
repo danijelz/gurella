@@ -10,16 +10,20 @@ import com.gurella.engine.editor.ui.EditorDateTime.DateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.EditorDateTime.DropDownDateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.TimeStyle;
+import com.gurella.engine.editor.ui.EditorExpandBar.ExpandBarStyle;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.SeparatorStyle;
 import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
+import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
+import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
+import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
@@ -106,17 +110,25 @@ public interface EditorUi {
 
 	EditorSpinner createSpinner(EditorComposite parent, SpinnerStyle style);
 
-	EditorTabFolder createTabFolder(EditorComposite parent, boolean top,
-			WidgetStyle<? super EditorTabFolder>... styles);
+	EditorTabFolder createTabFolder(EditorComposite parent, boolean bottom);
 
-	EditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll,
-			WidgetStyle<? super EditorExpandBar>... styles);
+	EditorTabFolder createTabFolder(EditorComposite parent, TabFolderStyle style);
 
-	EditorList createList(EditorComposite parent, boolean multi, WidgetStyle<? super EditorList>... styles);
+	EditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll);
 
-	EditorText createText(EditorComposite parent, WidgetStyle<? super EditorText>... styles);
+	EditorExpandBar createExpandBar(EditorComposite parent, ExpandBarStyle style);
 
-	EditorText createTextArea(EditorComposite parent, WidgetStyle<? super EditorText>... styles);
+	EditorList createList(EditorComposite parent, boolean multi);
+
+	EditorList createList(EditorComposite parent, ListStyle style);
+
+	EditorText createText(EditorComposite parent);
+
+	EditorText createText(EditorComposite parent, TextStyle style);
+
+	EditorText createTextArea(EditorComposite parent);
+
+	EditorText createTextArea(EditorComposite parent, TextStyle style);
 
 	EditorButton createCheckBox(EditorComposite parent, WidgetStyle<? super EditorButton>... styles);
 

@@ -6,7 +6,9 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.ext
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleControlStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleScrollableStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSpinnerStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTabFolderStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTableStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTextStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractToolBarStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTreeStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
@@ -33,7 +35,7 @@ import com.gurella.engine.editor.ui.EditorDateTime.DateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.EditorDateTime.DropDownDateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.TimeStyle;
-import com.gurella.engine.editor.ui.EditorExpandBar;
+import com.gurella.engine.editor.ui.EditorExpandBar.ExpandBarStyle;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorImage;
@@ -41,16 +43,16 @@ import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.SeparatorStyle;
 import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
-import com.gurella.engine.editor.ui.EditorList;
+import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
-import com.gurella.engine.editor.ui.EditorTabFolder;
+import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
-import com.gurella.engine.editor.ui.EditorText;
+import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
@@ -279,19 +281,33 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorList createList(EditorComposite parent, boolean multi, WidgetStyle<? super EditorList>... styles) {
-		int style = multi ? SWT.MULTI : SWT.SINGLE;
-		return new SwtEditorList(cast(parent), getSwtStyle(style, styles));
+	public SwtEditorList createList(EditorComposite parent, boolean multi) {
+		return new SwtEditorList(cast(parent), multi ? SWT.MULTI : SWT.SINGLE);
 	}
 
 	@Override
-	public SwtEditorText createText(EditorComposite parent, WidgetStyle<? super EditorText>... styles) {
-		return new SwtEditorText(cast(parent), getSwtStyle(SWT.SINGLE, styles));
+	public SwtEditorList createList(EditorComposite parent, ListStyle style) {
+		return new SwtEditorList(cast(parent), SwtWidgetStyle.extractListStyle(style));
 	}
 
 	@Override
-	public SwtEditorText createTextArea(EditorComposite parent, WidgetStyle<? super EditorText>... styles) {
-		return new SwtEditorText(cast(parent), getSwtStyle(SWT.MULTI, styles));
+	public SwtEditorText createText(EditorComposite parent) {
+		return new SwtEditorText(cast(parent), SWT.SINGLE);
+	}
+
+	@Override
+	public SwtEditorText createText(EditorComposite parent, TextStyle style) {
+		return new SwtEditorText(cast(parent), SWT.SINGLE | extractTextStyle(style));
+	}
+
+	@Override
+	public SwtEditorText createTextArea(EditorComposite parent) {
+		return new SwtEditorText(cast(parent), SWT.MULTI);
+	}
+
+	@Override
+	public SwtEditorText createTextArea(EditorComposite parent, TextStyle style) {
+		return new SwtEditorText(cast(parent), SWT.MULTI | extractTextStyle(style));
 	}
 
 	@Override
@@ -356,15 +372,23 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorTabFolder createTabFolder(EditorComposite parent, boolean top,
-			WidgetStyle<? super EditorTabFolder>... styles) {
-		return new SwtEditorTabFolder(cast(parent), getSwtStyle(styles));
+	public SwtEditorTabFolder createTabFolder(EditorComposite parent, boolean bottom) {
+		return new SwtEditorTabFolder(cast(parent), bottom ? SWT.BOTTOM : SWT.TOP);
 	}
 
 	@Override
-	public SwtEditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll,
-			WidgetStyle<? super EditorExpandBar>... styles) {
-		return new SwtEditorExpandBar(cast(parent), getSwtStyle(verticalScroll ? SWT.V_SCROLL : 0, styles));
+	public SwtEditorTabFolder createTabFolder(EditorComposite parent, TabFolderStyle style) {
+		return new SwtEditorTabFolder(cast(parent), extractTabFolderStyle(style));
+	}
+
+	@Override
+	public SwtEditorExpandBar createExpandBar(EditorComposite parent, boolean verticalScroll) {
+		return new SwtEditorExpandBar(cast(parent), verticalScroll ? SWT.V_SCROLL : 0);
+	}
+
+	@Override
+	public SwtEditorExpandBar createExpandBar(EditorComposite parent, ExpandBarStyle style) {
+		return new SwtEditorExpandBar(cast(parent), extractSimpleScrollableStyle(style));
 	}
 
 	@Override
@@ -413,10 +437,10 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public EditorButton createArrowButton(EditorComposite parent, ArrowDirection arrowDirection,
 			WidgetStyle<? super EditorButton>... styles) {
-		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.ARROW | getArrowStyle(arrowDirection), styles));
+		return new SwtEditorButton(cast(parent), getSwtStyle(SWT.ARROW | extractArrowDirection(arrowDirection), styles));
 	}
 
-	public static int getArrowStyle(ArrowDirection arrowDirection) {
+	public static int extractArrowDirection(ArrowDirection arrowDirection) {
 		switch (arrowDirection) {
 		case UP:
 			return SWT.UP;

@@ -72,4 +72,8 @@ public interface EditorList extends EditorScrollable {
 	void setTopIndex(int index);
 
 	void showSelection();
+
+	public static class ListStyle extends ScrollableStyle {
+		public boolean multi;
+	}
 }

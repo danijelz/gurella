@@ -16,4 +16,7 @@ public interface EditorExpandBar extends EditorBaseComposite {
 	EditorExpandItem createItem();
 
 	EditorExpandItem createItem(int index);
+
+	public static class ExpandBarStyle extends ScrollableStyle {
+	}
 }
