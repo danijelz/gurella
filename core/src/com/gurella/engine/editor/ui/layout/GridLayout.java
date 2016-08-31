@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui.layout;
 
-public class GridLayout implements EditorLayout {
+public class GridLayout extends EditorLayout {
 	public int numColumns = 1;
 	public boolean makeColumnsEqualWidth = false;
 	public int marginWidth = 5;
