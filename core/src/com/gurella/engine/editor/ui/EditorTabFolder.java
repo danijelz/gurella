@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-public interface EditorTabFolder extends EditorComposite {
+public interface EditorTabFolder extends EditorBaseComposite {
 	EditorTabItem getItem(int index);
 
 	EditorTabItem getItem(GridPoint2 point);

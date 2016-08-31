@@ -4,4 +4,7 @@ public interface EditorGroup extends EditorComposite {
 	String getText();
 
 	void setText(String string);
+
+	public static class GroupStyle extends CompositeStyle {
+	}
 }

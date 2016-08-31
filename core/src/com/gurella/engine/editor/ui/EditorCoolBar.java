@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-public interface EditorCoolBar extends EditorComposite {
+public interface EditorCoolBar extends EditorBaseComposite {
 	EditorCoolItem getItem(int index);
 
 	int getItemCount();

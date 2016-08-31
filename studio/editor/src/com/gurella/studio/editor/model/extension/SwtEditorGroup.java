@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 import com.gurella.engine.editor.ui.EditorGroup;
+import com.gurella.engine.editor.ui.layout.EditorLayout;
 
 public class SwtEditorGroup extends SwtEditorBaseComposite<Group> implements EditorGroup {
 	public SwtEditorGroup(SwtEditorComposite parent, int style) {
@@ -23,5 +24,17 @@ public class SwtEditorGroup extends SwtEditorBaseComposite<Group> implements Edi
 	@Override
 	Group createWidget(Composite parent, int style) {
 		return new Group(parent, style);
+	}
+
+	@Override
+	public EditorLayout getLayout() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setLayout(EditorLayout layout) {
+		// TODO Auto-generated method stub
+
 	}
 }

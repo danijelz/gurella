@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorDateTime extends EditorComposite {
+public interface EditorDateTime extends EditorBaseComposite {
 	int getDay();
 
 	void setDay(int day);

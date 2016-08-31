@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.utils.GridRectangle;
 
 public interface EditorControl extends EditorWidget {
-	EditorComposite getParent();
+	EditorBaseComposite getParent();
 
 	int getBorderWidth();
 
@@ -100,7 +100,7 @@ public interface EditorControl extends EditorWidget {
 	GridPoint2 toControl(int x, int y);
 
 	GridPoint2 toDisplay(int x, int y);
-	
+
 	public static class ControlStyle {
 		public Direction textDirection;
 		public boolean border;

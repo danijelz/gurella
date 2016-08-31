@@ -12,6 +12,12 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.editor.property.PropertyEditorContext;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorFactory;
+import com.gurella.engine.editor.ui.EditorButton;
+import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
@@ -36,4 +42,24 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	public int[] testIntArray = new int[3];
 	public Integer[] testIntegerArray = new Integer[3];
 	public Vector3[] testVectorArray = new Vector3[3];
+
+	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class)
+	public Object testCustomEditor;
+
+	static class TestPropertyEditorFactory implements PropertyEditorFactory<Byte> {
+		@Override
+		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
+			createCheck(context, parent, "tap", (byte) 1);
+			createCheck(context, parent, "touch", (byte) 2);
+		}
+
+		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
+				byte index) {
+			EditorUi uiFactory = parent.getUiFactory();
+			@SuppressWarnings("unchecked")
+			EditorButton check = uiFactory.createCheckBox(parent, text);
+			byte byteValue = context.getPropertyValue().byteValue();
+			check.setSelection((byteValue & (1 << index)) != 0);
+		}
+	}
 }

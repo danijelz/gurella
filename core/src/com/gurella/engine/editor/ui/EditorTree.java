@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorTree extends EditorComposite {
+public interface EditorTree extends EditorBaseComposite {
 	void clear(int index, boolean all);
 
 	void clearAll(boolean all);
@@ -97,7 +97,9 @@ public interface EditorTree extends EditorComposite {
 
 	public static class TreeStyle extends ScrollableStyle {
 		public boolean check;
+		public boolean multiSelection;
 		public boolean fullSelection;
 		public boolean noScroll;
+		public boolean virtual;
 	}
 }

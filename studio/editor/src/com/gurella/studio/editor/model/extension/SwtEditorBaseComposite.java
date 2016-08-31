@@ -1,17 +1,15 @@
 package com.gurella.studio.editor.model.extension;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorBaseComposite;
 import com.gurella.engine.editor.ui.EditorControl;
 
 public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEditorScrollable<T>
-		implements EditorComposite {
+		implements EditorBaseComposite {
 	public SwtEditorBaseComposite() {
 	}
 
@@ -20,9 +18,9 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 	}
 
 	@Override
-	public List<EditorControl> getChildren() {
+	public SwtEditorControl<?>[] getChildren() {
 		return Arrays.<Control> stream(widget.getChildren()).map(c -> (EditorControl) instances.get(c))
-				.collect(Collectors.toList());
+				.toArray(i -> new SwtEditorControl<?>[i]);
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.gurella.engine.editor.ui.EditorToolItem.ToolItemType;
 
-public interface EditorToolBar extends EditorComposite {
+public interface EditorToolBar extends EditorBaseComposite {
 	EditorToolItem getItem(int index);
 
 	EditorToolItem getItem(int x, int y);

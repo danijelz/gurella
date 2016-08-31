@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorTable extends EditorComposite {
+public interface EditorTable extends EditorBaseComposite {
 	void clear(int index);
 
 	void clear(int[] indices);
@@ -116,12 +116,13 @@ public interface EditorTable extends EditorComposite {
 	EditorTableItem createItem();
 
 	EditorTableItem createItem(int index);
-	
+
 	public static class TableStyle extends ScrollableStyle {
-		//TODO
-	}
-	
-	public enum TableType {
-		SINGLE, MULTI;
+		public boolean check;
+		public boolean multiSelection;
+		public boolean fullSelection;
+		public boolean hideSelection;
+		public boolean virtual;
+		public boolean noScroll;
 	}
 }

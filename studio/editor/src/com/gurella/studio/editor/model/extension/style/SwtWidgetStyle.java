@@ -7,9 +7,13 @@ import org.eclipse.swt.SWT;
 
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.editor.ui.Direction;
+import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
 import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
+import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
 import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
+import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
+import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.engine.utils.Reflection;
 
@@ -104,5 +108,71 @@ public class SwtWidgetStyle {
 		}
 
 		return result;
+	}
+
+	public static int extractCompositeStyle(CompositeStyle style) {
+		return style == null ? SWT.NONE : extractScrollableStyle(style);
+	}
+
+	public static int extractTableStyle(TableStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+		result |= (style.multiSelection ? SWT.MULTI : SWT.SINGLE);
+
+		if (style.check) {
+			result |= SWT.CHECK;
+		}
+
+		if (style.fullSelection) {
+			result |= SWT.FULL_SELECTION;
+		}
+
+		if (style.hideSelection) {
+			result |= SWT.HIDE_SELECTION;
+		}
+
+		if (style.virtual) {
+			result |= SWT.VIRTUAL;
+		}
+
+		if (style.noScroll) {
+			result |= SWT.NO_SCROLL;
+		}
+
+		return result;
+	}
+
+	public static int extractTreeStyle(TreeStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+		result |= (style.multiSelection ? SWT.MULTI : SWT.SINGLE);
+
+		if (style.check) {
+			result |= SWT.CHECK;
+		}
+
+		if (style.fullSelection) {
+			result |= SWT.FULL_SELECTION;
+		}
+
+		if (style.virtual) {
+			result |= SWT.VIRTUAL;
+		}
+
+		if (style.noScroll) {
+			result |= SWT.NO_SCROLL;
+		}
+
+		return result;
+	}
+
+	public static int extractSimpleCompositeStyle(LinkStyle style) {
+		return style == null ? SWT.NONE : extractControlStyle(style);
 	}
 }

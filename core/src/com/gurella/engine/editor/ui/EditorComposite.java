@@ -1,15 +1,11 @@
 package com.gurella.engine.editor.ui;
 
-import java.util.List;
+import com.gurella.engine.editor.ui.layout.EditorLayout;
 
-public interface EditorComposite extends EditorScrollable {
-	List<EditorControl> getChildren();
+public interface EditorComposite extends EditorBaseComposite {
+	EditorLayout getLayout();
 
-	void layout();
-
-	EditorControl[] getTabList();
-
-	void setTabList(EditorControl[] tabList);
+	void setLayout(EditorLayout layout);
 
 	public static class CompositeStyle extends ScrollableStyle {
 	}

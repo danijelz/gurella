@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorSpinner extends EditorComposite {
+public interface EditorSpinner extends EditorBaseComposite {
 	void copy();
 
 	void cut();

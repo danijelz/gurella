@@ -1,6 +1,10 @@
 package com.gurella.studio.editor.model.extension;
 
 import static com.gurella.engine.utils.Values.cast;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleCompositeStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTableStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractToolBarStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractTreeStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.getSwtStyle;
 
 import java.io.InputStream;
@@ -18,15 +22,16 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorDateTime;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.EditorExpandBar;
 import com.gurella.engine.editor.ui.EditorFont;
-import com.gurella.engine.editor.ui.EditorGroup;
+import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLabel;
-import com.gurella.engine.editor.ui.EditorLink;
+import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
 import com.gurella.engine.editor.ui.EditorList;
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.engine.editor.ui.EditorProgressBar;
@@ -35,9 +40,10 @@ import com.gurella.engine.editor.ui.EditorScale;
 import com.gurella.engine.editor.ui.EditorSlider;
 import com.gurella.engine.editor.ui.EditorSpinner;
 import com.gurella.engine.editor.ui.EditorTabFolder;
+import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText;
-import com.gurella.engine.editor.ui.EditorToolBar;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
+import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -149,13 +155,23 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorComposite createComposite(EditorComposite parent, WidgetStyle<? super EditorComposite>... styles) {
-		return new SwtEditorComposite(cast(parent), getSwtStyle(styles));
+	public SwtEditorComposite createComposite(EditorComposite parent) {
+		return new SwtEditorComposite(cast(parent), SWT.NONE);
 	}
 
 	@Override
-	public SwtEditorGroup createGroup(EditorComposite parent, WidgetStyle<? super EditorGroup>... styles) {
-		return new SwtEditorGroup(cast(parent), getSwtStyle(styles));
+	public SwtEditorComposite createComposite(EditorComposite parent, CompositeStyle style) {
+		return new SwtEditorComposite(cast(parent), SwtWidgetStyle.extractCompositeStyle(style));
+	}
+
+	@Override
+	public SwtEditorGroup createGroup(EditorComposite parent) {
+		return new SwtEditorGroup(cast(parent), SWT.NONE);
+	}
+
+	@Override
+	public SwtEditorGroup createGroup(EditorComposite parent, GroupStyle style) {
+		return new SwtEditorGroup(cast(parent), SwtWidgetStyle.extractCompositeStyle(style));
 	}
 
 	@Override
@@ -179,13 +195,25 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorLink createLink(EditorComposite parent, WidgetStyle<? super EditorLink>... styles) {
-		return new SwtEditorLink(cast(parent), getSwtStyle(styles));
+	public SwtEditorLink createLink(EditorComposite parent) {
+		return new SwtEditorLink(cast(parent), SWT.NONE);
 	}
 
 	@Override
-	public SwtEditorLink createLink(EditorComposite parent, String text, WidgetStyle<? super EditorLink>... styles) {
-		SwtEditorLink link = createLink(parent, styles);
+	public SwtEditorLink createLink(EditorComposite parent, LinkStyle style) {
+		return new SwtEditorLink(cast(parent), extractSimpleCompositeStyle(style));
+	}
+
+	@Override
+	public SwtEditorLink createLink(EditorComposite parent, String text) {
+		SwtEditorLink link = createLink(parent);
+		link.setText(text);
+		return link;
+	}
+
+	@Override
+	public SwtEditorLink createLink(EditorComposite parent, String text, LinkStyle style) {
+		SwtEditorLink link = createLink(parent, style);
 		link.setText(text);
 		return link;
 	}
@@ -373,7 +401,27 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public EditorToolBar createToolBar(EditorComposite parent, boolean vertical, ToolBarStyle style) {
-		return new SwtEditorToolBar(cast(parent), orientation(vertical) | SwtWidgetStyle.extractToolBarStyle(style));
+	public SwtEditorToolBar createToolBar(EditorComposite parent, boolean vertical, ToolBarStyle style) {
+		return new SwtEditorToolBar(cast(parent), orientation(vertical) | extractToolBarStyle(style));
+	}
+
+	@Override
+	public SwtEditorTable createTable(EditorComposite parent) {
+		return new SwtEditorTable(cast(parent), SWT.SINGLE | SWT.FULL_SELECTION);
+	}
+
+	@Override
+	public SwtEditorTable createTable(EditorComposite parent, TableStyle style) {
+		return new SwtEditorTable(cast(parent), extractTableStyle(style));
+	}
+
+	@Override
+	public SwtEditorTree createTree(EditorComposite parent) {
+		return new SwtEditorTree(cast(parent), SWT.SINGLE | SWT.FULL_SELECTION);
+	}
+
+	@Override
+	public SwtEditorTree createTree(EditorComposite parent, TreeStyle style) {
+		return new SwtEditorTree(cast(parent), extractTreeStyle(style));
 	}
 }

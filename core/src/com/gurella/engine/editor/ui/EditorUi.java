@@ -3,8 +3,13 @@ package com.gurella.engine.editor.ui;
 import java.io.InputStream;
 
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
+import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
+import com.gurella.engine.editor.ui.EditorLink.LinkStyle;
+import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
+import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.style.WidgetStyle;
 
 public interface EditorUi {
@@ -20,9 +25,13 @@ public interface EditorUi {
 
 	EditorFont createFont(EditorControl control, int height, boolean bold, boolean italic);
 
-	EditorComposite createComposite(EditorComposite parent, WidgetStyle<? super EditorComposite>... styles);
+	EditorComposite createComposite(EditorComposite parent);
 
-	EditorGroup createGroup(EditorComposite parent, WidgetStyle<? super EditorGroup>... styles);
+	EditorComposite createComposite(EditorComposite parent, CompositeStyle style);
+
+	EditorGroup createGroup(EditorComposite parent);
+
+	EditorGroup createGroup(EditorComposite parent, GroupStyle style);
 
 	EditorLabel createLabel(EditorComposite parent, WidgetStyle<? super EditorLabel>... styles);
 
@@ -30,9 +39,13 @@ public interface EditorUi {
 
 	EditorLabel createSeparator(EditorComposite parent, boolean vertical, WidgetStyle<? super EditorLabel>... styles);
 
-	EditorLink createLink(EditorComposite parent, WidgetStyle<? super EditorLink>... styles);
+	EditorLink createLink(EditorComposite parent);
 
-	EditorLink createLink(EditorComposite parent, String text, WidgetStyle<? super EditorLink>... styles);
+	EditorLink createLink(EditorComposite parent, LinkStyle style);
+
+	EditorLink createLink(EditorComposite parent, String text);
+
+	EditorLink createLink(EditorComposite parent, String text, LinkStyle style);
 
 	EditorProgressBar createProgressBar(EditorComposite parent, boolean vertical, boolean smooth, boolean indeterminate,
 			WidgetStyle<? super EditorProgressBar>... styles);
@@ -94,4 +107,12 @@ public interface EditorUi {
 	EditorToolBar createToolBar(EditorComposite parent, boolean vertical);
 
 	EditorToolBar createToolBar(EditorComposite parent, boolean vertical, ToolBarStyle style);
+
+	EditorTable createTable(EditorComposite parent);
+
+	EditorTable createTable(EditorComposite parent, TableStyle style);
+
+	EditorTree createTree(EditorComposite parent);
+
+	EditorTree createTree(EditorComposite parent, TreeStyle style);
 }

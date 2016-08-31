@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorExpandBar extends EditorComposite {
+public interface EditorExpandBar extends EditorBaseComposite {
 	EditorExpandItem getItem(int index);
 
 	int getItemCount();

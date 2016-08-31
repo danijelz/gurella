@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-public interface EditorCombo extends EditorComposite {
+public interface EditorCombo extends EditorBaseComposite {
 	void add(String string);
 
 	void add(String string, int index);
