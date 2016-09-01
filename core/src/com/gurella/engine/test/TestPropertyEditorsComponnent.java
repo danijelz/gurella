@@ -76,8 +76,8 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	private static final class ButtonSelectedListener implements EditorEventListener {
 		@Override
 		public void handleEvent(EditorEvent event) {
-			event.getEditorUi().showErrorDialog("Button Info", "Button pressed",
-					new RuntimeException("Button pressed"));
+			event.getEditorUi().showErrorDialog("ErrorDialog Test", "ErrorDialog Test",
+					new RuntimeException("ErrorDialog Test"));
 		}
 	}
 }

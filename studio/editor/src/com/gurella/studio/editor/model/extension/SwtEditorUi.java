@@ -20,8 +20,11 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.len
 import java.io.InputStream;
 
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -50,6 +53,7 @@ import com.gurella.engine.editor.ui.EditorExpandBar.ExpandBarStyle;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorImage;
+import com.gurella.engine.editor.ui.EditorInputValidator;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.SeparatorStyle;
@@ -559,5 +563,18 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public boolean showConfirmDialog(String title, String message) {
 		return MessageDialog.openConfirm(getShell(), title, message);
+	}
+
+	@Override
+	public String showInputDialog(String dialogTitle, String dialogMessage, String initialValue,
+			EditorInputValidator validator) {
+		IInputValidator swtValidator = validator == null ? null : new IInputValidator() {
+			@Override
+			public String isValid(String newText) {
+				return validator.isValid(newText);
+			}
+		};
+		InputDialog dialog = new InputDialog(getShell(), dialogTitle, dialogMessage, initialValue, swtValidator);
+		return dialog.open() == Window.OK ? dialog.getValue() : null;
 	}
 }

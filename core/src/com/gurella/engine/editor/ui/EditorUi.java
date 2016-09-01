@@ -171,7 +171,7 @@ public interface EditorUi {
 	EditorTree createTree(EditorComposite parent, TreeStyle style);
 
 	EditorShell createShell(ShellStyle style);
-	
+
 	EditorShell createShell(EditorWidget parent, ShellStyle style);
 
 	EditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth);
@@ -179,7 +179,7 @@ public interface EditorUi {
 	EditorSashForm createSashForm(EditorComposite parent, SashFormStyle style);
 
 	void showErrorDialog(String dialogTitle, String message, Throwable throwable);
-	
+
 	void showErrorDialog(String title, String message);
 
 	void showWarningDialog(String title, String message);
@@ -189,4 +189,7 @@ public interface EditorUi {
 	boolean showQuestionDialog(String title, String message);
 
 	boolean showConfirmDialog(String title, String message);
+
+	String showInputDialog(String dialogTitle, String dialogMessage, String initialValue,
+			EditorInputValidator validator);
 }
