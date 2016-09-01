@@ -170,12 +170,16 @@ public interface EditorUi {
 
 	EditorTree createTree(EditorComposite parent, TreeStyle style);
 
+	EditorShell createShell(ShellStyle style);
+	
 	EditorShell createShell(EditorWidget parent, ShellStyle style);
 
 	EditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth);
 
 	EditorSashForm createSashForm(EditorComposite parent, SashFormStyle style);
 
+	void showErrorDialog(String dialogTitle, String message, Throwable throwable);
+	
 	void showErrorDialog(String title, String message);
 
 	void showWarningDialog(String title, String message);

@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
 import static com.gurella.engine.utils.Values.cast;
+import static com.gurella.studio.GurellaStudioPlugin.createErrorStatus;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.arrowDirection;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractButtonStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractComboStyle;
@@ -18,6 +19,7 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.len
 
 import java.io.InputStream;
 
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -25,6 +27,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
@@ -57,6 +60,7 @@ import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorSashForm.SashFormStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorShell;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
@@ -138,6 +142,10 @@ public class SwtEditorUi implements EditorUi {
 			display = Display.getDefault();
 		}
 		return display;
+	}
+
+	public static Shell getShell() {
+		return getDisplay().getActiveShell();
 	}
 
 	public static Color toGdxColor(org.eclipse.swt.graphics.Color color) {
@@ -488,6 +496,11 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
+	public EditorShell createShell(ShellStyle style) {
+		return new SwtEditorShell(getShell(), extractShellStyle(style));
+	}
+
+	@Override
 	public SwtEditorShell createShell(EditorWidget parent, ShellStyle style) {
 		SwtEditorWidget<?> swtParent = (SwtEditorWidget<?>) parent;
 		return new SwtEditorShell(swtParent.widget.getDisplay().getActiveShell(), extractShellStyle(style));
@@ -520,26 +533,31 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public void showErrorDialog(String title, String message) {
-		MessageDialog.openError(getDisplay().getActiveShell(), title, message);
+		MessageDialog.openError(getShell(), title, message);
+	}
+
+	@Override
+	public void showErrorDialog(String dialogTitle, String dialogMessage, Throwable t) {
+		ErrorDialog.openError(getShell(), dialogTitle, dialogMessage, createErrorStatus(t, t.toString()));
 	}
 
 	@Override
 	public void showWarningDialog(String title, String message) {
-		MessageDialog.openWarning(getDisplay().getActiveShell(), title, message);
+		MessageDialog.openWarning(getShell(), title, message);
 	}
 
 	@Override
 	public void showInformationDialog(String title, String message) {
-		MessageDialog.openInformation(getDisplay().getActiveShell(), title, message);
+		MessageDialog.openInformation(getShell(), title, message);
 	}
 
 	@Override
 	public boolean showQuestionDialog(String title, String message) {
-		return MessageDialog.openQuestion(getDisplay().getActiveShell(), title, message);
+		return MessageDialog.openQuestion(getShell(), title, message);
 	}
 
 	@Override
 	public boolean showConfirmDialog(String title, String message) {
-		return MessageDialog.openConfirm(getDisplay().getActiveShell(), title, message);
+		return MessageDialog.openConfirm(getShell(), title, message);
 	}
 }

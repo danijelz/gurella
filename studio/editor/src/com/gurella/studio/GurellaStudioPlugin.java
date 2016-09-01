@@ -297,7 +297,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		return status;
 	}
 
-	private static MultiStatus createErrorStatus(Throwable t, String message) {
+	public static MultiStatus createErrorStatus(Throwable t, String message) {
 		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
 		Status[] childStatuses = Arrays.stream(stackTraces)
 				.map(st -> new Status(IStatus.ERROR, PLUGIN_ID, st.toString())).toArray(i -> new Status[i]);
