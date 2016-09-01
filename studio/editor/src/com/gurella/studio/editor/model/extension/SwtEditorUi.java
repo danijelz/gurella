@@ -54,6 +54,7 @@ import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
+import com.gurella.engine.editor.ui.EditorSashForm.SashFormStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
@@ -489,5 +490,30 @@ public class SwtEditorUi implements EditorUi {
 	public SwtEditorShell createShell(EditorWidget parent, ShellStyle style) {
 		SwtEditorWidget<?> swtParent = (SwtEditorWidget<?>) parent;
 		return new SwtEditorShell(swtParent.widget.getDisplay().getActiveShell(), extractShellStyle(style));
+	}
+
+	@Override
+	public SwtEditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth) {
+		int swtStyle = vertical ? SWT.VERTICAL : 0;
+		if (smooth) {
+			swtStyle |= SWT.SMOOTH;
+		}
+
+		return new SwtEditorSashForm(cast(parent), swtStyle);
+	}
+
+	@Override
+	public SwtEditorSashForm createSashForm(EditorComposite parent, SashFormStyle style) {
+		int swtStyle = extractSimpleScrollableStyle(style);
+
+		if (style.vertical) {
+			swtStyle |= SWT.VERTICAL;
+		}
+
+		if (style.smooth) {
+			swtStyle |= SWT.SMOOTH;
+		}
+
+		return new SwtEditorSashForm(cast(parent), swtStyle);
 	}
 }
