@@ -537,8 +537,8 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public void showErrorDialog(String dialogTitle, String dialogMessage, Throwable t) {
-		ErrorDialog.openError(getShell(), dialogTitle, dialogMessage, createErrorStatus(t, t.toString()));
+	public void showErrorDialog(String dialogTitle, String message, Throwable t) {
+		ErrorDialog.openError(getShell(), dialogTitle, message, createErrorStatus(t, t.toString()));
 	}
 
 	@Override

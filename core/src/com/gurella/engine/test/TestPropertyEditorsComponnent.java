@@ -62,7 +62,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			link.addListener(EditorEventType.Selection, new LinkSelectedListener());
 			EditorButton button = uiFactory.createButton(parent);
 			button.setText("Button");
-			button.addListener(EditorEventType.Selection, new LinkSelectedListener());
+			button.addListener(EditorEventType.Selection, new ButtonSelectedListener());
 		}
 	}
 
@@ -70,6 +70,14 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		@Override
 		public void handleEvent(EditorEvent event) {
 			event.getEditorUi().showInformationDialog("Link Info", "Link clicked");
+		}
+	}
+
+	private static final class ButtonSelectedListener implements EditorEventListener {
+		@Override
+		public void handleEvent(EditorEvent event) {
+			event.getEditorUi().showErrorDialog("Button Info", "Button pressed",
+					new RuntimeException("Button pressed"));
 		}
 	}
 }
