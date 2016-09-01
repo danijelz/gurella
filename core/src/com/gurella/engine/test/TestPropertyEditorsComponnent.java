@@ -54,6 +54,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			check.setText("check");
 			uiFactory.createLabel(parent, "Label");
 			uiFactory.createSeparator(parent, false);
+			uiFactory.createLink(parent, "Link");
 		}
 	}
 }

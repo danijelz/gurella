@@ -41,7 +41,8 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 
 	@Override
 	public SwtEditorTreeColumn[] getColumns() {
-		return Arrays.stream(widget.getColumns()).map(c -> getEditorWidget(c)).toArray(i -> new SwtEditorTreeColumn[i]);
+		return Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorWidget(c))
+				.toArray(i -> new SwtEditorTreeColumn[i]);
 	}
 
 	@Override
@@ -81,7 +82,8 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 
 	@Override
 	public SwtEditorTreeItem[] getItems() {
-		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTreeItem[i]);
+		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTreeItem[i]);
 	}
 
 	@Override
@@ -91,7 +93,8 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 
 	@Override
 	public SwtEditorTreeItem[] getSelection() {
-		return Arrays.stream(widget.getSelection()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTreeItem[i]);
+		return Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTreeItem[i]);
 	}
 
 	@Override
@@ -151,8 +154,8 @@ public class SwtEditorTree extends SwtEditorBaseComposite<Tree> implements Edito
 
 	@Override
 	public void setSelection(EditorTreeItem[] items) {
-		widget.setSelection(
-				Arrays.stream(items).map(i -> ((SwtEditorTreeItem) i).widget).toArray(i -> new TreeItem[i]));
+		widget.setSelection(Arrays.stream(items).sequential().map(i -> ((SwtEditorTreeItem) i).widget)
+				.toArray(i -> new TreeItem[i]));
 	}
 
 	@Override

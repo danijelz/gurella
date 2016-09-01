@@ -13,6 +13,8 @@ import com.gurella.engine.editor.ui.EditorLabel.BaseLabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.ShadowType;
 import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
+import com.gurella.engine.editor.ui.EditorShell.Modality;
+import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
@@ -315,6 +317,71 @@ public class SwtWidgetStyle {
 			return SWT.LEFT;
 		case RIGHT:
 			return SWT.RIGHT;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static int extractShellStyle(ShellStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+
+		if (style.modality != null) {
+			result |= modality(style.modality);
+		}
+
+		if (style.close) {
+			result |= SWT.CLOSE;
+		}
+
+		if (style.min) {
+			result |= SWT.MIN;
+		}
+
+		if (style.max) {
+			result |= SWT.MAX;
+		}
+
+		if (style.noTrim) {
+			result |= SWT.NO_TRIM;
+		}
+
+		if (style.resize) {
+			result |= SWT.RESIZE;
+		}
+
+		if (style.title) {
+			result |= SWT.TITLE;
+		}
+
+		if (style.onTop) {
+			result |= SWT.ON_TOP;
+		}
+
+		if (style.tool) {
+			result |= SWT.TOOL;
+		}
+
+		if (style.sheet) {
+			result |= SWT.SHEET;
+		}
+
+		return result;
+	}
+
+	private static int modality(Modality modality) {
+		switch (modality) {
+		case APPLICATION_MODAL:
+			return SWT.APPLICATION_MODAL;
+		case MODELESS:
+			return SWT.MODELESS;
+		case PRIMARY_MODAL:
+			return SWT.PRIMARY_MODAL;
+		case SYSTEM_MODAL:
+			return SWT.SYSTEM_MODAL;
 		default:
 			throw new IllegalArgumentException();
 		}

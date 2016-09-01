@@ -5,6 +5,7 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.arr
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractButtonStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractComboStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractLabelStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractShellStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleControlStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleScrollableStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSpinnerStyle;
@@ -54,6 +55,7 @@ import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
@@ -62,6 +64,7 @@ import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
+import com.gurella.engine.editor.ui.EditorWidget;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
@@ -480,5 +483,11 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public SwtEditorTree createTree(EditorComposite parent, TreeStyle style) {
 		return new SwtEditorTree(cast(parent), extractTreeStyle(style));
+	}
+
+	@Override
+	public SwtEditorShell createShell(EditorWidget parent, ShellStyle style) {
+		SwtEditorWidget<?> swtParent = (SwtEditorWidget<?>) parent;
+		return new SwtEditorShell(swtParent.widget.getDisplay().getActiveShell(), extractShellStyle(style));
 	}
 }

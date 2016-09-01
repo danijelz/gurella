@@ -33,7 +33,8 @@ public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements
 
 	@Override
 	public SwtEditorToolItem[] getItems() {
-		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorToolItem[i]);
+		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorToolItem[i]);
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
@@ -167,4 +168,6 @@ public interface EditorUi {
 	EditorTree createTree(EditorComposite parent);
 
 	EditorTree createTree(EditorComposite parent, TreeStyle style);
+
+	EditorShell createShell(EditorWidget parent, ShellStyle style);
 }

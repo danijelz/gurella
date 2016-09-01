@@ -77,7 +77,7 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	public SwtEditorTableColumn[] getColumns() {
-		return Arrays.stream(widget.getColumns()).map(c -> getEditorWidget(c))
+		return Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorWidget(c))
 				.toArray(i -> new SwtEditorTableColumn[i]);
 	}
 
@@ -118,7 +118,8 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	public SwtEditorTableItem[] getItems() {
-		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTableItem[i]);
+		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTableItem[i]);
 	}
 
 	@Override
@@ -128,7 +129,7 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	public SwtEditorTableItem[] getSelection() {
-		return Arrays.stream(widget.getSelection()).map(i -> getEditorWidget(i))
+		return Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
 				.toArray(i -> new SwtEditorTableItem[i]);
 	}
 
@@ -249,8 +250,8 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 
 	@Override
 	public void setSelection(EditorTableItem[] items) {
-		widget.setSelection(
-				Arrays.stream(items).map(i -> ((SwtEditorTableItem) i).widget).toArray(i -> new TableItem[i]));
+		widget.setSelection(Arrays.stream(items).sequential().map(i -> ((SwtEditorTableItem) i).widget)
+				.toArray(i -> new TableItem[i]));
 	}
 
 	@Override

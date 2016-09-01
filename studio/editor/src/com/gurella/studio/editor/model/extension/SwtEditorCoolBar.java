@@ -33,12 +33,14 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 
 	@Override
 	public SwtEditorCoolItem[] getItems() {
-		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorCoolItem[i]);
+		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorCoolItem[i]);
 	}
 
 	@Override
 	public GridPoint2[] getItemSizes() {
-		return Arrays.stream(widget.getItemSizes()).map(p -> new GridPoint2(p.x, p.y)).toArray(i -> new GridPoint2[i]);
+		return Arrays.stream(widget.getItemSizes()).sequential().map(p -> new GridPoint2(p.x, p.y))
+				.toArray(i -> new GridPoint2[i]);
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 
 	@Override
 	public void setItemLayout(int[] itemOrder, int[] wrapIndices, GridPoint2[] sizes) {
-		Point[] points = Arrays.stream(sizes).map(p -> new Point(p.x, p.y)).toArray(i -> new Point[i]);
+		Point[] points = Arrays.stream(sizes).sequential().map(p -> new Point(p.x, p.y)).toArray(i -> new Point[i]);
 		widget.setItemLayout(itemOrder, wrapIndices, points);
 	}
 

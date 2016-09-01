@@ -202,7 +202,8 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 
 	@Override
 	public void setImage(EditorImage[] images) {
-		widget.setImage(Arrays.stream(images).map(i -> ((SwtEditorImage) i).image).toArray(i -> new Image[i]));
+		widget.setImage(
+				Arrays.stream(images).sequential().map(i -> ((SwtEditorImage) i).image).toArray(i -> new Image[i]));
 	}
 
 	@Override
@@ -258,7 +259,8 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 
 	@Override
 	public SwtEditorTreeItem[] getItems() {
-		return Arrays.stream(widget.getItems()).map(i -> getEditorWidget(i)).toArray(i -> new SwtEditorTreeItem[i]);
+		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTreeItem[i]);
 	}
 
 	@Override
