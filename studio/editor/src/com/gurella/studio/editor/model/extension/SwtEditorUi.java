@@ -18,6 +18,7 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.len
 
 import java.io.InputStream;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -515,5 +516,30 @@ public class SwtEditorUi implements EditorUi {
 		}
 
 		return new SwtEditorSashForm(cast(parent), swtStyle);
+	}
+
+	@Override
+	public void showErrorDialog(String title, String message) {
+		MessageDialog.openError(getDisplay().getActiveShell(), title, message);
+	}
+
+	@Override
+	public void showWarningDialog(String title, String message) {
+		MessageDialog.openWarning(getDisplay().getActiveShell(), title, message);
+	}
+
+	@Override
+	public void showInformationDialog(String title, String message) {
+		MessageDialog.openInformation(getDisplay().getActiveShell(), title, message);
+	}
+
+	@Override
+	public boolean showQuestionDialog(String title, String message) {
+		return MessageDialog.openQuestion(getDisplay().getActiveShell(), title, message);
+	}
+
+	@Override
+	public boolean showConfirmDialog(String title, String message) {
+		return MessageDialog.openConfirm(getDisplay().getActiveShell(), title, message);
 	}
 }

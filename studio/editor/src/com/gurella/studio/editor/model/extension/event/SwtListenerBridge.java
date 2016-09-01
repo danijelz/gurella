@@ -18,4 +18,22 @@ public class SwtListenerBridge implements Listener {
 		EditorEvent editorEvent = new SwtEditorEvent(event);
 		listener.handleEvent(editorEvent);
 	}
+
+	@Override
+	public int hashCode() {
+		return 31 * listener.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+
+		SwtListenerBridge other = (SwtListenerBridge) obj;
+		return listener.equals(other.listener);
+	}
 }

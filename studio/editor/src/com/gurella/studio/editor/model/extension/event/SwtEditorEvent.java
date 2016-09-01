@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Event;
 import com.gurella.engine.editor.ui.EditorWidget;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventType;
+import com.gurella.studio.editor.model.extension.SwtEditorUi;
 import com.gurella.studio.editor.model.extension.SwtEditorWidget;
 
 public class SwtEditorEvent implements EditorEvent {
@@ -284,5 +285,10 @@ public class SwtEditorEvent implements EditorEvent {
 	@Override
 	public void setyDirection(int yDirection) {
 		event.yDirection = yDirection;
+	}
+
+	@Override
+	public SwtEditorUi getEditorUi() {
+		return SwtEditorUi.instance;
 	}
 }

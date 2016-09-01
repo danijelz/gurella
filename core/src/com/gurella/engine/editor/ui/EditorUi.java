@@ -171,8 +171,18 @@ public interface EditorUi {
 	EditorTree createTree(EditorComposite parent, TreeStyle style);
 
 	EditorShell createShell(EditorWidget parent, ShellStyle style);
-	
+
 	EditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth);
-	
+
 	EditorSashForm createSashForm(EditorComposite parent, SashFormStyle style);
+
+	void showErrorDialog(String title, String message);
+
+	void showWarningDialog(String title, String message);
+
+	void showInformationDialog(String title, String message);
+
+	boolean showQuestionDialog(String title, String message);
+
+	boolean showConfirmDialog(String title, String message);
 }

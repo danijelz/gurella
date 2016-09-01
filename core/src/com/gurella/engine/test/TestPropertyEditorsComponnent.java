@@ -17,7 +17,11 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorUi;
+import com.gurella.engine.editor.ui.event.EditorEvent;
+import com.gurella.engine.editor.ui.event.EditorEventListener;
+import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
@@ -54,7 +58,18 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			check.setText("check");
 			uiFactory.createLabel(parent, "Label");
 			uiFactory.createSeparator(parent, false);
-			uiFactory.createLink(parent, "Link");
+			EditorLink link = uiFactory.createLink(parent, "Link");
+			link.addListener(EditorEventType.Selection, new LinkSelectedListener());
+			EditorButton button = uiFactory.createButton(parent);
+			button.setText("Button");
+			button.addListener(EditorEventType.Selection, new LinkSelectedListener());
+		}
+	}
+
+	private static final class LinkSelectedListener implements EditorEventListener {
+		@Override
+		public void handleEvent(EditorEvent event) {
+			event.getEditorUi().showInformationDialog("Link Info", "Link clicked");
 		}
 	}
 }
