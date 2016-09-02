@@ -74,7 +74,7 @@ import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
-import com.gurella.engine.editor.ui.EditorWidget;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
@@ -505,12 +505,6 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorShell createShell(EditorWidget parent, ShellStyle style) {
-		SwtEditorWidget<?> swtParent = (SwtEditorWidget<?>) parent;
-		return new SwtEditorShell(swtParent.widget.getDisplay().getActiveShell(), extractShellStyle(style));
-	}
-
-	@Override
 	public SwtEditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth) {
 		int swtStyle = vertical ? SWT.VERTICAL : 0;
 		if (smooth) {
@@ -576,5 +570,13 @@ public class SwtEditorUi implements EditorUi {
 		};
 		InputDialog dialog = new InputDialog(getShell(), dialogTitle, dialogMessage, initialValue, swtValidator);
 		return dialog.open() == Window.OK ? dialog.getValue() : null;
+	}
+
+	@Override
+	public <T> T showDialog(EditorDialogProperties dialogProperties) {
+		SwtEditorDialog dialog = new SwtEditorDialog(dialogProperties);
+		dialog.create();
+		dialog.open();
+		return cast(dialog.returnValue);
 	}
 }

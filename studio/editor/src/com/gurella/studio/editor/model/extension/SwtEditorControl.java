@@ -88,6 +88,13 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	@Override
+	public void setBackground(int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setBackground(swtColor);
+	}
+
+	@Override
 	public GridRectangle getBounds() {
 		Rectangle bounds = widget.getBounds();
 		return new GridRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -160,6 +167,13 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	@Override
 	public void setForeground(Color color) {
 		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setForeground(swtColor);
+	}
+
+	@Override
+	public void setForeground(int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
 		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
 		widget.setForeground(swtColor);
 	}

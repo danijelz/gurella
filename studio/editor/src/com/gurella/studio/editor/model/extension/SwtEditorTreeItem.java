@@ -170,8 +170,22 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 	}
 
 	@Override
+	public void setBackground(int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setBackground(swtColor);
+	}
+
+	@Override
 	public void setBackground(int index, Color color) {
 		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setBackground(index, swtColor);
+	}
+
+	@Override
+	public void setBackground(int index, int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
 		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
 		widget.setBackground(index, swtColor);
 	}
@@ -189,8 +203,22 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 	}
 
 	@Override
+	public void setForeground(int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setForeground(swtColor);
+	}
+
+	@Override
 	public void setForeground(int index, Color color) {
 		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		widget.setForeground(index, swtColor);
+	}
+
+	@Override
+	public void setForeground(int index, int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
 		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
 		widget.setForeground(index, swtColor);
 	}

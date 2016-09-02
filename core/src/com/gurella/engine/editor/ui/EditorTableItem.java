@@ -50,13 +50,21 @@ public interface EditorTableItem extends EditorItem {
 
 	void setBackground(Color color);
 
+	void setBackground(int r, int g, int b, int a);
+
 	void setBackground(int index, Color color);
+
+	void setBackground(int index, int r, int g, int b, int a);
 
 	void setChecked(boolean checked);
 
 	void setForeground(Color color);
 
+	void setForeground(int r, int g, int b, int a);
+
 	void setForeground(int index, Color color);
+
+	void setForeground(int index, int r, int g, int b, int a);
 
 	void setGrayed(boolean grayed);
 

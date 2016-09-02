@@ -19,6 +19,10 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorUi;
+import com.gurella.engine.editor.ui.dialog.EditorDialog;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogContentFactory;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
@@ -63,6 +67,9 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			EditorButton button = uiFactory.createButton(parent);
 			button.setText("Button");
 			button.addListener(EditorEventType.Selection, new ButtonSelectedListener());
+			EditorButton dialogButton = uiFactory.createButton(parent);
+			dialogButton.setText("Dialog");
+			dialogButton.addListener(EditorEventType.Selection, new OpenDialogListenerListener());
 		}
 	}
 
@@ -78,6 +85,27 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		public void handleEvent(EditorEvent event) {
 			event.getEditorUi().showErrorDialog("ErrorDialog Test", "ErrorDialog Test",
 					new RuntimeException("ErrorDialog Test"));
+		}
+	}
+
+	private static final class OpenDialogListenerListener implements EditorEventListener {
+		@Override
+		public void handleEvent(EditorEvent event) {
+			String s = new EditorDialogProperties(new DialogContentFactory() {
+				@Override
+				public void createContent(EditorDialog dialog, EditorComposite parent) {
+				}
+			}).action("Test action 1", new ActListener()).action("Test action 2", true).show(event.getEditorUi());
+			if (s != null) {
+				event.getEditorUi().showInformationDialog("Info", "Info");
+			}
+		}
+	}
+
+	private static class ActListener implements DialogActionListener<String> {
+		@Override
+		public String handle(EditorDialog dialog) {
+			return "String";
 		}
 	}
 }

@@ -25,6 +25,8 @@ public interface EditorControl extends EditorWidget {
 
 	void setBackground(Color color);
 
+	void setBackground(int r, int g, int b, int a);
+
 	GridRectangle getBounds();
 
 	void setBounds(int x, int y, int width, int height);
@@ -48,6 +50,8 @@ public interface EditorControl extends EditorWidget {
 	Color getForeground();
 
 	void setForeground(Color color);
+
+	void setForeground(int r, int g, int b, int a);
 
 	Object getLayoutData();
 

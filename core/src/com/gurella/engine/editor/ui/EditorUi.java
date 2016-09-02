@@ -33,6 +33,7 @@ import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 
 public interface EditorUi {
 	void log(EditorLogLevel level, String message);
@@ -172,8 +173,6 @@ public interface EditorUi {
 
 	EditorShell createShell(ShellStyle style);
 
-	EditorShell createShell(EditorWidget parent, ShellStyle style);
-
 	EditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth);
 
 	EditorSashForm createSashForm(EditorComposite parent, SashFormStyle style);
@@ -192,4 +191,6 @@ public interface EditorUi {
 
 	String showInputDialog(String dialogTitle, String dialogMessage, String initialValue,
 			EditorInputValidator validator);
+
+	<T> T showDialog(EditorDialogProperties dialogProperties);
 }
