@@ -37,7 +37,7 @@ public class SwtEditorDialog implements EditorDialog {
 	@Override
 	public void create() {
 		dialog.create();
-		
+
 		if (properties.trayFactory != null) {
 			dialog.openTray(properties.trayFactory);
 		}

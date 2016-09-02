@@ -34,6 +34,7 @@ import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
+import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
 
 public interface EditorUi {
 	void log(EditorLogLevel level, String message);
@@ -193,4 +194,6 @@ public interface EditorUi {
 			EditorInputValidator validator);
 
 	<T> T showDialog(EditorDialogProperties dialogProperties);
+
+	<T> T showDialog(EditorTitleAteaDialogProperties dialogProperties);
 }

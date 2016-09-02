@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui.dialog;
 
+import static com.gurella.engine.utils.Values.cast;
+
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorShell;
@@ -45,32 +47,32 @@ public interface EditorDialog {
 		}
 	}
 
-	public static class EditorDialogProperties {
+	public static class BaseEditorDialogProperties<T extends BaseEditorDialogProperties<T>> {
 		public DialogContentFactory dialogAreaFactory;
 		public DialogContentFactory trayFactory;
 		public Array<DialogAction<?>> actions;
 		public boolean blockOnOpen = true;
 
-		public EditorDialogProperties(DialogContentFactory dialogAreaFactory) {
+		public BaseEditorDialogProperties(DialogContentFactory dialogAreaFactory) {
 			this.dialogAreaFactory = dialogAreaFactory;
 		}
 
-		public EditorDialogProperties dialogAreaFactory(DialogContentFactory dialogAreaFactory) {
+		public T dialogAreaFactory(DialogContentFactory dialogAreaFactory) {
 			this.dialogAreaFactory = dialogAreaFactory;
-			return this;
+			return cast(this);
 		}
 
-		public EditorDialogProperties trayFactory(DialogContentFactory trayFactory) {
+		public T trayFactory(DialogContentFactory trayFactory) {
 			this.trayFactory = trayFactory;
-			return this;
+			return cast(this);
 		}
 
-		public EditorDialogProperties blockOnOpen(boolean blockOnOpen) {
+		public T blockOnOpen(boolean blockOnOpen) {
 			this.blockOnOpen = blockOnOpen;
-			return this;
+			return cast(this);
 		}
 
-		public EditorDialogProperties action(DialogAction<?> action) {
+		public T action(DialogAction<?> action) {
 			if (action == null) {
 				throw new NullPointerException("action is null");
 			}
@@ -80,10 +82,10 @@ public interface EditorDialog {
 			}
 
 			actions.add(action);
-			return this;
+			return cast(this);
 		}
 
-		public <T> EditorDialogProperties action(String text, boolean defaultAction, DialogActionListener<T> listener) {
+		public <A> T action(String text, boolean defaultAction, DialogActionListener<A> listener) {
 			if (text == null) {
 				throw new NullPointerException("action is null");
 			}
@@ -92,23 +94,29 @@ public interface EditorDialog {
 				actions = new Array<DialogAction<?>>();
 			}
 
-			actions.add(new DialogAction<T>(text, defaultAction, listener));
-			return this;
+			actions.add(new DialogAction<A>(text, defaultAction, listener));
+			return cast(this);
 		}
 
-		public <T> EditorDialogProperties action(String text, DialogActionListener<T> listener) {
+		public <A> T action(String text, DialogActionListener<A> listener) {
 			return action(text, false, listener);
 		}
 
-		public EditorDialogProperties action(String text, boolean defaultAction) {
+		public T action(String text, boolean defaultAction) {
 			return action(text, defaultAction, null);
 		}
 
-		public EditorDialogProperties action(String text) {
+		public T action(String text) {
 			return action(text, false, null);
 		}
+	}
 
-		public <T> T show(EditorUi ui) {
+	public static class EditorDialogProperties extends BaseEditorDialogProperties<EditorDialogProperties> {
+		public EditorDialogProperties(DialogContentFactory dialogAreaFactory) {
+			super(dialogAreaFactory);
+		}
+
+		public <R> R show(EditorUi ui) {
 			return ui.showDialog(this.blockOnOpen(true));
 		}
 	}

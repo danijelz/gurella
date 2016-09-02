@@ -23,6 +23,7 @@ import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogContentFactory;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
+import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
@@ -58,18 +59,28 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			EditorUi uiFactory = parent.getUiFactory();
+
 			EditorButton check = uiFactory.createCheckBox(parent);
 			check.setText("check");
+
 			uiFactory.createLabel(parent, "Label");
+
 			uiFactory.createSeparator(parent, false);
+
 			EditorLink link = uiFactory.createLink(parent, "Link");
 			link.addListener(EditorEventType.Selection, new LinkSelectedListener());
+
 			EditorButton button = uiFactory.createButton(parent);
 			button.setText("Button");
 			button.addListener(EditorEventType.Selection, new ButtonSelectedListener());
+
 			EditorButton dialogButton = uiFactory.createButton(parent);
 			dialogButton.setText("Dialog");
 			dialogButton.addListener(EditorEventType.Selection, new OpenDialogListenerListener());
+
+			EditorButton titleDialogButton = uiFactory.createButton(parent);
+			titleDialogButton.setText("Title dialog");
+			titleDialogButton.addListener(EditorEventType.Selection, new OpenTitleDialogListenerListener());
 		}
 	}
 
@@ -104,6 +115,29 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					composite.setSize(80, 100);
 				}
 			}).action("Test action 1", new ActListener()).action("Test action 2", true).show(event.getEditorUi());
+			if (s != null) {
+				event.getEditorUi().showInformationDialog("Info", "Info");
+			}
+		}
+	}
+
+	private static final class OpenTitleDialogListenerListener implements EditorEventListener {
+		@Override
+		public void handleEvent(EditorEvent event) {
+			String s = new EditorTitleAteaDialogProperties(new DialogContentFactory() {
+				@Override
+				public void createContent(EditorDialog dialog, EditorComposite parent) {
+					EditorComposite composite = parent.getUiFactory().createComposite(parent);
+					composite.setSize(300, 100);
+				}
+			}).trayFactory(new DialogContentFactory() {
+				@Override
+				public void createContent(EditorDialog dialog, EditorComposite parent) {
+					EditorComposite composite = parent.getUiFactory().createComposite(parent);
+					composite.setSize(80, 100);
+				}
+			}).action("Test action 1", new ActListener()).action("Test action 2", true).title("Title")
+					.message("Message").show(event.getEditorUi());
 			if (s != null) {
 				event.getEditorUi().showInformationDialog("Info", "Info");
 			}

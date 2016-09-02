@@ -75,6 +75,7 @@ import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
+import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
@@ -575,6 +576,14 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public <T> T showDialog(EditorDialogProperties dialogProperties) {
 		SwtEditorDialog dialog = new SwtEditorDialog(dialogProperties);
+		dialog.create();
+		dialog.open();
+		return cast(dialog.returnValue);
+	}
+
+	@Override
+	public <T> T showDialog(EditorTitleAteaDialogProperties dialogProperties) {
+		SwtEditorTitleAreaDialog dialog = new SwtEditorTitleAreaDialog(dialogProperties);
 		dialog.create();
 		dialog.open();
 		return cast(dialog.returnValue);
