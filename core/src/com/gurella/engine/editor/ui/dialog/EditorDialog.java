@@ -48,7 +48,6 @@ public interface EditorDialog {
 	public static class EditorDialogProperties {
 		public DialogContentFactory dialogAreaFactory;
 		public DialogContentFactory trayFactory;
-		public boolean openTrayAtStart;
 		public Array<DialogAction<?>> actions;
 		public boolean blockOnOpen = true;
 
@@ -63,11 +62,6 @@ public interface EditorDialog {
 
 		public EditorDialogProperties trayFactory(DialogContentFactory trayFactory) {
 			this.trayFactory = trayFactory;
-			return this;
-		}
-
-		public EditorDialogProperties openTrayAtStart(boolean openTrayAtStart) {
-			this.openTrayAtStart = openTrayAtStart;
 			return this;
 		}
 

@@ -94,6 +94,14 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			String s = new EditorDialogProperties(new DialogContentFactory() {
 				@Override
 				public void createContent(EditorDialog dialog, EditorComposite parent) {
+					EditorComposite composite = parent.getUiFactory().createComposite(parent);
+					composite.setSize(300, 100);
+				}
+			}).trayFactory(new DialogContentFactory() {
+				@Override
+				public void createContent(EditorDialog dialog, EditorComposite parent) {
+					EditorComposite composite = parent.getUiFactory().createComposite(parent);
+					composite.setSize(80, 100);
 				}
 			}).action("Test action 1", new ActListener()).action("Test action 2", true).show(event.getEditorUi());
 			if (s != null) {

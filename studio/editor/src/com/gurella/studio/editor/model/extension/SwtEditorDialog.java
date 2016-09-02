@@ -22,10 +22,6 @@ public class SwtEditorDialog implements EditorDialog {
 		this.properties = properties;
 		dialog = new TrayDialogImpl(SwtEditorUi.getShell());
 		setBlockOnOpen(properties.blockOnOpen);
-
-		if (properties.openTrayAtStart && properties.trayFactory != null) {
-			dialog.openTray(properties.trayFactory);
-		}
 	}
 
 	@Override
@@ -41,6 +37,10 @@ public class SwtEditorDialog implements EditorDialog {
 	@Override
 	public void create() {
 		dialog.create();
+		
+		if (properties.trayFactory != null) {
+			dialog.openTray(properties.trayFactory);
+		}
 	}
 
 	@Override
