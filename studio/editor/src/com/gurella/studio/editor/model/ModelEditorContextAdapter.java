@@ -27,7 +27,7 @@ class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 
 	public ModelEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance) {
 		super(sceneEditorContext, modelInstance);
-		this.editor = editor;
+		this.editor = editorr;
 	}
 
 	@Override
