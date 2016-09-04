@@ -14,23 +14,10 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorShell;
-import com.gurella.engine.editor.ui.layout.EditorLayout;
 
-public class SwtEditorShell extends SwtEditorBaseComposite<Shell> implements EditorShell {
+public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements EditorShell {
 	public SwtEditorShell(Shell parent, int style) {
 		init(new Shell(parent, style));
-	}
-
-	@Override
-	public EditorLayout getLayout() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setLayout(EditorLayout layout) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

@@ -1,49 +1,42 @@
 package com.gurella.engine.editor.ui.layout;
 
+import com.gurella.engine.editor.ui.EditorControl;
+
 public class EditorLayoutData {
-	public int colspan = 1;
-	public int rowspan = 1;
-	public HorizontalAlign hAlign = HorizontalAlign.LEFT;
-	public VerticalAlign vAlign = VerticalAlign.TOP;
-	public int indent = 0;
-	public int maxWidth = -1;
-	public int maxHeight = -1;
-	public int heightHint = -1;
-	public boolean grabHorizontal;
-	public boolean grabVertical;
+	public static final int DEFAULT_HINT = -1;
 
-	public EditorLayoutData colspan(int colspan) {
-		this.colspan = colspan;
+	public VerticalAlignment verticalAlignment = VerticalAlignment.CENTER;
+	public HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
+	public int widthHint = DEFAULT_HINT;
+	public int heightHint = DEFAULT_HINT;
+	public int horizontalIndent = 0;
+	public int verticalIndent = 0;
+	public int horizontalSpan = 1;
+	public int verticalSpan = 1;
+	public boolean grabExcessHorizontalSpace = false;
+	public boolean grabExcessVerticalSpace = false;
+	public int minimumWidth = 0;
+	public int minimumHeight = 0;
+	public boolean exclude = false;
+
+	public EditorLayoutData verticalAlignment(VerticalAlignment verticalAlignment) {
+		this.verticalAlignment = verticalAlignment;
 		return this;
 	}
 
-	public EditorLayoutData rowspan(int rowspan) {
-		this.rowspan = rowspan;
+	public EditorLayoutData horizontalAlignment(HorizontalAlignment horizontalAlignment) {
+		this.horizontalAlignment = horizontalAlignment;
 		return this;
 	}
 
-	public EditorLayoutData hAlign(HorizontalAlign hAlign) {
-		this.hAlign = hAlign;
+	public EditorLayoutData alignment(HorizontalAlignment hAlign, VerticalAlignment vAlign) {
+		horizontalAlignment = hAlign;
+		verticalAlignment = vAlign;
 		return this;
 	}
 
-	public EditorLayoutData vAlign(VerticalAlign vAlign) {
-		this.vAlign = vAlign;
-		return this;
-	}
-
-	public EditorLayoutData indent(int indent) {
-		this.indent = indent;
-		return this;
-	}
-
-	public EditorLayoutData maxWidth(int maxWidth) {
-		this.maxWidth = maxWidth;
-		return this;
-	}
-
-	public EditorLayoutData maxHeight(int maxHeight) {
-		this.maxHeight = maxHeight;
+	public EditorLayoutData widthHint(int widthHint) {
+		this.widthHint = widthHint;
 		return this;
 	}
 
@@ -52,21 +45,90 @@ public class EditorLayoutData {
 		return this;
 	}
 
-	public EditorLayoutData grabHorizontal(boolean grabHorizontal) {
-		this.grabHorizontal = grabHorizontal;
+	public EditorLayoutData hint(int wHint, int hHint) {
+		widthHint = wHint;
+		heightHint = hHint;
 		return this;
 	}
 
-	public EditorLayoutData grabVertical(boolean grabVertical) {
-		this.grabVertical = grabVertical;
+	public EditorLayoutData horizontalIndent(int horizontalIndent) {
+		this.horizontalIndent = horizontalIndent;
 		return this;
 	}
 
-	public enum HorizontalAlign {
+	public EditorLayoutData verticalIndent(int verticalIndent) {
+		this.verticalIndent = verticalIndent;
+		return this;
+	}
+
+	public EditorLayoutData indent(int hIndent, int vIndent) {
+		horizontalIndent = hIndent;
+		verticalIndent = vIndent;
+		return this;
+	}
+
+	public EditorLayoutData horizontalSpan(int horizontalSpan) {
+		this.horizontalSpan = horizontalSpan;
+		return this;
+	}
+
+	public EditorLayoutData verticalSpan(int verticalSpan) {
+		this.verticalSpan = verticalSpan;
+		return this;
+	}
+
+	public EditorLayoutData span(int hSpan, int vSpan) {
+		horizontalSpan = hSpan;
+		verticalSpan = vSpan;
+		return this;
+	}
+
+	public EditorLayoutData grabExcessHorizontalSpace(boolean grabExcessHorizontalSpace) {
+		this.grabExcessHorizontalSpace = grabExcessHorizontalSpace;
+		return this;
+	}
+
+	public EditorLayoutData grabExcessVerticalSpace(boolean grabExcessVerticalSpace) {
+		this.grabExcessVerticalSpace = grabExcessVerticalSpace;
+		return this;
+	}
+
+	public EditorLayoutData grab(boolean horizontal, boolean vertical) {
+		grabExcessHorizontalSpace = horizontal;
+		grabExcessVerticalSpace = vertical;
+		return this;
+	}
+
+	public EditorLayoutData minimumWidth(int minimumWidth) {
+		this.minimumWidth = minimumWidth;
+		return this;
+	}
+
+	public EditorLayoutData minimumHeight(int minimumHeight) {
+		this.minimumHeight = minimumHeight;
+		return this;
+	}
+
+	public EditorLayoutData minSize(int minW, int minH) {
+		minimumWidth = minW;
+		minimumHeight = minH;
+		return this;
+	}
+
+	public EditorLayoutData exclude(boolean exclude) {
+		this.exclude = exclude;
+		return this;
+	}
+
+	public void applyTo(EditorControl control) {
+		control.setLayoutData(this);
+	}
+
+	public enum HorizontalAlignment {
 		LEFT, CENTER, RIGHT, FILL;
 	}
 
-	public enum VerticalAlign {
-		TOP, MIDDLE, BOTTOM, FILL;
+	public enum VerticalAlignment {
+		TOP, CENTER, BOTTOM, FILL;
 	}
 }

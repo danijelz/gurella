@@ -1,10 +1,11 @@
 package com.gurella.studio.editor.model.property;
 
+import static com.gurella.studio.editor.model.extension.SwtEditorUi.createComposite;
+
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.property.PropertyEditorFactory;
-import com.gurella.studio.editor.model.extension.SwtEditorUi;
 
 public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 	public CustomSimplePropertyEditor(Composite parent, PropertyEditorContext<?, P> context,
@@ -18,6 +19,6 @@ public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
-		factory.buildUi(SwtEditorUi.createComposite(body), new ContextAdapter<P>(context));
+		factory.buildUi(createComposite(body), new PropertyEditorContextAdapter<P>(context, this));
 	}
 }

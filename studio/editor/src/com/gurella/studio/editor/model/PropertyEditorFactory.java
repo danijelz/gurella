@@ -104,6 +104,8 @@ public class PropertyEditorFactory {
 			return data.complex ? new CustomComplexPropertyEditor<>(parent, context, cast(factory))
 					: new CustomSimplePropertyEditor<>(parent, context, cast(factory));
 		} catch (Exception e) {
+			String modelClass = context.modelInstance.getClass().getName();
+			customFactories.put(new CustomFactoryKey(modelClass, context.property.getName()), null);
 			return null;
 		}
 	}
@@ -114,13 +116,20 @@ public class PropertyEditorFactory {
 			return null;
 		}
 
-		Class<?> modelInstanceType = context.modelInstance.getClass();
-		Field field = modelInstanceType.getField(property.getName());
-		Class<?> declaringClass = field.getDeclaringClass();
-		Field declaredField = declaringClass.getDeclaredField(property.getName());
-		CustomFactoryKey key = new CustomFactoryKey(declaredField, declaringClass);
+		Class<?> modelClass = context.modelInstance.getClass();
+		Field field = modelClass.getField(property.getName());
+		CustomFactoryKey key = new CustomFactoryKey(modelClass, field);
 		CustomFactoryData data = customFactories.get(key);
 		if (data != null) {
+			return data;
+		}
+
+		Class<?> declaringClass = field.getDeclaringClass();
+		Field declaredField = declaringClass.getDeclaredField(property.getName());
+		CustomFactoryKey declaredKey = new CustomFactoryKey(declaringClass, declaredField);
+		data = customFactories.get(declaredKey);
+		if (data != null) {
+			customFactories.put(key, data);
 			return data;
 		}
 
@@ -130,6 +139,7 @@ public class PropertyEditorFactory {
 		for (IAnnotation annotation : jdtField.getAnnotations()) {
 			if (annotation.getElementName().equals(PropertyEditorDescriptor.class.getSimpleName())) {
 				data = parseAnnotation(type, annotation);
+				customFactories.put(declaredKey, data);
 				customFactories.put(key, data);
 				return data;
 			}
@@ -137,6 +147,7 @@ public class PropertyEditorFactory {
 
 		IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
 		data = annotation == null ? null : parseAnnotation(type, annotation);
+		customFactories.put(declaredKey, data);
 		customFactories.put(key, data);
 		return data;
 	}
@@ -264,20 +275,26 @@ public class PropertyEditorFactory {
 	}
 
 	private static class CustomFactoryKey {
-		Field declaredField;
-		Class<?> declaringClass;
+		String typeName;
+		String propertyName;
 
-		public CustomFactoryKey(Field declaredField, Class<?> declaringClass) {
-			this.declaredField = declaredField;
-			this.declaringClass = declaringClass;
+		public CustomFactoryKey(Class<?> type, Field field) {
+			this.typeName = type.getName();
+			this.propertyName = field.getName();
+		}
+
+		public CustomFactoryKey(String typeName, String propertyName) {
+			super();
+			this.typeName = typeName;
+			this.propertyName = propertyName;
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + declaringClass.hashCode();
-			result = prime * result + declaredField.hashCode();
+			result = prime * result + typeName.hashCode();
+			result = prime * result + propertyName.hashCode();
 			return result;
 		}
 
@@ -290,7 +307,7 @@ public class PropertyEditorFactory {
 				return false;
 			}
 			CustomFactoryKey other = (CustomFactoryKey) obj;
-			return declaringClass.equals(other.declaringClass) && declaredField.equals(other.declaredField);
+			return typeName.equals(other.typeName) && propertyName.equals(other.propertyName);
 		}
 	}
 

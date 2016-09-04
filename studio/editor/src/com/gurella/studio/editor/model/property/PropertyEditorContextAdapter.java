@@ -2,11 +2,13 @@ package com.gurella.studio.editor.model.property;
 
 import com.gurella.engine.base.model.Property;
 
-class ContextAdapter<P> implements com.gurella.engine.editor.property.PropertyEditorContext<P> {
+class PropertyEditorContextAdapter<P> implements com.gurella.engine.editor.property.PropertyEditorContext<P> {
 	private PropertyEditorContext<?, P> context;
+	private PropertyEditor<P> editor;
 
-	public ContextAdapter(PropertyEditorContext<?, P> context) {
+	public PropertyEditorContextAdapter(PropertyEditorContext<?, P> context, PropertyEditor<P> editor) {
 		this.context = context;
+		this.editor = editor;
 	}
 
 	@Override
@@ -29,4 +31,13 @@ class ContextAdapter<P> implements com.gurella.engine.editor.property.PropertyEd
 		context.setValue(value);
 	}
 
+	@Override
+	public void addMenuItem(String text, Runnable action) {
+		editor.addMenuItem(text, action);
+	}
+
+	@Override
+	public void removeMenuItem(String text) {
+		editor.removeMenuItem(text);
+	}
 }

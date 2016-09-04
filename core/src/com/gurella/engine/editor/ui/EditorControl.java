@@ -2,6 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.utils.GridRectangle;
 
 public interface EditorControl extends EditorWidget {
@@ -53,9 +54,15 @@ public interface EditorControl extends EditorWidget {
 
 	void setForeground(int r, int g, int b, int a);
 
-	Object getLayoutData();
+	EditorLayoutData getLayoutData();
 
-	void setLayoutData(Object layoutData);
+	EditorLayoutData getOrCreateLayoutData();
+
+	EditorLayoutData getOrCreateDefaultLayoutData();
+
+	void setLayoutData(EditorLayoutData layoutData);
+
+	void setLayoutData(int horizontalSpan, int verticalSpan);
 
 	GridPoint2 getLocation();
 

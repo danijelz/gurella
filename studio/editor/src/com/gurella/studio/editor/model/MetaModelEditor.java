@@ -57,7 +57,7 @@ public class MetaModelEditor<T> extends Composite {
 		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
 	}
 
-	private void initEditors() {
+	void initEditors() {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		int length = array.length;
 		if (length == 0) {
@@ -74,7 +74,7 @@ public class MetaModelEditor<T> extends Composite {
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
-		editors.add(editor);
+		addEditor(editor);
 
 		PropertyEditorContext<?, V> editorContext = editor.getContext();
 		Class<V> propertyType = editorContext.getPropertyType();
@@ -118,6 +118,10 @@ public class MetaModelEditor<T> extends Composite {
 			Label separator = toolkit.createSeparator(this, SWT.HORIZONTAL);
 			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 		}
+	}
+
+	<V> boolean addEditor(PropertyEditor<V> editor) {
+		return editors.add(editor);
 	}
 
 	private void mouseMoved() {

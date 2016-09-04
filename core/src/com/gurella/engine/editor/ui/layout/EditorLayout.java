@@ -1,6 +1,7 @@
 package com.gurella.engine.editor.ui.layout;
 
-//TODO TableWrapLayout
+import com.gurella.engine.editor.ui.EditorComposite;
+
 public class EditorLayout {
 	public int numColumns = 1;
 	public int leftMargin = 5;
@@ -36,6 +37,20 @@ public class EditorLayout {
 		return this;
 	}
 
+	public EditorLayout margins(int width, int height) {
+		leftMargin = rightMargin = width;
+		topMargin = bottomMargin = height;
+		return this;
+	}
+
+	public EditorLayout margins(int left, int right, int top, int bottom) {
+		leftMargin = left;
+		rightMargin = right;
+		topMargin = top;
+		bottomMargin = bottom;
+		return this;
+	}
+
 	public EditorLayout horizontalSpacing(int horizontalSpacing) {
 		this.horizontalSpacing = horizontalSpacing;
 		return this;
@@ -46,8 +61,18 @@ public class EditorLayout {
 		return this;
 	}
 
-	public EditorLayout makeColumnsEqualWidth(boolean makeColumnsEqualWidth) {
+	public EditorLayout spacing(int hSpacing, int vSpacing) {
+		horizontalSpacing = hSpacing;
+		verticalSpacing = vSpacing;
+		return this;
+	}
+
+	public EditorLayout columnsEqualWidth(boolean makeColumnsEqualWidth) {
 		this.makeColumnsEqualWidth = makeColumnsEqualWidth;
 		return this;
+	}
+
+	public void applyTo(EditorComposite c) {
+		c.setLayout(this);
 	}
 }

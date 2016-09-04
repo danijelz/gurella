@@ -23,11 +23,15 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -76,6 +80,10 @@ import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
+import com.gurella.engine.editor.ui.layout.EditorLayout;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
@@ -587,5 +595,96 @@ public class SwtEditorUi implements EditorUi {
 		dialog.create();
 		dialog.open();
 		return cast(dialog.returnValue);
+	}
+
+	public static EditorLayoutData transformLayoutData(GridData data) {
+		return new EditorLayoutData()
+				.alignment(horizontalAlignment(data.horizontalAlignment), vericalAlignment(data.verticalAlignment))
+				.hint(data.widthHint, data.heightHint).indent(data.horizontalIndent, data.verticalIndent)
+				.span(data.horizontalSpan, data.verticalSpan)
+				.grab(data.grabExcessHorizontalSpace, data.grabExcessVerticalSpace)
+				.minSize(data.minimumWidth, data.minimumHeight).exclude(data.exclude);
+	}
+
+	public static int vericalAlignment(VerticalAlignment vAlign) {
+		switch (vAlign) {
+		case BOTTOM:
+			return SWT.BOTTOM;
+		case CENTER:
+			return SWT.CENTER;
+		case FILL:
+			return SWT.FILL;
+		case TOP:
+			return SWT.TOP;
+		default:
+			return SWT.DEFAULT;
+		}
+	}
+
+	public static int horizontalAlignment(HorizontalAlignment hAlign) {
+		switch (hAlign) {
+		case LEFT:
+			return SWT.LEFT;
+		case CENTER:
+			return SWT.CENTER;
+		case FILL:
+			return SWT.FILL;
+		case RIGHT:
+			return SWT.RIGHT;
+		default:
+			return SWT.DEFAULT;
+		}
+	}
+
+	public static VerticalAlignment vericalAlignment(int vAlign) {
+		switch (vAlign) {
+		case SWT.BOTTOM:
+			return VerticalAlignment.BOTTOM;
+		case SWT.CENTER:
+			return VerticalAlignment.CENTER;
+		case SWT.FILL:
+			return VerticalAlignment.FILL;
+		case SWT.TOP:
+			return VerticalAlignment.TOP;
+		default:
+			return null;
+		}
+	}
+
+	public static HorizontalAlignment horizontalAlignment(int hAlign) {
+		switch (hAlign) {
+		case SWT.LEFT:
+			return HorizontalAlignment.LEFT;
+		case SWT.CENTER:
+			return HorizontalAlignment.CENTER;
+		case SWT.FILL:
+			return HorizontalAlignment.FILL;
+		case SWT.RIGHT:
+			return HorizontalAlignment.RIGHT;
+		default:
+			return null;
+		}
+	}
+
+	public static GridData transformLayoutData(EditorLayoutData data) {
+		return GridDataFactory.swtDefaults()
+				.align(horizontalAlignment(data.horizontalAlignment), vericalAlignment(data.verticalAlignment))
+				.hint(data.widthHint, data.heightHint).indent(data.horizontalIndent, data.verticalIndent)
+				.span(data.horizontalSpan, data.verticalSpan)
+				.grab(data.grabExcessHorizontalSpace, data.grabExcessVerticalSpace)
+				.minSize(data.minimumWidth, data.minimumHeight).exclude(data.exclude).create();
+	}
+
+	public static EditorLayout transformLayout(GridLayout layout) {
+		return new EditorLayout().numColumns(layout.numColumns)
+				.margins(layout.marginLeft, layout.marginRight, layout.marginTop, layout.marginBottom)
+				.spacing(layout.horizontalSpacing, layout.verticalSpacing)
+				.columnsEqualWidth(layout.makeColumnsEqualWidth);
+	}
+
+	public static GridLayout transformLayout(EditorLayout data) {
+		return GridLayoutFactory.swtDefaults().numColumns(data.numColumns)
+				.extendedMargins(data.leftMargin, data.rightMargin, data.topMargin, data.bottomMargin)
+				.spacing(data.horizontalSpacing, data.verticalSpacing).equalWidth(data.makeColumnsEqualWidth).create();
 	}
 }

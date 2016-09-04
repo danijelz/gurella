@@ -1,9 +1,13 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.studio.editor.model.extension.SwtEditorUi.transformLayoutData;
+
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -15,6 +19,7 @@ import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorMenu;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -179,13 +184,37 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	@Override
-	public Object getLayoutData() {
-		return widget.getLayoutData();
+	public EditorLayoutData getLayoutData() {
+		Object layoutData = widget.getLayoutData();
+		return layoutData instanceof GridData ? transformLayoutData((GridData) layoutData) : null;
 	}
 
 	@Override
-	public void setLayoutData(Object layoutData) {
-		widget.setLayoutData(layoutData);
+	public EditorLayoutData getOrCreateLayoutData() {
+		Object data = widget.getLayoutData();
+		return data instanceof GridData ? transformLayoutData((GridData) data) : new EditorLayoutData();
+	}
+
+	@Override
+	public EditorLayoutData getOrCreateDefaultLayoutData() {
+		Object data = widget.getLayoutData();
+		GridData gridData = data instanceof GridData ? (GridData) data : GridDataFactory.defaultsFor(widget).create();
+		return transformLayoutData(gridData);
+	}
+
+	@Override
+	public void setLayoutData(EditorLayoutData layoutData) {
+		widget.setLayoutData(layoutData == null ? null : transformLayoutData(layoutData));
+	}
+
+	@Override
+	public void setLayoutData(int horizontalSpan, int verticalSpan) {
+		Object data = widget.getLayoutData();
+		if (data instanceof GridData) {
+			GridDataFactory.createFrom((GridData) data).span(horizontalSpan, verticalSpan).applyTo(widget);
+		} else {
+			GridDataFactory.generate(widget, horizontalSpan, verticalSpan);
+		}
 	}
 
 	@Override

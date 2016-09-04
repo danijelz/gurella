@@ -52,13 +52,14 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	public Integer[] testIntegerArray = new Integer[3];
 	public Vector3[] testVectorArray = new Vector3[3];
 
-	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class, complex = false)
+	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class, complex = true)
 	public Object testCustomEditor;
 
 	static class TestPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 		@Override
 		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
 			EditorUi uiFactory = parent.getUiFactory();
+			parent.setLayout(1);
 
 			EditorButton check = uiFactory.createCheckBox(parent);
 			check.setText("check");
@@ -81,6 +82,8 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			EditorButton titleDialogButton = uiFactory.createButton(parent);
 			titleDialogButton.setText("Title dialog");
 			titleDialogButton.addListener(EditorEventType.Selection, new OpenTitleDialogListenerListener());
+
+			context.addMenuItem("Test menu item", new TestMenuRunnable(uiFactory));
 		}
 	}
 
@@ -148,6 +151,19 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		@Override
 		public String handle(EditorDialog dialog) {
 			return "String";
+		}
+	}
+
+	private static final class TestMenuRunnable implements Runnable {
+		private EditorUi uiFactory;
+
+		public TestMenuRunnable(EditorUi uiFactory) {
+			this.uiFactory = uiFactory;
+		}
+
+		@Override
+		public void run() {
+			uiFactory.showInformationDialog("Info", "Test menu item");
 		}
 	}
 }

@@ -10,4 +10,8 @@ public interface PropertyEditorContext<P> {
 	P getPropertyValue();
 
 	void setPropertyValue(P value);
+
+	void addMenuItem(String text, Runnable action);
+
+	void removeMenuItem(String text);
 }
