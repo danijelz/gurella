@@ -1,5 +1,6 @@
 package com.gurella.engine.utils;
 
+import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Vector3;
 
 public class StructArray {
@@ -53,11 +54,13 @@ public class StructArray {
 	}
 
 	private static class TestClass {
-		Vector3 vector = new Vector3(Double.valueOf(Math.random()).intValue(), Double.valueOf(Math.random()).intValue(),
-				Double.valueOf(Math.random()).intValue());
+		Vector3 vector = new Vector3(Double.valueOf(Math.random()).floatValue(), Double.valueOf(Math.random()).floatValue(),
+				Double.valueOf(Math.random()).floatValue());
+		GridPoint3 point = new GridPoint3(Double.valueOf(Math.random()).intValue(), Double.valueOf(Math.random()).intValue(), Double.valueOf(Math.random()).intValue());
 	}
 
-	static int size = 10000000;
+	static int size = 9000000;
+	static int testStructSize = 6;
 
 	public static void main(String[] args) {
 
@@ -67,8 +70,9 @@ public class StructArray {
 		}
 		System.out.println(1);
 
-		StructArray sa = new StructArray(3, size);
-		for (int i = 0; i < size * 3; i++) {
+		
+		StructArray sa = new StructArray(testStructSize, size);
+		for (int i = 0; i < size * testStructSize; i++) {
 			sa.buffer[i] = Double.valueOf(Math.random()).intValue();
 		}
 		System.out.println(2);
@@ -120,6 +124,11 @@ public class StructArray {
 			r += vector.x;
 			r += vector.y;
 			r += vector.z;
+			
+			GridPoint3 point = tc[i].point;
+			r += point.x;
+			r += point.y;
+			r += point.z;
 		}
 
 		if (r > 0) {
@@ -131,8 +140,14 @@ public class StructArray {
 	private static void testSa(StructArray sa) {
 		int r = 0;
 		long millis = System.currentTimeMillis();
-		int j = size * 3;
+		int j = size;
 		for (int i = 0; i < j; i++) {
+			r += sa.buffer[i];
+			r += sa.buffer[i];
+			r += sa.buffer[i];
+			
+			r += sa.buffer[i];
+			r += sa.buffer[i];
 			r += sa.buffer[i];
 		}
 
