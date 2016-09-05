@@ -10,7 +10,7 @@ import com.gurella.engine.editor.ui.EditorWidget;
 import com.gurella.engine.utils.GridRectangle;
 
 public interface EditorColumnViewer<ELEMENT, SELECTION> extends EditorViewer<List<ELEMENT>, ELEMENT, SELECTION> {
-	ViewerCell getCell(int x, int y);
+	ViewerCell<ELEMENT> getCell(int x, int y);
 
 	Object[] getColumnProperties();
 
@@ -18,7 +18,7 @@ public interface EditorColumnViewer<ELEMENT, SELECTION> extends EditorViewer<Lis
 
 	void setColumnProperties(String[] columnProperties);
 
-	interface CellLabelProvider extends IBaseLabelProvider {
+	interface CellLabelProvider {
 
 	}
 
@@ -69,9 +69,9 @@ public interface EditorColumnViewer<ELEMENT, SELECTION> extends EditorViewer<Lis
 
 		GridRectangle getBounds(int columnIndex);
 
-		ViewerCell getCell(int column);
+		ViewerCell<ELEMENT> getCell(int column);
 
-		ViewerCell getCell(int x, int y);
+		ViewerCell<ELEMENT> getCell(int x, int y);
 
 		int getColumnCount();
 
@@ -91,7 +91,7 @@ public interface EditorColumnViewer<ELEMENT, SELECTION> extends EditorViewer<Lis
 
 		EditorWidget getItem();
 
-		ViewerRow getNeighbor(int direction, boolean sameLevel);
+		ViewerRow<ELEMENT> getNeighbor(int direction, boolean sameLevel);
 
 		String getText(int columnIndex);
 

@@ -5,7 +5,7 @@ import com.gurella.engine.editor.ui.EditorTreeItem;
 public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, Iterable<EditorTreeItem>> {
 	void add(ELEMENT parentElement, ELEMENT childElement);
 
-	void add(ELEMENT parentElement, ELEMENT... childElements);
+	void add(ELEMENT parentElement, @SuppressWarnings("unchecked") ELEMENT... childElements);
 
 	void add(ELEMENT parentElement, Iterable<ELEMENT> elements);
 
@@ -33,23 +33,17 @@ public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, I
 
 	void remove(ELEMENT elements);
 
-	void remove(ELEMENT... elements);
+	void remove(@SuppressWarnings("unchecked") ELEMENT... elements);
 
 	void remove(Iterable<ELEMENT> elements);
 
-	void remove(ELEMENT parent, ELEMENT... elements);
+	void remove(ELEMENT parent, @SuppressWarnings("unchecked") ELEMENT... elements);
 
 	void remove(ELEMENT parent, Iterable<ELEMENT> elements);
 
-	void reveal(ELEMENT element);
-
-	EditorTreeItem scrollDown(int x, int y);
-
-	EditorTreeItem scrollUp(int x, int y);
-
 	void setAutoExpandLevel(int level);
 
-	void setExpandedElements(ELEMENT... elements);
+	void setExpandedElements(@SuppressWarnings("unchecked") ELEMENT... elements);
 
 	void setExpandedElements(Iterable<ELEMENT> elements);
 

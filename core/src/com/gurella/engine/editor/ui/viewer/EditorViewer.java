@@ -17,12 +17,6 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	void setSelection(SELECTION selection, boolean reveal);
 
-	/////////////////////////// ContentViewer
-
-	IBaseLabelProvider<ELEMENT> getLabelProvider();
-
-	void setLabelProvider(IBaseLabelProvider<ELEMENT> labelProvider);
-
 	////////////////////////// StructuredViewer
 
 	void refresh();
@@ -40,10 +34,6 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 	void update(ELEMENT element, String... properties);
 
 	interface IContentProvider {
-
-	}
-
-	interface IBaseLabelProvider<ELEMENT> {
 
 	}
 }

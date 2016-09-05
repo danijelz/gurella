@@ -8,6 +8,7 @@ import java.util.stream.StreamSupport;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorItem;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.model.extension.view.ListViewerLabelProvider;
 
 public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> implements EditorCombo<ELEMENT> {
 	ComboViewer viewer;
@@ -287,15 +289,23 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public IBaseLabelProvider<ELEMENT> getLabelProvider() {
-		// TODO Auto-generated method stub
-		return null;
+	public LabelProvider<ELEMENT> getLabelProvider() {
+		IBaseLabelProvider labelProvider = viewer.getLabelProvider();
+		if (labelProvider instanceof ListViewerLabelProvider) {
+			@SuppressWarnings("unchecked")
+			ListViewerLabelProvider<ELEMENT> casted = (ListViewerLabelProvider<ELEMENT>) labelProvider;
+			return casted.getLabelProvider();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
-	public void setLabelProvider(IBaseLabelProvider<ELEMENT> labelProvider) {
-		// TODO Auto-generated method stub
-
+	public void setLabelProvider(LabelProvider<ELEMENT> labelProvider) {
+		IBaseLabelProvider provider = labelProvider == null ? new org.eclipse.jface.viewers.LabelProvider()
+				: new ListViewerLabelProvider<ELEMENT>(labelProvider);
+		widget.addDisposeListener(e -> provider.dispose());
+		viewer.setLabelProvider(provider);
 	}
 
 	@Override

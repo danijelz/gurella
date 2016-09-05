@@ -1,6 +1,8 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorList extends EditorScrollable {
+import com.gurella.engine.editor.ui.viewer.EditorListViewer;
+
+public interface EditorList<ELEMENT> extends EditorScrollable, EditorListViewer<ELEMENT> {
 	void add(String string);
 
 	void add(String string, int index);
@@ -23,7 +25,7 @@ public interface EditorList extends EditorScrollable {
 
 	String[] getItems();
 
-	String[] getSelection();
+	String[] getSelectedItems();
 
 	int getSelectionCount();
 

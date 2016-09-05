@@ -126,9 +126,9 @@ public interface EditorUi {
 
 	EditorExpandBar createExpandBar(EditorComposite parent, ExpandBarStyle style);
 
-	EditorList createList(EditorComposite parent, boolean multi);
+	<ELEMENT> EditorList<ELEMENT> createList(EditorComposite parent, boolean multi);
 
-	EditorList createList(EditorComposite parent, ListStyle style);
+	<ELEMENT> EditorList<ELEMENT> createList(EditorComposite parent, ListStyle style);
 
 	EditorText createText(EditorComposite parent);
 

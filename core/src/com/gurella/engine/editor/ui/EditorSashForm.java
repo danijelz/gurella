@@ -11,8 +11,6 @@ public interface EditorSashForm extends EditorBaseComposite {
 
 	void setSashWidth(int width);
 
-	void setToolTipText(String string);
-
 	void setWeights(int[] weights);
 
 	public static class SashFormStyle extends ScrollableStyle<SashFormStyle> {

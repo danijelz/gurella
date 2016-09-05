@@ -5,7 +5,7 @@ import com.gurella.engine.editor.ui.EditorTableItem;
 public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, Iterable<EditorTableItem>> {
 	void add(ELEMENT element);
 
-	void add(ELEMENT... elements);
+	void add(@SuppressWarnings("unchecked") ELEMENT... elements);
 
 	void add(Iterable<ELEMENT> elements);
 
@@ -17,7 +17,7 @@ public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, 
 
 	void remove(ELEMENT element);
 
-	void remove(ELEMENT... elements);
+	void remove(@SuppressWarnings("unchecked") ELEMENT... elements);
 
 	void remove(Iterable<ELEMENT> elements);
 

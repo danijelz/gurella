@@ -22,6 +22,7 @@ import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControlDecoration;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
+import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorUi;
@@ -33,6 +34,7 @@ import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAtea
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
+import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
@@ -97,10 +99,11 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					VerticalAlignment.CENTER);
 			decoration.setInfoImage();
 			decoration.setDescriptionText("Test decoration");
-			
+
 			EditorCombo<ComboContent> combo = uiFactory.createCombo(parent);
 			combo.setInput(Arrays.asList(ComboContent.values()));
 			combo.add(ComboContent.item1);
+			combo.setLabelProvider(new ComboLabelProvider());
 		}
 	}
 
@@ -183,8 +186,20 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			uiFactory.showInformationDialog("Info", "Test menu item");
 		}
 	}
-	
+
 	public enum ComboContent {
 		item1, item2, item3;
+	}
+
+	private static final class ComboLabelProvider implements LabelProvider<TestPropertyEditorsComponnent.ComboContent> {
+		@Override
+		public String getText(ComboContent element) {
+			return element == null ? "null" : Integer.toString(element.ordinal());
+		}
+
+		@Override
+		public EditorImage getImage(ComboContent element) {
+			return null;
+		}
 	}
 }

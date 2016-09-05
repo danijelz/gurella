@@ -312,13 +312,13 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorList createList(EditorComposite parent, boolean multi) {
-		return new SwtEditorList(cast(parent), multi ? SWT.MULTI : SWT.SINGLE);
+	public <ELEMENT> SwtEditorList<ELEMENT> createList(EditorComposite parent, boolean multi) {
+		return new SwtEditorList<ELEMENT>(cast(parent), multi ? SWT.MULTI : SWT.SINGLE);
 	}
 
 	@Override
-	public SwtEditorList createList(EditorComposite parent, ListStyle style) {
-		return new SwtEditorList(cast(parent), SwtWidgetStyle.extractListStyle(style));
+	public <ELEMENT> SwtEditorList<ELEMENT> createList(EditorComposite parent, ListStyle style) {
+		return new SwtEditorList<ELEMENT>(cast(parent), SwtWidgetStyle.extractListStyle(style));
 	}
 
 	@Override
