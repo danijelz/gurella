@@ -282,7 +282,17 @@ public class SwtEditorList<ELEMENT> extends SwtEditorScrollable<List> implements
 	}
 
 	@Override
+	public void setSelection(@SuppressWarnings("unchecked") ELEMENT... selection) {
+		viewer.setSelection(new StructuredSelection(selection));
+	}
+
+	@Override
 	public void setSelection(java.util.List<ELEMENT> selection, boolean reveal) {
+		viewer.setSelection(new StructuredSelection(selection), reveal);
+	}
+
+	@Override
+	public void setSelection(ELEMENT[] selection, boolean reveal) {
 		viewer.setSelection(new StructuredSelection(selection), reveal);
 	}
 

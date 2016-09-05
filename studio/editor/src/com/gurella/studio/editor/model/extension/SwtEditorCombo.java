@@ -284,7 +284,17 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
+	public void setSelection(@SuppressWarnings("unchecked") ELEMENT... selection) {
+		viewer.setSelection(new StructuredSelection(selection));
+	}
+
+	@Override
 	public void setSelection(List<ELEMENT> selection, boolean reveal) {
+		viewer.setSelection(new StructuredSelection(selection), reveal);
+	}
+
+	@Override
+	public void setSelection(ELEMENT[] selection, boolean reveal) {
 		viewer.setSelection(new StructuredSelection(selection), reveal);
 	}
 
