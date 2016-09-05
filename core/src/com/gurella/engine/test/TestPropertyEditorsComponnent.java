@@ -17,7 +17,11 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorControlDecoration;
+import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
+import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorLink;
+import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
@@ -84,6 +88,14 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			titleDialogButton.addListener(EditorEventType.Selection, new OpenTitleDialogListenerListener());
 
 			context.addMenuItem("Test menu item", new TestMenuRunnable(uiFactory));
+
+			EditorText text = uiFactory.createText(parent);
+			text.setBackground(0, 0, 100, 255);
+			EditorControlDecoration decoration = text.getOrCreateDecoration(HorizontalAlignment.RIGHT,
+					VerticalAlignment.CENTER);
+			decoration.setInfoImage();
+			decoration.setDescriptionText("Test decoration");
+			decoration.show();
 		}
 	}
 

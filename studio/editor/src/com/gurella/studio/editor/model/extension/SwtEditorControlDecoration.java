@@ -8,7 +8,6 @@ import static org.eclipse.jface.fieldassist.FieldDecorationRegistry.DEC_WARNING;
 import java.io.InputStream;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
-import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -160,10 +159,6 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 		decoration.setImage(getFieldDecorationImage(DEC_INFORMATION));
 	}
 
-	private static FieldDecoration getFieldDecoration(String id) {
-		return FieldDecorationRegistry.getDefault().getFieldDecoration(id);
-	}
-
 	private static Image getFieldDecorationImage(String id) {
 		return FieldDecorationRegistry.getDefault().getFieldDecoration(id).getImage();
 	}
@@ -185,53 +180,5 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 	@Override
 	public void setWarningImage() {
 		decoration.setImage(getFieldDecorationImage(DEC_WARNING));
-	}
-
-	@Override
-	public void setInfoDescription() {
-		decoration.setDescriptionText(getFieldDecorationDescription(DEC_INFORMATION));
-	}
-
-	@Override
-	public void setErrorDescription() {
-		decoration.setDescriptionText(getFieldDecorationDescription(DEC_ERROR));
-	}
-
-	@Override
-	public void setRequiredDescription() {
-		decoration.setDescriptionText(getFieldDecorationDescription(DEC_REQUIRED));
-	}
-
-	@Override
-	public void setWarningDescription() {
-		decoration.setDescriptionText(getFieldDecorationDescription(DEC_WARNING));
-	}
-
-	@Override
-	public void setToInfo() {
-		FieldDecoration fieldDecoration = getFieldDecoration(DEC_INFORMATION);
-		decoration.setImage(fieldDecoration.getImage());
-		decoration.setDescriptionText(fieldDecoration.getDescription());
-	}
-
-	@Override
-	public void setToError() {
-		FieldDecoration fieldDecoration = getFieldDecoration(DEC_ERROR);
-		decoration.setImage(fieldDecoration.getImage());
-		decoration.setDescriptionText(fieldDecoration.getDescription());
-	}
-
-	@Override
-	public void setToRequired() {
-		FieldDecoration fieldDecoration = getFieldDecoration(DEC_REQUIRED);
-		decoration.setImage(fieldDecoration.getImage());
-		decoration.setDescriptionText(fieldDecoration.getDescription());
-	}
-
-	@Override
-	public void setToWarning() {
-		FieldDecoration fieldDecoration = getFieldDecoration(DEC_WARNING);
-		decoration.setImage(fieldDecoration.getImage());
-		decoration.setDescriptionText(fieldDecoration.getDescription());
 	}
 }

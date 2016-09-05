@@ -47,22 +47,6 @@ public interface EditorControlDecoration extends Disposable {
 
 	void setWarningImage();
 
-	void setInfoDescription();
-
-	void setErrorDescription();
-
-	void setRequiredDescription();
-
-	void setWarningDescription();
-
-	void setToInfo();
-
-	void setToError();
-
-	void setToRequired();
-
-	void setToWarning();
-
 	public enum HorizontalAlignment {
 		LEFT, CENTER, RIGHT;
 	}
