@@ -19,11 +19,7 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	/////////////////////////// ContentViewer
 
-	IContentProvider getContentProvider();
-
 	IBaseLabelProvider<ELEMENT> getLabelProvider();
-
-	void setContentProvider(IContentProvider contentProvider);
 
 	void setLabelProvider(IBaseLabelProvider<ELEMENT> labelProvider);
 

@@ -1,6 +1,7 @@
 package com.gurella.engine.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
+import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControlDecoration;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
@@ -95,7 +97,10 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					VerticalAlignment.CENTER);
 			decoration.setInfoImage();
 			decoration.setDescriptionText("Test decoration");
-			decoration.show();
+			
+			EditorCombo<ComboContent> combo = uiFactory.createCombo(parent);
+			combo.setInput(Arrays.asList(ComboContent.values()));
+			combo.add(ComboContent.item1);
 		}
 	}
 
@@ -177,5 +182,9 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		public void run() {
 			uiFactory.showInformationDialog("Info", "Test menu item");
 		}
+	}
+	
+	public enum ComboContent {
+		item1, item2, item3;
 	}
 }

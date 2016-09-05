@@ -94,9 +94,9 @@ public interface EditorUi {
 
 	EditorSlider createSlider(EditorComposite parent, SliderStyle style);
 
-	EditorCombo createCombo(EditorComposite parent);
+	<ELEMENT> EditorCombo<ELEMENT> createCombo(EditorComposite parent);
 
-	EditorCombo createCombo(EditorComposite parent, ComboStyle style);
+	<ELEMENT> EditorCombo<ELEMENT> createCombo(EditorComposite parent, ComboStyle style);
 
 	EditorDateTime createDate(EditorComposite parent, DateTimeLength length);
 

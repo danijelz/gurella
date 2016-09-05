@@ -342,13 +342,13 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorCombo createCombo(EditorComposite parent) {
-		return new SwtEditorCombo(cast(parent), SWT.DROP_DOWN);
+	public <ELEMENT> SwtEditorCombo<ELEMENT> createCombo(EditorComposite parent) {
+		return new SwtEditorCombo<ELEMENT>(cast(parent), SWT.DROP_DOWN | SWT.READ_ONLY);
 	}
 
 	@Override
-	public SwtEditorCombo createCombo(EditorComposite parent, ComboStyle style) {
-		return new SwtEditorCombo(cast(parent), SWT.DROP_DOWN | extractComboStyle(style));
+	public <ELEMENT> SwtEditorCombo<ELEMENT> createCombo(EditorComposite parent, ComboStyle style) {
+		return new SwtEditorCombo<ELEMENT>(cast(parent), SWT.DROP_DOWN | extractComboStyle(style));
 	}
 
 	@Override

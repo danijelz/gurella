@@ -4,7 +4,6 @@ import static com.gurella.engine.utils.Values.cast;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -17,7 +16,6 @@ import org.eclipse.swt.widgets.Composite;
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorItem;
-import com.gurella.engine.editor.ui.viewer.EditorViewer;
 import com.gurella.engine.utils.Values;
 
 public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> implements EditorCombo<ELEMENT> {
@@ -218,7 +216,7 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public void add(ELEMENT... elements) {
+	public void add(@SuppressWarnings("unchecked") ELEMENT... elements) {
 		viewer.add(elements);
 	}
 
@@ -243,7 +241,7 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public void remove(ELEMENT... elements) {
+	public void remove(@SuppressWarnings("unchecked") ELEMENT... elements) {
 		viewer.remove(elements);
 	}
 
@@ -254,7 +252,7 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 
 	@Override
 	public List<ELEMENT> getInput() {
-		return Arrays.stream(Values.<ELEMENT[]> cast(viewer.getInput())).collect(Collectors.toList());
+		return Arrays.asList(Values.<ELEMENT[]> cast(viewer.getInput()));
 	}
 
 	@Override
@@ -289,25 +287,13 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public EditorViewer.IContentProvider getContentProvider() {
+	public IBaseLabelProvider<ELEMENT> getLabelProvider() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public EditorViewer.IBaseLabelProvider<ELEMENT> getLabelProvider() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setContentProvider(EditorViewer.IContentProvider contentProvider) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setLabelProvider(EditorViewer.IBaseLabelProvider<ELEMENT> labelProvider) {
+	public void setLabelProvider(IBaseLabelProvider<ELEMENT> labelProvider) {
 		// TODO Auto-generated method stub
 
 	}
