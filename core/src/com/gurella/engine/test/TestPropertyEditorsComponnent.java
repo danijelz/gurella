@@ -194,7 +194,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	private static final class ComboLabelProvider implements LabelProvider<TestPropertyEditorsComponnent.ComboContent> {
 		@Override
 		public String getText(ComboContent element) {
-			return element == null ? "null" : Integer.toString(element.ordinal());
+			return element.name() + " " + element.ordinal();
 		}
 
 		@Override
