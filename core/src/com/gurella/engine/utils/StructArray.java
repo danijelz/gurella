@@ -57,21 +57,89 @@ public class StructArray {
 				Double.valueOf(Math.random()).intValue());
 	}
 
+	static int size = 10000000;
+
 	public static void main(String[] args) {
-		int size = 10000000;
 
 		TestClass[] tc = new TestClass[size];
+		for (int i = 0; i < size; i++) {
+			tc[i] = new TestClass();
+		}
+		System.out.println(1);
+
 		StructArray sa = new StructArray(3, size);
 		for (int i = 0; i < size * 3; i++) {
 			sa.buffer[i] = Double.valueOf(Math.random()).intValue();
 		}
+		System.out.println(2);
+		
+		System.out.println("");
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
+
+		testTc(tc);
+		testSa(sa);
 	}
 
 	private static void testTc(TestClass[] tc) {
+		int r = 0;
+		long millis = System.currentTimeMillis();
+		for (int i = 0; i < size; i++) {
+			Vector3 vector = tc[i].vector;
+			r += vector.x;
+			r += vector.y;
+			r += vector.z;
+		}
 
+		if (r > 0) {
+			System.out.println(r);
+		}
+		System.out.println(System.currentTimeMillis() - millis);
 	}
 
 	private static void testSa(StructArray sa) {
+		int r = 0;
+		long millis = System.currentTimeMillis();
+		int j = size * 3;
+		for (int i = 0; i < j; i++) {
+			r += sa.buffer[i];
+		}
 
+		if (r > 0) {
+			System.out.println(r);
+		}
+		System.out.println(System.currentTimeMillis() - millis);
+		System.out.println("");
 	}
 }
