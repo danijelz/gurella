@@ -79,7 +79,7 @@ public interface EditorColumnViewer<ELEMENT, SELECTION> extends EditorViewer<Lis
 
 		EditorControl getControl();
 
-		Object getElement();
+		ELEMENT getElement();
 
 		EditorFont getFont(int columnIndex);
 

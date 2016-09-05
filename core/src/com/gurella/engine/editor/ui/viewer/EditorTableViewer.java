@@ -1,6 +1,8 @@
 package com.gurella.engine.editor.ui.viewer;
 
-public interface EditorTableViewer<ELEMENT, SELECTION> extends EditorColumnViewer<ELEMENT, Iterable<ELEMENT>> {
+import com.gurella.engine.editor.ui.EditorTableItem;
+
+public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, Iterable<EditorTableItem>> {
 	void add(ELEMENT element);
 
 	void add(ELEMENT... elements);

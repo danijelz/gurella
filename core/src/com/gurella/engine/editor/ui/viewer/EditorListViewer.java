@@ -6,7 +6,7 @@ public interface EditorListViewer<ELEMENT, SELECTION> extends EditorViewer<List<
 	void add(ELEMENT element);
 
 	void add(ELEMENT... elements);
-	
+
 	void add(Iterable<ELEMENT> elements);
 
 	ELEMENT getElementAt(int index);
@@ -15,5 +15,7 @@ public interface EditorListViewer<ELEMENT, SELECTION> extends EditorViewer<List<
 
 	void remove(ELEMENT element);
 
-	void remove(ELEMENT[] elements);
+	void remove(ELEMENT... elements);
+
+	void remove(Iterable<ELEMENT> elements);
 }

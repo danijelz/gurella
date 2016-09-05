@@ -29,10 +29,6 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	////////////////////////// StructuredViewer
 
-	// void addFilter(ViewerFilter filter);
-	// ViewerComparator getComparator();
-	// IElementComparer getComparer();
-	// ViewerFilter[] getFilters();
 	void refresh();
 
 	void refresh(boolean updateLabels);
@@ -41,14 +37,7 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	void refresh(ELEMENT element, boolean updateLabels);
 
-	void resetFilters();
-
 	void reveal(ELEMENT element);
-
-	// void setComparator(ViewerComparator comparator);
-	// void setComparer(IElementComparer comparer);
-	// void setFilters(ViewerFilter[] filters);
-	void setUseHashlookup(boolean enable);
 
 	void update(ELEMENT[] elements, String[] properties);
 
