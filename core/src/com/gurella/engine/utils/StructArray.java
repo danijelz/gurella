@@ -54,12 +54,13 @@ public class StructArray {
 	}
 
 	private static class TestClass {
-		Vector3 vector = new Vector3(Double.valueOf(Math.random()).floatValue(), Double.valueOf(Math.random()).floatValue(),
-				Double.valueOf(Math.random()).floatValue());
-		GridPoint3 point = new GridPoint3(Double.valueOf(Math.random()).intValue(), Double.valueOf(Math.random()).intValue(), Double.valueOf(Math.random()).intValue());
+		Vector3 vector = new Vector3(Double.valueOf(Math.random()).floatValue(),
+				Double.valueOf(Math.random()).floatValue(), Double.valueOf(Math.random()).floatValue());
+		GridPoint3 point = new GridPoint3(Double.valueOf(Math.random()).intValue(),
+				Double.valueOf(Math.random()).intValue(), Double.valueOf(Math.random()).intValue());
 	}
 
-	static int size = 9000000;
+	static int size = 10000000;
 	static int testStructSize = 6;
 
 	public static void main(String[] args) {
@@ -70,13 +71,12 @@ public class StructArray {
 		}
 		System.out.println(1);
 
-		
 		StructArray sa = new StructArray(testStructSize, size);
 		for (int i = 0; i < size * testStructSize; i++) {
 			sa.buffer[i] = Double.valueOf(Math.random()).intValue();
 		}
 		System.out.println(2);
-		
+
 		System.out.println("");
 
 		testTc(tc);
@@ -124,7 +124,7 @@ public class StructArray {
 			r += vector.x;
 			r += vector.y;
 			r += vector.z;
-			
+
 			GridPoint3 point = tc[i].point;
 			r += point.x;
 			r += point.y;
@@ -140,15 +140,15 @@ public class StructArray {
 	private static void testSa(StructArray sa) {
 		int r = 0;
 		long millis = System.currentTimeMillis();
-		int j = size;
-		for (int i = 0; i < j; i++) {
-			r += sa.buffer[i];
-			r += sa.buffer[i];
-			r += sa.buffer[i];
-			
-			r += sa.buffer[i];
-			r += sa.buffer[i];
-			r += sa.buffer[i];
+		int j = size * testStructSize;
+		for (int i = 0; i < j;) {
+			r += sa.buffer[i++];
+			r += sa.buffer[i++];
+			r += sa.buffer[i++];
+
+			r += Float.floatToIntBits(sa.buffer[i++]);
+			r += Float.floatToIntBits(sa.buffer[i++]);
+			r += Float.floatToIntBits(sa.buffer[i++]);
 		}
 
 		if (r > 0) {
