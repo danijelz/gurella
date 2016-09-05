@@ -17,6 +17,9 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.Direction;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.engine.editor.ui.EditorControlDecoration;
+import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
+import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
@@ -24,6 +27,8 @@ import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidget<T> implements EditorControl {
+	SwtEditorControlDecoration decoration;
+
 	SwtEditorControl() {
 	}
 
@@ -370,5 +375,36 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	public GridPoint2 toDisplay(int x, int y) {
 		Point point = widget.toDisplay(x, y);
 		return new GridPoint2(point.x, point.y);
+	}
+
+	@Override
+	public EditorControlDecoration getDecoration() {
+		return decoration;
+	}
+
+	@Override
+	public EditorControlDecoration createDecoration(HorizontalAlignment horizontalAlignment,
+			VerticalAlignment verticalAlignment) {
+		if (decoration != null) {
+			decoration.dispose();
+		}
+		decoration = new SwtEditorControlDecoration(this, horizontalAlignment, verticalAlignment);
+		return decoration;
+	}
+
+	@Override
+	public EditorControlDecoration getOrCreateDecoration(HorizontalAlignment horizontalAlignment,
+			VerticalAlignment verticalAlignment) {
+		if (decoration == null) {
+			decoration = new SwtEditorControlDecoration(this, horizontalAlignment, verticalAlignment);
+		}
+		return decoration;
+	}
+
+	@Override
+	public void clearDecoration() {
+		if (decoration != null) {
+			decoration.dispose();
+		}
 	}
 }

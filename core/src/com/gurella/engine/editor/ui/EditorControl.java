@@ -2,6 +2,8 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
+import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
+import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.utils.GridRectangle;
 
@@ -111,6 +113,16 @@ public interface EditorControl extends EditorWidget {
 	GridPoint2 toControl(int x, int y);
 
 	GridPoint2 toDisplay(int x, int y);
+
+	EditorControlDecoration getDecoration();
+
+	EditorControlDecoration createDecoration(HorizontalAlignment horizontalAlignment,
+			VerticalAlignment verticalAlignment);
+
+	EditorControlDecoration getOrCreateDecoration(HorizontalAlignment horizontalAlignment,
+			VerticalAlignment verticalAlignment);
+
+	void clearDecoration();
 
 	public static class ControlStyle<T extends ControlStyle<T>> {
 		public Direction textDirection;
