@@ -21,11 +21,11 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	IContentProvider getContentProvider();
 
-	IBaseLabelProvider getLabelProvider();
+	IBaseLabelProvider<ELEMENT> getLabelProvider();
 
 	void setContentProvider(IContentProvider contentProvider);
 
-	void setLabelProvider(IBaseLabelProvider labelProvider);
+	void setLabelProvider(IBaseLabelProvider<ELEMENT> labelProvider);
 
 	////////////////////////// StructuredViewer
 
@@ -47,7 +47,7 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	}
 
-	interface IBaseLabelProvider {
+	interface IBaseLabelProvider<ELEMENT> {
 
 	}
 }

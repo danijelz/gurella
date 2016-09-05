@@ -1,8 +1,9 @@
 package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
+import com.gurella.engine.editor.ui.viewer.EditorListViewer;
 
-public interface EditorCombo extends EditorBaseComposite {
+public interface EditorCombo<ELEMENT> extends EditorBaseComposite, EditorListViewer<ELEMENT> {
 	void add(String string);
 
 	void add(String string, int index);
@@ -31,7 +32,7 @@ public interface EditorCombo extends EditorBaseComposite {
 
 	boolean getListVisible();
 
-	GridPoint2 getSelection();
+	GridPoint2 getSelectionPoint();
 
 	int getSelectionIndex();
 
@@ -65,7 +66,7 @@ public interface EditorCombo extends EditorBaseComposite {
 
 	void setListVisible(boolean visible);
 
-	void setSelection(GridPoint2 selection);
+	void setSelection(int x, int y);
 
 	void setText(String string);
 

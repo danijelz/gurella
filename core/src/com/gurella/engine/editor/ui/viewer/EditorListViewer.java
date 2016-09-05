@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui.viewer;
 
 import java.util.List;
 
-public interface EditorListViewer<ELEMENT, SELECTION> extends EditorViewer<List<ELEMENT>, ELEMENT, Iterable<ELEMENT>> {
+public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, ELEMENT, List<ELEMENT>> {
 	void add(ELEMENT element);
 
 	void add(ELEMENT... elements);

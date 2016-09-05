@@ -163,10 +163,6 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 		return FieldDecorationRegistry.getDefault().getFieldDecoration(id).getImage();
 	}
 
-	private static String getFieldDecorationDescription(String id) {
-		return FieldDecorationRegistry.getDefault().getFieldDecoration(id).getDescription();
-	}
-
 	@Override
 	public void setErrorImage() {
 		decoration.setImage(getFieldDecorationImage(DEC_ERROR));
