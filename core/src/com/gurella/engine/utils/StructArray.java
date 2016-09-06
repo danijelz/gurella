@@ -1,6 +1,9 @@
 package com.gurella.engine.utils;
 
 import static com.badlogic.gdx.utils.NumberUtils.floatToRawIntBits;
+import static java.lang.Double.doubleToRawLongBits;
+import static java.lang.Double.longBitsToDouble;
+import static java.lang.Float.intBitsToFloat;
 
 import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Vector3;
@@ -15,20 +18,8 @@ public class StructArray {
 		this.buffer = new float[structSize * bufferSize];
 	}
 
-	public static class StructProperty {
-		byte index;
-	}
-
-	public int getOffset(int structIndex) {
-		return structIndex * structSize;
-	}
-
 	public int getOffset() {
 		return offset;
-	}
-
-	public void setOffsetByIndex(int structIndex) {
-		offset = structIndex * structSize;
 	}
 
 	public void setOffset(int offset) {
@@ -42,6 +33,28 @@ public class StructArray {
 	public void rewind() {
 		offset = 0;
 	}
+
+	public int getStructOffset(int structIndex) {
+		return structIndex * structSize;
+	}
+
+	public void setIndex(int structIndex) {
+		offset = structIndex * structSize;
+	}
+
+	public int getIndex() {
+		return offset / structSize;
+	}
+
+	public int getPropertyIndex() {
+		return offset % structSize;
+	}
+
+	public void setPropertyIndex(int propertyIndex) {
+		offset = offset / structSize + propertyIndex;
+	}
+
+	//////// float
 
 	public float getFloatByIndex(int structIndex, int propertyIndex) {
 		return buffer[structIndex * structSize + propertyIndex];
@@ -75,12 +88,71 @@ public class StructArray {
 		buffer[offset++] = value;
 	}
 
+	/////////// int
+
+	public int getIntByIndex(int structIndex, int propertyIndex) {
+		return floatToRawIntBits(buffer[structIndex * structSize + propertyIndex]);
+	}
+
+	public void setIntByIndex(int structIndex, int propertyIndex, int value) {
+		buffer[structIndex * structSize + propertyIndex] = intBitsToFloat(value);
+	}
+
+	public int getIntByOffset(int structOffset, int propertyIndex) {
+		return floatToRawIntBits(buffer[structOffset + propertyIndex]);
+	}
+
+	public void setIntByStructOffset(int structOffset, int propertyIndex, int value) {
+		buffer[structOffset + propertyIndex] = intBitsToFloat(value);
+	}
+
+	public int getInt(int offset) {
+		return floatToRawIntBits(buffer[offset]);
+	}
+
+	public void setInt(int offset, int value) {
+		buffer[offset] = intBitsToFloat(value);
+	}
+
 	public int getInt() {
 		return floatToRawIntBits(buffer[offset++]);
 	}
 
 	public void setInt(int value) {
-		buffer[offset++] = Float.intBitsToFloat(value);
+		buffer[offset++] = intBitsToFloat(value);
+	}
+
+	////////// long
+
+	public long getLongByIndex(int structIndex, int propertyIndex) {
+		int offset = structIndex * structSize + propertyIndex;
+		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
+	}
+
+	public void setLongByIndex(int structIndex, int propertyIndex, long value) {
+		int offset = structIndex * structSize + propertyIndex;
+		buffer[offset++] = intBitsToFloat((int) (value >> 32));
+		buffer[offset] = intBitsToFloat((int) value);
+	}
+
+	public long getLongByOffset(int structOffset, int propertyIndex) {
+		int offset = structOffset + propertyIndex;
+		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
+	}
+
+	public void setLongByStructOffset(int structOffset, int propertyIndex, long value) {
+		int offset = structOffset + propertyIndex;
+		buffer[offset++] = intBitsToFloat((int) (value >> 32));
+		buffer[offset] = intBitsToFloat((int) value);
+	}
+
+	public long getLong(int offset) {
+		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
+	}
+
+	public void setLong(int offset, long value) {
+		buffer[offset++] = intBitsToFloat((int) (value >> 32));
+		buffer[offset] = intBitsToFloat((int) value);
 	}
 
 	public long getLong() {
@@ -88,29 +160,31 @@ public class StructArray {
 	}
 
 	public void setLong(long value) {
-		buffer[offset++] = Float.intBitsToFloat((int) (value >> 32));
-		buffer[offset++] = Float.intBitsToFloat((int) value);
+		buffer[offset++] = intBitsToFloat((int) (value >> 32));
+		buffer[offset++] = intBitsToFloat((int) value);
 	}
 
+	///////// double
+
 	public double getDouble() {
-		return Double.longBitsToDouble(
+		return longBitsToDouble(
 				(long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset++]) & 0xFFFFFFFFL);
 	}
 
 	public void setDouble(double value) {
-		long l = Double.doubleToRawLongBits(value);
-		buffer[offset++] = Float.intBitsToFloat((int) (l >> 32));
-		buffer[offset++] = Float.intBitsToFloat((int) l);
+		long l = doubleToRawLongBits(value);
+		buffer[offset++] = intBitsToFloat((int) (l >> 32));
+		buffer[offset++] = intBitsToFloat((int) l);
 	}
 
-	//////// Short
+	//////// short
 
 	public short asShort() {
 		return (short) floatToRawIntBits(buffer[offset++]);
 	}
 
 	public void setAsShort(short value) {
-		buffer[offset++] = Float.intBitsToFloat(value);
+		buffer[offset++] = intBitsToFloat(value);
 	}
 
 	public short getShort1() {
@@ -122,13 +196,13 @@ public class StructArray {
 	}
 
 	public void setShort1(short value) {
-		int i = floatToRawIntBits(buffer[offset]) & 0x0000ffff;
-		buffer[offset] = Float.intBitsToFloat(i | (value << 16));
+		int i = floatToRawIntBits(buffer[offset]) & 0x0000FFFF;
+		buffer[offset] = intBitsToFloat(i | (value << 16));
 	}
 
 	public void setShort1FromInt(int value) {
-		int i = floatToRawIntBits(buffer[offset]) & 0x0000ffff;
-		buffer[offset] = Float.intBitsToFloat(i | (value << 16));
+		int i = floatToRawIntBits(buffer[offset]) & 0x0000FFFF;
+		buffer[offset] = intBitsToFloat(i | (value << 16));
 	}
 
 	public short getShort2() {
@@ -136,17 +210,79 @@ public class StructArray {
 	}
 
 	public int getShort2AsInt() {
-		return floatToRawIntBits(buffer[offset++]) & 0xffff0000;
+		return floatToRawIntBits(buffer[offset++]) & 0xFFFF0000;
 	}
 
 	public void setShort2(short value) {
-		int i = floatToRawIntBits(buffer[offset]) & 0xffff0000;
-		buffer[offset++] = Float.intBitsToFloat(i | value);
+		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF0000;
+		buffer[offset++] = intBitsToFloat(i | value);
 	}
 
 	public void setShort2FromInt(int value) {
-		int i = floatToRawIntBits(buffer[offset]) & 0xffff0000;
-		buffer[offset++] = Float.intBitsToFloat(i | (value | 0xffff0000));
+		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF0000;
+		buffer[offset++] = intBitsToFloat(i | (value | 0xFFFF0000));
+	}
+
+	//////// byte
+
+	public byte asByte() {
+		return (byte) floatToRawIntBits(buffer[offset++]);
+	}
+
+	public void setAsByte(byte value) {
+		buffer[offset++] = intBitsToFloat(value);
+	}
+
+	public byte getByte1() {
+		return (byte) (floatToRawIntBits(buffer[offset]) >> 24);
+	}
+
+	public void setByte1(byte value) {
+		int i = floatToRawIntBits(buffer[offset]) & 0x00FFFFFF;
+		buffer[offset] = intBitsToFloat(i | (value << 24));
+	}
+
+	public byte getByte2() {
+		return (byte) (floatToRawIntBits(buffer[offset]) >> 24);
+	}
+
+	public void setByte2(byte value) {
+		int i = floatToRawIntBits(buffer[offset]) & 0xFF00FFFF;
+		buffer[offset] = intBitsToFloat(i | (value << 16));
+	}
+
+	public byte getByte3() {
+		return (byte) (floatToRawIntBits(buffer[offset]) >> 16);
+	}
+
+	public void setByte3(byte value) {
+		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF00FF;
+		buffer[offset] = intBitsToFloat(i | (value << 8));
+	}
+
+	public byte getByte4() {
+		return (byte) (floatToRawIntBits(buffer[offset]) >> 8);
+	}
+
+	public void setByte4(byte value) {
+		int i = floatToRawIntBits(buffer[offset]) & 0xFFFFFF00;
+		buffer[offset++] = intBitsToFloat(i | value);
+	}
+
+	//////// flag
+
+	public boolean getFlag(int flag) {
+		return (floatToRawIntBits(buffer[offset]) & (1 << flag)) != 0;
+	}
+
+	public void setFlag(int flag) {
+		int value = floatToRawIntBits(buffer[offset]);
+		buffer[offset] = intBitsToFloat(value | (1 << flag));
+	}
+
+	public void unsetFlag(int flag) {
+		int value = floatToRawIntBits(buffer[offset]);
+		buffer[offset] = intBitsToFloat(value & ~(1 << flag));
 	}
 
 	///////////////////////////////////////////
@@ -177,6 +313,41 @@ public class StructArray {
 			System.out.println("short");
 		}
 
+		t.setIndex(1);
+		t.setByte1((byte) 1);
+		t.setByte2((byte) 1);
+		t.setByte3((byte) 1);
+		t.setByte4((byte) 1);
+
+		t.setIndex(1);
+		byte byte1 = t.getByte1();
+		byte byte2 = t.getByte2();
+		byte byte3 = t.getByte3();
+		byte byte4 = t.getByte4();
+
+		if (byte1 == byte2 && byte1 == byte3 && byte1 == byte4) {
+			System.out.println("byte");
+		}
+		
+		t.setInt(0, 0);
+		t.setFlag(15);
+		t.setFlag(21);
+		t.setFlag(29);
+		
+		if(t.getFlag(15) && t.getFlag(21) && t.getFlag(29)) {
+			System.out.println("setFlag");
+		}
+		
+		t.unsetFlag(15);
+		t.unsetFlag(21);
+		t.unsetFlag(29);
+		
+		if(!t.getFlag(15) && !t.getFlag(21) && !t.getFlag(29)) {
+			System.out.println("unsetFlag");
+		}
+		
+		////////////////////
+
 		TestClass[] tc = new TestClass[size];
 		for (int i = 0; i < size; i++) {
 			tc[i] = new TestClass();
@@ -190,10 +361,10 @@ public class StructArray {
 			sa.buffer[off++] = testClass.vector.x;
 			sa.buffer[off++] = testClass.vector.y;
 			sa.buffer[off++] = testClass.vector.z;
-			sa.buffer[off++] = Float.intBitsToFloat(testClass.point.x);
-			sa.buffer[off++] = Float.intBitsToFloat(testClass.point.y);
-			sa.buffer[off++] = Float.intBitsToFloat(testClass.point.z);
-			sa.buffer[off++] = Float.intBitsToFloat(testClass.next);
+			sa.buffer[off++] = intBitsToFloat(testClass.point.x);
+			sa.buffer[off++] = intBitsToFloat(testClass.point.y);
+			sa.buffer[off++] = intBitsToFloat(testClass.point.z);
+			sa.buffer[off++] = intBitsToFloat(testClass.next);
 		}
 		System.out.println(2);
 		System.out.println("");
