@@ -285,6 +285,44 @@ public class StructArray {
 		buffer[offset] = intBitsToFloat(value & ~(1 << flag));
 	}
 
+	/////// float[]
+
+	public float[] getFloatArray(float[] arrOut, int length) {
+		System.arraycopy(buffer, offset, arrOut, 0, length);
+		return arrOut;
+	}
+
+	public float[] getFloatArray(float[] arrOut, int destinationOffset, int length) {
+		System.arraycopy(buffer, offset, arrOut, destinationOffset, length);
+		return arrOut;
+	}
+
+	public float[] getFloatArrayByOffset(float[] arrOut, int offset, int length) {
+		System.arraycopy(buffer, offset, arrOut, 0, length);
+		return arrOut;
+	}
+
+	public float[] getFloatArrayByOffset(float[] arrOut, int offset, int destinationOffset, int length) {
+		System.arraycopy(buffer, offset, arrOut, destinationOffset, length);
+		return arrOut;
+	}
+
+	public void setFloatArray(float[] arr, int length) {
+		System.arraycopy(arr, 0, buffer, offset, length);
+	}
+
+	public void setFloatArray(float[] arr, int sourceOffset, int length) {
+		System.arraycopy(arr, sourceOffset, buffer, offset, length);
+	}
+
+	public void setFloatArrayByOffset(int offset, float[] arr, int length) {
+		System.arraycopy(arr, 0, buffer, offset, length);
+	}
+
+	public void setFloatArrayByOffset(int offset, float[] arr, int sourceOffset, int length) {
+		System.arraycopy(arr, sourceOffset, buffer, offset, length);
+	}
+
 	///////////////////////////////////////////
 
 	private static class TestClass {
@@ -296,7 +334,7 @@ public class StructArray {
 		int next = rand();
 	}
 
-	static int size = 2000000;
+	static int size = 9000000;
 	static int testStructSize = 7;
 	static int iterations = 1000;
 	static int subIterations = size / iterations;
@@ -328,24 +366,24 @@ public class StructArray {
 		if (byte1 == byte2 && byte1 == byte3 && byte1 == byte4) {
 			System.out.println("byte");
 		}
-		
+
 		t.setInt(0, 0);
 		t.setFlag(15);
 		t.setFlag(21);
 		t.setFlag(29);
-		
-		if(t.getFlag(15) && t.getFlag(21) && t.getFlag(29)) {
+
+		if (t.getFlag(15) && t.getFlag(21) && t.getFlag(29)) {
 			System.out.println("setFlag");
 		}
-		
+
 		t.unsetFlag(15);
 		t.unsetFlag(21);
 		t.unsetFlag(29);
-		
-		if(!t.getFlag(15) && !t.getFlag(21) && !t.getFlag(29)) {
+
+		if (!t.getFlag(15) && !t.getFlag(21) && !t.getFlag(29)) {
 			System.out.println("unsetFlag");
 		}
-		
+
 		////////////////////
 
 		TestClass[] tc = new TestClass[size];
