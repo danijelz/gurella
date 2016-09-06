@@ -45,7 +45,6 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	private boolean worldTransformInvDirty = true;
 
 	private TransformComponent parentTransform;
-	private final Array<TransformComponent> childTransforms = new Array<TransformComponent>();
 
 	private final Vector3 tempVector = new Vector3();
 	private final Quaternion rotator = new Quaternion();
@@ -930,7 +929,6 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	public void reset() {
 		nodeId = -1;
 		parentTransform = null;
-		childTransforms.clear();
 		translation.setZero();
 		rotation.idt();
 		eulerRotation.setZero();

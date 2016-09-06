@@ -465,7 +465,7 @@ public class StructArray {
 			r += sa.getInt();
 			r += sa.getInt();
 
-			sa.offset = sa.getInt() * testStructSize;
+			sa.setIndex(sa.getInt());
 		}
 
 		sar += r;

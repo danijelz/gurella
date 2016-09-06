@@ -1,8 +1,12 @@
 package com.gurella.engine.editor.ui.viewer;
 
-import com.gurella.engine.editor.ui.EditorTableItem;
+import java.util.List;
 
-public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, Iterable<EditorTableItem>> {
+public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, List<ELEMENT>> {
+	void setSelection(ELEMENT... selection);
+
+	void setSelection(ELEMENT[] selection, boolean reveal);
+
 	void add(ELEMENT element);
 
 	void add(@SuppressWarnings("unchecked") ELEMENT... elements);

@@ -1,6 +1,8 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorTable extends EditorBaseComposite {
+import com.gurella.engine.editor.ui.viewer.EditorTableViewer;
+
+public interface EditorTable<ELEMENT> extends EditorBaseComposite, EditorTableViewer<ELEMENT> {
 	void clear(int index);
 
 	void clear(int[] indices);
@@ -43,7 +45,7 @@ public interface EditorTable extends EditorBaseComposite {
 
 	boolean getLinesVisible();
 
-	EditorTableItem[] getSelection();
+	EditorTableItem[] getSelectedItems();
 
 	int getSelectionCount();
 

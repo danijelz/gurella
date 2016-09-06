@@ -7,20 +7,15 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorWidget;
+import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 import com.gurella.engine.utils.GridRectangle;
 
 public interface EditorColumnViewer<ELEMENT, SELECTION> extends EditorViewer<List<ELEMENT>, ELEMENT, SELECTION> {
 	ViewerCell<ELEMENT> getCell(int x, int y);
 
-	Object[] getColumnProperties();
+	LabelProvider<ELEMENT> getLabelProvider(int columnIndex);
 
-	CellLabelProvider getLabelProvider(int columnIndex);
-
-	void setColumnProperties(String[] columnProperties);
-
-	interface CellLabelProvider {
-
-	}
+	void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider);
 
 	public interface ViewerCell<ELEMENT> {
 		Color getBackground();

@@ -1,23 +1,42 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.engine.utils.Values.cast;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.alignment;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.gurella.engine.editor.ui.Alignment;
+import com.gurella.engine.editor.ui.EditorItem;
 import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorTableItem;
+import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements EditorTable {
+public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> implements EditorTable<ELEMENT> {
+	TableViewer viewer;
+
 	public SwtEditorTable(SwtEditorComposite parent, int style) {
 		super(parent, style);
+	}
+
+	@Override
+	Table createWidget(Composite parent, int style) {
+		Table table = GurellaStudioPlugin.getToolkit().createTable(parent, style);
+		viewer = new TableViewer(table);
+		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		return table;
 	}
 
 	@Override
@@ -128,7 +147,7 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 	}
 
 	@Override
-	public SwtEditorTableItem[] getSelection() {
+	public SwtEditorTableItem[] getSelectedItems() {
 		return Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
 				.toArray(i -> new SwtEditorTableItem[i]);
 	}
@@ -286,11 +305,6 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 	}
 
 	@Override
-	Table createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createTable(parent, style);
-	}
-
-	@Override
 	public EditorTableColumn createColumn() {
 		return new SwtEditorTableColumn(this, 0);
 	}
@@ -318,5 +332,160 @@ public class SwtEditorTable extends SwtEditorBaseComposite<Table> implements Edi
 	@Override
 	public SwtEditorTableItem createItem(int index) {
 		return new SwtEditorTableItem(this, index);
+	}
+
+	@Override
+	public ViewerCell<ELEMENT> getCell(int x, int y) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ELEMENT> getInput() {
+		return Arrays.asList(Values.<ELEMENT[]> cast(viewer.getInput()));
+	}
+
+	@Override
+	public List<ELEMENT> getSelection() {
+		StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+		return cast(selection.toList());
+	}
+
+	@Override
+	public EditorItem scrollDown(int x, int y) {
+		return getEditorWidget(viewer.scrollDown(x, y));
+	}
+
+	@Override
+	public EditorItem scrollUp(int x, int y) {
+		return getEditorWidget(viewer.scrollUp(x, y));
+	}
+
+	@Override
+	public void setInput(java.util.List<ELEMENT> input) {
+		viewer.setInput(input == null ? new Object[0] : input.toArray());
+	}
+
+	@Override
+	public void setSelection(java.util.List<ELEMENT> selection) {
+		viewer.setSelection(new StructuredSelection(selection));
+	}
+
+	@Override
+	public void setSelection(@SuppressWarnings("unchecked") ELEMENT... selection) {
+		viewer.setSelection(new StructuredSelection(selection));
+	}
+
+	@Override
+	public void setSelection(java.util.List<ELEMENT> selection, boolean reveal) {
+		viewer.setSelection(new StructuredSelection(selection), reveal);
+	}
+
+	@Override
+	public void setSelection(ELEMENT[] selection, boolean reveal) {
+		viewer.setSelection(new StructuredSelection(selection), reveal);
+	}
+
+	@Override
+	public void refresh() {
+		viewer.refresh();
+	}
+
+	@Override
+	public void refresh(boolean updateLabels) {
+		viewer.refresh(updateLabels);
+	}
+
+	@Override
+	public void refresh(ELEMENT element) {
+		viewer.refresh(element);
+	}
+
+	@Override
+	public void refresh(ELEMENT element, boolean updateLabels) {
+		viewer.refresh(element, updateLabels);
+	}
+
+	@Override
+	public void reveal(ELEMENT element) {
+		viewer.reveal(element);
+	}
+
+	@Override
+	public void update(ELEMENT[] elements, String[] properties) {
+		viewer.update(elements, properties);
+	}
+
+	@Override
+	public void update(ELEMENT element, String... properties) {
+		viewer.update(element, properties);
+	}
+
+	@Override
+	public void add(ELEMENT element) {
+		viewer.add(element);
+	}
+
+	@Override
+	public void add(@SuppressWarnings("unchecked") ELEMENT... elements) {
+		viewer.add(elements);
+	}
+
+	@Override
+	public void add(Iterable<ELEMENT> elements) {
+		viewer.add(StreamSupport.stream(elements.spliterator(), false).toArray());
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public ELEMENT getElementAt(int index) {
+		return (ELEMENT) viewer.getElementAt(index);
+	}
+
+	@Override
+	public void insert(ELEMENT element, int position) {
+		viewer.insert(element, position);
+	}
+
+	@Override
+	public void remove(ELEMENT element) {
+		viewer.remove(element);
+	}
+
+	@Override
+	public void remove(@SuppressWarnings("unchecked") ELEMENT... elements) {
+		viewer.remove(elements);
+	}
+
+	@Override
+	public void remove(Iterable<ELEMENT> elements) {
+		viewer.remove(StreamSupport.stream(elements.spliterator(), false).toArray());
+	}
+
+	@Override
+	public void replace(ELEMENT element, int index) {
+		viewer.replace(element, index);
+	}
+
+	@Override
+	public void refresh(boolean updateLabels, boolean reveal) {
+		viewer.refresh(updateLabels, reveal);
+	}
+
+	@Override
+	public void refresh(ELEMENT element, boolean updateLabels, boolean reveal) {
+		viewer.refresh(element, updateLabels, reveal);
+	}
+
+	@Override
+	public LabelProvider<ELEMENT> getLabelProvider(int columnIndex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider) {
+		// TODO Auto-generated method stub
+
 	}
 }
