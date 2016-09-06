@@ -17,12 +17,12 @@ import com.gurella.engine.editor.ui.EditorTableItem;
 import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
-	SwtEditorTableItem(SwtEditorTable parent) {
+public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
+	SwtEditorTableItem(SwtEditorTable<ELEMENT> parent) {
 		super(parent, 0);
 	}
 
-	SwtEditorTableItem(SwtEditorTable parent, int index) {
+	SwtEditorTableItem(SwtEditorTable<ELEMENT> parent, int index) {
 		init(new TableItem(parent.widget, 0, index));
 	}
 
@@ -139,7 +139,7 @@ public class SwtEditorTableItem extends SwtEditorItem<TableItem, Table> implemen
 	}
 
 	@Override
-	public SwtEditorTable getParent() {
+	public SwtEditorTable<ELEMENT> getParent() {
 		return getEditorWidget(widget.getParent());
 	}
 

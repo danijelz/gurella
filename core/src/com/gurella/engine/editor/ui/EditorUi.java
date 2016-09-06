@@ -164,9 +164,9 @@ public interface EditorUi {
 
 	EditorToolBar createToolBar(EditorComposite parent, boolean vertical, ToolBarStyle style);
 
-	EditorTable createTable(EditorComposite parent);
+	<ELEMENT> EditorTable<ELEMENT> createTable(EditorComposite parent);
 
-	EditorTable createTable(EditorComposite parent, TableStyle style);
+	<ELEMENT> EditorTable<ELEMENT> createTable(EditorComposite parent, TableStyle style);
 
 	EditorTree createTree(EditorComposite parent);
 

@@ -7,12 +7,12 @@ import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
-public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> implements EditorTableColumn {
-	SwtEditorTableColumn(SwtEditorTable parent, int style) {
+public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Table> implements EditorTableColumn {
+	SwtEditorTableColumn(SwtEditorTable<ELEMENT> parent, int style) {
 		super(parent, style);
 	}
 
-	SwtEditorTableColumn(SwtEditorTable parent, int style, int index) {
+	SwtEditorTableColumn(SwtEditorTable<ELEMENT> parent, int style, int index) {
 		init(new TableColumn(parent.widget, style, index));
 	}
 
@@ -27,7 +27,7 @@ public class SwtEditorTableColumn extends SwtEditorItem<TableColumn, Table> impl
 	}
 
 	@Override
-	public SwtEditorTable getParent() {
+	public SwtEditorTable<ELEMENT> getParent() {
 		return getEditorWidget(widget.getParent());
 	}
 

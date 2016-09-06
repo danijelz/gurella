@@ -489,13 +489,13 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorTable createTable(EditorComposite parent) {
-		return new SwtEditorTable(cast(parent), SWT.SINGLE | SWT.FULL_SELECTION);
+	public <ELEMENT> SwtEditorTable<ELEMENT> createTable(EditorComposite parent) {
+		return new SwtEditorTable<ELEMENT>(cast(parent), SWT.SINGLE | SWT.FULL_SELECTION);
 	}
 
 	@Override
-	public SwtEditorTable createTable(EditorComposite parent, TableStyle style) {
-		return new SwtEditorTable(cast(parent), extractTableStyle(style));
+	public <ELEMENT> SwtEditorTable<ELEMENT> createTable(EditorComposite parent, TableStyle style) {
+		return new SwtEditorTable<ELEMENT>(cast(parent), extractTableStyle(style));
 	}
 
 	@Override

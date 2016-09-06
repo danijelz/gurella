@@ -80,7 +80,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public SwtEditorTableColumn getColumn(int index) {
+	public SwtEditorTableColumn<ELEMENT> getColumn(int index) {
 		return getEditorWidget(widget.getColumn(index));
 	}
 
@@ -95,9 +95,9 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public SwtEditorTableColumn[] getColumns() {
-		return Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorWidget(c))
-				.toArray(i -> new SwtEditorTableColumn[i]);
+	public SwtEditorTableColumn<ELEMENT>[] getColumns() {
+		return cast(Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorWidget(c))
+				.toArray(i -> new SwtEditorTableColumn[i]));
 	}
 
 	@Override
@@ -116,12 +116,12 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public SwtEditorTableItem getItem(int index) {
+	public SwtEditorTableItem<ELEMENT> getItem(int index) {
 		return getEditorWidget(widget.getItem(index));
 	}
 
 	@Override
-	public SwtEditorTableItem getItem(int x, int y) {
+	public SwtEditorTableItem<ELEMENT> getItem(int x, int y) {
 		return getEditorWidget(widget.getItem(new Point(x, y)));
 	}
 
@@ -136,9 +136,9 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public SwtEditorTableItem[] getItems() {
-		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
-				.toArray(i -> new SwtEditorTableItem[i]);
+	public SwtEditorTableItem<ELEMENT>[] getItems() {
+		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTableItem[i]));
 	}
 
 	@Override
@@ -147,9 +147,9 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public SwtEditorTableItem[] getSelectedItems() {
-		return Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
-				.toArray(i -> new SwtEditorTableItem[i]);
+	public SwtEditorTableItem<ELEMENT>[] getSelectedItems() {
+		return cast(Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTableItem[i]));
 	}
 
 	@Override
@@ -174,12 +174,12 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public int indexOf(EditorTableColumn column) {
-		return widget.indexOf(((SwtEditorTableColumn) column).widget);
+		return widget.indexOf(((SwtEditorTableColumn<?>) column).widget);
 	}
 
 	@Override
 	public int indexOf(EditorTableItem item) {
-		return widget.indexOf(((SwtEditorTableItem) item).widget);
+		return widget.indexOf(((SwtEditorTableItem<?>) item).widget);
 	}
 
 	@Override
@@ -264,18 +264,18 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public void setSelection(EditorTableItem item) {
-		widget.setSelection(((SwtEditorTableItem) item).widget);
+		widget.setSelection(((SwtEditorTableItem<?>) item).widget);
 	}
 
 	@Override
 	public void setSelection(EditorTableItem[] items) {
-		widget.setSelection(Arrays.stream(items).sequential().map(i -> ((SwtEditorTableItem) i).widget)
+		widget.setSelection(Arrays.stream(items).sequential().map(i -> ((SwtEditorTableItem<?>) i).widget)
 				.toArray(i -> new TableItem[i]));
 	}
 
 	@Override
 	public void setSortColumn(EditorTableColumn column) {
-		widget.setSortColumn(((SwtEditorTableColumn) column).widget);
+		widget.setSortColumn(((SwtEditorTableColumn<?>) column).widget);
 	}
 
 	@Override
@@ -290,13 +290,13 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public void showColumn(EditorTableColumn column) {
-		widget.showColumn(((SwtEditorTableColumn) column).widget);
+		widget.showColumn(((SwtEditorTableColumn<?>) column).widget);
 
 	}
 
 	@Override
 	public void showItem(EditorTableItem item) {
-		widget.showItem(((SwtEditorTableItem) item).widget);
+		widget.showItem(((SwtEditorTableItem<?>) item).widget);
 	}
 
 	@Override
@@ -305,33 +305,33 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public EditorTableColumn createColumn() {
-		return new SwtEditorTableColumn(this, 0);
+	public SwtEditorTableColumn<ELEMENT> createColumn() {
+		return new SwtEditorTableColumn<>(this, 0);
 	}
 
 	@Override
-	public EditorTableColumn createColumn(int index) {
-		return new SwtEditorTableColumn(this, index, 0);
+	public SwtEditorTableColumn<ELEMENT> createColumn(int index) {
+		return new SwtEditorTableColumn<>(this, index, 0);
 	}
 
 	@Override
-	public SwtEditorTableColumn createColumn(Alignment alignment) {
-		return new SwtEditorTableColumn(this, alignment(alignment));
+	public SwtEditorTableColumn<ELEMENT> createColumn(Alignment alignment) {
+		return new SwtEditorTableColumn<>(this, alignment(alignment));
 	}
 
 	@Override
-	public SwtEditorTableColumn createColumn(int index, Alignment alignment) {
-		return new SwtEditorTableColumn(this, index, alignment(alignment));
+	public SwtEditorTableColumn<ELEMENT> createColumn(int index, Alignment alignment) {
+		return new SwtEditorTableColumn<>(this, index, alignment(alignment));
 	}
 
 	@Override
-	public SwtEditorTableItem createItem() {
-		return new SwtEditorTableItem(this);
+	public SwtEditorTableItem<ELEMENT> createItem() {
+		return new SwtEditorTableItem<>(this);
 	}
 
 	@Override
-	public SwtEditorTableItem createItem(int index) {
-		return new SwtEditorTableItem(this, index);
+	public SwtEditorTableItem<ELEMENT> createItem(int index) {
+		return new SwtEditorTableItem<>(this, index);
 	}
 
 	@Override
