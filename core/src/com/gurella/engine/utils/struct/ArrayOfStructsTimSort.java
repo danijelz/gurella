@@ -36,8 +36,9 @@ public class ArrayOfStructsTimSort {
 		stackSize = 0;
 		rangeCheck(a.size, lo, hi);
 		int nRemaining = hi - lo;
-		if (nRemaining < 2)
+		if (nRemaining < 2) {
 			return; // Arrays of size 0 and 1 are always sorted
+		}
 
 		// If array is small, do a "mini-TimSort" with no merges
 		if (nRemaining < MIN_MERGE) {
@@ -126,7 +127,9 @@ public class ArrayOfStructsTimSort {
 		rangeCheck(a.size, lo, hi);
 		int nRemaining = hi - lo;
 		if (nRemaining < 2)
+		 {
 			return; // Arrays of size 0 and 1 are always sorted
+		}
 
 		// If array is small, do a "mini-TimSort" with no merges
 		if (nRemaining < MIN_MERGE) {
@@ -162,11 +165,13 @@ public class ArrayOfStructsTimSort {
 		} while (nRemaining != 0);
 
 		// Merge all remaining runs to complete sort
-		if (DEBUG)
+		if (DEBUG) {
 			assert lo == hi;
+		}
 		ts.mergeForceCollapse();
-		if (DEBUG)
+		if (DEBUG) {
 			assert ts.stackSize == 1;
+		}
 	}
 
 	@SuppressWarnings("fallthrough")
@@ -212,20 +217,22 @@ public class ArrayOfStructsTimSort {
 			// Switch is just an optimization for arraycopy in default case
 			switch (n) {
 			case 2:
-				a[left + 2] = a[left + 1];
+				a.copyTo(left + 1, left + 2);
 			case 1:
-				a[left + 1] = a[left];
+				a.copyTo(left, left + 1);
 				break;
 			default:
-				System.arraycopy(a, left, a, left + 1, n);
+				a.copyTo(left, left + 1, n);
 			}
-			a[left] = pivot;
+			a.copyTo(pivot, left);
 		}
 	}
 
 	private static int countRunAndMakeAscending(ArrayOfStructs a, int lo, int hi, StructComparator c) {
-		if (DEBUG)
+		if (DEBUG) {
 			assert lo < hi;
+		}
+
 		int runHi = lo + 1;
 		if (runHi == hi)
 			return 1;
@@ -248,14 +255,16 @@ public class ArrayOfStructsTimSort {
 	private static void reverseRange(ArrayOfStructs a, int lo, int hi) {
 		hi--;
 		while (lo < hi) {
-			//TODO a.swap(lo++, hi++, tmp);
+			// TODO a.swap(lo++, hi++, tmp);
 			a.swap(lo++, hi++);
 		}
 	}
 
 	private static int minRunLength(int n) {
-		if (DEBUG)
+		if (DEBUG) {
 			assert n >= 0;
+		}
+
 		int r = 0; // Becomes 1 if any 1 bits are shifted off
 		while (n >= MIN_MERGE) {
 			r |= (n & 1);

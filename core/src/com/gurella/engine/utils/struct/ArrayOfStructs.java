@@ -193,6 +193,20 @@ public class ArrayOfStructs {
 		System.arraycopy(buffer, secondOffset, buffer, firstOffset, structSize);
 		setFloatArrayByOffset(secondOffset, tempStruct, structSize);
 	}
+	
+	public void copyTo(int fromIndex, int toIndex) {
+		float[] buffer = this.buffer;
+		int fromOffset = fromIndex * structSize;
+		int toOffset = toIndex * structSize;
+		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize);
+	}
+	
+	public void copyTo(int fromIndex, int toIndex, int count) {
+		float[] buffer = this.buffer;
+		int fromOffset = fromIndex * structSize;
+		int toOffset = toIndex * structSize;
+		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize * count);
+	}
 
 	public void pop() {
 		size = Math.max(0, size - 1);
@@ -259,7 +273,7 @@ public class ArrayOfStructs {
 		a.size = 7;
 		System.out.println(Arrays.toString(a.buffer));
 
-		a.insertSafely(1, 2);
+		a.copyTo(2, 1, 2);
 		System.out.println(Arrays.toString(a.buffer));
 	}
 
