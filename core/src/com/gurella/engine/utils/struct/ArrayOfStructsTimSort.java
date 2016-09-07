@@ -193,7 +193,7 @@ public class ArrayOfStructsTimSort {
 			 */
 			while (left < right) {
 				int mid = (left + right) >>> 1;
-				if (c.compare(a, pivot, mid) < 0) {
+				if (c.compare(a, pivot, a, mid) < 0) {
 					right = mid;
 				} else {
 					left = mid + 1;
@@ -235,13 +235,13 @@ public class ArrayOfStructsTimSort {
 		}
 
 		// Find end of run, and reverse range if descending
-		if (c.compare(a, runHi++, lo) < 0) { // Descending
-			while (runHi < hi && c.compare(a, runHi, runHi - 1) < 0) {
+		if (c.compare(a, runHi++, a, lo) < 0) { // Descending
+			while (runHi < hi && c.compare(a, runHi, a, runHi - 1) < 0) {
 				runHi++;
 			}
 			reverseRange(a, lo, runHi);
 		} else { // Ascending
-			while (runHi < hi && c.compare(a, runHi, runHi - 1) >= 0) {
+			while (runHi < hi && c.compare(a, runHi, a, runHi - 1) >= 0) {
 				runHi++;
 			}
 		}
@@ -368,10 +368,10 @@ public class ArrayOfStructsTimSort {
 		}
 		int lastOfs = 0;
 		int ofs = 1;
-		if (c.compare(a, key, base + hint) > 0) {
+		if (c.compare(a, key, a, base + hint) > 0) {
 			// Gallop right until a[base+hint+lastOfs] < key <= a[base+hint+ofs]
 			int maxOfs = len - hint;
-			while (ofs < maxOfs && c.compare(a, key, base + hint + ofs) > 0) {
+			while (ofs < maxOfs && c.compare(a, key, a, base + hint + ofs) > 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {// int overflow
@@ -388,7 +388,7 @@ public class ArrayOfStructsTimSort {
 		} else { // key <= a[base + hint]
 			// Gallop left until a[base+hint-ofs] < key <= a[base+hint-lastOfs]
 			final int maxOfs = hint + 1;
-			while (ofs < maxOfs && c.compare(a, key, base + hint - ofs) <= 0) {
+			while (ofs < maxOfs && c.compare(a, key, a, base + hint - ofs) <= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -416,7 +416,7 @@ public class ArrayOfStructsTimSort {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(a, key, base + m) > 0) {
+			if (c.compare(a, key, a, base + m) > 0) {
 				lastOfs = m + 1; // a[base + m] < key
 			} else {
 				ofs = m; // key <= a[base + m]
@@ -435,10 +435,10 @@ public class ArrayOfStructsTimSort {
 
 		int ofs = 1;
 		int lastOfs = 0;
-		if (c.compare(a, key, base + hint) < 0) {
+		if (c.compare(a, key, a, base + hint) < 0) {
 			// Gallop left until a[b+hint - ofs] <= key < a[b+hint - lastOfs]
 			int maxOfs = hint + 1;
-			while (ofs < maxOfs && c.compare(a, key, base + hint - ofs) < 0) {
+			while (ofs < maxOfs && c.compare(a, key, a, base + hint - ofs) < 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {// int overflow
@@ -456,7 +456,7 @@ public class ArrayOfStructsTimSort {
 		} else { // a[b + hint] <= key
 			// Gallop right until a[b+hint + lastOfs] <= key < a[b+hint + ofs]
 			int maxOfs = len - hint;
-			while (ofs < maxOfs && c.compare(a, key, base + hint + ofs) >= 0) {
+			while (ofs < maxOfs && c.compare(a, key, a, base + hint + ofs) >= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) // int overflow
@@ -482,7 +482,7 @@ public class ArrayOfStructsTimSort {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(a, key, base + m) < 0) {
+			if (c.compare(a, key, a, base + m) < 0) {
 				ofs = m; // key < a[b + m]
 			} else {
 				lastOfs = m + 1; // a[b + m] <= key
@@ -503,7 +503,7 @@ public class ArrayOfStructsTimSort {
 		ArrayOfStructs a = this.a; // For performance
 		ArrayOfStructs tmp = this.tmp; // For performance
 		tmp.ensureCapacity(len1);
-		System.arraycopy(a, base1, tmp, 0, len1);
+		tmp.setItem(a, base1, 0, len1);
 
 		int cursor1 = 0; // Indexes into tmp array
 		int cursor2 = base2; // Indexes int a
@@ -512,11 +512,11 @@ public class ArrayOfStructsTimSort {
 		// Move first element of second run and deal with degenerate cases
 		a.copyTo(cursor2++, dest++);
 		if (--len2 == 0) {
-			System.arraycopy(tmp, cursor1, a, dest, len1);
+			a.setItem(tmp, cursor1, dest, len1);
 			return;
 		}
 		if (len1 == 1) {
-			System.arraycopy(a, cursor2, a, dest, len2);
+			a.setItem(a, cursor2, dest, len2);
 			a.setItem(tmp, cursor1, dest + len2);// Last elt of run 1 to end of merge
 			return;
 		}
@@ -534,7 +534,7 @@ public class ArrayOfStructsTimSort {
 				if (DEBUG) {
 					assert len1 > 1 && len2 > 0;
 				}
-				if (c.compare(a[cursor2], tmp[cursor1]) < 0) {
+				if (c.compare(a, cursor2, tmp, cursor1) < 0) {
 					a.copyTo(cursor2++, dest++);
 					count2++;
 					count1 = 0;
@@ -561,7 +561,7 @@ public class ArrayOfStructsTimSort {
 				}
 				count1 = gallopRight(a[cursor2], tmp, cursor1, len1, 0, c);
 				if (count1 != 0) {
-					System.arraycopy(tmp, cursor1, a, dest, count1);
+					a.setItem(tmp, cursor1, dest, count1);
 					dest += count1;
 					cursor1 += count1;
 					len1 -= count1;
@@ -575,7 +575,7 @@ public class ArrayOfStructsTimSort {
 
 				count2 = gallopLeft(tmp[cursor1], a, cursor2, len2, 0, c);
 				if (count2 != 0) {
-					System.arraycopy(a, cursor2, a, dest, count2);
+					a.setItem(a, cursor2, dest, count2);
 					dest += count2;
 					cursor2 += count2;
 					len2 -= count2;
@@ -610,7 +610,7 @@ public class ArrayOfStructsTimSort {
 				assert len2 == 0;
 				assert len1 > 1;
 			}
-			System.arraycopy(tmp, cursor1, a, dest, len1);
+			a.setItem(tmp, cursor1, dest, len1);
 		}
 	}
 
@@ -623,7 +623,7 @@ public class ArrayOfStructsTimSort {
 		ArrayOfStructs a = this.a; // For performance
 		ArrayOfStructs tmp = this.tmp;
 		tmp.ensureCapacity(len2);
-		System.arraycopy(a, base2, tmp, 0, len2);
+		tmp.setItem(a, base2, 0, len2);
 
 		int cursor1 = base1 + len1 - 1; // Indexes into a
 		int cursor2 = len2 - 1; // Indexes into tmp array
@@ -632,7 +632,7 @@ public class ArrayOfStructsTimSort {
 		// Move last element of first run and deal with degenerate cases
 		a.swap(cursor1--, dest--);
 		if (--len1 == 0) {
-			System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2);
+			a.setItem(tmp, 0, dest - (len2 - 1), len2);
 			return;
 		}
 		if (len2 == 1) {
@@ -656,7 +656,7 @@ public class ArrayOfStructsTimSort {
 				if (DEBUG) {
 					assert len1 > 0 && len2 > 1;
 				}
-				if (c.compare(tmp[cursor2], a[cursor1]) < 0) {
+				if (c.compare(tmp, cursor2, a, cursor1) < 0) {
 					a.copyTo(cursor1--, dest--);
 					count1++;
 					count2 = 0;
@@ -681,12 +681,12 @@ public class ArrayOfStructsTimSort {
 				if (DEBUG) {
 					assert len1 > 0 && len2 > 1;
 				}
-				count1 = len1 - gallopRight(cursor2, tmp, a, base1, len1, len1 - 1, c);
+				count1 = len1 - gallopRight(tmp[cursor2], a, base1, len1, len1 - 1, c);
 				if (count1 != 0) {
 					dest -= count1;
 					cursor1 -= count1;
 					len1 -= count1;
-					System.arraycopy(a, cursor1 + 1, a, dest + 1, count1);
+					a.setItem(a, cursor1 + 1, dest + 1, count1);
 					if (len1 == 0)
 						break outer;
 				}
@@ -700,7 +700,7 @@ public class ArrayOfStructsTimSort {
 					dest -= count2;
 					cursor2 -= count2;
 					len2 -= count2;
-					System.arraycopy(tmp, cursor2 + 1, a, dest + 1, count2);
+					a.setItem(tmp, cursor2 + 1, dest + 1, count2);
 					if (len2 <= 1) // len2 == 1 || len2 == 0
 						break outer;
 				}
@@ -721,7 +721,7 @@ public class ArrayOfStructsTimSort {
 			}
 			dest -= len1;
 			cursor1 -= len1;
-			System.arraycopy(a, cursor1 + 1, a, dest + 1, len1);
+			a.setItem(a, cursor1 + 1, dest + 1, len1);
 			a.setItem(tmp, cursor2, dest); // Move first elt of run2 to front of merge
 		} else if (len2 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
@@ -729,7 +729,7 @@ public class ArrayOfStructsTimSort {
 			if (DEBUG) {
 				assert len1 == 0 && len2 > 0;
 			}
-			System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2);
+			a.setItem(tmp, 0, dest - (len2 - 1), len2);
 		}
 	}
 

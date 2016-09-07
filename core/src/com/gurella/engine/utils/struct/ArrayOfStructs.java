@@ -307,17 +307,15 @@ public class ArrayOfStructs {
 	}
 
 	private static class StructComparatorImpl implements StructComparator {
-
 		@Override
-		public int compare(ArrayOfStructs buffer, int firstIndex, int secondIndex) {
-			buffer.setIndex(firstIndex);
-			float f1 = buffer.getFloat();
+		public int compare(ArrayOfStructs buffer1, int index1, ArrayOfStructs buffer2, int index2) {
+			buffer1.setIndex(index1);
+			float f1 = buffer1.getFloat();
 
-			buffer.setIndex(secondIndex);
-			float f2 = buffer.getFloat();
+			buffer2.setIndex(index2);
+			float f2 = buffer1.getFloat();
 			return Float.compare(f1, f2);
 		}
-
 	}
 
 	//////// float
@@ -944,7 +942,7 @@ public class ArrayOfStructs {
 	}
 
 	public interface StructComparator {
-		int compare(ArrayOfStructs buffer, int firstIndex, int secondIndex);
+		int compare(ArrayOfStructs buffer1, int index1, ArrayOfStructs buffer2, int index2);
 	}
 
 	public interface StructConsumer {
