@@ -1,21 +1,28 @@
-package com.gurella.engine.utils;
+package com.gurella.engine.utils.struct;
 
 import static com.badlogic.gdx.utils.NumberUtils.floatToRawIntBits;
 import static java.lang.Double.doubleToRawLongBits;
 import static java.lang.Double.longBitsToDouble;
 import static java.lang.Float.intBitsToFloat;
 
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.GridPoint3;
+import com.badlogic.gdx.math.Matrix3;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 
-public class StructArray {
+public class ArrayOfStructs {
 	public int structSize;
 	public float[] buffer;
 	public int offset;
+	public int size;
 
-	public StructArray(int structSize, int bufferSize) {
+	public ArrayOfStructs(int structSize, int capacity) {
 		this.structSize = structSize;
-		this.buffer = new float[structSize * bufferSize];
+		this.buffer = new float[structSize * capacity];
 	}
 
 	public int getOffset() {
@@ -34,24 +41,195 @@ public class StructArray {
 		offset = 0;
 	}
 
-	public int getStructOffset(int structIndex) {
-		return structIndex * structSize;
+	public int getItemOffset(int itemIndex) {
+		return itemIndex * structSize;
 	}
 
-	public void setIndex(int structIndex) {
-		offset = structIndex * structSize;
+	public void setIndex(int index) {
+		offset = index * structSize;
 	}
 
 	public int getIndex() {
 		return offset / structSize;
 	}
 
-	public int getPropertyIndex() {
+	public int getWordIndex() {
 		return offset % structSize;
 	}
 
-	public void setPropertyIndex(int propertyIndex) {
-		offset = offset / structSize + propertyIndex;
+	public void setWordIndex(int wordIndex) {
+		offset = offset / structSize + wordIndex;
+	}
+
+	public int getCapacity() {
+		return buffer.length / structSize;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void remove(int index) {
+		float[] buffer = this.buffer;
+		int lastItemOffset = size * structSize;
+		int removedItemOffset = index * structSize;
+		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, structSize);
+		size--;
+	}
+
+	public void removeOrdered(int index) {
+		float[] buffer = this.buffer;
+		int removedItemOffset = index * structSize;
+		int lastItemOffset = removedItemOffset + structSize;
+		int length = (size - index -1) * structSize;
+		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, length);
+		size--;
+	}
+
+	public void remove(int index, int count) {
+		float[] buffer = this.buffer;
+		int lastItemOffset = (size - count) * structSize;
+		int removedItemOffset = index * structSize;
+		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, structSize);
+		size -= count;
+	}
+
+	public void removeOrdered(int index, int count) {
+		float[] buffer = this.buffer;
+		int removedItemOffset = index * structSize;
+		int lastItemOffset = removedItemOffset + (structSize * count);
+		int length = (size - index + - + count) * structSize;
+		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, length);
+		size -= count;
+	}
+
+	public void insert(int index) {
+		float[] buffer = this.buffer;
+		int addedItemOffset = index * structSize;
+		int length = (size - index - 1) * structSize;
+		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + structSize, length);
+		size++;
+	}
+
+	public void insert(int index, int count) {
+		// TODO
+		size += count;
+	}
+
+	public void insertSafely(int index) {
+		resizeIfNeeded(size + 1);
+		// TODO
+		size++;
+	}
+
+	public void insertSafely(int index, int count) {
+		resizeIfNeeded(size + count);
+		// TODO
+		size += count;
+	}
+
+	public void add() {
+		size++;
+	}
+
+	public void add(int count) {
+		size += count;
+	}
+
+	public void addSafely() {
+		resizeIfNeeded(size + 1);
+		size++;
+	}
+
+	public void addSafely(int count) {
+		resizeIfNeeded(size + count);
+		size += count;
+	}
+
+	private void resizeIfNeeded(int newSize) {
+		int capacity = buffer.length / structSize;
+		if (capacity < newSize) {
+			resize(Math.max(8, (int) (newSize * 1.75f)));
+		}
+	}
+
+	public void resize(int newSize) {
+		float[] buffer = this.buffer;
+		float[] newBuffer = new float[newSize * structSize];
+		System.arraycopy(buffer, 0, newBuffer, 0, Math.min(size, newSize));
+		this.buffer = newBuffer;
+		size = Math.min(size, newSize);
+	}
+
+	public void swap(int fromIndex, int toIndex) {
+		float[] buffer = this.buffer;
+		int fromOffset = fromIndex * structSize;
+		int toOffset = toIndex * structSize;
+		for (int i = 0, n = structSize; i < n; i++) {
+			buffer[fromOffset++] = buffer[toOffset++];
+		}
+	}
+
+	public void swap(int fromIndex, int toIndex, float[] temp) {
+		float[] buffer = this.buffer;
+		int fromOffset = fromIndex * structSize;
+		int toOffset = toIndex * structSize;
+		getFloatArrayByOffset(temp, fromIndex, structSize);
+		System.arraycopy(buffer, toOffset, buffer, fromOffset, structSize);
+		setFloatArrayByOffset(toOffset, temp, structSize);
+	}
+
+	public void pop() {
+		size = Math.max(0, size - 1);
+	}
+
+	public void clear() {
+		size = 0;
+	}
+
+	public void shrink() {
+		resize(size);
+	}
+
+	public void truncate(int newSize) {
+		int capacity = buffer.length / structSize;
+		if (capacity <= newSize) {
+			resize(newSize);
+		}
+	}
+
+	public void ensureCapacity(int additionalCapacity) {
+		int sizeNeeded = size + additionalCapacity;
+		int capacity = buffer.length / structSize;
+		if (sizeNeeded > capacity) {
+			resize(Math.max(8, sizeNeeded));
+		}
+	}
+
+	public void sort(StructComparator comparator) {
+		// TODO
+	}
+
+	public void sortRange(StructComparator comparator, int fromIndex, int count) {
+		// TODO
+	}
+
+	public void forEach(StructConsumer action) {
+		for (int i = 0, n = size; i < n; i++) {
+			action.accept(this, i);
+		}
+	}
+
+	public void forEach(StructConsumer action, int fromIndex) {
+		for (int i = fromIndex, n = size; i < n; i++) {
+			action.accept(this, i);
+		}
+	}
+
+	public void forEach(StructConsumer action, int fromIndex, int count) {
+		for (int i = fromIndex, n = count; i < n && i < size; i++) {
+			action.accept(this, i);
+		}
 	}
 
 	//////// float
@@ -125,41 +303,49 @@ public class StructArray {
 	////////// long
 
 	public long getLongByIndex(int structIndex, int propertyIndex) {
+		float[] buffer = this.buffer;
 		int offset = structIndex * structSize + propertyIndex;
 		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
 	}
 
 	public void setLongByIndex(int structIndex, int propertyIndex, long value) {
 		int offset = structIndex * structSize + propertyIndex;
+		float[] buffer = this.buffer;
 		buffer[offset++] = intBitsToFloat((int) (value >> 32));
 		buffer[offset] = intBitsToFloat((int) value);
 	}
 
 	public long getLongByOffset(int structOffset, int propertyIndex) {
 		int offset = structOffset + propertyIndex;
+		float[] buffer = this.buffer;
 		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
 	}
 
 	public void setLongByStructOffset(int structOffset, int propertyIndex, long value) {
 		int offset = structOffset + propertyIndex;
+		float[] buffer = this.buffer;
 		buffer[offset++] = intBitsToFloat((int) (value >> 32));
 		buffer[offset] = intBitsToFloat((int) value);
 	}
 
 	public long getLong(int offset) {
+		float[] buffer = this.buffer;
 		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
 	}
 
 	public void setLong(int offset, long value) {
+		float[] buffer = this.buffer;
 		buffer[offset++] = intBitsToFloat((int) (value >> 32));
 		buffer[offset] = intBitsToFloat((int) value);
 	}
 
 	public long getLong() {
+		float[] buffer = this.buffer;
 		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset++]) & 0xFFFFFFFFL;
 	}
 
 	public void setLong(long value) {
+		float[] buffer = this.buffer;
 		buffer[offset++] = intBitsToFloat((int) (value >> 32));
 		buffer[offset++] = intBitsToFloat((int) value);
 	}
@@ -167,12 +353,15 @@ public class StructArray {
 	///////// double
 
 	public double getDouble() {
-		return longBitsToDouble(
-				(long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset++]) & 0xFFFFFFFFL);
+		float[] buffer = this.buffer;
+		long hi = (long) floatToRawIntBits(buffer[offset++]) << 32;
+		long lo = floatToRawIntBits(buffer[offset++]) & 0xFFFFFFFFL;
+		return longBitsToDouble(hi | lo);
 	}
 
 	public void setDouble(double value) {
 		long l = doubleToRawLongBits(value);
+		float[] buffer = this.buffer;
 		buffer[offset++] = intBitsToFloat((int) (l >> 32));
 		buffer[offset++] = intBitsToFloat((int) l);
 	}
@@ -196,11 +385,13 @@ public class StructArray {
 	}
 
 	public void setShort1(short value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0x0000FFFF;
 		buffer[offset] = intBitsToFloat(i | (value << 16));
 	}
 
 	public void setShort1FromInt(int value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0x0000FFFF;
 		buffer[offset] = intBitsToFloat(i | (value << 16));
 	}
@@ -214,11 +405,13 @@ public class StructArray {
 	}
 
 	public void setShort2(short value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF0000;
 		buffer[offset++] = intBitsToFloat(i | value);
 	}
 
 	public void setShort2FromInt(int value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF0000;
 		buffer[offset++] = intBitsToFloat(i | (value | 0xFFFF0000));
 	}
@@ -238,6 +431,7 @@ public class StructArray {
 	}
 
 	public void setByte1(byte value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0x00FFFFFF;
 		buffer[offset] = intBitsToFloat(i | (value << 24));
 	}
@@ -247,6 +441,7 @@ public class StructArray {
 	}
 
 	public void setByte2(byte value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFF00FFFF;
 		buffer[offset] = intBitsToFloat(i | (value << 16));
 	}
@@ -256,15 +451,17 @@ public class StructArray {
 	}
 
 	public void setByte3(byte value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFF00FF;
 		buffer[offset] = intBitsToFloat(i | (value << 8));
 	}
 
 	public byte getByte4() {
-		return (byte) (floatToRawIntBits(buffer[offset]) >> 8);
+		return (byte) (floatToRawIntBits(buffer[offset++]) >> 8);
 	}
 
 	public void setByte4(byte value) {
+		float[] buffer = this.buffer;
 		int i = floatToRawIntBits(buffer[offset]) & 0xFFFFFF00;
 		buffer[offset++] = intBitsToFloat(i | value);
 	}
@@ -276,11 +473,13 @@ public class StructArray {
 	}
 
 	public void setFlag(int flag) {
+		float[] buffer = this.buffer;
 		int value = floatToRawIntBits(buffer[offset]);
 		buffer[offset] = intBitsToFloat(value | (1 << flag));
 	}
 
 	public void unsetFlag(int flag) {
+		float[] buffer = this.buffer;
 		int value = floatToRawIntBits(buffer[offset]);
 		buffer[offset] = intBitsToFloat(value & ~(1 << flag));
 	}
@@ -323,6 +522,212 @@ public class StructArray {
 		System.arraycopy(arr, sourceOffset, buffer, offset, length);
 	}
 
+	/////// Vector2
+
+	public Vector2 getVector2(Vector2 out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset++]);
+	}
+
+	public void setVector2(Vector2 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset++] = value.y;
+	}
+
+	public Vector2 getVector2(int offset, Vector2 out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset]);
+	}
+
+	public void setVector2(int offset, Vector2 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset] = value.y;
+	}
+
+	/////// Vector3
+
+	public Vector3 getVector3(Vector3 out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset++], buffer[offset++]);
+	}
+
+	public void setVector3(Vector3 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset++] = value.y;
+		buffer[offset++] = value.z;
+	}
+
+	public Vector3 getVector3(int offset, Vector3 out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset++], buffer[offset]);
+	}
+
+	public void setVector3(int offset, Vector3 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset++] = value.y;
+		buffer[offset] = value.z;
+	}
+
+	/////// GridPoint2
+
+	public GridPoint2 getGridPoint2(GridPoint2 out) {
+		float[] buffer = this.buffer;
+		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset++]));
+	}
+
+	public void setGridPoint2(GridPoint2 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = intBitsToFloat(value.x);
+		buffer[offset++] = intBitsToFloat(value.y);
+	}
+
+	public GridPoint2 getGridPoint2(int offset, GridPoint2 out) {
+		float[] buffer = this.buffer;
+		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset]));
+	}
+
+	public void setGridPoint2(int offset, GridPoint2 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = intBitsToFloat(value.x);
+		buffer[offset] = intBitsToFloat(value.y);
+	}
+
+	/////// GridPoint3
+
+	public GridPoint3 getGridPoint3(GridPoint3 out) {
+		float[] buffer = this.buffer;
+		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset++]),
+				floatToRawIntBits(buffer[offset++]));
+	}
+
+	public void setGridPoint3(GridPoint3 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = intBitsToFloat(value.x);
+		buffer[offset++] = intBitsToFloat(value.y);
+		buffer[offset++] = intBitsToFloat(value.z);
+	}
+
+	public GridPoint3 getGridPoint3(int offset, GridPoint3 out) {
+		float[] buffer = this.buffer;
+		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset++]),
+				floatToRawIntBits(buffer[offset]));
+	}
+
+	public void setGridPoint3(int offset, GridPoint3 value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = intBitsToFloat(value.x);
+		buffer[offset++] = intBitsToFloat(value.y);
+		buffer[offset] = intBitsToFloat(value.z);
+	}
+
+	/////// Quaternion
+
+	public Quaternion getQuaternion(Quaternion out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset++], buffer[offset++], buffer[offset++]);
+	}
+
+	public void setQuaternion(Quaternion value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset++] = value.y;
+		buffer[offset++] = value.z;
+		buffer[offset++] = value.w;
+	}
+
+	public Quaternion getQuaternion(int offset, Quaternion out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset++], buffer[offset++], buffer[offset]);
+	}
+
+	public void setQuaternion(int offset, Quaternion value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset++] = value.y;
+		buffer[offset++] = value.z;
+		buffer[offset] = value.w;
+	}
+
+	/////// Matrix3
+
+	public Matrix3 getMatrix3(Matrix3 out) {
+		System.arraycopy(out.val, 0, buffer, offset, 9);
+		offset += 9;
+		return out;
+	}
+
+	public void setMatrix3(Matrix3 value) {
+		System.arraycopy(buffer, offset, value.val, 0, 9);
+		offset += 9;
+	}
+
+	public Matrix3 getMatrix3(int offset, Matrix3 out) {
+		System.arraycopy(out.val, 0, buffer, offset, 9);
+		return out;
+	}
+
+	public void setMatrix3(int offset, Matrix3 value) {
+		System.arraycopy(buffer, offset, value.val, 0, 9);
+	}
+
+	/////// Matri4
+
+	public Matrix4 getMatrix4(Matrix4 out) {
+		System.arraycopy(out.val, 0, buffer, offset, 16);
+		offset += 9;
+		return out;
+	}
+
+	public void setMatrix4(Matrix4 value) {
+		System.arraycopy(buffer, offset, value.val, 0, 16);
+		offset += 9;
+	}
+
+	public Matrix4 getMatrix4(int offset, Matrix4 out) {
+		System.arraycopy(out.val, 0, buffer, offset, 16);
+		return out;
+	}
+
+	public void setMatrix4(int offset, Matrix4 value) {
+		System.arraycopy(buffer, offset, value.val, 0, 16);
+	}
+
+	/////// BoundingBox
+
+	public BoundingBox getBoundingBox(BoundingBox out) {
+		getVector3(out.min);
+		getVector3(out.max);
+		return out;
+	}
+
+	public void setBoundingBox(BoundingBox value) {
+		setVector3(value.min);
+		setVector3(value.max);
+	}
+
+	public BoundingBox getBoundingBox(int offset, BoundingBox out) {
+		getVector3(offset, out.min);
+		getVector3(offset, out.max);
+		return out;
+	}
+
+	public void setBoundingBox(int offset, BoundingBox value) {
+		setVector3(offset, value.min);
+		setVector3(offset, value.max);
+	}
+
+	public interface StructComparator {
+		int compare(float[] buffer, int firstIndex, int secondIndex);
+	}
+
+	public interface StructConsumer {
+		int accept(ArrayOfStructs buffer, int index);
+	}
+
 	///////////////////////////////////////////
 
 	private static class TestClass {
@@ -334,13 +739,13 @@ public class StructArray {
 		int next = rand();
 	}
 
-	static int size = 9000000;
+	static int testSize = 9000000;
 	static int testStructSize = 7;
 	static int iterations = 1000;
-	static int subIterations = size / iterations;
+	static int subIterations = testSize / iterations;
 
 	public static void main(String[] args) {
-		StructArray t = new StructArray(1, 2);
+		ArrayOfStructs t = new ArrayOfStructs(1, 2);
 		t.setShort1((short) 1);
 		t.setShort2((short) 1);
 		t.offset = 0;
@@ -367,6 +772,7 @@ public class StructArray {
 			System.out.println("byte");
 		}
 
+		t.setIndex(1);
 		t.setInt(0, 0);
 		t.setFlag(15);
 		t.setFlag(21);
@@ -386,15 +792,15 @@ public class StructArray {
 
 		////////////////////
 
-		TestClass[] tc = new TestClass[size];
-		for (int i = 0; i < size; i++) {
+		TestClass[] tc = new TestClass[testSize];
+		for (int i = 0; i < testSize; i++) {
 			tc[i] = new TestClass();
 		}
 		System.out.println(1);
 
-		StructArray sa = new StructArray(testStructSize, size);
+		ArrayOfStructs sa = new ArrayOfStructs(testStructSize, testSize);
 		int off = 0;
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < testSize; i++) {
 			TestClass testClass = tc[i];
 			sa.buffer[off++] = testClass.vector.x;
 			sa.buffer[off++] = testClass.vector.y;
@@ -478,7 +884,7 @@ public class StructArray {
 	private static long saTotalTime;
 	private static double sar;
 
-	private static void testSa(StructArray sa, int index) {
+	private static void testSa(ArrayOfStructs sa, int index) {
 		double r = 0;
 		long millis = System.currentTimeMillis();
 
@@ -511,6 +917,6 @@ public class StructArray {
 	}
 
 	private static int rand() {
-		return (int) (Math.random() * (size - iterations - 1));
+		return (int) (Math.random() * (testSize - iterations - 1));
 	}
 }
