@@ -332,7 +332,7 @@ public class ArrayOfStructsTimSort {
 		 * Find where the first element of run2 goes in run1. Prior elements in run1 can be ignored (because they're
 		 * already in place).
 		 */
-		int k = gallopRight(a[base2], base1, len1, 0, c);
+		int k = gallopRight(a, base2, a, base1, len1, 0, c);
 		if (DEBUG) {
 			assert k >= 0;
 		}
@@ -346,7 +346,7 @@ public class ArrayOfStructsTimSort {
 		 * Find where the last element of run1 goes in run2. Subsequent elements in run2 can be ignored (because they're
 		 * already in place).
 		 */
-		len2 = gallopLeft(a[base1 + len1 - 1], base2, len2, len2 - 1, c);
+		len2 = gallopLeft(a, base1 + len1 - 1, a, base2, len2, len2 - 1, c);
 		if (DEBUG) {
 			assert len2 >= 0;
 		}
@@ -362,16 +362,17 @@ public class ArrayOfStructsTimSort {
 		}
 	}
 
-	private static int gallopLeft(int key, ArrayOfStructs a, int base, int len, int hint, StructComparator c) {
+	private static int gallopLeft(ArrayOfStructs k, int key, ArrayOfStructs a, int base, int len, int hint,
+			StructComparator c) {
 		if (DEBUG) {
 			assert len > 0 && hint >= 0 && hint < len;
 		}
 		int lastOfs = 0;
 		int ofs = 1;
-		if (c.compare(a, key, a, base + hint) > 0) {
+		if (c.compare(k, key, a, base + hint) > 0) {
 			// Gallop right until a[base+hint+lastOfs] < key <= a[base+hint+ofs]
 			int maxOfs = len - hint;
-			while (ofs < maxOfs && c.compare(a, key, a, base + hint + ofs) > 0) {
+			while (ofs < maxOfs && c.compare(k, key, a, base + hint + ofs) > 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {// int overflow
@@ -388,7 +389,7 @@ public class ArrayOfStructsTimSort {
 		} else { // key <= a[base + hint]
 			// Gallop left until a[base+hint-ofs] < key <= a[base+hint-lastOfs]
 			final int maxOfs = hint + 1;
-			while (ofs < maxOfs && c.compare(a, key, a, base + hint - ofs) <= 0) {
+			while (ofs < maxOfs && c.compare(k, key, a, base + hint - ofs) <= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {
@@ -416,7 +417,7 @@ public class ArrayOfStructsTimSort {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(a, key, a, base + m) > 0) {
+			if (c.compare(k, key, a, base + m) > 0) {
 				lastOfs = m + 1; // a[base + m] < key
 			} else {
 				ofs = m; // key <= a[base + m]
@@ -428,17 +429,18 @@ public class ArrayOfStructsTimSort {
 		return ofs;
 	}
 
-	private static int gallopRight(int key, ArrayOfStructs a, int base, int len, int hint, StructComparator c) {
+	private static int gallopRight(ArrayOfStructs k, int key, ArrayOfStructs a, int base, int len, int hint,
+			StructComparator c) {
 		if (DEBUG) {
 			assert len > 0 && hint >= 0 && hint < len;
 		}
 
 		int ofs = 1;
 		int lastOfs = 0;
-		if (c.compare(a, key, a, base + hint) < 0) {
+		if (c.compare(k, key, a, base + hint) < 0) {
 			// Gallop left until a[b+hint - ofs] <= key < a[b+hint - lastOfs]
 			int maxOfs = hint + 1;
-			while (ofs < maxOfs && c.compare(a, key, a, base + hint - ofs) < 0) {
+			while (ofs < maxOfs && c.compare(k, key, a, base + hint - ofs) < 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) {// int overflow
@@ -456,7 +458,7 @@ public class ArrayOfStructsTimSort {
 		} else { // a[b + hint] <= key
 			// Gallop right until a[b+hint + lastOfs] <= key < a[b+hint + ofs]
 			int maxOfs = len - hint;
-			while (ofs < maxOfs && c.compare(a, key, a, base + hint + ofs) >= 0) {
+			while (ofs < maxOfs && c.compare(k, key, a, base + hint + ofs) >= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
 				if (ofs <= 0) // int overflow
@@ -482,7 +484,7 @@ public class ArrayOfStructsTimSort {
 		while (lastOfs < ofs) {
 			int m = lastOfs + ((ofs - lastOfs) >>> 1);
 
-			if (c.compare(a, key, a, base + m) < 0) {
+			if (c.compare(k, key, a, base + m) < 0) {
 				ofs = m; // key < a[b + m]
 			} else {
 				lastOfs = m + 1; // a[b + m] <= key
@@ -559,7 +561,7 @@ public class ArrayOfStructsTimSort {
 				if (DEBUG) {
 					assert len1 > 1 && len2 > 0;
 				}
-				count1 = gallopRight(a[cursor2], tmp, cursor1, len1, 0, c);
+				count1 = gallopRight(a, cursor2, tmp, cursor1, len1, 0, c);
 				if (count1 != 0) {
 					a.setItem(tmp, cursor1, dest, count1);
 					dest += count1;
@@ -573,7 +575,7 @@ public class ArrayOfStructsTimSort {
 					break outer;
 				}
 
-				count2 = gallopLeft(tmp[cursor1], a, cursor2, len2, 0, c);
+				count2 = gallopLeft(tmp, cursor1, a, cursor2, len2, 0, c);
 				if (count2 != 0) {
 					a.setItem(a, cursor2, dest, count2);
 					dest += count2;
@@ -681,7 +683,7 @@ public class ArrayOfStructsTimSort {
 				if (DEBUG) {
 					assert len1 > 0 && len2 > 1;
 				}
-				count1 = len1 - gallopRight(tmp[cursor2], a, base1, len1, len1 - 1, c);
+				count1 = len1 - gallopRight(tmp, cursor2, a, base1, len1, len1 - 1, c);
 				if (count1 != 0) {
 					dest -= count1;
 					cursor1 -= count1;
@@ -695,7 +697,7 @@ public class ArrayOfStructsTimSort {
 					break outer;
 				}
 
-				count2 = len2 - gallopLeft(a[cursor1], tmp, 0, len2, len2 - 1, c);
+				count2 = len2 - gallopLeft(a, cursor1, tmp, 0, len2, len2 - 1, c);
 				if (count2 != 0) {
 					dest -= count2;
 					cursor2 -= count2;
