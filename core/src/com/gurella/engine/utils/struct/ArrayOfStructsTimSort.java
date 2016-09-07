@@ -17,7 +17,7 @@ public class ArrayOfStructsTimSort {
 
 	private static final int INITIAL_TMP_STORAGE_LENGTH = 1024;
 
-	private float[] tmp; // Actual runtime type will be Object[], regardless of T
+	private ArrayOfStructs tmp; // Actual runtime type will be Object[], regardless of T
 	private int tmpCount;
 
 	private int stackSize = 0; // Number of pending runs on stack
@@ -27,7 +27,7 @@ public class ArrayOfStructsTimSort {
 	private static final boolean DEBUG = false;
 
 	ArrayOfStructsTimSort() {
-		tmp = new float[INITIAL_TMP_STORAGE_LENGTH];
+		tmp = new ArrayOfStructs(1, INITIAL_TMP_STORAGE_LENGTH);
 		runBase = new int[40];
 		runLen = new int[40];
 	}
@@ -87,7 +87,7 @@ public class ArrayOfStructsTimSort {
 
 		this.a = null;
 		this.c = null;
-		float[] tmp = this.tmp;
+		ArrayOfStructs tmp = this.tmp;
 		for (int i = 0, n = tmpCount; i < n; i++) {
 			tmp[i] = 0;
 		}
@@ -99,9 +99,7 @@ public class ArrayOfStructsTimSort {
 
 		// Allocate temp storage (which may be increased later if necessary)
 		int len = a.size;
-		float[] newArray = new float[(len < 2 * INITIAL_TMP_STORAGE_LENGTH ? len >>> 1 : INITIAL_TMP_STORAGE_LENGTH)
-				* a.structSize];
-		tmp = newArray;
+		tmp = new ArrayOfStructs(len < 2 * INITIAL_TMP_STORAGE_LENGTH ? len >>> 1 : INITIAL_TMP_STORAGE_LENGTH, a.structSize);
 
 		/*
 		 * Allocate runs-to-be-merged stack (which cannot be expanded). The stack length requirements are described in
@@ -126,8 +124,7 @@ public class ArrayOfStructsTimSort {
 
 		rangeCheck(a.size, lo, hi);
 		int nRemaining = hi - lo;
-		if (nRemaining < 2)
-		 {
+		if (nRemaining < 2) {
 			return; // Arrays of size 0 and 1 are always sorted
 		}
 
@@ -534,14 +531,16 @@ public class ArrayOfStructsTimSort {
 					a[dest++] = a[cursor2++];
 					count2++;
 					count1 = 0;
-					if (--len2 == 0)
+					if (--len2 == 0) {
 						break outer;
+					}
 				} else {
 					a[dest++] = tmp[cursor1++];
 					count1++;
 					count2 = 0;
-					if (--len1 == 1)
+					if (--len1 == 1) {
 						break outer;
+					}
 				}
 			} while ((count1 | count2) < minGallop);
 
@@ -550,8 +549,9 @@ public class ArrayOfStructsTimSort {
 			 * until (if ever) neither run appears to be winning consistently anymore.
 			 */
 			do {
-				if (DEBUG)
+				if (DEBUG) {
 					assert len1 > 1 && len2 > 0;
+				}
 				count1 = gallopRight(a[cursor2], tmp, cursor1, len1, 0, c);
 				if (count1 != 0) {
 					System.arraycopy(tmp, cursor1, a, dest, count1);
@@ -562,8 +562,9 @@ public class ArrayOfStructsTimSort {
 						break outer;
 				}
 				a[dest++] = a[cursor2++];
-				if (--len2 == 0)
+				if (--len2 == 0) {
 					break outer;
+				}
 
 				count2 = gallopLeft(tmp[cursor1], a, cursor2, len2, 0, c);
 				if (count2 != 0) {
@@ -571,16 +572,20 @@ public class ArrayOfStructsTimSort {
 					dest += count2;
 					cursor2 += count2;
 					len2 -= count2;
-					if (len2 == 0)
+					if (len2 == 0) {
 						break outer;
+					}
 				}
 				a[dest++] = tmp[cursor1++];
-				if (--len1 == 1)
+				if (--len1 == 1) {
 					break outer;
+				}
 				minGallop--;
 			} while (count1 >= MIN_GALLOP | count2 >= MIN_GALLOP);
-			if (minGallop < 0)
+			
+			if (minGallop < 0) {
 				minGallop = 0;
+			}
 			minGallop += 2; // Penalize for leaving gallop mode
 		} // End of "outer" loop
 		this.minGallop = minGallop < 1 ? 1 : minGallop; // Write back to field
@@ -589,15 +594,15 @@ public class ArrayOfStructsTimSort {
 			if (DEBUG) {
 				assert len2 > 0;
 			}
-			System.arraycopy(a, cursor2, a, dest, len2);
+			a.copyTo(cursor2, dest, len2);
 			a[dest + len2] = tmp[cursor1]; // Last elt of run 1 to end of merge
 		} else if (len1 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
-			if (DEBUG)
+			if (DEBUG) {
 				assert len2 == 0;
-			if (DEBUG)
 				assert len1 > 1;
+			}
 			System.arraycopy(tmp, cursor1, a, dest, len1);
 		}
 	}
@@ -640,8 +645,9 @@ public class ArrayOfStructsTimSort {
 			 * Do the straightforward thing until (if ever) one run appears to win consistently.
 			 */
 			do {
-				if (DEBUG)
+				if (DEBUG) {
 					assert len1 > 0 && len2 > 1;
+				}
 				if (c.compare(tmp[cursor2], a[cursor1]) < 0) {
 					a[dest--] = a[cursor1--];
 					count1++;
@@ -662,8 +668,9 @@ public class ArrayOfStructsTimSort {
 			 * until (if ever) neither run appears to be winning consistently anymore.
 			 */
 			do {
-				if (DEBUG)
+				if (DEBUG) {
 					assert len1 > 0 && len2 > 1;
+				}
 				count1 = len1 - gallopRight(tmp[cursor2], a, base1, len1, len1 - 1, c);
 				if (count1 != 0) {
 					dest -= count1;
@@ -698,8 +705,9 @@ public class ArrayOfStructsTimSort {
 		this.minGallop = minGallop < 1 ? 1 : minGallop; // Write back to field
 
 		if (len2 == 1) {
-			if (DEBUG)
+			if (DEBUG) {
 				assert len1 > 0;
+			}
 			dest -= len1;
 			cursor1 -= len1;
 			System.arraycopy(a, cursor1 + 1, a, dest + 1, len1);
@@ -707,10 +715,10 @@ public class ArrayOfStructsTimSort {
 		} else if (len2 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
-			if (DEBUG)
+			if (DEBUG) {
 				assert len1 == 0;
-			if (DEBUG)
 				assert len2 > 0;
+			}
 			System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2);
 		}
 	}
