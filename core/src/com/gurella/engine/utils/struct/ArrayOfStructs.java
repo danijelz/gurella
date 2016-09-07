@@ -304,6 +304,14 @@ public class ArrayOfStructs {
 		int initRunLen = ArrayOfStructsTimSort.countRunAndMakeAscending(a, 0, a.size, c);
 		ArrayOfStructsTimSort.binarySort(a, 0, a.size, initRunLen, c);
 		System.out.println(Arrays.toString(a.buffer));
+		
+		a = new ArrayOfStructs(2, 100);
+		a.size = 100;
+		for(int i = 0; i < 100; i++) {
+			a.setFloats(Double.valueOf(Math.random()).floatValue(), Double.valueOf(Math.random()).floatValue());
+		}
+		
+		new ArrayOfStructsTimSort().doSort(a, c, 0, a.size);
 	}
 
 	private static class StructComparatorImpl implements StructComparator {
