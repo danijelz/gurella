@@ -82,26 +82,26 @@ public class ArrayOfStructs {
 	public void removeOrdered(int index) {
 		float[] buffer = this.buffer;
 		int removedItemOffset = index * structSize;
-		int lastItemOffset = removedItemOffset + structSize;
+		int nextItemOffset = removedItemOffset + structSize;
 		int length = (size - index) * structSize;
-		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, length);
+		System.arraycopy(buffer, nextItemOffset, buffer, removedItemOffset, length);
 		size--;
 	}
 
 	public void remove(int index, int count) {
 		float[] buffer = this.buffer;
-		int lastItemOffset = (size - count) * structSize;
+		int lastItemsOffset = (size - count) * structSize;
 		int removedItemOffset = index * structSize;
-		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, count * structSize);
+		System.arraycopy(buffer, lastItemsOffset, buffer, removedItemOffset, count * structSize);
 		size -= count;
 	}
 
 	public void removeOrdered(int index, int count) {
 		float[] buffer = this.buffer;
 		int removedItemOffset = index * structSize;
-		int lastItemOffset = removedItemOffset + (structSize * count);
-		int length = (size - index + count) * structSize;
-		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, length);
+		int nextItemsOffset = removedItemOffset + (count * structSize);
+		int length = (size - index - count) * structSize;
+		System.arraycopy(buffer, nextItemsOffset, buffer, removedItemOffset, length);
 		size -= count;
 	}
 
@@ -114,19 +114,28 @@ public class ArrayOfStructs {
 	}
 
 	public void insert(int index, int count) {
-		// TODO
+		float[] buffer = this.buffer;
+		int addedItemOffset = index * structSize;
+		int length = (size - index) * structSize;
+		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + (structSize * count), length);
 		size += count;
 	}
 
 	public void insertSafely(int index) {
 		resizeIfNeeded(size + 1);
-		// TODO
+		float[] buffer = this.buffer;
+		int addedItemOffset = index * structSize;
+		int length = (size - index) * structSize;
+		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + structSize, length);
 		size++;
 	}
 
 	public void insertSafely(int index, int count) {
 		resizeIfNeeded(size + count);
-		// TODO
+		float[] buffer = this.buffer;
+		int addedItemOffset = index * structSize;
+		int length = (size - index) * structSize;
+		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + (structSize * count), length);
 		size += count;
 	}
 
@@ -157,8 +166,9 @@ public class ArrayOfStructs {
 
 	public void resize(int newSize) {
 		float[] buffer = this.buffer;
-		float[] newBuffer = new float[newSize * structSize];
-		System.arraycopy(buffer, 0, newBuffer, 0, Math.min(size, newSize));
+		int newBufferSize = newSize * structSize;
+		float[] newBuffer = new float[newBufferSize];
+		System.arraycopy(buffer, 0, newBuffer, 0, Math.min(size * structSize, newBufferSize));
 		this.buffer = newBuffer;
 		size = Math.min(size, newSize);
 	}
@@ -175,13 +185,13 @@ public class ArrayOfStructs {
 		}
 	}
 
-	public void swap(int fromIndex, int toIndex, float[] temp) {
+	public void swap(int firstIndex, int secondIndex, float[] tempStruct) {
 		float[] buffer = this.buffer;
-		int fromOffset = fromIndex * structSize;
-		int toOffset = toIndex * structSize;
-		getFloatArrayByOffset(temp, fromIndex, structSize);
-		System.arraycopy(buffer, toOffset, buffer, fromOffset, structSize);
-		setFloatArrayByOffset(toOffset, temp, structSize);
+		int firstOffset = firstIndex * structSize;
+		int secondOffset = secondIndex * structSize;
+		getFloatArrayByOffset(tempStruct, firstOffset, structSize);
+		System.arraycopy(buffer, secondOffset, buffer, firstOffset, structSize);
+		setFloatArrayByOffset(secondOffset, tempStruct, structSize);
 	}
 
 	public void pop() {
@@ -236,19 +246,20 @@ public class ArrayOfStructs {
 			action.accept(this, i);
 		}
 	}
-	
+
 	public static void main(String[] args) {
-		ArrayOfStructs a = new ArrayOfStructs(2, 6);
+		ArrayOfStructs a = new ArrayOfStructs(2, 7);
 		a.setFloats(1.0f, 1);
 		a.setFloats(2.0f, 2);
 		a.setFloats(3.0f, 3);
 		a.setFloats(4.0f, 4);
 		a.setFloats(5.0f, 5);
 		a.setFloats(6.0f, 6);
-		a.size = 5;
+		a.setFloats(7.0f, 7);
+		a.size = 7;
 		System.out.println(Arrays.toString(a.buffer));
 
-		a.removeOrdered(1, 1);
+		a.insertSafely(1, 2);
 		System.out.println(Arrays.toString(a.buffer));
 	}
 
