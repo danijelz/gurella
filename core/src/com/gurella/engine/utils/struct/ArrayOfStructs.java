@@ -869,7 +869,7 @@ public class ArrayOfStructs {
 	}
 
 	public interface StructComparator {
-		int compare(float[] buffer, int firstIndex, int secondIndex);
+		int compare(ArrayOfStructs buffer, int firstIndex, int secondIndex);
 	}
 
 	public interface StructConsumer {
