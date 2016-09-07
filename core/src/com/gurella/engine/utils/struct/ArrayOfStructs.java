@@ -5,6 +5,8 @@ import static java.lang.Double.doubleToRawLongBits;
 import static java.lang.Double.longBitsToDouble;
 import static java.lang.Float.intBitsToFloat;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix3;
@@ -81,7 +83,7 @@ public class ArrayOfStructs {
 		float[] buffer = this.buffer;
 		int removedItemOffset = index * structSize;
 		int lastItemOffset = removedItemOffset + structSize;
-		int length = (size - index -1) * structSize;
+		int length = (size - index) * structSize;
 		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, length);
 		size--;
 	}
@@ -90,7 +92,7 @@ public class ArrayOfStructs {
 		float[] buffer = this.buffer;
 		int lastItemOffset = (size - count) * structSize;
 		int removedItemOffset = index * structSize;
-		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, structSize);
+		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, count * structSize);
 		size -= count;
 	}
 
@@ -98,7 +100,7 @@ public class ArrayOfStructs {
 		float[] buffer = this.buffer;
 		int removedItemOffset = index * structSize;
 		int lastItemOffset = removedItemOffset + (structSize * count);
-		int length = (size - index + - + count) * structSize;
+		int length = (size - index + count) * structSize;
 		System.arraycopy(buffer, lastItemOffset, buffer, removedItemOffset, length);
 		size -= count;
 	}
@@ -106,7 +108,7 @@ public class ArrayOfStructs {
 	public void insert(int index) {
 		float[] buffer = this.buffer;
 		int addedItemOffset = index * structSize;
-		int length = (size - index - 1) * structSize;
+		int length = (size - index) * structSize;
 		System.arraycopy(buffer, addedItemOffset, buffer, addedItemOffset + structSize, length);
 		size++;
 	}
@@ -161,12 +163,15 @@ public class ArrayOfStructs {
 		size = Math.min(size, newSize);
 	}
 
-	public void swap(int fromIndex, int toIndex) {
+	public void swap(int firstIndex, int secondIndex) {
 		float[] buffer = this.buffer;
-		int fromOffset = fromIndex * structSize;
-		int toOffset = toIndex * structSize;
+		int firstOffset = firstIndex * structSize;
+		int secondOffset = secondIndex * structSize;
+		float word;
 		for (int i = 0, n = structSize; i < n; i++) {
-			buffer[fromOffset++] = buffer[toOffset++];
+			word = buffer[firstOffset];
+			buffer[firstOffset++] = buffer[secondOffset];
+			buffer[secondOffset++] = word;
 		}
 	}
 
@@ -231,6 +236,21 @@ public class ArrayOfStructs {
 			action.accept(this, i);
 		}
 	}
+	
+	public static void main(String[] args) {
+		ArrayOfStructs a = new ArrayOfStructs(2, 6);
+		a.setFloats(1.0f, 1);
+		a.setFloats(2.0f, 2);
+		a.setFloats(3.0f, 3);
+		a.setFloats(4.0f, 4);
+		a.setFloats(5.0f, 5);
+		a.setFloats(6.0f, 6);
+		a.size = 5;
+		System.out.println(Arrays.toString(a.buffer));
+
+		a.removeOrdered(1, 1);
+		System.out.println(Arrays.toString(a.buffer));
+	}
 
 	//////// float
 
@@ -264,6 +284,123 @@ public class ArrayOfStructs {
 
 	public void setFloat(float value) {
 		buffer[offset++] = value;
+	}
+
+	public void setFloats(float value1, float value2) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+	}
+
+	public void setFloats(float value1, float value2, float value3) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+	}
+
+	public void setFloats(float value1, float value2, float value3, float value4) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+	}
+
+	public void setFloats(float value1, float value2, float value3, float value4, float value5) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+	}
+
+	public void setFloats(float value1, float value2, float value3, float value4, float value5, float value6) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+		buffer[offset++] = value6;
+	}
+
+	public void setFloats(float value1, float value2, float value3, float value4, float value5, float value6,
+			float value7) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+		buffer[offset++] = value6;
+		buffer[offset++] = value7;
+	}
+
+	public void setFloats(float value1, float value2, float value3, float value4, float value5, float value6,
+			float value7, float value8) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+		buffer[offset++] = value6;
+		buffer[offset++] = value7;
+		buffer[offset++] = value8;
+	}
+
+	public void setFloats(int offset, float value1, float value2) {
+		buffer[offset++] = value1;
+		buffer[offset] = value2;
+	}
+
+	public void setFloats(int offset, float value1, float value2, float value3) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset] = value3;
+	}
+
+	public void setFloats(int offset, float value1, float value2, float value3, float value4) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset] = value4;
+	}
+
+	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset] = value5;
+	}
+
+	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5,
+			float value6) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+		buffer[offset] = value6;
+	}
+
+	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5,
+			float value6, float value7) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+		buffer[offset++] = value6;
+		buffer[offset] = value7;
+	}
+
+	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5,
+			float value6, float value7, float value8) {
+		buffer[offset++] = value1;
+		buffer[offset++] = value2;
+		buffer[offset++] = value3;
+		buffer[offset++] = value4;
+		buffer[offset++] = value5;
+		buffer[offset++] = value6;
+		buffer[offset++] = value7;
+		buffer[offset] = value8;
 	}
 
 	/////////// int
@@ -739,12 +876,12 @@ public class ArrayOfStructs {
 		int next = rand();
 	}
 
-	static int testSize = 9000000;
+	static int testSize = 1000000;
 	static int testStructSize = 7;
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
 
-	public static void main(String[] args) {
+	public static void main1(String[] args) {
 		ArrayOfStructs t = new ArrayOfStructs(1, 2);
 		t.setShort1((short) 1);
 		t.setShort2((short) 1);
