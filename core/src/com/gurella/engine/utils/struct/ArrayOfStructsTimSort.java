@@ -1,8 +1,5 @@
 package com.gurella.engine.utils.struct;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
 import com.gurella.engine.utils.struct.ArrayOfStructs.StructComparator;
 
 public class ArrayOfStructsTimSort {
@@ -171,7 +168,7 @@ public class ArrayOfStructsTimSort {
 	}
 
 	@SuppressWarnings("fallthrough")
-	private static void binarySort(ArrayOfStructs a, int lo, int hi, int start, StructComparator c) {
+	static void binarySort(ArrayOfStructs a, int lo, int hi, int start, StructComparator c) {
 		if (DEBUG) {
 			assert lo <= start && start <= hi;
 		}
@@ -179,8 +176,11 @@ public class ArrayOfStructsTimSort {
 			start++;
 		}
 
+		float[] pivotStruct = new float[a.structSize];
+
 		for (; start < hi; start++) {
 			int pivot = start;
+			a.getFloatArrayByIndex(pivotStruct, pivot);
 
 			// Set left (and right) to the index where a[start] (pivot) belongs
 			int left = lo;
@@ -220,11 +220,11 @@ public class ArrayOfStructsTimSort {
 			default:
 				a.copyTo(left, left + 1, n);
 			}
-			a.copyTo(pivot, left);
+			a.setFloatArrayByIndex(left, pivotStruct);
 		}
 	}
 
-	private static int countRunAndMakeAscending(ArrayOfStructs a, int lo, int hi, StructComparator c) {
+	static int countRunAndMakeAscending(ArrayOfStructs a, int lo, int hi, StructComparator c) {
 		if (DEBUG) {
 			assert lo < hi;
 		}
@@ -332,7 +332,7 @@ public class ArrayOfStructsTimSort {
 		 * Find where the first element of run2 goes in run1. Prior elements in run1 can be ignored (because they're
 		 * already in place).
 		 */
-		int k = gallopRight(base2, a, base1, len1, 0, c);
+		int k = gallopRight(a[base2], base1, len1, 0, c);
 		if (DEBUG) {
 			assert k >= 0;
 		}
@@ -346,7 +346,7 @@ public class ArrayOfStructsTimSort {
 		 * Find where the last element of run1 goes in run2. Subsequent elements in run2 can be ignored (because they're
 		 * already in place).
 		 */
-		len2 = gallopLeft(base1 + len1 - 1, a, base2, len2, len2 - 1, c);
+		len2 = gallopLeft(a[base1 + len1 - 1], base2, len2, len2 - 1, c);
 		if (DEBUG) {
 			assert len2 >= 0;
 		}
@@ -501,7 +501,8 @@ public class ArrayOfStructsTimSort {
 
 		// Copy first run into temp array
 		ArrayOfStructs a = this.a; // For performance
-		float[] tmp = ensureCapacity(len1 * a.structSize);
+		ArrayOfStructs tmp = this.tmp; // For performance
+		tmp.ensureCapacity(len1);
 		System.arraycopy(a, base1, tmp, 0, len1);
 
 		int cursor1 = 0; // Indexes into tmp array
@@ -509,14 +510,14 @@ public class ArrayOfStructsTimSort {
 		int dest = base1; // Indexes int a
 
 		// Move first element of second run and deal with degenerate cases
-		a[dest++] = a[cursor2++];
+		a.copyTo(cursor2++, dest++);
 		if (--len2 == 0) {
 			System.arraycopy(tmp, cursor1, a, dest, len1);
 			return;
 		}
 		if (len1 == 1) {
 			System.arraycopy(a, cursor2, a, dest, len2);
-			a[dest + len2] = tmp[cursor1]; // Last elt of run 1 to end of merge
+			a.setItem(tmp, cursor1, dest + len2);// Last elt of run 1 to end of merge
 			return;
 		}
 
@@ -534,14 +535,14 @@ public class ArrayOfStructsTimSort {
 					assert len1 > 1 && len2 > 0;
 				}
 				if (c.compare(a[cursor2], tmp[cursor1]) < 0) {
-					a[dest++] = a[cursor2++];
+					a.copyTo(cursor2++, dest++);
 					count2++;
 					count1 = 0;
 					if (--len2 == 0) {
 						break outer;
 					}
 				} else {
-					a[dest++] = tmp[cursor1++];
+					a.setItem(tmp, cursor1++, dest++);
 					count1++;
 					count2 = 0;
 					if (--len1 == 1) {
@@ -567,7 +568,7 @@ public class ArrayOfStructsTimSort {
 					if (len1 <= 1) // len1 == 1 || len1 == 0
 						break outer;
 				}
-				a[dest++] = a[cursor2++];
+				a.copyTo(cursor2++, dest++);
 				if (--len2 == 0) {
 					break outer;
 				}
@@ -582,7 +583,7 @@ public class ArrayOfStructsTimSort {
 						break outer;
 					}
 				}
-				a[dest++] = tmp[cursor1++];
+				a.setItem(tmp, cursor1++, dest++);
 				if (--len1 == 1) {
 					break outer;
 				}
@@ -601,7 +602,7 @@ public class ArrayOfStructsTimSort {
 				assert len2 > 0;
 			}
 			a.copyTo(cursor2, dest, len2);
-			a[dest + len2] = tmp[cursor1]; // Last elt of run 1 to end of merge
+			a.setItem(tmp, cursor1, dest + len2); // Last elt of run 1 to end of merge
 		} else if (len1 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
@@ -620,7 +621,8 @@ public class ArrayOfStructsTimSort {
 
 		// Copy second run into temp array
 		ArrayOfStructs a = this.a; // For performance
-		float[] tmp = ensureCapacity(len2 * a.structSize);
+		ArrayOfStructs tmp = this.tmp;
+		tmp.ensureCapacity(len2);
 		System.arraycopy(a, base2, tmp, 0, len2);
 
 		int cursor1 = base1 + len1 - 1; // Indexes into a
@@ -628,7 +630,7 @@ public class ArrayOfStructsTimSort {
 		int dest = base2 + len2 - 1; // Indexes into a
 
 		// Move last element of first run and deal with degenerate cases
-		a[dest--] = a[cursor1--];
+		a.swap(cursor1--, dest--);
 		if (--len1 == 0) {
 			System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2);
 			return;
@@ -636,8 +638,8 @@ public class ArrayOfStructsTimSort {
 		if (len2 == 1) {
 			dest -= len1;
 			cursor1 -= len1;
-			System.arraycopy(a, cursor1 + 1, a, dest + 1, len1);
-			a[dest] = tmp[cursor2];
+			a.copyTo(cursor1 + 1, dest + 1, len1);
+			a.setItem(tmp, cursor2, dest);
 			return;
 		}
 
@@ -655,17 +657,19 @@ public class ArrayOfStructsTimSort {
 					assert len1 > 0 && len2 > 1;
 				}
 				if (c.compare(tmp[cursor2], a[cursor1]) < 0) {
-					a[dest--] = a[cursor1--];
+					a.copyTo(cursor1--, dest--);
 					count1++;
 					count2 = 0;
-					if (--len1 == 0)
+					if (--len1 == 0) {
 						break outer;
+					}
 				} else {
-					a[dest--] = tmp[cursor2--];
+					a.setItem(tmp, cursor2--, dest--);
 					count2++;
 					count1 = 0;
-					if (--len2 == 1)
+					if (--len2 == 1) {
 						break outer;
+					}
 				}
 			} while ((count1 | count2) < minGallop);
 
@@ -677,7 +681,7 @@ public class ArrayOfStructsTimSort {
 				if (DEBUG) {
 					assert len1 > 0 && len2 > 1;
 				}
-				count1 = len1 - gallopRight(tmp[cursor2], a, base1, len1, len1 - 1, c);
+				count1 = len1 - gallopRight(cursor2, tmp, a, base1, len1, len1 - 1, c);
 				if (count1 != 0) {
 					dest -= count1;
 					cursor1 -= count1;
@@ -686,9 +690,10 @@ public class ArrayOfStructsTimSort {
 					if (len1 == 0)
 						break outer;
 				}
-				a[dest--] = tmp[cursor2--];
-				if (--len2 == 1)
+				a.copyTo(cursor2--, dest--);
+				if (--len2 == 1) {
 					break outer;
+				}
 
 				count2 = len2 - gallopLeft(a[cursor1], tmp, 0, len2, len2 - 1, c);
 				if (count2 != 0) {
@@ -699,7 +704,7 @@ public class ArrayOfStructsTimSort {
 					if (len2 <= 1) // len2 == 1 || len2 == 0
 						break outer;
 				}
-				a[dest--] = a[cursor1--];
+				a.copyTo(cursor1--, dest--);
 				if (--len1 == 0)
 					break outer;
 				minGallop--;
@@ -717,40 +722,15 @@ public class ArrayOfStructsTimSort {
 			dest -= len1;
 			cursor1 -= len1;
 			System.arraycopy(a, cursor1 + 1, a, dest + 1, len1);
-			a[dest] = tmp[cursor2]; // Move first elt of run2 to front of merge
+			a.setItem(tmp, cursor2, dest); // Move first elt of run2 to front of merge
 		} else if (len2 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
 			if (DEBUG) {
-				assert len1 == 0;
-				assert len2 > 0;
+				assert len1 == 0 && len2 > 0;
 			}
 			System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2);
 		}
-	}
-
-	private float[] ensureCapacity(int minCapacity) {
-		tmpCount = Math.max(tmpCount, minCapacity);
-		if (tmp.length < minCapacity) {
-			// Compute smallest power of 2 > minCapacity
-			int newSize = minCapacity;
-			newSize |= newSize >> 1;
-			newSize |= newSize >> 2;
-			newSize |= newSize >> 4;
-			newSize |= newSize >> 8;
-			newSize |= newSize >> 16;
-			newSize++;
-
-			if (newSize < 0) {
-				newSize = minCapacity;
-			} else {
-				newSize = Math.min(newSize, a.size >>> 1);
-			}
-
-			float[] newArray = new float[newSize];
-			tmp = newArray;
-		}
-		return tmp;
 	}
 
 	private static void rangeCheck(int arrayLen, int fromIndex, int toIndex) {

@@ -193,14 +193,14 @@ public class ArrayOfStructs {
 		System.arraycopy(buffer, secondOffset, buffer, firstOffset, structSize);
 		setFloatArrayByOffset(secondOffset, tempStruct, structSize);
 	}
-	
+
 	public void copyTo(int fromIndex, int toIndex) {
 		float[] buffer = this.buffer;
 		int fromOffset = fromIndex * structSize;
 		int toOffset = toIndex * structSize;
 		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize);
 	}
-	
+
 	public void copyTo(int fromIndex, int toIndex, int count) {
 		float[] buffer = this.buffer;
 		int fromOffset = fromIndex * structSize;
@@ -233,6 +233,19 @@ public class ArrayOfStructs {
 		if (sizeNeeded > capacity) {
 			resize(Math.max(8, sizeNeeded));
 		}
+	}
+
+	public void set(ArrayOfStructs other) {
+		resizeIfNeeded(other.size);
+		System.arraycopy(buffer, 0, other.buffer, 0, Math.min(size, other.size));
+	}
+
+	public void setItem(ArrayOfStructs src, int srcIndex, int destIndex) {
+		System.arraycopy(src.buffer, srcIndex * structSize, buffer, destIndex * structSize, structSize);
+	}
+
+	public void setItem(ArrayOfStructs src, int srcIndex, int destIndex, int count) {
+		System.arraycopy(src.buffer, srcIndex * structSize, buffer, destIndex * structSize, structSize * count);
 	}
 
 	public void sort(StructComparator comparator) {
@@ -275,6 +288,36 @@ public class ArrayOfStructs {
 
 		a.copyTo(2, 1, 2);
 		System.out.println(Arrays.toString(a.buffer));
+
+		a = new ArrayOfStructs(2, 7);
+		a.setFloats(3.0f, 3);
+		a.setFloats(6.0f, 6);
+		a.setFloats(4.0f, 4);
+		a.setFloats(1.0f, 1);
+		a.setFloats(2.0f, 2);
+		a.setFloats(7.0f, 7);
+		a.setFloats(5.0f, 5);
+		a.size = 7;
+
+		System.out.println(Arrays.toString(a.buffer));
+		StructComparatorImpl c = new StructComparatorImpl();
+		int initRunLen = ArrayOfStructsTimSort.countRunAndMakeAscending(a, 0, a.size, c);
+		ArrayOfStructsTimSort.binarySort(a, 0, a.size, initRunLen, c);
+		System.out.println(Arrays.toString(a.buffer));
+	}
+
+	private static class StructComparatorImpl implements StructComparator {
+
+		@Override
+		public int compare(ArrayOfStructs buffer, int firstIndex, int secondIndex) {
+			buffer.setIndex(firstIndex);
+			float f1 = buffer.getFloat();
+
+			buffer.setIndex(secondIndex);
+			float f2 = buffer.getFloat();
+			return Float.compare(f1, f2);
+		}
+
 	}
 
 	//////// float
@@ -668,6 +711,16 @@ public class ArrayOfStructs {
 		return arrOut;
 	}
 
+	public float[] getFloatArrayByIndex(float[] arrOut, int index) {
+		System.arraycopy(buffer, index * structSize, arrOut, 0, structSize);
+		return arrOut;
+	}
+
+	public float[] getFloatArrayByIndex(float[] arrOut, int index, int count) {
+		System.arraycopy(buffer, index * structSize, arrOut, 0, structSize * count);
+		return arrOut;
+	}
+
 	public void setFloatArray(float[] arr, int length) {
 		System.arraycopy(arr, 0, buffer, offset, length);
 	}
@@ -682,6 +735,14 @@ public class ArrayOfStructs {
 
 	public void setFloatArrayByOffset(int offset, float[] arr, int sourceOffset, int length) {
 		System.arraycopy(arr, sourceOffset, buffer, offset, length);
+	}
+
+	public void setFloatArrayByIndex(int index, float[] arr) {
+		System.arraycopy(arr, 0, buffer, index * structSize, structSize);
+	}
+
+	public void setFloatArrayByIndex(int index, float[] arr, int count) {
+		System.arraycopy(arr, 0, buffer, index * structSize, structSize * count);
 	}
 
 	/////// Vector2
