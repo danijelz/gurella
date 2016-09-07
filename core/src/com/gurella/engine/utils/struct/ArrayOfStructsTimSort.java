@@ -17,8 +17,7 @@ public class ArrayOfStructsTimSort {
 
 	private static final int INITIAL_TMP_STORAGE_LENGTH = 1024;
 
-	private ArrayOfStructs tmp; // Actual runtime type will be Object[], regardless of T
-	private int tmpCount;
+	private ArrayOfStructs tmp;
 
 	private int stackSize = 0; // Number of pending runs on stack
 	private final int[] runBase;
@@ -49,7 +48,6 @@ public class ArrayOfStructsTimSort {
 
 		this.a = a;
 		this.c = c;
-		tmpCount = 0;
 
 		/**
 		 * March over the array once, left to right, finding natural runs, extending short natural runs to minRun
@@ -87,8 +85,8 @@ public class ArrayOfStructsTimSort {
 
 		this.a = null;
 		this.c = null;
-		ArrayOfStructs tmp = this.tmp;
-		for (int i = 0, n = tmpCount; i < n; i++) {
+		float[] tmp = this.tmp.buffer;
+		for (int i = 0, n = tmp.length; i < n; i++) {
 			tmp[i] = 0;
 		}
 	}
@@ -99,7 +97,8 @@ public class ArrayOfStructsTimSort {
 
 		// Allocate temp storage (which may be increased later if necessary)
 		int len = a.size;
-		tmp = new ArrayOfStructs(len < 2 * INITIAL_TMP_STORAGE_LENGTH ? len >>> 1 : INITIAL_TMP_STORAGE_LENGTH, a.structSize);
+		tmp = new ArrayOfStructs(len < 2 * INITIAL_TMP_STORAGE_LENGTH ? len >>> 1 : INITIAL_TMP_STORAGE_LENGTH,
+				a.structSize);
 
 		/*
 		 * Allocate runs-to-be-merged stack (which cannot be expanded). The stack length requirements are described in
@@ -231,8 +230,9 @@ public class ArrayOfStructsTimSort {
 		}
 
 		int runHi = lo + 1;
-		if (runHi == hi)
+		if (runHi == hi) {
 			return 1;
+		}
 
 		// Find end of run, and reverse range if descending
 		if (c.compare(a, runHi++, lo) < 0) { // Descending
@@ -281,8 +281,9 @@ public class ArrayOfStructsTimSort {
 			int n = stackSize - 2;
 			if ((n >= 1 && runLen[n - 1] <= runLen[n] + runLen[n + 1])
 					|| (n >= 2 && runLen[n - 2] <= runLen[n] + runLen[n - 1])) {
-				if (runLen[n - 1] < runLen[n + 1])
+				if (runLen[n - 1] < runLen[n + 1]) {
 					n--;
+				}
 			} else if (runLen[n] > runLen[n + 1]) {
 				break; // Invariant is established
 			}
@@ -293,8 +294,9 @@ public class ArrayOfStructsTimSort {
 	private void mergeForceCollapse() {
 		while (stackSize > 1) {
 			int n = stackSize - 2;
-			if (n > 0 && runLen[n - 1] < runLen[n + 1])
+			if (n > 0 && runLen[n - 1] < runLen[n + 1]) {
 				n--;
+			}
 			mergeAt(n);
 		}
 	}
@@ -372,8 +374,9 @@ public class ArrayOfStructsTimSort {
 			while (ofs < maxOfs && c.compare(a, key, base + hint + ofs) > 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
-				if (ofs <= 0) // int overflow
+				if (ofs <= 0) {// int overflow
 					ofs = maxOfs;
+				}
 			}
 			if (ofs > maxOfs) {
 				ofs = maxOfs;
@@ -388,8 +391,9 @@ public class ArrayOfStructsTimSort {
 			while (ofs < maxOfs && c.compare(a, key, base + hint - ofs) <= 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
-				if (ofs <= 0) // int overflow
+				if (ofs <= 0) {
 					ofs = maxOfs;
+				}
 			}
 			if (ofs > maxOfs) {
 				ofs = maxOfs;
@@ -437,8 +441,9 @@ public class ArrayOfStructsTimSort {
 			while (ofs < maxOfs && c.compare(a, key, base + hint - ofs) < 0) {
 				lastOfs = ofs;
 				ofs = (ofs << 1) + 1;
-				if (ofs <= 0) // int overflow
+				if (ofs <= 0) {// int overflow
 					ofs = maxOfs;
+				}
 			}
 			if (ofs > maxOfs) {
 				ofs = maxOfs;
@@ -490,8 +495,9 @@ public class ArrayOfStructsTimSort {
 	}
 
 	private void mergeLo(int base1, int len1, int base2, int len2) {
-		if (DEBUG)
+		if (DEBUG) {
 			assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
+		}
 
 		// Copy first run into temp array
 		ArrayOfStructs a = this.a; // For performance
@@ -582,7 +588,7 @@ public class ArrayOfStructsTimSort {
 				}
 				minGallop--;
 			} while (count1 >= MIN_GALLOP | count2 >= MIN_GALLOP);
-			
+
 			if (minGallop < 0) {
 				minGallop = 0;
 			}
