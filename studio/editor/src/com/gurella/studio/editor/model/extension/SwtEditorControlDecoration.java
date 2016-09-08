@@ -38,6 +38,8 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 		case RIGHT:
 			position |= SWT.RIGHT;
 			break;
+		default:
+			break;
 		}
 
 		switch (verticalAlignment) {
@@ -49,6 +51,8 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 			break;
 		case BOTTOM:
 			position |= SWT.BOTTOM;
+			break;
+		default:
 			break;
 		}
 

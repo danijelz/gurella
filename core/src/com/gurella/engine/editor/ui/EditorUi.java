@@ -32,6 +32,7 @@ import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
+import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
@@ -168,9 +169,9 @@ public interface EditorUi {
 
 	<ELEMENT> EditorTable<ELEMENT> createTable(EditorComposite parent, TableStyle style);
 
-	<ELEMENT> EditorTree<ELEMENT> createTree(EditorComposite parent);
+	<ELEMENT> EditorTree<ELEMENT> createTree(EditorComposite parent, TreeContentProvider<ELEMENT> contentProvider);
 
-	<ELEMENT> EditorTree<ELEMENT> createTree(EditorComposite parent, TreeStyle style);
+	<ELEMENT> EditorTree<ELEMENT> createTree(EditorComposite parent, TreeStyle<ELEMENT> style);
 
 	EditorShell createShell(ShellStyle style);
 

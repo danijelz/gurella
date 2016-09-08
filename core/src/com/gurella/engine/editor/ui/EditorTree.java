@@ -1,5 +1,7 @@
 package com.gurella.engine.editor.ui;
 
+import java.util.List;
+
 import com.gurella.engine.editor.ui.viewer.EditorTreeViewer;
 
 public interface EditorTree<ELEMENT> extends EditorBaseComposite, EditorTreeViewer<ELEMENT> {
@@ -97,34 +99,48 @@ public interface EditorTree<ELEMENT> extends EditorBaseComposite, EditorTreeView
 
 	EditorTreeItem createItem(int index);
 
-	public static class TreeStyle extends ScrollableStyle<TreeStyle> {
+	public static abstract class TreeContentProvider<ELEMENT> {
+		public abstract <E extends ELEMENT> List<E> getChildren(ELEMENT item, int depth);
+
+		public <E extends ELEMENT> TreeContentProvider<ELEMENT> getChildContentProvider(
+				@SuppressWarnings("unused") E child, @SuppressWarnings("unused") int depth) {
+			return this;
+		}
+	}
+
+	public static class TreeStyle<ELEMENT> extends ScrollableStyle<TreeStyle<ELEMENT>> {
+		public TreeContentProvider<ELEMENT> contentProvider;
 		public boolean check;
 		public boolean multiSelection;
 		public boolean fullSelection;
 		public boolean noScroll;
 		public boolean virtual;
 
-		public TreeStyle check(boolean check) {
+		public TreeStyle(TreeContentProvider<ELEMENT> contentProvider) {
+			this.contentProvider = contentProvider;
+		}
+
+		public TreeStyle<ELEMENT> check(boolean check) {
 			this.check = check;
 			return cast();
 		}
 
-		public TreeStyle multiSelection(boolean multiSelection) {
+		public TreeStyle<ELEMENT> multiSelection(boolean multiSelection) {
 			this.multiSelection = multiSelection;
 			return cast();
 		}
 
-		public TreeStyle fullSelection(boolean fullSelection) {
+		public TreeStyle<ELEMENT> fullSelection(boolean fullSelection) {
 			this.fullSelection = fullSelection;
 			return cast();
 		}
 
-		public TreeStyle virtual(boolean virtual) {
+		public TreeStyle<ELEMENT> virtual(boolean virtual) {
 			this.virtual = virtual;
 			return cast();
 		}
 
-		public TreeStyle noScroll(boolean noScroll) {
+		public TreeStyle<ELEMENT> noScroll(boolean noScroll) {
 			this.noScroll = noScroll;
 			return cast();
 		}

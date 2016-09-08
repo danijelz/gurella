@@ -3,12 +3,18 @@ package com.gurella.studio.editor.model.extension;
 import static com.gurella.engine.utils.Values.cast;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
-import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
@@ -27,15 +33,15 @@ import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> implements EditorTree<ELEMENT> {
 	TreeViewer viewer;
 
-	public SwtEditorTree(SwtEditorComposite parent, int style) {
+	public SwtEditorTree(SwtEditorComposite parent, TreeContentProvider<ELEMENT> contentProvider, int style) {
 		super(parent, style);
+		viewer.setContentProvider(new TreeContentProviderAdapter<>(contentProvider));
 	}
 
 	@Override
 	Tree createWidget(Composite parent, int style) {
 		Tree tree = GurellaStudioPlugin.getToolkit().createTree(parent, style);
 		viewer = new TreeViewer(tree);
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
 		TreeLabelProviderAdapter labelProviderAdapter = new TreeLabelProviderAdapter(null);
 		tree.addDisposeListener(e -> labelProviderAdapter.dispose());
 		viewer.setLabelProvider(labelProviderAdapter);
@@ -477,16 +483,154 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 	public void update(ELEMENT element, String... properties) {
 		viewer.update(element, properties);
 	}
-	
+
+	@Override
+	public LabelProvider<ELEMENT> getLabelProvider() {
+		@SuppressWarnings("unchecked")
+		TreeLabelProviderAdapter labelProviderAdapter = (TreeLabelProviderAdapter) viewer.getLabelProvider();
+		return labelProviderAdapter == null ? null : labelProviderAdapter.labelProvider;
+	}
+
+	@Override
+	public void setLabelProvider(LabelProvider<ELEMENT> labelProvider) {
+		@SuppressWarnings("unchecked")
+		TreeLabelProviderAdapter labelProviderAdapter = (TreeLabelProviderAdapter) viewer.getLabelProvider();
+		labelProviderAdapter.labelProvider = labelProvider;
+	}
+
 	@Override
 	public LabelProvider<ELEMENT> getLabelProvider(int columnIndex) {
-		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+		SwtEditorTreeColumn<ELEMENT> column = getColumn(columnIndex);
 		return column.getLabelProvider();
 	}
 
 	@Override
 	public void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider) {
-		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+		SwtEditorTreeColumn<ELEMENT> column = getColumn(columnIndex);
 		column.setLabelProvider(labelProvider);
+	}
+
+	private class TreeLabelProviderAdapter extends org.eclipse.jface.viewers.LabelProvider
+			implements ITableLabelProvider {
+		LabelProvider<ELEMENT> labelProvider;
+
+		public TreeLabelProviderAdapter(LabelProvider<ELEMENT> labelProvider) {
+			this.labelProvider = labelProvider;
+		}
+
+		@Override
+		public Image getColumnImage(Object element, int columnIndex) {
+			@SuppressWarnings("unchecked")
+			ELEMENT casted = (ELEMENT) element;
+			SwtEditorTreeColumn<ELEMENT> column = getColumn(columnIndex);
+			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
+			if (columnLabelProviderAdapter != null) {
+				return columnLabelProviderAdapter.getImage(casted);
+			} else if (labelProvider != null) {
+				SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
+				return image == null ? null : image.image;
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public String getColumnText(Object element, int columnIndex) {
+			@SuppressWarnings("unchecked")
+			ELEMENT casted = (ELEMENT) element;
+			SwtEditorTreeColumn<ELEMENT> column = getColumn(columnIndex);
+			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
+			if (columnLabelProviderAdapter != null) {
+				return columnLabelProviderAdapter.getText(casted);
+			} else if (labelProvider != null) {
+				return labelProvider.getText(casted);
+			} else {
+				return null;
+			}
+		}
+	}
+
+	private static class TreeContentProviderAdapter<ELEMENT> implements ITreeContentProvider {
+		TreeContentProvider<?> rootContentProvider;
+		Map<Object, TreeNodeData> providersByElement = new HashMap<>();
+
+		public TreeContentProviderAdapter(TreeContentProvider<ELEMENT> contentProvider) {
+			rootContentProvider = contentProvider;
+		}
+
+		@Override
+		public void dispose() {
+		}
+
+		@Override
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		}
+
+		@Override
+		public Object[] getElements(Object inputElement) {
+			List<?> inputElements = (List<?>) inputElement;
+			for (Object element : inputElements) {
+				providersByElement.put(element, new TreeNodeData(null, cast(rootContentProvider)));
+			}
+
+			return getTreeNodeData(inputElement).children.toArray();
+		}
+
+		private TreeNodeData getTreeNodeData(Object element) {
+			TreeNodeData treeNodeData = providersByElement.get(element);
+			TreeContentProvider<Object> contentProvider = treeNodeData.contentProvider;
+			if (contentProvider == null) {
+				treeNodeData.children = Collections.emptyList();
+				return treeNodeData;
+			}
+
+			List<Object> children = contentProvider.getChildren(element);
+			List<Object> currentChildren = treeNodeData.children;
+			if (!currentChildren.equals(children)) {
+				for (Object child : currentChildren) {
+					providersByElement.remove(child);
+					//TODO remove hierarcy
+				}
+
+				if (Values.isEmpty(children)) {
+					treeNodeData.children = Collections.emptyList();
+				} else {
+					for (Object child : children) {
+						TreeContentProvider<Object> childContentProvider = contentProvider
+								.getChildContentProvider(child);
+						providersByElement.put(child, new TreeNodeData(element, childContentProvider));
+					}
+				}
+			}
+			return treeNodeData;
+		}
+
+		@Override
+		public Object[] getChildren(Object parentElement) {
+			return getTreeNodeData(parentElement).children.toArray();
+		}
+
+		@Override
+		public Object getParent(Object element) {
+			return getTreeNodeData(element).parent;
+		}
+
+		@Override
+		public boolean hasChildren(Object element) {
+			return !getTreeNodeData(element).children.isEmpty();
+		}
+	}
+
+	private static class TreeNodeData {
+		Object parent;
+		TreeContentProvider<Object> contentProvider;
+		List<Object> children = Collections.emptyList();
+
+		public TreeNodeData(Object parent, TreeContentProvider<Object> contentProvider) {
+			super();
+			this.parent = parent;
+			this.contentProvider = contentProvider;
+		}
+
 	}
 }

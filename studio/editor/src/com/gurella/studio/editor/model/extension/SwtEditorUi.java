@@ -76,6 +76,7 @@ import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
+import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
@@ -499,13 +500,14 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent) {
-		return new SwtEditorTree<>(cast(parent), SWT.SINGLE | SWT.FULL_SELECTION);
+	public <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent,
+			TreeContentProvider<ELEMENT> contentProvider) {
+		return new SwtEditorTree<>(cast(parent), contentProvider, SWT.SINGLE | SWT.FULL_SELECTION);
 	}
 
 	@Override
-	public <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent, TreeStyle style) {
-		return new SwtEditorTree<>(cast(parent), extractTreeStyle(style));
+	public <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent, TreeStyle<ELEMENT> style) {
+		return new SwtEditorTree<>(cast(parent), style.contentProvider, extractTreeStyle(style));
 	}
 
 	@Override
