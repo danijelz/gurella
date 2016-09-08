@@ -568,11 +568,11 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 		@Override
 		public Object[] getElements(Object inputElement) {
-			List<?> inputElements = (List<?>) inputElement;
+			/*List<?> inputElements = (List<?>) inputElement;
 			for (Object element : inputElements) {
 				providersByElement.put(element, new TreeNodeData(null, cast(rootContentProvider), 0));
-			}
-
+			}*/
+			providersByElement.put(inputElement, new TreeNodeData(null, cast(rootContentProvider), 0));
 			return getTreeNodeData(inputElement).children.toArray();
 		}
 
