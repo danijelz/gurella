@@ -17,8 +17,6 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	void setSelection(SELECTION selection, boolean reveal);
 
-	////////////////////////// StructuredViewer
-
 	void refresh();
 
 	void refresh(boolean updateLabels);
@@ -32,8 +30,4 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 	void update(ELEMENT[] elements, String[] properties);
 
 	void update(ELEMENT element, String... properties);
-
-	interface IContentProvider {
-
-	}
 }

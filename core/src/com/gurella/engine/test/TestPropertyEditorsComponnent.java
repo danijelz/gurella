@@ -24,6 +24,9 @@ import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLink;
+import com.gurella.engine.editor.ui.EditorTable;
+import com.gurella.engine.editor.ui.EditorTable.TableStyle;
+import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
@@ -100,10 +103,30 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			decoration.setInfoImage();
 			decoration.setDescriptionText("Test decoration");
 
-			EditorCombo<ComboContent> combo = uiFactory.createCombo(parent);
-			combo.setInput(Arrays.asList(ComboContent.values()));
-			combo.add(ComboContent.item1);
-			combo.setLabelProvider(new ComboLabelProvider());
+			EditorCombo<ViewerContent> combo = uiFactory.createCombo(parent);
+			combo.setInput(Arrays.asList(ViewerContent.values()));
+			combo.add(ViewerContent.item1);
+			combo.setLabelProvider(new ViewerContentNameAndOrdinalLabelProvider());
+
+			TableStyle style = new TableStyle().vScroll(true).hScroll(true).multiSelection(true).fullSelection(true);
+			EditorTable<ViewerContent> table = uiFactory.createTable(parent, style);
+			table.setHeaderVisible(true);
+			table.setInput(Arrays.asList(ViewerContent.values()));
+			EditorTableColumn<ViewerContent> column = table.createColumn();
+			column.setText("name");
+			column.setWidth(50);
+			column.setResizable(true);
+			column.setMoveable(true);
+			column.setLabelProvider(new ViewerContentNameLabelProvider());
+
+			column = table.createColumn();
+			column.setText("ordinal");
+			column.setWidth(50);
+			column.setResizable(true);
+			column.setMoveable(true);
+			column.setLabelProvider(new ViewerContentNameAndOrdinalLabelProvider());
+			
+			table.setSize(100, 80);
 		}
 	}
 
@@ -187,18 +210,45 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		}
 	}
 
-	public enum ComboContent {
+	public enum ViewerContent {
 		item1, item2, item3;
 	}
 
-	private static final class ComboLabelProvider implements LabelProvider<TestPropertyEditorsComponnent.ComboContent> {
+	private static final class ViewerContentNameAndOrdinalLabelProvider
+			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
 		@Override
-		public String getText(ComboContent element) {
+		public String getText(ViewerContent element) {
 			return element.name() + " " + element.ordinal();
 		}
 
 		@Override
-		public EditorImage getImage(ComboContent element) {
+		public EditorImage getImage(ViewerContent element) {
+			return null;
+		}
+	}
+
+	private static final class ViewerContentNameLabelProvider
+			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
+		@Override
+		public String getText(ViewerContent element) {
+			return element.name() + " " + element.ordinal();
+		}
+
+		@Override
+		public EditorImage getImage(ViewerContent element) {
+			return null;
+		}
+	}
+
+	private static final class ViewerContentOrdinalLabelProvider
+			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
+		@Override
+		public String getText(ViewerContent element) {
+			return String.valueOf(element.ordinal());
+		}
+
+		@Override
+		public EditorImage getImage(ViewerContent element) {
 			return null;
 		}
 	}

@@ -1033,7 +1033,7 @@ public class ArrayOfStructs {
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
 
-	public static void main1(String[] args) {
+	public static void testSpeed() {
 		ArrayOfStructs t = new ArrayOfStructs(1, 2);
 		t.setShort1((short) 1);
 		t.setShort2((short) 1);
@@ -1102,20 +1102,6 @@ public class ArrayOfStructs {
 		System.out.println(2);
 		System.out.println("");
 
-		/*
-		 * for (int i = 0; i < size; i++) { TestClass testClass = tc[i]; off = i * testStructSize; if (sa.buffer[off++]
-		 * != testClass.vector.x || sa.buffer[off++] != testClass.vector.y || sa.buffer[off++] != testClass.vector.z ||
-		 * sa.buffer[off++] != Float.intBitsToFloat(testClass.point.x) || sa.buffer[off++] !=
-		 * Float.intBitsToFloat(testClass.point.y) || sa.buffer[off++] != Float.intBitsToFloat(testClass.point.z) ||
-		 * sa.buffer[off++] != Float.intBitsToFloat(testClass.next)) { System.out.println("ddd"); }
-		 * 
-		 * off = i * testStructSize; if (sa.buffer[off++] != testClass.vector.x || sa.buffer[off++] !=
-		 * testClass.vector.y || sa.buffer[off++] != testClass.vector.z || Float.floatToIntBits(sa.buffer[off++]) !=
-		 * testClass.point.x || Float.floatToIntBits(sa.buffer[off++]) != testClass.point.y ||
-		 * Float.floatToIntBits(sa.buffer[off++]) != testClass.point.z || Float.floatToIntBits(sa.buffer[off++]) !=
-		 * testClass.next) { System.out.println("ddd"); } }
-		 */
-
 		for (int j = 0; j < 20; j++) {
 			for (int i = 0; i < subIterations; i++) {
 				testTc(tc, i);
@@ -1177,19 +1163,8 @@ public class ArrayOfStructs {
 		double r = 0;
 		long millis = System.currentTimeMillis();
 
-		// int next = index * testStructSize;
 		sa.offset = index * testStructSize;
 		for (int i = 0; i < iterations; i++) {
-			// r += sa.buffer[next++];
-			// r += sa.buffer[next++];
-			// r += sa.buffer[next++];
-			//
-			// r += floatToRawIntBits(sa.buffer[next++]);
-			// r += floatToRawIntBits(sa.buffer[next++]);
-			// r += floatToRawIntBits(sa.buffer[next++]);
-			//
-			// next = floatToRawIntBits(sa.buffer[next]) * testStructSize;
-
 			r += sa.getFloat();
 			r += sa.getFloat();
 			r += sa.getFloat();

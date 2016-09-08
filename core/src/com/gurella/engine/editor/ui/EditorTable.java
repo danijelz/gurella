@@ -19,13 +19,13 @@ public interface EditorTable<ELEMENT> extends EditorBaseComposite, EditorTableVi
 
 	void deselectAll();
 
-	EditorTableColumn getColumn(int index);
+	EditorTableColumn<ELEMENT> getColumn(int index);
 
 	int getColumnCount();
 
 	int[] getColumnOrder();
 
-	EditorTableColumn[] getColumns();
+	EditorTableColumn<ELEMENT>[] getColumns();
 
 	int getGridLineWidth();
 
@@ -55,7 +55,7 @@ public interface EditorTable<ELEMENT> extends EditorBaseComposite, EditorTableVi
 
 	int getTopIndex();
 
-	int indexOf(EditorTableColumn column);
+	int indexOf(EditorTableColumn<ELEMENT> column);
 
 	int indexOf(EditorTableItem item);
 
@@ -95,25 +95,25 @@ public interface EditorTable<ELEMENT> extends EditorBaseComposite, EditorTableVi
 
 	void setSelection(EditorTableItem[] items);
 
-	void setSortColumn(EditorTableColumn column);
+	void setSortColumn(EditorTableColumn<ELEMENT> column);
 
 	void setSortDirection(int direction);
 
 	void setTopIndex(int index);
 
-	void showColumn(EditorTableColumn column);
+	void showColumn(EditorTableColumn<ELEMENT> column);
 
 	void showItem(EditorTableItem item);
 
 	void showSelection();
 
-	EditorTableColumn createColumn();
+	EditorTableColumn<ELEMENT> createColumn();
 
-	EditorTableColumn createColumn(int index);
+	EditorTableColumn<ELEMENT> createColumn(int index);
 
-	EditorTableColumn createColumn(Alignment alignment);
+	EditorTableColumn<ELEMENT> createColumn(Alignment alignment);
 
-	EditorTableColumn createColumn(int index, Alignment alignment);
+	EditorTableColumn<ELEMENT> createColumn(int index, Alignment alignment);
 
 	EditorTableItem createItem();
 

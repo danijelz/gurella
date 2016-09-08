@@ -173,7 +173,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public int indexOf(EditorTableColumn column) {
+	public int indexOf(EditorTableColumn<ELEMENT> column) {
 		return widget.indexOf(((SwtEditorTableColumn<?>) column).widget);
 	}
 
@@ -274,7 +274,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public void setSortColumn(EditorTableColumn column) {
+	public void setSortColumn(EditorTableColumn<ELEMENT> column) {
 		widget.setSortColumn(((SwtEditorTableColumn<?>) column).widget);
 	}
 
@@ -289,7 +289,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public void showColumn(EditorTableColumn column) {
+	public void showColumn(EditorTableColumn<ELEMENT> column) {
 		widget.showColumn(((SwtEditorTableColumn<?>) column).widget);
 
 	}
@@ -479,13 +479,13 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public LabelProvider<ELEMENT> getLabelProvider(int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+		return column.getLabelProvider();
 	}
 
 	@Override
 	public void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider) {
-		// TODO Auto-generated method stub
-
+		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+		column.setLabelProvider(labelProvider);
 	}
 }
