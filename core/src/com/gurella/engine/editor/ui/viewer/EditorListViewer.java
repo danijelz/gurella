@@ -21,10 +21,6 @@ public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, E
 
 	void remove(Iterable<ELEMENT> elements);
 
-	LabelProvider<ELEMENT> getLabelProvider();
-
-	void setLabelProvider(LabelProvider<ELEMENT> labelProvider);
-
 	public interface LabelProvider<ELEMENT> {
 		EditorImage getImage(ELEMENT element);
 

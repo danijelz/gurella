@@ -1,6 +1,7 @@
 package com.gurella.engine.editor.ui.viewer;
 
 import com.gurella.engine.editor.ui.EditorItem;
+import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 
 public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 	INPUT getInput();
@@ -34,4 +35,8 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 	void update(ELEMENT[] elements, String[] properties);
 
 	void update(ELEMENT element, String... properties);
+
+	LabelProvider<ELEMENT> getLabelProvider();
+
+	void setLabelProvider(LabelProvider<ELEMENT> labelProvider);
 }

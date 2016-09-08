@@ -398,18 +398,6 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 	}
 
 	@Override
-	public LabelProvider<ELEMENT> getLabelProvider(int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public List<ELEMENT> getInput() {
 		return Arrays.asList(Values.<ELEMENT[]> cast(viewer.getInput()));
 	}
@@ -488,5 +476,17 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 	@Override
 	public void update(ELEMENT element, String... properties) {
 		viewer.update(element, properties);
+	}
+	
+	@Override
+	public LabelProvider<ELEMENT> getLabelProvider(int columnIndex) {
+		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+		return column.getLabelProvider();
+	}
+
+	@Override
+	public void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider) {
+		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+		column.setLabelProvider(labelProvider);
 	}
 }
