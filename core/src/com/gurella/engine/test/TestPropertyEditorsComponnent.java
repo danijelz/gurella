@@ -111,7 +111,6 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			TableStyle style = new TableStyle().vScroll(true).hScroll(true).multiSelection(true).fullSelection(true);
 			EditorTable<ViewerContent> table = uiFactory.createTable(parent, style);
 			table.setHeaderVisible(true);
-			table.setInput(Arrays.asList(ViewerContent.values()));
 			EditorTableColumn<ViewerContent> column = table.createColumn();
 			column.setText("name");
 			column.setWidth(50);
@@ -124,9 +123,10 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			column.setWidth(50);
 			column.setResizable(true);
 			column.setMoveable(true);
-			column.setLabelProvider(new ViewerContentNameAndOrdinalLabelProvider());
-			
+			column.setLabelProvider(new ViewerContentOrdinalLabelProvider());
+
 			table.setSize(100, 80);
+			table.setInput(Arrays.asList(ViewerContent.values()));
 		}
 	}
 
@@ -231,7 +231,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
 		@Override
 		public String getText(ViewerContent element) {
-			return element.name() + " " + element.ordinal();
+			return element.name();
 		}
 
 		@Override

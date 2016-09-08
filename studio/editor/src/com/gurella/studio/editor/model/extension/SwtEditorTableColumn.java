@@ -106,7 +106,7 @@ public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Ta
 		}
 	}
 
-	private static class ColumnLabelProviderAdapter<ELEMENT> extends ColumnLabelProvider {
+	public static class ColumnLabelProviderAdapter<ELEMENT> extends ColumnLabelProvider {
 		LabelProvider<ELEMENT> labelProvider;
 
 		public ColumnLabelProviderAdapter(LabelProvider<ELEMENT> labelProvider) {

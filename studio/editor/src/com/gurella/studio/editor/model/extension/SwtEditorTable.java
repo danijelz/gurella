@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
@@ -23,6 +25,7 @@ import com.gurella.engine.editor.ui.EditorTableItem;
 import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.model.extension.SwtEditorTableColumn.ColumnLabelProviderAdapter;
 
 public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> implements EditorTable<ELEMENT> {
 	TableViewer viewer;
@@ -36,6 +39,9 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 		Table table = GurellaStudioPlugin.getToolkit().createTable(parent, style);
 		viewer = new TableViewer(table);
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		TableLabelProviderAdapter labelProviderAdapter = new TableLabelProviderAdapter(null);
+		table.addDisposeListener(e -> labelProviderAdapter.dispose());
+		viewer.setLabelProvider(labelProviderAdapter);
 		return table;
 	}
 
@@ -478,6 +484,20 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
+	public LabelProvider<ELEMENT> getLabelProvider() {
+		@SuppressWarnings("unchecked")
+		TableLabelProviderAdapter labelProviderAdapter = (TableLabelProviderAdapter) viewer.getLabelProvider();
+		return labelProviderAdapter == null ? null : labelProviderAdapter.labelProvider;
+	}
+
+	@Override
+	public void setLabelProvider(LabelProvider<ELEMENT> labelProvider) {
+		@SuppressWarnings("unchecked")
+		TableLabelProviderAdapter labelProviderAdapter = (TableLabelProviderAdapter) viewer.getLabelProvider();
+		labelProviderAdapter.labelProvider = labelProvider;
+	}
+
+	@Override
 	public LabelProvider<ELEMENT> getLabelProvider(int columnIndex) {
 		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
 		return column.getLabelProvider();
@@ -487,5 +507,45 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	public void setLabelProvider(int columnIndex, LabelProvider<ELEMENT> labelProvider) {
 		SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
 		column.setLabelProvider(labelProvider);
+	}
+
+	private class TableLabelProviderAdapter extends org.eclipse.jface.viewers.LabelProvider
+			implements ITableLabelProvider {
+		LabelProvider<ELEMENT> labelProvider;
+
+		public TableLabelProviderAdapter(LabelProvider<ELEMENT> labelProvider) {
+			this.labelProvider = labelProvider;
+		}
+
+		@Override
+		public Image getColumnImage(Object element, int columnIndex) {
+			@SuppressWarnings("unchecked")
+			ELEMENT casted = (ELEMENT) element;
+			SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
+			if (columnLabelProviderAdapter != null) {
+				return columnLabelProviderAdapter.getImage(casted);
+			} else if (labelProvider != null) {
+				SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
+				return image == null ? null : image.image;
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public String getColumnText(Object element, int columnIndex) {
+			@SuppressWarnings("unchecked")
+			ELEMENT casted = (ELEMENT) element;
+			SwtEditorTableColumn<ELEMENT> column = getColumn(columnIndex);
+			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
+			if (columnLabelProviderAdapter != null) {
+				return columnLabelProviderAdapter.getText(casted);
+			} else if (labelProvider != null) {
+				return labelProvider.getText(casted);
+			} else {
+				return null;
+			}
+		}
 	}
 }
