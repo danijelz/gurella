@@ -3,8 +3,6 @@ package com.gurella.engine.editor.ui;
 import com.gurella.engine.editor.ui.viewer.EditorTableViewer;
 
 public interface EditorTable<ELEMENT> extends EditorBaseComposite, EditorTableViewer<ELEMENT> {
-	void clear(int index);
-
 	void clear(int[] indices);
 
 	void clear(int start, int end);

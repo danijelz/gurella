@@ -1,7 +1,7 @@
 package com.gurella.engine.utils.struct;
 
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class StructDescriptor {
 	final Array<StructProperty> _properties = new Array<StructProperty>();

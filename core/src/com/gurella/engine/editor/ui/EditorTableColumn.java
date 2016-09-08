@@ -7,7 +7,7 @@ public interface EditorTableColumn<ELEMENT> extends EditorItem {
 
 	boolean getMoveable();
 
-	EditorTable getParent();
+	EditorTable<ELEMENT> getParent();
 
 	boolean getResizable();
 

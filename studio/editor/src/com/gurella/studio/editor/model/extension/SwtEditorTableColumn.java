@@ -1,8 +1,6 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
@@ -23,6 +21,7 @@ public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Ta
 
 	SwtEditorTableColumn(SwtEditorTable<ELEMENT> parent, int style, int index) {
 		init(new TableColumn(parent.widget, style, index));
+		viewerColumn = new TableViewerColumn(getParent().viewer, widget);
 	}
 
 	@Override
@@ -103,29 +102,6 @@ public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Ta
 			ColumnLabelProviderAdapter<ELEMENT> adapter = new ColumnLabelProviderAdapter<>(labelProvider);
 			widget.addDisposeListener(e -> adapter.dispose());
 			viewerColumn.setLabelProvider(adapter);
-		}
-	}
-
-	public static class ColumnLabelProviderAdapter<ELEMENT> extends ColumnLabelProvider {
-		LabelProvider<ELEMENT> labelProvider;
-
-		public ColumnLabelProviderAdapter(LabelProvider<ELEMENT> labelProvider) {
-			this.labelProvider = labelProvider;
-		}
-
-		@Override
-		public Image getImage(Object element) {
-			@SuppressWarnings("unchecked")
-			ELEMENT casted = (ELEMENT) element;
-			SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
-			return image == null ? null : image.image;
-		}
-
-		@Override
-		public String getText(Object element) {
-			@SuppressWarnings("unchecked")
-			ELEMENT casted = (ELEMENT) element;
-			return labelProvider.getText(casted);
 		}
 	}
 }

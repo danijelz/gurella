@@ -25,7 +25,6 @@ import com.gurella.engine.editor.ui.EditorTableItem;
 import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.extension.SwtEditorTableColumn.ColumnLabelProviderAdapter;
 
 public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> implements EditorTable<ELEMENT> {
 	TableViewer viewer;
@@ -338,12 +337,6 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	@Override
 	public SwtEditorTableItem<ELEMENT> createItem(int index) {
 		return new SwtEditorTableItem<>(this, index);
-	}
-
-	@Override
-	public ViewerCell<ELEMENT> getCell(int x, int y) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

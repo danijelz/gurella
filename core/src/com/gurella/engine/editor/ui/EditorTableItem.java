@@ -42,7 +42,7 @@ public interface EditorTableItem extends EditorItem {
 
 	GridRectangle getImageBounds(int index);
 
-	EditorTable getParent();
+	EditorTable<?> getParent();
 
 	String getText(int index);
 

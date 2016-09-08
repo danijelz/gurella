@@ -5,10 +5,6 @@ import java.util.List;
 import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 
 public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, List<ELEMENT>> {
-	void setSelection(ELEMENT... selection);
-
-	void setSelection(ELEMENT[] selection, boolean reveal);
-
 	void add(ELEMENT element);
 
 	void add(@SuppressWarnings("unchecked") ELEMENT... elements);

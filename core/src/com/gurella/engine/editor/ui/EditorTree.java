@@ -1,6 +1,8 @@
 package com.gurella.engine.editor.ui;
 
-public interface EditorTree extends EditorBaseComposite {
+import com.gurella.engine.editor.ui.viewer.EditorTreeViewer;
+
+public interface EditorTree<ELEMENT> extends EditorBaseComposite, EditorTreeViewer<ELEMENT> {
 	void clear(int index, boolean all);
 
 	void clearAll(boolean all);
@@ -9,13 +11,13 @@ public interface EditorTree extends EditorBaseComposite {
 
 	void deselectAll();
 
-	EditorTreeColumn getColumn(int index);
+	EditorTreeColumn<ELEMENT> getColumn(int index);
 
 	int getColumnCount();
 
 	int[] getColumnOrder();
 
-	EditorTreeColumn[] getColumns();
+	EditorTreeColumn<ELEMENT>[] getColumns();
 
 	int getGridLineWidth();
 
@@ -37,17 +39,17 @@ public interface EditorTree extends EditorBaseComposite {
 
 	EditorTreeItem getParentItem();
 
-	EditorTreeItem[] getSelection();
+	EditorTreeItem[] getSelectedItems();
 
 	int getSelectionCount();
 
-	EditorTreeColumn getSortColumn();
+	EditorTreeColumn<ELEMENT> getSortColumn();
 
 	int getSortDirection();
 
 	EditorTreeItem getTopItem();
 
-	int indexOf(EditorTreeColumn column);
+	int indexOf(EditorTreeColumn<ELEMENT> column);
 
 	int indexOf(EditorTreeItem item);
 
@@ -71,25 +73,25 @@ public interface EditorTree extends EditorBaseComposite {
 
 	void setSelection(EditorTreeItem[] items);
 
-	void setSortColumn(EditorTreeColumn column);
+	void setSortColumn(EditorTreeColumn<ELEMENT> column);
 
 	void setSortDirection(int direction);
 
 	void setTopItem(EditorTreeItem item);
 
-	void showColumn(EditorTreeColumn column);
+	void showColumn(EditorTreeColumn<ELEMENT> column);
 
 	void showItem(EditorTreeItem item);
 
 	void showSelection();
 
-	EditorTreeColumn createColumn();
+	EditorTreeColumn<ELEMENT> createColumn();
 
-	EditorTreeColumn createColumn(int index);
+	EditorTreeColumn<ELEMENT> createColumn(int index);
 
-	EditorTreeColumn createColumn(Alignment alignment);
+	EditorTreeColumn<ELEMENT> createColumn(Alignment alignment);
 
-	EditorTreeColumn createColumn(int index, Alignment alignment);
+	EditorTreeColumn<ELEMENT> createColumn(int index, Alignment alignment);
 
 	EditorTreeItem createItem();
 

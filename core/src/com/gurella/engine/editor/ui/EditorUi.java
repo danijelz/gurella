@@ -168,9 +168,9 @@ public interface EditorUi {
 
 	<ELEMENT> EditorTable<ELEMENT> createTable(EditorComposite parent, TableStyle style);
 
-	EditorTree createTree(EditorComposite parent);
+	<ELEMENT> EditorTree<ELEMENT> createTree(EditorComposite parent);
 
-	EditorTree createTree(EditorComposite parent, TreeStyle style);
+	<ELEMENT> EditorTree<ELEMENT> createTree(EditorComposite parent, TreeStyle style);
 
 	EditorShell createShell(ShellStyle style);
 

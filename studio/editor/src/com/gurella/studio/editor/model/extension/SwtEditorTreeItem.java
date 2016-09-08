@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.engine.utils.Values.cast;
+
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -17,20 +19,20 @@ import com.gurella.engine.editor.ui.EditorTreeItem;
 import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements EditorTreeItem {
-	SwtEditorTreeItem(SwtEditorTree parent) {
+public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem, Tree> implements EditorTreeItem {
+	SwtEditorTreeItem(SwtEditorTree<ELEMENT> parent) {
 		init(new TreeItem(parent.widget, 0));
 	}
 
-	SwtEditorTreeItem(SwtEditorTree parent, int index) {
+	SwtEditorTreeItem(SwtEditorTree<ELEMENT> parent, int index) {
 		init(new TreeItem(parent.widget, 0, index));
 	}
 
-	SwtEditorTreeItem(SwtEditorTreeItem parent) {
+	SwtEditorTreeItem(SwtEditorTreeItem<ELEMENT> parent) {
 		init(new TreeItem(parent.widget, 0));
 	}
 
-	SwtEditorTreeItem(SwtEditorTreeItem parent, int index) {
+	SwtEditorTreeItem(SwtEditorTreeItem<ELEMENT> parent, int index) {
 		init(new TreeItem(parent.widget, 0, index));
 	}
 
@@ -147,7 +149,7 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 	}
 
 	@Override
-	public SwtEditorTree getParent() {
+	public SwtEditorTree<ELEMENT> getParent() {
 		return getEditorWidget(widget.getParent());
 	}
 
@@ -276,7 +278,7 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 	}
 
 	@Override
-	public SwtEditorTreeItem getItem(int index) {
+	public SwtEditorTreeItem<ELEMENT> getItem(int index) {
 		return getEditorWidget(widget.getItem(index));
 	}
 
@@ -286,19 +288,19 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 	}
 
 	@Override
-	public SwtEditorTreeItem[] getItems() {
-		return Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
-				.toArray(i -> new SwtEditorTreeItem[i]);
+	public SwtEditorTreeItem<ELEMENT>[] getItems() {
+		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+				.toArray(i -> new SwtEditorTreeItem[i]));
 	}
 
 	@Override
-	public SwtEditorTreeItem getParentItem() {
+	public SwtEditorTreeItem<ELEMENT> getParentItem() {
 		return getEditorWidget(widget.getParentItem());
 	}
 
 	@Override
 	public int indexOf(EditorTreeItem item) {
-		return widget.indexOf(((SwtEditorTreeItem) item).widget);
+		return widget.indexOf(((SwtEditorTreeItem<?>) item).widget);
 	}
 
 	@Override
@@ -322,12 +324,12 @@ public class SwtEditorTreeItem extends SwtEditorItem<TreeItem, Tree> implements 
 	}
 
 	@Override
-	public SwtEditorTreeItem createItem() {
-		return new SwtEditorTreeItem(this);
+	public SwtEditorTreeItem<ELEMENT> createItem() {
+		return new SwtEditorTreeItem<ELEMENT>(this);
 	}
 
 	@Override
-	public SwtEditorTreeItem createItem(int index) {
-		return new SwtEditorTreeItem(this, index);
+	public SwtEditorTreeItem<ELEMENT> createItem(int index) {
+		return new SwtEditorTreeItem<ELEMENT>(this, index);
 	}
 }

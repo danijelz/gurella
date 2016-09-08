@@ -1,8 +1,8 @@
 package com.gurella.engine.editor.ui.viewer;
 
-import com.gurella.engine.editor.ui.EditorTreeItem;
+import java.util.List;
 
-public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, Iterable<EditorTreeItem>> {
+public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, List<ELEMENT>> {
 	void add(ELEMENT parentElement, ELEMENT childElement);
 
 	void add(ELEMENT parentElement, @SuppressWarnings("unchecked") ELEMENT... childElements);
@@ -31,7 +31,7 @@ public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, I
 
 	boolean isExpandable(ELEMENT element);
 
-	void remove(ELEMENT elements);
+	void remove(ELEMENT element);
 
 	void remove(@SuppressWarnings("unchecked") ELEMENT... elements);
 

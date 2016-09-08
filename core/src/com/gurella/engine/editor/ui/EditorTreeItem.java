@@ -54,7 +54,7 @@ public interface EditorTreeItem extends EditorItem {
 
 	EditorTreeItem[] getItems();
 
-	EditorTree getParent();
+	EditorTree<?> getParent();
 
 	EditorTreeItem getParentItem();
 
