@@ -570,7 +570,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 		public Object[] getElements(Object inputElement) {
 			List<?> inputElements = (List<?>) inputElement;
 			for (Object element : inputElements) {
-				providersByElement.put(element, new TreeNodeData(null, cast(rootContentProvider)));
+				providersByElement.put(element, new TreeNodeData(null, cast(rootContentProvider), 0));
 			}
 
 			return getTreeNodeData(inputElement).children.toArray();
@@ -578,13 +578,14 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 		private TreeNodeData getTreeNodeData(Object element) {
 			TreeNodeData treeNodeData = providersByElement.get(element);
-			TreeContentProvider<Object> contentProvider = treeNodeData.contentProvider;
-			if (contentProvider == null) {
+			TreeContentProvider<Object> provider = treeNodeData.contentProvider;
+			if (provider == null) {
 				treeNodeData.children = Collections.emptyList();
 				return treeNodeData;
 			}
 
-			List<Object> children = contentProvider.getChildren(element);
+			int childrenDepth = treeNodeData.depth + 1;
+			List<Object> children = provider.getChildren(element, childrenDepth);
 			List<Object> currentChildren = treeNodeData.children;
 			if (!currentChildren.equals(children)) {
 				for (Object child : currentChildren) {
@@ -595,14 +596,15 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 				if (Values.isEmpty(children)) {
 					treeNodeData.children = Collections.emptyList();
 				} else {
-					for (Object child : children) {
-						TreeContentProvider<Object> childContentProvider = contentProvider
-								.getChildContentProvider(child);
-						providersByElement.put(child, new TreeNodeData(element, childContentProvider));
-					}
+					children.stream().parallel().forEach(c -> addChild(element, c, provider, childrenDepth));
 				}
 			}
 			return treeNodeData;
+		}
+
+		private void addChild(Object parent, Object child, TreeContentProvider<Object> provider, int depth) {
+			TreeContentProvider<Object> childProvider = provider.getChildContentProvider(child, depth);
+			providersByElement.put(child, new TreeNodeData(parent, childProvider, depth));
 		}
 
 		@Override
@@ -622,12 +624,13 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 	}
 
 	private static class TreeNodeData {
+		int depth;
 		Object parent;
 		TreeContentProvider<Object> contentProvider;
 		List<Object> children = Collections.emptyList();
 
-		public TreeNodeData(Object parent, TreeContentProvider<Object> contentProvider) {
-			super();
+		public TreeNodeData(Object parent, TreeContentProvider<Object> contentProvider, int depth) {
+			this.depth = depth;
 			this.parent = parent;
 			this.contentProvider = contentProvider;
 		}

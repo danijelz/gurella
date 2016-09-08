@@ -28,6 +28,9 @@ import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorText;
+import com.gurella.engine.editor.ui.EditorTree;
+import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
+import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
@@ -127,6 +130,15 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 
 			table.setSize(100, 80);
 			table.setInput(Arrays.asList(ViewerContent.values()));
+
+			TreeStyle<String> tStyle = new TreeStyle<String>(new TestTreeContentProvider()).vScroll(true).hScroll(true)
+					.multiSelection(true).fullSelection(true);
+			EditorTree<String> tree = uiFactory.createTree(parent, tStyle);
+			List<String> rootItems = new ArrayList<String>();
+			rootItems.add("Item 1 - ");
+			rootItems.add("Item 2 - ");
+			rootItems.add("Item 3 - ");
+			tree.setInput(rootItems);
 		}
 	}
 
@@ -250,6 +262,21 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		@Override
 		public EditorImage getImage(ViewerContent element) {
 			return null;
+		}
+	}
+
+	private static class TestTreeContentProvider extends TreeContentProvider<String> {
+		@Override
+		public List<String> getChildren(String item, int depth) {
+			if (depth > 3) {
+				return null;
+			}
+
+			List<String> children = new ArrayList<String>();
+			children.add("Item 1 - " + depth);
+			children.add("Item 2 - " + depth);
+			children.add("Item 3 - " + depth);
+			return children;
 		}
 	}
 }
