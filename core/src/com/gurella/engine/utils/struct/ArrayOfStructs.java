@@ -15,8 +15,11 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.gurella.engine.utils.struct.StructDescriptor.FloatStructProperty;
 
 public class ArrayOfStructs {
+	private static final StructTimSort sort = new StructTimSort();
+
 	public int structSize;
 	public float[] buffer;
 	public int offset;
@@ -249,11 +252,19 @@ public class ArrayOfStructs {
 	}
 
 	public void sort(StructComparator comparator) {
-		// TODO
+		sort.sort(this, comparator, 0, size);
 	}
 
-	public void sortRange(StructComparator comparator, int fromIndex, int count) {
-		// TODO
+	public void sort(StructTimSort sort, StructComparator comparator) {
+		sort.sort(this, comparator, 0, size);
+	}
+
+	public void sortRange(StructComparator comparator, int fromIndex, int toIndex) {
+		sort.sort(this, comparator, fromIndex, toIndex);
+	}
+
+	public void sortRange(StructTimSort sort, StructComparator comparator, int fromIndex, int toIndex) {
+		sort.sort(this, comparator, fromIndex, toIndex);
 	}
 
 	public void forEach(StructConsumer action) {
@@ -301,17 +312,47 @@ public class ArrayOfStructs {
 
 		System.out.println(Arrays.toString(a.buffer));
 		StructComparatorImpl c = new StructComparatorImpl();
-		int initRunLen = ArrayOfStructsTimSort.countRunAndMakeAscending(a, 0, a.size, c);
-		ArrayOfStructsTimSort.binarySort(a, 0, a.size, initRunLen, c);
+		a.sort(c);
+
 		System.out.println(Arrays.toString(a.buffer));
+
+		int sortStructSize = 10000;
+		a = new ArrayOfStructs(2, sortStructSize);
+		a.add(sortStructSize);
 		
-		a = new ArrayOfStructs(2, 100);
-		a.size = 100;
-		for(int i = 0; i < 100; i++) {
-			a.setFloats(Double.valueOf(Math.random()).floatValue(), Double.valueOf(Math.random()).floatValue());
+		float[] f = new float[sortStructSize];
+		float[] tf = new float[sortStructSize];
+		
+		for (int i = 0; i < sortStructSize; i++) {
+			float floatValue = Double.valueOf(Math.random()).floatValue();
+			a.setFloats(floatValue, floatValue);
+			f[i] = floatValue;
+		}
+
+		a.sort(c);
+		Arrays.sort(f);
+		
+		for (int i = 0; i < sortStructSize; i++) {
+			tf[i] = a.getFloatByIndex(i, 1);
 		}
 		
-		new ArrayOfStructsTimSort().doSort(a, c, 0, a.size);
+		System.out.println(Arrays.toString(tf));
+		
+		if(Arrays.equals(f, tf)) {
+			System.out.println("sort");
+		}
+		
+		System.out.println(Arrays.toString(a.buffer));
+		
+		StructDescriptor descriptor = new StructDescriptor();
+		FloatStructProperty prop = new FloatStructProperty(0);
+		descriptor._properties.add(prop);
+		descriptor._properties.add(new FloatStructProperty(1));
+		
+		Struct s = new Struct(descriptor, a);
+		System.out.println(s.getFloat(prop));
+		s.index++;
+		System.out.println(s.getFloat(prop));
 	}
 
 	private static class StructComparatorImpl implements StructComparator {
@@ -321,7 +362,7 @@ public class ArrayOfStructs {
 			float f1 = buffer1.getFloat();
 
 			buffer2.setIndex(index2);
-			float f2 = buffer1.getFloat();
+			float f2 = buffer2.getFloat();
 			return Float.compare(f1, f2);
 		}
 	}
@@ -419,62 +460,69 @@ public class ArrayOfStructs {
 	}
 
 	public void setFloats(int offset, float value1, float value2) {
-		buffer[offset++] = value1;
-		buffer[offset] = value2;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp] = value2;
 	}
 
 	public void setFloats(int offset, float value1, float value2, float value3) {
-		buffer[offset++] = value1;
-		buffer[offset++] = value2;
-		buffer[offset] = value3;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp++] = value2;
+		buffer[temp] = value3;
 	}
 
 	public void setFloats(int offset, float value1, float value2, float value3, float value4) {
-		buffer[offset++] = value1;
-		buffer[offset++] = value2;
-		buffer[offset++] = value3;
-		buffer[offset] = value4;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp++] = value2;
+		buffer[temp++] = value3;
+		buffer[temp] = value4;
 	}
 
 	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5) {
-		buffer[offset++] = value1;
-		buffer[offset++] = value2;
-		buffer[offset++] = value3;
-		buffer[offset++] = value4;
-		buffer[offset] = value5;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp++] = value2;
+		buffer[temp++] = value3;
+		buffer[temp++] = value4;
+		buffer[temp] = value5;
 	}
 
 	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5,
 			float value6) {
-		buffer[offset++] = value1;
-		buffer[offset++] = value2;
-		buffer[offset++] = value3;
-		buffer[offset++] = value4;
-		buffer[offset++] = value5;
-		buffer[offset] = value6;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp++] = value2;
+		buffer[temp++] = value3;
+		buffer[temp++] = value4;
+		buffer[temp++] = value5;
+		buffer[temp] = value6;
 	}
 
 	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5,
 			float value6, float value7) {
-		buffer[offset++] = value1;
-		buffer[offset++] = value2;
-		buffer[offset++] = value3;
-		buffer[offset++] = value4;
-		buffer[offset++] = value5;
-		buffer[offset++] = value6;
-		buffer[offset] = value7;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp++] = value2;
+		buffer[temp++] = value3;
+		buffer[temp++] = value4;
+		buffer[temp++] = value5;
+		buffer[temp++] = value6;
+		buffer[temp] = value7;
 	}
 
 	public void setFloats(int offset, float value1, float value2, float value3, float value4, float value5,
 			float value6, float value7, float value8) {
-		buffer[offset++] = value1;
-		buffer[offset++] = value2;
-		buffer[offset++] = value3;
-		buffer[offset++] = value4;
-		buffer[offset++] = value5;
-		buffer[offset++] = value6;
-		buffer[offset++] = value7;
-		buffer[offset] = value8;
+		int temp = offset;
+		buffer[temp++] = value1;
+		buffer[temp++] = value2;
+		buffer[temp++] = value3;
+		buffer[temp++] = value4;
+		buffer[temp++] = value5;
+		buffer[temp++] = value6;
+		buffer[temp++] = value7;
+		buffer[temp] = value8;
 	}
 
 	/////////// int
@@ -540,14 +588,16 @@ public class ArrayOfStructs {
 	}
 
 	public long getLong(int offset) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		return (long) floatToRawIntBits(buffer[offset++]) << 32 | floatToRawIntBits(buffer[offset]) & 0xFFFFFFFFL;
+		return (long) floatToRawIntBits(buffer[temp++]) << 32 | floatToRawIntBits(buffer[temp]) & 0xFFFFFFFFL;
 	}
 
 	public void setLong(int offset, long value) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		buffer[offset++] = intBitsToFloat((int) (value >> 32));
-		buffer[offset] = intBitsToFloat((int) value);
+		buffer[temp++] = intBitsToFloat((int) (value >> 32));
+		buffer[temp] = intBitsToFloat((int) value);
 	}
 
 	public long getLong() {
@@ -765,14 +815,16 @@ public class ArrayOfStructs {
 	}
 
 	public Vector2 getVector2(int offset, Vector2 out) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		return out.set(buffer[offset++], buffer[offset]);
+		return out.set(buffer[temp++], buffer[temp]);
 	}
 
 	public void setVector2(int offset, Vector2 value) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		buffer[offset++] = value.x;
-		buffer[offset] = value.y;
+		buffer[temp++] = value.x;
+		buffer[temp] = value.y;
 	}
 
 	/////// Vector3
@@ -790,15 +842,17 @@ public class ArrayOfStructs {
 	}
 
 	public Vector3 getVector3(int offset, Vector3 out) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		return out.set(buffer[offset++], buffer[offset++], buffer[offset]);
+		return out.set(buffer[temp++], buffer[temp++], buffer[temp]);
 	}
 
 	public void setVector3(int offset, Vector3 value) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		buffer[offset++] = value.x;
-		buffer[offset++] = value.y;
-		buffer[offset] = value.z;
+		buffer[temp++] = value.x;
+		buffer[temp++] = value.y;
+		buffer[temp] = value.z;
 	}
 
 	/////// GridPoint2
@@ -815,14 +869,16 @@ public class ArrayOfStructs {
 	}
 
 	public GridPoint2 getGridPoint2(int offset, GridPoint2 out) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset]));
+		return out.set(floatToRawIntBits(buffer[temp++]), floatToRawIntBits(buffer[temp]));
 	}
 
 	public void setGridPoint2(int offset, GridPoint2 value) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		buffer[offset++] = intBitsToFloat(value.x);
-		buffer[offset] = intBitsToFloat(value.y);
+		buffer[temp++] = intBitsToFloat(value.x);
+		buffer[temp] = intBitsToFloat(value.y);
 	}
 
 	/////// GridPoint3
@@ -841,16 +897,18 @@ public class ArrayOfStructs {
 	}
 
 	public GridPoint3 getGridPoint3(int offset, GridPoint3 out) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset++]),
-				floatToRawIntBits(buffer[offset]));
+		return out.set(floatToRawIntBits(buffer[temp++]), floatToRawIntBits(buffer[temp++]),
+				floatToRawIntBits(buffer[temp]));
 	}
 
 	public void setGridPoint3(int offset, GridPoint3 value) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		buffer[offset++] = intBitsToFloat(value.x);
-		buffer[offset++] = intBitsToFloat(value.y);
-		buffer[offset] = intBitsToFloat(value.z);
+		buffer[temp++] = intBitsToFloat(value.x);
+		buffer[temp++] = intBitsToFloat(value.y);
+		buffer[temp] = intBitsToFloat(value.z);
 	}
 
 	/////// Quaternion
@@ -869,16 +927,18 @@ public class ArrayOfStructs {
 	}
 
 	public Quaternion getQuaternion(int offset, Quaternion out) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		return out.set(buffer[offset++], buffer[offset++], buffer[offset++], buffer[offset]);
+		return out.set(buffer[temp++], buffer[temp++], buffer[temp++], buffer[temp]);
 	}
 
 	public void setQuaternion(int offset, Quaternion value) {
+		int temp = offset;
 		float[] buffer = this.buffer;
-		buffer[offset++] = value.x;
-		buffer[offset++] = value.y;
-		buffer[offset++] = value.z;
-		buffer[offset] = value.w;
+		buffer[temp++] = value.x;
+		buffer[temp++] = value.y;
+		buffer[temp++] = value.z;
+		buffer[temp] = value.w;
 	}
 
 	/////// Matrix3
