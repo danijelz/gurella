@@ -31,6 +31,7 @@ import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
+import com.gurella.engine.editor.ui.EditorTreeColumn;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
@@ -40,7 +41,7 @@ import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAtea
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
@@ -134,11 +135,42 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			TreeStyle<String> tStyle = new TreeStyle<String>(new TestTreeContentProvider()).vScroll(true).hScroll(true)
 					.multiSelection(true).fullSelection(true);
 			EditorTree<String> tree = uiFactory.createTree(parent, tStyle);
+
+			EditorTreeColumn<String> treeColumn = tree.createColumn();
+			treeColumn.setText("name");
+			treeColumn.setWidth(50);
+			treeColumn.setResizable(true);
+			treeColumn.setMoveable(true);
+			treeColumn.setLabelProvider(new TreeLabelProvider());
+
+			treeColumn = tree.createColumn();
+			treeColumn.setText("name 2");
+			treeColumn.setWidth(50);
+			treeColumn.setResizable(true);
+			treeColumn.setMoveable(true);
+			treeColumn.setLabelProvider(new TreeLabelProvider());
+
 			List<String> rootItems = new ArrayList<String>();
 			rootItems.add("Item 1 - ");
 			rootItems.add("Item 2 - ");
 			rootItems.add("Item 3 - ");
 			tree.setInput(rootItems);
+
+			tree.addListener(EditorEventType.Selection, new TreeSelectionListener(tree));
+		}
+
+		private final class TreeSelectionListener implements EditorEventListener {
+			EditorTree<String> tree;
+
+			public TreeSelectionListener(EditorTree<String> tree) {
+				this.tree = tree;
+			}
+
+			@Override
+			public void handleEvent(EditorEvent event) {
+				List<String> selection = tree.getSelection();
+				event.getEditorUi().showInformationDialog("Info", selection.toString());
+			}
 		}
 	}
 
@@ -277,6 +309,18 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			children.add("Item 2 - " + depth);
 			children.add("Item 3 - " + depth);
 			return children;
+		}
+	}
+
+	private static final class TreeLabelProvider implements LabelProvider<String> {
+		@Override
+		public String getText(String element) {
+			return String.valueOf(element);
+		}
+
+		@Override
+		public EditorImage getImage(String element) {
+			return null;
 		}
 	}
 }

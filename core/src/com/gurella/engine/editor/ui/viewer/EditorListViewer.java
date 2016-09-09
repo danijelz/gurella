@@ -2,8 +2,6 @@ package com.gurella.engine.editor.ui.viewer;
 
 import java.util.List;
 
-import com.gurella.engine.editor.ui.EditorImage;
-
 public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, ELEMENT, List<ELEMENT>> {
 	void add(ELEMENT element);
 
@@ -20,10 +18,4 @@ public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, E
 	void remove(@SuppressWarnings("unchecked") ELEMENT... elements);
 
 	void remove(Iterable<ELEMENT> elements);
-
-	public interface LabelProvider<ELEMENT> {
-		EditorImage getImage(ELEMENT element);
-
-		String getText(ELEMENT element);
-	}
 }

@@ -1,6 +1,6 @@
 package com.gurella.engine.editor.ui;
 
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 
 public interface EditorTreeColumn<ELEMENT> extends EditorItem {
 	Alignment getAlignment();
@@ -12,7 +12,7 @@ public interface EditorTreeColumn<ELEMENT> extends EditorItem {
 	boolean getResizable();
 
 	String getToolTipText();
-	
+
 	LabelProvider<ELEMENT> getLabelProvider();
 
 	int getWidth();
@@ -28,6 +28,6 @@ public interface EditorTreeColumn<ELEMENT> extends EditorItem {
 	void setToolTipText(String string);
 
 	void setWidth(int width);
-	
+
 	void setLabelProvider(LabelProvider<ELEMENT> labelProvider);
 }

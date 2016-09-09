@@ -2,8 +2,6 @@ package com.gurella.engine.editor.ui.viewer;
 
 import java.util.List;
 
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
-
 public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, List<ELEMENT>> {
 	void add(ELEMENT element);
 
@@ -28,7 +26,7 @@ public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, 
 	void refresh(boolean updateLabels, boolean reveal);
 
 	void refresh(ELEMENT element, boolean updateLabels, boolean reveal);
-	
+
 	LabelProvider<ELEMENT> getLabelProvider();
 
 	void setLabelProvider(LabelProvider<ELEMENT> labelProvider);

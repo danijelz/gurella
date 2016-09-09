@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTreeColumn;
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorTreeColumn<ELEMENT> extends SwtEditorItem<TreeColumn, Tree> implements EditorTreeColumn<ELEMENT> {

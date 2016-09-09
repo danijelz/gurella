@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorTableColumn;
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Table>

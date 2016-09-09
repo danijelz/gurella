@@ -4,7 +4,7 @@ import org.eclipse.jface.viewers.BaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.studio.editor.model.extension.SwtEditorImage;
 
 public class ListViewerLabelProvider<ELEMENT> extends BaseLabelProvider implements ILabelProvider {

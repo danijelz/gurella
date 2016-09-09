@@ -25,7 +25,6 @@ import com.gurella.engine.editor.ui.EditorItem;
 import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTreeColumn;
 import com.gurella.engine.editor.ui.EditorTreeItem;
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
@@ -510,8 +509,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 		column.setLabelProvider(labelProvider);
 	}
 
-	private class TreeLabelProviderAdapter extends org.eclipse.jface.viewers.LabelProvider
-			implements ITableLabelProvider {
+	class TreeLabelProviderAdapter extends org.eclipse.jface.viewers.LabelProvider implements ITableLabelProvider {
 		LabelProvider<ELEMENT> labelProvider;
 
 		public TreeLabelProviderAdapter(LabelProvider<ELEMENT> labelProvider) {
@@ -526,7 +524,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
 			if (columnLabelProviderAdapter != null) {
 				return columnLabelProviderAdapter.getImage(casted);
-			} else if (labelProvider != null) {
+			} else if (labelProvider != null && columnIndex == 0) {
 				SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
 				return image == null ? null : image.image;
 			} else {
@@ -542,7 +540,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
 			if (columnLabelProviderAdapter != null) {
 				return columnLabelProviderAdapter.getText(casted);
-			} else if (labelProvider != null) {
+			} else if (labelProvider != null && columnIndex == 0) {
 				return labelProvider.getText(casted);
 			} else {
 				return null;
@@ -550,7 +548,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 		}
 	}
 
-	private static class TreeContentProviderAdapter<ELEMENT> implements ITreeContentProvider {
+	static class TreeContentProviderAdapter<ELEMENT> implements ITreeContentProvider {
 		TreeContentProvider<?> rootContentProvider;
 		Map<Object, TreeNodeData> providersByElement = new HashMap<>();
 
@@ -568,12 +566,13 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 		@Override
 		public Object[] getElements(Object inputElement) {
-			/*List<?> inputElements = (List<?>) inputElement;
-			for (Object element : inputElements) {
-				providersByElement.put(element, new TreeNodeData(null, cast(rootContentProvider), 0));
-			}*/
-			providersByElement.put(inputElement, new TreeNodeData(null, cast(rootContentProvider), 0));
-			return getTreeNodeData(inputElement).children.toArray();
+			Object[] elements = (Object[]) inputElement;
+			Arrays.stream(elements).forEachOrdered(e -> addRoot(e));
+			return elements;
+		}
+
+		protected TreeNodeData addRoot(Object eelement) {
+			return providersByElement.put(eelement, new TreeNodeData(cast(rootContentProvider)));
 		}
 
 		private TreeNodeData getTreeNodeData(Object element) {
@@ -590,13 +589,14 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 			if (!currentChildren.equals(children)) {
 				for (Object child : currentChildren) {
 					providersByElement.remove(child);
-					//TODO remove hierarcy
+					// TODO remove hierarcy
 				}
 
 				if (Values.isEmpty(children)) {
 					treeNodeData.children = Collections.emptyList();
 				} else {
 					children.stream().parallel().forEach(c -> addChild(element, c, provider, childrenDepth));
+					treeNodeData.children = children;
 				}
 			}
 			return treeNodeData;
@@ -629,11 +629,15 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 		TreeContentProvider<Object> contentProvider;
 		List<Object> children = Collections.emptyList();
 
+		public TreeNodeData(TreeContentProvider<Object> contentProvider) {
+			this.depth = 0;
+			this.contentProvider = contentProvider;
+		}
+
 		public TreeNodeData(Object parent, TreeContentProvider<Object> contentProvider, int depth) {
 			this.depth = depth;
 			this.parent = parent;
 			this.contentProvider = contentProvider;
 		}
-
 	}
 }

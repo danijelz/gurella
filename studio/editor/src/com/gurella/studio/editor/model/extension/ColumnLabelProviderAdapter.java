@@ -3,7 +3,7 @@ package com.gurella.studio.editor.model.extension;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
+import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 
 public class ColumnLabelProviderAdapter<ELEMENT> extends ColumnLabelProvider {
 	LabelProvider<ELEMENT> labelProvider;

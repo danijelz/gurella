@@ -22,7 +22,6 @@ import com.gurella.engine.editor.ui.EditorItem;
 import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorTableItem;
-import com.gurella.engine.editor.ui.viewer.EditorListViewer.LabelProvider;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -518,7 +517,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
 			if (columnLabelProviderAdapter != null) {
 				return columnLabelProviderAdapter.getImage(casted);
-			} else if (labelProvider != null) {
+			} else if (labelProvider != null && columnIndex == 0) {
 				SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
 				return image == null ? null : image.image;
 			} else {
@@ -534,7 +533,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 			ColumnLabelProviderAdapter<ELEMENT> columnLabelProviderAdapter = column.labelProviderAdapter;
 			if (columnLabelProviderAdapter != null) {
 				return columnLabelProviderAdapter.getText(casted);
-			} else if (labelProvider != null) {
+			} else if (labelProvider != null && columnIndex == 0) {
 				return labelProvider.getText(casted);
 			} else {
 				return null;
