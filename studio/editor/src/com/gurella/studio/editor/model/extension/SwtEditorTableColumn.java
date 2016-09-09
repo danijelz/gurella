@@ -14,6 +14,10 @@ public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Ta
 	TableViewerColumn viewerColumn;
 	ColumnLabelProviderAdapter<ELEMENT> labelProviderAdapter;
 
+	SwtEditorTableColumn(TableColumn column) {
+		init(column);
+	}
+
 	SwtEditorTableColumn(SwtEditorTable<ELEMENT> parent, int style) {
 		super(parent, style);
 		viewerColumn = new TableViewerColumn(getParent().viewer, widget);

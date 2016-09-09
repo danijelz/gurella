@@ -20,6 +20,10 @@ import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem, Tree> implements EditorTreeItem {
+	SwtEditorTreeItem(TreeItem item) {
+		init(item);
+	}
+
 	SwtEditorTreeItem(SwtEditorTree<ELEMENT> parent) {
 		init(new TreeItem(parent.widget, 0));
 	}

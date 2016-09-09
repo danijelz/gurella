@@ -18,6 +18,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.editor.ui.Alignment;
@@ -54,7 +55,16 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeColumn<ELEMENT> getColumn(int index) {
-		return getEditorWidget(widget.getColumn(index));
+		return getEditorColumn(widget.getColumn(index));
+	}
+
+	private SwtEditorTreeColumn<ELEMENT> getEditorColumn(TreeColumn column) {
+		if (column == null) {
+			return null;
+		} else {
+			SwtEditorTreeColumn<ELEMENT> editorColumn = getEditorWidget(column);
+			return editorColumn == null ? new SwtEditorTreeColumn<>(column) : editorColumn;
+		}
 	}
 
 	@Override
@@ -69,7 +79,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeColumn<ELEMENT>[] getColumns() {
-		return cast(Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorWidget(c))
+		return cast(Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorColumn(c))
 				.toArray(i -> new SwtEditorTreeColumn[i]));
 	}
 
@@ -90,12 +100,21 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT> getItem(int index) {
-		return getEditorWidget(widget.getItem(index));
+		return getEditorItem(widget.getItem(index));
+	}
+
+	private SwtEditorTreeItem<ELEMENT> getEditorItem(TreeItem item) {
+		if (item == null) {
+			return null;
+		} else {
+			SwtEditorTreeItem<ELEMENT> editorItem = getEditorWidget(item);
+			return editorItem == null ? new SwtEditorTreeItem<>(item) : editorItem;
+		}
 	}
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT> getItem(int x, int y) {
-		return getEditorWidget(widget.getItem(new Point(x, y)));
+		return getEditorItem(widget.getItem(new Point(x, y)));
 	}
 
 	@Override
@@ -110,7 +129,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT>[] getItems() {
-		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorItem(i))
 				.toArray(i -> new SwtEditorTreeItem[i]));
 	}
 
@@ -121,7 +140,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT>[] getSelectedItems() {
-		return cast(Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
+		return cast(Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorItem(i))
 				.toArray(i -> new SwtEditorTreeItem[i]));
 	}
 
@@ -229,17 +248,17 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 
 	@Override
 	public EditorTreeItem getParentItem() {
-		return getEditorWidget(widget.getParentItem());
+		return getEditorItem(widget.getParentItem());
 	}
 
 	@Override
 	public EditorTreeColumn<ELEMENT> getSortColumn() {
-		return getEditorWidget(widget.getSortColumn());
+		return getEditorColumn(widget.getSortColumn());
 	}
 
 	@Override
 	public EditorTreeItem getTopItem() {
-		return getEditorWidget(widget.getTopItem());
+		return getEditorItem(widget.getTopItem());
 	}
 
 	@Override

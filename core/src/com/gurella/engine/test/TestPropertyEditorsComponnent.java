@@ -32,6 +32,7 @@ import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.EditorTreeColumn;
+import com.gurella.engine.editor.ui.EditorTreeItem;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
@@ -169,7 +170,8 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			@Override
 			public void handleEvent(EditorEvent event) {
 				List<String> selection = tree.getSelection();
-				event.getEditorUi().showInformationDialog("Info", selection.toString());
+				EditorTreeItem item = tree.getItem(0);
+				event.getEditorUi().showInformationDialog("Info", selection.toString() + item.getText());
 			}
 		}
 	}

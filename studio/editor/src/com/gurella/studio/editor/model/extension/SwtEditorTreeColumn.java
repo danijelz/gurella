@@ -13,6 +13,10 @@ public class SwtEditorTreeColumn<ELEMENT> extends SwtEditorItem<TreeColumn, Tree
 	TreeViewerColumn viewerColumn;
 	ColumnLabelProviderAdapter<ELEMENT> labelProviderAdapter;
 
+	SwtEditorTreeColumn(TreeColumn column) {
+		init(column);
+	}
+
 	SwtEditorTreeColumn(SwtEditorTree<ELEMENT> parent, int style) {
 		super(parent, style);
 		viewerColumn = new TreeViewerColumn(getParent().viewer, widget);

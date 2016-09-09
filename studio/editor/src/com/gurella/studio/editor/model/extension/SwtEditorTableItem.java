@@ -18,6 +18,10 @@ import com.gurella.engine.utils.GridRectangle;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
+	SwtEditorTableItem(TableItem item) {
+		init(item);
+	}
+
 	SwtEditorTableItem(SwtEditorTable<ELEMENT> parent) {
 		super(parent, 0);
 	}

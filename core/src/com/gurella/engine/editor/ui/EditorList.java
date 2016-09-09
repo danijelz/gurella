@@ -3,10 +3,6 @@ package com.gurella.engine.editor.ui;
 import com.gurella.engine.editor.ui.viewer.EditorListViewer;
 
 public interface EditorList<ELEMENT> extends EditorScrollable, EditorListViewer<ELEMENT> {
-	void add(String string);
-
-	void add(String string, int index);
-
 	void deselect(int index);
 
 	void deselect(int[] indices);
@@ -58,10 +54,6 @@ public interface EditorList<ELEMENT> extends EditorScrollable, EditorListViewer<
 	void select(int start, int end);
 
 	void selectAll();
-
-	void setItem(int index, String string);
-
-	void setItems(String... items);
 
 	void setSelection(int index);
 

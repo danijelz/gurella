@@ -4,10 +4,6 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.viewer.EditorListViewer;
 
 public interface EditorCombo<ELEMENT> extends EditorBaseComposite, EditorListViewer<ELEMENT> {
-	void add(String string);
-
-	void add(String string, int index);
-
 	void clearSelection();
 
 	void copy();
@@ -59,10 +55,6 @@ public interface EditorCombo<ELEMENT> extends EditorBaseComposite, EditorListVie
 	void removeAll();
 
 	void select(int index);
-
-	void setItem(int index, String string);
-
-	void setItems(String... items);
 
 	void setListVisible(boolean visible);
 

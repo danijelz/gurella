@@ -31,16 +31,6 @@ public class SwtEditorList<ELEMENT> extends SwtEditorScrollable<List> implements
 	}
 
 	@Override
-	public void add(String string) {
-		widget.add(string);
-	}
-
-	@Override
-	public void add(String string, int index) {
-		widget.add(string, index);
-	}
-
-	@Override
 	public void deselect(int index) {
 		widget.deselect(index);
 	}
@@ -171,16 +161,6 @@ public class SwtEditorList<ELEMENT> extends SwtEditorScrollable<List> implements
 	}
 
 	@Override
-	public void setItem(int index, String string) {
-		widget.setItem(index, string);
-	}
-
-	@Override
-	public void setItems(String... items) {
-		widget.setItems(items);
-	}
-
-	@Override
 	public void setSelection(int index) {
 		widget.setSelection(index);
 	}
@@ -231,7 +211,7 @@ public class SwtEditorList<ELEMENT> extends SwtEditorScrollable<List> implements
 	}
 
 	@Override
-	public void insert(ELEMENT element, int position) {
+	public void insert(int position, ELEMENT element) {
 		viewer.insert(element, position);
 	}
 

@@ -36,16 +36,6 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public void add(String string) {
-		widget.add(string);
-	}
-
-	@Override
-	public void add(String string, int index) {
-		widget.add(string, index);
-	}
-
-	@Override
 	public void clearSelection() {
 		widget.clearSelection();
 	}
@@ -178,16 +168,6 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public void setItem(int index, String string) {
-		widget.setItem(index, string);
-	}
-
-	@Override
-	public void setItems(String... items) {
-		widget.setItems(items);
-	}
-
-	@Override
 	public void setListVisible(boolean visible) {
 		widget.setListVisible(visible);
 	}
@@ -233,7 +213,7 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	}
 
 	@Override
-	public void insert(ELEMENT element, int position) {
+	public void insert(int position, ELEMENT element) {
 		viewer.insert(element, position);
 	}
 

@@ -7,7 +7,7 @@ public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, 
 
 	void add(@SuppressWarnings("unchecked") ELEMENT... elements);
 
-	void add(Iterable<ELEMENT> elements);
+	void add(List<ELEMENT> elements);
 
 	void clear(int index);
 

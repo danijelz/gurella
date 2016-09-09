@@ -11,7 +11,7 @@ public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, E
 
 	ELEMENT getElementAt(int index);
 
-	void insert(ELEMENT element, int position);
+	void insert(int position, ELEMENT element);
 
 	void remove(ELEMENT element);
 

@@ -15,6 +15,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.gurella.engine.editor.ui.Alignment;
@@ -85,7 +86,16 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public SwtEditorTableColumn<ELEMENT> getColumn(int index) {
-		return getEditorWidget(widget.getColumn(index));
+		return getEditorColumn(widget.getColumn(index));
+	}
+
+	private SwtEditorTableColumn<ELEMENT> getEditorColumn(TableColumn column) {
+		if (column == null) {
+			return null;
+		} else {
+			SwtEditorTableColumn<ELEMENT> editorColumn = getEditorWidget(column);
+			return editorColumn == null ? new SwtEditorTableColumn<>(column) : editorColumn;
+		}
 	}
 
 	@Override
@@ -100,7 +110,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public SwtEditorTableColumn<ELEMENT>[] getColumns() {
-		return cast(Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorWidget(c))
+		return cast(Arrays.stream(widget.getColumns()).sequential().map(c -> getEditorColumn(c))
 				.toArray(i -> new SwtEditorTableColumn[i]));
 	}
 
@@ -121,12 +131,21 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public SwtEditorTableItem<ELEMENT> getItem(int index) {
-		return getEditorWidget(widget.getItem(index));
+		return getEditorItem(widget.getItem(index));
+	}
+
+	private SwtEditorTableItem<ELEMENT> getEditorItem(TableItem item) {
+		if (item == null) {
+			return null;
+		} else {
+			SwtEditorTableItem<ELEMENT> editorItem = getEditorWidget(item);
+			return editorItem == null ? new SwtEditorTableItem<>(item) : editorItem;
+		}
 	}
 
 	@Override
 	public SwtEditorTableItem<ELEMENT> getItem(int x, int y) {
-		return getEditorWidget(widget.getItem(new Point(x, y)));
+		return getEditorItem(widget.getItem(new Point(x, y)));
 	}
 
 	@Override
@@ -141,7 +160,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public SwtEditorTableItem<ELEMENT>[] getItems() {
-		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorWidget(i))
+		return cast(Arrays.stream(widget.getItems()).sequential().map(i -> getEditorItem(i))
 				.toArray(i -> new SwtEditorTableItem[i]));
 	}
 
@@ -152,7 +171,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 
 	@Override
 	public SwtEditorTableItem<ELEMENT>[] getSelectedItems() {
-		return cast(Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorWidget(i))
+		return cast(Arrays.stream(widget.getSelection()).sequential().map(i -> getEditorItem(i))
 				.toArray(i -> new SwtEditorTableItem[i]));
 	}
 
@@ -360,12 +379,12 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public void setInput(java.util.List<ELEMENT> input) {
+	public void setInput(List<ELEMENT> input) {
 		viewer.setInput(input == null ? new Object[0] : input.toArray());
 	}
 
 	@Override
-	public void setSelection(java.util.List<ELEMENT> selection) {
+	public void setSelection(List<ELEMENT> selection) {
 		viewer.setSelection(new StructuredSelection(selection));
 	}
 
@@ -375,7 +394,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public void setSelection(java.util.List<ELEMENT> selection, boolean reveal) {
+	public void setSelection(List<ELEMENT> selection, boolean reveal) {
 		viewer.setSelection(new StructuredSelection(selection), reveal);
 	}
 
@@ -430,8 +449,8 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	}
 
 	@Override
-	public void add(Iterable<ELEMENT> elements) {
-		viewer.add(StreamSupport.stream(elements.spliterator(), false).toArray());
+	public void add(List<ELEMENT> elements) {
+		viewer.add(elements.toArray());
 	}
 
 	@Override
