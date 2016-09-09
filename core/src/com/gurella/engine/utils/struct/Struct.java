@@ -5,6 +5,7 @@ import com.gurella.engine.utils.struct.StructDescriptor.FloatStructProperty;
 public class Struct {
 	StructDescriptor descriptor;
 	int index;
+	int offset;
 	ArrayOfStructs aos;
 
 	public Struct(StructDescriptor descriptor, ArrayOfStructs aos) {

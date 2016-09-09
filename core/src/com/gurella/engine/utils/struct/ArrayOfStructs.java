@@ -41,7 +41,7 @@ public class ArrayOfStructs {
 	public void next() {
 		offset++;
 	}
-	
+
 	public void previous() {
 		offset--;
 	}
@@ -323,10 +323,10 @@ public class ArrayOfStructs {
 		int sortStructSize = 10000;
 		a = new ArrayOfStructs(2, sortStructSize);
 		a.add(sortStructSize);
-		
+
 		float[] f = new float[sortStructSize];
 		float[] tf = new float[sortStructSize];
-		
+
 		for (int i = 0; i < sortStructSize; i++) {
 			float floatValue = Double.valueOf(Math.random()).floatValue();
 			a.setFloats(floatValue, floatValue);
@@ -335,28 +335,32 @@ public class ArrayOfStructs {
 
 		a.sort(c);
 		Arrays.sort(f);
-		
+
 		for (int i = 0; i < sortStructSize; i++) {
 			tf[i] = a.getFloatByIndex(i, 1);
 		}
-		
+
 		System.out.println(Arrays.toString(tf));
-		
-		if(Arrays.equals(f, tf)) {
+
+		if (Arrays.equals(f, tf)) {
 			System.out.println("sort");
 		}
-		
+
 		System.out.println(Arrays.toString(a.buffer));
-		
+
 		StructDescriptor descriptor = new StructDescriptor();
 		FloatStructProperty prop = new FloatStructProperty(0);
 		descriptor._properties.add(prop);
 		descriptor._properties.add(new FloatStructProperty(1));
-		
+
 		Struct s = new Struct(descriptor, a);
 		System.out.println(s.getFloat(prop));
 		s.index++;
 		System.out.println(s.getFloat(prop));
+
+		System.out.println("\n\n");
+
+		testSpeed();
 	}
 
 	private static class StructComparatorImpl implements StructComparator {
@@ -1032,7 +1036,7 @@ public class ArrayOfStructs {
 		int next = rand();
 	}
 
-	static int testSize = 1000000;
+	static int testSize = 10000000;
 	static int testStructSize = 7;
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
@@ -1106,10 +1110,13 @@ public class ArrayOfStructs {
 		System.out.println(2);
 		System.out.println("");
 
+		Vector3 testVecTc = new Vector3();
+		Vector3 testVecSa = new Vector3();
+
 		for (int j = 0; j < 20; j++) {
 			for (int i = 0; i < subIterations; i++) {
-				testTc(tc, i);
-				testSa(sa, i);
+				testTc(tc, i, testVecTc);
+				testSa(sa, i, testVecSa);
 			}
 			System.out.println(tcTime);
 			System.out.println(saTime);
@@ -1129,13 +1136,18 @@ public class ArrayOfStructs {
 		System.out.println("");
 		System.out.println(tcr);
 		System.out.println(sar);
+
+		System.out.println("");
+		System.out.println("");
+		System.out.println(testVecTc);
+		System.out.println(testVecSa);
 	}
 
 	private static long tcTime;
 	private static long tcTotalTime;
 	private static double tcr;
 
-	private static void testTc(TestClass[] tc, int index) {
+	private static void testTc(TestClass[] tc, int index, Vector3 testVec) {
 		double r = 0;
 		long millis = System.currentTimeMillis();
 
@@ -1146,6 +1158,8 @@ public class ArrayOfStructs {
 			r += vector.x;
 			r += vector.y;
 			r += vector.z;
+
+			testVec.add(vector);
 
 			GridPoint3 point = testClass.point;
 			r += point.x;
@@ -1162,16 +1176,21 @@ public class ArrayOfStructs {
 	private static long saTime;
 	private static long saTotalTime;
 	private static double sar;
+	private static Vector3 tempVec = new Vector3();
 
-	private static void testSa(ArrayOfStructs sa, int index) {
+	private static void testSa(ArrayOfStructs sa, int index, Vector3 testVec) {
 		double r = 0;
 		long millis = System.currentTimeMillis();
 
 		sa.offset = index * testStructSize;
 		for (int i = 0; i < iterations; i++) {
-			r += sa.getFloat();
-			r += sa.getFloat();
-			r += sa.getFloat();
+
+			sa.getVector3(tempVec);
+			r += tempVec.x;
+			r += tempVec.y;
+			r += tempVec.z;
+
+			testVec.add(tempVec);
 
 			r += sa.getInt();
 			r += sa.getInt();
