@@ -41,6 +41,10 @@ public class ArrayOfStructs {
 	public void next() {
 		offset++;
 	}
+	
+	public void previous() {
+		offset--;
+	}
 
 	public void rewind() {
 		offset = 0;
