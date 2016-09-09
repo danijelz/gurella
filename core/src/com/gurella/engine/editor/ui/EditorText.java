@@ -88,6 +88,7 @@ public interface EditorText extends EditorScrollable {
 		public boolean readOnly;
 		public boolean password;
 		public Alignment alignment;
+		public boolean formBorder;
 
 		public TextStyle wWrap(boolean wrap) {
 			this.wrap = wrap;
@@ -106,6 +107,11 @@ public interface EditorText extends EditorScrollable {
 
 		public TextStyle alignment(Alignment alignment) {
 			this.alignment = alignment;
+			return cast();
+		}
+
+		public TextStyle formBorder(boolean formBorder) {
+			this.formBorder = formBorder;
 			return cast();
 		}
 	}

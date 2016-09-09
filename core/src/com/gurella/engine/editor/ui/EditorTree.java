@@ -115,6 +115,7 @@ public interface EditorTree<ELEMENT> extends EditorBaseComposite, EditorTreeView
 		public boolean fullSelection;
 		public boolean noScroll;
 		public boolean virtual;
+		public boolean formBorder;
 
 		public TreeStyle(TreeContentProvider<ELEMENT> contentProvider) {
 			this.contentProvider = contentProvider;
@@ -142,6 +143,11 @@ public interface EditorTree<ELEMENT> extends EditorBaseComposite, EditorTreeView
 
 		public TreeStyle<ELEMENT> noScroll(boolean noScroll) {
 			this.noScroll = noScroll;
+			return cast();
+		}
+		
+		public TreeStyle<ELEMENT> formBorder(boolean formBorder) {
+			this.formBorder = formBorder;
 			return cast();
 		}
 	}

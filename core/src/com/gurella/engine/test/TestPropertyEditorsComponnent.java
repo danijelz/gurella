@@ -28,6 +28,7 @@ import com.gurella.engine.editor.ui.EditorTable;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
 import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.EditorText;
+import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorTree;
 import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
@@ -101,8 +102,8 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 
 			context.addMenuItem("Test menu item", new TestMenuRunnable(uiFactory));
 
-			EditorText text = uiFactory.createText(parent);
-			text.setBackground(0, 0, 100, 255);
+			EditorText text = uiFactory.createText(parent, new TextStyle().formBorder(true));
+			// text.setBackground(230, 230, 230, 255);
 			EditorControlDecoration decoration = text.getOrCreateDecoration(HorizontalAlignment.RIGHT,
 					VerticalAlignment.CENTER);
 			decoration.setInfoImage();
@@ -134,7 +135,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			table.setInput(Arrays.asList(ViewerContent.values()));
 
 			TreeStyle<String> tStyle = new TreeStyle<String>(new TestTreeContentProvider()).vScroll(true).hScroll(true)
-					.multiSelection(true).fullSelection(true);
+					.multiSelection(true).fullSelection(true).formBorder(true);
 			EditorTree<String> tree = uiFactory.createTree(parent, tStyle);
 
 			EditorTreeColumn<String> treeColumn = tree.createColumn();

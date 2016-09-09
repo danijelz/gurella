@@ -7,9 +7,12 @@ import org.eclipse.swt.widgets.Control;
 
 import com.gurella.engine.editor.ui.EditorBaseComposite;
 import com.gurella.engine.editor.ui.EditorControl;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEditorScrollable<T>
 		implements EditorBaseComposite {
+	boolean paintFormBorders;
+
 	public SwtEditorBaseComposite() {
 	}
 
@@ -38,5 +41,11 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 	public void setTabList(EditorControl[] tabList) {
 		widget.setTabList(Arrays.stream(tabList).sequential().map(c -> ((SwtEditorControl<?>) c).widget)
 				.toArray(i -> new Control[i]));
+	}
+
+	public void paintBorders() {
+		if (!paintFormBorders) {
+			GurellaStudioPlugin.getToolkit().paintBordersFor(widget);
+		}
 	}
 }

@@ -35,6 +35,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
@@ -324,22 +325,31 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorText createText(EditorComposite parent) {
-		return new SwtEditorText(cast(parent), SWT.SINGLE);
+		return createText(parent, false, SWT.SINGLE);
+	}
+
+	protected SwtEditorText createText(EditorComposite parent, boolean formBorder, int style) {
+		SwtEditorText text = new SwtEditorText(cast(parent), style);
+		if (formBorder) {
+			text.widget.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
+			text.getParent().paintBorders();
+		}
+		return text;
 	}
 
 	@Override
 	public SwtEditorText createText(EditorComposite parent, TextStyle style) {
-		return new SwtEditorText(cast(parent), SWT.SINGLE | extractTextStyle(style));
+		return createText(cast(parent), style.formBorder, SWT.SINGLE | extractTextStyle(style));
 	}
 
 	@Override
 	public SwtEditorText createTextArea(EditorComposite parent) {
-		return new SwtEditorText(cast(parent), SWT.MULTI);
+		return createText(cast(parent), false, SWT.MULTI);
 	}
 
 	@Override
 	public SwtEditorText createTextArea(EditorComposite parent, TextStyle style) {
-		return new SwtEditorText(cast(parent), SWT.MULTI | extractTextStyle(style));
+		return createText(cast(parent), style.formBorder, SWT.MULTI | extractTextStyle(style));
 	}
 
 	@Override
@@ -502,12 +512,22 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent,
 			TreeContentProvider<ELEMENT> contentProvider) {
-		return new SwtEditorTree<>(cast(parent), contentProvider, SWT.SINGLE | SWT.FULL_SELECTION);
+		return createTree(cast(parent), contentProvider, false, SWT.SINGLE | SWT.FULL_SELECTION);
+	}
+
+	private static <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent,
+			TreeContentProvider<ELEMENT> contentProvider, boolean formBorder, int style) {
+		SwtEditorTree<ELEMENT> tree = new SwtEditorTree<>(cast(parent), contentProvider, style);
+		if (formBorder) {
+			tree.widget.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
+			tree.getParent().paintBorders();
+		}
+		return tree;
 	}
 
 	@Override
 	public <ELEMENT> SwtEditorTree<ELEMENT> createTree(EditorComposite parent, TreeStyle<ELEMENT> style) {
-		return new SwtEditorTree<>(cast(parent), style.contentProvider, extractTreeStyle(style));
+		return createTree(cast(parent), style.contentProvider, style.formBorder, extractTreeStyle(style));
 	}
 
 	@Override
