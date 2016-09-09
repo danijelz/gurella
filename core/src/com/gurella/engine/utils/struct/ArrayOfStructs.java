@@ -340,13 +340,13 @@ public class ArrayOfStructs {
 			tf[i] = a.getFloatByIndex(i, 1);
 		}
 
-		System.out.println(Arrays.toString(tf));
+		//System.out.println(Arrays.toString(tf));
 
 		if (Arrays.equals(f, tf)) {
 			System.out.println("sort");
 		}
 
-		System.out.println(Arrays.toString(a.buffer));
+		//System.out.println(Arrays.toString(a.buffer));
 
 		StructDescriptor descriptor = new StructDescriptor();
 		FloatStructProperty prop = new FloatStructProperty(0);
@@ -1028,16 +1028,25 @@ public class ArrayOfStructs {
 	///////////////////////////////////////////
 
 	private static class TestClass {
-		Vector3 vector = new Vector3(Double.valueOf(Math.random()).floatValue(),
-				Double.valueOf(Math.random()).floatValue(), Double.valueOf(Math.random()).floatValue());
-		GridPoint3 point = new GridPoint3(Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue(),
-				Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue(),
-				Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue());
+		Vector3 vector = new Vector3(randomFloat(), randomFloat(), randomFloat());
+		GridPoint3 point = new GridPoint3(randomInt(), randomInt(), randomInt());
+		Matrix4 matrix4 = new Matrix4(new float[] { randomFloat(), randomFloat(), randomFloat(), randomFloat(),
+				randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(),
+				randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat() });
+
+		private static int randomInt() {
+			return Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue();
+		}
+
 		int next = rand();
+
+		private static float randomFloat() {
+			return Double.valueOf(Math.random()).floatValue();
+		}
 	}
 
-	static int testSize = 10000000;
-	static int testStructSize = 7;
+	static int testSize = 1000000;
+	static int testStructSize = 23;
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
 
@@ -1106,7 +1115,9 @@ public class ArrayOfStructs {
 			sa.buffer[off++] = intBitsToFloat(testClass.point.y);
 			sa.buffer[off++] = intBitsToFloat(testClass.point.z);
 			sa.buffer[off++] = intBitsToFloat(testClass.next);
+			sa.setFloatArray(testClass.matrix4.val, 16);
 		}
+
 		System.out.println(2);
 		System.out.println("");
 
@@ -1131,6 +1142,7 @@ public class ArrayOfStructs {
 		System.out.println("SUM:");
 		System.out.println(tcTotalTime);
 		System.out.println(saTotalTime);
+		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
 
 		System.out.println("");
 		System.out.println("");
@@ -1184,7 +1196,6 @@ public class ArrayOfStructs {
 
 		sa.offset = index * testStructSize;
 		for (int i = 0; i < iterations; i++) {
-
 			sa.getVector3(tempVec);
 			r += tempVec.x;
 			r += tempVec.y;
