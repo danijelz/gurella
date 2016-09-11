@@ -978,23 +978,23 @@ public class ArrayOfStructs {
 	/////// Matri4
 
 	public Matrix4 getMatrix4(Matrix4 out) {
-		System.arraycopy(out.val, 0, buffer, offset, 16);
-		offset += 9;
+		System.arraycopy(buffer, offset, out.val, 0, 16);
+		offset += 16;
 		return out;
 	}
 
 	public void setMatrix4(Matrix4 value) {
-		System.arraycopy(buffer, offset, value.val, 0, 16);
-		offset += 9;
+		System.arraycopy(value.val, 0, buffer, offset, 16);
+		offset += 16;
 	}
 
 	public Matrix4 getMatrix4(int offset, Matrix4 out) {
-		System.arraycopy(out.val, 0, buffer, offset, 16);
+		System.arraycopy(buffer, offset, out.val, 0, 16);
 		return out;
 	}
 
 	public void setMatrix4(int offset, Matrix4 value) {
-		System.arraycopy(buffer, offset, value.val, 0, 16);
+		System.arraycopy(value.val, 0, buffer, offset, 16);
 	}
 
 	/////// BoundingBox
@@ -1038,14 +1038,14 @@ public class ArrayOfStructs {
 				randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat(),
 				randomFloat(), randomFloat(), randomFloat(), randomFloat(), randomFloat() });
 
-		private static int randomInt() {
-			return Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue();
-		}
-
 		int next = rand();
 
 		private static float randomFloat() {
 			return Double.valueOf(Math.random()).floatValue();
+		}
+
+		private static int randomInt() {
+			return Double.valueOf(Math.random() * Integer.MAX_VALUE).intValue();
 		}
 	}
 
@@ -1118,11 +1118,35 @@ public class ArrayOfStructs {
 			sa.buffer[off++] = intBitsToFloat(testClass.point.x);
 			sa.buffer[off++] = intBitsToFloat(testClass.point.y);
 			sa.buffer[off++] = intBitsToFloat(testClass.point.z);
+			sa.setFloatArrayByOffset(off, testClass.matrix4.val, 16);
+			off += 16;
 			sa.buffer[off++] = intBitsToFloat(testClass.next);
-			sa.setFloatArray(testClass.matrix4.val, 16);
 		}
 
 		System.out.println(2);
+		System.out.println("");
+		
+		System.out.print(tc[20].vector.x);
+		System.out.print(tc[20].vector.y);
+		System.out.print(tc[20].vector.z);
+		System.out.print(tc[20].point.x);
+		System.out.print(tc[20].point.y);
+		System.out.print(tc[20].point.z);
+		System.out.print(Arrays.toString(tc[20].matrix4.val));
+		System.out.print(tc[20].next);
+		
+		System.out.println("");
+		
+		sa.setIndex(20);
+		System.out.print(sa.getFloat());
+		System.out.print(sa.getFloat());
+		System.out.print(sa.getFloat());
+		System.out.print(sa.getInt());
+		System.out.print(sa.getInt());
+		System.out.print(sa.getInt());
+		System.out.print(Arrays.toString(sa.getMatrix4(new Matrix4()).val));
+		System.out.print(sa.getInt());
+		
 		System.out.println("");
 
 		Vector3 testVecTc = new Vector3();
