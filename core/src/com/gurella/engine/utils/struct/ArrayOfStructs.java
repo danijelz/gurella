@@ -956,23 +956,23 @@ public class ArrayOfStructs {
 	/////// Matrix3
 
 	public Matrix3 getMatrix3(Matrix3 out) {
-		System.arraycopy(out.val, 0, buffer, offset, 9);
+		System.arraycopy(buffer, offset, out.val, 0, 9);
 		offset += 9;
 		return out;
 	}
 
 	public void setMatrix3(Matrix3 value) {
-		System.arraycopy(buffer, offset, value.val, 0, 9);
+		System.arraycopy(value.val, 0, buffer, offset, 9);
 		offset += 9;
 	}
 
 	public Matrix3 getMatrix3(int offset, Matrix3 out) {
-		System.arraycopy(out.val, 0, buffer, offset, 9);
+		System.arraycopy(buffer, offset, out.val, 0, 9);
 		return out;
 	}
 
 	public void setMatrix3(int offset, Matrix3 value) {
-		System.arraycopy(buffer, offset, value.val, 0, 9);
+		System.arraycopy(value.val, 0, buffer, offset, 9);
 	}
 
 	/////// Matri4
@@ -1124,29 +1124,6 @@ public class ArrayOfStructs {
 		}
 
 		System.out.println(2);
-		System.out.println("");
-		
-		System.out.print(tc[20].vector.x);
-		System.out.print(tc[20].vector.y);
-		System.out.print(tc[20].vector.z);
-		System.out.print(tc[20].point.x);
-		System.out.print(tc[20].point.y);
-		System.out.print(tc[20].point.z);
-		System.out.print(Arrays.toString(tc[20].matrix4.val));
-		System.out.print(tc[20].next);
-		
-		System.out.println("");
-		
-		sa.setIndex(20);
-		System.out.print(sa.getFloat());
-		System.out.print(sa.getFloat());
-		System.out.print(sa.getFloat());
-		System.out.print(sa.getInt());
-		System.out.print(sa.getInt());
-		System.out.print(sa.getInt());
-		System.out.print(Arrays.toString(sa.getMatrix4(new Matrix4()).val));
-		System.out.print(sa.getInt());
-		
 		System.out.println("");
 
 		Vector3 testVecTc = new Vector3();
