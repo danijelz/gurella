@@ -757,11 +757,13 @@ public class ArrayOfStructs {
 
 	public float[] getFloatArray(float[] arrOut, int length) {
 		System.arraycopy(buffer, offset, arrOut, 0, length);
+		offset += length;
 		return arrOut;
 	}
 
 	public float[] getFloatArray(float[] arrOut, int destinationOffset, int length) {
 		System.arraycopy(buffer, offset, arrOut, destinationOffset, length);
+		offset += length;
 		return arrOut;
 	}
 
@@ -787,10 +789,12 @@ public class ArrayOfStructs {
 
 	public void setFloatArray(float[] arr, int length) {
 		System.arraycopy(arr, 0, buffer, offset, length);
+		offset += length;
 	}
 
 	public void setFloatArray(float[] arr, int sourceOffset, int length) {
 		System.arraycopy(arr, sourceOffset, buffer, offset, length);
+		offset += length;
 	}
 
 	public void setFloatArrayByOffset(int offset, float[] arr, int length) {
@@ -1145,12 +1149,12 @@ public class ArrayOfStructs {
 		System.out.println("ratio " + ((double) saTotalTime / tcTotalTime));
 
 		System.out.println("");
-		System.out.println("");
+		System.out.println("R: ");
 		System.out.println(tcr);
 		System.out.println(sar);
 
 		System.out.println("");
-		System.out.println("");
+		System.out.println("Vec:");
 		System.out.println(testVecTc);
 		System.out.println(testVecSa);
 	}
