@@ -1178,6 +1178,8 @@ public class ArrayOfStructs {
 			r += point.y;
 			r += point.z;
 
+			testClass.matrix4.scl(2);
+
 			next = testClass.next;
 		}
 
@@ -1189,6 +1191,7 @@ public class ArrayOfStructs {
 	private static long saTotalTime;
 	private static double sar;
 	private static Vector3 tempVec = new Vector3();
+	private static Matrix4 tempMatrix = new Matrix4();
 
 	private static void testSa(ArrayOfStructs sa, int index, Vector3 testVec) {
 		double r = 0;
@@ -1206,6 +1209,9 @@ public class ArrayOfStructs {
 			r += sa.getInt();
 			r += sa.getInt();
 			r += sa.getInt();
+
+			sa.getMatrix4(tempMatrix);
+			tempMatrix.scl(2);
 
 			sa.setIndex(sa.getInt());
 		}
