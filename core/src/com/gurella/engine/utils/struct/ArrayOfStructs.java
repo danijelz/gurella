@@ -374,6 +374,7 @@ public class ArrayOfStructs {
 
 			buffer2.setIndex(index2);
 			float f2 = buffer2.getFloat();
+
 			return Float.compare(f1, f2);
 		}
 	}
