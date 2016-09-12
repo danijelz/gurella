@@ -14,11 +14,11 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
-	public SwtEditorLabel(SwtEditorComposite parent, int style) {
+	public SwtEditorLabel(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 
-	public SwtEditorLabel(SwtEditorComposite parent, String text, int style) {
+	public SwtEditorLabel(SwtEditorLayoutComposite<?> parent, String text, int style) {
 		super(parent, style);
 		setText(text);
 	}

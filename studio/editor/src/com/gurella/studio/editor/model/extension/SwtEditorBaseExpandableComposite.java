@@ -10,7 +10,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableComposite>
 		extends SwtEditorLayoutComposite<T> implements EditorExpandableComposite {
-	SwtEditorBaseExpandableComposite(SwtEditorComposite parent, int style) {
+	SwtEditorBaseExpandableComposite(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

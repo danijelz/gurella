@@ -10,7 +10,7 @@ public class SwtEditorComposite extends SwtEditorLayoutComposite<Composite> impl
 		init(composite);
 	}
 
-	public SwtEditorComposite(SwtEditorComposite parent, int style) {
+	public SwtEditorComposite(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

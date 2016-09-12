@@ -7,7 +7,7 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorSashForm;
 
 public class SwtEditorSashForm extends SwtEditorBaseComposite<SashForm> implements EditorSashForm {
-	public SwtEditorSashForm(SwtEditorComposite parent, int style) {
+	public SwtEditorSashForm(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

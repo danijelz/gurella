@@ -23,7 +23,7 @@ import com.gurella.studio.editor.model.extension.view.ListViewerLabelProvider;
 public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> implements EditorCombo<ELEMENT> {
 	ComboViewer viewer;
 
-	public SwtEditorCombo(SwtEditorComposite parent, int style) {
+	public SwtEditorCombo(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

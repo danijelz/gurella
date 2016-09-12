@@ -29,7 +29,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> implements EditorTable<ELEMENT> {
 	TableViewer viewer;
 
-	public SwtEditorTable(SwtEditorComposite parent, int style) {
+	public SwtEditorTable(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

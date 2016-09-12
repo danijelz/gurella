@@ -12,7 +12,7 @@ import com.gurella.engine.editor.ui.EditorToolItem;
 import com.gurella.engine.editor.ui.EditorToolItem.ToolItemType;
 
 public class SwtEditorToolBar extends SwtEditorBaseComposite<ToolBar> implements EditorToolBar {
-	public SwtEditorToolBar(SwtEditorComposite parent, int style) {
+	public SwtEditorToolBar(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

@@ -7,7 +7,7 @@ import com.gurella.engine.editor.ui.EditorExpandBar;
 import com.gurella.engine.editor.ui.EditorExpandItem;
 
 public class SwtEditorExpandBar extends SwtEditorBaseComposite<ExpandBar> implements EditorExpandBar {
-	public SwtEditorExpandBar(SwtEditorComposite parent, int style) {
+	public SwtEditorExpandBar(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

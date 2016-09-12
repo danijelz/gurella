@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Link;
 import com.gurella.engine.editor.ui.EditorLink;
 
 public class SwtEditorLink extends SwtEditorControl<Link> implements EditorLink {
-	public SwtEditorLink(SwtEditorComposite parent, int style) {
+	public SwtEditorLink(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

@@ -167,6 +167,9 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			client.setSize(300, 100);
 			uiFactory.createLabel(client, "client");
 			expandableComposite.setClient(client);
+			OpenDialogListenerListener listener = new OpenDialogListenerListener();
+			expandableComposite.addListener(EditorEventType.Expand, listener);
+			expandableComposite.removeListener(EditorEventType.Expand, listener);
 		}
 
 		private final class TreeSelectionListener implements EditorEventListener {

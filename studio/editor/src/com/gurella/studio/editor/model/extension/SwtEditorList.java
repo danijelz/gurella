@@ -19,7 +19,7 @@ import com.gurella.studio.editor.model.extension.view.ListViewerLabelProvider;
 public class SwtEditorList<ELEMENT> extends SwtEditorScrollable<List> implements EditorList<ELEMENT> {
 	ListViewer viewer;
 
-	public SwtEditorList(SwtEditorComposite parent, int style) {
+	public SwtEditorList(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Scale;
 import com.gurella.engine.editor.ui.EditorScale;
 
 public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorScale {
-	public SwtEditorScale(SwtEditorComposite parent, int style) {
+	public SwtEditorScale(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

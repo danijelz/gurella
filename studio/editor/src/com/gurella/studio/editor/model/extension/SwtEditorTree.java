@@ -33,7 +33,7 @@ import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> implements EditorTree<ELEMENT> {
 	TreeViewer viewer;
 
-	public SwtEditorTree(SwtEditorComposite parent, TreeContentProvider<ELEMENT> contentProvider, int style) {
+	public SwtEditorTree(SwtEditorLayoutComposite<?> parent, TreeContentProvider<ELEMENT> contentProvider, int style) {
 		super(parent, style);
 		viewer.setContentProvider(new TreeContentProviderAdapter<>(contentProvider));
 	}
