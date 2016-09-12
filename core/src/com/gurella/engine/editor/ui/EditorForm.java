@@ -16,7 +16,7 @@ public interface EditorForm extends EditorComposite {
 	//int	getMessageType(); 
 	String	getText();
 	//IToolBarManager	getToolBarManager();
-	int	getToolBarVerticalAlignment();
+	//int	getToolBarVerticalAlignment();
 	boolean	isBackgroundImageTiled();
 	boolean	isBusy();
 	boolean	isSeparatorVisible();
@@ -32,6 +32,6 @@ public interface EditorForm extends EditorComposite {
 	void	setSeparatorVisible(boolean addSeparator);
 	void	setText(String text);
 	void	setTextBackground(Color[] gradientColors, int[] percents, boolean vertical);
-	void	setToolBarVerticalAlignment(int alignment);
-	void	updateToolBar();
+	//void	setToolBarVerticalAlignment(int alignment);
+	//void	updateToolBar();
 }

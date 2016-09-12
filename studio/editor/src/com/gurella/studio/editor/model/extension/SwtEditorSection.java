@@ -5,6 +5,8 @@ import java.io.InputStream;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.graphics.Color;
@@ -29,12 +31,18 @@ public class SwtEditorSection extends SwtEditorBaseExpandableComposite<Section> 
 	}
 
 	@Override
-	public EditorControl getDescriptionControl() {
-		return getEditorWidget(widget.getDescriptionControl());
+	public SwtEditorControl<?> getDescriptionControl() {
+		Control control = widget.getDescriptionControl();
+		if (control == null) {
+			return null;
+		} else {
+			SwtEditorControl<?> editorControl = getEditorWidget(control);
+			return editorControl == null ? new SwtEditorText((Text) control) : editorControl;
+		}
 	}
 
 	@Override
-	public EditorControl getSeparatorControl() {
+	public SwtEditorControl<?> getSeparatorControl() {
 		return getEditorWidget(widget.getSeparatorControl());
 	}
 
