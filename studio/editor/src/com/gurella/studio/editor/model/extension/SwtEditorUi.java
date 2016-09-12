@@ -5,6 +5,7 @@ import static com.gurella.studio.GurellaStudioPlugin.createErrorStatus;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.arrowDirection;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractButtonStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractComboStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractExpandableCompositeStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractLabelStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractShellStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleControlStyle;
@@ -35,6 +36,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
@@ -55,6 +57,7 @@ import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.EditorDateTime.DropDownDateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.TimeStyle;
 import com.gurella.engine.editor.ui.EditorExpandBar.ExpandBarStyle;
+import com.gurella.engine.editor.ui.EditorExpandableComposite.ExpandableCompositeStyle;
 import com.gurella.engine.editor.ui.EditorFont;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorImage;
@@ -537,7 +540,7 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorSashForm createSashForm(EditorComposite parent, boolean vertical, boolean smooth) {
-		int swtStyle = vertical ? SWT.VERTICAL : 0;
+		int swtStyle = vertical ? SWT.VERTICAL : SWT.NONE;
 		if (smooth) {
 			swtStyle |= SWT.SMOOTH;
 		}
@@ -708,5 +711,17 @@ public class SwtEditorUi implements EditorUi {
 		return GridLayoutFactory.swtDefaults().numColumns(data.numColumns)
 				.extendedMargins(data.leftMargin, data.rightMargin, data.topMargin, data.bottomMargin)
 				.spacing(data.horizontalSpacing, data.verticalSpacing).equalWidth(data.makeColumnsEqualWidth).create();
+	}
+
+	@Override
+	public SwtEditorExpandableComposite createExpandableComposite(EditorComposite parent) {
+		return new SwtEditorExpandableComposite(cast(parent), ExpandableComposite.TWISTIE
+				| ExpandableComposite.NO_TITLE_FOCUS_BOX | ExpandableComposite.CLIENT_INDENT);
+	}
+
+	@Override
+	public SwtEditorExpandableComposite createExpandableComposite(EditorComposite parent,
+			ExpandableCompositeStyle style) {
+		return new SwtEditorExpandableComposite(cast(parent), extractExpandableCompositeStyle(style));
 	}
 }

@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.model.extension.style;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.Direction;
@@ -9,6 +10,8 @@ import com.gurella.engine.editor.ui.EditorButton.BaseButtonStyle;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorExpandableComposite.ExpandableCompositeStyle;
+import com.gurella.engine.editor.ui.EditorExpandableComposite.TitleBarTypeType;
 import com.gurella.engine.editor.ui.EditorLabel.BaseLabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.ShadowType;
 import com.gurella.engine.editor.ui.EditorList.ListStyle;
@@ -115,7 +118,7 @@ public class SwtWidgetStyle {
 		return result;
 	}
 
-	public static int extractTreeStyle(TreeStyle style) {
+	public static int extractTreeStyle(TreeStyle<?> style) {
 		if (style == null) {
 			return SWT.NONE;
 		}
@@ -385,5 +388,48 @@ public class SwtWidgetStyle {
 		default:
 			throw new IllegalArgumentException();
 		}
+	}
+
+	public static int extractExpandableCompositeStyle(ExpandableCompositeStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractScrollableStyle(style);
+
+		if (style.clientIdent) {
+			result |= ExpandableComposite.CLIENT_INDENT;
+		}
+
+		if (style.expanded) {
+			result |= ExpandableComposite.EXPANDED;
+		}
+
+		if (style.compact) {
+			result |= ExpandableComposite.COMPACT;
+		}
+
+		if (style.focusTitle) {
+			result |= ExpandableComposite.FOCUS_TITLE;
+		}
+
+		if (style.noTitleFocusBox) {
+			result |= ExpandableComposite.NO_TITLE_FOCUS_BOX;
+		}
+
+		if (style.leftTextClientAlignment) {
+			result |= ExpandableComposite.LEFT_TEXT_CLIENT_ALIGNMENT;
+		}
+
+		result |= style.treeNodeToggleType ? ExpandableComposite.TREE_NODE : ExpandableComposite.TWISTIE;
+
+		if (style.titleBarTypeType == null || style.titleBarTypeType == TitleBarTypeType.NO_TITLE) {
+			result |= ExpandableComposite.NO_TITLE;
+		} else {
+			result |= style.titleBarTypeType == TitleBarTypeType.TITLE_BAR ? ExpandableComposite.TITLE_BAR
+					: ExpandableComposite.SHORT_TITLE_BAR;
+		}
+
+		return result;
 	}
 }

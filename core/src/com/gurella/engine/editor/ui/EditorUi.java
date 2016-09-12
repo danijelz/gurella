@@ -16,6 +16,7 @@ import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
 import com.gurella.engine.editor.ui.EditorDateTime.DropDownDateStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.TimeStyle;
 import com.gurella.engine.editor.ui.EditorExpandBar.ExpandBarStyle;
+import com.gurella.engine.editor.ui.EditorExpandableComposite.ExpandableCompositeStyle;
 import com.gurella.engine.editor.ui.EditorGroup.GroupStyle;
 import com.gurella.engine.editor.ui.EditorLabel.LabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.SeparatorStyle;
@@ -197,4 +198,8 @@ public interface EditorUi {
 	<T> T showDialog(EditorDialogProperties dialogProperties);
 
 	<T> T showDialog(EditorTitleAteaDialogProperties dialogProperties);
+
+	EditorExpandableComposite createExpandableComposite(EditorComposite parent);
+
+	EditorExpandableComposite createExpandableComposite(EditorComposite parent, ExpandableCompositeStyle style);
 }

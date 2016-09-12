@@ -20,6 +20,7 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControlDecoration;
+import com.gurella.engine.editor.ui.EditorExpandableComposite;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorImage;
@@ -159,6 +160,13 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			tree.setInput(rootItems);
 
 			tree.addListener(EditorEventType.Selection, new TreeSelectionListener(tree));
+			
+			EditorExpandableComposite expandableComposite = uiFactory.createExpandableComposite(parent);
+			expandableComposite.setText("expandableComposite");
+			EditorComposite client = uiFactory.createComposite(expandableComposite);
+			client.setSize(300, 100);
+			uiFactory.createLabel(client, "client");
+			expandableComposite.setClient(client);
 		}
 
 		private final class TreeSelectionListener implements EditorEventListener {
