@@ -3,7 +3,7 @@ package com.gurella.engine.utils.struct;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class StructDescriptor {
+public class StructType {
 	final Array<StructProperty> _properties = new Array<StructProperty>();
 	public final ImmutableArray<StructProperty> properties = new ImmutableArray<StructProperty>(_properties);
 

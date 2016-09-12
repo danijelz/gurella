@@ -2,6 +2,27 @@ package com.gurella.engine.utils.struct;
 
 import com.gurella.engine.utils.struct.ArrayOfStructs.StructComparator;
 
+/** A stable, adaptive, iterative mergesort that requires far fewer than n lg(n) comparisons when running on partially sorted
+ * arrays, while offering performance comparable to a traditional mergesort when run on random arrays. Like all proper mergesorts,
+ * this sort is stable and runs O(n log n) time (worst case). In the worst case, this sort requires temporary storage space for
+ * n/2 object references; in the best case, it requires only a small constant amount of space.
+ * 
+ * This implementation was adapted from Tim Peters's list sort for Python, which is described in detail here:
+ * 
+ * http://svn.python.org/projects/python/trunk/Objects/listsort.txt
+ * 
+ * Tim's C code may be found here:
+ * 
+ * http://svn.python.org/projects/python/trunk/Objects/listobject.c
+ * 
+ * The underlying techniques are described in this paper (and may have even earlier origins):
+ * 
+ * "Optimistic Sorting and Information Theoretic Complexity" Peter McIlroy SODA (Fourth Annual ACM-SIAM Symposium on Discrete
+ * Algorithms), pp 467-474, Austin, Texas, 25-27 January 1993.
+ * 
+ * While the API to this class consists solely of static methods, it is (privately) instantiable; a TimSort instance holds the
+ * state of an ongoing sort, assuming the input array is large enough to warrant the full-blown TimSort. Small arrays are sorted
+ * in place, using a binary insertion sort. */
 public class StructTimSort {
 	private static final int MIN_MERGE = 32;
 	private static final int MIN_GALLOP = 7;
@@ -94,12 +115,12 @@ public class StructTimSort {
 			int n = start - left; // The number of elements to move
 			switch (n) {
 			case 2:
-				a.copyTo(left + 1, left + 2);
+				a.setItem(left + 1, left + 2);
 			case 1:
-				a.copyTo(left, left + 1);
+				a.setItem(left, left + 1);
 				break;
 			default:
-				a.setItem(a, left, left + 1, n);
+				a.setItems(a, left, left + 1, n);
 			}
 			a.setItem(tmpa, 0, left);
 		}
@@ -320,20 +341,20 @@ public class StructTimSort {
 		int tempLen2 = len2;
 
 		ensureCapacity(tempLen1);
-		tmpa.setItem(a, base1, 0, tempLen1);
+		tmpa.setItems(a, base1, 0, tempLen1);
 
 		int cursor1 = 0; // Indexes into tmp array
 		int cursor2 = base2; // Indexes int a
 		int dest = base1; // Indexes int a
 
-		a.copyTo(cursor2++, dest++);
+		a.setItem(cursor2++, dest++);
 		if (--tempLen2 == 0) {
-			a.setItem(tmpa, cursor1, dest, tempLen1);
+			a.setItems(tmpa, cursor1, dest, tempLen1);
 			return;
 		}
 
 		if (tempLen1 == 1) {
-			a.setItem(a, cursor2, dest, tempLen2);
+			a.setItems(a, cursor2, dest, tempLen2);
 			a.setItem(tmpa, cursor1, dest + tempLen2);
 			return;
 		}
@@ -364,7 +385,7 @@ public class StructTimSort {
 			do {
 				count1 = gallopRight(a, cursor2, tmpa, cursor1, tempLen1, 0);
 				if (count1 != 0) {
-					a.setItem(tmpa, cursor1, dest, count1);
+					a.setItems(tmpa, cursor1, dest, count1);
 					dest += count1;
 					cursor1 += count1;
 					tempLen1 -= count1;
@@ -372,14 +393,14 @@ public class StructTimSort {
 						break outer;
 				}
 
-				a.copyTo(cursor2++, dest++);
+				a.setItem(cursor2++, dest++);
 				if (--tempLen2 == 0) {
 					break outer;
 				}
 
 				count2 = gallopLeft(tmpa, cursor1, a, cursor2, tempLen2, 0);
 				if (count2 != 0) {
-					a.setItem(a, cursor2, dest, count2);
+					a.setItems(a, cursor2, dest, count2);
 					dest += count2;
 					cursor2 += count2;
 					tempLen2 -= count2;
@@ -400,12 +421,12 @@ public class StructTimSort {
 		this.minGallop = minGallop < 1 ? 1 : minGallop; // Write back to field
 
 		if (tempLen1 == 1) {
-			a.setItem(a, cursor2, dest, tempLen2);
+			a.setItems(a, cursor2, dest, tempLen2);
 			a.setItem(tmpa, cursor1, dest + tempLen2);
 		} else if (tempLen1 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
-			a.setItem(tmpa, cursor1, dest, tempLen1);
+			a.setItems(tmpa, cursor1, dest, tempLen1);
 		}
 	}
 
@@ -414,22 +435,22 @@ public class StructTimSort {
 		int tempLen2 = len2;
 
 		ensureCapacity(tempLen2);
-		tmpa.setItem(a, base2, 0, tempLen2);
+		tmpa.setItems(a, base2, 0, tempLen2);
 
 		int cursor1 = base1 + tempLen1 - 1; // Indexes into a
 		int cursor2 = tempLen2 - 1; // Indexes into tmp array
 		int dest = base2 + tempLen2 - 1; // Indexes into a
 
-		a.copyTo(cursor1--, dest--);
+		a.setItem(cursor1--, dest--);
 		if (--tempLen1 == 0) {
-			a.setItem(tmpa, 0, dest - (tempLen2 - 1), tempLen2);
+			a.setItems(tmpa, 0, dest - (tempLen2 - 1), tempLen2);
 			return;
 		}
 
 		if (tempLen2 == 1) {
 			dest -= tempLen1;
 			cursor1 -= tempLen1;
-			a.setItem(a, cursor1 + 1, dest + 1, tempLen1);
+			a.setItems(a, cursor1 + 1, dest + 1, tempLen1);
 			a.setItem(tmpa, cursor2, dest);
 			return;
 		}
@@ -466,7 +487,7 @@ public class StructTimSort {
 					dest -= count1;
 					cursor1 -= count1;
 					tempLen1 -= count1;
-					a.setItem(a, cursor1 + 1, dest + 1, count1);
+					a.setItems(a, cursor1 + 1, dest + 1, count1);
 					if (tempLen1 == 0) {
 						break outer;
 					}
@@ -482,13 +503,13 @@ public class StructTimSort {
 					dest -= count2;
 					cursor2 -= count2;
 					tempLen2 -= count2;
-					a.setItem(tmpa, cursor2 + 1, dest + 1, count2);
+					a.setItems(tmpa, cursor2 + 1, dest + 1, count2);
 					if (tempLen2 <= 1) {
 						break outer;
 					}
 				}
 
-				a.copyTo(cursor1--, dest--);
+				a.setItem(cursor1--, dest--);
 				if (--tempLen1 == 0) {
 					break outer;
 				}
@@ -506,12 +527,12 @@ public class StructTimSort {
 		if (tempLen2 == 1) {
 			dest -= tempLen1;
 			cursor1 -= tempLen1;
-			a.setItem(a, cursor1 + 1, dest + 1, tempLen1);
+			a.setItems(a, cursor1 + 1, dest + 1, tempLen1);
 			a.setItem(tmpa, cursor2, dest);
 		} else if (tempLen2 == 0) {
 			throw new IllegalArgumentException("Comparison method violates its general contract!");
 		} else {
-			a.setItem(tmpa, 0, dest - (tempLen2 - 1), tempLen2);
+			a.setItems(tmpa, 0, dest - (tempLen2 - 1), tempLen2);
 		}
 	}
 

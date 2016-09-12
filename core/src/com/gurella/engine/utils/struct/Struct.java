@@ -1,14 +1,14 @@
 package com.gurella.engine.utils.struct;
 
-import com.gurella.engine.utils.struct.StructDescriptor.FloatStructProperty;
+import com.gurella.engine.utils.struct.StructType.FloatStructProperty;
 
 public class Struct {
-	StructDescriptor descriptor;
+	StructType descriptor;
 	int index;
 	int offset;
 	ArrayOfStructs aos;
 
-	public Struct(StructDescriptor descriptor, ArrayOfStructs aos) {
+	public Struct(StructType descriptor, ArrayOfStructs aos) {
 		this.descriptor = descriptor;
 		this.aos = aos;
 	}

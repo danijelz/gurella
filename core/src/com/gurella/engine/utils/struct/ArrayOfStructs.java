@@ -12,10 +12,13 @@ import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.gurella.engine.utils.struct.StructDescriptor.FloatStructProperty;
+import com.badlogic.gdx.math.collision.Sphere;
+import com.gurella.engine.utils.GridRectangle;
+import com.gurella.engine.utils.struct.StructType.FloatStructProperty;
 
 public class ArrayOfStructs {
 	private static final StructTimSort sort = new StructTimSort();
@@ -201,20 +204,6 @@ public class ArrayOfStructs {
 		setFloatArrayByOffset(secondOffset, tempStruct, structSize);
 	}
 
-	public void copyTo(int fromIndex, int toIndex) {
-		float[] buffer = this.buffer;
-		int fromOffset = fromIndex * structSize;
-		int toOffset = toIndex * structSize;
-		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize);
-	}
-
-	public void copyTo(int fromIndex, int toIndex, int count) {
-		float[] buffer = this.buffer;
-		int fromOffset = fromIndex * structSize;
-		int toOffset = toIndex * structSize;
-		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize * count);
-	}
-
 	public void pop() {
 		size = Math.max(0, size - 1);
 	}
@@ -251,8 +240,22 @@ public class ArrayOfStructs {
 		System.arraycopy(src.buffer, srcIndex * structSize, buffer, destIndex * structSize, structSize);
 	}
 
-	public void setItem(ArrayOfStructs src, int srcIndex, int destIndex, int count) {
+	public void setItems(ArrayOfStructs src, int srcIndex, int destIndex, int count) {
 		System.arraycopy(src.buffer, srcIndex * structSize, buffer, destIndex * structSize, structSize * count);
+	}
+
+	public void setItem(int fromIndex, int toIndex) {
+		float[] buffer = this.buffer;
+		int fromOffset = fromIndex * structSize;
+		int toOffset = toIndex * structSize;
+		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize);
+	}
+
+	public void setItems(int fromIndex, int toIndex, int count) {
+		float[] buffer = this.buffer;
+		int fromOffset = fromIndex * structSize;
+		int toOffset = toIndex * structSize;
+		System.arraycopy(buffer, fromOffset, buffer, toOffset, structSize * count);
 	}
 
 	public void sort(StructComparator comparator) {
@@ -301,7 +304,7 @@ public class ArrayOfStructs {
 		a.size = 7;
 		System.out.println(Arrays.toString(a.buffer));
 
-		a.copyTo(2, 1, 2);
+		a.setItems(2, 1, 2);
 		System.out.println(Arrays.toString(a.buffer));
 
 		a = new ArrayOfStructs(2, 7);
@@ -340,15 +343,15 @@ public class ArrayOfStructs {
 			tf[i] = a.getFloatByIndex(i, 1);
 		}
 
-		//System.out.println(Arrays.toString(tf));
+		// System.out.println(Arrays.toString(tf));
 
 		if (Arrays.equals(f, tf)) {
 			System.out.println("sort");
 		}
 
-		//System.out.println(Arrays.toString(a.buffer));
+		// System.out.println(Arrays.toString(a.buffer));
 
-		StructDescriptor descriptor = new StructDescriptor();
+		StructType descriptor = new StructType();
 		FloatStructProperty prop = new FloatStructProperty(0);
 		descriptor._properties.add(prop);
 		descriptor._properties.add(new FloatStructProperty(1));
@@ -1002,6 +1005,7 @@ public class ArrayOfStructs {
 	public BoundingBox getBoundingBox(BoundingBox out) {
 		getVector3(out.min);
 		getVector3(out.max);
+		out.set(out.min, out.max);
 		return out;
 	}
 
@@ -1013,12 +1017,109 @@ public class ArrayOfStructs {
 	public BoundingBox getBoundingBox(int offset, BoundingBox out) {
 		getVector3(offset, out.min);
 		getVector3(offset, out.max);
+		out.set(out.min, out.max);
 		return out;
 	}
 
 	public void setBoundingBox(int offset, BoundingBox value) {
 		setVector3(offset, value.min);
 		setVector3(offset, value.max);
+	}
+
+	/////// Rectangle
+
+	public Rectangle getRectangle(Rectangle out) {
+		float[] buffer = this.buffer;
+		return out.set(buffer[offset++], buffer[offset++], buffer[offset++], buffer[offset++]);
+	}
+
+	public void setRectangle(Rectangle value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.x;
+		buffer[offset++] = value.y;
+		buffer[offset++] = value.width;
+		buffer[offset++] = value.height;
+	}
+
+	public Rectangle getRectangle(int offset, Rectangle out) {
+		int temp = offset;
+		float[] buffer = this.buffer;
+		return out.set(buffer[temp++], buffer[temp++], buffer[temp++], buffer[temp]);
+	}
+
+	public void setRectangle(int offset, Rectangle value) {
+		int temp = offset;
+		float[] buffer = this.buffer;
+		buffer[temp++] = value.x;
+		buffer[temp++] = value.y;
+		buffer[temp++] = value.width;
+		buffer[temp] = value.height;
+	}
+
+	/////// GridRectangle
+
+	public GridRectangle getRectangle(GridRectangle out) {
+		float[] buffer = this.buffer;
+		return out.set(floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset++]),
+				floatToRawIntBits(buffer[offset++]), floatToRawIntBits(buffer[offset++]));
+	}
+
+	public void setRectangle(GridRectangle value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = intBitsToFloat(value.x);
+		buffer[offset++] = intBitsToFloat(value.y);
+		buffer[offset++] = intBitsToFloat(value.width);
+		buffer[offset++] = intBitsToFloat(value.height);
+	}
+
+	public GridRectangle getRectangle(int offset, GridRectangle out) {
+		int temp = offset;
+		float[] buffer = this.buffer;
+		return out.set(floatToRawIntBits(buffer[temp++]), floatToRawIntBits(buffer[temp++]),
+				floatToRawIntBits(buffer[temp++]), floatToRawIntBits(buffer[temp]));
+	}
+
+	public void setRectangle(int offset, GridRectangle value) {
+		int temp = offset;
+		float[] buffer = this.buffer;
+		buffer[temp++] = intBitsToFloat(value.x);
+		buffer[temp++] = intBitsToFloat(value.y);
+		buffer[temp++] = intBitsToFloat(value.width);
+		buffer[temp] = intBitsToFloat(value.height);
+	}
+
+	/////// Sphere
+
+	public Sphere getSphere(Sphere out) {
+		float[] buffer = this.buffer;
+		out.radius = buffer[offset++];
+		out.center.set(buffer[offset++], buffer[offset++], buffer[offset++]);
+		return out;
+	}
+
+	public void setSphere(Sphere value) {
+		float[] buffer = this.buffer;
+		buffer[offset++] = value.radius;
+		buffer[offset++] = value.center.x;
+		buffer[offset++] = value.center.y;
+		buffer[offset++] = value.center.z;
+	}
+
+	public Sphere getSphere(int offset, Sphere out) {
+		int temp = offset;
+		float[] buffer = this.buffer;
+		out.radius = buffer[temp++];
+		out.center.set(buffer[temp++], buffer[temp++], buffer[temp]);
+		return out;
+	}
+
+	public void setSphere(int offset, Sphere value) {
+		int temp = offset;
+		float[] buffer = this.buffer;
+		buffer[temp++] = value.radius;
+		buffer[temp++] = value.center.x;
+		buffer[temp++] = value.center.y;
+		buffer[temp] = value.center.z;
 	}
 
 	public interface StructComparator {
@@ -1049,7 +1150,7 @@ public class ArrayOfStructs {
 		}
 	}
 
-	static int testSize = 1000000;
+	static int testSize = 10000000;
 	static int testStructSize = 23;
 	static int iterations = 1000;
 	static int subIterations = testSize / iterations;
