@@ -12,7 +12,6 @@ import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.event.SwtEditorEvent;
-import com.gurella.studio.editor.model.extension.event.SwtListenerBridge;
 
 public class SwtEditorExpandableComposite extends SwtEditorBaseExpandableComposite<ExpandableComposite> {
 	SwtEditorExpandableComposite(SwtEditorLayoutComposite<?> parent, int style) {
@@ -21,7 +20,7 @@ public class SwtEditorExpandableComposite extends SwtEditorBaseExpandableComposi
 
 	@Override
 	ExpandableComposite createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createSection(parent, style);
+		return GurellaStudioPlugin.getToolkit().createExpandableComposite(parent, style);
 	}
 
 	@Override

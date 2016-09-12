@@ -95,11 +95,11 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 
 			EditorButton dialogButton = uiFactory.createButton(parent);
 			dialogButton.setText("Dialog");
-			dialogButton.addListener(EditorEventType.Selection, new OpenDialogListenerListener());
+			dialogButton.addListener(EditorEventType.Selection, new OpenDialogListener());
 
 			EditorButton titleDialogButton = uiFactory.createButton(parent);
 			titleDialogButton.setText("Title dialog");
-			titleDialogButton.addListener(EditorEventType.Selection, new OpenTitleDialogListenerListener());
+			titleDialogButton.addListener(EditorEventType.Selection, new OpenTitleDialogListener());
 
 			context.addMenuItem("Test menu item", new TestMenuRunnable(uiFactory));
 
@@ -164,10 +164,11 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			EditorExpandableComposite expandableComposite = uiFactory.createExpandableComposite(parent);
 			expandableComposite.setText("expandableComposite");
 			EditorComposite client = uiFactory.createComposite(expandableComposite);
+			client.setLayout(1);
 			client.setSize(300, 100);
 			uiFactory.createLabel(client, "client");
 			expandableComposite.setClient(client);
-			OpenDialogListenerListener listener = new OpenDialogListenerListener();
+			OpenDialogListener listener = new OpenDialogListener();
 			expandableComposite.addListener(EditorEventType.Expand, listener);
 			expandableComposite.removeListener(EditorEventType.Expand, listener);
 		}
@@ -203,7 +204,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		}
 	}
 
-	private static final class OpenDialogListenerListener implements EditorEventListener {
+	private static final class OpenDialogListener implements EditorEventListener {
 		@Override
 		public void handleEvent(EditorEvent event) {
 			String s = new EditorDialogProperties(new DialogContentFactory() {
@@ -218,14 +219,14 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);
 					composite.setSize(80, 100);
 				}
-			}).action("Test action 1", new ActListener()).action("Test action 2", true).show(event.getEditorUi());
+			}).action("Test action 1", new ActionListener()).action("Test action 2", true).show(event.getEditorUi());
 			if (s != null) {
 				event.getEditorUi().showInformationDialog("Info", "Info");
 			}
 		}
 	}
 
-	private static final class OpenTitleDialogListenerListener implements EditorEventListener {
+	private static final class OpenTitleDialogListener implements EditorEventListener {
 		@Override
 		public void handleEvent(EditorEvent event) {
 			String s = new EditorTitleAteaDialogProperties(new DialogContentFactory() {
@@ -240,7 +241,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);
 					composite.setSize(80, 100);
 				}
-			}).action("Test action 1", new ActListener()).action("Test action 2", true).title("Title")
+			}).action("Test action 1", new ActionListener()).action("Test action 2", true).title("Title")
 					.message("Message").show(event.getEditorUi());
 			if (s != null) {
 				event.getEditorUi().showInformationDialog("Info", "Info");
@@ -248,7 +249,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		}
 	}
 
-	private static class ActListener implements DialogActionListener<String> {
+	private static class ActionListener implements DialogActionListener<String> {
 		@Override
 		public String handle(EditorDialog dialog) {
 			return "String";
