@@ -26,6 +26,7 @@ import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorSashForm.SashFormStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorSection.SectionStyle;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
@@ -202,4 +203,8 @@ public interface EditorUi {
 	EditorExpandableComposite createExpandableComposite(EditorComposite parent);
 
 	EditorExpandableComposite createExpandableComposite(EditorComposite parent, ExpandableCompositeStyle style);
+
+	EditorSection createSection(EditorComposite parent);
+
+	EditorSection createSection(EditorComposite parent, SectionStyle style);
 }

@@ -2,6 +2,7 @@ package com.gurella.studio.editor.model.extension.style;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.Direction;
@@ -10,12 +11,14 @@ import com.gurella.engine.editor.ui.EditorButton.BaseButtonStyle;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorControl.ControlStyle;
 import com.gurella.engine.editor.ui.EditorDateTime.DateTimeLength;
+import com.gurella.engine.editor.ui.EditorExpandableComposite.BaseExpandableCompositeStyle;
 import com.gurella.engine.editor.ui.EditorExpandableComposite.ExpandableCompositeStyle;
 import com.gurella.engine.editor.ui.EditorExpandableComposite.TitleBarTypeType;
 import com.gurella.engine.editor.ui.EditorLabel.BaseLabelStyle;
 import com.gurella.engine.editor.ui.EditorLabel.ShadowType;
 import com.gurella.engine.editor.ui.EditorList.ListStyle;
 import com.gurella.engine.editor.ui.EditorScrollable.ScrollableStyle;
+import com.gurella.engine.editor.ui.EditorSection.SectionStyle;
 import com.gurella.engine.editor.ui.EditorShell.Modality;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
@@ -395,6 +398,10 @@ public class SwtWidgetStyle {
 			return SWT.NONE;
 		}
 
+		return extractBaseExpandableCompositeStyle(style);
+	}
+
+	protected static int extractBaseExpandableCompositeStyle(BaseExpandableCompositeStyle<?> style) {
 		int result = extractScrollableStyle(style);
 
 		if (style.clientIdent) {
@@ -428,6 +435,19 @@ public class SwtWidgetStyle {
 		} else {
 			result |= style.titleBarTypeType == TitleBarTypeType.TITLE_BAR ? ExpandableComposite.TITLE_BAR
 					: ExpandableComposite.SHORT_TITLE_BAR;
+		}
+
+		return result;
+	}
+
+	public static int extractSectionStyle(SectionStyle style) {
+		if (style == null) {
+			return SWT.NONE;
+		}
+
+		int result = extractBaseExpandableCompositeStyle(style);
+		if (style.description) {
+			result |= Section.DESCRIPTION;
 		}
 
 		return result;

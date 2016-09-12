@@ -11,9 +11,9 @@ public interface EditorForm extends EditorComposite {
 	EditorControl	getHeadClient();
 	Color	getHeadColor(String key);
 	EditorImage	getImage();
-	String	getMessage(); 
+	//String	getMessage(); 
 	//IMessageManager	getMessageManager();
-	int	getMessageType(); 
+	//int	getMessageType(); 
 	String	getText();
 	//IToolBarManager	getToolBarManager();
 	int	getToolBarVerticalAlignment();
@@ -26,9 +26,8 @@ public interface EditorForm extends EditorComposite {
 	void	setHeadClient(EditorControl headClient);
 	void	setHeadColor(String key, Color color);
 	void	setImage(EditorImage image);
-	void	setMenu(EditorMenu menu);
-	void	setMessage(String message);
-	void	setMessage(String newMessage, int newType);
+	//void	setMessage(String message);
+//	/void	setMessage(String newMessage, int newType);
 	//TODO void	setMessage(String newMessage, int newType, IMessage[] children);
 	void	setSeparatorVisible(boolean addSeparator);
 	void	setText(String text);

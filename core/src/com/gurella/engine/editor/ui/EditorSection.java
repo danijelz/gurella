@@ -1,11 +1,10 @@
 package com.gurella.engine.editor.ui;
 
+import java.io.InputStream;
+
 import com.badlogic.gdx.graphics.Color;
 
 public interface EditorSection extends EditorExpandableComposite {
-	// static int DESCRIPTION
-	// Description style.
-
 	String getDescription();
 
 	EditorControl getDescriptionControl();
@@ -19,6 +18,8 @@ public interface EditorSection extends EditorExpandableComposite {
 	Color getTitleBarGradientBackground();
 
 	void setBackgroundImage(EditorImage image);
+
+	void setBackgroundImage(InputStream imageStream);
 
 	void setDescription(String description);
 
@@ -37,4 +38,13 @@ public interface EditorSection extends EditorExpandableComposite {
 	void setTitleBarGradientBackground(Color color);
 
 	void setTitleBarGradientBackground(int r, int g, int b, int a);
+
+	public static class SectionStyle extends BaseExpandableCompositeStyle<SectionStyle> {
+		public boolean description;
+
+		public SectionStyle description(boolean description) {
+			this.description = description;
+			return cast();
+		}
+	}
 }

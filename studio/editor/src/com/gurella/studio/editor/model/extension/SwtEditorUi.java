@@ -7,6 +7,7 @@ import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.ext
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractComboStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractExpandableCompositeStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractLabelStyle;
+import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSectionStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractShellStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleControlStyle;
 import static com.gurella.studio.editor.model.extension.style.SwtWidgetStyle.extractSimpleScrollableStyle;
@@ -72,6 +73,7 @@ import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorSashForm.SashFormStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorSection.SectionStyle;
 import com.gurella.engine.editor.ui.EditorShell;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
@@ -723,5 +725,16 @@ public class SwtEditorUi implements EditorUi {
 	public SwtEditorExpandableComposite createExpandableComposite(EditorComposite parent,
 			ExpandableCompositeStyle style) {
 		return new SwtEditorExpandableComposite(cast(parent), extractExpandableCompositeStyle(style));
+	}
+
+	@Override
+	public SwtEditorSection createSection(EditorComposite parent) {
+		return new SwtEditorSection(cast(parent), ExpandableComposite.TWISTIE | ExpandableComposite.NO_TITLE_FOCUS_BOX
+				| ExpandableComposite.CLIENT_INDENT);
+	}
+
+	@Override
+	public SwtEditorSection createSection(EditorComposite parent, SectionStyle style) {
+		return new SwtEditorSection(cast(parent), extractSectionStyle(style));
 	}
 }
