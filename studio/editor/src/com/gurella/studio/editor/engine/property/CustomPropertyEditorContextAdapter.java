@@ -1,8 +1,8 @@
 package com.gurella.studio.editor.engine.property;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.editor.model.property.PropertyEditor;
-import com.gurella.studio.editor.model.property.PropertyEditorContext;
+import com.gurella.studio.editor.property.PropertyEditor;
+import com.gurella.studio.editor.property.PropertyEditorContext;
 
 class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor.property.PropertyEditorContext<P> {
 	private PropertyEditorContext<?, P> context;

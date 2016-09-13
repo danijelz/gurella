@@ -6,8 +6,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.property.PropertyEditorFactory;
-import com.gurella.studio.editor.model.property.PropertyEditorContext;
-import com.gurella.studio.editor.model.property.SimplePropertyEditor;
+import com.gurella.studio.editor.property.PropertyEditorContext;
+import com.gurella.studio.editor.property.SimplePropertyEditor;
 
 public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 	public CustomSimplePropertyEditor(Composite parent, PropertyEditorContext<?, P> context,

@@ -2,7 +2,7 @@ package com.gurella.studio.editor.model;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
-import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
+import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
@@ -25,10 +25,10 @@ import org.eclipse.ui.forms.widgets.Section;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
-import com.gurella.studio.editor.model.property.PropertyEditor;
-import com.gurella.studio.editor.model.property.PropertyEditorContext;
-import com.gurella.studio.editor.model.property.SimplePropertyEditor;
+import com.gurella.studio.editor.property.ComplexPropertyEditor;
+import com.gurella.studio.editor.property.PropertyEditor;
+import com.gurella.studio.editor.property.PropertyEditorContext;
+import com.gurella.studio.editor.property.SimplePropertyEditor;
 
 public class DefaultMetaModelEditor<T> extends Composite {
 	private ModelEditorContext<T> context;

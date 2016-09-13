@@ -144,7 +144,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 	}
 
 	protected Font toSwtFont(Font originalFont, int height, boolean bold, boolean italic) {
-		Font font = SwtEditorUi.instance.createSwtFont(originalFont, height, bold, italic);
+		Font font = SwtEditorUi.createSwtFont(originalFont, height, bold, italic);
 		if (font != null) {
 			widget.addDisposeListener(e -> font.dispose());
 		}

@@ -1,7 +1,7 @@
 package com.gurella.studio.editor.engine.model;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
-import static com.gurella.studio.editor.model.PropertyEditorFactory.createEditor;
+import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -19,8 +19,8 @@ import com.gurella.studio.editor.engine.ui.SwtEditorLabel;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
 import com.gurella.studio.editor.model.ModelEditorContext;
-import com.gurella.studio.editor.model.property.PropertyEditor;
-import com.gurella.studio.editor.model.property.PropertyEditorContext;
+import com.gurella.studio.editor.property.PropertyEditor;
+import com.gurella.studio.editor.property.PropertyEditorContext;
 
 class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 		implements com.gurella.engine.editor.model.ModelEditorContext<T> {

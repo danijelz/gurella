@@ -5,8 +5,8 @@ import static com.gurella.studio.editor.engine.ui.SwtEditorUi.createComposite;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.property.PropertyEditorFactory;
-import com.gurella.studio.editor.model.property.ComplexPropertyEditor;
-import com.gurella.studio.editor.model.property.PropertyEditorContext;
+import com.gurella.studio.editor.property.ComplexPropertyEditor;
+import com.gurella.studio.editor.property.PropertyEditorContext;
 
 public class CustomComplexPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	public CustomComplexPropertyEditor(Composite parent, PropertyEditorContext<?, P> context,
