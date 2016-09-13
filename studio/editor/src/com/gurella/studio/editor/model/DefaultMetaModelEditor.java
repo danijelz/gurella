@@ -7,57 +7,33 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.property.ComplexPropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 import com.gurella.studio.editor.property.SimplePropertyEditor;
 
-public class DefaultMetaModelEditor<T> extends Composite {
-	private ModelEditorContext<T> context;
-	private List<PropertyEditor<?>> editors = new ArrayList<>();
-
-	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
-	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
-
+public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 	public DefaultMetaModelEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
 	}
 
 	public DefaultMetaModelEditor(Composite parent, ModelEditorContext<T> context) {
-		super(parent, SWT.NONE);
-		this.context = context;
-		GurellaStudioPlugin.getToolkit().adapt(this);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 1;
-		layout.marginHeight = 1;
-		layout.verticalSpacing = 2;
-		setLayout(layout);
-		initEditors();
-		Listener mouseMoveListener = e -> mouseMoved();
-		Display display = getDisplay();
-		display.addFilter(SWT.MouseMove, mouseMoveListener);
-		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
+		super(parent, context);
 	}
 
-	void initEditors() {
+	@Override
+	protected void initEditors() {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		int length = array.length;
 		if (length > 0) {
@@ -72,7 +48,6 @@ public class DefaultMetaModelEditor<T> extends Composite {
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
 		composite.setLayoutData(layoutData);
-		addEditor(editor);
 
 		PropertyEditorContext<?, V> editorContext = editor.getContext();
 		Class<V> propertyType = editorContext.getPropertyType();
@@ -116,47 +91,5 @@ public class DefaultMetaModelEditor<T> extends Composite {
 			Label separator = toolkit.createSeparator(this, SWT.HORIZONTAL);
 			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
 		}
-	}
-
-	private boolean addEditor(PropertyEditor<?> editor) {
-		return editors.add(editor);
-	}
-
-	private void mouseMoved() {
-		extractHoveredEditors();
-
-		hoverEditors.stream().filter(e -> !hoverEditorsTemp.contains(e)).forEach(e -> e.setHover(false));
-		hoverEditorsTemp.stream().filter(e -> !hoverEditors.contains(e)).forEach(e -> e.setHover(true));
-
-		hoverEditors.clear();
-		List<PropertyEditor<?>> temp = hoverEditorsTemp;
-		hoverEditorsTemp = hoverEditors;
-		hoverEditors = temp;
-	}
-
-	private void extractHoveredEditors() {
-		Control cursorControl = getDisplay().getCursorControl();
-		if (cursorControl == null) {
-			return;
-		}
-
-		Composite parent = cursorControl.getParent();
-
-		while (parent != null && parent != this) {
-			PropertyEditor<?> editor = (PropertyEditor<?>) parent.getData(PropertyEditor.class.getName());
-			if (editor != null) {
-				hoverEditorsTemp.add(editor);
-			}
-
-			parent = parent.getParent();
-		}
-
-		if (this != parent) {
-			hoverEditorsTemp.clear();
-		}
-	}
-
-	public ModelEditorContext<T> getContext() {
-		return context;
 	}
 }
