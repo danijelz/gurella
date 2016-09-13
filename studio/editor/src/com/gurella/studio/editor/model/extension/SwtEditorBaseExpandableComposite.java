@@ -14,7 +14,6 @@ import com.gurella.engine.editor.ui.EditorExpandableComposite;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.event.SwtEditorEvent;
 
 public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableComposite>
@@ -45,7 +44,7 @@ public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableCompo
 
 	@Override
 	public Color getTitleBarForeground() {
-		return SwtEditorUi.toGdxColor(widget.getTitleBarForeground());
+		return toGdxColor(widget.getTitleBarForeground());
 	}
 
 	@Override
@@ -55,16 +54,12 @@ public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableCompo
 
 	@Override
 	public void setActiveToggleColor(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setActiveToggleColor(swtColor);
+		widget.setActiveToggleColor(toSwtColor(color));
 	}
 
 	@Override
 	public void setActiveToggleColor(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setActiveToggleColor(swtColor);
+		widget.setActiveToggleColor(toSwtColor(r, g, b, a));
 	}
 
 	@Override
@@ -89,30 +84,22 @@ public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableCompo
 
 	@Override
 	public void setTitleBarForeground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarForeground(swtColor);
+		widget.setTitleBarForeground(toSwtColor(color));
 	}
 
 	@Override
 	public void setTitleBarForeground(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarForeground(swtColor);
+		widget.setTitleBarForeground(toSwtColor(r, g, b, a));
 	}
 
 	@Override
 	public void setToggleColor(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setToggleColor(swtColor);
+		widget.setToggleColor(toSwtColor(color));
 	}
 
 	@Override
 	public void setToggleColor(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setToggleColor(swtColor);
+		widget.setToggleColor(toSwtColor(r, g, b, a));
 	}
 
 	@Override

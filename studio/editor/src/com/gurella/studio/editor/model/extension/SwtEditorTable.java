@@ -537,8 +537,7 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 			if (columnLabelProviderAdapter != null) {
 				return columnLabelProviderAdapter.getImage(casted);
 			} else if (labelProvider != null && columnIndex == 0) {
-				SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
-				return image == null ? null : image.image;
+				return toSwtImage(labelProvider.getImage(casted));
 			} else {
 				return null;
 			}

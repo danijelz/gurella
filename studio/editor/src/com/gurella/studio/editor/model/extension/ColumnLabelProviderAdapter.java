@@ -16,8 +16,7 @@ public class ColumnLabelProviderAdapter<ELEMENT> extends ColumnLabelProvider {
 	public Image getImage(Object element) {
 		@SuppressWarnings("unchecked")
 		ELEMENT casted = (ELEMENT) element;
-		SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
-		return image == null ? null : image.image;
+		return SwtEditorWidget.toSwtImage(labelProvider.getImage(casted));
 	}
 
 	@Override

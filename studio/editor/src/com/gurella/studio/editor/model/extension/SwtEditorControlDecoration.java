@@ -11,7 +11,6 @@ import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Control;
 
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorControlDecoration;
@@ -77,8 +76,7 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 
 	@Override
 	public EditorImage getImage() {
-		Image image = decoration.getImage();
-		return image == null ? null : new SwtEditorImage(image);
+		return SwtEditorWidget.toEditorImage(decoration.getImage());
 	}
 
 	@Override
@@ -118,19 +116,12 @@ public class SwtEditorControlDecoration implements EditorControlDecoration {
 
 	@Override
 	public void setImage(EditorImage image) {
-		decoration.setImage(image == null ? null : ((SwtEditorImage) image).image);
+		decoration.setImage(SwtEditorWidget.toSwtImage(image));
 	}
 
 	@Override
 	public void setImage(InputStream imageStream) {
-		if (imageStream == null) {
-			decoration.setImage(null);
-		} else {
-			Control control = decoration.getControl();
-			Image image = new Image(control.getDisplay(), imageStream);
-			control.addListener(SWT.Dispose, e -> image.dispose());
-			decoration.setImage(image);
-		}
+		decoration.setImage(SwtEditorWidget.toSwtImage(decoration.getControl(), imageStream));
 	}
 
 	@Override

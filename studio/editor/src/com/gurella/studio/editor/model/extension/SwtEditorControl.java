@@ -4,7 +4,6 @@ import static com.gurella.studio.editor.model.extension.SwtEditorUi.transformLay
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -87,21 +86,17 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public Color getBackground() {
-		return SwtEditorUi.toGdxColor(widget.getBackground());
+		return toGdxColor(widget.getBackground());
 	}
 
 	@Override
 	public void setBackground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setBackground(swtColor);
+		widget.setBackground(toSwtColor(color));
 	}
 
 	@Override
 	public void setBackground(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setBackground(swtColor);
+		widget.setBackground(toSwtColor(r, g, b, a));
 	}
 
 	@Override
@@ -142,50 +137,37 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 
 	@Override
 	public EditorFont getFont() {
-		Font font = widget.getFont();
-		return font == null ? null : new SwtEditorFont(font);
+		return toEditorFont(widget.getFont());
 	}
 
 	@Override
 	public void setFont(EditorFont font) {
-		widget.setFont(font == null ? null : ((SwtEditorFont) font).font);
+		widget.setFont(toSwtFont(font));
 	}
 
 	@Override
 	public void setFont(String name, int height, boolean bold, boolean italic) {
-		Font font = SwtEditorUi.instance.createSwtFont(name, height, bold, italic);
-		if (font != null) {
-			widget.addDisposeListener(e -> font.dispose());
-		}
-		widget.setFont(font);
+		widget.setFont(toSwtFont(name, height, bold, italic));
 	}
 
 	@Override
 	public void setFont(int height, boolean bold, boolean italic) {
-		Font font = SwtEditorUi.instance.createSwtFont(widget.getFont(), height, bold, italic);
-		if (font != null) {
-			widget.addDisposeListener(e -> font.dispose());
-		}
-		widget.setFont(font);
+		widget.setFont(toSwtFont(widget.getFont(), height, bold, italic));
 	}
 
 	@Override
 	public Color getForeground() {
-		return SwtEditorUi.toGdxColor(widget.getForeground());
+		return toGdxColor(widget.getForeground());
 	}
 
 	@Override
 	public void setForeground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setForeground(swtColor);
+		widget.setForeground(toSwtColor(color));
 	}
 
 	@Override
 	public void setForeground(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setForeground(swtColor);
+		widget.setForeground(toSwtColor(r, g, b, a));
 	}
 
 	@Override
@@ -383,20 +365,18 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 	}
 
 	@Override
-	public EditorControlDecoration createDecoration(HorizontalAlignment horizontalAlignment,
-			VerticalAlignment verticalAlignment) {
+	public EditorControlDecoration createDecoration(HorizontalAlignment hAlign, VerticalAlignment vAlign) {
 		if (decoration != null) {
 			decoration.dispose();
 		}
-		decoration = new SwtEditorControlDecoration(this, horizontalAlignment, verticalAlignment);
+		decoration = new SwtEditorControlDecoration(this, hAlign, vAlign);
 		return decoration;
 	}
 
 	@Override
-	public EditorControlDecoration getOrCreateDecoration(HorizontalAlignment horizontalAlignment,
-			VerticalAlignment verticalAlignment) {
+	public EditorControlDecoration getOrCreateDecoration(HorizontalAlignment hAlign, VerticalAlignment vAlign) {
 		if (decoration == null) {
-			decoration = new SwtEditorControlDecoration(this, horizontalAlignment, verticalAlignment);
+			decoration = new SwtEditorControlDecoration(this, hAlign, vAlign);
 		}
 		return decoration;
 	}

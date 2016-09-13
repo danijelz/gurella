@@ -6,7 +6,6 @@ import org.eclipse.jface.dialogs.DialogTray;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -151,19 +150,12 @@ public class SwtEditorTitleAreaDialog implements EditorTitleAreaDialog {
 
 	@Override
 	public void setTitleImage(EditorImage newTitleImage) {
-		dialog.setTitleImage(newTitleImage == null ? null : ((SwtEditorImage) newTitleImage).image);
+		dialog.setTitleImage(SwtEditorWidget.toSwtImage(newTitleImage));
 	}
 
 	@Override
 	public void setTitleImage(InputStream newTitleImageStream) {
-		if (newTitleImageStream == null) {
-			dialog.setTitleImage(null);
-		} else {
-			Shell shell = dialog.getShell();
-			Image image = new Image(shell.getDisplay(), newTitleImageStream);
-			shell.addListener(SWT.Dispose, e -> image.dispose());
-			dialog.setTitleImage(image);
-		}
+		dialog.setTitleImage(SwtEditorWidget.toSwtImage(dialog.getShell(), newTitleImageStream));
 	}
 
 	private class TitleAreaDialogImpl extends TitleAreaDialog {

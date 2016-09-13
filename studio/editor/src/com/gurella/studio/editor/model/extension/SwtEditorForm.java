@@ -1,5 +1,8 @@
 package com.gurella.studio.editor.model.extension;
 
+import java.io.InputStream;
+import java.util.Arrays;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.Form;
 
@@ -21,39 +24,38 @@ public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements Edi
 	}
 
 	@Override
-	public EditorImage getBackgroundImage() {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorImage getBackgroundImage() {
+		return toEditorImage(widget.getBackgroundImage());
 	}
 
 	@Override
-	public EditorComposite getBody() {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorComposite getBody() {
+		Composite body = widget.getBody();
+		SwtEditorComposite editorBody = getEditorWidget(body);
+		return editorBody == null ? new SwtEditorComposite(body) : editorBody;
 	}
 
 	@Override
 	public EditorComposite getHead() {
-		// TODO Auto-generated method stub
-		return null;
+		Composite head = widget.getHead();
+		SwtEditorComposite editorHead = getEditorWidget(head);
+		return editorHead == null ? new SwtEditorComposite(head) : editorHead;
 	}
 
 	@Override
-	public EditorControl getHeadClient() {
-		// TODO Auto-generated method stub
-		return null;
+	public SwtEditorControl<?> getHeadClient() {
+		return getEditorWidget(widget.getHeadClient());
 	}
 
 	@Override
-	public Color getHeadColor(String key) {
-		// TODO Auto-generated method stub
-		return null;
+	public Color getHeadColor(HeadColorKey key) {
+		String swtKey = key == null ? null : key.name();
+		return toGdxColor(widget.getHeadColor(swtKey));
 	}
 
 	@Override
 	public EditorImage getImage() {
-		// TODO Auto-generated method stub
-		return null;
+		return toEditorImage(widget.getImage());
 	}
 
 	@Override
@@ -77,9 +79,13 @@ public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements Edi
 	}
 
 	@Override
-	public void setBackgroundImage(EditorImage backgroundImage) {
-		// TODO Auto-generated method stub
+	public void setBackgroundImage(EditorImage image) {
+		widget.setBackgroundImage(toSwtImage(image));
+	}
 
+	@Override
+	public void setBackgroundImage(InputStream imageStream) {
+		widget.setBackgroundImage(toSwtImage(imageStream));
 	}
 
 	@Override
@@ -94,20 +100,29 @@ public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements Edi
 
 	@Override
 	public void setHeadClient(EditorControl headClient) {
-		// TODO Auto-generated method stub
-
+		widget.setHeadClient(headClient == null ? null : ((SwtEditorControl<?>) headClient).widget);
 	}
 
 	@Override
-	public void setHeadColor(String key, Color color) {
-		// TODO Auto-generated method stub
+	public void setHeadColor(HeadColorKey key, Color color) {
+		String swtKey = key == null ? null : key.name();
+		widget.setHeadColor(swtKey, toSwtColor(color));
+	}
 
+	@Override
+	public void setHeadColor(HeadColorKey key, int r, int g, int b, int a) {
+		String swtKey = key == null ? null : key.name();
+		widget.setHeadColor(swtKey, toSwtColor(r, g, b, a));
 	}
 
 	@Override
 	public void setImage(EditorImage image) {
-		// TODO Auto-generated method stub
+		widget.setImage(toSwtImage(image));
+	}
 
+	@Override
+	public void setImage(InputStream imageStream) {
+		widget.setImage(toSwtImage(imageStream));
 	}
 
 	@Override
@@ -122,7 +137,7 @@ public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements Edi
 
 	@Override
 	public void setTextBackground(Color[] gradientColors, int[] percents, boolean vertical) {
-		// TODO Auto-generated method stub
-
+		widget.setTextBackground(Arrays.stream(gradientColors).map(c -> toSwtColor(c))
+				.toArray(i -> new org.eclipse.swt.graphics.Color[i]), percents, vertical);
 	}
 }

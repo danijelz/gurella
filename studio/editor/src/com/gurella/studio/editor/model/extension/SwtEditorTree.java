@@ -544,8 +544,7 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 			if (columnLabelProviderAdapter != null) {
 				return columnLabelProviderAdapter.getImage(casted);
 			} else if (labelProvider != null && columnIndex == 0) {
-				SwtEditorImage image = (SwtEditorImage) labelProvider.getImage(casted);
-				return image == null ? null : image.image;
+				return toSwtImage(labelProvider.getImage(casted));
 			} else {
 				return null;
 			}

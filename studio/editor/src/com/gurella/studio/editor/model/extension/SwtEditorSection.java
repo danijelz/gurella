@@ -2,8 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -48,33 +46,27 @@ public class SwtEditorSection extends SwtEditorBaseExpandableComposite<Section> 
 
 	@Override
 	public Color getTitleBarBackground() {
-		return SwtEditorUi.toGdxColor(widget.getTitleBarBackground());
+		return toGdxColor(widget.getTitleBarBackground());
 	}
 
 	@Override
 	public Color getTitleBarBorderColor() {
-		return SwtEditorUi.toGdxColor(widget.getTitleBarBorderColor());
+		return toGdxColor(widget.getTitleBarBorderColor());
 	}
 
 	@Override
 	public Color getTitleBarGradientBackground() {
-		return SwtEditorUi.toGdxColor(widget.getTitleBarGradientBackground());
+		return toGdxColor(widget.getTitleBarGradientBackground());
 	}
 
 	@Override
 	public void setBackgroundImage(EditorImage image) {
-		widget.setBackgroundImage(image == null ? null : ((SwtEditorImage) image).image);
+		widget.setBackgroundImage(toSwtImage(image));
 	}
 
 	@Override
 	public void setBackgroundImage(InputStream imageStream) {
-		if (imageStream == null) {
-			widget.setBackgroundImage(null);
-		} else {
-			Image image = new Image(widget.getDisplay(), imageStream);
-			widget.addListener(SWT.Dispose, e -> image.dispose());
-			widget.setBackgroundImage(image);
-		}
+		widget.setBackgroundImage(toSwtImage(imageStream));
 	}
 
 	@Override
@@ -94,43 +86,31 @@ public class SwtEditorSection extends SwtEditorBaseExpandableComposite<Section> 
 
 	@Override
 	public void setTitleBarBackground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarBackground(swtColor);
+		widget.setTitleBarBackground(toSwtColor(color));
 	}
 
 	@Override
 	public void setTitleBarBackground(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarBackground(swtColor);
+		widget.setTitleBarBackground(toSwtColor(r, g, b, a));
 	}
 
 	@Override
 	public void setTitleBarBorderColor(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarBorderColor(swtColor);
+		widget.setTitleBarBorderColor(toSwtColor(color));
 	}
 
 	@Override
 	public void setTitleBarBorderColor(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarBorderColor(swtColor);
+		widget.setTitleBarBorderColor(toSwtColor(r, g, b, a));
 	}
 
 	@Override
 	public void setTitleBarGradientBackground(Color color) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarGradientBackground(swtColor);
+		widget.setTitleBarGradientBackground(toSwtColor(color));
 	}
 
 	@Override
 	public void setTitleBarGradientBackground(int r, int g, int b, int a) {
-		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
-		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
-		widget.setTitleBarGradientBackground(swtColor);
+		widget.setTitleBarGradientBackground(toSwtColor(r, g, b, a));
 	}
 }

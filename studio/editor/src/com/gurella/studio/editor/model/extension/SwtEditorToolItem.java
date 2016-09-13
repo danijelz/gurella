@@ -2,8 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -35,8 +33,7 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implemen
 
 	@Override
 	public EditorImage getDisabledImage() {
-		Image image = widget.getDisabledImage();
-		return image == null ? null : new SwtEditorImage(image);
+		return toEditorImage(widget.getDisabledImage());
 	}
 
 	@Override
@@ -46,8 +43,7 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implemen
 
 	@Override
 	public EditorImage getHotImage() {
-		Image image = widget.getHotImage();
-		return image == null ? null : new SwtEditorImage(image);
+		return toEditorImage(widget.getHotImage());
 	}
 
 	@Override
@@ -82,18 +78,12 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implemen
 
 	@Override
 	public void setDisabledImage(InputStream imageStream) {
-		if (imageStream == null) {
-			widget.setDisabledImage(null);
-		} else {
-			Image image = new Image(widget.getDisplay(), imageStream);
-			widget.addListener(SWT.Dispose, e -> image.dispose());
-			widget.setDisabledImage(image);
-		}
+		widget.setDisabledImage(toSwtImage(imageStream));
 	}
 
 	@Override
 	public void setDisabledImage(EditorImage image) {
-		widget.setDisabledImage(image == null ? null : ((SwtEditorImage) image).image);
+		widget.setDisabledImage(toSwtImage(image));
 	}
 
 	@Override
@@ -103,18 +93,12 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implemen
 
 	@Override
 	public void setHotImage(EditorImage image) {
-		widget.setHotImage(image == null ? null : ((SwtEditorImage) image).image);
+		widget.setHotImage(toSwtImage(image));
 	}
 
 	@Override
 	public void setHotImage(InputStream imageStream) {
-		if (imageStream == null) {
-			widget.setHotImage(null);
-		} else {
-			Image image = new Image(widget.getDisplay(), imageStream);
-			widget.addListener(SWT.Dispose, e -> image.dispose());
-			widget.setHotImage(image);
-		}
+		widget.setHotImage(toSwtImage(imageStream));
 	}
 
 	@Override

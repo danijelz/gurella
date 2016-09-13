@@ -40,7 +40,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorButton.ArrowButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
@@ -166,11 +165,6 @@ public class SwtEditorUi implements EditorUi {
 
 	public static Shell getShell() {
 		return getDisplay().getActiveShell();
-	}
-
-	public static Color toGdxColor(org.eclipse.swt.graphics.Color color) {
-		return new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
-				color.getAlpha() / 255f);
 	}
 
 	public static SwtEditorComposite createComposite(Composite parent) {

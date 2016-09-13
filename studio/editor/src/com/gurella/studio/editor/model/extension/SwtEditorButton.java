@@ -2,8 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
@@ -45,24 +43,17 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 
 	@Override
 	public EditorImage getImage() {
-		Image image = widget.getImage();
-		return image == null ? null : new SwtEditorImage(image);
+		return toEditorImage(widget.getImage());
 	}
 
 	@Override
 	public void setImage(InputStream imageStream) {
-		if (imageStream == null) {
-			widget.setImage(null);
-		} else {
-			Image image = new Image(widget.getDisplay(), imageStream);
-			widget.addListener(SWT.Dispose, e -> image.dispose());
-			widget.setImage(image);
-		}
+		widget.setImage(toSwtImage(imageStream));
 	}
 
 	@Override
 	public void setImage(EditorImage image) {
-		widget.setImage(image == null ? null : ((SwtEditorImage) image).image);
+		widget.setImage(toSwtImage(image));
 	}
 
 	@Override

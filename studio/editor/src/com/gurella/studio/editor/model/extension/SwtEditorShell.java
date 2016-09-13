@@ -27,12 +27,12 @@ public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements E
 
 	@Override
 	public SwtEditorImage getImage() {
-		return new SwtEditorImage(widget.getImage());
+		return toEditorImage(widget.getImage());
 	}
 
 	@Override
 	public SwtEditorImage[] getImages() {
-		return Arrays.stream(widget.getImages()).sequential().map(i -> new SwtEditorImage(i))
+		return Arrays.stream(widget.getImages()).sequential().map(i -> toEditorImage(i))
 				.toArray(i -> new SwtEditorImage[i]);
 	}
 
@@ -74,13 +74,12 @@ public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements E
 
 	@Override
 	public void setImage(EditorImage image) {
-		widget.setImage(image == null ? null : ((SwtEditorImage) image).image);
+		widget.setImage(toSwtImage(image));
 	}
 
 	@Override
 	public void setImages(EditorImage[] images) {
-		widget.setImages(
-				Arrays.stream(images).sequential().map(i -> ((SwtEditorImage) i).image).toArray(i -> new Image[i]));
+		widget.setImages(Arrays.stream(images).sequential().map(i -> toSwtImage(i)).toArray(i -> new Image[i]));
 	}
 
 	@Override
