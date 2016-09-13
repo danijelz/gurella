@@ -28,7 +28,8 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 
 	T widget;
 
-	SwtEditorWidget() {
+	SwtEditorWidget(T widget) {
+		init(widget);
 	}
 
 	public SwtEditorWidget(SwtEditorBaseComposite<?> parent, int style) {
@@ -41,6 +42,7 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 		instances.put(widget, this);
 	}
 
+	//TODO remove
 	abstract T createWidget(Composite parent, int style);
 
 	public T getWidget() {

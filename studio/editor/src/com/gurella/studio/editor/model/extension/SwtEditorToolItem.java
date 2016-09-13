@@ -13,11 +13,11 @@ import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implements EditorToolItem {
 	SwtEditorToolItem(SwtEditorToolBar parent, int style) {
-		super(parent, style);
+		super(new ToolItem(parent.widget, style));
 	}
 
 	SwtEditorToolItem(SwtEditorToolBar parent, int index, int style) {
-		init(new ToolItem(parent.widget, style, index));
+		super(new ToolItem(parent.widget, style, index));
 	}
 
 	@Override
@@ -114,10 +114,5 @@ public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implemen
 	@Override
 	public void setWidth(int width) {
 		widget.setWidth(width);
-	}
-
-	@Override
-	ToolItem createItem(ToolBar parent, int style) {
-		return new ToolItem(parent, style);
 	}
 }

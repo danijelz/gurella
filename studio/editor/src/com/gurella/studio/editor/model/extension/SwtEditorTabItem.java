@@ -9,11 +9,11 @@ import com.gurella.engine.editor.ui.EditorTabItem;
 
 public class SwtEditorTabItem extends SwtEditorItem<TabItem, TabFolder> implements EditorTabItem {
 	SwtEditorTabItem(SwtEditorTabFolder parent) {
-		super(parent, SWT.NONE);
+		super(new TabItem(parent.widget, SWT.NONE));
 	}
 
 	SwtEditorTabItem(SwtEditorTabFolder parent, int index) {
-		init(new TabItem(parent.widget, index));
+		super(new TabItem(parent.widget, SWT.NONE, index));
 	}
 
 	@Override
@@ -39,10 +39,5 @@ public class SwtEditorTabItem extends SwtEditorItem<TabItem, TabFolder> implemen
 	@Override
 	public void setToolTipText(String string) {
 		widget.setToolTipText(string);
-	}
-
-	@Override
-	TabItem createItem(TabFolder parent, int style) {
-		return new TabItem(parent, style);
 	}
 }

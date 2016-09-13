@@ -18,23 +18,23 @@ import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem, Tree> implements EditorTreeItem {
 	SwtEditorTreeItem(TreeItem item) {
-		init(item);
+		super(item);
 	}
 
 	SwtEditorTreeItem(SwtEditorTree<ELEMENT> parent) {
-		init(new TreeItem(parent.widget, 0));
+		super(new TreeItem(parent.widget, 0));
 	}
 
 	SwtEditorTreeItem(SwtEditorTree<ELEMENT> parent, int index) {
-		init(new TreeItem(parent.widget, 0, index));
+		super(new TreeItem(parent.widget, 0, index));
 	}
 
 	SwtEditorTreeItem(SwtEditorTreeItem<ELEMENT> parent) {
-		init(new TreeItem(parent.widget, 0));
+		super(new TreeItem(parent.widget, 0));
 	}
 
 	SwtEditorTreeItem(SwtEditorTreeItem<ELEMENT> parent, int index) {
-		init(new TreeItem(parent.widget, 0, index));
+		super(new TreeItem(parent.widget, 0, index));
 	}
 
 	@Override
@@ -277,10 +277,10 @@ public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem, Tree> im
 		widget.setItemCount(count);
 	}
 
-	@Override
+	/*@Override
 	TreeItem createItem(Tree parent, int style) {
 		return null;
-	}
+	}*/
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT> createItem() {

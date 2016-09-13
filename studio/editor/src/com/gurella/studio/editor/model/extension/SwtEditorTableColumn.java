@@ -15,16 +15,17 @@ public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Ta
 	ColumnLabelProviderAdapter<ELEMENT> labelProviderAdapter;
 
 	SwtEditorTableColumn(TableColumn column) {
-		init(column);
+		super(column);
+		viewerColumn = new TableViewerColumn(getParent().viewer, widget);
 	}
 
 	SwtEditorTableColumn(SwtEditorTable<ELEMENT> parent, int style) {
-		super(parent, style);
+		super(new TableColumn(parent.widget, style));
 		viewerColumn = new TableViewerColumn(getParent().viewer, widget);
 	}
 
 	SwtEditorTableColumn(SwtEditorTable<ELEMENT> parent, int style, int index) {
-		init(new TableColumn(parent.widget, style, index));
+		super(new TableColumn(parent.widget, style, index));
 		viewerColumn = new TableViewerColumn(getParent().viewer, widget);
 	}
 
@@ -86,11 +87,6 @@ public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Ta
 	@Override
 	public void setWidth(int width) {
 		widget.setWidth(width);
-	}
-
-	@Override
-	TableColumn createItem(Table parent, int style) {
-		return new TableColumn(parent, style);
 	}
 
 	@Override

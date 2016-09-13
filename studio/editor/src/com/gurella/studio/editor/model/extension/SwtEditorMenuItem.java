@@ -8,11 +8,11 @@ import com.gurella.engine.editor.ui.EditorMenuItem;
 
 public class SwtEditorMenuItem extends SwtEditorItem<MenuItem, Menu> implements EditorMenuItem {
 	SwtEditorMenuItem(SwtEditorMenu parent, int style, int index) {
-		init(new MenuItem(parent.widget, style, index));
+		super(new MenuItem(parent.widget, style, index));
 	}
 
 	SwtEditorMenuItem(SwtEditorMenu parent, int style) {
-		super(parent, style);
+		super(new MenuItem(parent.widget, style));
 	}
 
 	@Override
@@ -74,11 +74,6 @@ public class SwtEditorMenuItem extends SwtEditorItem<MenuItem, Menu> implements 
 	@Override
 	public void setSelection(boolean selected) {
 		widget.setSelection(selected);
-	}
-
-	@Override
-	MenuItem createItem(Menu parent, int style) {
-		return new MenuItem(parent, style);
 	}
 
 	@Override

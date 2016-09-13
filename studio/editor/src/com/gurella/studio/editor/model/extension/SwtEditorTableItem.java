@@ -3,6 +3,7 @@ package com.gurella.studio.editor.model.extension;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Table;
@@ -16,15 +17,15 @@ import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
 	SwtEditorTableItem(TableItem item) {
-		init(item);
+		super(item);
 	}
 
 	SwtEditorTableItem(SwtEditorTable<ELEMENT> parent) {
-		super(parent, 0);
+		super(new TableItem(parent.widget, SWT.NONE));
 	}
 
 	SwtEditorTableItem(SwtEditorTable<ELEMENT> parent, int index) {
-		init(new TableItem(parent.widget, 0, index));
+		super(new TableItem(parent.widget, SWT.NONE, index));
 	}
 
 	@Override
@@ -209,10 +210,5 @@ public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem, Table>
 	@Override
 	public void setText(String[] strings) {
 		widget.setText(strings);
-	}
-
-	@Override
-	TableItem createItem(Table parent, int style) {
-		return new TableItem(parent, style);
 	}
 }

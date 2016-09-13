@@ -2,7 +2,7 @@ package com.gurella.engine.editor.ui;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-public interface EditorScrolledComposite extends EditorComposite {
+public interface EditorScrolledComposite extends EditorLayoutComposite {
 	boolean getAlwaysShowScrollBars();
 
 	EditorControl getContent();
@@ -38,4 +38,7 @@ public interface EditorScrolledComposite extends EditorComposite {
 	void setShowFocusedControl(boolean show);
 
 	void showControl(EditorControl control);
+
+	public static class ScrolledCompositeStyle extends ScrollableStyle<ScrolledCompositeStyle> {
+	}
 }

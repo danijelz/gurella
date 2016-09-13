@@ -12,7 +12,7 @@ import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorCoolItem extends SwtEditorItem<CoolItem, CoolBar> implements EditorCoolItem {
 	SwtEditorCoolItem(SwtEditorCoolBar parent, int style) {
-		super(parent, style);
+		super(new CoolItem(parent.widget, style));
 	}
 
 	@Override
@@ -67,10 +67,5 @@ public class SwtEditorCoolItem extends SwtEditorItem<CoolItem, CoolBar> implemen
 	@Override
 	public void setSize(int width, int height) {
 		widget.setSize(width, height);
-	}
-
-	@Override
-	CoolItem createItem(CoolBar parent, int style) {
-		return new CoolItem(parent, style);
 	}
 }

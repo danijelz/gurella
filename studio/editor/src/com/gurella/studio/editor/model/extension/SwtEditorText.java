@@ -10,7 +10,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorText extends SwtEditorScrollable<Text> implements EditorText {
 	SwtEditorText(Text text) {
-		init(text);
+		super(text);
 	}
 
 	public SwtEditorText(SwtEditorLayoutComposite<?> parent, int style) {

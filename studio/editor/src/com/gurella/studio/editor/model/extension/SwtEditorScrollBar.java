@@ -11,7 +11,7 @@ import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorScrollBar extends SwtEditorWidget<ScrollBar> implements EditorScrollBar {
 	SwtEditorScrollBar(ScrollBar scrollBar) {
-		init(scrollBar);
+		super(scrollBar);
 	}
 
 	@Override

@@ -10,7 +10,8 @@ import com.gurella.engine.editor.ui.layout.EditorLayout;
 
 public abstract class SwtEditorLayoutComposite<T extends Composite> extends SwtEditorBaseComposite<T>
 		implements EditorLayoutComposite {
-	public SwtEditorLayoutComposite() {
+	public SwtEditorLayoutComposite(T composite) {
+		super(composite);
 	}
 
 	public SwtEditorLayoutComposite(SwtEditorLayoutComposite<?> parent, int style) {

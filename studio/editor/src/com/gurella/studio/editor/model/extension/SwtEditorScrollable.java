@@ -9,7 +9,8 @@ import com.gurella.engine.utils.GridRectangle;
 
 public abstract class SwtEditorScrollable<T extends Scrollable> extends SwtEditorControl<T>
 		implements EditorScrollable {
-	SwtEditorScrollable() {
+	SwtEditorScrollable(T scrollable) {
+		super(scrollable);
 	}
 
 	public SwtEditorScrollable(SwtEditorLayoutComposite<?> parent, int style) {

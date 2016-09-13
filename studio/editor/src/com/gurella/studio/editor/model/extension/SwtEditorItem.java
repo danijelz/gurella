@@ -10,14 +10,9 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorItem;
 
 public abstract class SwtEditorItem<T extends Item, P extends Widget> extends SwtEditorWidget<T> implements EditorItem {
-	SwtEditorItem() {
+	SwtEditorItem(T item) {
+		super(item);
 	}
-
-	SwtEditorItem(SwtEditorWidget<P> parent, int style) {
-		init(createItem(parent.widget, style));
-	}
-
-	abstract T createItem(P parent, int style);
 
 	@Override
 	T createWidget(Composite parent, int style) {

@@ -14,16 +14,17 @@ public class SwtEditorTreeColumn<ELEMENT> extends SwtEditorItem<TreeColumn, Tree
 	ColumnLabelProviderAdapter<ELEMENT> labelProviderAdapter;
 
 	SwtEditorTreeColumn(TreeColumn column) {
-		init(column);
+		super(column);
+		viewerColumn = new TreeViewerColumn(getParent().viewer, widget);
 	}
 
 	SwtEditorTreeColumn(SwtEditorTree<ELEMENT> parent, int style) {
-		super(parent, style);
+		super(new TreeColumn(parent.widget, style));
 		viewerColumn = new TreeViewerColumn(getParent().viewer, widget);
 	}
 
 	SwtEditorTreeColumn(SwtEditorTree<ELEMENT> parent, int index, int style) {
-		init(new TreeColumn(parent.widget, style, index));
+		super(new TreeColumn(parent.widget, style, index));
 		viewerColumn = new TreeViewerColumn(getParent().viewer, widget);
 	}
 
@@ -85,11 +86,6 @@ public class SwtEditorTreeColumn<ELEMENT> extends SwtEditorItem<TreeColumn, Tree
 	@Override
 	public void setWidth(int width) {
 		widget.setWidth(width);
-	}
-
-	@Override
-	TreeColumn createItem(Tree parent, int style) {
-		return new TreeColumn(parent, style);
 	}
 
 	@Override

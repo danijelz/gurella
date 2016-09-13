@@ -72,6 +72,7 @@ import com.gurella.engine.editor.ui.EditorProgressBar.ProgressBarStyle;
 import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorSashForm.SashFormStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
+import com.gurella.engine.editor.ui.EditorScrolledComposite.ScrolledCompositeStyle;
 import com.gurella.engine.editor.ui.EditorSection.SectionStyle;
 import com.gurella.engine.editor.ui.EditorShell;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
@@ -730,5 +731,15 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public SwtEditorSection createSection(EditorComposite parent, SectionStyle style) {
 		return new SwtEditorSection(cast(parent), extractSectionStyle(style));
+	}
+
+	@Override
+	public SwtEditorScrolledComposite createScrolledComposite(EditorComposite parent) {
+		return new SwtEditorScrolledComposite(cast(parent), SWT.H_SCROLL | SWT.V_SCROLL);
+	}
+
+	@Override
+	public SwtEditorScrolledComposite createScrolledComposite(EditorComposite parent, ScrolledCompositeStyle style) {
+		return new SwtEditorScrolledComposite(cast(parent), extractSimpleScrollableStyle(style));
 	}
 }

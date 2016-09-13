@@ -28,7 +28,8 @@ import com.gurella.studio.GurellaStudioPlugin;
 public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidget<T> implements EditorControl {
 	SwtEditorControlDecoration decoration;
 
-	SwtEditorControl() {
+	SwtEditorControl(T control) {
+		super(control);
 	}
 
 	public SwtEditorControl(SwtEditorBaseComposite<?> parent, int style) {

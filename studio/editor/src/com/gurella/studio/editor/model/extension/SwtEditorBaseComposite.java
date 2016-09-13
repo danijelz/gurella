@@ -13,10 +13,11 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 		implements EditorBaseComposite {
 	boolean paintFormBorders;
 
-	public SwtEditorBaseComposite() {
+	SwtEditorBaseComposite(T composite) {
+		super(composite);
 	}
 
-	public SwtEditorBaseComposite(SwtEditorLayoutComposite<?> parent, int style) {
+	SwtEditorBaseComposite(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}
 

@@ -8,11 +8,11 @@ import com.gurella.engine.editor.ui.EditorExpandItem;
 
 public class SwtEditorExpandItem extends SwtEditorItem<ExpandItem, ExpandBar> implements EditorExpandItem {
 	public SwtEditorExpandItem(SwtEditorExpandBar parent) {
-		super(parent, 0);
+		super(new ExpandItem(parent.widget, 0));
 	}
 
 	public SwtEditorExpandItem(SwtEditorExpandBar parent, int index) {
-		init(new ExpandItem(parent.widget, 0, index));
+		super(new ExpandItem(parent.widget, 0, index));
 	}
 
 	@Override
@@ -53,10 +53,5 @@ public class SwtEditorExpandItem extends SwtEditorItem<ExpandItem, ExpandBar> im
 	@Override
 	public void setHeight(int height) {
 		widget.setHeight(height);
-	}
-
-	@Override
-	ExpandItem createItem(ExpandBar parent, int style) {
-		return new ExpandItem(parent, style);
 	}
 }

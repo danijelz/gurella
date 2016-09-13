@@ -14,6 +14,10 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements EditorForm {
+	SwtEditorForm(Form form) {
+		super(form);
+	}
+
 	SwtEditorForm(SwtEditorLayoutComposite<?> parent, int style) {
 		super(parent, style);
 	}

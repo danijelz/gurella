@@ -17,7 +17,7 @@ import com.gurella.engine.editor.ui.EditorShell;
 
 public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements EditorShell {
 	public SwtEditorShell(Shell parent, int style) {
-		init(new Shell(parent, style));
+		super(new Shell(parent, style));
 	}
 
 	@Override

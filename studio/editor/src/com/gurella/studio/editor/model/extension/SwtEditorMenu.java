@@ -14,15 +14,15 @@ import com.gurella.engine.editor.ui.EditorMenuItem.MenuItemType;
 
 public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	SwtEditorMenu(SwtEditorControl<?> parent) {
-		init(new Menu(parent.widget));
+		super(new Menu(parent.widget));
 	}
 
 	SwtEditorMenu(SwtEditorMenu parentMenu) {
-		init(new Menu(parentMenu.widget));
+		super(new Menu(parentMenu.widget));
 	}
 
 	SwtEditorMenu(SwtEditorMenuItem parentItem) {
-		init(new Menu(parentItem.widget));
+		super(new Menu(parentItem.widget));
 	}
 
 	@Override
