@@ -13,6 +13,11 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.base.model.Model;
+import com.gurella.engine.base.model.Property;
+import com.gurella.engine.editor.model.ModelEditorContext;
+import com.gurella.engine.editor.model.ModelEditorDescriptor;
+import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
@@ -73,9 +78,11 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class, complex = true)
 	public Object testCustomEditor;
 
-	static class TestPropertyEditorFactory implements PropertyEditorFactory<Byte> {
+	public ModelEditorObject testCustomModelEditor;
+
+	static class TestPropertyEditorFactory implements PropertyEditorFactory<Object> {
 		@Override
-		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
+		public void buildUi(EditorComposite parent, PropertyEditorContext<Object> context) {
 			EditorUi uiFactory = parent.getUiFactory();
 			parent.setLayout(1);
 
@@ -336,6 +343,24 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		@Override
 		public EditorImage getImage(String element) {
 			return null;
+		}
+	}
+
+	private static class ModelEditorObject {
+		@SuppressWarnings("unused")
+		int testInt;
+	}
+
+	@ModelEditorDescriptor(factory = TestPropertyEditorModelFactory.class)
+	static class TestPropertyEditorModelFactory implements ModelEditorFactory<Object> {
+
+		@Override
+		public void buildUi(EditorComposite parent, ModelEditorContext<Object> context) {
+			parent.setLayout(2);
+			Model<Object> model = context.getModel();
+			Property<Integer> property = model.getProperty("testInt");
+			context.createPropertyLabel(parent, property);
+			context.createPropertyEditor(parent, property);
 		}
 	}
 }

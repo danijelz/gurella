@@ -7,7 +7,7 @@ import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 
 public interface ModelEditorContext<T> {
-	Model<T> model();
+	Model<T> getModel();
 
 	T getModelInstance();
 
