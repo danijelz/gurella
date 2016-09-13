@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.inspector;
 
+import static com.gurella.studio.editor.model.ModelEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
@@ -12,9 +13,11 @@ import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
+import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
+import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
 
 import org.eclipse.core.resources.IFile;
@@ -66,8 +69,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
-import com.gurella.studio.editor.model.DefaultMetaModelEditor;
-import com.gurella.studio.editor.model.ModelEditorContext;
+import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 
@@ -76,7 +78,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private Button enabledCheck;
 	private Label menuButton;
 	private Composite componentsComposite;
-	private Array<DefaultMetaModelEditor<?>> componentContainers = new Array<>();
+	private Array<MetaModelEditor<?>> componentEditors = new Array<>();
 
 	SceneNode2 prefab;
 
@@ -172,33 +174,30 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		ImmutableArray<SceneNodeComponent2> components = prefab.components;
 		for (int i = 0; i < components.size(); i++) {
 			SceneNodeComponent2 component = components.get(i);
-			DefaultMetaModelEditor<SceneNodeComponent2> propertiesContainer = createSection(component);
-			componentContainers.add(propertiesContainer);
+			componentEditors.add(createSection(component));
 		}
 	}
 
-	private DefaultMetaModelEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
+	private MetaModelEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR);
+		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
+
+		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
+				component);
+		componentEditor.getContext().signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		section.setClient(componentEditor);
 		section.setExpanded(true);
 
-		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getSceneEditorContext(), component);
-		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
-
-		DefaultMetaModelEditor<SceneNodeComponent2> propertiesContainer = new DefaultMetaModelEditor<>(section, context);
-		section.setClient(propertiesContainer);
-		return propertiesContainer;
+		return componentEditor;
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
 		prefab.addComponent(component);
-		DefaultMetaModelEditor<SceneNodeComponent2> propertiesContainer = createSection(component);
-		propertiesContainer.pack(true);
-		propertiesContainer.layout(true, true);
-		componentContainers.add(propertiesContainer);
+		componentEditors.add(createSection(component));
 		postMessage(new ComponentAddedMessage(component));
+		layout(true, true);
 		reflow(true);
 	}
 
@@ -244,7 +243,9 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 			IType type = (IType) types[0];
 			URLClassLoader classLoader = getSceneEditorContext().classLoader;
 			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
-			SceneNodeComponent2 component = Values.cast(resolvedClass.newInstance());
+			Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
+			constructor.setAccessible(true);
+			SceneNodeComponent2 component = Values.cast(constructor.newInstance(new Object[0]));
 			addComponent(component);
 		}
 	}

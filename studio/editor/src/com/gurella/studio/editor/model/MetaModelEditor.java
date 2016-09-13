@@ -37,10 +37,10 @@ public abstract class MetaModelEditor<T> extends Composite {
 		Display display = getDisplay();
 		display.addFilter(SWT.MouseMove, mouseMoveListener);
 		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
-		initEditors();
+		createContent();
 	}
 
-	protected abstract void initEditors();
+	protected abstract void createContent();
 
 	private void mouseMoved() {
 		extractHoveredEditors();

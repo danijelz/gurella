@@ -346,14 +346,21 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 		}
 	}
 
+	@ModelEditorDescriptor(factory = TestPropertyEditorModelFactory.class)
 	private static class ModelEditorObject {
 		@SuppressWarnings("unused")
 		int testInt;
+		@SuppressWarnings("unused")
+		int testInt1;
+		@SuppressWarnings("unused")
+		int testInt2;
+		@SuppressWarnings("unused")
+		int testInt3;
+		@SuppressWarnings("unused")
+		int testInt4;
 	}
 
-	@ModelEditorDescriptor(factory = TestPropertyEditorModelFactory.class)
 	static class TestPropertyEditorModelFactory implements ModelEditorFactory<Object> {
-
 		@Override
 		public void buildUi(EditorComposite parent, ModelEditorContext<Object> context) {
 			parent.setLayout(2);

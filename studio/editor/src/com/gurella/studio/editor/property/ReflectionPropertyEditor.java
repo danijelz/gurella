@@ -2,6 +2,7 @@ package com.gurella.studio.editor.property;
 
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -30,8 +31,8 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.ModelEditorContext;
-import com.gurella.studio.editor.model.DefaultMetaModelEditor;
+import com.gurella.studio.editor.model.MetaModelEditor;
+import com.gurella.studio.editor.model.ModelEditorFactory;
 
 public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	public ReflectionPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
@@ -61,7 +62,10 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 	private void newTypeInstance() {
 		try {
 			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			P value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
+			Class<?> valueClass = classLoader.loadClass(context.getPropertyType().getName());
+			Constructor<?> constructor = valueClass.getDeclaredConstructor(new Class[0]);
+			constructor.setAccessible(true);
+			P value = Values.cast(constructor.newInstance(new Object[0]));
 			setValue(value);
 			rebuildUi();
 		} catch (Exception e) {
@@ -86,9 +90,8 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			editor.getComposite().setLayoutData(layoutData);
 		} else {
-			ModelEditorContext<P> child = new ModelEditorContext<>(context, value);
-			DefaultMetaModelEditor<P> container = new DefaultMetaModelEditor<>(body, child);
-			container.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+			MetaModelEditor<P> modelEditor = ModelEditorFactory.createEditor(body, context, value);
+			modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
 
 		body.layout();

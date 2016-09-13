@@ -1,7 +1,8 @@
 package com.gurella.studio.editor.model;
 
+import static com.gurella.engine.utils.Values.cast;
+
 import java.lang.reflect.Constructor;
-import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,52 +16,55 @@ import org.eclipse.swt.widgets.Composite;
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.engine.model.CustomModelEditor;
+import com.gurella.studio.editor.engine.model.ModelEditorContextAdapter;
 
 public class ModelEditorFactory {
 	private static final Map<Class<?>, String> customFactories = new HashMap<>();
 
-	public static <T> MetaModelEditor<T> createEditor(Composite parent, SceneEditorContext sceneContext,
-			T modelInstance) {
-		return createEditor(parent, new ModelEditorContext<>(sceneContext, modelInstance));
-	}
-
-	public static <T> MetaModelEditor<T> createEditor(Composite parent, ModelEditorContext<T> context) {
-		MetaModelEditor<T> customEditor = createCustomEditor(parent, context);
-		if (customEditor == null) {
-			return new DefaultMetaModelEditor<T>(parent, context);
+	public static <T> MetaModelEditor<T> createEditor(Composite parent, SceneEditorContext context, T instance) {
+		com.gurella.engine.editor.model.ModelEditorFactory<T> factory = getCustomFactory(instance, context);
+		if (factory == null) {
+			return new DefaultMetaModelEditor<T>(parent, context, instance);
 		} else {
-			return customEditor;
+			return new CustomModelEditor<>(parent, new ModelEditorContextAdapter<>(context, instance, factory));
 		}
 	}
 
-	private static <T> MetaModelEditor<T> createCustomEditor(Composite parent, ModelEditorContext<T> context) {
+	public static <T> MetaModelEditor<T> createEditor(Composite parent, ModelEditorContext<?> parentContext,
+			T instance) {
+		SceneEditorContext sceneContext = parentContext.sceneEditorContext;
+		com.gurella.engine.editor.model.ModelEditorFactory<T> factory = getCustomFactory(instance, sceneContext);
+		if (factory == null) {
+			return new DefaultMetaModelEditor<T>(parent, new ModelEditorContext<>(parentContext, instance));
+		} else {
+			return new CustomModelEditor<>(parent, new ModelEditorContextAdapter<>(parentContext, instance, factory));
+		}
+	}
+
+	private static <T> com.gurella.engine.editor.model.ModelEditorFactory<T> getCustomFactory(T modelInstance,
+			SceneEditorContext sceneContext) {
 		try {
-			String customFactoryClass = getCustomFactoryClass(context);
+			String customFactoryClass = getCustomFactoryClass(modelInstance, sceneContext.javaProject);
 			if (customFactoryClass == null) {
 				return null;
 			}
 
-			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Class<?> factoryClass = classLoader.loadClass(customFactoryClass);
+			Class<?> factoryClass = sceneContext.classLoader.loadClass(customFactoryClass);
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
-			Object factory = constructor.newInstance(new Object[0]);
-			return new CustomModelEditor<>(parent, context);
+			return cast(constructor.newInstance(new Object[0]));
 		} catch (Exception e) {
-			customFactories.put(context.modelInstance.getClass(), null);
+			customFactories.put(modelInstance.getClass(), null);
 			return null;
 		}
 	}
 
-	private static <T> String getCustomFactoryClass(ModelEditorContext<T> context) throws Exception {
-		T modelInstance = context.modelInstance;
-
+	private static <T> String getCustomFactoryClass(T modelInstance, IJavaProject javaProject) throws Exception {
 		Class<?> modelClass = modelInstance.getClass();
 		if (customFactories.containsKey(modelClass)) {
 			return customFactories.get(modelClass);
 		}
 
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		IType type = javaProject.findType(modelClass.getName());
 		for (IAnnotation annotation : type.getAnnotations()) {
 			if (annotation.getElementName().equals(ModelEditorDescriptor.class.getSimpleName())) {
@@ -78,7 +82,6 @@ public class ModelEditorFactory {
 
 	private static String parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
-		String factoryName = null;
 		for (IMemberValuePair memberValuePair : memberValuePairs) {
 			if ("factory".equals(memberValuePair.getMemberName())) {
 				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
@@ -95,10 +98,10 @@ public class ModelEditorFactory {
 					}
 					builder.append(part);
 				}
-				factoryName = builder.toString();
+				return builder.toString();
 			}
 		}
 
-		return factoryName;
+		return null;
 	}
 }

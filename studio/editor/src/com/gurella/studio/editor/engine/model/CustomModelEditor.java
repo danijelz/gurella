@@ -11,7 +11,7 @@ public class CustomModelEditor<T> extends MetaModelEditor<T> {
 	}
 
 	@Override
-	protected void initEditors() {
+	protected void createContent() {
 		ModelEditorContextAdapter<T> context = getContext();
 		context.factory.buildUi(SwtEditorUi.createComposite(this), context);
 	}

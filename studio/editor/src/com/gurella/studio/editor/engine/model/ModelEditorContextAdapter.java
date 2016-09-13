@@ -23,9 +23,14 @@ import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 
-class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
+public class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 		implements com.gurella.engine.editor.model.ModelEditorContext<T> {
 	final ModelEditorFactory<T> factory;
+
+	public ModelEditorContextAdapter(ModelEditorContext<?> parent, T modelInstance, ModelEditorFactory<T> factory) {
+		super(parent, modelInstance);
+		this.factory = factory;
+	}
 
 	public ModelEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance,
 			ModelEditorFactory<T> factory) {

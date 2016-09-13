@@ -33,7 +33,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 	}
 
 	@Override
-	protected void initEditors() {
+	protected void createContent() {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		int length = array.length;
 		if (length > 0) {

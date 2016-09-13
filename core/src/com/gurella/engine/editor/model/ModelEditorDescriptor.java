@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Inherited
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(value = { ElementType.TYPE })
 public @interface ModelEditorDescriptor {
 	Class<? extends ModelEditorFactory<?>> factory();
