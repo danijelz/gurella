@@ -29,7 +29,7 @@ import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.studio.editor.EditorMessageListener;
-import com.gurella.studio.editor.model.DefaultMetaModelEditor;
+import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
 import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
@@ -221,8 +221,8 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 
 		Composite parent = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
 		while (parent != null) {
-			if (parent instanceof DefaultMetaModelEditor) {
-				ModelEditorContext<?> context = ((DefaultMetaModelEditor<?>) parent).getContext();
+			if (parent instanceof MetaModelEditor) {
+				ModelEditorContext<?> context = ((MetaModelEditor<?>) parent).getContext();
 				Object modelInstance = context.modelInstance;
 				if (modelInstance instanceof SceneNodeComponent2) {
 					return (SceneNodeComponent2) modelInstance;

@@ -122,7 +122,6 @@ public class PropertyEditorFactory {
 	}
 
 	private static CustomFactoryData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
-
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		String factoryName = null;
 		boolean complex = true;

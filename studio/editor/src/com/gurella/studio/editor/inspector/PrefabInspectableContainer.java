@@ -184,7 +184,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 		section.setExpanded(true);
 
-		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getEditorContext(), component);
+		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getSceneEditorContext(), component);
 		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 
 		DefaultMetaModelEditor<SceneNodeComponent2> propertiesContainer = new DefaultMetaModelEditor<>(section, context);
@@ -219,7 +219,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		Thread current = Thread.currentThread();
 		ClassLoader contextClassLoader = current.getContextClassLoader();
 		try {
-			current.setContextClassLoader(getEditorContext().classLoader);
+			current.setContextClassLoader(getSceneEditorContext().classLoader);
 			addScriptComponent();
 		} catch (Exception e) {
 			String message = "Error occurred while adding script component";
@@ -231,7 +231,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	}
 
 	private void addScriptComponent() throws Exception {
-		IJavaProject javaProject = getEditorContext().javaProject;
+		IJavaProject javaProject = getSceneEditorContext().javaProject;
 		IJavaSearchScope scope = createHierarchyScope(javaProject.findType(SceneNodeComponent2.class.getName()));
 		ProgressMonitorDialog monitor = new ProgressMonitorDialog(getShell());
 		SelectionDialog dialog = JavaUI.createTypeDialog(getShell(), monitor, scope, CONSIDER_CLASSES, false);
@@ -242,7 +242,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		Object[] types = dialog.getResult();
 		if (types != null && types.length > 0) {
 			IType type = (IType) types[0];
-			URLClassLoader classLoader = getEditorContext().classLoader;
+			URLClassLoader classLoader = getSceneEditorContext().classLoader;
 			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
 			SceneNodeComponent2 component = Values.cast(resolvedClass.newInstance());
 			addComponent(component);

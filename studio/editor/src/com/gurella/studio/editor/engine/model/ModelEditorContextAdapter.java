@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Label;
 
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
@@ -24,9 +25,12 @@ import com.gurella.studio.editor.property.PropertyEditorContext;
 
 class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 		implements com.gurella.engine.editor.model.ModelEditorContext<T> {
+	final ModelEditorFactory<T> factory;
 
-	public ModelEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance) {
+	public ModelEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance,
+			ModelEditorFactory<T> factory) {
 		super(sceneEditorContext, modelInstance);
+		this.factory = factory;
 	}
 
 	@Override

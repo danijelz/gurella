@@ -2,6 +2,7 @@ package com.gurella.studio.editor.engine.model;
 
 import org.eclipse.swt.widgets.Composite;
 
+import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.model.MetaModelEditor;
 
 public class CustomModelEditor<T> extends MetaModelEditor<T> {
@@ -11,6 +12,12 @@ public class CustomModelEditor<T> extends MetaModelEditor<T> {
 
 	@Override
 	protected void initEditors() {
-		// TODO Auto-generated method stub
+		ModelEditorContextAdapter<T> context = getContext();
+		context.factory.buildUi(SwtEditorUi.createComposite(this), context);
+	}
+
+	@Override
+	public ModelEditorContextAdapter<T> getContext() {
+		return (ModelEditorContextAdapter<T>) super.getContext();
 	}
 }

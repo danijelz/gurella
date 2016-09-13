@@ -43,7 +43,7 @@ public abstract class InspectableContainer<T> extends ScrolledForm implements Ed
 	public void handleMessage(Object source, Object message) {
 	}
 
-	public SceneEditorContext getEditorContext() {
+	public SceneEditorContext getSceneEditorContext() {
 		return getParent().getSceneEditor().getContext();
 	}
 }

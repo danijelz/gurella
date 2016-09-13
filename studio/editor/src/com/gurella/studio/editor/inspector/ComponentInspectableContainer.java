@@ -25,7 +25,7 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(3, false));
-		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getEditorContext(), target);
+		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getSceneEditorContext(), target);
 		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 		propertiesContainer = new DefaultMetaModelEditor<SceneNodeComponent2>(getBody(), context);
 		propertiesContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
