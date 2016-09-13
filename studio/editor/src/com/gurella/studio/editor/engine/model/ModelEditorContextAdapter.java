@@ -71,7 +71,8 @@ public class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 
 	@Override
 	public EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property) {
-		SwtEditorLabel editorLabel = (SwtEditorLabel) parent.getUiFactory().createLabel(parent);
+		SwtEditorLabel editorLabel = (SwtEditorLabel) parent.getUiFactory().createLabel(parent,
+				property.getDescriptiveName());
 		Label label = editorLabel.getWidget();
 		label.setAlignment(SWT.RIGHT);
 		label.setFont(createFont(label, SWT.BOLD));
@@ -82,7 +83,8 @@ public class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 
 	@Override
 	public EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property, EditorLayoutData layoutData) {
-		SwtEditorLabel editorLabel = (SwtEditorLabel) parent.getUiFactory().createLabel(parent);
+		SwtEditorLabel editorLabel = (SwtEditorLabel) parent.getUiFactory().createLabel(parent,
+				property.getDescriptiveName());
 		editorLabel.setLayoutData(layoutData);
 		return editorLabel;
 	}

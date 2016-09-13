@@ -350,14 +350,6 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	private static class ModelEditorObject {
 		@SuppressWarnings("unused")
 		int testInt;
-		@SuppressWarnings("unused")
-		int testInt1;
-		@SuppressWarnings("unused")
-		int testInt2;
-		@SuppressWarnings("unused")
-		int testInt3;
-		@SuppressWarnings("unused")
-		int testInt4;
 	}
 
 	static class TestPropertyEditorModelFactory implements ModelEditorFactory<Object> {
