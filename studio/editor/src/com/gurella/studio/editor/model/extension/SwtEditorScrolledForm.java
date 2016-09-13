@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.model.extension;
 
+import java.io.InputStream;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
@@ -59,26 +61,33 @@ public class SwtEditorScrolledForm extends SwtEditorBaseScrolledComposite<Scroll
 	}
 
 	@Override
-	public void setBackgroundImage(EditorImage backgroundImage) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void setBusy(boolean busy) {
 		widget.setBusy(busy);
 	}
 
 	@Override
 	public void setHeadClient(EditorControl headClient) {
-		// TODO Auto-generated method stub
+		widget.setHeadClient(headClient == null ? null : ((SwtEditorControl<?>) headClient).widget);
+	}
 
+	@Override
+	public void setImage(InputStream imageStream) {
+		widget.setImage(toSwtImage(imageStream));
 	}
 
 	@Override
 	public void setImage(EditorImage image) {
-		// TODO Auto-generated method stub
+		widget.setImage(toSwtImage(image));
+	}
 
+	@Override
+	public void setBackgroundImage(InputStream imageStream) {
+		widget.setBackgroundImage(toSwtImage(imageStream));
+	}
+
+	@Override
+	public void setBackgroundImage(EditorImage image) {
+		widget.setBackgroundImage(toSwtImage(image));
 	}
 
 	@Override

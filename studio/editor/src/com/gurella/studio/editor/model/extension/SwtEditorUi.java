@@ -92,6 +92,7 @@ import com.gurella.engine.editor.ui.layout.EditorLayout;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
@@ -742,5 +743,15 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public SwtEditorScrolledComposite createScrolledComposite(EditorComposite parent, ScrolledCompositeStyle style) {
 		return new SwtEditorScrolledComposite(cast(parent), extractSimpleScrollableStyle(style));
+	}
+
+	@Override
+	public SwtEditorForm createForm(EditorComposite parent) {
+		return new SwtEditorForm(Values.<SwtEditorLayoutComposite<?>> cast(parent));
+	}
+
+	@Override
+	public SwtEditorScrolledForm createScrolledForm(EditorComposite parent) {
+		return new SwtEditorScrolledForm(cast(parent));
 	}
 }

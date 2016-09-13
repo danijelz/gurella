@@ -212,4 +212,8 @@ public interface EditorUi {
 	EditorScrolledComposite createScrolledComposite(EditorComposite parent);
 
 	EditorScrolledComposite createScrolledComposite(EditorComposite parent, ScrolledCompositeStyle style);
+
+	EditorForm createForm(EditorComposite parent);
+
+	EditorScrolledForm createScrolledForm(EditorComposite parent);
 }
