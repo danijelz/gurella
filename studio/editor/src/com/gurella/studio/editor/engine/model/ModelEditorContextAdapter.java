@@ -34,7 +34,7 @@ class ModelEditorContextAdapter<T> extends ModelEditorContext<T>
 	}
 
 	@Override
-	public Model<T> model() {
+	public Model<T> getModel() {
 		return this.model;
 	}
 
