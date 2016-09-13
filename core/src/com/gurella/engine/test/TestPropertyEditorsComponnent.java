@@ -40,7 +40,7 @@ import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogContentFactory;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
-import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
+import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAreaDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
@@ -229,7 +229,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	private static final class OpenTitleDialogListener implements EditorEventListener {
 		@Override
 		public void handleEvent(EditorEvent event) {
-			String s = new EditorTitleAteaDialogProperties(new DialogContentFactory() {
+			String s = new EditorTitleAreaDialogProperties(new DialogContentFactory() {
 				@Override
 				public void createContent(EditorDialog dialog, EditorComposite parent) {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);

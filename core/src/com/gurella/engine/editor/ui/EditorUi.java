@@ -27,6 +27,7 @@ import com.gurella.engine.editor.ui.EditorSash.SashStyle;
 import com.gurella.engine.editor.ui.EditorSashForm.SashFormStyle;
 import com.gurella.engine.editor.ui.EditorScale.ScaleStyle;
 import com.gurella.engine.editor.ui.EditorScrolledComposite.ScrolledCompositeStyle;
+import com.gurella.engine.editor.ui.EditorScrolledPageBook.ScrolledPageBookStyle;
 import com.gurella.engine.editor.ui.EditorSection.SectionStyle;
 import com.gurella.engine.editor.ui.EditorShell.ShellStyle;
 import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
@@ -38,7 +39,7 @@ import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
 import com.gurella.engine.editor.ui.EditorTree.TreeStyle;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
-import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAteaDialogProperties;
+import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleAreaDialogProperties;
 
 public interface EditorUi {
 	void log(EditorLogLevel level, String message);
@@ -199,7 +200,7 @@ public interface EditorUi {
 
 	<T> T showDialog(EditorDialogProperties dialogProperties);
 
-	<T> T showDialog(EditorTitleAteaDialogProperties dialogProperties);
+	<T> T showTitleAreaDialog(EditorTitleAreaDialogProperties dialogProperties);
 
 	EditorExpandableComposite createExpandableComposite(EditorComposite parent);
 
@@ -216,4 +217,8 @@ public interface EditorUi {
 	EditorForm createForm(EditorComposite parent);
 
 	EditorScrolledForm createScrolledForm(EditorComposite parent);
+
+	EditorScrolledPageBook createScrolledPageBook(EditorComposite parent);
+
+	EditorScrolledPageBook createScrolledPageBook(EditorComposite parent, ScrolledPageBookStyle style);
 }

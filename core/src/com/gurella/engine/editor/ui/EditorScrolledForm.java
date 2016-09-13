@@ -5,7 +5,7 @@ import java.io.InputStream;
 public interface EditorScrolledForm extends EditorScrolledComposite {
 	boolean isDelayedReflow();
 
-	void setDelayedReflow(boolean delayedReflow);;
+	void setDelayedReflow(boolean delayedReflow);
 
 	void reflow();
 

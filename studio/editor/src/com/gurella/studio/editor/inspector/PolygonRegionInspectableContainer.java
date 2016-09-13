@@ -20,10 +20,10 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.model.MetaModelEditor;
+import com.gurella.studio.editor.model.DefaultMetaModelEditor;
 
 public class PolygonRegionInspectableContainer extends InspectableContainer<IFile> {
-	private MetaModelEditor<TextureProperties> textureProperties;
+	private DefaultMetaModelEditor<TextureProperties> textureProperties;
 	private Composite imageComposite;
 	private Image image;
 	private Transform transform;
@@ -38,7 +38,7 @@ public class PolygonRegionInspectableContainer extends InspectableContainer<IFil
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new MetaModelEditor<>(getBody(), getEditorContext(), findProperties(target));
+		textureProperties = new DefaultMetaModelEditor<>(getBody(), getEditorContext(), findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

@@ -35,7 +35,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		valueSetter = this::defaultValueSetter;
 	}
 
-	protected P getValue() {
+	public P getValue() {
 		return valueGetter.get();
 	}
 
@@ -43,7 +43,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 		return property.getValue(modelInstance);
 	}
 
-	protected void setValue(P newValue) {
+	public void setValue(P newValue) {
 		valueSetter.accept(newValue);
 	}
 

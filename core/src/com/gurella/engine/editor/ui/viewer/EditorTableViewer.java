@@ -26,8 +26,4 @@ public interface EditorTableViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, 
 	void refresh(boolean updateLabels, boolean reveal);
 
 	void refresh(ELEMENT element, boolean updateLabels, boolean reveal);
-
-	LabelProvider<ELEMENT> getLabelProvider();
-
-	void setLabelProvider(LabelProvider<ELEMENT> labelProvider);
 }

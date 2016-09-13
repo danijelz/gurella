@@ -31,39 +31,39 @@ public interface EditorTitleAreaDialog extends EditorDialog {
 		NONE, INFORMATION, WARNING, ERROR;
 	}
 
-	public static class EditorTitleAteaDialogProperties
-			extends BaseEditorDialogProperties<EditorTitleAteaDialogProperties> {
+	public static class EditorTitleAreaDialogProperties
+			extends BaseEditorDialogProperties<EditorTitleAreaDialogProperties> {
 		public String title;
 		public String message;
 		public Color titleAreaColor;
 		public InputStream titleImage;
 
-		public EditorTitleAteaDialogProperties(DialogContentFactory dialogAreaFactory) {
+		public EditorTitleAreaDialogProperties(DialogContentFactory dialogAreaFactory) {
 			super(dialogAreaFactory);
 		}
 
-		public EditorTitleAteaDialogProperties title(String title) {
+		public EditorTitleAreaDialogProperties title(String title) {
 			this.title = title;
 			return this;
 		}
 
-		public EditorTitleAteaDialogProperties message(String message) {
+		public EditorTitleAreaDialogProperties message(String message) {
 			this.message = message;
 			return this;
 		}
 
-		public EditorTitleAteaDialogProperties titleAreaColor(Color titleAreaColor) {
+		public EditorTitleAreaDialogProperties titleAreaColor(Color titleAreaColor) {
 			this.titleAreaColor = titleAreaColor;
 			return this;
 		}
 
-		public EditorTitleAteaDialogProperties titleImageStream(InputStream titleImageStream) {
+		public EditorTitleAreaDialogProperties titleImageStream(InputStream titleImageStream) {
 			this.titleImage = titleImageStream;
 			return this;
 		}
 
 		public <R> R show(EditorUi ui) {
-			return ui.showDialog(this.blockOnOpen(true));
+			return ui.showTitleAreaDialog(this.blockOnOpen(true));
 		}
 	}
 }

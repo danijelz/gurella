@@ -31,7 +31,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.ModelEditorContext;
-import com.gurella.studio.editor.model.MetaModelEditor;
+import com.gurella.studio.editor.model.DefaultMetaModelEditor;
 import com.gurella.studio.editor.model.PropertyEditorFactory;
 
 public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
@@ -88,7 +88,7 @@ public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
 			editor.getComposite().setLayoutData(layoutData);
 		} else {
 			ModelEditorContext<P> child = new ModelEditorContext<>(context, value);
-			MetaModelEditor<P> container = new MetaModelEditor<>(body, child);
+			DefaultMetaModelEditor<P> container = new DefaultMetaModelEditor<>(body, child);
 			container.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
 

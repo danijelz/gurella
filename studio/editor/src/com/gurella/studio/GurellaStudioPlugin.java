@@ -36,7 +36,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	private static Map<DeviceResourceDescriptor, Object> pluginResources = new HashMap<>();
 	private static DeviceResourceManager resourceManager;
-	private static FormToolkit toolkit;
+	private static GurellaFormToolkit toolkit;
 
 	public GurellaStudioPlugin() {
 	}
@@ -46,8 +46,8 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		Display display = getDisplay();
-		// http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
-		toolkit = new ImmutableFormToolkit(display);
+		// TODO http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
+		toolkit = new GurellaFormToolkit(display);
 		resourceManager = new DeviceResourceManager(display);
 	}
 
@@ -60,7 +60,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
-		toolkit.dispose();
+		toolkit.disposePrivate();
 		resourceManager.dispose();
 		pluginResources.entrySet().forEach(e -> e.getKey().destroyResource(e.getValue()));
 	}
@@ -304,9 +304,13 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		return new MultiStatus(PLUGIN_ID, IStatus.ERROR, childStatuses, message, t);
 	}
 
-	private static final class ImmutableFormToolkit extends FormToolkit {
-		private ImmutableFormToolkit(Display display) {
+	private static final class GurellaFormToolkit extends FormToolkit {
+		private GurellaFormToolkit(Display display) {
 			super(display);
+		}
+
+		public void disposePrivate() {
+			super.dispose();
 		}
 
 		@Override
@@ -319,6 +323,11 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 		@Override
 		public void setBorderStyle(int style) {
+		}
+
+		@Override
+		public void dispose() {
+			throw new UnsupportedOperationException("");
 		}
 	}
 }
