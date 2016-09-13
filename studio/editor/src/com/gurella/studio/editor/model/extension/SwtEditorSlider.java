@@ -1,13 +1,12 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Slider;
 
 import com.gurella.engine.editor.ui.EditorSlider;
 
 public class SwtEditorSlider extends SwtEditorControl<Slider> implements EditorSlider {
 	public SwtEditorSlider(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		super(new Slider(parent.widget, style));
 	}
 
 	@Override
@@ -74,10 +73,4 @@ public class SwtEditorSlider extends SwtEditorControl<Slider> implements EditorS
 	public void setValues(int selection, int minimum, int maximum, int thumb, int increment, int pageIncrement) {
 		widget.setValues(selection, minimum, maximum, thumb, increment, pageIncrement);
 	}
-
-	@Override
-	Slider createWidget(Composite parent, int style) {
-		return new Slider(parent, style);
-	}
-
 }

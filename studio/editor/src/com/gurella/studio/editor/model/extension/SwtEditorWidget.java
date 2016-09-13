@@ -8,7 +8,6 @@ import java.util.Arrays;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 
@@ -32,18 +31,11 @@ public abstract class SwtEditorWidget<T extends Widget> implements EditorWidget 
 		init(widget);
 	}
 
-	public SwtEditorWidget(SwtEditorBaseComposite<?> parent, int style) {
-		init(createWidget(parent.widget, style));
-	}
-
 	void init(T widget) {
 		this.widget = widget;
 		widget.addListener(SWT.Dispose, e -> instances.remove(widget));
 		instances.put(widget, this);
 	}
-
-	//TODO remove
-	abstract T createWidget(Composite parent, int style);
 
 	public T getWidget() {
 		return widget;

@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -30,18 +29,12 @@ public class SwtEditorTable<ELEMENT> extends SwtEditorBaseComposite<Table> imple
 	TableViewer viewer;
 
 	public SwtEditorTable(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	Table createWidget(Composite parent, int style) {
-		Table table = GurellaStudioPlugin.getToolkit().createTable(parent, style);
-		viewer = new TableViewer(table);
+		super(GurellaStudioPlugin.getToolkit().createTable(parent.widget, style));
+		viewer = new TableViewer(widget);
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
 		TableLabelProviderAdapter labelProviderAdapter = new TableLabelProviderAdapter(null);
-		table.addDisposeListener(e -> labelProviderAdapter.dispose());
+		widget.addDisposeListener(e -> labelProviderAdapter.dispose());
 		viewer.setLabelProvider(labelProviderAdapter);
-		return table;
 	}
 
 	@Override

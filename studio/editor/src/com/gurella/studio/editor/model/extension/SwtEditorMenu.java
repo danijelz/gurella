@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model.extension;
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -134,11 +133,6 @@ public class SwtEditorMenu extends SwtEditorWidget<Menu> implements EditorMenu {
 	@Override
 	public void setVisible(boolean visible) {
 		widget.setVisible(visible);
-	}
-
-	@Override
-	Menu createWidget(Composite parent, int style) {
-		return null;
 	}
 
 	@Override

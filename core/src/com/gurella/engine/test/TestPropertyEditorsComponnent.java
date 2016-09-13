@@ -20,9 +20,9 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorControlDecoration;
-import com.gurella.engine.editor.ui.EditorExpandableComposite;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
+import com.gurella.engine.editor.ui.EditorExpandableComposite;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorTable;
@@ -103,7 +103,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 
 			context.addMenuItem("Test menu item", new TestMenuRunnable(uiFactory));
 
-			EditorText text = uiFactory.createText(parent, new TextStyle().formBorder(true));
+			EditorText text = uiFactory.createText(parent, "test", new TextStyle().formBorder(true));
 			// text.setBackground(230, 230, 230, 255);
 			EditorControlDecoration decoration = text.getOrCreateDecoration(HorizontalAlignment.RIGHT,
 					VerticalAlignment.CENTER);
@@ -160,7 +160,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			tree.setInput(rootItems);
 
 			tree.addListener(EditorEventType.Selection, new TreeSelectionListener(tree));
-			
+
 			EditorExpandableComposite expandableComposite = uiFactory.createExpandableComposite(parent);
 			expandableComposite.setText("expandableComposite");
 			EditorComposite client = uiFactory.createComposite(expandableComposite);

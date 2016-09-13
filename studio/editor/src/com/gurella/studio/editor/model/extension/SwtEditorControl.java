@@ -32,10 +32,6 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 		super(control);
 	}
 
-	public SwtEditorControl(SwtEditorBaseComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
 	@Override
 	void init(T widget) {
 		GurellaStudioPlugin.getToolkit().adapt(widget, true, true);

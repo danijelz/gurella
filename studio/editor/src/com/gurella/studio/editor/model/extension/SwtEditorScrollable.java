@@ -13,10 +13,6 @@ public abstract class SwtEditorScrollable<T extends Scrollable> extends SwtEdito
 		super(scrollable);
 	}
 
-	public SwtEditorScrollable(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
 	@Override
 	public GridRectangle getClientArea() {
 		Rectangle area = widget.getClientArea();

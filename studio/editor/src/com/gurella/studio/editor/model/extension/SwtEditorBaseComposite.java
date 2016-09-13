@@ -17,10 +17,6 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 		super(composite);
 	}
 
-	SwtEditorBaseComposite(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
 	@Override
 	public SwtEditorControl<?>[] getChildren() {
 		return Arrays.<Control> stream(widget.getChildren()).sequential().map(c -> (EditorControl) instances.get(c))

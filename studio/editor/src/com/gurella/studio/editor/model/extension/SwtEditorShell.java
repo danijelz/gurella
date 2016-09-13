@@ -6,7 +6,6 @@ import java.util.Arrays;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.math.GridPoint2;
@@ -166,10 +165,5 @@ public class SwtEditorShell extends SwtEditorLayoutComposite<Shell> implements E
 	@Override
 	public void setModified(boolean modified) {
 		widget.setModified(modified);
-	}
-
-	@Override
-	Shell createWidget(Composite parent, int style) {
-		return null;
 	}
 }

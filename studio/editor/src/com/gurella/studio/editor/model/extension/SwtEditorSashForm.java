@@ -1,14 +1,13 @@
 package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorSashForm;
 
 public class SwtEditorSashForm extends SwtEditorBaseComposite<SashForm> implements EditorSashForm {
 	public SwtEditorSashForm(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		super(new SashForm(parent.widget, style));
 	}
 
 	@Override
@@ -39,10 +38,5 @@ public class SwtEditorSashForm extends SwtEditorBaseComposite<SashForm> implemen
 	@Override
 	public void setWeights(int[] weights) {
 		widget.setWeights(weights);
-	}
-
-	@Override
-	SashForm createWidget(Composite parent, int style) {
-		return new SashForm(parent, style);
 	}
 }

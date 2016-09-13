@@ -1,12 +1,11 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.EditorMenuItem;
 
-public class SwtEditorMenuItem extends SwtEditorItem<MenuItem, Menu> implements EditorMenuItem {
+public class SwtEditorMenuItem extends SwtEditorItem<MenuItem> implements EditorMenuItem {
 	SwtEditorMenuItem(SwtEditorMenu parent, int style, int index) {
 		super(new MenuItem(parent.widget, style, index));
 	}

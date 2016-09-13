@@ -11,11 +11,7 @@ public class SwtEditorComposite extends SwtEditorLayoutComposite<Composite> impl
 	}
 
 	public SwtEditorComposite(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	Composite createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createComposite(parent);
+		super(new Composite(parent.widget, style));
+		GurellaStudioPlugin.getToolkit().adapt(widget);
 	}
 }

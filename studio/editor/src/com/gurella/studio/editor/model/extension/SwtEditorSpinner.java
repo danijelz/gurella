@@ -1,13 +1,12 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.gurella.engine.editor.ui.EditorSpinner;
 
 public class SwtEditorSpinner extends SwtEditorBaseComposite<Spinner> implements EditorSpinner {
 	public SwtEditorSpinner(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		super(new Spinner(parent.widget, style));
 	}
 
 	@Override
@@ -103,10 +102,5 @@ public class SwtEditorSpinner extends SwtEditorBaseComposite<Spinner> implements
 	@Override
 	public void setValues(int selection, int minimum, int maximum, int digits, int increment, int pageIncrement) {
 		widget.setValues(selection, minimum, maximum, digits, increment, pageIncrement);
-	}
-
-	@Override
-	Spinner createWidget(Composite parent, int style) {
-		return new Spinner(parent, style);
 	}
 }

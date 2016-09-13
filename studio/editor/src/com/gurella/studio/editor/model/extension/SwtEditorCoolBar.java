@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.CoolBar;
 
 import com.badlogic.gdx.math.GridPoint2;
@@ -13,7 +12,7 @@ import com.gurella.engine.editor.ui.EditorCoolItem;
 
 public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements EditorCoolBar {
 	public SwtEditorCoolBar(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		super(new CoolBar(parent.widget, style));
 	}
 
 	@Override
@@ -72,11 +71,6 @@ public class SwtEditorCoolBar extends SwtEditorBaseComposite<CoolBar> implements
 	@Override
 	public void setWrapIndices(int[] indices) {
 		widget.setWrapIndices(indices);
-	}
-
-	@Override
-	CoolBar createWidget(Composite parent, int style) {
-		return new CoolBar(parent, style);
 	}
 
 	@Override

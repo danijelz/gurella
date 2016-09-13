@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.badlogic.gdx.graphics.Color;
@@ -16,7 +15,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorTreeItem;
 import com.gurella.engine.utils.GridRectangle;
 
-public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem, Tree> implements EditorTreeItem {
+public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem> implements EditorTreeItem {
 	SwtEditorTreeItem(TreeItem item) {
 		super(item);
 	}
@@ -277,10 +276,9 @@ public class SwtEditorTreeItem<ELEMENT> extends SwtEditorItem<TreeItem, Tree> im
 		widget.setItemCount(count);
 	}
 
-	/*@Override
-	TreeItem createItem(Tree parent, int style) {
-		return null;
-	}*/
+	/*
+	 * @Override TreeItem createItem(Tree parent, int style) { return null; }
+	 */
 
 	@Override
 	public SwtEditorTreeItem<ELEMENT> createItem() {

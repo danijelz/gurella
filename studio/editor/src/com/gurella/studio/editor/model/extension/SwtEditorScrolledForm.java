@@ -10,13 +10,8 @@ import com.gurella.engine.editor.ui.EditorScrolledForm;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorScrolledForm extends SwtEditorBaseScrolledComposite<ScrolledForm> implements EditorScrolledForm {
-	public SwtEditorScrolledForm(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	ScrolledForm createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createScrolledForm(parent);
+	public SwtEditorScrolledForm(SwtEditorLayoutComposite<?> parent) {
+		super(GurellaStudioPlugin.getToolkit().createScrolledForm(parent.widget));
 	}
 
 	@Override

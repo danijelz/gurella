@@ -2,7 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 
 import com.badlogic.gdx.math.GridPoint2;
@@ -130,10 +129,5 @@ public class SwtEditorScrollBar extends SwtEditorWidget<ScrollBar> implements Ed
 	@Override
 	public void setValues(int selection, int minimum, int maximum, int thumb, int increment, int pageIncrement) {
 		widget.setValues(selection, minimum, maximum, thumb, increment, pageIncrement);
-	}
-
-	@Override
-	ScrollBar createWidget(Composite parent, int style) {
-		return null;
 	}
 }

@@ -14,10 +14,6 @@ public abstract class SwtEditorLayoutComposite<T extends Composite> extends SwtE
 		super(composite);
 	}
 
-	public SwtEditorLayoutComposite(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
 	@Override
 	public EditorLayout getLayout() {
 		Layout layout = widget.getLayout();

@@ -18,13 +18,8 @@ public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements Edi
 		super(form);
 	}
 
-	SwtEditorForm(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	Form createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createForm(parent);
+	SwtEditorForm(SwtEditorLayoutComposite<?> parent) {
+		super(GurellaStudioPlugin.getToolkit().createForm(parent.widget));
 	}
 
 	@Override

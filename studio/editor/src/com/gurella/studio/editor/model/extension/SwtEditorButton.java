@@ -1,24 +1,23 @@
 package com.gurella.studio.editor.model.extension;
 
+import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
+
 import java.io.InputStream;
 
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorImage;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorButton extends SwtEditorControl<Button> implements EditorButton {
 	public SwtEditorButton(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		this(parent, "", style);
 	}
 
 	public SwtEditorButton(SwtEditorLayoutComposite<?> parent, String text, int style) {
-		super(parent, style);
-		setText(text);
+		super(getToolkit().createButton(parent.widget, text, style));
 	}
 
 	@Override
@@ -74,10 +73,5 @@ public class SwtEditorButton extends SwtEditorControl<Button> implements EditorB
 	@Override
 	public void setText(String string) {
 		widget.setText(string);
-	}
-
-	@Override
-	Button createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createButton(parent, "", style);
 	}
 }

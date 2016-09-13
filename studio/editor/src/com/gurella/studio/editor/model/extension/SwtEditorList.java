@@ -5,10 +5,10 @@ import static com.gurella.engine.utils.Values.cast;
 import java.util.Arrays;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 
 import com.gurella.engine.editor.ui.EditorItem;
@@ -20,14 +20,9 @@ public class SwtEditorList<ELEMENT> extends SwtEditorScrollable<List> implements
 	ListViewer viewer;
 
 	public SwtEditorList(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	List createWidget(Composite parent, int style) {
-		List list = new List(parent, style);
-		viewer = new ListViewer(list);
-		return list;
+		super(new List(parent.widget, style));
+		viewer = new ListViewer(widget);
+		viewer.setContentProvider(ArrayContentProvider.getInstance());
 	}
 
 	@Override

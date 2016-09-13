@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import com.gurella.engine.editor.ui.Alignment;
@@ -9,8 +8,7 @@ import com.gurella.engine.editor.ui.EditorTableColumn;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
-public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn, Table>
-		implements EditorTableColumn<ELEMENT> {
+public class SwtEditorTableColumn<ELEMENT> extends SwtEditorItem<TableColumn> implements EditorTableColumn<ELEMENT> {
 	TableViewerColumn viewerColumn;
 	ColumnLabelProviderAdapter<ELEMENT> labelProviderAdapter;
 

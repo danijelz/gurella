@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model.extension;
 import java.io.InputStream;
 
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.gurella.engine.editor.ui.EditorControl;
@@ -11,7 +10,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorToolItem;
 import com.gurella.engine.utils.GridRectangle;
 
-public class SwtEditorToolItem extends SwtEditorItem<ToolItem, ToolBar> implements EditorToolItem {
+public class SwtEditorToolItem extends SwtEditorItem<ToolItem> implements EditorToolItem {
 	SwtEditorToolItem(SwtEditorToolBar parent, int style) {
 		super(new ToolItem(parent.widget, style));
 	}

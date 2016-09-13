@@ -2,7 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.Section;
@@ -15,12 +14,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public class SwtEditorSection extends SwtEditorBaseExpandableComposite<Section> implements EditorSection {
 	SwtEditorSection(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	Section createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createSection(parent, style);
+		super(GurellaStudioPlugin.getToolkit().createSection(parent.widget, style));
 	}
 
 	@Override

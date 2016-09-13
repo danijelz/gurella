@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.badlogic.gdx.math.GridPoint2;
@@ -13,8 +12,8 @@ public class SwtEditorText extends SwtEditorScrollable<Text> implements EditorTe
 		super(text);
 	}
 
-	public SwtEditorText(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+	public SwtEditorText(SwtEditorLayoutComposite<?> parent, String text, int style) {
+		super(GurellaStudioPlugin.getToolkit().createText(parent.widget, text, style));
 	}
 
 	@Override
@@ -217,10 +216,5 @@ public class SwtEditorText extends SwtEditorScrollable<Text> implements EditorTe
 	@Override
 	public void showSelection() {
 		widget.showSelection();
-	}
-
-	@Override
-	Text createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createText(parent, "", style);
 	}
 }

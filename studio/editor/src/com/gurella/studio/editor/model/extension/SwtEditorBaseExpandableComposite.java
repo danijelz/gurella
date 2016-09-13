@@ -18,8 +18,8 @@ import com.gurella.studio.editor.model.extension.event.SwtEditorEvent;
 
 public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableComposite>
 		extends SwtEditorLayoutComposite<T> implements EditorExpandableComposite {
-	SwtEditorBaseExpandableComposite(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+	public SwtEditorBaseExpandableComposite(T composite) {
+		super(composite);
 	}
 
 	@Override

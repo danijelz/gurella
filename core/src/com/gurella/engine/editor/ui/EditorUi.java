@@ -134,13 +134,13 @@ public interface EditorUi {
 
 	<ELEMENT> EditorList<ELEMENT> createList(EditorComposite parent, ListStyle style);
 
-	EditorText createText(EditorComposite parent);
+	EditorText createText(EditorComposite parent, String text);
 
-	EditorText createText(EditorComposite parent, TextStyle style);
+	EditorText createText(EditorComposite parent, String text, TextStyle style);
 
-	EditorText createTextArea(EditorComposite parent);
+	EditorText createTextArea(EditorComposite parent, String text);
 
-	EditorText createTextArea(EditorComposite parent, TextStyle style);
+	EditorText createTextArea(EditorComposite parent, String text, TextStyle style);
 
 	EditorButton createCheckBox(EditorComposite parent);
 

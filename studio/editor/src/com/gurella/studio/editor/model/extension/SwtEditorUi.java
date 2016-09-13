@@ -80,6 +80,7 @@ import com.gurella.engine.editor.ui.EditorSlider.SliderStyle;
 import com.gurella.engine.editor.ui.EditorSpinner.SpinnerStyle;
 import com.gurella.engine.editor.ui.EditorTabFolder.TabFolderStyle;
 import com.gurella.engine.editor.ui.EditorTable.TableStyle;
+import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorToolBar.ToolBarStyle;
 import com.gurella.engine.editor.ui.EditorTree.TreeContentProvider;
@@ -324,32 +325,32 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	@Override
-	public SwtEditorText createText(EditorComposite parent) {
-		return createText(parent, false, SWT.SINGLE);
+	public EditorText createText(EditorComposite parent, String text) {
+		return createText(parent, text, false, SWT.SINGLE);
 	}
 
-	protected SwtEditorText createText(EditorComposite parent, boolean formBorder, int style) {
-		SwtEditorText text = new SwtEditorText(cast(parent), style);
+	private static SwtEditorText createText(EditorComposite parent, String text, boolean formBorder, int style) {
+		SwtEditorText editorText = new SwtEditorText(cast(parent), text, style);
 		if (formBorder) {
-			text.widget.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
-			text.getParent().paintBorders();
+			editorText.widget.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
+			editorText.getParent().paintBorders();
 		}
-		return text;
+		return editorText;
 	}
 
 	@Override
-	public SwtEditorText createText(EditorComposite parent, TextStyle style) {
-		return createText(cast(parent), style.formBorder, SWT.SINGLE | extractTextStyle(style));
+	public EditorText createText(EditorComposite parent, String text, TextStyle style) {
+		return createText(cast(parent), text, style.formBorder, SWT.SINGLE | extractTextStyle(style));
 	}
 
 	@Override
-	public SwtEditorText createTextArea(EditorComposite parent) {
-		return createText(cast(parent), false, SWT.MULTI);
+	public SwtEditorText createTextArea(EditorComposite parent, String text) {
+		return createText(cast(parent), text, false, SWT.MULTI);
 	}
 
 	@Override
-	public SwtEditorText createTextArea(EditorComposite parent, TextStyle style) {
-		return createText(cast(parent), style.formBorder, SWT.MULTI | extractTextStyle(style));
+	public SwtEditorText createTextArea(EditorComposite parent, String text, TextStyle style) {
+		return createText(cast(parent), text, style.formBorder, SWT.MULTI | extractTextStyle(style));
 	}
 
 	@Override

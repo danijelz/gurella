@@ -1,13 +1,12 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Scale;
 
 import com.gurella.engine.editor.ui.EditorScale;
 
 public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorScale {
 	public SwtEditorScale(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		super(new Scale(parent.widget, style));
 	}
 
 	@Override
@@ -59,10 +58,4 @@ public class SwtEditorScale extends SwtEditorControl<Scale> implements EditorSca
 	public void setSelection(int value) {
 		widget.setSelection(value);
 	}
-
-	@Override
-	Scale createWidget(Composite parent, int style) {
-		return new Scale(parent, style);
-	}
-
 }

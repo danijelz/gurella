@@ -9,8 +9,8 @@ import com.gurella.engine.editor.ui.EditorScrolledComposite;
 
 public abstract class SwtEditorBaseScrolledComposite<T extends ScrolledComposite> extends SwtEditorLayoutComposite<T>
 		implements EditorScrolledComposite {
-	public SwtEditorBaseScrolledComposite(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+	public SwtEditorBaseScrolledComposite(T composite) {
+		super(composite);
 	}
 
 	@Override

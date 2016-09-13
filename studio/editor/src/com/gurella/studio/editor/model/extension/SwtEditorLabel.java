@@ -2,7 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.gurella.engine.editor.ui.Alignment;
@@ -13,17 +12,11 @@ import com.gurella.studio.editor.model.extension.style.SwtWidgetStyle;
 
 public class SwtEditorLabel extends SwtEditorControl<Label> implements EditorLabel {
 	public SwtEditorLabel(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		this(parent, "", style);
 	}
 
 	public SwtEditorLabel(SwtEditorLayoutComposite<?> parent, String text, int style) {
-		super(parent, style);
-		setText(text);
-	}
-
-	@Override
-	Label createWidget(Composite parent, int style) {
-		return GurellaStudioPlugin.getToolkit().createLabel(parent, "", style);
+		super(GurellaStudioPlugin.getToolkit().createLabel(parent.widget, text, style));
 	}
 
 	@Override

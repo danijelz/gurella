@@ -2,21 +2,14 @@ package com.gurella.studio.editor.model.extension;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Item;
-import org.eclipse.swt.widgets.Widget;
 
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorItem;
 
-public abstract class SwtEditorItem<T extends Item, P extends Widget> extends SwtEditorWidget<T> implements EditorItem {
+public abstract class SwtEditorItem<T extends Item> extends SwtEditorWidget<T> implements EditorItem {
 	SwtEditorItem(T item) {
 		super(item);
-	}
-
-	@Override
-	T createWidget(Composite parent, int style) {
-		return null;
 	}
 
 	@Override

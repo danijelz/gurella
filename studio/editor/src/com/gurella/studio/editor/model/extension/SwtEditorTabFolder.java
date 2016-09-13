@@ -3,7 +3,6 @@ package com.gurella.studio.editor.model.extension;
 import java.util.Arrays;
 
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
@@ -13,7 +12,7 @@ import com.gurella.engine.editor.ui.EditorTabItem;
 
 public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implements EditorTabFolder {
 	public SwtEditorTabFolder(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
+		super(new TabFolder(parent.widget, style));
 	}
 
 	@Override
@@ -67,11 +66,6 @@ public class SwtEditorTabFolder extends SwtEditorBaseComposite<TabFolder> implem
 	public void setSelection(EditorTabItem[] items) {
 		widget.setSelection(
 				Arrays.stream(items).sequential().map(i -> ((SwtEditorTabItem) i).widget).toArray(i -> new TabItem[i]));
-	}
-
-	@Override
-	TabFolder createWidget(Composite parent, int style) {
-		return new TabFolder(parent, style);
 	}
 
 	@Override

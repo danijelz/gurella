@@ -2,7 +2,6 @@ package com.gurella.studio.editor.model.extension;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 
 import com.badlogic.gdx.math.GridPoint2;
@@ -10,7 +9,7 @@ import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorCoolItem;
 import com.gurella.engine.utils.GridRectangle;
 
-public class SwtEditorCoolItem extends SwtEditorItem<CoolItem, CoolBar> implements EditorCoolItem {
+public class SwtEditorCoolItem extends SwtEditorItem<CoolItem> implements EditorCoolItem {
 	SwtEditorCoolItem(SwtEditorCoolBar parent, int style) {
 		super(new CoolItem(parent.widget, style));
 	}

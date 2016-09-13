@@ -16,7 +16,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -34,18 +33,12 @@ public class SwtEditorTree<ELEMENT> extends SwtEditorBaseComposite<Tree> impleme
 	TreeViewer viewer;
 
 	public SwtEditorTree(SwtEditorLayoutComposite<?> parent, TreeContentProvider<ELEMENT> contentProvider, int style) {
-		super(parent, style);
-		viewer.setContentProvider(new TreeContentProviderAdapter<>(contentProvider));
-	}
-
-	@Override
-	Tree createWidget(Composite parent, int style) {
-		Tree tree = GurellaStudioPlugin.getToolkit().createTree(parent, style);
-		viewer = new TreeViewer(tree);
+		super(GurellaStudioPlugin.getToolkit().createTree(parent.widget, style));
+		viewer = new TreeViewer(widget);
 		TreeLabelProviderAdapter labelProviderAdapter = new TreeLabelProviderAdapter(null);
-		tree.addDisposeListener(e -> labelProviderAdapter.dispose());
+		widget.addDisposeListener(e -> labelProviderAdapter.dispose());
 		viewer.setLabelProvider(labelProviderAdapter);
-		return tree;
+		viewer.setContentProvider(new TreeContentProviderAdapter<>(contentProvider));
 	}
 
 	@Override

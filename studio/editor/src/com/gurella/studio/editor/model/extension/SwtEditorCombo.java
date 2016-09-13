@@ -12,7 +12,6 @@ import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.gurella.engine.editor.ui.EditorCombo;
@@ -24,15 +23,9 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	ComboViewer viewer;
 
 	public SwtEditorCombo(SwtEditorLayoutComposite<?> parent, int style) {
-		super(parent, style);
-	}
-
-	@Override
-	Combo createWidget(Composite parent, int style) {
-		Combo combo = new Combo(parent, style);
-		viewer = new ComboViewer(combo);
+		super(new Combo(parent.widget, style));
+		viewer = new ComboViewer(widget);
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
-		return combo;
 	}
 
 	@Override

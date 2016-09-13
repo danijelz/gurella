@@ -6,7 +6,6 @@ import java.util.Arrays;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.badlogic.gdx.graphics.Color;
@@ -15,7 +14,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorTableItem;
 import com.gurella.engine.utils.GridRectangle;
 
-public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem, Table> implements EditorTableItem {
+public class SwtEditorTableItem<ELEMENT> extends SwtEditorItem<TableItem> implements EditorTableItem {
 	SwtEditorTableItem(TableItem item) {
 		super(item);
 	}

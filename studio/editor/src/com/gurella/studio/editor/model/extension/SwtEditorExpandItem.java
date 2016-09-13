@@ -1,12 +1,11 @@
 package com.gurella.studio.editor.model.extension;
 
-import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 
 import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorExpandItem;
 
-public class SwtEditorExpandItem extends SwtEditorItem<ExpandItem, ExpandBar> implements EditorExpandItem {
+public class SwtEditorExpandItem extends SwtEditorItem<ExpandItem> implements EditorExpandItem {
 	public SwtEditorExpandItem(SwtEditorExpandBar parent) {
 		super(new ExpandItem(parent.widget, 0));
 	}
