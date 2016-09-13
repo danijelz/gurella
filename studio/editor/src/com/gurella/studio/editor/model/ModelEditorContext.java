@@ -17,10 +17,6 @@ public class ModelEditorContext<T> {
 		this(sceneEditorContext, null, Models.getModel(modelInstance), modelInstance);
 	}
 
-	public ModelEditorContext(SceneEditorContext sceneEditorContext, Model<T> model, T modelInstance) {
-		this(sceneEditorContext, null, model, modelInstance);
-	}
-
 	public ModelEditorContext(ModelEditorContext<?> parent, T modelInstance) {
 		this(parent.sceneEditorContext, parent, Models.getModel(modelInstance), modelInstance);
 	}
