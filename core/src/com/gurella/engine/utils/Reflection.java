@@ -2,12 +2,7 @@ package com.gurella.engine.utils;
 
 import java.lang.annotation.Annotation;
 
-import com.badlogic.gdx.scenes.scene2d.actions.AddAction;
-import com.badlogic.gdx.scenes.scene2d.actions.ScaleByAction;
-import com.badlogic.gdx.scenes.scene2d.actions.SizeByAction;
-import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
@@ -16,8 +11,9 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 //TODO caches + exceptions description
 public class Reflection {
-	private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
-	private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>, Constructor>();
+	// private static final ObjectMap<String, Class<?>> classesByName = new ObjectMap<String, Class<?>>();
+	// private static final ObjectMap<Class<?>, Constructor> constructorsByClass = new ObjectMap<Class<?>,
+	// Constructor>();
 
 	public static ClassResolver classResolver = new ClassResolver() {
 		@Override
@@ -380,12 +376,6 @@ public class Reflection {
 		}
 
 		return getCommonClass(first, second.getSuperclass());
-	}
-
-	public static void main(String[] args) {
-		System.out.println(getCommonClass(SizeByAction.class, ScaleByAction.class).getSimpleName());
-		System.out.println(getCommonClass(SizeByAction.class, TemporalAction.class).getSimpleName());
-		System.out.println(getCommonClass(SizeByAction.class, AddAction.class).getSimpleName());
 	}
 
 	public interface ClassResolver {

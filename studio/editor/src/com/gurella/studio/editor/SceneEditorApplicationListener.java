@@ -123,7 +123,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		perspectiveCamera.viewportWidth = width;
 		perspectiveCamera.viewportHeight = height;
 		perspectiveCamera.update();
-		compass.resize(width, height);
 	}
 
 	@Override
@@ -233,32 +232,32 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	public void onMouseMenu(float x, float y) {
 		GurellaSceneEditor editor = SceneEditorUtils.getCurrentEditor();
 		SceneEditorPartControl partControl = editor.getPartControl();
-		
+
 		Menu menu = new Menu(partControl.getShell(), POP_UP);
 		MenuItem item = new MenuItem(menu, PUSH);
 		item.setText("Front");
 		item.addListener(SWT.Selection, e -> toFront());
-		
+
 		item = new MenuItem(menu, PUSH);
 		item.setText("Back");
 		item.addListener(SWT.Selection, e -> toBack());
-		
+
 		item = new MenuItem(menu, PUSH);
 		item.setText("Top");
 		item.addListener(SWT.Selection, e -> toTop());
-		
+
 		item = new MenuItem(menu, PUSH);
 		item.setText("Bottom");
 		item.addListener(SWT.Selection, e -> toBottom());
-		
+
 		item = new MenuItem(menu, PUSH);
 		item.setText("Right");
 		item.addListener(SWT.Selection, e -> toRight());
-		
+
 		item = new MenuItem(menu, PUSH);
 		item.setText("Left");
 		item.addListener(SWT.Selection, e -> toLeft());
-		
+
 		menu.setLocation(partControl.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
@@ -278,7 +277,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		selectedCamera.lookAt(0, 0, 0);
 		selectedCamera.update(true);
 	}
-	
+
 	private void toTop() {
 		selectedCamera.position.set(0, 3, 0);
 		selectedCamera.direction.set(0, -1, 0);
@@ -286,7 +285,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		selectedCamera.lookAt(0, 0, 0);
 		selectedCamera.update(true);
 	}
-	
+
 	private void toBottom() {
 		selectedCamera.position.set(0, -3, 0);
 		selectedCamera.direction.set(0, -1, 0);
@@ -294,7 +293,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		selectedCamera.lookAt(0, 0, 0);
 		selectedCamera.update(true);
 	}
-	
+
 	private void toRight() {
 		selectedCamera.position.set(3, 0, 0);
 		selectedCamera.direction.set(-1, 0, 0);
@@ -302,7 +301,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		selectedCamera.lookAt(0, 0, 0);
 		selectedCamera.update(true);
 	}
-	
+
 	private void toLeft() {
 		selectedCamera.position.set(-3, 0, 0);
 		selectedCamera.direction.set(1, 0, 0);

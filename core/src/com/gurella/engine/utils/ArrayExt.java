@@ -115,7 +115,7 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 		return super.equals(obj);
 	}
 
-	static public <T> ArrayExt<T> with(T... array) {
+	static public <T> ArrayExt<T> with(@SuppressWarnings("unchecked") T... array) {
 		return new ArrayExt<T>(array);
 	}
 }

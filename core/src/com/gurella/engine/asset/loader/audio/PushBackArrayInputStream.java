@@ -42,9 +42,10 @@ public class PushBackArrayInputStream extends InputStream {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
+		int offset = off;
 		if (b == null) {
 			throw new NullPointerException();
-		} else if (off < 0 || len < 0 || len > b.length - off) {
+		} else if (offset < 0 || len < 0 || len > b.length - offset) {
 			throw new IndexOutOfBoundsException();
 		} else if (len == 0) {
 			return 0;
@@ -65,8 +66,8 @@ public class PushBackArrayInputStream extends InputStream {
 			int fragmentPos = (int) (pos % fragmentSize);
 			byte[] fragment = buffer.get(bufferFragment);
 			int fragmentCount = Math.min(fragmentSize - fragmentPos, count);
-			System.arraycopy(fragment, fragmentPos, b, off, fragmentCount);
-			off += fragmentCount;
+			System.arraycopy(fragment, fragmentPos, b, offset, fragmentCount);
+			offset += fragmentCount;
 			count -= fragmentCount;
 			pos += fragmentCount;
 		}

@@ -1,49 +1,50 @@
 package com.gurella.studio.editor;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+//import java.io.ByteArrayInputStream;
+//import java.io.ByteArrayOutputStream;
+//import java.io.File;
+//import java.io.InputStream;
+//import java.lang.reflect.Method;
+//import java.net.MalformedURLException;
+//import java.net.URI;
+//import java.net.URL;
+//import java.net.URLClassLoader;
+//import java.util.ArrayList;
+//import java.util.Arrays;
+//import java.util.HashSet;
+//import java.util.List;
+//import java.util.Set;
+//import java.util.StringTokenizer;
+//
+//import org.eclipse.core.resources.IContainer;
+//import org.eclipse.core.resources.IFile;
+//import org.eclipse.core.resources.IFolder;
+//import org.eclipse.core.resources.IMarker;
+//import org.eclipse.core.resources.IProject;
+//import org.eclipse.core.resources.IProjectDescription;
+//import org.eclipse.core.resources.IResource;
+//import org.eclipse.core.resources.IWorkspace;
+//import org.eclipse.core.resources.IncrementalProjectBuilder;
+//import org.eclipse.core.resources.ResourcesPlugin;
+//import org.eclipse.core.runtime.CoreException;
+//import org.eclipse.core.runtime.IPath;
+//import org.eclipse.core.runtime.IProgressMonitor;
+//import org.eclipse.core.runtime.Path;
+//import org.eclipse.core.runtime.Platform;
+//import org.eclipse.core.runtime.SubProgressMonitor;
+//import org.eclipse.jdt.core.IClasspathAttribute;
+//import org.eclipse.jdt.core.IClasspathEntry;
+//import org.eclipse.jdt.core.IJavaModel;
+//import org.eclipse.jdt.core.IJavaProject;
+//import org.eclipse.jdt.core.IPackageFragmentRoot;
+//import org.eclipse.jdt.core.JavaCore;
+//import org.eclipse.jdt.core.JavaModelException;
+//import org.eclipse.swt.widgets.Monitor;
+//import org.osgi.framework.Bundle;
+//
+//import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.swt.widgets.Monitor;
-import org.osgi.framework.Bundle;
-
-import com.badlogic.gdx.utils.GdxRuntimeException;
-
+//TODO unused
 public class ClassLoaderTutorial {
 //	public static void initialize(Monitor monitor, final JETEmitter jetEmitter) {
 //		IProgressMonitor progressMonitor = BasicMonitor.toIProgressMonitor(monitor);

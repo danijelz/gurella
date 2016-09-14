@@ -112,7 +112,7 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 			tableViewer.setInput(regions.toArray());
 
 			transform = new Transform(getDisplay());
-			addListener(SWT.Dispose, (e) -> transform.dispose());
+			addListener(SWT.Dispose, e -> transform.dispose());
 
 			createImage();
 			imageComposite = toolkit.createComposite(this, SWT.BORDER);
@@ -139,10 +139,9 @@ public class TextureAtlasInspectableContainer extends InspectableContainer<IFile
 			try {
 				InputStream contents = page.textureFile.read();
 				image = new Image(getDisplay(), contents);
-				addListener(SWT.Dispose, (e) -> image.dispose());
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				addListener(SWT.Dispose, e -> image.dispose());
+			} catch (Exception e) {
+				GurellaStudioPlugin.log(e, "Error loading image");
 			}
 		}
 

@@ -7,8 +7,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 import com.badlogic.gdx.utils.Pools;
+import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 
 // https://github.com/MWisBest/JOrbis/blob/master/src/com/jcraft/jorbis/VorbisFile.java
 public class VorbisFile implements Poolable {
@@ -124,17 +124,18 @@ public class VorbisFile implements Poolable {
 			}
 		}
 
-		prefetch_all_headers(initial_i, (int) fileLength);
+		prefetch_all_headers(initial_i);
 		og.free();
 
 		return 0;
 	}
 
 	private int fetch_headers(Info vi, int[] serialno, Page og_ptr) {
+		Page temp = og_ptr;
 		Page og = Page.obtain();
 		int ret;
 
-		if (og_ptr == null) {
+		if (temp == null) {
 			ret = get_next_page(og, CHUNKSIZE);
 			if (ret == OV_EREAD) {
 				og.free();
@@ -144,17 +145,17 @@ public class VorbisFile implements Poolable {
 				og.free();
 				return OV_ENOTVORBIS;
 			}
-			og_ptr = og;
+			temp = og;
 		}
 
 		if (serialno != null)
-			serialno[0] = og_ptr.serialno();
+			serialno[0] = temp.serialno();
 
-		os.init(og_ptr.serialno());
+		os.init(temp.serialno());
 
 		int i = 0;
 		while (i < 3) {
-			os.pagein(og_ptr);
+			os.pagein(temp);
 			while (i < 3) {
 				int result = os.packetout(op);
 				if (result == 0) {
@@ -176,7 +177,7 @@ public class VorbisFile implements Poolable {
 			}
 
 			if (i < 3)
-				if (get_next_page(og_ptr, 1) < 0) {
+				if (get_next_page(temp, 1) < 0) {
 					op.reset();
 					os.reset();
 					og.free();
@@ -189,7 +190,7 @@ public class VorbisFile implements Poolable {
 		return 0;
 	}
 
-	private void prefetch_all_headers(Info first_i, int dataoffset) {
+	private void prefetch_all_headers(Info first_i) {
 		Page og = Page.obtain();
 		int ret;
 
@@ -269,8 +270,10 @@ public class VorbisFile implements Poolable {
 	}
 
 	private int get_next_page(Page page, long boundary) {
-		if (boundary > 0)
+		if (boundary > 0) {
 			boundary += fileLength;
+		}
+
 		while (true) {
 			int more;
 			if (boundary > 0 && fileLength >= boundary)
@@ -283,10 +286,12 @@ public class VorbisFile implements Poolable {
 					if (boundary == 0)
 						return OV_FALSE;
 					int ret = get_data();
-					if (ret == 0)
+					if (ret == 0) {
 						return OV_EOF;
-					if (ret < 0)
+					}
+					if (ret < 0) {
 						return OV_EREAD;
+					}
 				} else {
 					int ret = (int) fileLength; // !!!
 					fileLength += more;
@@ -336,8 +341,9 @@ public class VorbisFile implements Poolable {
 			}
 			if (ret < 0 || page.serialno() != currentno) {
 				endsearched = bisect;
-				if (ret >= 0)
+				if (ret >= 0) {
 					next = ret;
+				}
 			} else {
 				searched = ret + page.header_len + page.body_len;
 			}

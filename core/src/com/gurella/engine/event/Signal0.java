@@ -2,9 +2,10 @@ package com.gurella.engine.event;
 
 public class Signal0 extends Signal<Listener0> {
 	public void dispatch() {
-		Listener0[] items = listeners.begin();
+		Object[] items = listeners.begin();
 		for (int i = 0, n = listeners.size; i < n; i++) {
-			items[i].handle();
+			Listener0 listener = (Listener0) items[i];
+			listener.handle();
 		}
 		listeners.end();
 	}

@@ -74,7 +74,8 @@ public class ErrorComposite extends Composite {
 		populateList(listToPopulate, status, 0, false);
 	}
 
-	private void populateList(List listToPopulate, IStatus buildingStatus, int nesting, boolean includeStatus) {
+	private void populateList(List listToPopulate, IStatus buildingStatus, int depth, boolean includeStatus) {
+		int nesting = depth;
 		Throwable t = buildingStatus.getException();
 		boolean incrementNesting = false;
 

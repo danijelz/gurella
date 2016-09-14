@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 /**
  * https://github.com/mbrlabs/Mundus
+ * 
  * @author Marcus Brummer
  */
 public class Compass implements Disposable {
@@ -77,9 +78,9 @@ public class Compass implements Disposable {
 	}
 
 	private void update() {
-		//compassInstance.transform.getTranslation(tempTranslation);
-		//compassInstance.transform.set(worldCamera.view).inv();
-		//compassInstance.transform.setTranslation(tempTranslation);
+		// compassInstance.transform.getTranslation(tempTranslation);
+		// compassInstance.transform.set(worldCamera.view).inv();
+		// compassInstance.transform.setTranslation(tempTranslation);
 		worldCamera.view.getRotation(tempRotation);
 		tempRotation.conjugate();
 		compassInstance.transform.set(tempTranslation, tempRotation);
@@ -88,9 +89,5 @@ public class Compass implements Disposable {
 	@Override
 	public void dispose() {
 		compassModel.dispose();
-	}
-
-	public void resize(int width, int height) {
-		//TODO compassInstance.transform.translate(width - 0.92f, height - 0.92f, 0);
 	}
 }

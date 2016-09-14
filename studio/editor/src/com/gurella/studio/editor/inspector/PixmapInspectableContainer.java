@@ -13,7 +13,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.PixmapProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 
@@ -35,14 +34,14 @@ public class PixmapInspectableContainer extends InspectableContainer<IFile> {
 		layoutData.minimumWidth = 200;
 		layoutData.minimumHeight = 300;
 		imageComposite.setLayoutData(layoutData);
-		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
+		imageComposite.addListener(SWT.Paint, e -> paintImage(e.gc));
 
 		try {
 			InputStream contents = target.getContents(true);
 			image = new Image(getDisplay(), contents);
-			addListener(SWT.Dispose, (e) -> image.dispose());
+			addListener(SWT.Dispose, e -> image.dispose());
 		} catch (CoreException e) {
-			throw new GdxRuntimeException(e);
+			GurellaStudioPlugin.log(e, "Error loading image");
 		}
 
 		reflow(true);

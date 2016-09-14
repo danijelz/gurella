@@ -4,9 +4,6 @@ import java.io.InputStream;
 import java.util.stream.IntStream;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -20,7 +17,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData.Region;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.BitmapFontProperties;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -76,9 +72,7 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 	private static class BitmapFontPage extends Composite {
 		private BitmapFontData data;
 		private int index;
-		// private List<Glyph> glyphs;
 
-		private TableViewer tableViewer;
 		private Composite imageComposite;
 		private Image image;
 
@@ -86,25 +80,10 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 			super(parent, SWT.NONE);
 			this.data = data;
 			this.index = index;
-			// Region[] regionArr = textureAtlasData.getRegions().toArray(Region.class);
-			// glyphs = Arrays.<Region> stream(regionArr).filter(r -> r.page == page).collect(Collectors.toList());
 
 			setLayout(new GridLayout());
 
 			FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-			// tableViewer = new TableViewer(this, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-			// Table table = tableViewer.getTable();
-			// table.setHeaderVisible(true);
-			// table.setLinesVisible(true);
-			// GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-			// layoutData.heightHint = 100;
-			// layoutData.minimumHeight = 100;
-			// table.setLayoutData(layoutData);
-			// table.addListener(SWT.Selection, e -> imageComposite.redraw());
-			// createTableColumns();
-			// toolkit.adapt(table);
-			// tableViewer.setContentProvider(ArrayContentProvider.getInstance());
-			// tableViewer.setInput(glyphs.toArray());
 
 			createImage();
 			imageComposite = toolkit.createComposite(this, SWT.BORDER);
@@ -113,18 +92,6 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 			layoutData.minimumHeight = 300;
 			imageComposite.setLayoutData(layoutData);
 			imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
-		}
-
-		private void createTableColumns() {
-			TableViewerColumn nameColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-			nameColumn.getColumn().setWidth(200);
-			nameColumn.getColumn().setText("Name");
-			nameColumn.setLabelProvider(new ColumnLabelProvider() {
-				@Override
-				public String getText(Object element) {
-					return ((Region) element).name;
-				}
-			});
 		}
 
 		private void createImage() {
@@ -171,27 +138,7 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 				int destHeight = (int) (imageHeight * ratio);
 				gc.drawRectangle(left - 1, top - 1, destWidth + 1, destHeight + 1);
 				gc.drawImage(image, 0, 0, imageWidth, imageHeight, left, top, destWidth, destHeight);
-
-				// gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
-				// gc.setLineStyle(SWT.LINE_DOT);
-				// glyphs.forEach(r -> drawRegionBorder(gc, r, left, top, ratio));
-				//
-				// IStructuredSelection selection = tableViewer.getStructuredSelection();
-				// Object element = selection.getFirstElement();
-				// if (element instanceof Region) {
-				// gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
-				// gc.setLineStyle(SWT.LINE_SOLID);
-				// drawRegionBorder(gc, (Region) element, left, top, ratio);
-				// }
 			}
-		}
-
-		private static void drawRegionBorder(GC gc, Region r, int left, int top, float ratio) {
-			int x = left + (int) (r.left * ratio);
-			int y = top + (int) (r.top * ratio);
-			int width = (int) ((r.rotate ? r.height : r.width) * ratio);
-			int height = (int) ((r.rotate ? r.width : r.height) * ratio);
-			gc.drawRectangle(x, y, width, height);
 		}
 	}
 }

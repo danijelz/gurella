@@ -40,15 +40,14 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		layoutData.minimumWidth = 200;
 		layoutData.minimumHeight = 300;
 		imageComposite.setLayoutData(layoutData);
-		imageComposite.addListener(SWT.Paint, (e) -> paintImage(e.gc));
+		imageComposite.addListener(SWT.Paint, e -> paintImage(e.gc));
 
 		try {
 			InputStream contents = target.getContents(true);
 			image = new Image(getDisplay(), contents);
-			addListener(SWT.Dispose, (e) -> image.dispose());
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			addListener(SWT.Dispose, e -> image.dispose());
+		} catch (CoreException e) {
+			GurellaStudioPlugin.log(e, "Error loading image");
 		}
 
 		reflow(true);

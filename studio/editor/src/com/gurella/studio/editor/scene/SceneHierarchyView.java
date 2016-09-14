@@ -132,6 +132,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		graph.setMenu(menu);
 	}
 
+	@SuppressWarnings("unused")
 	private void createComponentsSubMenu() {
 		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 		subItem.setText("Add Component");

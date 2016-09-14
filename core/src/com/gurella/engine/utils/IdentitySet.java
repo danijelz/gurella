@@ -160,7 +160,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable {
 		addAll(Values.<T[]> cast(array.items), offset, length);
 	}
 
-	public void addAll(T... array) {
+	public void addAll(@SuppressWarnings("unchecked") T... array) {
 		addAll(array, 0, array.length);
 	}
 
@@ -561,7 +561,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable {
 		size = 0;
 	}
 
-	static public <T> IdentitySet<T> with(T... array) {
+	static public <T> IdentitySet<T> with(@SuppressWarnings("unchecked") T... array) {
 		IdentitySet<T> set = new IdentitySet<T>();
 		set.addAll(array);
 		return set;

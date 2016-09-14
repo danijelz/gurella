@@ -4,7 +4,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -13,7 +12,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IPathEditorInput;
 
-import com.gurella.engine.application.ApplicationConfig;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -31,10 +29,7 @@ public class SceneEditorContext {
 	private EditorMessageSignal signal = new EditorMessageSignal();
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
-	private ApplicationConfig applicationConfig;
 	Scene scene;
-
-	private IContainer rootAssetsContainer;
 
 	public SceneEditorContext(IPathEditorInput editorInput) {
 		this.editorInput = editorInput;

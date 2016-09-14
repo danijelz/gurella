@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.ErrorComposite;
 
 public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 	public ErrorInspectableContainer(InspectorView parent, Throwable throwable) {
@@ -30,17 +29,5 @@ public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 		Text text = toolkit.createText(getBody(), writer.toString(),
 				SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
 		text.setLayoutData(layoutData);
-		//parent.addListener(SWT.Resize, e -> setTextSize(text, layoutData));
-
-		/*ErrorComposite errorComposite = new ErrorComposite(body, throwable);
-		errorComposite.setLayoutData(layoutData);
-		toolkit.adapt(errorComposite);*/
-	}
-
-	private void setTextSize(Text text, GridData layoutData) {
-		/*layoutData.widthHint = getBody().getSize().x;
-		layoutData.heightHint = getBody().getSize().y;
-		getBody().setSize(getBody().getSize().x - 5, getBody().getSize().y - 5);*/
-		//reflow(true);
 	}
 }

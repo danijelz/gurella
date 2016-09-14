@@ -1,4 +1,4 @@
-package com.gurella.engine.asset.loader;
+package com.gurella.engine.asset.loader.object;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;

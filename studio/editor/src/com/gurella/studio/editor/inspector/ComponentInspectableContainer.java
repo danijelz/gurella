@@ -11,7 +11,6 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
-import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.model.ModelEditorFactory;
 
 public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent2> {
@@ -26,9 +25,8 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
 		getBody().setLayout(new GridLayout(3, false));
-		ModelEditorContext<SceneNodeComponent2> context = new ModelEditorContext<>(getSceneEditorContext(), target);
-		context.signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 		modelEditor = ModelEditorFactory.createEditor(getBody(), getSceneEditorContext(), target);
+		modelEditor.getContext().signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 		modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 		layout(true, true);
 	}

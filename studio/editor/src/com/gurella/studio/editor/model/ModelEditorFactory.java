@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.engine.model.CustomModelEditor;
-import com.gurella.studio.editor.engine.model.ModelEditorContextAdapter;
+import com.gurella.studio.editor.engine.model.CustomModelEditorContextAdapter;
 
 public class ModelEditorFactory {
 	private static final Map<Class<?>, String> customFactories = new HashMap<>();
@@ -26,7 +26,7 @@ public class ModelEditorFactory {
 		if (factory == null) {
 			return new DefaultMetaModelEditor<T>(parent, context, instance);
 		} else {
-			return new CustomModelEditor<>(parent, new ModelEditorContextAdapter<>(context, instance, factory));
+			return new CustomModelEditor<>(parent, new CustomModelEditorContextAdapter<>(context, instance, factory));
 		}
 	}
 
@@ -37,7 +37,7 @@ public class ModelEditorFactory {
 		if (factory == null) {
 			return new DefaultMetaModelEditor<T>(parent, new ModelEditorContext<>(parentContext, instance));
 		} else {
-			return new CustomModelEditor<>(parent, new ModelEditorContextAdapter<>(parentContext, instance, factory));
+			return new CustomModelEditor<>(parent, new CustomModelEditorContextAdapter<>(parentContext, instance, factory));
 		}
 	}
 

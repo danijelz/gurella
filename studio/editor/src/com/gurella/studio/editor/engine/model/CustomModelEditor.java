@@ -6,18 +6,18 @@ import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.model.MetaModelEditor;
 
 public class CustomModelEditor<T> extends MetaModelEditor<T> {
-	public CustomModelEditor(Composite parent, ModelEditorContextAdapter<T> context) {
+	public CustomModelEditor(Composite parent, CustomModelEditorContextAdapter<T> context) {
 		super(parent, context);
 	}
 
 	@Override
 	protected void createContent() {
-		ModelEditorContextAdapter<T> context = getContext();
+		CustomModelEditorContextAdapter<T> context = getContext();
 		context.factory.buildUi(SwtEditorUi.createComposite(this), context);
 	}
 
 	@Override
-	public ModelEditorContextAdapter<T> getContext() {
-		return (ModelEditorContextAdapter<T>) super.getContext();
+	public CustomModelEditorContextAdapter<T> getContext() {
+		return (CustomModelEditorContextAdapter<T>) super.getContext();
 	}
 }

@@ -33,13 +33,13 @@ public class SWT2Dutil {
 	 */
 	public static Rectangle transformRect(AffineTransform af, Rectangle src) {
 		Rectangle dest = new Rectangle(0, 0, 0, 0);
-		src = absRect(src);
-		Point p1 = new Point(src.x, src.y);
+		Rectangle src2 = absRect(src);
+		Point p1 = new Point(src2.x, src2.y);
 		p1 = transformPoint(af, p1);
 		dest.x = p1.x;
 		dest.y = p1.y;
-		dest.width = (int) (src.width * af.getScaleX());
-		dest.height = (int) (src.height * af.getScaleY());
+		dest.width = (int) (src2.width * af.getScaleX());
+		dest.height = (int) (src2.height * af.getScaleY());
 		return dest;
 	}
 
@@ -55,13 +55,13 @@ public class SWT2Dutil {
 	 */
 	public static Rectangle inverseTransformRect(AffineTransform af, Rectangle src) {
 		Rectangle dest = new Rectangle(0, 0, 0, 0);
-		src = absRect(src);
-		Point p1 = new Point(src.x, src.y);
+		Rectangle src2 = absRect(src);
+		Point p1 = new Point(src2.x, src2.y);
 		p1 = inverseTransformPoint(af, p1);
 		dest.x = p1.x;
 		dest.y = p1.y;
-		dest.width = (int) (src.width / af.getScaleX());
-		dest.height = (int) (src.height / af.getScaleY());
+		dest.width = (int) (src2.width / af.getScaleX());
+		dest.height = (int) (src2.height / af.getScaleY());
 		return dest;
 	}
 
