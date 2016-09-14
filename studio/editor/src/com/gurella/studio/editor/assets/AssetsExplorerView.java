@@ -25,6 +25,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
@@ -183,7 +184,10 @@ public class AssetsExplorerView extends SceneEditorView {
 		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
 			String extension = file.getFileExtension();
-			if (AssetType.texture.containsExtension(extension) || AssetType.pixmap.containsExtension(extension)) {
+			if (Values.isBlank(extension)) {
+				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
+			} else if (AssetType.texture.containsExtension(extension)
+					|| AssetType.pixmap.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/picture.png"));
 			} else if (AssetType.sound.containsExtension(extension)) {
 				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/music.png"));
