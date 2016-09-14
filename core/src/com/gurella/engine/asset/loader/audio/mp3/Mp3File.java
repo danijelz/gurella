@@ -5,14 +5,13 @@ import java.io.IOException;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 import com.badlogic.gdx.utils.Pools;
+import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 
 // https://github.com/cosenary/Battleship/blob/master/javazoom/jl/decoder/Bitstream.java
 public class Mp3File implements Poolable {
 	/**
-	 * Synchronization control constant for the initial synchronization to the
-	 * start of a frame.
+	 * Synchronization control constant for the initial synchronization to the start of a frame.
 	 */
 	static final byte INITIAL_SYNC = 0;
 
@@ -52,18 +51,20 @@ public class Mp3File implements Poolable {
 	private boolean firstframe = true;
 
 	public static float totalDuration(FileHandle file) {
-		Mp3File bitstream = new Mp3File();//TODO Pools.obtain(Mp3File.class);
+		Mp3File bitstream = Pools.obtain(Mp3File.class);
 		try {
 			bitstream.init(file);
 			return bitstream.totalDuration();
 		} catch (BitstreamException e) {
+			throw new GdxRuntimeException(e);
+		} catch (IOException e) {
 			throw new GdxRuntimeException(e);
 		} finally {
 			Pools.free(bitstream);
 		}
 	}
 
-	private Mp3File() {
+	Mp3File() {
 	}
 
 	/**
@@ -71,19 +72,56 @@ public class Mp3File implements Poolable {
 	 *
 	 * @param in
 	 *            The InputStream to read from.
+	 * @throws IOException
 	 */
-	public void init(FileHandle file) {
+	public void init(FileHandle file) throws IOException {
 		fileLength = (int) file.length();
 		source.init(file.read());
+		loadID3v2();
+		// source.skip(BUFFER_INT_SIZE * 4);
 		firstframe = true;
 		closeFrame();
+	}
+
+	private void loadID3v2() {
+		int size = -1;
+		try {
+			// Read ID3v2 header (10 bytes).
+			source.mark(10);
+			size = readID3v2Header();
+		} catch (IOException e) {
+		} finally {
+			try {
+				// Unread ID3v2 header (10 bytes).
+				source.reset();
+			} catch (IOException e) {
+			}
+		}
+
+		try {
+			if (size > 0) {
+				source.skip(size);
+			}
+		} catch (IOException e) {
+		}
+	}
+
+	private int readID3v2Header() throws IOException {
+		int size = -10;
+		source.read(frame_bytes, 0, 3);
+		// Look for ID3v2
+		if (frame_bytes[0] == 'I' && frame_bytes[1] == 'D' && frame_bytes[2] == '3') {
+			source.read(frame_bytes, 0, 3);
+			source.read(frame_bytes, 0, 4);
+			size = (frame_bytes[0] << 21) + (frame_bytes[1] << 14) + (frame_bytes[2] << 7) + frame_bytes[3];
+		}
+		return size + 10;
 	}
 
 	/**
 	 * Reads and parses the next frame from the input source.
 	 * 
-	 * @return the Header describing details of the frame read, or null if the
-	 *         end of the stream has been reached.
+	 * @return the Header describing details of the frame read, or null if the end of the stream has been reached.
 	 */
 	public Mp3Header readFrame() throws BitstreamException {
 		Mp3Header result = null;
@@ -155,8 +193,8 @@ public class Mp3File implements Poolable {
 	 */
 	public boolean isSyncCurrentPosition(int syncmode) throws BitstreamException {
 		int read = readSyncBuf(0, 4);
-		int headerstring = ((syncbuf[0] << 24) & 0xFF000000) | ((syncbuf[1] << 16) & 0x00FF0000) | ((syncbuf[2] << 8) & 0x0000FF00)
-				| ((syncbuf[3] << 0) & 0x000000FF);
+		int headerstring = ((syncbuf[0] << 24) & 0xFF000000) | ((syncbuf[1] << 16) & 0x00FF0000)
+				| ((syncbuf[2] << 8) & 0x0000FF00) | ((syncbuf[3] << 0) & 0x000000FF);
 
 		try {
 			source.unread(read);
@@ -182,16 +220,16 @@ public class Mp3File implements Poolable {
 	}
 
 	/**
-	 * Get next 32 bits from bitstream. They are stored in the headerstring.
-	 * syncmod allows Synchro flag ID The returned value is False at the end of
-	 * stream.
+	 * Get next 32 bits from bitstream. They are stored in the headerstring. syncmod allows Synchro flag ID The returned
+	 * value is False at the end of stream.
 	 */
 	int syncHeader(byte syncmode) throws BitstreamException {
 		if (readSyncBuf(0, 3) != 3) {
 			throw newBitstreamException(BitstreamException.STREAM_EOF, null);
 		}
 
-		int headerstring = ((syncbuf[0] << 16) & 0x00FF0000) | ((syncbuf[1] << 8) & 0x0000FF00) | ((syncbuf[2] << 0) & 0x000000FF);
+		int headerstring = ((syncbuf[0] << 16) & 0x00FF0000) | ((syncbuf[1] << 8) & 0x0000FF00)
+				| ((syncbuf[2] << 0) & 0x000000FF);
 
 		do {
 			headerstring <<= 8;
@@ -236,12 +274,12 @@ public class Mp3File implements Poolable {
 
 	protected boolean checkSyncMarkByMode(int headerstring, int syncmode) {
 		return syncmode == INITIAL_SYNC ? ((headerstring & 0xFFE00000) == 0xFFE00000)
-				: ((headerstring & 0xFFF80C00) == syncword) && (((headerstring & 0x000000C0) == 0x000000C0) == single_ch_mode);
+				: ((headerstring & 0xFFF80C00) == syncword)
+						&& (((headerstring & 0x000000C0) == 0x000000C0) == single_ch_mode);
 	}
 
 	/**
-	 * Reads the data for the next frame. The frame is not parsed until parse
-	 * frame is called.
+	 * Reads the data for the next frame. The frame is not parsed until parse frame is called.
 	 */
 	int read_frame_data(int bytesize) throws BitstreamException {
 		int numread = readFrameBytes(bytesize);
@@ -266,8 +304,7 @@ public class Mp3File implements Poolable {
 	}
 
 	/**
-	 * Reads the exact number of bytes from the source input stream into a byte
-	 * array.
+	 * Reads the exact number of bytes from the source input stream into a byte array.
 	 */
 	private int readFrameBytes(int len) throws BitstreamException {
 		try {
@@ -309,5 +346,6 @@ public class Mp3File implements Poolable {
 		single_ch_mode = false;
 		firstframe = true;
 		source.poolableReset();
+		header.reset();
 	}
 }

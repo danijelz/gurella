@@ -64,7 +64,7 @@ public class VorbisFile implements Poolable {
 				throw new GdxRuntimeException("VorbisFile: open return -1");
 			}
 		} catch (Exception e) {
-			throw new GdxRuntimeException("VorbisFile: " + e.toString());
+			throw new GdxRuntimeException("VorbisFile: " + e.toString(), e);
 		}
 	}
 

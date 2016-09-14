@@ -48,7 +48,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		initTree(editor);
-		tree.addListener(SWT.MouseUp, (e) -> presentInspectable());
+		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
@@ -156,8 +156,18 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 
 		if (resource instanceof IContainer) {
-			for (IResource member : ((IContainer) resource).members()) {
-				createItems(nodeItem, member);
+			IResource[] members = ((IContainer) resource).members();
+
+			for (IResource member : members) {
+				if (member instanceof IContainer) {
+					createItems(nodeItem, member);
+				}
+			}
+
+			for (IResource member : members) {
+				if (!(member instanceof IContainer)) {
+					createItems(nodeItem, member);
+				}
 			}
 		}
 	}

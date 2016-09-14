@@ -4,17 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.StreamUtils;
+import com.gurella.engine.pool.PoolService;
 
 public class PushBackArrayInputStream extends InputStream {
 	private static final int fragmentSize = 512;
-	private static final Pool<byte[]> fragmentsPool = new Pool<byte[]>() {
-		@Override
-		protected byte[] newObject() {
-			return new byte[fragmentSize];
-		}
-	};
+	/*
+	 * private static final Pool<byte[]> fragmentsPool = new Pool<byte[]>() {
+	 * 
+	 * @Override protected byte[] newObject() { return new byte[fragmentSize]; } };
+	 */
 
 	private Array<byte[]> buffer = new Array<byte[]>();
 	private long bufferSize;
@@ -95,7 +94,7 @@ public class PushBackArrayInputStream extends InputStream {
 			return false;
 		}
 
-		byte[] fragment = fragmentsPool.obtain();
+		byte[] fragment = PoolService.obtainByteArray(fragmentSize, 0);
 		buffer.add(fragment);
 		int count = in.read(fragment);
 
@@ -171,7 +170,7 @@ public class PushBackArrayInputStream extends InputStream {
 		markpos = -1;
 		eof = false;
 		for (int i = 0; i < buffer.size; i++) {
-			fragmentsPool.free(buffer.get(i));
+			PoolService.free(buffer.get(i));
 		}
 		buffer.clear();
 	}

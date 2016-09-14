@@ -6,7 +6,8 @@ public class Mp3Header {
 	private static final byte[] xing = new byte[] { 'X', 'i', 'n', 'g' };
 	private static final byte[] vbri = new byte[] { 'V', 'B', 'R', 'I' };
 	private static final double[] h_vbr_time_per_frame = { -1, 384, 1152, 1152 };
-	private static final int[][] frequencies = { { 22050, 24000, 16000, 1 }, { 44100, 48000, 32000, 1 }, { 11025, 12000, 8000, 1 } }; // SZD: MPEG25
+	//@formatter:off
+	private static final int[][] frequencies = { { 22050, 24000, 16000, 1 }, { 44100, 48000, 32000, 1 }, { 11025, 12000, 8000, 1 } };
 	private static final float ms_per_frame_array[][] = { { 8.707483f, 8.0f, 12.0f }, { 26.12245f, 24.0f, 36.0f }, { 26.12245f, 24.0f, 36.0f } };
 	public static final int bitrates[][][] = {
 			{ { 0, 32000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 144000, 160000, 176000, 192000, 224000, 256000, 0 },
@@ -21,6 +22,7 @@ public class Mp3Header {
 					{ 0, 8000, 16000, 24000, 32000, 40000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 144000, 160000, 0 } },
 
 	};
+	//@formatter:on
 
 	private static final int MPEG2_LSF = 0;
 	private static final int MPEG25_LSF = 2;
@@ -45,15 +47,17 @@ public class Mp3Header {
 	void read_header(Mp3File stream) throws BitstreamException {
 		int headerstring;
 		boolean sync = false;
+
 		do {
 			headerstring = stream.syncHeader(syncmode);
 			if (syncmode == Mp3File.INITIAL_SYNC) {
 				h_version = ((headerstring >>> 19) & 1);
 				if (((headerstring >>> 20) & 1) == 0) // SZD: MPEG2.5 detection
-					if (h_version == MPEG2_LSF)
+					if (h_version == MPEG2_LSF) {
 						h_version = MPEG25_LSF;
-					else
+					} else {
 						throw stream.newBitstreamException(0);
+					}
 				if ((h_sample_frequency = ((headerstring >>> 10) & 3)) == 3) {
 					throw stream.newBitstreamException(0);
 				}
@@ -79,6 +83,7 @@ public class Mp3Header {
 				stream.unreadFrame();
 			}
 		} while (!sync);
+
 		stream.parse_frame();
 	}
 
@@ -89,7 +94,7 @@ public class Mp3Header {
 	 * @author E.B (javalayer@javazoom.net)
 	 */
 	void parseVBR(byte[] firstframe) throws BitstreamException {
-		Arrays.fill(tmp, (byte)0);
+		Arrays.fill(tmp, (byte) 0);
 		// Trying Xing header.
 		int offset = 0;
 		// Compute "Xing" offset depending on MPEG version and channels.
@@ -99,10 +104,11 @@ public class Mp3Header {
 			else
 				offset = 36 - 4;
 		} else {
-			if (h_mode == SINGLE_CHANNEL)
+			if (h_mode == SINGLE_CHANNEL) {
 				offset = 13 - 4;
-			else
+			} else {
 				offset = 21 - 4;
+			}
 		}
 		try {
 			System.arraycopy(firstframe, offset, tmp, 0, 4);
@@ -117,13 +123,15 @@ public class Mp3Header {
 				// Read number of frames (if available).
 				if ((flag & (byte) (1 << 0)) != 0) {
 					System.arraycopy(firstframe, offset + length, tmp, 0, tmp.length);
-					h_vbr_frames = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00 | tmp[3] & 0x000000FF;
+					h_vbr_frames = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000
+							| (tmp[2] << 8) & 0x0000FF00 | tmp[3] & 0x000000FF;
 					length += 4;
 				}
 				// Read size (if available).
 				if ((flag & (byte) (1 << 1)) != 0) {
 					System.arraycopy(firstframe, offset + length, tmp, 0, tmp.length);
-					h_vbr_bytes = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00 | tmp[3] & 0x000000FF;
+					h_vbr_bytes = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00
+							| tmp[3] & 0x000000FF;
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
@@ -140,10 +148,12 @@ public class Mp3Header {
 				h_vbr_bytes = -1;
 				int length = 4 + 6;
 				System.arraycopy(firstframe, offset + length, tmp, 0, tmp.length);
-				h_vbr_bytes = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00 | tmp[3] & 0x000000FF;
+				h_vbr_bytes = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00
+						| tmp[3] & 0x000000FF;
 				length += 4;
 				System.arraycopy(firstframe, offset + length, tmp, 0, tmp.length);
-				h_vbr_frames = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00 | tmp[3] & 0x000000FF;
+				h_vbr_frames = (tmp[0] << 24) & 0xFF000000 | (tmp[1] << 16) & 0x00FF0000 | (tmp[2] << 8) & 0x0000FF00
+						| tmp[3] & 0x000000FF;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new BitstreamException("VBRIVBRHeader Corrupted", e);
@@ -165,21 +175,24 @@ public class Mp3Header {
 	}
 
 	/**
-	 * Calculate Frame size. Calculates framesize in bytes excluding header
-	 * size.
+	 * Calculate Frame size. Calculates framesize in bytes excluding header size.
 	 */
 	private int calculate_framesize() {
 		if (h_layer == 1) {
 			framesize = (12 * bitrates[h_version][0][h_bitrate_index]) / frequencies[h_version][h_sample_frequency];
-			if (h_padding_bit != 0)
+			if (h_padding_bit != 0) {
 				framesize++;
+			}
 			framesize <<= 2; // one slot is 4 bytes long
 		} else {
-			framesize = (144 * bitrates[h_version][h_layer - 1][h_bitrate_index]) / frequencies[h_version][h_sample_frequency];
-			if (h_version == MPEG2_LSF || h_version == MPEG25_LSF)
+			framesize = (144 * bitrates[h_version][h_layer - 1][h_bitrate_index])
+					/ frequencies[h_version][h_sample_frequency];
+			if (h_version == MPEG2_LSF || h_version == MPEG25_LSF) {
 				framesize >>= 1; // SZD
-			if (h_padding_bit != 0)
+			}
+			if (h_padding_bit != 0) {
 				framesize++;
+			}
 		}
 		framesize -= 4; // subtract header size
 		return framesize;
@@ -229,8 +242,9 @@ public class Mp3Header {
 	public float ms_per_frame() {
 		if (h_vbr == true) {
 			double tpf = h_vbr_time_per_frame[layer()] / frequency();
-			if ((h_version == MPEG2_LSF) || (h_version == MPEG25_LSF))
+			if ((h_version == MPEG2_LSF) || (h_version == MPEG25_LSF)) {
 				tpf /= 2;
+			}
 			return ((float) (tpf * 1000));
 		} else {
 			return (ms_per_frame_array[h_layer - 1][h_sample_frequency]);
@@ -267,5 +281,19 @@ public class Mp3Header {
 	 */
 	public int bitrate_instant() {
 		return bitrates[h_version][h_layer - 1][h_bitrate_index];
+	}
+
+	public void reset() {
+		h_layer = 0;
+		h_bitrate_index = 0;
+		h_padding_bit = 0;
+		h_version = 0;
+		h_mode = 0;
+		h_sample_frequency = 0;
+		h_vbr = false;
+		h_vbr_frames = 0;
+		h_vbr_bytes = 0;
+		framesize = 0;
+		syncmode = Mp3File.INITIAL_SYNC;
 	}
 }
