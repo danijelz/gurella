@@ -252,12 +252,6 @@ public class StreamState implements Poolable {
 		return 0;
 	}
 
-	public void clear() {
-		body_data = null;
-		lacing_vals = null;
-		granule_vals = null;
-	}
-
 	@Override
 	public void reset() {
 		body_fill = 0;

@@ -18,7 +18,7 @@ public class Info implements Poolable {
 		return Pools.obtain(Info.class);
 	}
 
-	private Info() {
+	Info() {
 	}
 
 	// Header packing/unpacking

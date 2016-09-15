@@ -49,7 +49,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		initTree(editor);
-		tree.addListener(SWT.MouseUp, e -> presentInspectable());
+		tree.addListener(SWT.Selection, e -> presentInspectable());
 
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });

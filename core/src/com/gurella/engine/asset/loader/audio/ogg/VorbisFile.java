@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Pools;
 import com.gurella.engine.asset.loader.audio.PushBackArrayInputStream;
 
 // https://github.com/MWisBest/JOrbis/blob/master/src/com/jcraft/jorbis/VorbisFile.java
+//TODO ensure final data in vorbis classes (private final Page tempPage; instead of Page.obtain())
 public class VorbisFile implements Poolable {
 	private static final int CHUNKSIZE = 8500;
 
@@ -34,6 +35,7 @@ public class VorbisFile implements Poolable {
 	private final LongArray pcmlengths = new LongArray();
 	private final Array<Info> vi = new Array<Info>();
 
+	private final int[] tempSerialno = new int[1];
 
 	public static void main(String[] args) {
 		float time_total = totalDuration(new FileHandle("/home/danijel/Music/orc_pain.ogg"));
@@ -71,29 +73,10 @@ public class VorbisFile implements Poolable {
 		}
 	}
 
-	@Override
-	public void reset() {
-		datasource.poolableReset();
-		os.reset();
-		op.reset();
-		oy.reset();
-
-		offset = 0;
-		links = 0;
-		offsets.clear();
-		pcmlengths.clear();
-		for (int i = 0; i < vi.size; i++) {
-			vi.get(i).free();
-		}
-		vi.clear();
-	}
-
 	private int open_seekable() {
 		Info initial_i = Info.obtain();
-		Page og = Page.obtain();
-		int[] foo = new int[1];
-		int ret = fetch_headers(initial_i, foo, null);
-		int serialno = foo[0];
+		int ret = fetch_headers(initial_i, tempSerialno, null);
+		int serialno = tempSerialno[0];
 		os.reset();
 
 		if (ret == -1) {
@@ -106,9 +89,11 @@ public class VorbisFile implements Poolable {
 			return ret;
 		}
 
-		offset = fileLength;
+		// offset = fileLength;
+		seek(fileLength);
 		// We get the offset for the last page of the physical bitstream.
 		// Most OggVorbis files will contain a single logical bitstream
+		Page og = Page.obtain();
 		long end = get_prev_page(og);
 		// moer than one logical bitstream?
 		if (og.serialno() != serialno) {
@@ -152,8 +137,9 @@ public class VorbisFile implements Poolable {
 			temp = og;
 		}
 
-		if (serialno != null)
+		if (serialno != null) {
 			serialno[0] = temp.serialno();
+		}
 
 		os.init(temp.serialno());
 
@@ -196,7 +182,6 @@ public class VorbisFile implements Poolable {
 
 	private void prefetch_all_headers(Info first_i) {
 		Page og = Page.obtain();
-		int ret;
 
 		vi.ensureCapacity(links - vi.size);
 		vi.size = links;
@@ -221,20 +206,16 @@ public class VorbisFile implements Poolable {
 
 			// get the serial number and PCM length of this link. To do this,
 			// get the last page of the stream
-			{
-				long end = offsets.get(i + 1); // !!!
-				seek(end);
+			long end = offsets.get(i + 1); // !!!
+			seek(end);
 
-				while (true) {
-					ret = get_prev_page(og);
-					if (ret == -1) {
-						// this should not be possible
-						break;
-					}
-					if (og.granulepos() != -1) {
-						pcmlengths.set(i, og.granulepos());
-						break;
-					}
+			while (true) {
+				if (get_prev_page(og) == -1) {
+					// this should not be possible
+					break;
+				} else if (og.granulepos() != -1) {
+					pcmlengths.set(i, og.granulepos());
+					break;
 				}
 			}
 		}
@@ -243,29 +224,31 @@ public class VorbisFile implements Poolable {
 	}
 
 	private int get_prev_page(Page page) {
-		long begin = offset; // !!!
+		long begin = offset;
 		int ret;
 		int offst = -1;
+
 		while (offst == -1) {
 			begin -= CHUNKSIZE;
-			if (begin < 0)
+			if (begin < 0) {
 				begin = 0;
+			}
+
 			seek(begin);
+
 			while (offset < begin + CHUNKSIZE) {
 				ret = get_next_page(page, begin + CHUNKSIZE - offset);
 				if (ret == OV_EREAD) {
 					return OV_EREAD;
-				}
-				if (ret < 0) {
-					if (offst == -1) {
-						throw new GdxRuntimeException("");
-					}
+				} else if (ret < 0) {
 					break;
 				}
 				offst = ret;
 			}
 		}
-		seek(offst); // !!!
+
+		seek(offst);
+
 		ret = get_next_page(page, CHUNKSIZE);
 		if (ret < 0) {
 			return OV_EFAULT;
@@ -282,20 +265,23 @@ public class VorbisFile implements Poolable {
 
 		while (true) {
 			int more;
-			if (temp > 0 && offset >= temp)
+			if (temp > 0 && offset >= temp) {
 				return OV_FALSE;
+			}
+
 			more = oy.pageseek(page);
 			if (more < 0) {
 				offset -= more;
 			} else {
 				if (more == 0) {
-					if (temp == 0)
+					if (temp == 0) {
 						return OV_FALSE;
+					}
+
 					int ret = get_data();
 					if (ret == 0) {
 						return OV_EOF;
-					}
-					if (ret < 0) {
+					} else if (ret < 0) {
 						return OV_EREAD;
 					}
 				} else {
@@ -322,6 +308,7 @@ public class VorbisFile implements Poolable {
 		if (bytes == -1) {
 			bytes = 0;
 		}
+
 		return bytes;
 	}
 
@@ -333,20 +320,14 @@ public class VorbisFile implements Poolable {
 		int ret;
 
 		while (temp < endsearched) {
-			long bisect;
-			if (endsearched - temp < CHUNKSIZE) {
-				bisect = temp;
-			} else {
-				bisect = (temp + endsearched) / 2;
-			}
-
+			long bisect = (endsearched - temp < CHUNKSIZE) ? temp : (temp + endsearched) / 2;
 			seek(bisect);
+
 			ret = get_next_page(page, -1);
 			if (ret == OV_EREAD) {
 				page.free();
 				return OV_EREAD;
-			}
-			if (ret < 0 || page.serialno() != currentno) {
+			} else if (ret < 0 || page.serialno() != currentno) {
 				endsearched = bisect;
 				if (ret >= 0) {
 					next = ret;
@@ -357,6 +338,7 @@ public class VorbisFile implements Poolable {
 		}
 
 		seek(next);
+
 		ret = get_next_page(page, -1);
 		if (ret == OV_EREAD) {
 			page.free();
@@ -387,6 +369,7 @@ public class VorbisFile implements Poolable {
 			datasource.seek(offst);
 		} catch (Exception e) {
 		}
+
 		this.offset = offst;
 		oy.resetState();
 	}
@@ -397,5 +380,22 @@ public class VorbisFile implements Poolable {
 			acc += (((float) pcmlengths.get(j)) / vi.get(j).rate);
 		}
 		return (acc);
+	}
+
+	@Override
+	public void reset() {
+		datasource.poolableReset();
+		os.reset();
+		op.reset();
+		oy.reset();
+
+		offset = 0;
+		links = 0;
+		offsets.clear();
+		pcmlengths.clear();
+		for (int i = 0; i < vi.size; i++) {
+			vi.get(i).free();
+		}
+		vi.clear();
 	}
 }

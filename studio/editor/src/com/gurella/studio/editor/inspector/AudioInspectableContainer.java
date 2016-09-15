@@ -43,14 +43,13 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		layoutData.horizontalSpan = 2;
 		layoutData.minimumWidth = 100;
 		progress.setLayoutData(layoutData);
-
-		FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
-		music = Gdx.audio.newMusic(fileHandle);
-		totalDuration = SoundDuration.totalDuration(fileHandle);
 		progress.setMinimum(0);
 		progress.setMaximum((int) (totalDuration * 1000));
 
+		FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
+		music = Gdx.audio.newMusic(fileHandle);
 		body.addDisposeListener(e -> music.dispose());
+		totalDuration = SoundDuration.totalDuration(fileHandle);
 
 		reflow(true);
 	}
