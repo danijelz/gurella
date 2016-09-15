@@ -270,20 +270,21 @@ public class VorbisFile implements Poolable {
 	}
 
 	private int get_next_page(Page page, long boundary) {
-		if (boundary > 0) {
-			boundary += fileLength;
+		long temp = boundary;
+		if (temp > 0) {
+			temp += fileLength;
 		}
 
 		while (true) {
 			int more;
-			if (boundary > 0 && fileLength >= boundary)
+			if (temp > 0 && fileLength >= temp)
 				return OV_FALSE;
 			more = oy.pageseek(page);
 			if (more < 0) {
 				fileLength -= more;
 			} else {
 				if (more == 0) {
-					if (boundary == 0)
+					if (temp == 0)
 						return OV_FALSE;
 					int ret = get_data();
 					if (ret == 0) {
@@ -320,17 +321,18 @@ public class VorbisFile implements Poolable {
 	}
 
 	private int bisect_forward_serialno(long begin, long searched, long end, int currentno, int m) {
+		long temp = searched;
 		long endsearched = end;
 		long next = end;
 		Page page = Page.obtain();
 		int ret;
 
-		while (searched < endsearched) {
+		while (temp < endsearched) {
 			long bisect;
-			if (endsearched - searched < CHUNKSIZE) {
-				bisect = searched;
+			if (endsearched - temp < CHUNKSIZE) {
+				bisect = temp;
 			} else {
-				bisect = (searched + endsearched) / 2;
+				bisect = (temp + endsearched) / 2;
 			}
 
 			seek(bisect);
@@ -345,7 +347,7 @@ public class VorbisFile implements Poolable {
 					next = ret;
 				}
 			} else {
-				searched = ret + page.header_len + page.body_len;
+				temp = ret + page.header_len + page.body_len;
 			}
 		}
 
@@ -356,12 +358,12 @@ public class VorbisFile implements Poolable {
 			return OV_EREAD;
 		}
 
-		if (searched >= end || ret == -1) {
+		if (temp >= end || ret == -1) {
 			links = m + 1;
 			int newOffsetsCapacity = m + 2;
 			offsets.ensureCapacity(newOffsetsCapacity - offsets.size);// = new long[m + 2];
 			offsets.size = newOffsetsCapacity;
-			offsets.set(m + 1, searched);
+			offsets.set(m + 1, temp);
 		} else {
 			ret = bisect_forward_serialno(next, fileLength, end, page.serialno(), m + 1);
 			if (ret == OV_EREAD) {
