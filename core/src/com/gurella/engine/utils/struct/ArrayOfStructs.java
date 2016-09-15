@@ -49,6 +49,14 @@ public class ArrayOfStructs {
 		offset--;
 	}
 
+	public void nextItem() {
+		offset += structSize;
+	}
+
+	public void previousItem() {
+		offset -= structSize;
+	}
+
 	public void rewind() {
 		offset = 0;
 	}
