@@ -141,32 +141,31 @@ public class SyncState implements Poolable {
 						break;
 					}
 				}
-				// next=memchr(page+1,'O',bytes-1);
-				if (next == 0)
+				
+				if (next == 0) {
 					next = fill;
+				}
 				returned = next;
 				return (-(next - page));
 			}
 		}
 
 		// yes, have a whole page all ready to go
-		{
-			page = returned;
+		page = returned;
 
-			if (og != null) {
-				og.header_base = data;
-				og.header = page;
-				og.header_len = headerbytes;
-				og.body_base = data;
-				og.body = page + headerbytes;
-				og.body_len = bodybytes;
-			}
-
-			returned += (bytes = headerbytes + bodybytes);
-			headerbytes = 0;
-			bodybytes = 0;
-			return bytes;
+		if (og != null) {
+			og.header_base = data;
+			og.header = page;
+			og.header_len = headerbytes;
+			og.body_base = data;
+			og.body = page + headerbytes;
+			og.body_len = bodybytes;
 		}
+
+		returned += (bytes = headerbytes + bodybytes);
+		headerbytes = 0;
+		bodybytes = 0;
+		return bytes;
 	}
 
 	// clear things to an initial state. Good to call, eg, before seeking
