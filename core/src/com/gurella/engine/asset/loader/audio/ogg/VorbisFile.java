@@ -26,7 +26,7 @@ public class VorbisFile implements Poolable {
 	private final Packet op = new Packet();
 	private final SyncState oy = new SyncState();
 
-	private long fileLength;
+	private long offset;
 
 	private int links;
 	private final LongArray offsets = new LongArray();
@@ -49,13 +49,13 @@ public class VorbisFile implements Poolable {
 		}
 	}
 
-	private VorbisFile() {
+	VorbisFile() {
 	}
 
 	public void init(FileHandle fileHandle) {
-		fileLength = fileHandle.length();
 		try {
 			datasource.init(fileHandle.read());
+			offset = datasource.available();
 			int ret = open_seekable();
 			if (ret != 0) {
 				reset();
@@ -75,7 +75,7 @@ public class VorbisFile implements Poolable {
 		op.reset();
 		oy.reset();
 
-		fileLength = 0;
+		offset = 0;
 		links = 0;
 		offsets.clear();
 		pcmlengths.clear();
@@ -239,7 +239,7 @@ public class VorbisFile implements Poolable {
 	}
 
 	private int get_prev_page(Page page) {
-		long begin = fileLength; // !!!
+		long begin = offset; // !!!
 		int ret;
 		int offst = -1;
 		while (offst == -1) {
@@ -247,14 +247,15 @@ public class VorbisFile implements Poolable {
 			if (begin < 0)
 				begin = 0;
 			seek(begin);
-			while (fileLength < begin + CHUNKSIZE) {
-				ret = get_next_page(page, begin + CHUNKSIZE - fileLength);
+			while (offset < begin + CHUNKSIZE) {
+				ret = get_next_page(page, begin + CHUNKSIZE - offset);
 				if (ret == OV_EREAD) {
 					return OV_EREAD;
 				}
 				if (ret < 0) {
-					if (offst == -1)
+					if (offst == -1) {
 						throw new GdxRuntimeException("");
+					}
 					break;
 				}
 				offst = ret;
@@ -272,16 +273,16 @@ public class VorbisFile implements Poolable {
 	private int get_next_page(Page page, long boundary) {
 		long temp = boundary;
 		if (temp > 0) {
-			temp += fileLength;
+			temp += offset;
 		}
 
 		while (true) {
 			int more;
-			if (temp > 0 && fileLength >= temp)
+			if (temp > 0 && offset >= temp)
 				return OV_FALSE;
 			more = oy.pageseek(page);
 			if (more < 0) {
-				fileLength -= more;
+				offset -= more;
 			} else {
 				if (more == 0) {
 					if (temp == 0)
@@ -294,8 +295,8 @@ public class VorbisFile implements Poolable {
 						return OV_EREAD;
 					}
 				} else {
-					int ret = (int) fileLength; // !!!
-					fileLength += more;
+					int ret = (int) offset; // !!!
+					offset += more;
 					return ret;
 				}
 			}
@@ -365,7 +366,7 @@ public class VorbisFile implements Poolable {
 			offsets.size = newOffsetsCapacity;
 			offsets.set(m + 1, temp);
 		} else {
-			ret = bisect_forward_serialno(next, fileLength, end, page.serialno(), m + 1);
+			ret = bisect_forward_serialno(next, offset, end, page.serialno(), m + 1);
 			if (ret == OV_EREAD) {
 				page.free();
 				return OV_EREAD;
@@ -382,7 +383,7 @@ public class VorbisFile implements Poolable {
 			datasource.seek(offst);
 		} catch (Exception e) {
 		}
-		this.fileLength = offst;
+		this.offset = offst;
 		oy.resetState();
 	}
 
