@@ -27,11 +27,13 @@ public class VorbisFile implements Poolable {
 	private final SyncState oy = new SyncState();
 
 	private long offset;
+	private long fileLength;
 
 	private int links;
 	private final LongArray offsets = new LongArray();
 	private final LongArray pcmlengths = new LongArray();
 	private final Array<Info> vi = new Array<Info>();
+
 
 	public static void main(String[] args) {
 		float time_total = totalDuration(new FileHandle("/home/danijel/Music/orc_pain.ogg"));
@@ -54,6 +56,7 @@ public class VorbisFile implements Poolable {
 
 	public void init(FileHandle fileHandle) {
 		try {
+			fileLength = fileHandle.length();
 			datasource.init(fileHandle.read());
 			offset = datasource.available();
 			int ret = open_seekable();
@@ -103,6 +106,7 @@ public class VorbisFile implements Poolable {
 			return ret;
 		}
 
+		offset = fileLength;
 		// We get the offset for the last page of the physical bitstream.
 		// Most OggVorbis files will contain a single logical bitstream
 		long end = get_prev_page(og);

@@ -11,9 +11,7 @@ public class StreamState implements Poolable {
 	/* The values that will go to the segment table */
 	private int[] lacing_vals;
 	/*
-	 * pcm_pos values for headers. Not compact
-	 * this way, but it is simple coupled to the
-	 * lacing fifo
+	 * pcm_pos values for headers. Not compact this way, but it is simple coupled to the lacing fifo
 	 */
 	private long[] granule_vals;
 	private int lacing_storage;
@@ -22,8 +20,7 @@ public class StreamState implements Poolable {
 	private int lacing_returned;
 
 	/*
-	 * set when we have buffered the last packet in the
-	 * logical bitstream
+	 * set when we have buffered the last packet in the logical bitstream
 	 */
 	private int serialno;
 	private int pageno;
@@ -74,9 +71,8 @@ public class StreamState implements Poolable {
 
 	public int packetout(Packet op) {
 		/*
-		 * The last part of decode. We have the stream broken into packet
-		 * segments. Now we need to group them into packets (or return the
-		 * out of sync markers)
+		 * The last part of decode. We have the stream broken into packet segments. Now we need to group them into
+		 * packets (or return the out of sync markers)
 		 */
 		int ptr = lacing_returned;
 
@@ -89,8 +85,7 @@ public class StreamState implements Poolable {
 			lacing_returned++;
 
 			/*
-			 * we need to tell the codec there's a gap; it might need to
-			 * handle previous packet dependencies.
+			 * we need to tell the codec there's a gap; it might need to handle previous packet dependencies.
 			 */
 			packetno++;
 			return (-1);
@@ -255,6 +250,12 @@ public class StreamState implements Poolable {
 
 		pageno = _pageno + 1;
 		return 0;
+	}
+
+	public void clear() {
+		body_data = null;
+		lacing_vals = null;
+		granule_vals = null;
 	}
 
 	@Override
