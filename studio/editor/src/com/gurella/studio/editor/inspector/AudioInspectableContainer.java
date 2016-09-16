@@ -108,16 +108,18 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 
 	private void updateProgress() {
 		if (!isDisposed()) {
-			float position = music.getPosition();
-			progressBar.setSelection((int) (position * 10000));
-			durationLabel.setText(
-					formatDuration((int) (position * 1000)) + " / " + formatDuration((int) (totalDuration * 1000)));
+			synchronized (music) {
+				float position = music.getPosition();
+				progressBar.setSelection((int) (position * 10000));
+				durationLabel.setText(
+						formatDuration((int) (position * 1000)) + " / " + formatDuration((int) (totalDuration * 1000)));
 
-			if (!music.isPlaying() && playButton.getImage() != playImage) {
-				playButton.setImage(playImage);
+				if (!music.isPlaying() && playButton.getImage() != playImage) {
+					playButton.setImage(playImage);
+				}
+
+				getDisplay().timerExec(40, () -> updateProgress());
 			}
-
-			getDisplay().timerExec(40, () -> updateProgress());
 		}
 	}
 
