@@ -3,6 +3,7 @@ package com.gurella.studio.editor.inspector;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -22,12 +23,15 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 	private Label durationLabel;
 	private Button playButton;
 	private Button stopButton;
-	private Button pauseButton;
 	private Button muteButton;
 	private ProgressBar progressBar;
 
+	private Image playImage;
+	private Image pauseImage;
+
 	private Music music;
 	private float totalDuration;
+	private boolean playing;
 
 	public AudioInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -45,6 +49,9 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		body.addDisposeListener(e -> music.dispose());
 		totalDuration = SoundDuration.totalDuration(fileHandle);
 
+		playImage = GurellaStudioPlugin.getImage("icons/play-button.png");
+		pauseImage = GurellaStudioPlugin.getImage("icons/pause-button.png");
+
 		durationLabel = toolkit.createLabel(body, "00:00:000 / " + formatDuration((int) (totalDuration * 1000)));
 		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.CENTER, SWT.TOP).applyTo(durationLabel);
 
@@ -55,21 +62,36 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		progressBar.setLayoutData(layoutData);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum((int) (totalDuration * 10000));
-		progressBar.addListener(SWT.MouseDown, this::refreshPosition);
+		// progressBar.addListener(SWT.MouseDown, this::refreshPosition);
 
 		playButton = toolkit.createButton(body, "", SWT.PUSH);
-		playButton.setImage(GurellaStudioPlugin.getImage("icons/play-button.png"));
-		playButton.setLayoutData(new GridData(SWT.RIGHT, SWT.BEGINNING, true, true));
-		playButton.addListener(SWT.Selection, e -> music.play());
+		playButton.setImage(playImage);
+		playButton.setLayoutData(new GridData(SWT.RIGHT, SWT.BEGINNING, true, false));
+		playButton.addListener(SWT.Selection, e -> play());
 
 		stopButton = toolkit.createButton(body, "", SWT.PUSH);
 		stopButton.setImage(GurellaStudioPlugin.getImage("icons/stop-button.png"));
-		stopButton.setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, true, true));
+		stopButton.setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, true, false));
 		stopButton.addListener(SWT.Selection, e -> music.stop());
+
+		Label separator = new Label(body, SWT.HORIZONTAL | SWT.SEPARATOR);
+		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(separator);
 
 		getDisplay().timerExec(40, () -> updateProgress());
 
 		reflow(true);
+	}
+
+	private void play() {
+		synchronized (music) {
+			if (music.isPlaying()) {
+				music.pause();
+				playButton.setImage(playImage);
+			} else {
+				music.play();
+				playButton.setImage(pauseImage);
+			}
+		}
 	}
 
 	private void refreshPosition(Event e) {
@@ -90,6 +112,11 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 			progressBar.setSelection((int) (position * 10000));
 			durationLabel.setText(
 					formatDuration((int) (position * 1000)) + " / " + formatDuration((int) (totalDuration * 1000)));
+
+			if (!music.isPlaying() && playButton.getImage() != playImage) {
+				playButton.setImage(playImage);
+			}
+
 			getDisplay().timerExec(40, () -> updateProgress());
 		}
 	}
