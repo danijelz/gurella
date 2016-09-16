@@ -6,20 +6,6 @@ import com.gurella.engine.asset.loader.audio.ogg.VorbisFile;
 import com.gurella.engine.asset.loader.audio.wav.WavFile;
 
 public class SoundDuration {
-	/*public static void main(String[] args) {
-		float duration = totalDuration("/home/danijel/Music/BigExplosion.wav");
-		BigDecimal decimal = new BigDecimal(duration);
-		System.out.println(decimal.toPlainString());
-
-		duration = totalDuration("/home/danijel/Music/OpenDialog.mp3");
-		decimal = new BigDecimal(duration);
-		System.out.println(decimal.toPlainString());
-
-		duration = totalDuration("/home/danijel/Music/orc_pain.ogg");
-		decimal = new BigDecimal(duration);
-		System.out.println(decimal.toPlainString());
-	}*/
-
 	public static float totalDuration(String fileName) {
 		return totalDuration(new FileHandle(fileName));
 	}

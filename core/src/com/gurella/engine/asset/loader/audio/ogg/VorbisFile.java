@@ -53,7 +53,7 @@ public class VorbisFile implements Poolable {
 		}
 	}
 
-	VorbisFile() {
+	private VorbisFile() {
 	}
 
 	public void init(FileHandle fileHandle) {

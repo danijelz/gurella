@@ -64,7 +64,7 @@ public class Mp3File implements Poolable {
 		}
 	}
 
-	Mp3File() {
+	private Mp3File() {
 	}
 
 	/**

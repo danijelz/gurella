@@ -7,6 +7,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -18,7 +19,6 @@ import com.gurella.engine.asset.loader.audio.SoundDuration;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class AudioInspectableContainer extends InspectableContainer<IFile> {
-	private Label titleLabel;
 	private Label durationLabel;
 	private Button playButton;
 	private Button stopButton;
@@ -31,25 +31,22 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 
 	public AudioInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
-		Composite body = getBody();
-		body.setLayout(new GridLayout(2, false));
+
+		setText(target.getName());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
+		toolkit.decorateFormHeading(getForm());
+
+		Composite body = getBody();
+		body.setLayout(new GridLayout(2, false));
 
 		FileHandle fileHandle = new FileHandle(target.getLocation().toFile());
 		music = Gdx.audio.newMusic(fileHandle);
 		body.addDisposeListener(e -> music.dispose());
 		totalDuration = SoundDuration.totalDuration(fileHandle);
 
-		Composite header = toolkit.createComposite(body);
-		header.setLayout(new GridLayout(2, false));
-		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).applyTo(header);
-
-		titleLabel = toolkit.createLabel(header, target.getName()/*, SWT.WRAP | SWT.LEFT*/);
-		GridDataFactory.swtDefaults().grab(true, false).hint(150, 18).applyTo(titleLabel);
-
-		durationLabel = toolkit.createLabel(header, "0:00:00 / " + formatDuration((int) totalDuration));
-		GridDataFactory.swtDefaults().grab(false, false).align(SWT.RIGHT, SWT.TOP).applyTo(durationLabel);
+		durationLabel = toolkit.createLabel(body, "00:00:000 / " + formatDuration((int) (totalDuration * 1000)));
+		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.CENTER, SWT.TOP).applyTo(durationLabel);
 
 		progressBar = new ProgressBar(body, SWT.SMOOTH | SWT.HORIZONTAL);
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
@@ -58,6 +55,7 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		progressBar.setLayoutData(layoutData);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum((int) (totalDuration * 10000));
+		progressBar.addListener(SWT.MouseDown, this::refreshPosition);
 
 		playButton = toolkit.createButton(body, "", SWT.PUSH);
 		playButton.setImage(GurellaStudioPlugin.getImage("icons/play-button.png"));
@@ -74,31 +72,56 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		reflow(true);
 	}
 
+	private void refreshPosition(Event e) {
+		if (e.button != 1 || !music.isPlaying()) {
+			return;
+		}
+
+		int x = progressBar.toControl(e.x, e.y).x;
+		int width = progressBar.getSize().x /*- (progressBar.getBorderWidth())*/;
+		int position = x * progressBar.getMaximum() / width;
+		music.setPosition(position / 10000f);
+		progressBar.setSelection(position);
+	}
+
 	private void updateProgress() {
 		if (!isDisposed()) {
 			float position = music.getPosition();
 			progressBar.setSelection((int) (position * 10000));
-			durationLabel.setText(formatDuration((int) position) + " / " + formatDuration((int) totalDuration));
+			durationLabel.setText(
+					formatDuration((int) (position * 1000)) + " / " + formatDuration((int) (totalDuration * 1000)));
 			getDisplay().timerExec(40, () -> updateProgress());
 		}
 	}
 
 	private static String formatDuration(int duration) {
 		int durationTemp = duration;
-		int hours = durationTemp / 3600;
-		durationTemp = durationTemp % 3600;
-		int minutes = durationTemp / 60;
-		int seconds = durationTemp % 60;
+		int minutes = durationTemp / 60000;
+		durationTemp = durationTemp % 60000;
+		int seconds = durationTemp / 1000;
+		durationTemp = durationTemp % 1000;
+		int milis = durationTemp;
 
-		StringBuffer buffer = new StringBuffer().append(hours).append(":");
+		StringBuffer buffer = new StringBuffer();
+		;
 		if (minutes < 10) {
 			buffer.append('0');
 		}
 		buffer.append(minutes).append(":");
+
 		if (seconds < 10) {
 			buffer.append('0');
 		}
-		buffer.append(seconds);
+		buffer.append(seconds).append(":");
+
+		if (milis < 100) {
+			buffer.append('0');
+		}
+
+		if (milis < 10) {
+			buffer.append('0');
+		}
+		buffer.append(milis);
 
 		return buffer.toString();
 	}
