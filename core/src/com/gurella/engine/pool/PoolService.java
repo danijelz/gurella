@@ -5,7 +5,6 @@ import java.util.Comparator;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.ReflectionPool;
 import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
@@ -173,14 +172,6 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	public static <T> void free(T object) {
 		synchronized (asyncPool) {
 			asyncPool.add(object);
-		}
-	}
-
-	public static <T> void freePoolable(T object) {
-		if (object instanceof Poolable) {
-			synchronized (asyncPool) {
-				asyncPool.add(object);
-			}
 		}
 	}
 
