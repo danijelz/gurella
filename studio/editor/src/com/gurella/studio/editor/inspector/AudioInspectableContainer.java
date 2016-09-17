@@ -31,7 +31,6 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 
 	private Music music;
 	private float totalDuration;
-	private boolean playing;
 
 	public AudioInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -49,8 +48,8 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		body.addDisposeListener(e -> music.dispose());
 		totalDuration = SoundDuration.totalDuration(fileHandle);
 
-		playImage = GurellaStudioPlugin.getImage("icons/play-button.png");
-		pauseImage = GurellaStudioPlugin.getImage("icons/pause-button.png");
+		playImage = GurellaStudioPlugin.getImage("icons/audio/play-button.png");
+		pauseImage = GurellaStudioPlugin.getImage("icons/audio/pause-button.png");
 
 		durationLabel = toolkit.createLabel(body, "00:00:000 / " + formatDuration((int) (totalDuration * 1000)));
 		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.CENTER, SWT.TOP).applyTo(durationLabel);
@@ -70,7 +69,7 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		playButton.addListener(SWT.Selection, e -> play());
 
 		stopButton = toolkit.createButton(body, "", SWT.PUSH);
-		stopButton.setImage(GurellaStudioPlugin.getImage("icons/stop-button.png"));
+		stopButton.setImage(GurellaStudioPlugin.getImage("icons/audio/stop-button.png"));
 		stopButton.setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, true, false));
 		stopButton.addListener(SWT.Selection, e -> music.stop());
 
@@ -132,7 +131,6 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		int milis = durationTemp;
 
 		StringBuffer buffer = new StringBuffer();
-		;
 		if (minutes < 10) {
 			buffer.append('0');
 		}
