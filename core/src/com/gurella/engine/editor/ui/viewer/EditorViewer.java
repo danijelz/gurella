@@ -18,7 +18,7 @@ public interface EditorViewer<INPUT, ELEMENT, SELECTION> {
 
 	void setSelection(SELECTION selection, boolean reveal);
 
-	void setSelection(@SuppressWarnings("unchecked") ELEMENT... selection);
+	void setSelection(ELEMENT... selection);
 
 	void setSelection(ELEMENT[] selection, boolean reveal);
 

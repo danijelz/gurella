@@ -5,7 +5,7 @@ import java.util.List;
 public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, List<ELEMENT>> {
 	void add(ELEMENT parentElement, ELEMENT childElement);
 
-	void add(ELEMENT parentElement, @SuppressWarnings("unchecked") ELEMENT... childElements);
+	void add(ELEMENT parentElement, ELEMENT... childElements);
 
 	void add(ELEMENT parentElement, Iterable<ELEMENT> elements);
 
@@ -33,17 +33,17 @@ public interface EditorTreeViewer<ELEMENT> extends EditorColumnViewer<ELEMENT, L
 
 	void remove(ELEMENT element);
 
-	void remove(@SuppressWarnings("unchecked") ELEMENT... elements);
+	void remove(ELEMENT... elements);
 
 	void remove(Iterable<ELEMENT> elements);
 
-	void remove(ELEMENT parent, @SuppressWarnings("unchecked") ELEMENT... elements);
+	void remove(ELEMENT parent, ELEMENT... elements);
 
 	void remove(ELEMENT parent, Iterable<ELEMENT> elements);
 
 	void setAutoExpandLevel(int level);
 
-	void setExpandedElements(@SuppressWarnings("unchecked") ELEMENT... elements);
+	void setExpandedElements(ELEMENT... elements);
 
 	void setExpandedElements(Iterable<ELEMENT> elements);
 

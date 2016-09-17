@@ -60,6 +60,8 @@ public class InputContext implements Comparable<InputContext> {
 		case RELEASED:
 			defaultKeyReleasedActionListener = defaultKeyActionListener;
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 		return this;
 	}
@@ -72,6 +74,8 @@ public class InputContext implements Comparable<InputContext> {
 		case RELEASED:
 			defaultKeyReleasedActionListener = null;
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 		return this;
 	}
@@ -152,6 +156,8 @@ public class InputContext implements Comparable<InputContext> {
 		case RELEASED:
 			defaultButtonReleasedActionListener = defaultButtonActionListener;
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 		return this;
 	}
@@ -164,6 +170,8 @@ public class InputContext implements Comparable<InputContext> {
 		case RELEASED:
 			defaultButtonReleasedActionListener = null;
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 		return this;
 	}
@@ -336,6 +344,8 @@ public class InputContext implements Comparable<InputContext> {
 		case VERTICAL:
 			this.defaultVerticalTouchMoveListener = defaultTouchMoveListener;
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 		return this;
 	}
@@ -348,6 +358,8 @@ public class InputContext implements Comparable<InputContext> {
 		case VERTICAL:
 			this.defaultVerticalTouchMoveListener = null;
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 		return this;
 	}

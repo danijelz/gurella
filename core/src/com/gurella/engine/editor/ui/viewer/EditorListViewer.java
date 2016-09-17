@@ -5,7 +5,7 @@ import java.util.List;
 public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, ELEMENT, List<ELEMENT>> {
 	void add(ELEMENT element);
 
-	void add(@SuppressWarnings("unchecked") ELEMENT... elements);
+	void add(ELEMENT... elements);
 
 	void add(Iterable<ELEMENT> elements);
 
@@ -15,7 +15,7 @@ public interface EditorListViewer<ELEMENT> extends EditorViewer<List<ELEMENT>, E
 
 	void remove(ELEMENT element);
 
-	void remove(@SuppressWarnings("unchecked") ELEMENT... elements);
+	void remove(ELEMENT... elements);
 
 	void remove(Iterable<ELEMENT> elements);
 }
