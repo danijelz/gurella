@@ -55,12 +55,12 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	public final transient AudioSystem audioSystem = new AudioSystem();
 	public final transient BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
 	public final transient UiSystem uiSystem = new UiSystem();
+	
+	public Scene() {
+		initServices();
+	}
 
-	public final void start() {
-		if (isActive()) {
-			throw new GdxRuntimeException("Scene is already active.");
-		}
-
+	private void initServices() {
 		addService(componentManager);
 		addService(nodeManager);
 		addService(tagManager);
@@ -72,6 +72,12 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		addService(audioSystem);
 		addService(bulletPhysicsSystem);
 		addService(uiSystem);
+	}
+
+	public final void start() {
+		if (isActive()) {
+			throw new GdxRuntimeException("Scene is already active.");
+		}
 
 		activate();
 	}
@@ -271,5 +277,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	@Override
 	public void reset() {
 		eventsDispatcher.reset();
+		initServices();
 	}
 }

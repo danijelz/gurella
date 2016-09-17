@@ -228,17 +228,24 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 		}
 
 		cleaningObjects.clear();
-		cleaning = false;
 	}
 
 	@Override
 	public Void call() throws Exception {
-		freeAsync();
+		try {
+			freeAsync();
+		} finally {
+			cleaning = false;
+		}
 		return null;
 	}
 
 	@Override
 	public void update() {
+		clean();
+	}
+
+	private void clean() {
 		if (!cleaning && asyncPool.size > 0) {
 			Array<Object> temp = asyncPool;
 			synchronized (asyncPool) {
@@ -253,16 +260,7 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 
 	@Override
 	public void debugUpdate() {
-		if (!cleaning && asyncPool.size > 0) {
-			Array<Object> temp = asyncPool;
-			synchronized (asyncPool) {
-				cleaning = true;
-				asyncPool = cleaningObjects;
-			}
-			cleaningObjects = temp;
-			sort.sort(cleaningObjects, comparatorInstance);
-			AsyncService.submit(this);
-		}
+		clean();
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {

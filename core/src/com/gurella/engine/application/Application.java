@@ -52,7 +52,7 @@ public final class Application implements ApplicationListener {
 	public final void resize(int width, int height) {
 		Array<ApplicationResizeListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationResizeListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
+		for (int i = 0, n = listeners.size; i < n; i++) {
 			listeners.get(i).resize(width, height);
 		}
 	}
@@ -65,7 +65,7 @@ public final class Application implements ApplicationListener {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Array<ApplicationUpdateListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
+		for (int i = 0, n = listeners.size; i < n; i++) {
 			listeners.get(i).update();
 		}
 	}
@@ -75,7 +75,7 @@ public final class Application implements ApplicationListener {
 		paused = true;
 		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
+		for (int i = 0, n = listeners.size; i < n; i++) {
 			listeners.get(i).pause();
 		}
 	}
@@ -88,7 +88,7 @@ public final class Application implements ApplicationListener {
 		}
 		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
+		for (int i = 0, n = listeners.size; i < n; i++) {
 			listeners.get(i).resume();
 		}
 	}
@@ -113,7 +113,7 @@ public final class Application implements ApplicationListener {
 	public void dispose() {
 		Array<ApplicationShutdownListener> listeners = Values.cast(tempListeners);
 		EventService.getSubscribers(ApplicationShutdownListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
+		for (int i = 0, n = listeners.size; i < n; i++) {
 			listeners.get(i).shutdown();
 		}
 		// TODO sceneManager.stop();
