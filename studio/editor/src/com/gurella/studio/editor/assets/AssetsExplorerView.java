@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.assets;
 
+import static com.gurella.studio.GurellaStudioPlugin.getImage;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -14,6 +16,7 @@ import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Tree;
@@ -39,8 +42,10 @@ public class AssetsExplorerView extends SceneEditorView {
 	Tree tree;
 	IResource rootResource;
 
+	private Object lastSelection;
+
 	public AssetsExplorerView(GurellaSceneEditor editor, int style) {
-		super(editor, "Assets", GurellaStudioPlugin.createImage("icons/resource_persp.gif"), style);
+		super(editor, "Assets", getImage("icons/resource_persp.gif"), style);
 
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
@@ -49,7 +54,9 @@ public class AssetsExplorerView extends SceneEditorView {
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		initTree(editor);
-		tree.addListener(SWT.Selection, e -> presentInspectable());
+		tree.addListener(SWT.KeyDown, e -> onKeyDown());
+		tree.addListener(SWT.KeyUp, e -> onKeyUp());
+		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
@@ -81,6 +88,19 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 	}
 
+	private void onKeyDown() {
+		TreeItem[] selection = tree.getSelection();
+		lastSelection = selection.length < 1 ? null : selection[0].getData();
+	}
+
+	private void onKeyUp() {
+		TreeItem[] selection = tree.getSelection();
+		Object currentSelection = selection.length < 1 ? null : selection[0].getData();
+		if (currentSelection != null && lastSelection != currentSelection) {
+			presentInspectable();
+		}
+	}
+
 	private void presentInspectable() {
 		TreeItem[] selection = tree.getSelection();
 		if (selection.length < 1) {
@@ -93,6 +113,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 	}
 
+	//TODO create plugin extension 
 	private Inspectable<?> getInspectable() {
 		TreeItem[] selection = tree.getSelection();
 		if (selection.length > 0) {
@@ -180,35 +201,39 @@ public class AssetsExplorerView extends SceneEditorView {
 		nodeItem.setData(resource);
 
 		if (resource instanceof IFolder) {
-			nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
+			nodeItem.setImage(getPlatformImage(ISharedImages.IMG_OBJ_FOLDER));
 		} else if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
 			String extension = file.getFileExtension();
 			if (Values.isBlank(extension)) {
-				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
+				nodeItem.setImage(getPlatformImage(ISharedImages.IMG_OBJ_FILE));
 			} else if (AssetType.texture.containsExtension(extension)
 					|| AssetType.pixmap.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/picture.png"));
+				nodeItem.setImage(getImage("icons/picture.png"));
 			} else if (AssetType.sound.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/music.png"));
+				nodeItem.setImage(getImage("icons/music.png"));
 			} else if (AssetType.textureAtlas.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
+				nodeItem.setImage(getImage("icons/textureAtlas.gif"));
 			} else if (AssetType.polygonRegion.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/textureAtlas.gif"));
+				nodeItem.setImage(getImage("icons/textureAtlas.gif"));
 			} else if (AssetType.bitmapFont.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/font.png"));
+				nodeItem.setImage(getImage("icons/font.png"));
 			} else if (AssetType.model.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
+				nodeItem.setImage(getImage("icons/16-cube-green_16x16.png"));
 			} else if (AssetType.prefab.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+				nodeItem.setImage(getImage("icons/ice_cube.png"));
 			} else if (AssetType.material.containsExtension(extension)) {
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/material.png"));
+				nodeItem.setImage(getImage("icons/material.png"));
 			} else {
-				nodeItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
+				nodeItem.setImage(getPlatformImage(ISharedImages.IMG_OBJ_FILE));
 			}
 		}
 
 		return nodeItem;
+	}
+
+	private static Image getPlatformImage(String symbolicName) {
+		return PlatformUI.getWorkbench().getSharedImages().getImage(symbolicName);
 	}
 
 	private final class AssetsDragSource extends DragSourceAdapter {
