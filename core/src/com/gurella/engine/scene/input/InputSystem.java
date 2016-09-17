@@ -32,7 +32,7 @@ import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
 import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
+import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionScrollListener;
 import com.gurella.engine.subscriptions.scene.input.IntersectionTouchListener;
@@ -51,7 +51,7 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	private transient final Array<Layer> orderedLayers = new Array<Layer>();
 	private transient final ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
-	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
+	private SpatialSystem<?> spatialSystem;
 
 	private transient final InputProcessorDelegate delegate = new InputProcessorDelegate();
 	private transient final InputAdapter dummyDelegate = new InputAdapter();
@@ -82,7 +82,7 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	@Override
 	protected void onActivate() {
 		Scene scene = getScene();
-		spatialPartitioningSystem = scene.spatialPartitioningSystem;
+		spatialSystem = scene.spatialSystem;
 
 		// TODO use componentManager
 		ImmutableArray<SceneNodeComponent2> components = scene.activeComponents;
@@ -96,7 +96,7 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	@Override
 	protected void onDeactivate() {
 		InputService.removeInputProcessor(inputQueue);
-		spatialPartitioningSystem = null;
+		spatialSystem = null;
 		reset();
 	}
 
@@ -286,7 +286,7 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		layerMask.reset();
-		spatialPartitioningSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
+		spatialSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderableComponent = spatial.renderableComponent;
@@ -525,17 +525,17 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 
 	public static class PointerActivitySignal extends Signal<PointerActivityListener> {
 		public void onPointerActivity(int pointer, int button, PointerTrack pointerTrack) {
-			PointerActivityListener[] items = listeners.begin();
+			Object[] items = listeners.begin();
 			for (int i = 0, n = listeners.size; i < n; i++) {
-				items[i].onPointerActivity(pointer, button, pointerTrack);
+				((PointerActivityListener) items[i]).onPointerActivity(pointer, button, pointerTrack);
 			}
 			listeners.end();
 		}
 
 		private void reset() {
-			PointerActivityListener[] items = listeners.begin();
+			Object[] items = listeners.begin();
 			for (int i = 0, n = listeners.size; i < n; i++) {
-				items[i].reset();
+				((PointerActivityListener) items[i]).reset();
 			}
 			listeners.end();
 		}

@@ -175,8 +175,8 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			handleDeactivation();
 		}
 
-		for (int i = 0; i < _children.size; i++) {
-			ManagedObject child = _children.get(i);
+		while (_children.size > 0) {
+			ManagedObject child = _children.get(_children.size - 1);
 			child.handleDestruction();
 		}
 

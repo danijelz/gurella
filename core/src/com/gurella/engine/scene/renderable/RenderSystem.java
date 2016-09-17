@@ -24,7 +24,7 @@ import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
+import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
@@ -51,7 +51,7 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	private final PointLightsAttribute pointLights = new PointLightsAttribute();
 	private final SpotLightsAttribute spotLights = new SpotLightsAttribute();
 
-	private SpatialPartitioningSystem<?> spatialPartitioningSystem;
+	private SpatialSystem<?> spatialSystem;
 
 	@Override
 	protected void init() {
@@ -65,12 +65,12 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 
 	@Override
 	protected void onActivate() {
-		spatialPartitioningSystem = getScene().spatialPartitioningSystem;
+		spatialSystem = getScene().spatialSystem;
 	}
 
 	@Override
 	protected void onDeactivate() {
-		spatialPartitioningSystem = null;
+		spatialSystem = null;
 		batch.dispose();
 		batch = null;
 	}
@@ -143,7 +143,7 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 
 	private void renderSpatials(Layer layer, Camera camera) {
 		layerMask.reset();
-		spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask.allowed(layer));
+		spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask.allowed(layer));
 
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);

@@ -14,8 +14,8 @@ import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.renderable.RenderSystem;
-import com.gurella.engine.scene.spatial.SpatialPartitioningSystem;
-import com.gurella.engine.scene.spatial.bvh.BvhSpatialPartitioningSystem;
+import com.gurella.engine.scene.spatial.SpatialSystem;
+import com.gurella.engine.scene.spatial.bvh.BvhSpatialSystem;
 import com.gurella.engine.scene.tag.TagManager;
 import com.gurella.engine.scene.ui.UiSystem;
 import com.gurella.engine.utils.ImmutableArray;
@@ -23,7 +23,7 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 import com.gurella.engine.utils.OrderedValuesIntMap;
 import com.gurella.engine.utils.Values;
 
-//TODO Poolable, EntityTransmuter
+//TODO EntityTransmuter
 public final class Scene extends ManagedObject implements NodeContainer, Poolable {
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
@@ -44,23 +44,35 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	public final transient ComponentManager componentManager = addService(new ComponentManager());
-	public final transient NodeManager nodeManager = addService(new NodeManager());
-	public final transient TagManager tagManager = addService(new TagManager());
-	public final transient LayerManager layerManager = addService(new LayerManager());
+	public final transient ComponentManager componentManager = new ComponentManager();
+	public final transient NodeManager nodeManager = new NodeManager();
+	public final transient TagManager tagManager = new TagManager();
+	public final transient LayerManager layerManager = new LayerManager();
 
-	public final transient SpatialPartitioningSystem<?> spatialPartitioningSystem = addService(
-			new BvhSpatialPartitioningSystem());
-	public final transient InputSystem inputSystem = addService(new InputSystem());
-	public final transient RenderSystem renderSystem = addService(new RenderSystem());
-	public final transient AudioSystem audioSystem = addService(new AudioSystem());
-	public final transient BulletPhysicsSystem bulletPhysicsSystem = addService(new BulletPhysicsSystem());
-	public final transient UiSystem uiSystem = addService(new UiSystem());
+	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem();
+	public final transient InputSystem inputSystem = new InputSystem();
+	public final transient RenderSystem renderSystem = new RenderSystem();
+	public final transient AudioSystem audioSystem = new AudioSystem();
+	public final transient BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
+	public final transient UiSystem uiSystem = new UiSystem();
 
 	public final void start() {
 		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
 		}
+
+		addService(componentManager);
+		addService(nodeManager);
+		addService(tagManager);
+		addService(layerManager);
+
+		addService(spatialSystem);
+		addService(inputSystem);
+		addService(renderSystem);
+		addService(audioSystem);
+		addService(bulletPhysicsSystem);
+		addService(uiSystem);
+
 		activate();
 	}
 
@@ -118,14 +130,17 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 
 	@Override
 	protected void childRemoved(ManagedObject child) {
-		if (child instanceof SceneSystem2) {
+		if (child instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) child;
+			node.scene = null;
+			_nodes.remove(node);
+		} else if (child instanceof SceneSystem2) {
 			SceneSystem2 system = (SceneSystem2) child;
 			system.scene = null;
 			_systems.remove(system.baseSystemType);
 		} else {
-			SceneNode2 node = (SceneNode2) child;
-			node.scene = null;
-			_nodes.remove(node);
+			SceneService service = (SceneService) child;
+			service.scene = null;
 		}
 	}
 
@@ -250,7 +265,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	public BoundingBox getBounds(BoundingBox out) {
-		return spatialPartitioningSystem.getBounds(out);
+		return spatialSystem.getBounds(out);
 	}
 
 	@Override

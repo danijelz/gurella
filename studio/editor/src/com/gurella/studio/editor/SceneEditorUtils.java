@@ -7,11 +7,13 @@ import org.eclipse.swt.widgets.Control;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.event.SubscriptionEvent;
+import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
@@ -41,6 +43,12 @@ public class SceneEditorUtils {
 		partControlToEditorId.remove(partControlToEditorId.findKey(id), invalidId);
 		gdxAppToEditorId.remove(gdxAppToEditorId.findKey(id), invalidId);
 		appIdToContext.remove(id);
+		
+		Array<ApplicationUpdateListener> listeners = new Array<>();
+		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).update();
+		}
 	}
 
 	public static int getApplicationId(Control control) {

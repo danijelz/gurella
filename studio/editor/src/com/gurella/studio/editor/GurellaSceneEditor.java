@@ -207,8 +207,8 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	@Override
 	public void dispose() {
 		super.dispose();
-		SceneEditorUtils.remove(this);
 		context.dispose();
+		SceneEditorUtils.remove(this);
 		application.exit();
 	}
 

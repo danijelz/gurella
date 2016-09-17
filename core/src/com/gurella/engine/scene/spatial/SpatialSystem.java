@@ -16,7 +16,7 @@ import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 
 @BaseSceneElement
-public abstract class SpatialPartitioningSystem<T extends Spatial> extends SceneService
+public abstract class SpatialSystem<T extends Spatial> extends SceneService
 		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
 	private Object mutex = new Object();
 

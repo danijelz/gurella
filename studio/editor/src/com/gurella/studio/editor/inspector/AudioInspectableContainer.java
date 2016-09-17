@@ -8,7 +8,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -23,7 +22,6 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 	private Label durationLabel;
 	private Button playButton;
 	private Button stopButton;
-	private Button muteButton;
 	private ProgressBar progressBar;
 
 	private Image playImage;
@@ -35,7 +33,10 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 	public AudioInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 
+		Composite head = getForm().getHead();
+		head.setFont(GurellaStudioPlugin.getFont(head, SWT.BOLD));
 		setText(target.getName());
+
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 		toolkit.decorateFormHeading(getForm());
@@ -61,7 +62,6 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		progressBar.setLayoutData(layoutData);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum((int) (totalDuration * 10000));
-		// progressBar.addListener(SWT.MouseDown, this::refreshPosition);
 
 		playButton = toolkit.createButton(body, "", SWT.PUSH);
 		playButton.setImage(playImage);
@@ -77,7 +77,6 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(separator);
 
 		getDisplay().timerExec(40, () -> updateProgress());
-
 		reflow(true);
 	}
 
@@ -91,18 +90,6 @@ public class AudioInspectableContainer extends InspectableContainer<IFile> {
 				playButton.setImage(pauseImage);
 			}
 		}
-	}
-
-	private void refreshPosition(Event e) {
-		if (e.button != 1 || !music.isPlaying()) {
-			return;
-		}
-
-		int x = progressBar.toControl(e.x, e.y).x;
-		int width = progressBar.getSize().x /*- (progressBar.getBorderWidth())*/;
-		int position = x * progressBar.getMaximum() / width;
-		music.setPosition(position / 10000f);
-		progressBar.setSelection(position);
 	}
 
 	private void updateProgress() {

@@ -195,7 +195,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 	public void renderScene(Camera camera) {
 		batch.begin(camera);
 		batch.setEnvironment(environment);
-		scene.spatialPartitioningSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
+		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		SceneNodeComponent2 focusedComponent = findFocusedComponent();
 
 		for (int i = 0; i < tempSpatials.size; i++) {

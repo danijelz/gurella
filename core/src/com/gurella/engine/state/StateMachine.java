@@ -117,9 +117,11 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 
 	private class StateChangedSignal extends Signal<StateChangedListener<STATE>> {
 		private void dispatch(STATE oldState, STATE newState) {
-			StateChangedListener<STATE>[] items = listeners.begin();
+			Object[] items = listeners.begin();
 			for (int i = 0, n = listeners.size; i < n; i++) {
-				items[i].stateChanged(oldState, newState);
+				@SuppressWarnings("unchecked")
+				StateChangedListener<STATE> item = (StateChangedListener<STATE>) items[i];
+				item.stateChanged(oldState, newState);
 			}
 			listeners.end();
 		}
