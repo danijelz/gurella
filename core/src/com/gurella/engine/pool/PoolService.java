@@ -2,6 +2,7 @@ package com.gurella.engine.pool;
 
 import java.util.Comparator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
@@ -191,34 +192,37 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 		Object pool = null;
 		Class<?> currentType = null;
 
-		for (int i = 0, n = cleaningObjects.size; i < n; i++) {
-			Object object = cleaningObjects.get(i);
-			if (object == null) {
-				continue;
-			}
-
-			Class<?> type = object.getClass();
-			if (currentType != type) {
-				currentType = type;
-				pool = type.isArray() ? getArrayPool(type.getComponentType()) : getObjectPool(type);
-			}
-
-			if (pool instanceof Pool) {
-				@SuppressWarnings("unchecked")
-				Pool<Object> objectPool = (Pool<Object>) pool;
-				synchronized (objectPool) {
-					objectPool.free(object);
+		try {
+			for (int i = 0, n = cleaningObjects.size; i < n; i++) {
+				Object object = cleaningObjects.get(i);
+				if (object == null) {
+					continue;
 				}
-			} else {
-				@SuppressWarnings("unchecked")
-				ArrayPool<Object> arrayPool = (ArrayPool<Object>) pool;
-				synchronized (arrayPool) {
-					arrayPool.free(object);
+
+				Class<?> type = object.getClass();
+				if (currentType != type) {
+					currentType = type;
+					pool = type.isArray() ? getArrayPool(type.getComponentType()) : getObjectPool(type);
+				}
+
+				if (pool instanceof Pool) {
+					@SuppressWarnings("unchecked")
+					Pool<Object> objectPool = (Pool<Object>) pool;
+					synchronized (objectPool) {
+						objectPool.free(object);
+					}
+				} else {
+					@SuppressWarnings("unchecked")
+					ArrayPool<Object> arrayPool = (ArrayPool<Object>) pool;
+					synchronized (arrayPool) {
+						arrayPool.free(object);
+					}
 				}
 			}
+			cleaningObjects.clear();
+		} catch (Exception e) {
+			Gdx.app.log(PoolService.class.getSimpleName(), "Error occured while freeing objects", e);
 		}
-
-		cleaningObjects.clear();
 	}
 
 	@Override
@@ -233,25 +237,26 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 
 	@Override
 	public void update() {
-		clean();
-	}
-
-	private void clean() {
 		if (!cleaning && asyncPool.size > 0) {
-			Array<Object> temp = asyncPool;
-			synchronized (asyncPool) {
-				cleaning = true;
-				asyncPool = cleaningObjects;
-			}
-			cleaningObjects = temp;
-			sort.sort(cleaningObjects, comparatorInstance);
+			prepareForCleaning();
 			AsyncService.submit(this);
 		}
 	}
 
+	private static void prepareForCleaning() {
+		Array<Object> temp = asyncPool;
+		synchronized (asyncPool) {
+			cleaning = true;
+			asyncPool = cleaningObjects;
+		}
+		cleaningObjects = temp;
+		sort.sort(cleaningObjects, comparatorInstance);
+	}
+
 	@Override
 	public void debugUpdate() {
-		clean();
+		prepareForCleaning();
+		freeAsync();
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {
