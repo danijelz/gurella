@@ -44,7 +44,6 @@ public class SceneElement2 extends ManagedObject {
 
 	@Override
 	protected final void destroyed() {
-		super.destroyed();
 		enabled = true;
 	}
 }

@@ -218,6 +218,11 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		for (int i = 0; i < listeners.size; i++) {
 			listeners.get(i).debugUpdate();
 		}
+		
+		EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).debugUpdate();
+		}
 
 		application.exit();
 	}

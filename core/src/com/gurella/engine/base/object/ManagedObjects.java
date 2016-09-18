@@ -20,6 +20,7 @@ import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.utils.Values;
 
 final class ManagedObjects {
+	//TODO private static pool with initial objects
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 	private static final Cleaner cleaner = new Cleaner();
 
