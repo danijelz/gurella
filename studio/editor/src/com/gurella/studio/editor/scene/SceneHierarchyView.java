@@ -314,15 +314,24 @@ public class SceneHierarchyView extends SceneEditorView {
 	private void removeSelectedNode() {
 		TreeItem[] selection = graph.getSelection();
 		if (selection.length > 0) {
-			TreeItem seectedItem = selection[0];
-			SceneNode2 node = (SceneNode2) seectedItem.getData();
-			SceneNode2 parentNode = node.getParentNode();
-			if (parentNode == null) {
-				getScene().removeNode(node);
-			} else {
-				parentNode.removeChild(node);
+			TreeItem selectedItem = selection[0];
+			Object data = selectedItem.getData();
+
+			if (data instanceof SceneNode2) {
+				SceneNode2 node = (SceneNode2) data;
+				SceneNode2 parentNode = node.getParentNode();
+				if (parentNode == null) {
+					getScene().removeNode(node);
+				} else {
+					parentNode.removeChild(node);
+				}
+			} else if (data instanceof SceneNodeComponent2) {
+				SceneNodeComponent2 component = (SceneNodeComponent2) data;
+				SceneNode2 parentNode = component.getNode();
+				parentNode.removeComponent(component);
 			}
-			seectedItem.dispose();
+
+			selectedItem.dispose();
 			postMessage(SceneChangedMessage.instance);
 		}
 	}
