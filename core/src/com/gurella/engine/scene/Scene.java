@@ -25,6 +25,18 @@ import com.gurella.engine.utils.Values;
 
 //TODO EntityTransmuter
 public final class Scene extends ManagedObject implements NodeContainer, Poolable {
+	public final transient ComponentManager componentManager = new ComponentManager();
+	public final transient NodeManager nodeManager = new NodeManager();
+	public final transient TagManager tagManager = new TagManager();
+	public final transient LayerManager layerManager = new LayerManager();
+
+	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem();
+	public final transient InputSystem inputSystem = new InputSystem();
+	public final transient RenderSystem renderSystem = new RenderSystem();
+	public final transient AudioSystem audioSystem = new AudioSystem();
+	public final transient BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
+	public final transient UiSystem uiSystem = new UiSystem();
+
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
 	transient final OrderedValuesIntMap<SceneSystem2> _systems = new OrderedValuesIntMap<SceneSystem2>();
@@ -44,18 +56,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	public final transient ComponentManager componentManager = new ComponentManager();
-	public final transient NodeManager nodeManager = new NodeManager();
-	public final transient TagManager tagManager = new TagManager();
-	public final transient LayerManager layerManager = new LayerManager();
-
-	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem();
-	public final transient InputSystem inputSystem = new InputSystem();
-	public final transient RenderSystem renderSystem = new RenderSystem();
-	public final transient AudioSystem audioSystem = new AudioSystem();
-	public final transient BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
-	public final transient UiSystem uiSystem = new UiSystem();
-	
 	public Scene() {
 		initServices();
 	}
