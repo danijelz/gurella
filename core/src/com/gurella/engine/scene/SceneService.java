@@ -5,6 +5,7 @@ import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
+//TODO detach from SceneElement hierarchy
 public class SceneService extends SceneElement2 {
 	@Override
 	protected final void validateReparent(ManagedObject newParent) {
