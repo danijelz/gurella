@@ -21,9 +21,10 @@ import com.gurella.engine.utils.Values;
 
 final class ManagedObjects {
 	//TODO private static pool with initial objects
-	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
-	private static final Cleaner cleaner = new Cleaner();
+	private static Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
+	private static Array<ObjectOperation> workingOperations = new Array<ObjectOperation>(64);
 
+	private static final Cleaner cleaner = new Cleaner();
 	private static final Array<Object> tempListeners = new Array<Object>(64);
 	private static final Object mutex = new Object();
 
@@ -184,22 +185,26 @@ final class ManagedObjects {
 	private static class Cleaner implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {
-			synchronized (mutex) {
-				for (int i = 0, n = operations.size; i < n; i++) {
-					operations.get(i).execute();
-				}
-				operations.clear();
-			}
+			doUpdate();
 		}
 
 		@Override
 		public void debugUpdate() {
+			doUpdate();
+		}
+
+		private static void doUpdate() {
 			synchronized (mutex) {
-				for (int i = 0, n = operations.size; i < n; i++) {
-					operations.get(i).execute();
-				}
-				operations.clear();
+				Array<ObjectOperation> temp = operations;
+				operations = workingOperations;
+				workingOperations = temp;
 			}
+
+			for (int i = 0, n = workingOperations.size; i < n; i++) {
+				workingOperations.get(i).execute();
+			}
+
+			workingOperations.clear();
 		}
 	}
 }
