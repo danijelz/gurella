@@ -14,7 +14,7 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO EntitySubscription -> ComponentSubscription
-public class ComponentManager extends SceneService implements ComponentActivityListener {
+public class ComponentManager extends SceneService implements ComponentActivityListener, Poolable {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
 
 	@Override
@@ -65,6 +65,14 @@ public class ComponentManager extends SceneService implements ComponentActivityL
 		if (familyComponents != null) {
 			PoolService.free(familyComponents);
 		}
+	}
+
+	@Override
+	public void reset() {
+		for (FamilyComponents<?> familyNodes : families.values()) {
+			PoolService.free(familyNodes);
+		}
+		families.clear();
 	}
 
 	public static final class ComponentFamily {

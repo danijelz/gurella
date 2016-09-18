@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -30,7 +31,7 @@ import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityLis
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.IdentitySet;
 
-public class RenderSystem extends SceneService implements ComponentActivityListener, RenderUpdateListener {
+public class RenderSystem extends SceneService implements ComponentActivityListener, RenderUpdateListener, Poolable {
 	private GenericBatch batch;
 
 	private final Array<Layer> orderedLayers = new Array<Layer>();
@@ -266,5 +267,10 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 			layerCameras.sort();
 			return false;
 		}
+	}
+
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
 	}
 }

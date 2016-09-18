@@ -83,7 +83,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public final void activate() {
-		Objects.activate(this);
+		ManagedObjects.activate(this);
 	}
 
 	void handleActivation() {
@@ -103,7 +103,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 		state = ManagedObjectState.active;
 		activated();
-		Objects.activated(this);
+		ManagedObjects.activated(this);
 		attachAll();
 
 		for (int i = 0; i < _children.size; i++) {
@@ -131,7 +131,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public final void deactivate() {
-		Objects.deactivate(this);
+		ManagedObjects.deactivate(this);
 	}
 
 	void handleDeactivation() {
@@ -147,7 +147,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.inactive;
 
 		deactivated();
-		Objects.deactivated(this);
+		ManagedObjects.deactivated(this);
 
 		if (this instanceof ApplicationEventSubscription) {
 			EventService.unsubscribe(this);
@@ -167,13 +167,15 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	public void destroy() {
-		Objects.destroy(this);
+		ManagedObjects.destroy(this);
 	}
 
 	void handleDestruction() {
 		if (state == ManagedObjectState.active) {
 			handleDeactivation();
 		}
+
+		preDestruction();
 
 		while (_children.size > 0) {
 			ManagedObject child = _children.get(_children.size - 1);
@@ -183,48 +185,48 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		if (parent != null) {
 			parent._children.remove(this);
 			parent.childRemoved(this);
-			Objects.childRemoved(parent, this);
+			ManagedObjects.childRemoved(parent, this);
 		}
 
 		state = ManagedObjectState.disposed;
-		Objects.destroyed(this);
-		clear();
+		destroyed();
+		ManagedObjects.destroyed(this);
+
+		clearAttachments();
+		_children.reset();
+
+		if (prefab != null) {
+			prefab.free();
+			prefab = null;
+		}
+
+		if (this instanceof Poolable) {
+			instanceId = SequenceGenerator.next();
+			state = ManagedObjectState.idle;
+			parent = null;
+			uuid = null;
+		}
+		
+		postDestruction();
+
 		// TODO EventService.removeChannel(instanceId);
 
 		if (AssetService.isManaged(this)) {
 			AssetService.unload(this);
-		}
-
-		if (this instanceof Poolable) {
-			resetValues();
+		} else if (this instanceof Poolable) {
 			PoolService.free(this);
 		} else {
 			DisposablesService.tryDispose(this);
 		}
 	}
 
-	protected void clear() {
-		clearAttachments();
-		_children.reset();
-		if (prefab != null) {
-			prefab.free();
-			prefab = null;
-		}
+	protected void preDestruction() {
 	}
 
-	protected void resetValues() {
-		if (state != ManagedObjectState.disposed) {
-			throw new GdxRuntimeException("Invalid state: " + state);
-		}
+	protected void destroyed() {
+	}
 
-		instanceId = SequenceGenerator.next();
-		uuid = null;
-		if (prefab != null) {
-			prefab.free();
-			prefab = null;
-		}
-		state = ManagedObjectState.idle;
-		parent = null;
+	protected void postDestruction() {
 	}
 
 	//// HIERARCHY
@@ -234,7 +236,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected final void setParent(ManagedObject newParent) {
-		Objects.reparent(this, newParent);
+		ManagedObjects.reparent(this, newParent);
 	}
 
 	void reparent(ManagedObject newParent) {
@@ -248,7 +250,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		if (oldParent != null) {
 			oldParent._children.remove(this);
 			oldParent.childRemoved(this);
-			Objects.childRemoved(oldParent, this);
+			ManagedObjects.childRemoved(oldParent, this);
 		}
 
 		parent = newParent;
@@ -256,11 +258,11 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			newParent._children.add(this);
 			newParent.childAdded(this);
 			updateStateByParent();
-			Objects.childAdded(newParent, this);
+			ManagedObjects.childAdded(newParent, this);
 		}
 
 		parentChanged(oldParent, newParent);
-		Objects.parentChanged(this, oldParent, newParent);
+		ManagedObjects.parentChanged(this, oldParent, newParent);
 	}
 
 	private void updateStateByParent() {

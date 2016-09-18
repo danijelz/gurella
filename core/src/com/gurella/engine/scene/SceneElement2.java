@@ -43,8 +43,8 @@ public class SceneElement2 extends ManagedObject {
 	}
 
 	@Override
-	protected final void resetValues() {
-		super.resetValues();
+	protected final void destroyed() {
+		super.destroyed();
 		enabled = true;
 		scene = null;
 	}

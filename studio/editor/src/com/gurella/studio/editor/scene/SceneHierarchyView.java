@@ -241,13 +241,6 @@ public class SceneHierarchyView extends SceneEditorView {
 	}
 
 	@Override
-	public void layout(boolean changed, boolean all) {
-		super.layout(changed, all);
-		graph.layout(true, true);
-		System.out.println("layout");
-	}
-
-	@Override
 	public void handleMessage(Object source, Object message) {
 		if (message instanceof NodeNameChangedMessage) {
 			SceneNode2 node = ((NodeNameChangedMessage) message).node;

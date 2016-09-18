@@ -238,7 +238,9 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	@Override
 	public void update() {
 		if (!cleaning && asyncPool.size > 0) {
+			cleaning = true;
 			prepareForCleaning();
+			//TODO release GL resources in main thread
 			AsyncService.submit(this);
 		}
 	}
@@ -246,7 +248,6 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	private static void prepareForCleaning() {
 		Array<Object> temp = asyncPool;
 		synchronized (asyncPool) {
-			cleaning = true;
 			asyncPool = cleaningObjects;
 		}
 		cleaningObjects = temp;

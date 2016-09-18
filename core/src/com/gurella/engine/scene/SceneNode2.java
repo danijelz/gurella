@@ -75,8 +75,8 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	}
 
 	@Override
-	protected final void clear() {
-		super.clear();
+	protected final void postDestruction() {
+		super.postDestruction();
 		_childNodes.reset();
 		_components.clear();
 	}

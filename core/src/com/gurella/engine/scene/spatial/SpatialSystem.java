@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -17,7 +18,7 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 
 @BaseSceneElement
 public abstract class SpatialSystem<T extends Spatial> extends SceneService
-		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
+		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener, Poolable {
 	private Object mutex = new Object();
 
 	protected IntMap<T> allSpatials = new IntMap<T>();
@@ -171,5 +172,10 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService
 	@Override
 	public void sceneStopped() {
 		clearSpatials();
+	}
+	
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
 	}
 }

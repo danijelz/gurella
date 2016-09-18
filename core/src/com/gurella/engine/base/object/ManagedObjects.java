@@ -19,7 +19,7 @@ import com.gurella.engine.subscriptions.base.object.ObjectsDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.utils.Values;
 
-final class Objects {
+final class ManagedObjects {
 	private static final Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 	private static final Cleaner cleaner = new Cleaner();
 
@@ -30,7 +30,7 @@ final class Objects {
 		EventService.subscribe(cleaner);
 	}
 
-	private Objects() {
+	private ManagedObjects() {
 	}
 
 	static void activate(ManagedObject object) {
