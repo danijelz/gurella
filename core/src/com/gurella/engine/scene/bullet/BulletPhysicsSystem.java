@@ -61,7 +61,7 @@ public class BulletPhysicsSystem extends SceneService
 	}
 
 	@Override
-	protected void onActivate() {
+	protected void serviceActivated() {
 		ImmutableArray<SceneNodeComponent2> components = getScene().activeComponents;
 		for (int i = 0; i < components.size(); i++) {
 			componentActivated(components.get(i));
@@ -70,7 +70,7 @@ public class BulletPhysicsSystem extends SceneService
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void serviceDeactivated() {
 		int numCollisionObjects = dynamicsWorld.getNumCollisionObjects();
 		btCollisionObjectArray collisionObjectArray = dynamicsWorld.getCollisionObjectArray();
 

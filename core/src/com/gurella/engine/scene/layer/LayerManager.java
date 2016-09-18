@@ -21,8 +21,8 @@ public class LayerManager extends SceneService implements ComponentActivityListe
 	private IntIntMap nodeLayers = new IntIntMap();
 
 	@Override
-	protected void onActivate() {
-		super.onActivate();
+	protected void serviceActivated() {
+		super.serviceActivated();
 		ComponentManager componentManager = getScene().componentManager;
 		componentManager.registerComponentFamily(family);
 		ImmutableArray<? extends LayerComponent> components = componentManager.getComponents(family);
@@ -32,8 +32,8 @@ public class LayerManager extends SceneService implements ComponentActivityListe
 	}
 
 	@Override
-	protected void onDeactivate() {
-		super.onDeactivate();
+	protected void serviceDeactivated() {
+		super.serviceDeactivated();
 		nodesByLayer.clear();
 		nodeLayers.clear();
 	}

@@ -35,13 +35,13 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 	private transient TransformComponent transformComponent;
 
 	@Override
-	protected void onActivate() {
+	protected void componentActivated() {
 		transformComponent = getNode().getComponent(TransformComponent.class);
 		createCollisionObject();
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void componentDeactivated() {
 		transformComponent = null;
 		if (rigidBody.isActive()) {
 			rigidBody.activate(false);

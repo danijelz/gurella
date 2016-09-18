@@ -26,7 +26,7 @@ public class TagManager extends SceneService implements ComponentActivityListene
 	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
 
 	@Override
-	protected void onActivate() {
+	protected void serviceActivated() {
 		ComponentManager componentManager = getScene().componentManager;
 		componentManager.registerComponentFamily(tagComponentfamily);
 		ImmutableArray<? extends TagComponent> components = componentManager.getComponents(tagComponentfamily);
@@ -36,7 +36,7 @@ public class TagManager extends SceneService implements ComponentActivityListene
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void serviceDeactivated() {
 		getScene().componentManager.unregisterComponentFamily(tagComponentfamily);
 		for (FamilyNodes familyNodes : families.values()) {
 			PoolService.free(familyNodes);

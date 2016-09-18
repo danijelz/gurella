@@ -39,10 +39,10 @@ public abstract class SceneSystem2 extends SceneElement2 {
 		if (this instanceof SceneEventSubscription) {
 			EventService.subscribe(scene.getInstanceId(), this);
 		}
-		onActivate();
+		systemActivated();
 	}
 
-	protected void onActivate() {
+	protected void systemActivated() {
 	}
 
 	@Override
@@ -52,9 +52,9 @@ public abstract class SceneSystem2 extends SceneElement2 {
 		if (this instanceof SceneEventSubscription) {
 			EventService.unsubscribe(scene.getInstanceId(), this);
 		}
-		onDeactivate();
+		systemDeactivated();
 	}
 
-	protected void onDeactivate() {
+	protected void systemDeactivated() {
 	}
 }

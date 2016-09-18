@@ -55,13 +55,13 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	protected abstract boolean doGetIntersection(Ray ray, Vector3 intersection);
 
 	@Override
-	protected void onActivate() {
+	protected void componentActivated() {
 		sceneId = getScene().getInstanceId();
 		transformComponent = getNode().getComponent(TransformComponent.class);
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void componentDeactivated() {
 		sceneId = -1;
 		transformComponent = null;
 		dirty = true;

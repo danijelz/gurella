@@ -20,13 +20,13 @@ public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdat
 	private Vector3 tempVelocity = new Vector3();
 
 	@Override
-	protected void onActivate() {
+	protected void systemActivated() {
 		nodeManager = getScene().nodeManager;
 		nodeManager.registerFamily(family);
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void systemDeactivated() {
 		nodeManager.unregisterFamily(family);
 		nodeManager = null;
 	}

@@ -30,10 +30,10 @@ public class SceneService extends SceneElement2 {
 		if (this instanceof SceneEventSubscription) {
 			EventService.subscribe(scene.getInstanceId(), this);
 		}
-		onActivate();
+		serviceActivated();
 	}
 
-	protected void onActivate() {
+	protected void serviceActivated() {
 	}
 
 	@Override
@@ -42,9 +42,9 @@ public class SceneService extends SceneElement2 {
 		if (this instanceof SceneEventSubscription) {
 			EventService.unsubscribe(scene.getInstanceId(), this);
 		}
-		onDeactivate();
+		serviceDeactivated();
 	}
 
-	protected void onDeactivate() {
+	protected void serviceDeactivated() {
 	}
 }

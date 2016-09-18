@@ -65,12 +65,12 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 	}
 
 	@Override
-	protected void onActivate() {
+	protected void serviceActivated() {
 		spatialSystem = getScene().spatialSystem;
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void serviceDeactivated() {
 		spatialSystem = null;
 		batch.dispose();
 		batch = null;

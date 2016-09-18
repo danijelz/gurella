@@ -46,7 +46,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	protected void onActivate() {
+	protected void componentActivated() {
 		initCamera();
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		transformComponent = getNode().getComponent(TransformComponent.class);
@@ -64,7 +64,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void componentDeactivated() {
 		transformComponent = null;
 	}
 

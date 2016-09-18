@@ -80,7 +80,7 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	}
 
 	@Override
-	protected void onActivate() {
+	protected void serviceActivated() {
 		Scene scene = getScene();
 		spatialSystem = scene.spatialSystem;
 
@@ -94,7 +94,7 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void serviceDeactivated() {
 		InputService.removeInputProcessor(inputQueue);
 		spatialSystem = null;
 		reset();

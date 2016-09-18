@@ -48,11 +48,11 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 		if (this instanceof NodeEventSubscription) {
 			EventService.subscribe(getNodeId(), this);
 		}
-		onActivate();
+		componentActivated();
 		scene.eventsDispatcher.componentActivated(this);
 	}
 
-	protected void onActivate() {
+	protected void componentActivated() {
 	}
 
 	@Override
@@ -65,11 +65,11 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 		if (this instanceof NodeEventSubscription) {
 			EventService.unsubscribe(getNodeId(), this);
 		}
-		onDeactivate();
+		componentDeactivated();
 		scene._activeComponents.remove(this);
 	}
 
-	protected void onDeactivate() {
+	protected void componentDeactivated() {
 	}
 
 	final void setParent(SceneNode2 node) {

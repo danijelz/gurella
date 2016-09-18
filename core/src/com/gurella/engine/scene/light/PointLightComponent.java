@@ -33,12 +33,12 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	}
 
 	@Override
-	protected void onActivate() {
+	protected void componentActivated() {
 		transformComponent = getNode().getComponent(TransformComponent.class);
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void componentDeactivated() {
 		transformComponent = null;
 		dirty = true;
 	}

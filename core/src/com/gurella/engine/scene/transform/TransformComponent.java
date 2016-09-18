@@ -54,7 +54,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	private final ParentNodeTransformChangedListener parentNodeTransformChangedListener = new ParentNodeTransformChangedListener();
 
 	@Override
-	protected void onActivate() {
+	protected void componentActivated() {
 		SceneNode2 node = getNode();
 		nodeId = node.getInstanceId();
 		subscribeTo(node, nodeParentChangedListener);
@@ -68,7 +68,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	@Override
-	protected void onDeactivate() {
+	protected void componentDeactivated() {
 		nodeId = -1;
 	}
 
