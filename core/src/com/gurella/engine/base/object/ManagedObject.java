@@ -200,14 +200,14 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			prefab = null;
 		}
 
+		postDestruction();
+
 		if (this instanceof Poolable) {
 			instanceId = SequenceGenerator.next();
 			state = ManagedObjectState.idle;
 			parent = null;
 			uuid = null;
 		}
-		
-		postDestruction();
 
 		// TODO EventService.removeChannel(instanceId);
 
