@@ -2,15 +2,16 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.editor.model.ModelEditorDescriptor;
+import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.model.Property;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableBits;
 
-@ModelEditorDescriptor(factory = TagsModelEditorFactory.class)
 public final class TagComponent extends SceneNodeComponent2 implements Poolable {
 	final transient Bits _tags = new Bits();
-	public final transient ImmutableBits tags = new ImmutableBits(_tags);
+	public final transient ImmutableBits tagBits = new ImmutableBits(_tags);
 
 	public void addTag(Tag tag) {
 		int tagId = tag.id;
@@ -81,17 +82,17 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		}
 	}
 
-	public String[] getTags() {
+	public String[] getTagBits() {
 		int index = 0;
 		int length = 0;
-		while ((index = tags.nextSetBit(index)) > 0) {
+		while ((index = tagBits.nextSetBit(index)) > 0) {
 			length++;
 		}
 
 		String[] tagNames = new String[length];
 		index = 0;
 		length = 0;
-		while ((index = tags.nextSetBit(index)) > 0) {
+		while ((index = tagBits.nextSetBit(index)) > 0) {
 			Tag tag = Tag.get(index);
 			tagNames[length++] = tag.name;
 		}
@@ -112,5 +113,10 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 				getScene().tagManager.tagAdded(this, tagId);
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		ImmutableArray<Property<?>> properties = Models.getModel(TagComponent.class).getProperties();
+		properties.toString();
 	}
 }
