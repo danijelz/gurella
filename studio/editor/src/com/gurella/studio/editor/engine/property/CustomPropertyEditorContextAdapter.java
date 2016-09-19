@@ -1,6 +1,8 @@
 package com.gurella.studio.editor.engine.property;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.editor.ui.EditorUi;
+import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 
@@ -41,5 +43,10 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 	@Override
 	public void removeMenuItem(String text) {
 		editor.removeMenuItem(text);
+	}
+
+	@Override
+	public EditorUi getEditorUi() {
+		return SwtEditorUi.instance;
 	}
 }

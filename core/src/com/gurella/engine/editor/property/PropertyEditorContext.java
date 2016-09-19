@@ -1,6 +1,7 @@
 package com.gurella.engine.editor.property;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.editor.ui.EditorUi;
 
 public interface PropertyEditorContext<P> {
 	Property<P> getProperty();
@@ -14,4 +15,6 @@ public interface PropertyEditorContext<P> {
 	void addMenuItem(String text, Runnable action);
 
 	void removeMenuItem(String text);
+	
+	EditorUi getEditorUi();
 }

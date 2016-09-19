@@ -10,6 +10,8 @@ import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
+import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
@@ -84,6 +86,10 @@ public class ComponentManager extends SceneService implements ComponentActivityL
 		public ComponentFamily(Predicate<? super SceneNodeComponent2> predicate) {
 			id = INDEXER++;
 			this.predicate = predicate;
+		}
+
+		public static ComponentFamily fromComponentType(Class<? extends SceneNodeComponent2> type) {
+			return new ComponentFamily(new ComponentTypePredicate(type));
 		}
 	}
 

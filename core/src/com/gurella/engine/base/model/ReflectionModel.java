@@ -327,6 +327,11 @@ public class ReflectionModel<T> implements Model<T> {
 			return;
 		}
 
+		Field field = Reflection.getDeclaredFieldSilently(type, name);
+		if (field != null) {
+			return;
+		}
+
 		Method setter = getPropertySetter(type, upperCaseName, returnType, false);
 		if (setter == null || !setter.isPublic() || setter.getDeclaredAnnotation(TransientProperty.class) != null) {
 			return;
@@ -505,8 +510,4 @@ public class ReflectionModel<T> implements Model<T> {
 	// String name;
 	// String[] argumentNames;
 	// }
-
-	public static class Test {
-
-	}
 }

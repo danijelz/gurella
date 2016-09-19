@@ -3,7 +3,6 @@ package com.gurella.engine.scene.tag;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
@@ -16,7 +15,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	public void addTag(Tag tag) {
 		int tagId = tag.id;
 		if (!_tags.getAndSet(tagId) && isActive()) {
-			EventService.notify(getScene().getInstanceId(), TagAddedEvent.obtain(this, tagId));
+			getScene().tagManager.tagAdded(this, tagId);
 		}
 	}
 
@@ -25,7 +24,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		for (Tag tag : tags) {
 			int tagId = tag.id;
 			if (!_tags.getAndSet(tagId) && active) {
-				EventService.notify(getScene().getInstanceId(), TagAddedEvent.obtain(this, tagId));
+				getScene().tagManager.tagAdded(this, tagId);
 			}
 		}
 	}
@@ -33,7 +32,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	public void removeTag(Tag tag) {
 		int tagId = tag.id;
 		if (_tags.getAndClear(tagId) && isActive()) {
-			EventService.notify(getScene().getInstanceId(), TagRemovedEvent.obtain(this, tagId));
+			getScene().tagManager.tagRemoved(this, tagId);
 		}
 	}
 
@@ -42,7 +41,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		for (Tag tag : tags) {
 			int tagId = tag.id;
 			if (_tags.getAndClear(tagId) && active) {
-				EventService.notify(getScene().getInstanceId(), TagRemovedEvent.obtain(this, tagId));
+				getScene().tagManager.tagRemoved(this, tagId);
 			}
 		}
 	}
