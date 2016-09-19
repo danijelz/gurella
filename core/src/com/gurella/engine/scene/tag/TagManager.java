@@ -9,8 +9,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
-import com.gurella.engine.scene.manager.ComponentManager;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
@@ -18,7 +17,7 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 //TODO EntitySubscription -> TagSubscription
-public class TagManager extends SceneService implements ComponentActivityListener, Poolable {
+public class TagManager extends SceneService2 implements ComponentActivityListener {
 	private static final ComponentFamily tagComponentfamily = ComponentFamily.fromComponentType(TagComponent.class);
 
 	private final Array<Tag> tags = new Array<Tag>();
@@ -28,6 +27,26 @@ public class TagManager extends SceneService implements ComponentActivityListene
 
 	private final TagAddedEvent tagAddedEvent = new TagAddedEvent();
 	private final TagRemovedEvent tagRemovedEvent = new TagRemovedEvent();
+
+	public TagManager(Scene scene) {
+		super(scene);
+	}
+
+	@Override
+	protected void serviceActivated() {
+		scene.componentManager.registerComponentFamily(tagComponentfamily);
+	}
+
+	@Override
+	protected void serviceDeactivated() {
+		scene.componentManager.unregisterComponentFamily(tagComponentfamily);
+		for (FamilyNodes familyNodes : families.values()) {
+			PoolService.free(familyNodes);
+		}
+		families.clear();
+		nodesByTag.clear();
+		tags.clear();
+	}
 
 	Tag register(String name) {
 		if (isRegistered(name)) {
@@ -73,26 +92,6 @@ public class TagManager extends SceneService implements ComponentActivityListene
 			all[i] = tags.get(i).name;
 		}
 		return all;
-	}
-
-	@Override
-	protected void serviceActivated() {
-		ComponentManager componentManager = getScene().componentManager;
-		componentManager.registerComponentFamily(tagComponentfamily);
-		ImmutableArray<? extends TagComponent> components = componentManager.getComponents(tagComponentfamily);
-		for (int i = 0; i < components.size(); i++) {
-			componentActivated(components.get(i));
-		}
-	}
-
-	@Override
-	protected void serviceDeactivated() {
-		getScene().componentManager.unregisterComponentFamily(tagComponentfamily);
-		for (FamilyNodes familyNodes : families.values()) {
-			PoolService.free(familyNodes);
-		}
-		families.clear();
-		nodesByTag.clear();
 	}
 
 	@Override
@@ -146,7 +145,6 @@ public class TagManager extends SceneService implements ComponentActivityListene
 		familyNodes.family = tagFamily;
 		families.put(familyId, familyNodes);
 
-		Scene scene = getScene();
 		if (scene == null) {
 			return;
 		}
@@ -179,7 +177,7 @@ public class TagManager extends SceneService implements ComponentActivityListene
 		getNodesByTag(tagId).add(component.getNode());
 		tagAddedEvent.component = component;
 		tagAddedEvent.tagId = tagId;
-		EventService.notify(getScene().getInstanceId(), tagAddedEvent);
+		EventService.notify(scene.getInstanceId(), tagAddedEvent);
 		tagAddedEvent.component = null;
 	}
 
@@ -187,7 +185,7 @@ public class TagManager extends SceneService implements ComponentActivityListene
 		nodesByTag.get(tagId).remove(component.getNode());
 		tagRemovedEvent.component = component;
 		tagRemovedEvent.tagId = tagId;
-		EventService.notify(getScene().getInstanceId(), tagRemovedEvent);
+		EventService.notify(scene.getInstanceId(), tagRemovedEvent);
 		tagRemovedEvent.component = null;
 	}
 
@@ -215,16 +213,6 @@ public class TagManager extends SceneService implements ComponentActivityListene
 		} else {
 			return nodes.get(0);
 		}
-	}
-
-	@Override
-	public void reset() {
-		for (FamilyNodes familyNodes : families.values()) {
-			PoolService.free(familyNodes);
-		}
-		families.clear();
-		nodesByTag.clear();
-		tags.clear();
 	}
 
 	private static class FamilyNodes implements Poolable {

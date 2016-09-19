@@ -11,7 +11,7 @@ public class SceneService2 {
 	public SceneService2(Scene scene) {
 		this.scene = scene;
 	}
-	
+
 	protected void activate() {
 		if (this instanceof ApplicationEventSubscription) {
 			EventService.subscribe(this);
@@ -24,7 +24,7 @@ public class SceneService2 {
 
 	protected void serviceActivated() {
 	}
-	
+
 	protected void deactivate() {
 		if (this instanceof ApplicationEventSubscription) {
 			EventService.unsubscribe(this);
@@ -37,7 +37,7 @@ public class SceneService2 {
 
 	protected void serviceDeactivated() {
 	}
-	
-	protected void serviceDestroyed() {
+
+	protected void destroy() {
 	}
 }

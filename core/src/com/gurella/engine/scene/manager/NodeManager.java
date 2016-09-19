@@ -7,14 +7,26 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
 ////TODO EntitySubscription -> NodeSubscription
-public class NodeManager extends SceneService implements ComponentActivityListener, Poolable {
+public class NodeManager extends SceneService2 implements ComponentActivityListener {
 	private IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
+
+	public NodeManager(Scene scene) {
+		super(scene);
+	}
+
+	@Override
+	protected void serviceDeactivated() {
+		for (FamilyNodes familyNodes : families.values()) {
+			PoolService.free(familyNodes);
+		}
+		families.clear();
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
@@ -42,7 +54,6 @@ public class NodeManager extends SceneService implements ComponentActivityListen
 		familyNodes.family = family;
 		families.put(familyId, familyNodes);
 
-		Scene scene = getScene();
 		if (scene == null) {
 			return;
 		}
@@ -67,14 +78,6 @@ public class NodeManager extends SceneService implements ComponentActivityListen
 	public ImmutableArray<SceneNode2> getNodes(SceneNodeFamily family) {
 		FamilyNodes familyNodes = families.get(family.id);
 		return familyNodes == null ? ImmutableArray.<SceneNode2> empty() : familyNodes.nodes.immutable();
-	}
-
-	@Override
-	public void reset() {
-		for (FamilyNodes familyNodes : families.values()) {
-			PoolService.free(familyNodes);
-		}
-		families.clear();
 	}
 
 	public static final class SceneNodeFamily {

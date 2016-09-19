@@ -3,37 +3,34 @@ package com.gurella.engine.scene.layer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
-import com.gurella.engine.scene.manager.ComponentManager;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.scene.manager.ComponentTypePredicate;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
-public class LayerManager extends SceneService implements ComponentActivityListener, Poolable {
+public class LayerManager extends SceneService2 implements ComponentActivityListener {
 	private static final ComponentFamily family = new ComponentFamily(new ComponentTypePredicate(LayerComponent.class));
 
 	private IntMap<ArrayExt<SceneNode2>> nodesByLayer = new IntMap<ArrayExt<SceneNode2>>();
 	private IntIntMap nodeLayers = new IntIntMap();
 
+	public LayerManager(Scene scene) {
+		super(scene);
+	}
+
 	@Override
 	protected void serviceActivated() {
-		super.serviceActivated();
-		ComponentManager componentManager = getScene().componentManager;
-		componentManager.registerComponentFamily(family);
-		ImmutableArray<? extends LayerComponent> components = componentManager.getComponents(family);
-		for (int i = 0; i < components.size(); i++) {
-			componentActivated(components.get(i));
-		}
+		scene.componentManager.registerComponentFamily(family);
 	}
 
 	@Override
 	protected void serviceDeactivated() {
-		super.serviceDeactivated();
+		scene.componentManager.unregisterComponentFamily(family);
 		nodesByLayer.clear();
 		nodeLayers.clear();
 	}
@@ -106,11 +103,5 @@ public class LayerManager extends SceneService implements ComponentActivityListe
 	public ImmutableArray<SceneNode2> getNodesByLayer(int layerId) {
 		ArrayExt<SceneNode2> layerNodes = nodesByLayer.get(layerId);
 		return layerNodes == null ? ImmutableArray.<SceneNode2> empty() : layerNodes.immutable();
-	}
-
-	@Override
-	public void reset() {
-		nodesByLayer.clear();
-		nodeLayers.clear();
 	}
 }

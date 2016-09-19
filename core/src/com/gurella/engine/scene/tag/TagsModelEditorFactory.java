@@ -9,6 +9,7 @@ import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 
+//TODO
 public class TagsModelEditorFactory implements ModelEditorFactory<TagComponent> {
 	@Override
 	public void buildUi(EditorComposite parent, ModelEditorContext<TagComponent> context) {
@@ -20,6 +21,5 @@ public class TagsModelEditorFactory implements ModelEditorFactory<TagComponent> 
 		EditorComposite content = editorUi.createComposite(scrolledComposite);
 		content.setSize(100, 150);
 		TagComponent instance = context.getModelInstance();
-		
 	}
 }

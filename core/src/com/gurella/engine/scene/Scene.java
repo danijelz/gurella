@@ -24,10 +24,10 @@ import com.gurella.engine.utils.Values;
 
 //TODO EntityTransmuter
 public final class Scene extends ManagedObject implements NodeContainer, Poolable {
-	public final transient ComponentManager componentManager = new ComponentManager();
-	public final transient NodeManager nodeManager = new NodeManager();
-	public final transient TagManager tagManager = new TagManager();
-	public final transient LayerManager layerManager = new LayerManager();
+	public final transient ComponentManager componentManager = new ComponentManager(this);
+	public final transient NodeManager nodeManager = new NodeManager(this);
+	public final transient TagManager tagManager = new TagManager(this);
+	public final transient LayerManager layerManager = new LayerManager(this);
 
 	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem();
 	public final transient InputSystem inputSystem = new InputSystem();
@@ -60,11 +60,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	private void initServices() {
-		addService(componentManager);
-		addService(nodeManager);
-		addService(tagManager);
-		addService(layerManager);
-
 		addService(spatialSystem);
 		addService(inputSystem);
 		addService(renderSystem);
@@ -79,6 +74,14 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		}
 
 		activate();
+	}
+
+	@Override
+	protected void preActivation() {
+		componentManager.activate();
+		nodeManager.activate();
+		tagManager.activate();
+		layerManager.activate();
 	}
 
 	@Override
@@ -97,8 +100,18 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 
 	@Override
 	protected void postDeactivation() {
-		super.postDeactivation();
-		// TODO reset managers and systems
+		componentManager.deactivate();
+		nodeManager.deactivate();
+		tagManager.deactivate();
+		layerManager.deactivate();
+	}
+
+	@Override
+	protected void preDestruction() {
+		componentManager.destroy();
+		nodeManager.destroy();
+		tagManager.destroy();
+		layerManager.destroy();
 	}
 
 	@Override

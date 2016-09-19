@@ -8,16 +8,27 @@ import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
-import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
-import com.gurella.engine.scene.tag.TagComponent;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 //TODO EntitySubscription -> ComponentSubscription
-public class ComponentManager extends SceneService implements ComponentActivityListener, Poolable {
+public class ComponentManager extends SceneService2 implements ComponentActivityListener {
 	private IntMap<FamilyComponents<?>> families = new IntMap<FamilyComponents<?>>();
+
+	public ComponentManager(Scene scene) {
+		super(scene);
+	}
+
+	@Override
+	protected void serviceDeactivated() {
+		for (FamilyComponents<?> familyNodes : families.values()) {
+			PoolService.free(familyNodes);
+		}
+		families.clear();
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
@@ -55,7 +66,7 @@ public class ComponentManager extends SceneService implements ComponentActivityL
 		familyComponents.family = family;
 		families.put(family.id, familyComponents);
 
-		ImmutableArray<SceneNodeComponent2> components = getScene().components;
+		ImmutableArray<SceneNodeComponent2> components = scene.components;
 		for (int i = 0; i < components.size(); i++) {
 			familyComponents.handle(components.get(i));
 		}
@@ -67,14 +78,6 @@ public class ComponentManager extends SceneService implements ComponentActivityL
 		if (familyComponents != null) {
 			PoolService.free(familyComponents);
 		}
-	}
-
-	@Override
-	public void reset() {
-		for (FamilyComponents<?> familyNodes : families.values()) {
-			PoolService.free(familyNodes);
-		}
-		families.clear();
 	}
 
 	public static final class ComponentFamily {
