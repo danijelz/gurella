@@ -11,11 +11,11 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.layer.Layer;
@@ -31,7 +31,7 @@ import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityLis
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.IdentitySet;
 
-public class RenderSystem extends SceneService implements ComponentActivityListener, RenderUpdateListener, Poolable {
+public class RenderSystem extends SceneService2 implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;
 
 	private final Array<Layer> orderedLayers = new Array<Layer>();
@@ -54,19 +54,22 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 
 	private SpatialSystem<?> spatialSystem;
 
-	@Override
-	protected void init() {
-		batch = new GenericBatch();
-
-		environment.set(depthTest);
-		environment.set(directionalLights);
-		environment.set(pointLights);
-		environment.set(spotLights);
+	public RenderSystem(Scene scene) {
+		super(scene);
 	}
 
 	@Override
 	protected void serviceActivated() {
-		spatialSystem = getScene().spatialSystem;
+		if (batch == null) {
+			batch = new GenericBatch();
+
+			environment.set(depthTest);
+			environment.set(directionalLights);
+			environment.set(pointLights);
+			environment.set(spotLights);
+		}
+
+		spatialSystem = scene.spatialSystem;
 	}
 
 	@Override
@@ -267,10 +270,5 @@ public class RenderSystem extends SceneService implements ComponentActivityListe
 			layerCameras.sort();
 			return false;
 		}
-	}
-
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
 	}
 }

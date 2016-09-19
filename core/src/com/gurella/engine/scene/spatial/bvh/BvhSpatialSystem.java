@@ -7,14 +7,18 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Predicate;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.update.CleanupUpdateListener;
 
-public class BvhSpatialSystem extends SpatialSystem<BvhSpatial>
-		implements CleanupUpdateListener {
+public class BvhSpatialSystem extends SpatialSystem<BvhSpatial> implements CleanupUpdateListener {
 	private Bvh bvh = new Bvh(1);
+
+	public BvhSpatialSystem(Scene scene) {
+		super(scene);
+	}
 
 	@Override
 	protected void doUpdateSpatials() {

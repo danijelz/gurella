@@ -29,12 +29,12 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	public final transient TagManager tagManager = new TagManager(this);
 	public final transient LayerManager layerManager = new LayerManager(this);
 
-	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem();
-	public final transient InputSystem inputSystem = new InputSystem();
-	public final transient RenderSystem renderSystem = new RenderSystem();
-	public final transient AudioSystem audioSystem = new AudioSystem();
-	public final transient BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem();
-	public final transient UiSystem uiSystem = new UiSystem();
+	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem(this);
+	public final transient InputSystem inputSystem = new InputSystem(this);
+	public final transient RenderSystem renderSystem = new RenderSystem(this);
+	public final transient AudioSystem audioSystem = new AudioSystem(this);
+	public final transient BulletPhysicsSystem bulletPhysicsSystem = new BulletPhysicsSystem(this);
+	public final transient UiSystem uiSystem = new UiSystem(this);
 
 	transient final SceneEventsDispatcher eventsDispatcher = new SceneEventsDispatcher(this);
 
@@ -55,19 +55,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
-	public Scene() {
-		initServices();
-	}
-
-	private void initServices() {
-		addService(spatialSystem);
-		addService(inputSystem);
-		addService(renderSystem);
-		addService(audioSystem);
-		addService(bulletPhysicsSystem);
-		addService(uiSystem);
-	}
-
 	public final void start() {
 		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
@@ -82,6 +69,13 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		nodeManager.activate();
 		tagManager.activate();
 		layerManager.activate();
+
+		spatialSystem.activate();
+		inputSystem.activate();
+		renderSystem.activate();
+		uiSystem.activate();
+		audioSystem.activate();
+		bulletPhysicsSystem.activate();
 	}
 
 	@Override
@@ -104,14 +98,13 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		nodeManager.deactivate();
 		tagManager.deactivate();
 		layerManager.deactivate();
-	}
 
-	@Override
-	protected void preDestruction() {
-		componentManager.destroy();
-		nodeManager.destroy();
-		tagManager.destroy();
-		layerManager.destroy();
+		spatialSystem.deactivate();
+		inputSystem.deactivate();
+		renderSystem.deactivate();
+		uiSystem.deactivate();
+		audioSystem.deactivate();
+		bulletPhysicsSystem.deactivate();
 	}
 
 	@Override
@@ -121,7 +114,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			node.scene = this;
 			updateNodeChildren(node);
 			_nodes.add(node);
-		} else if (child instanceof SceneSystem2) {
+		} else {
 			SceneSystem2 system = (SceneSystem2) child;
 			int baseSystemType = system.baseSystemType;
 			if (_systems.containsKey(baseSystemType)) {
@@ -129,9 +122,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			}
 			system.scene = this;
 			_systems.put(baseSystemType, system);
-		} else {
-			SceneService service = (SceneService) child;
-			service.scene = this;
 		}
 	}
 
@@ -152,13 +142,10 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			SceneNode2 node = (SceneNode2) child;
 			node.scene = null;
 			_nodes.remove(node);
-		} else if (child instanceof SceneSystem2) {
+		} else {
 			SceneSystem2 system = (SceneSystem2) child;
 			system.scene = null;
 			_systems.remove(system.baseSystemType);
-		} else {
-			SceneService service = (SceneService) child;
-			service.scene = null;
 		}
 	}
 
@@ -209,11 +196,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		T system = PoolService.obtain(systemType);
 		system.setParent(this);
 		return system;
-	}
-
-	private <T extends SceneService> T addService(T service) {
-		service.setParent(this);
-		return service;
 	}
 
 	@Override
@@ -285,7 +267,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	@Override
 	public void reset() {
 		eventsDispatcher.reset();
-		initServices();
 	}
 
 	public String[] getTags() {

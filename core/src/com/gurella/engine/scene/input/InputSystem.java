@@ -17,7 +17,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
 import com.gurella.engine.input.InputService;
@@ -25,7 +24,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
@@ -47,7 +46,7 @@ import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
-public class InputSystem extends SceneService implements ComponentActivityListener, InputUpdateListener, Poolable {
+public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
 	private transient final Array<Layer> orderedLayers = new Array<Layer>();
 	private transient final ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
 
@@ -72,7 +71,8 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	public byte inputActionsPerSecond;// TODO limit mouse moves;
 	private transient long lastActionHandled;
 
-	public InputSystem() {
+	public InputSystem(Scene scene) {
+		super(scene);
 		pointerActivitySignal.addListener(dragAndDropProcessor);
 		pointerActivitySignal.addListener(touchProcessor);
 		pointerActivitySignal.addListener(doubleTouchProcessor);
@@ -81,7 +81,6 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 
 	@Override
 	protected void serviceActivated() {
-		Scene scene = getScene();
 		spatialSystem = scene.spatialSystem;
 
 		// TODO use componentManager
@@ -97,17 +96,6 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 	protected void serviceDeactivated() {
 		InputService.removeInputProcessor(inputQueue);
 		spatialSystem = null;
-		reset();
-	}
-
-	@Override
-	public void onInputUpdate() {
-		inputQueue.drain();
-		delegate.clean();
-	}
-
-	@Override
-	public void reset() {
 		// TODO update listeners and finish actions
 		inputQueue.setProcessor(dummyDelegate);
 		inputQueue.drain();
@@ -115,6 +103,12 @@ public class InputSystem extends SceneService implements ComponentActivityListen
 		delegate.reset();
 		pointerActivitySignal.reset();
 		mouseMoveProcessor.reset();
+	}
+
+	@Override
+	public void onInputUpdate() {
+		inputQueue.drain();
+		delegate.clean();
 	}
 
 	@Override

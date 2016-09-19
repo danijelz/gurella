@@ -6,19 +6,17 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Values;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.BaseSceneElement;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.SceneActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 
-@BaseSceneElement
-public abstract class SpatialSystem<T extends Spatial> extends SceneService
-		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener, Poolable {
+public abstract class SpatialSystem<T extends Spatial> extends SceneService2
+		implements ComponentActivityListener, SceneActivityListener, SceneRenderableChangedListener {
 	private Object mutex = new Object();
 
 	protected IntMap<T> allSpatials = new IntMap<T>();
@@ -27,6 +25,10 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService
 	protected IntMap<T> removedSpatials = new IntMap<T>();
 
 	protected IntMap<T> spatialsByRenderableComponent = new IntMap<T>();
+
+	public SpatialSystem(Scene scene) {
+		super(scene);
+	}
 
 	public abstract BoundingBox getBounds(BoundingBox out);
 
@@ -172,10 +174,5 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService
 	@Override
 	public void sceneStopped() {
 		clearSpatials();
-	}
-	
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
 	}
 }

@@ -13,6 +13,7 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 
+//TODO not needed
 public class LayerManager extends SceneService2 implements ComponentActivityListener {
 	private static final ComponentFamily family = new ComponentFamily(new ComponentTypePredicate(LayerComponent.class));
 

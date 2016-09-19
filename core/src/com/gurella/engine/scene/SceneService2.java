@@ -4,7 +4,6 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
-//TODO unused
 public class SceneService2 {
 	public final Scene scene;
 
@@ -36,8 +35,5 @@ public class SceneService2 {
 	}
 
 	protected void serviceDeactivated() {
-	}
-
-	protected void destroy() {
 	}
 }

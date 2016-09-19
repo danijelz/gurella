@@ -5,19 +5,19 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongMap;
-import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.audio.AudioChannel;
 import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.SceneService;
+import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 //TODO attach listeners on activate
-public class AudioSystem extends SceneService implements ComponentActivityListener, PreRenderUpdateListener, Poolable {
+public class AudioSystem extends SceneService2 implements ComponentActivityListener, PreRenderUpdateListener {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();
 	private IntMap<AudioSourceData> activeSources = new IntMap<AudioSourceData>();
@@ -26,6 +26,10 @@ public class AudioSystem extends SceneService implements ComponentActivityListen
 	private Vector3 distance = new Vector3();
 	private Vector3 v1 = new Vector3();
 	private Vector3 v2 = new Vector3();
+
+	public AudioSystem(Scene scene) {
+		super(scene);
+	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
@@ -341,11 +345,6 @@ public class AudioSystem extends SceneService implements ComponentActivityListen
 
 			PoolService.free(SL);
 		}
-	}
-
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
 	}
 
 	private static class RemoveOnFinishCompletitionCallback implements Listener1<AudioTrack> {
