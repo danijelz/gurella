@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.tag;
 
+import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.model.ModelEditorContext;
 import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
@@ -14,6 +16,8 @@ import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 
 public class TagComponentEditorFactory implements ModelEditorFactory<TagComponent> {
+	private static final Property<String[]> tagsProperty = Models.getModel(TagComponent.class).getProperty("tags");
+
 	@Override
 	public void buildUi(EditorComposite parent, ModelEditorContext<TagComponent> context) {
 		parent.setLayout(1);
@@ -40,6 +44,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 			@Override
 			public void handleEvent(EditorEvent event) {
 				tagComponent.addTag(Tag.get("Ddd"));
+				context.propertyValueChanged(tagsProperty, null, null);
 			}
 		});
 	}
