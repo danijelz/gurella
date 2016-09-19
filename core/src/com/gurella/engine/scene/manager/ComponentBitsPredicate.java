@@ -120,14 +120,14 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		private final Bits exclude = new Bits();
 		private final Bits any = new Bits();
 
-		public Builder all(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
+		public Builder all(Class<? extends SceneNodeComponent2>... types) {
 			for (Class<? extends SceneNodeComponent2> type : types) {
 				all.set(getType(type));
 			}
 			return this;
 		}
 
-		public Builder any(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
+		public Builder any(Class<? extends SceneNodeComponent2>... types) {
 			for (Class<? extends SceneNodeComponent2> type : types) {
 				int componentType = getType(type);
 				getSubtypes(componentType).orBits(any);
@@ -135,7 +135,7 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 			return this;
 		}
 
-		public Builder exclude(@SuppressWarnings("unchecked") Class<? extends SceneNodeComponent2>... types) {
+		public Builder exclude(Class<? extends SceneNodeComponent2>... types) {
 			for (Class<? extends SceneNodeComponent2> type : types) {
 				int componentType = getType(type);
 				getSubtypes(componentType).orBits(exclude);

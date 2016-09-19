@@ -20,6 +20,8 @@ import com.gurella.engine.utils.Values;
 
 public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient int instanceId;
+	transient ManagedObjectState state = ManagedObjectState.idle;//TODO convert to byte
+	
 	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
 	@PropertyEditor(editable = false)
 	String uuid;
@@ -28,7 +30,6 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	@PropertyEditor(editable = false)
 	PrefabReference prefab;
 
-	transient ManagedObjectState state = ManagedObjectState.idle;
 
 	private transient ManagedObject parent;
 	private transient final OrderedIdentitySet<ManagedObject> _children = new OrderedIdentitySet<ManagedObject>();

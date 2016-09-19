@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
@@ -175,8 +174,7 @@ public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collectio
 		Property<?> property = context.property;
 		if (property instanceof ReflectionProperty) {
 			ReflectionProperty<?> reflectionProperty = (ReflectionProperty<?>) property;
-			Field field = reflectionProperty.getField();
-			return field.isFinal();
+			return reflectionProperty.isFinal();
 		} else {
 			return true;
 		}

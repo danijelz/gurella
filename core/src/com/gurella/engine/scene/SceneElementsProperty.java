@@ -55,7 +55,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	}
 
 	@Override
-	public boolean isFlat() {
+	public boolean isFlatSerialization() {
 		return true;
 	}
 

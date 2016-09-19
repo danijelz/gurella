@@ -43,7 +43,7 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	}
 
 	@Override
-	public boolean isFlat() {
+	public boolean isFlatSerialization() {
 		return true;
 	}
 

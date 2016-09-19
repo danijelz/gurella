@@ -59,13 +59,13 @@ public class CompositeShapeModel extends ShapeModel {
 	}
 
 	public static class ShapeModelItem {
-		@PropertyDescriptor(flat = true)
+		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 translation = new Vector3();
 
-		@PropertyDescriptor(descriptiveName = "rotation", flat = true)
+		@PropertyDescriptor(descriptiveName = "rotation", flatSerialization = true)
 		private final Vector3 eulerRotation = new Vector3();
 
-		@PropertyDescriptor(flat = true)
+		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 scale = new Vector3(1, 1, 1);
 
 		public ShapeModel shape;

@@ -165,7 +165,7 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isFlat() {
+		public boolean isFlatSerialization() {
 			return true;
 		}
 

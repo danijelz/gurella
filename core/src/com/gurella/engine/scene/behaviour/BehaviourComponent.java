@@ -438,13 +438,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public <T> void obtainResourceAsync(int resourceId, AsyncCallback<T> callback) {
 	}
 
-	public <T> T load(String fileName, Class<T> type) {
-		return null;
-	}
-
-	public <T> void loadAsync(String fileName, Class<T> type, AsyncCallback<T> callback) {
-	}
-
 	public boolean releaseResource(Object resource) {
 		return false;
 	}

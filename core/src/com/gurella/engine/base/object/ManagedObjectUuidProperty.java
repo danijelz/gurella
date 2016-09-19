@@ -36,7 +36,7 @@ class ManagedObjectUuidProperty implements Property<String> {
 	}
 
 	@Override
-	public boolean isFlat() {
+	public boolean isFlatSerialization() {
 		return true;
 	}
 

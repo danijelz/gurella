@@ -178,7 +178,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isFlat() {
+		public boolean isFlatSerialization() {
 			return true;
 		}
 
@@ -280,7 +280,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isFlat() {
+		public boolean isFlatSerialization() {
 			return true;
 		}
 

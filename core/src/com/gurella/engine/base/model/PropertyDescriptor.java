@@ -16,7 +16,7 @@ public @interface PropertyDescriptor {
 	
 	boolean copyable() default true;
 	
-	boolean flat() default false;
+	boolean flatSerialization() default false;
 
 	String descriptiveName() default "";
 

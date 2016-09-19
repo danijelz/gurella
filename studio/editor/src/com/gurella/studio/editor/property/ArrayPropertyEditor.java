@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.badlogic.gdx.utils.reflect.Field;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
@@ -140,8 +139,7 @@ public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
 		Property<P> property = context.property;
 		if (property instanceof ReflectionProperty) {
 			ReflectionProperty<P> reflectionProperty = (ReflectionProperty<P>) property;
-			Field field = reflectionProperty.getField();
-			return field.isFinal();
+			return reflectionProperty.isFinal();
 		} else {
 			return true;
 		}

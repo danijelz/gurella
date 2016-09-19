@@ -2,11 +2,8 @@ package com.gurella.engine.graphics.render;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -14,7 +11,6 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -152,7 +148,7 @@ public class GenericBatch implements Disposable {
 		modelBatch.render(renderableProviders, environment, shader);
 	}
 
-	//////////2D
+	////////// 2D
 
 	public void set2dTransform(TransformComponent transformComponent) {
 		Matrix4 transformMatrix = polygonSpriteBatch.getTransformMatrix();
@@ -162,74 +158,6 @@ public class GenericBatch implements Disposable {
 			transformComponent.getWorldTransform(transformMatrix);
 		}
 		polygonSpriteBatch.setTransformMatrix(transformMatrix);
-	}
-	
-	public void render(PolygonRegion region, float x, float y) {
-		ensure2d();
-	}
-
-	public void render(PolygonRegion region, float x, float y, float width, float height) {
-		ensure2d();
-	}
-
-	public void render(PolygonRegion region, float x, float y, float originX, float originY, float width, float height,
-			float scaleX, float scaleY, float rotation) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float[] polygonVertices, int verticesOffset, int verticesCount,
-			short[] polygonTriangles, int trianglesOffset, int trianglesCount) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float x, float y, float originX, float originY, float width, float height,
-			float scaleX, float scaleY, float rotation, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX,
-			boolean flipY) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float x, float y, float width, float height, int srcX, int srcY, int srcWidth,
-			int srcHeight, boolean flipX, boolean flipY) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float x, float y, int srcX, int srcY, int srcWidth, int srcHeight) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float x, float y, float width, float height, float u, float v, float u2,
-			float v2) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float x, float y) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float x, float y, float width, float height) {
-		ensure2d();
-	}
-
-	public void render(Texture texture, float[] spriteVertices, int offset, int count) {
-		ensure2d();
-	}
-
-	public void render(TextureRegion region, float x, float y) {
-		ensure2d();
-	}
-
-	public void render(TextureRegion region, float x, float y, float originX, float originY, float width, float height,
-			float scaleX, float scaleY, float rotation) {
-		ensure2d();
-	}
-
-	public void render(TextureRegion region, float x, float y, float originX, float originY, float width, float height,
-			float scaleX, float scaleY, float rotation, boolean clockwise) {
-		ensure2d();
-	}
-
-	public void render(TextureRegion region, float width, float height, Affine2 transform) {
-		ensure2d();
 	}
 
 	public void render(Sprite sprite) {

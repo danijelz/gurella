@@ -116,7 +116,7 @@ public class ImmutableArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isFlat() {
+		public boolean isFlatSerialization() {
 			return true;
 		}
 

@@ -209,7 +209,7 @@ public class CollectionModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public boolean isFlat() {
+		public boolean isFlatSerialization() {
 			return true;
 		}
 

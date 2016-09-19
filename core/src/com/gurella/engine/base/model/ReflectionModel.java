@@ -279,14 +279,16 @@ public class ReflectionModel<T> implements Model<T> {
 		if (supertype != null && supertype != Object.class) {
 			Model<? super T> model = Models.getModel(supertype);
 			ImmutableArray<Property<?>> supertypeProperties = model.getProperties();
-			for (int i = 0; i < supertypeProperties.size(); i++) {
+			for (int i = 0, n = supertypeProperties.size(); i < n; i++) {
 				Property<?> property = supertypeProperties.get(i).newInstance(this);
 				properties.add(property);
 				propertiesByName.put(property.getName(), property);
 			}
 		}
 
-		for (Field field : ClassReflection.getDeclaredFields(type)) {
+		Field[] declaredFields = ClassReflection.getDeclaredFields(type);
+		for (int i = 0, n = declaredFields.length; i < n; i++) {
+			Field field = declaredFields[i];
 			if (!isIgnoredField(field)) {
 				Property<?> property = createProperty(field);
 				if (property != null) {
@@ -294,6 +296,62 @@ public class ReflectionModel<T> implements Model<T> {
 					propertiesByName.put(property.getName(), property);
 				}
 			}
+		}
+
+		Method[] declaredMethods = ClassReflection.getDeclaredMethods(type);
+		for (int i = 0, n = declaredMethods.length; i < n; i++) {
+			resolveBeanProperty(declaredMethods[i]);
+		}
+	}
+
+	private void resolveBeanProperty(Method getter) {
+		Class<?> returnType;
+		if (getter.isAbstract() || getter.isStatic() || getter.isNative() || !getter.isPublic()
+				|| Void.class == (returnType = getter.getReturnType()) || getter.getParameterTypes().length != 0) {
+			return;
+		}
+
+		String prefix = Boolean.TYPE.equals(type) ? isPrefix : getPrefix;
+		String getterName = getter.getName();
+		if (!getterName.startsWith(prefix)) {
+			return;
+		}
+
+		if (getter.getDeclaredAnnotation(TransientProperty.class) != null) {
+			return;
+		}
+
+		String upperCaseName = getterName.substring(prefix.length());
+		String name = upperCaseName.substring(0, 1).toLowerCase() + upperCaseName.substring(1);
+		if (propertiesByName.containsKey(name)) {
+			return;
+		}
+
+		Method setter = getPropertySetter(type, upperCaseName, returnType, false);
+		if (setter == null || !setter.isPublic() || setter.getDeclaredAnnotation(TransientProperty.class) != null) {
+			return;
+		}
+
+		PropertyDescriptor propertyDescriptor = Reflection.getDeclaredAnnotation(getter, PropertyDescriptor.class);
+		if (propertyDescriptor == null) {
+			propertyDescriptor = Reflection.getDeclaredAnnotation(setter, PropertyDescriptor.class);
+		}
+
+		Property<?> property = createBeanProperty(name, getter, setter, propertyDescriptor);
+		properties.add(property);
+		propertiesByName.put(name, property);
+	}
+
+	protected Property<?> createBeanProperty(String name, Method getter, Method setter,
+			PropertyDescriptor propertyDescriptor) {
+		if (propertyDescriptor == null) {
+			return new ReflectionProperty<Object>(name, null, getter, setter, this);
+		} else {
+			@SuppressWarnings("unchecked")
+			Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) propertyDescriptor.property();
+			return ReflectionProperty.class.equals(propertyType)
+					? new ReflectionProperty<Object>(name, null, getter, setter, this)
+					: createAnnotationProperty(propertyType);
 		}
 	}
 
@@ -416,23 +474,21 @@ public class ReflectionModel<T> implements Model<T> {
 			return null;
 		}
 
-		return new ReflectionProperty<Object>(field, getter, setter, this);
+		return new ReflectionProperty<Object>(name, field, getter, setter, this);
 	}
 
-	private static Method getPropertyGetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
-			boolean forced) {
-		String prefix = Boolean.TYPE.equals(fieldType) ? isPrefix : getPrefix;
-		Method getter = Reflection.getDeclaredMethodSilently(resourceClass, prefix + upperCaseName);
+	private static Method getPropertyGetter(Class<?> owner, String upperCaseName, Class<?> type, boolean forced) {
+		String prefix = boolean.class.equals(type) ? isPrefix : getPrefix;
+		Method getter = Reflection.getDeclaredMethodSilently(owner, prefix + upperCaseName);
 		if (getter == null || (!forced && getter.isPrivate())) {
 			return null;
 		} else {
-			return fieldType.equals(getter.getReturnType()) ? getter : null;
+			return type.equals(getter.getReturnType()) ? getter : null;
 		}
 	}
 
-	private static Method getPropertySetter(Class<?> resourceClass, String upperCaseName, Class<?> fieldType,
-			boolean forced) {
-		Method setter = Reflection.getDeclaredMethodSilently(resourceClass, setPrefix + upperCaseName, fieldType);
+	private static Method getPropertySetter(Class<?> owner, String upperCaseName, Class<?> type, boolean forced) {
+		Method setter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, type);
 		if (setter == null || (!forced && setter.isPrivate())) {
 			return null;
 		} else {
@@ -449,4 +505,8 @@ public class ReflectionModel<T> implements Model<T> {
 	// String name;
 	// String[] argumentNames;
 	// }
+
+	public static class Test {
+
+	}
 }

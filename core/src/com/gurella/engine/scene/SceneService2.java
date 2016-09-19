@@ -37,4 +37,7 @@ public class SceneService2 {
 
 	protected void serviceDeactivated() {
 	}
+	
+	protected void serviceDestroyed() {
+	}
 }

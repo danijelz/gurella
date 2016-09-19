@@ -26,14 +26,14 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	private transient int nodeId;
 
-	@PropertyDescriptor(flat = true)
+	@PropertyDescriptor(flatSerialization = true)
 	private final Vector3 translation = new Vector3();
 
-	@PropertyDescriptor(descriptiveName = "rotation", flat = true)
+	@PropertyDescriptor(descriptiveName = "rotation", flatSerialization = true)
 	private final Vector3 eulerRotation = new Vector3();
 	private final Quaternion rotation = new Quaternion();
 
-	@PropertyDescriptor(flat = true)
+	@PropertyDescriptor(flatSerialization = true)
 	private final Vector3 scale = new Vector3(1, 1, 1);
 
 	private transient final Matrix4 transform = new Matrix4();

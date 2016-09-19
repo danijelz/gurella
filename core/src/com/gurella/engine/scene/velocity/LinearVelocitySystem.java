@@ -12,6 +12,7 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 public class LinearVelocitySystem extends SceneSystem2 implements PreRenderUpdateListener {
+	@SuppressWarnings("unchecked")
 	private static final SceneNodeFamily family = new SceneNodeFamily(
 			ComponentBitsPredicate.all(TransformComponent.class, LinearVelocityComponent.class).build());
 

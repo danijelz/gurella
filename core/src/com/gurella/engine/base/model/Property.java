@@ -12,19 +12,19 @@ public interface Property<T> {
 	Range<?> getRange();
 
 	boolean isNullable();
-	
+
 	boolean isFinal();
-	
+
 	boolean isCopyable();
-	
-	boolean isFlat();
-	
+
+	boolean isFlatSerialization();
+
 	String getDescriptiveName();
 
 	String getDescription();
 
-	String getGroup();
-	
+	String getGroup();// TODO remove or move editor properties
+
 	boolean isEditable();
 
 	Property<T> newInstance(Model<?> model);

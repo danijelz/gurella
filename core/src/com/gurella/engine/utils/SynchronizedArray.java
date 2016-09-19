@@ -61,7 +61,7 @@ public class SynchronizedArray<T> extends ArrayExt<T> {
 	}
 
 	@Override
-	public void addAll(@SuppressWarnings("unchecked") T... array) {
+	public void addAll(T... array) {
 		synchronized (mutex) {
 			super.addAll(array);
 		}
@@ -312,7 +312,7 @@ public class SynchronizedArray<T> extends ArrayExt<T> {
 		return new SynchronizedArray<T>(ordered, capacity, arrayType);
 	}
 
-	static public <T> SynchronizedArray<T> with(@SuppressWarnings("unchecked") T... array) {
+	static public <T> SynchronizedArray<T> with(T... array) {
 		return new SynchronizedArray<T>(array);
 	}
 }
