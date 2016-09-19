@@ -87,14 +87,14 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	public String[] getTags() {
 		int index = 0;
 		int length = 0;
-		while ((index = tagBits.nextSetBit(index)) > 0) {
+		while ((index = _tags.nextSetBit(index)) > 0) {
 			length++;
 		}
 
 		String[] tagNames = new String[length];
 		index = 0;
 		length = 0;
-		while ((index = tagBits.nextSetBit(index)) > 0) {
+		while ((index = _tags.nextSetBit(index)) > 0) {
 			Tag tag = Tag.get(index);
 			tagNames[length++] = tag.name;
 		}
