@@ -24,6 +24,8 @@ import com.gurella.engine.utils.Values;
 
 //TODO EntityTransmuter
 public final class Scene extends ManagedObject implements NodeContainer, Poolable {
+	private static Scene current;
+
 	public final transient ComponentManager componentManager = new ComponentManager(this);
 	public final transient NodeManager nodeManager = new NodeManager(this);
 	public final transient TagManager tagManager = new TagManager(this);
@@ -55,6 +57,10 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	transient final OrderedIdentitySet<SceneNodeComponent2> _activeComponents = new OrderedIdentitySet<SceneNodeComponent2>();
 	public transient final ImmutableArray<SceneNodeComponent2> activeComponents = _activeComponents.orderedItems();
 
+	public static Scene getCurrent() {
+		return current;
+	}
+
 	public final void start() {
 		if (isActive()) {
 			throw new GdxRuntimeException("Scene is already active.");
@@ -65,6 +71,8 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 
 	@Override
 	protected void preActivation() {
+		current = this;
+
 		componentManager.activate();
 		nodeManager.activate();
 		tagManager.activate();
@@ -105,6 +113,8 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		uiSystem.deactivate();
 		audioSystem.deactivate();
 		bulletPhysicsSystem.deactivate();
+
+		current = null;
 	}
 
 	@Override
