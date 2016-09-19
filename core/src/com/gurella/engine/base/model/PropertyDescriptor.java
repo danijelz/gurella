@@ -6,16 +6,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.FIELD })
+@Target(value = { ElementType.FIELD, ElementType.METHOD })
 public @interface PropertyDescriptor {
 	// TODO rename
 	@SuppressWarnings("rawtypes")
 	Class<? extends Property> property() default ReflectionProperty.class;
 
 	boolean nullable() default true;
-	
+
 	boolean copyable() default true;
-	
+
 	boolean flatSerialization() default false;
 
 	String descriptiveName() default "";

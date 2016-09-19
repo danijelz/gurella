@@ -2,9 +2,11 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
+import com.gurella.engine.utils.Values;
 
 public final class TagComponent extends SceneNodeComponent2 implements Poolable {
 	final transient Bits _tags = new Bits();
@@ -79,6 +81,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		}
 	}
 
+	@PropertyDescriptor(nullable = false)
 	public String[] getTags() {
 		int index = 0;
 		int length = 0;
@@ -98,16 +101,21 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public void setTags(String[] tags) {
-		if (tags == null) {
+		_tags.clear();
+
+		if (Values.isEmptyArray(tags)) {
 			return;
 		}
 
 		boolean active = isActive();
 		for (int i = 0; i < tags.length; i++) {
-			Tag tag = Tag.get(tags[i]);
-			int tagId = tag.id;
-			if (!_tags.getAndSet(tagId) && active) {
-				getScene().tagManager.tagAdded(this, tagId);
+			String tagName = tags[i];
+			if (tagName != null) {
+				Tag tag = Tag.get(tagName);
+				int tagId = tag.id;
+				if (!_tags.getAndSet(tagId) && active) {
+					getScene().tagManager.tagAdded(this, tagId);
+				}
 			}
 		}
 	}

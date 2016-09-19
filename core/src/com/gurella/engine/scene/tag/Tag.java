@@ -20,6 +20,11 @@ public final class Tag {
 	}
 
 	public static Tag get(String name) {
-		return tagsByName.get(name);
+		Tag tag = tagsByName.get(name);
+		if (tag == null) {
+			tag = new Tag(name);
+			tagsByName.put(name, tag);
+		}
+		return tag;
 	}
 }
