@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.engine.property;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
@@ -46,7 +45,7 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 	}
 
 	@Override
-	public EditorUi getEditorUi() {
+	public SwtEditorUi getEditorUi() {
 		return SwtEditorUi.instance;
 	}
 }

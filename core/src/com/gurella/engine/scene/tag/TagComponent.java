@@ -3,14 +3,14 @@ package com.gurella.engine.scene.tag;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.editor.model.ModelEditorDescriptor;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
 
+@ModelEditorDescriptor(factory = TagsModelEditorFactory.class)
 public final class TagComponent extends SceneNodeComponent2 implements Poolable {
 	@PropertyDescriptor(descriptiveName = "tags")
-	@PropertyEditorDescriptor(complex = false, factory = TagsPropertyEditorFactory.class)
 	final Bits _tags = new Bits();
 	public final transient ImmutableBits tags = new ImmutableBits(_tags);
 

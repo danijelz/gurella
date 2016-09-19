@@ -27,7 +27,8 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 		implements com.gurella.engine.editor.model.ModelEditorContext<T> {
 	final ModelEditorFactory<T> factory;
 
-	public CustomModelEditorContextAdapter(ModelEditorContext<?> parent, T modelInstance, ModelEditorFactory<T> factory) {
+	public CustomModelEditorContextAdapter(ModelEditorContext<?> parent, T modelInstance,
+			ModelEditorFactory<T> factory) {
 		super(parent, modelInstance);
 		this.factory = factory;
 	}
@@ -87,5 +88,10 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 				property.getDescriptiveName());
 		editorLabel.setLayoutData(layoutData);
 		return editorLabel;
+	}
+
+	@Override
+	public SwtEditorUi getEditorUi() {
+		return SwtEditorUi.instance;
 	}
 }
