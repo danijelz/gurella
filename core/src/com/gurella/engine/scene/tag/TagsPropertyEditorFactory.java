@@ -12,6 +12,7 @@ public class TagsPropertyEditorFactory implements PropertyEditorFactory<Bits> {
 	public void buildUi(EditorComposite parent, PropertyEditorContext<Bits> context) {
 		EditorUi editorUi = context.getEditorUi();
 		EditorTable<Object> tagsTable = editorUi.createTable(parent);
+		//context.getV
 		// TODO Auto-generated method stub
 		
 	}

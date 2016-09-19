@@ -20,7 +20,7 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 //TODO EntitySubscription -> TagSubscription
 public class TagManager extends SceneService implements ComponentActivityListener, Poolable {
 	private static final ComponentFamily tagComponentfamily = ComponentFamily.fromComponentType(TagComponent.class);
-	
+
 	private final Array<Tag> tags = new Array<Tag>();
 
 	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
@@ -28,7 +28,7 @@ public class TagManager extends SceneService implements ComponentActivityListene
 
 	private final TagAddedEvent tagAddedEvent = new TagAddedEvent();
 	private final TagRemovedEvent tagRemovedEvent = new TagRemovedEvent();
-	
+
 	Tag register(String name) {
 		if (isRegistered(name)) {
 			return null;
@@ -60,9 +60,19 @@ public class TagManager extends SceneService implements ComponentActivityListene
 
 		return false;
 	}
-	
-	void registerAll(String[] tags) {
-		
+
+	public void registerAll(String[] newTags) {
+		for (int i = 0; i < newTags.length; i++) {
+			register(newTags[i]);
+		}
+	}
+
+	public String[] getRegistered() {
+		String[] all = new String[tags.size];
+		for (int i = 0; i < tags.size; i++) {
+			all[i] = tags.get(i).name;
+		}
+		return all;
 	}
 
 	@Override

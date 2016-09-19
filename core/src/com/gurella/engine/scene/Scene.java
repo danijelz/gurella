@@ -274,4 +274,12 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		eventsDispatcher.reset();
 		initServices();
 	}
+
+	public String[] getTags() {
+		return tagManager.getRegistered();
+	}
+
+	public void setTags(String[] tags) {
+		tagManager.registerAll(tags);
+	}
 }
