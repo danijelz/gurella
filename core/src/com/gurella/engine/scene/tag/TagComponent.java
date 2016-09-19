@@ -2,11 +2,8 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ImmutableBits;
 
 public final class TagComponent extends SceneNodeComponent2 implements Poolable {
@@ -82,7 +79,7 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		}
 	}
 
-	public String[] getTagBits() {
+	public String[] getTags() {
 		int index = 0;
 		int length = 0;
 		while ((index = tagBits.nextSetBit(index)) > 0) {
@@ -113,10 +110,5 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 				getScene().tagManager.tagAdded(this, tagId);
 			}
 		}
-	}
-
-	public static void main(String[] args) {
-		ImmutableArray<Property<?>> properties = Models.getModel(TagComponent.class).getProperties();
-		properties.toString();
 	}
 }
