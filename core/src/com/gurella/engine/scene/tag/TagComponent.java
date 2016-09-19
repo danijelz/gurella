@@ -2,7 +2,6 @@ package com.gurella.engine.scene.tag;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -10,8 +9,7 @@ import com.gurella.engine.utils.ImmutableBits;
 
 @ModelEditorDescriptor(factory = TagsModelEditorFactory.class)
 public final class TagComponent extends SceneNodeComponent2 implements Poolable {
-	@PropertyDescriptor(descriptiveName = "tags")
-	final Bits _tags = new Bits();
+	final transient Bits _tags = new Bits();
 	public final transient ImmutableBits tags = new ImmutableBits(_tags);
 
 	public void addTag(Tag tag) {
@@ -80,6 +78,39 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 		TagComponent component = node.getComponent(TagComponent.class, true);
 		if (component != null) {
 			component.removeTags(tags);
+		}
+	}
+
+	public String[] getTags() {
+		int index = 0;
+		int length = 0;
+		while ((index = tags.nextSetBit(index)) > 0) {
+			length++;
+		}
+
+		String[] tagNames = new String[length];
+		index = 0;
+		length = 0;
+		while ((index = tags.nextSetBit(index)) > 0) {
+			Tag tag = Tag.get(index);
+			tagNames[length++] = tag.name;
+		}
+
+		return tagNames;
+	}
+
+	public void setTags(String[] tags) {
+		if (tags == null) {
+			return;
+		}
+
+		boolean active = isActive();
+		for (int i = 0; i < tags.length; i++) {
+			Tag tag = Tag.get(tags[i]);
+			int tagId = tag.id;
+			if (!_tags.getAndSet(tagId) && active) {
+				getScene().tagManager.tagAdded(this, tagId);
+			}
 		}
 	}
 }

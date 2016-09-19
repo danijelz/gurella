@@ -1,6 +1,5 @@
 package com.gurella.engine.scene.tag;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -19,8 +18,6 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 //TODO EntitySubscription -> TagSubscription
 public class TagManager extends SceneService2 implements ComponentActivityListener {
 	private static final ComponentFamily tagComponentfamily = ComponentFamily.fromComponentType(TagComponent.class);
-
-	private final Array<Tag> tags = new Array<Tag>();
 
 	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
 	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
@@ -45,53 +42,6 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 		}
 		families.clear();
 		nodesByTag.clear();
-		tags.clear();
-	}
-
-	Tag register(String name) {
-		if (isRegistered(name)) {
-			return null;
-		}
-
-		Tag tag = new Tag(name);
-		tags.add(tag);
-		return tag;
-	}
-
-	Tag unregister(String name) {
-		for (int i = 0; i < tags.size; i++) {
-			Tag tag = tags.get(i);
-			if (tag.name.equals(name)) {
-				tags.removeIndex(i);
-				return tag;
-			}
-		}
-		return null;
-	}
-
-	boolean isRegistered(String name) {
-		for (int i = 0; i < tags.size; i++) {
-			Tag tag = tags.get(i);
-			if (tag.name.equals(name)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	public void registerAll(String[] newTags) {
-		for (int i = 0; i < newTags.length; i++) {
-			register(newTags[i]);
-		}
-	}
-
-	public String[] getRegistered() {
-		String[] all = new String[tags.size];
-		for (int i = 0; i < tags.size; i++) {
-			all[i] = tags.get(i).name;
-		}
-		return all;
 	}
 
 	@Override
