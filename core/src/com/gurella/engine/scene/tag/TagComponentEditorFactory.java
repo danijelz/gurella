@@ -2,6 +2,7 @@ package com.gurella.engine.scene.tag;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
@@ -10,8 +11,7 @@ import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorInputValidator.BlankTextValidator;
-import com.gurella.engine.editor.ui.EditorScrolledComposite;
-import com.gurella.engine.editor.ui.EditorScrolledComposite.ScrolledCompositeStyle;
+import com.gurella.engine.editor.ui.EditorScrolledForm;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
@@ -26,26 +26,26 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 
 	@Override
 	public void buildUi(final EditorComposite parent, final ModelEditorContext<TagComponent> context) {
-		parent.setLayout(1);
+		parent.setLayout(2);
 
 		final EditorUi uiFactory = context.getEditorUi();
-		final EditorScrolledComposite scroll = uiFactory.createScrolledComposite(parent,
-				new ScrolledCompositeStyle().scroll(false, false));
+		final EditorScrolledForm scroll = uiFactory.createScrolledForm(parent);
+		int size = MathUtils.clamp(Tag.values().size, 1, 7);
 		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-				.sizeHint(150, 150).applyTo(scroll);
+				.minSize(150, 10).sizeHint(150, size * 15).applyTo(scroll);
+		scroll.setAlwaysShowScrollBars(false);
 		scroll.setExpandHorizontal(true);
-		scroll.setExpandVertical(true);
-		scroll.setMinSize(150, 150);
-		scroll.setSize(150, 150);
-		scroll.setBackground(200, 0, 0, 150);
+		//scroll.setExpandVertical(true);
+		/*scroll.setMinSize(150, 150);*/
+		scroll.setSize(150, 10);
 
-		final EditorComposite content = uiFactory.createComposite(scroll);
-		scroll.setContent(content);
+		final EditorComposite content = scroll.getForm().getBody();
 		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(content);
 		content.setLayout(1);
 
 		buildTagChecks(context, content);
 		EditorButton addButton = uiFactory.createButton(parent);
+		new EditorLayoutData().alignment(HorizontalAlignment.RIGHT, VerticalAlignment.TOP).applyTo(addButton);
 		addButton.setText("Add");
 		addButton.addListener(EditorEventType.Selection, new EditorEventListener() {
 			@Override
@@ -56,7 +56,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 					context.propertyValueChanged(tagsProperty, null, null);
 					content.removeAllChildren();
 					buildTagChecks(context, content);
-					content.layout();
+					scroll.reflow();
 				}
 			}
 		});
