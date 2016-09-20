@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.engine.ui;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -47,5 +49,10 @@ public abstract class SwtEditorLayoutComposite<T extends Composite> extends SwtE
 		} else {
 			GridLayoutFactory.fillDefaults().numColumns(numColumns).applyTo(widget);
 		}
+	}
+
+	@Override
+	public void removeAllChildren() {
+		Arrays.stream(widget.getChildren()).forEach(c -> c.dispose());
 	}
 }

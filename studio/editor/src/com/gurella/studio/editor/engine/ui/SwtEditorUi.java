@@ -177,7 +177,7 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public SwtEditorComposite createComposite(EditorComposite parent) {
-		return new SwtEditorComposite(cast(parent), SWT.NONE);
+		return new SwtEditorComposite(cast(parent), SWT.NONE | SWT.H_SCROLL | SWT.V_SCROLL);
 	}
 
 	@Override

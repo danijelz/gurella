@@ -14,6 +14,10 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	final transient Bits _tags = new Bits();
 	public final transient ImmutableBits tagBits = new ImmutableBits(_tags);
 
+	public void addTag(String tagName) {
+		addTag(Tag.get(tagName));
+	}
+
 	public void addTag(Tag tag) {
 		int tagId = tag.id;
 		if (!_tags.getAndSet(tagId) && isActive()) {
@@ -29,6 +33,10 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 				getScene().tagManager.tagAdded(this, tagId);
 			}
 		}
+	}
+
+	public void removeTag(String tagName) {
+		removeTag(Tag.get(tagName));
 	}
 
 	public void removeTag(Tag tag) {

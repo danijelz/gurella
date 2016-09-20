@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.tag;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.ValueRegistry;
 
@@ -26,5 +27,9 @@ public final class Tag {
 			tagsByName.put(name, tag);
 		}
 		return tag;
+	}
+
+	public static Array<Tag> values() {
+		return tagsByName.values().toArray();
 	}
 }
