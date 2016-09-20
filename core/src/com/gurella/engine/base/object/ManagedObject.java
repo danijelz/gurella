@@ -20,8 +20,8 @@ import com.gurella.engine.utils.Values;
 
 public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient int instanceId;
-	transient ManagedObjectState state = ManagedObjectState.idle;//TODO convert to byte
-	
+	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to byte
+
 	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
 	@PropertyEditor(editable = false)
 	String uuid;
@@ -29,7 +29,6 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
 	@PropertyEditor(editable = false)
 	PrefabReference prefab;
-
 
 	private transient ManagedObject parent;
 	private transient final OrderedIdentitySet<ManagedObject> _children = new OrderedIdentitySet<ManagedObject>();
@@ -208,6 +207,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			state = ManagedObjectState.idle;
 			parent = null;
 			uuid = null;
+			resetValues();
 		}
 
 		// TODO EventService.removeChannel(instanceId);
@@ -228,6 +228,9 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	}
 
 	protected void postDestruction() {
+	}
+
+	protected void resetValues() {
 	}
 
 	//// HIERARCHY

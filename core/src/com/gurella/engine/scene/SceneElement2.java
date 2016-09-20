@@ -43,11 +43,11 @@ public class SceneElement2 extends ManagedObject {
 	}
 
 	@Override
-	protected final void destroyed() {
+	protected final void resetValues() {
 		enabled = true;
-		elementDestroyed();
+		resetElementValues();
 	}
 
-	protected void elementDestroyed() {
+	protected void resetElementValues() {
 	}
 }

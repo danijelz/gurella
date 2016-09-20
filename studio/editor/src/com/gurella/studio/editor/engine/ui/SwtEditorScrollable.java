@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.engine.ui;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
@@ -20,8 +21,8 @@ public abstract class SwtEditorScrollable<T extends Scrollable> extends SwtEdito
 	}
 
 	@Override
-	public int getScrollbarsMode() {
-		return widget.getScrollbarsMode();
+	public boolean areScrollbarsOverlayed() {
+		return widget.getScrollbarsMode() == SWT.SCROLLBAR_OVERLAY;
 	}
 
 	@Override

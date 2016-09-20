@@ -625,7 +625,7 @@ public class SwtEditorUi implements EditorUi {
 	public static EditorLayoutData transformLayoutData(GridData data) {
 		return new EditorLayoutData()
 				.alignment(horizontalAlignment(data.horizontalAlignment), vericalAlignment(data.verticalAlignment))
-				.hint(data.widthHint, data.heightHint).indent(data.horizontalIndent, data.verticalIndent)
+				.sizeHint(data.widthHint, data.heightHint).indent(data.horizontalIndent, data.verticalIndent)
 				.span(data.horizontalSpan, data.verticalSpan)
 				.grab(data.grabExcessHorizontalSpace, data.grabExcessVerticalSpace)
 				.minSize(data.minimumWidth, data.minimumHeight).exclude(data.exclude);

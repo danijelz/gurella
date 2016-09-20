@@ -45,7 +45,7 @@ public class EditorLayoutData {
 		return this;
 	}
 
-	public EditorLayoutData hint(int wHint, int hHint) {
+	public EditorLayoutData sizeHint(int wHint, int hHint) {
 		widthHint = wHint;
 		heightHint = hHint;
 		return this;

@@ -7,7 +7,7 @@ public interface EditorScrollable extends EditorControl {
 
 	EditorScrollBar getHorizontalBar();
 
-	int getScrollbarsMode();
+	boolean areScrollbarsOverlayed();
 
 	EditorScrollBar getVerticalBar();
 
@@ -21,6 +21,12 @@ public interface EditorScrollable extends EditorControl {
 		}
 
 		public T vScroll(boolean vScroll) {
+			this.vScroll = vScroll;
+			return cast();
+		}
+
+		public T scroll(boolean hScroll, boolean vScroll) {
+			this.hScroll = hScroll;
 			this.vScroll = vScroll;
 			return cast();
 		}

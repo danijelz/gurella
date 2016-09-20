@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -34,6 +35,12 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 
 	@Override
 	protected void createContent() {
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 1;
+		layout.marginHeight = 1;
+		layout.verticalSpacing = 2;
+		setLayout(layout);
+
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		int length = array.length;
 		if (length > 0) {

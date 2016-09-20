@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -28,11 +27,6 @@ public abstract class MetaModelEditor<T> extends Composite {
 		super(parent, SWT.NONE);
 		this.context = context;
 		GurellaStudioPlugin.getToolkit().adapt(this);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 1;
-		layout.marginHeight = 1;
-		layout.verticalSpacing = 2;
-		setLayout(layout);
 		Listener mouseMoveListener = e -> mouseMoved();
 		Display display = getDisplay();
 		display.addFilter(SWT.MouseMove, mouseMoveListener);
