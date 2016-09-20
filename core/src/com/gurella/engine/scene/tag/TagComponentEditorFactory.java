@@ -26,25 +26,29 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 	@Override
 	public void buildUi(final EditorComposite parent, final ModelEditorContext<TagComponent> context) {
 		parent.setLayout(1);
+		new EditorLayoutData().heightHint(150).applyTo(parent);
 
-		final EditorUi uiFactory = context.getEditorUi();
-		EditorScrolledComposite scroll = uiFactory.createScrolledComposite(parent);
-		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.FILL).applyTo(scroll);
+		//final EditorUi uiFactory = context.getEditorUi();
+		/*EditorScrolledComposite scroll = uiFactory.createScrolledComposite(parent);
+		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.FILL).applyTo(scroll);*/
 
-		final EditorComposite content = uiFactory.createComposite(scroll);
-		content.setSize(Math.max(100, parent.getSize().x - 10), 150);
-		content.setLayout(1);
-		scroll.setContent(content);
+		//final EditorComposite content = uiFactory.createComposite(scroll);
+		//final EditorComposite content = uiFactory.createComposite(parent);
+		//content.setSize(Math.max(100, parent.getSize().x - 10), 150);
+		//content.setLayout(1);
+		//scroll.setContent(content);
 
-		parent.addListener(EditorEventType.Resize, new EditorEventListener() {
-			@Override
-			public void handleEvent(EditorEvent event) {
-				content.setSize(Math.max(100, parent.getSize().x - 5), 150);
-				parent.layout();
-			}
-		});
+//		parent.addListener(EditorEventType.Resize, new EditorEventListener() {
+//			@Override
+//			public void handleEvent(EditorEvent event) {
+//				content.setSize(100, 150);
+//				//scroll.pack();
+//				parent.layout();
+//				//content.setSize(Math.max(100, parent.getSize().x - 5), 150);
+//			}
+//		});
 
-		buildUi(context, content);
+		buildUi(context, parent);
 	}
 
 	protected void buildUi(final ModelEditorContext<TagComponent> context, final EditorComposite content) {
@@ -86,6 +90,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 					content.removeAllChildren();
 					buildUi(context, content);
 					content.layout();
+					content.redraw();
 				}
 			}
 		});
