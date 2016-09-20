@@ -26,18 +26,15 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 
 	@Override
 	public void buildUi(final EditorComposite parent, final ModelEditorContext<TagComponent> context) {
-		parent.setLayout(2);
+		parent.setLayout(1);
 
 		final EditorUi uiFactory = context.getEditorUi();
 		final EditorScrolledForm scroll = uiFactory.createScrolledForm(parent);
 		int size = MathUtils.clamp(Tag.values().size, 1, 7);
 		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
 				.minSize(150, 10).sizeHint(150, size * 15).applyTo(scroll);
-		scroll.setAlwaysShowScrollBars(false);
 		scroll.setExpandHorizontal(true);
-		//scroll.setExpandVertical(true);
-		/*scroll.setMinSize(150, 150);*/
-		scroll.setSize(150, 10);
+		//scroll.setSize(150, 10);
 
 		final EditorComposite content = scroll.getForm().getBody();
 		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(content);
@@ -45,7 +42,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 
 		buildTagChecks(context, content);
 		EditorButton addButton = uiFactory.createButton(parent);
-		new EditorLayoutData().alignment(HorizontalAlignment.RIGHT, VerticalAlignment.TOP).applyTo(addButton);
+		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(addButton);
 		addButton.setText("Add");
 		addButton.addListener(EditorEventType.Selection, new EditorEventListener() {
 			@Override
@@ -60,6 +57,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 				}
 			}
 		});
+		scroll.reflow();
 	}
 
 	protected void buildTagChecks(final ModelEditorContext<TagComponent> context, final EditorComposite content) {
