@@ -19,7 +19,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 	private static final Property<String[]> tagsProperty = Models.getModel(TagComponent.class).getProperty("tags");
 
 	@Override
-	public void buildUi(EditorComposite parent, ModelEditorContext<TagComponent> context) {
+	public void buildUi(EditorComposite parent, final ModelEditorContext<TagComponent> context) {
 		parent.setLayout(1);
 
 		EditorUi uiFactory = context.getEditorUi();

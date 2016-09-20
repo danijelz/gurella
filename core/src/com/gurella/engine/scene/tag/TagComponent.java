@@ -85,18 +85,17 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 
 	@PropertyDescriptor(nullable = false)
 	public String[] getTags() {
-		int index = 0;
-		int length = 0;
-		while ((index = _tags.nextSetBit(index)) > 0) {
-			length++;
+		int temp = 0;
+		int tagId;
+		for (tagId = _tags.nextSetBit(0); tagId >= 0; tagId = _tags.nextSetBit(tagId + 1)) {
+			temp++;
 		}
 
-		String[] tagNames = new String[length];
-		index = 0;
-		length = 0;
-		while ((index = _tags.nextSetBit(index)) > 0) {
-			Tag tag = Tag.get(index);
-			tagNames[length++] = tag.name;
+		String[] tagNames = new String[temp];
+		temp = 0;
+		for (tagId = _tags.nextSetBit(0); tagId >= 0; tagId = _tags.nextSetBit(tagId + 1)) {
+			Tag tag = Tag.get(tagId);
+			tagNames[temp++] = tag.name;
 		}
 
 		return tagNames;

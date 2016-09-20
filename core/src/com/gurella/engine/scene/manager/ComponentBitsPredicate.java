@@ -24,8 +24,7 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		int componentId;
 
 		if (!all.isEmpty() && !componentBits.containsAll(all)) {
-			componentId = 0;
-			while ((componentId = all.nextSetBit(componentId)) != -1) {
+			for (componentId = all.nextSetBit(0); componentId >= 0; componentId = all.nextSetBit(componentId + 1)) {
 				if (!componentBits.get(componentId) || !componentBits.intersects(getSubtypes(componentId))) {
 					return false;
 				}
@@ -33,9 +32,8 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 		}
 
 		if (!any.isEmpty() && !componentBits.intersects(any)) {
-			componentId = 0;
 			boolean pass = false;
-			while ((componentId = any.nextSetBit(componentId)) != -1 && !pass) {
+			for (componentId = any.nextSetBit(0); componentId >= 0; componentId = any.nextSetBit(componentId + 1)) {
 				if (componentBits.intersects(getSubtypes(componentId))) {
 					pass = true;
 				}
@@ -51,8 +49,8 @@ public class ComponentBitsPredicate implements Predicate<SceneNode2>, Poolable {
 				return false;
 			}
 
-			componentId = 0;
-			while ((componentId = exclude.nextSetBit(componentId)) != -1) {
+			for (componentId = exclude.nextSetBit(0); componentId >= 0; componentId = exclude
+					.nextSetBit(componentId + 1)) {
 				if (componentBits.get(componentId) || componentBits.intersects(getSubtypes(componentId))) {
 					return false;
 				}

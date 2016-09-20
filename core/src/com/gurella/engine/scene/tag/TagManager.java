@@ -50,10 +50,9 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 			TagComponent tagComponent = (TagComponent) component;
 			updateFamilies(tagComponent);
 			Bits tags = tagComponent._tags;
-			int tagId = tags.nextSetBit(0);
-			while (tagId != -1) {
+			
+			for (int tagId = tags.nextSetBit(0); tagId >= 0; tagId = tags.nextSetBit(tagId + 1)) {
 				tagAdded(tagComponent, tagId);
-				tagId = tags.nextSetBit(tagId);
 			}
 		}
 	}
@@ -70,10 +69,9 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 			TagComponent tagComponent = (TagComponent) component;
 			removeFromFamilies(tagComponent);
 			Bits tags = tagComponent._tags;
-			int tagId = tags.nextSetBit(0);
-			while (tagId != -1) {
+			
+			for (int tagId = tags.nextSetBit(0); tagId >= 0; tagId = tags.nextSetBit(tagId + 1)) {
 				tagRemoved(tagComponent, tagId);
-				tagId = tags.nextSetBit(tagId);
 			}
 		}
 	}
