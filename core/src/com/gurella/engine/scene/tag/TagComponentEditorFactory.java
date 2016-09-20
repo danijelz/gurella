@@ -32,9 +32,8 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 		final EditorScrolledForm scroll = uiFactory.createScrolledForm(parent);
 		int size = MathUtils.clamp(Tag.values().size, 1, 7);
 		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-				.minSize(150, 10).sizeHint(150, size * 15).applyTo(scroll);
+				.minSize(150, 10).sizeHint(150, size * 21).applyTo(scroll);
 		scroll.setExpandHorizontal(true);
-		//scroll.setSize(150, 10);
 
 		final EditorComposite content = scroll.getForm().getBody();
 		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(content);
@@ -53,7 +52,11 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 					context.propertyValueChanged(tagsProperty, null, null);
 					content.removeAllChildren();
 					buildTagChecks(context, content);
+					int size = MathUtils.clamp(Tag.values().size, 1, 7);
+					new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
+							.minSize(150, 10).sizeHint(150, size * 21).applyTo(scroll);
 					scroll.reflow();
+					parent.layout();
 				}
 			}
 		});
@@ -67,6 +70,7 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 		Arrays.sort(tags);
 
 		Array<Tag> allTags = Tag.values();
+		allTags.sort();
 
 		for (int i = 0; i < allTags.size; i++) {
 			Tag tag = allTags.get(i);

@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.ValueRegistry;
 
-public final class Tag {
+public final class Tag implements Comparable<Tag> {
 	private static final ValueRegistry<Tag> registry = new ValueRegistry<Tag>();
 	private static ObjectMap<String, Tag> tagsByName = new ObjectMap<String, Tag>();
 
@@ -31,5 +31,10 @@ public final class Tag {
 
 	public static Array<Tag> values() {
 		return tagsByName.values().toArray();
+	}
+
+	@Override
+	public int compareTo(Tag other) {
+		return name.compareTo(other.name);
 	}
 }
