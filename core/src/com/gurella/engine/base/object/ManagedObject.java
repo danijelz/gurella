@@ -191,26 +191,9 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 		state = ManagedObjectState.disposed;
 		destroyed();
 		ManagedObjects.destroyed(this);
-
-		clearAttachments();
-		_children.reset();
-
-		if (prefab != null) {
-			prefab.free();
-			prefab = null;
-		}
-
+		clear();
 		postDestruction();
-
-		if (this instanceof Poolable) {
-			instanceId = SequenceGenerator.next();
-			state = ManagedObjectState.idle;
-			parent = null;
-			uuid = null;
-			resetValues();
-		}
-
-		// TODO EventService.removeChannel(instanceId);
+		reset();
 
 		if (AssetService.isManaged(this)) {
 			AssetService.unload(this);
@@ -218,6 +201,28 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			PoolService.free(this);
 		} else {
 			DisposablesService.tryDispose(this);
+		}
+	}
+
+	private void clear() {
+		clearAttachments();
+		_children.reset();
+
+		if (prefab != null) {
+			prefab.free();
+			prefab = null;
+		}
+		
+		// TODO EventService.removeChannel(instanceId);
+	}
+
+	private void reset() {
+		if (this instanceof Poolable) {
+			instanceId = SequenceGenerator.next();
+			state = ManagedObjectState.idle;
+			parent = null;
+			uuid = null;
+			resetPoolable();
 		}
 	}
 
@@ -230,7 +235,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	protected void postDestruction() {
 	}
 
-	protected void resetValues() {
+	protected void resetPoolable() {
 	}
 
 	//// HIERARCHY

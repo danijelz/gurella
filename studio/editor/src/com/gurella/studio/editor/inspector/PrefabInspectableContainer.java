@@ -186,7 +186,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
 				component);
-		componentEditor.getContext().signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		componentEditor.getContext().propertyChangedSignal.addListener((event) -> postMessage(SceneChangedMessage.instance));
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 

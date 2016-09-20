@@ -16,6 +16,8 @@ public abstract class InspectableContainer<T> extends ScrolledForm implements Ed
 		setExpandHorizontal(true);
 		setExpandVertical(true);
 		setMinWidth(200);
+		setSize(200, 100);
+		
 		addListener(SWT.Resize, (e) -> reflow(true));
 		addDisposeListener(e -> parent.removeEditorMessageListener(this));
 		parent.addEditorMessageListener(this);

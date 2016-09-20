@@ -60,7 +60,7 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	}
 
 	public void propertyValueChanged(Object oldValue, Object newValue) {
-		signal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
+		propertyChangedSignal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
 
 		ModelEditorContext<?> temp = this;
 		while (temp != null) {

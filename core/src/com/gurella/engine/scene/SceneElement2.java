@@ -43,11 +43,11 @@ public class SceneElement2 extends ManagedObject {
 	}
 
 	@Override
-	protected final void resetValues() {
+	protected final void resetPoolable() {
 		enabled = true;
-		resetElementValues();
+		resetPoolableElement();
 	}
 
-	protected void resetElementValues() {
+	protected void resetPoolableElement() {
 	}
 }

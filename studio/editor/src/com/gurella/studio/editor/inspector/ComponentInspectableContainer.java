@@ -29,10 +29,10 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		toolkit.decorateFormHeading(getForm());
 
 		Composite body = getBody();
-		body.setLayout(new GridLayout(3, false));
+		body.setLayout(new GridLayout(1, false));
 		modelEditor = createEditor(body, getSceneEditorContext(), target);
-		modelEditor.getContext().signal.addListener((event) -> postMessage(SceneChangedMessage.instance));
-		modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+		modelEditor.getContext().propertyChangedSignal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		layout(true, true);
 	}
 }

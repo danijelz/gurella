@@ -10,7 +10,6 @@ import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorInputValidator.BlankTextValidator;
-import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorScrolledComposite;
 import com.gurella.engine.editor.ui.EditorScrolledComposite.ScrolledCompositeStyle;
 import com.gurella.engine.editor.ui.EditorUi;
@@ -28,26 +27,21 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 	@Override
 	public void buildUi(final EditorComposite parent, final ModelEditorContext<TagComponent> context) {
 		parent.setLayout(1);
-		// new EditorLayoutData().sizeHint(150, 150).applyTo(parent);
 
 		final EditorUi uiFactory = context.getEditorUi();
 		final EditorScrolledComposite scroll = uiFactory.createScrolledComposite(parent,
-				new ScrolledCompositeStyle().scroll(false, true));
+				new ScrolledCompositeStyle().scroll(false, false));
 		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
 				.sizeHint(150, 150).applyTo(scroll);
 		scroll.setExpandHorizontal(true);
 		scroll.setExpandVertical(true);
 		scroll.setMinSize(150, 150);
 		scroll.setSize(150, 150);
-		scroll.getVerticalBar().setVisible(true);
+		scroll.setBackground(200, 0, 0, 150);
 
-		EditorScrolledComposite content = uiFactory.createScrolledComposite(scroll);
-		content.setBackground(0, 200, 0, 150);
-		content.setSize(150, 150);
-		content.setMinSize(150, 150);
+		final EditorComposite content = uiFactory.createComposite(scroll);
 		scroll.setContent(content);
-		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.FILL).grab(true, false)
-				.sizeHint(150, 150).applyTo(content);
+		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(content);
 		content.setLayout(1);
 
 		buildTagChecks(context, content);
@@ -66,14 +60,10 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 				}
 			}
 		});
-
-		scroll.layout();
 	}
 
 	protected void buildTagChecks(final ModelEditorContext<TagComponent> context, final EditorComposite content) {
 		final EditorUi uiFactory = context.getEditorUi();
-		EditorLabel label = uiFactory.createLabel(content, "TDSGJHSDGJHS");
-		label.setBackground(0, 0, 100, 150);
 		final TagComponent tagComponent = context.getModelInstance();
 		String[] tags = tagComponent.getTags();
 		Arrays.sort(tags);
@@ -84,7 +74,6 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 			Tag tag = allTags.get(i);
 			final String tagName = tag.name;
 			final EditorButton checkBox = uiFactory.createCheckBox(content);
-			checkBox.setBackground(0, 0, 100, 150);
 			new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
 					.applyTo(checkBox);
 			checkBox.setText(tagName);
@@ -101,7 +90,5 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 				}
 			});
 		}
-		
-		content.pack();
 	}
 }

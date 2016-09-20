@@ -11,7 +11,7 @@ public class ModelEditorContext<T> {
 	public final ModelEditorContext<?> parent;
 	public final Model<T> model;
 	public final T modelInstance;
-	public final Signal1<PropertyValueChangedEvent> signal = new Signal1<>();
+	public final Signal1<PropertyValueChangedEvent> propertyChangedSignal = new Signal1<>();
 
 	public ModelEditorContext(SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(sceneEditorContext, null, Models.getModel(modelInstance), modelInstance);
@@ -29,12 +29,12 @@ public class ModelEditorContext<T> {
 		this.modelInstance = modelInstance;
 
 		if (parent != null) {
-			signal.addListener(parent.signal::dispatch);
+			propertyChangedSignal.addListener(parent.propertyChangedSignal::dispatch);
 		}
 	}
 
 	public void propertyValueChanged(Property<?> property, Object oldValue, Object newValue) {
-		signal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
+		propertyChangedSignal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
 	}
 
 	public static final class PropertyValueChangedEvent {
