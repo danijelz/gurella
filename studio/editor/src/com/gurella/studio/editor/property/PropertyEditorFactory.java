@@ -3,7 +3,6 @@ package com.gurella.studio.editor.property;
 import static com.gurella.engine.utils.Values.cast;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLClassLoader;
@@ -102,7 +101,6 @@ public class PropertyEditorFactory {
 			customFactories.put(key, data);
 			return data;
 		} else {
-			Field declaredField = declaringClass.getDeclaredField(propertyName);
 			data = customFactories.get(declaredKey);
 			if (data != null) {
 				customFactories.put(key, data);
@@ -252,11 +250,6 @@ public class PropertyEditorFactory {
 	private static class CustomFactoryKey {
 		String typeName;
 		String propertyName;
-
-		public CustomFactoryKey(Class<?> type, Field field) {
-			this.typeName = type.getName();
-			this.propertyName = field.getName();
-		}
 
 		public CustomFactoryKey(String typeName, String propertyName) {
 			this.typeName = typeName;
