@@ -146,7 +146,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TagComponent.class);
 		new MenuItem(menu, SEPARATOR);
-		// addItem("Layer", LayerComponent.class);
 		addMenuItem(menu, TextureComponent.class);
 		addMenuItem(menu, TextureRegionComponent.class);
 		addMenuItem(menu, AtlasRegionComponent.class);
