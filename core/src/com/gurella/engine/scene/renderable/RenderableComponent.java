@@ -1,21 +1,12 @@
 package com.gurella.engine.scene.renderable;
 
-import static com.gurella.engine.editor.ui.event.EditorEventType.Selection;
-
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.editor.property.PropertyEditorFactory;
-import com.gurella.engine.editor.ui.EditorButton;
-import com.gurella.engine.editor.ui.EditorComposite;
-import com.gurella.engine.editor.ui.EditorUi;
-import com.gurella.engine.editor.ui.event.EditorEvent;
-import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -29,6 +20,7 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2
 		implements NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
+	// TODO remove synchronization
 	private static final Array<SceneRenderableChangedListener> listeners = new Array<SceneRenderableChangedListener>();
 	private static final Object mutex = new Object();
 
@@ -39,10 +31,11 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	private transient boolean dirty = true;
 
 	@PropertyDescriptor(nullable = false)
-	public Layer layer = Layer.DEFAULT;
+	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, complex = false)
+	Layer layer = Layer.DEFAULT;
 
 	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class, complex = false)
-	public byte inputEvents;// TODO flags to disable input events (tap, touch, doubleTuch, longPress,
+	public byte inputEvents;// TODO flags to enable input events (tap, touch, doubleTuch, longPress,
 							// mouseMove, scroll, drag)
 
 	protected abstract void updateGeometry();
@@ -136,52 +129,19 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		return visible;
 	}
 
+	public Layer getLayer() {
+		return layer == null ? Layer.DEFAULT : layer;
+	}
+
+	public void setLayer(Layer layer) {
+		this.layer = layer == null ? Layer.DEFAULT : layer;
+	}
+
 	@Override
 	public void reset() {
 		sceneId = -1;
 		layer = Layer.DEFAULT;
 		transformComponent = null;
 		dirty = true;
-	}
-
-	static class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
-		@Override
-		public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
-			createCheck(context, parent, "tap", (byte) 1);
-			createCheck(context, parent, "touch", (byte) 2);
-		}
-
-		private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
-				byte index) {
-			EditorUi uiFactory = parent.getUiFactory();
-			EditorButton check = uiFactory.createCheckBox(parent);
-			check.setText(text);
-			byte byteValue = context.getPropertyValue().byteValue();
-			check.setSelection((byteValue & (1 << index)) != 0);
-			check.addListener(Selection, new InputEventsSelectionListener(context, check, index));
-		}
-	}
-
-	private static class InputEventsSelectionListener implements EditorEventListener {
-		private PropertyEditorContext<Byte> contex;
-		private EditorButton check;
-		private byte index;
-
-		public InputEventsSelectionListener(PropertyEditorContext<Byte> contex, EditorButton check, byte index) {
-			this.contex = contex;
-			this.check = check;
-			this.index = index;
-		}
-
-		@Override
-		public void handleEvent(EditorEvent event) {
-			byte byteValue = contex.getPropertyValue().byteValue();
-			if (check.getSelection()) {
-				byteValue = (byte) (byteValue | (1 << index));
-			} else {
-				byteValue = (byte) (byteValue & ~(1 << index));
-			}
-			contex.setPropertyValue(Byte.valueOf(byteValue));
-		}
 	}
 }

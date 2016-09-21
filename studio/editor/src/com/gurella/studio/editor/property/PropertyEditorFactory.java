@@ -85,39 +85,51 @@ public class PropertyEditorFactory {
 		}
 
 		Class<?> modelClass = context.modelInstance.getClass();
-		Field field = modelClass.getField(property.getName());
-		CustomFactoryKey key = new CustomFactoryKey(modelClass, field);
+		String propertyName = property.getName();
+		CustomFactoryKey key = new CustomFactoryKey(modelClass, propertyName);
 		CustomFactoryData data = customFactories.get(key);
 		if (data != null) {
 			return data;
 		}
 
-		Class<?> declaringClass = field.getDeclaringClass();
-		Field declaredField = declaringClass.getDeclaredField(property.getName());
-		CustomFactoryKey declaredKey = new CustomFactoryKey(declaringClass, declaredField);
-		data = customFactories.get(declaredKey);
-		if (data != null) {
+		ReflectionProperty<?> reflectionProperty = (ReflectionProperty<?>) property;
+		Class<?> declaringClass = reflectionProperty.getDeclaringClass();
+		CustomFactoryKey declaredKey = new CustomFactoryKey(declaringClass, propertyName);
+
+		if (reflectionProperty.getField() == null) {
+			// TODO bean properties
+			customFactories.put(declaredKey, data);
 			customFactories.put(key, data);
 			return data;
-		}
-
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		IType type = javaProject.findType(declaringClass.getName());
-		IField jdtField = type.getField(property.getName());
-		for (IAnnotation annotation : jdtField.getAnnotations()) {
-			if (annotation.getElementName().equals(PropertyEditorDescriptor.class.getSimpleName())) {
-				data = parseAnnotation(type, annotation);
-				customFactories.put(declaredKey, data);
+		} else {
+			Field declaredField = declaringClass.getDeclaredField(propertyName);
+			data = customFactories.get(declaredKey);
+			if (data != null) {
 				customFactories.put(key, data);
 				return data;
 			}
-		}
 
-		IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
-		data = annotation == null ? null : parseAnnotation(type, annotation);
-		customFactories.put(declaredKey, data);
-		customFactories.put(key, data);
-		return data;
+			IJavaProject javaProject = context.sceneEditorContext.javaProject;
+			IType type = javaProject.findType(declaringClass.getName());
+			IField jdtField = type.getField(property.getName());
+			for (IAnnotation annotation : jdtField.getAnnotations()) {
+				Class<PropertyEditorDescriptor> annotationType = PropertyEditorDescriptor.class;
+				String elementName = annotation.getElementName();
+				if (elementName.equals(annotationType.getSimpleName())
+						|| elementName.equals(annotationType.getName())) {
+					data = parseAnnotation(type, annotation);
+					customFactories.put(declaredKey, data);
+					customFactories.put(key, data);
+					return data;
+				}
+			}
+
+			IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
+			data = annotation == null ? null : parseAnnotation(type, annotation);
+			customFactories.put(declaredKey, data);
+			customFactories.put(key, data);
+			return data;
+		}
 	}
 
 	private static CustomFactoryData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
@@ -249,8 +261,12 @@ public class PropertyEditorFactory {
 		}
 
 		public CustomFactoryKey(String typeName, String propertyName) {
-			super();
 			this.typeName = typeName;
+			this.propertyName = propertyName;
+		}
+
+		public CustomFactoryKey(Class<?> type, String propertyName) {
+			this.typeName = type.getName();
 			this.propertyName = propertyName;
 		}
 

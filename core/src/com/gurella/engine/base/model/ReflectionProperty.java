@@ -19,6 +19,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
 public class ReflectionProperty<T> implements Property<T> {
+	private Class<?> declaringClass;
 	private String name;
 	private String descriptiveName;
 	private String description;
@@ -36,11 +37,13 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Method getter;
 	private Method setter;
 
-	public ReflectionProperty(Field field, Model<?> model) {
-		this(field.getName(), field, null, null, model);
+	public ReflectionProperty(Class<?> declaringClass, Field field, Model<?> model) {
+		this(declaringClass, field.getName(), field, null, null, model);
 	}
 
-	public ReflectionProperty(String name, Field field, Method getter, Method setter, Model<?> model) {
+	public ReflectionProperty(Class<?> declaringClass, String name, Field field, Method getter, Method setter,
+			Model<?> model) {
+		this.declaringClass = declaringClass;
 		this.name = name;
 
 		this.field = field;
@@ -171,6 +174,22 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 	}
 
+	public Class<?> getDeclaringClass() {
+		return declaringClass;
+	}
+
+	public Field getField() {
+		return field;
+	}
+
+	public Method getGetter() {
+		return getter;
+	}
+
+	public Method getSetter() {
+		return setter;
+	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -230,7 +249,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	public Property<T> newInstance(Model<?> newModel) {
 		T overriden = getValue(ModelDefaults.getDefault(newModel.getType()));
 		return Values.isEqual(defaultValue, overriden, true) ? this
-				: new ReflectionProperty<T>(name, field, getter, setter, newModel);
+				: new ReflectionProperty<T>(declaringClass, name, field, getter, setter, newModel);
 	}
 
 	@Override

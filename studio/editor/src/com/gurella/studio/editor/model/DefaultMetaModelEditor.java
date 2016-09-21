@@ -45,7 +45,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		int length = array.length;
 		if (length > 0) {
 			Property<?> last = array[array.length - 1];
-			Arrays.stream(array).filter(p -> p.isEditable()).forEach(p -> addEditor(p, p != last));
+			Arrays.stream(array).sequential().filter(p -> p.isEditable()).forEach(p -> addEditor(p, p != last));
 		}
 	}
 

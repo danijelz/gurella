@@ -4,6 +4,7 @@ import static com.gurella.engine.utils.Values.cast;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -324,5 +325,16 @@ public class SwtEditorCombo<ELEMENT> extends SwtEditorBaseComposite<Combo> imple
 	@Override
 	public void update(ELEMENT element, String... properties) {
 		viewer.update(element, properties);
+	}
+
+	@Override
+	public void setInput(Iterable<ELEMENT> elements) {
+		setInput(StreamSupport.stream(elements.spliterator(), false).collect(Collectors.toList()));
+
+	}
+
+	@Override
+	public void setInput(@SuppressWarnings("unchecked") ELEMENT... elements) {
+		setInput(Arrays.stream(elements).sequential().collect(Collectors.toList()));
 	}
 }

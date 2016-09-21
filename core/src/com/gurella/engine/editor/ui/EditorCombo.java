@@ -66,6 +66,10 @@ public interface EditorCombo<ELEMENT> extends EditorBaseComposite, EditorListVie
 
 	void setVisibleItemCount(int count);
 
+	void setInput(Iterable<ELEMENT> elements);
+
+	void setInput(ELEMENT... elements);
+
 	public static class ComboStyle extends ScrollableStyle<ComboStyle> {
 		public boolean readOnly = true;
 

@@ -350,12 +350,12 @@ public class ReflectionModel<T> implements Model<T> {
 	protected Property<?> createBeanProperty(String name, Method getter, Method setter,
 			PropertyDescriptor propertyDescriptor) {
 		if (propertyDescriptor == null) {
-			return new ReflectionProperty<Object>(name, null, getter, setter, this);
+			return new ReflectionProperty<Object>(type, name, null, getter, setter, this);
 		} else {
 			@SuppressWarnings("unchecked")
 			Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) propertyDescriptor.property();
 			return ReflectionProperty.class.equals(propertyType)
-					? new ReflectionProperty<Object>(name, null, getter, setter, this)
+					? new ReflectionProperty<Object>(type, name, null, getter, setter, this)
 					: createAnnotationProperty(propertyType);
 		}
 	}
@@ -459,7 +459,7 @@ public class ReflectionModel<T> implements Model<T> {
 		if (propertyModel != null) {
 			return propertyModel;
 		} else {
-			return new ReflectionProperty<Object>(field, this);
+			return new ReflectionProperty<Object>(type, field, this);
 		}
 	}
 
@@ -479,7 +479,7 @@ public class ReflectionModel<T> implements Model<T> {
 			return null;
 		}
 
-		return new ReflectionProperty<Object>(name, field, getter, setter, this);
+		return new ReflectionProperty<Object>(type, name, field, getter, setter, this);
 	}
 
 	private static Method getPropertyGetter(Class<?> owner, String upperCaseName, Class<?> type, boolean forced) {
