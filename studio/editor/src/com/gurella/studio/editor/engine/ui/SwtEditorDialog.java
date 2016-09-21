@@ -2,7 +2,6 @@ package com.gurella.studio.editor.engine.ui;
 
 import org.eclipse.jface.dialogs.DialogTray;
 import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -38,7 +37,7 @@ public class SwtEditorDialog implements EditorDialog {
 	public void create() {
 		dialog.create();
 
-		if (properties.tray!= null) {
+		if (properties.tray != null) {
 			dialog.openTray(properties.tray);
 		}
 	}
@@ -106,10 +105,6 @@ public class SwtEditorDialog implements EditorDialog {
 				DialogAction<?> action = actions.get(i);
 				Button button = this.createButton(parent, i, action.text, action.defaultAction);
 
-				if (action.listener != null) {
-					button.addListener(SWT.Selection, e -> returnValue = action.listener.handle(SwtEditorDialog.this));
-				}
-
 				if (action.defaultAction) {
 					Shell shell = parent.getShell();
 					if (shell != null) {
@@ -117,6 +112,18 @@ public class SwtEditorDialog implements EditorDialog {
 					}
 				}
 			}
+		}
+
+		@Override
+		protected void buttonPressed(int buttonId) {
+			Array<DialogAction<?>> actions = properties.actions;
+			if (actions.size > buttonId) {
+				DialogActionListener<?> listener = actions.get(buttonId).listener;
+				if (listener != null) {
+					returnValue = listener.handle(SwtEditorDialog.this);
+				}
+			}
+			super.buttonPressed(buttonId);
 		}
 	}
 

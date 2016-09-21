@@ -15,6 +15,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogPart;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
@@ -97,17 +98,25 @@ public class LayerPropertyEditorFactory implements PropertyEditorFactory<Layer> 
 
 		@Override
 		public void handleEvent(EditorEvent event) {
-			AddLayerDialogContentFactory contentFactory = new AddLayerDialogContentFactory();
-			new EditorDialogProperties(contentFactory).show(event.getEditorUi());
-			Layer layer = contentFactory.getLayer();
+			Layer layer = new EditorDialogProperties(new AddLayerContent()).action("Ok", new AddLayerConfirmListener())
+					.action("Cancle").show(event.getEditorUi());
 			if (layer != null) {
 				setComboInput(combo);
+				combo.setSelection(layer);
 				context.setPropertyValue(layer);
 			}
 		}
 	}
 
-	private static class AddLayerDialogContentFactory implements DialogPart {
+	private static class AddLayerConfirmListener implements DialogActionListener<Layer> {
+		@Override
+		public Layer handle(EditorDialog dialog) {
+			AddLayerContent content = (AddLayerContent) dialog.getContent();
+			return content.getLayer();
+		}
+	}
+
+	private static class AddLayerContent implements DialogPart {
 		private EditorUi uiFactory;
 		private EditorText ordinalText;
 		private EditorText nameText;
