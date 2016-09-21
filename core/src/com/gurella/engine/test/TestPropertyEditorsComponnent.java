@@ -220,7 +220,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);
 					composite.setSize(300, 100);
 				}
-			}).trayFactory(new DialogPart() {
+			}).tray(new DialogPart() {
 				@Override
 				public void init(EditorDialog dialog, EditorComposite parent) {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);
@@ -242,7 +242,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);
 					composite.setSize(300, 100);
 				}
-			}).trayFactory(new DialogPart() {
+			}).tray(new DialogPart() {
 				@Override
 				public void init(EditorDialog dialog, EditorComposite parent) {
 					EditorComposite composite = parent.getUiFactory().createComposite(parent);
