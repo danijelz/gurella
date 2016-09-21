@@ -38,7 +38,7 @@ public final class Layer implements Comparable<Layer> {
 	}
 
 	public static Layer valueOf(int id) {
-		return registry.getValue(id);
+		return layersByOrdnal.get(id);
 	}
 
 	public static Layer valueOf(String name) {

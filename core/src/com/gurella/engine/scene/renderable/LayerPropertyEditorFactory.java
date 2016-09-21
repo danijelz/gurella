@@ -12,9 +12,9 @@ import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorImage;
+import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
-import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogContentFactory;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
@@ -98,28 +98,79 @@ public class LayerPropertyEditorFactory implements PropertyEditorFactory<Layer> 
 		@Override
 		public void handleEvent(EditorEvent event) {
 			AddLayerDialogContentFactory contentFactory = new AddLayerDialogContentFactory();
-			Layer selected = new EditorDialogProperties(contentFactory).action("Cancle")
-					.action("Confirm", new AddLayerConirmationListener()).show(event.getEditorUi());
-			if (selected != null) {
+			new EditorDialogProperties(contentFactory).show(event.getEditorUi());
+			Layer layer = contentFactory.getLayer();
+			if (layer != null) {
 				setComboInput(combo);
-				context.setPropertyValue(selected);
+				context.setPropertyValue(layer);
 			}
 		}
 	}
 
-	private static class AddLayerConirmationListener implements DialogActionListener<Layer> {
+	private static class AddLayerDialogContentFactory implements DialogContentFactory {
+		private EditorUi uiFactory;
+		private EditorText ordinalText;
+		private EditorText nameText;
+
 		@Override
-		public Layer handle(EditorDialog dialog) {
-			// TODO Auto-generated method stub
-			return null;
+		public void createContent(EditorDialog dialog, EditorComposite parent) {
+			uiFactory = parent.getUiFactory();
+			parent.setLayout(2);
+			uiFactory.createLabel(parent, "Ordinal:");
+			ordinalText = uiFactory.createText(parent, "");
+			ordinalText.addListener(EditorEventType.Verify, new OrdinalValidator());
+			uiFactory.createLabel(parent, "Name:");
+			nameText = uiFactory.createText(parent, "");
+			nameText.addListener(EditorEventType.Verify, new NameValidator());
+		}
+
+		public Layer getLayer() {
+			try {
+				int ordinal = Integer.parseInt(ordinalText.getText());
+				if (Layer.valueOf(ordinal) != null) {
+					uiFactory.showInformationDialog("Layer allready exists",
+							"Layer with ordinal " + ordinal + " allready exists.");
+				}
+				String name = nameText.getText();
+				if (Layer.valueOf(name) != null) {
+					uiFactory.showInformationDialog("Layer allready exists",
+							"Layer with name '" + name + "' allready exists.");
+				}
+
+				return Layer.valueOf(ordinal, name);
+			} catch (Exception e) {
+				uiFactory.showErrorDialog("Error", "Error while creating new Layer", e);
+				return null;
+			}
 		}
 	}
 
-	private static class AddLayerDialogContentFactory implements DialogContentFactory {
+	private static class OrdinalValidator implements EditorEventListener {
 		@Override
-		public void createContent(EditorDialog dialog, EditorComposite parent) {
-			// TODO Auto-generated method stub
-
+		public void handleEvent(EditorEvent event) {
+			try {
+				String newText = getNewText(event, ((EditorText) event.getWidget()).getText());
+				if (newText.length() > 0) {
+					Integer.parseInt(newText);
+				}
+			} catch (Exception e2) {
+				event.setDoit(false);
+			}
 		}
+	}
+
+	private static class NameValidator implements EditorEventListener {
+		@Override
+		public void handleEvent(EditorEvent event) {
+			String newText = getNewText(event, ((EditorText) event.getWidget()).getText());
+			if (newText.length() < 1) {
+				Integer.parseInt(newText);
+				event.setDoit(false);
+			}
+		}
+	}
+
+	private static String getNewText(EditorEvent e, String oldValue) {
+		return oldValue.substring(0, e.getStart()) + e.getText() + oldValue.substring(e.getEnd());
 	}
 }
