@@ -117,6 +117,8 @@ public class CameraViewport {
 		case none:
 			updateForScaling(Scaling.none);
 			break;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 
