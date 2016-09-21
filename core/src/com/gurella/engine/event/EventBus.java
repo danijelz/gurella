@@ -207,7 +207,7 @@ public class EventBus implements Poolable {
 		ArrayExt<Listener1<T>> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
 			OrderedIdentitySet<Listener1<T>> temp = Values.cast(listeners.get(eventType));
-			if (temp == null) {
+			if (temp != null) {
 				temp.orderedItems().appendAll(listenersByType);
 			}
 		}
