@@ -20,15 +20,17 @@ public interface EditorDialog {
 
 	void closeTray();
 
-	DialogContentFactory getTray();
+	DialogPart getTray();
 
-	void openTray(DialogContentFactory tray);
+	DialogPart getContent();
 
-	public static interface DialogContentFactory {
-		void createContent(EditorDialog dialog, EditorComposite parent);
+	void openTray(DialogPart tray);
+
+	public interface DialogPart {
+		void init(EditorDialog dialog, EditorComposite parent);
 	}
 
-	public static interface DialogActionListener<T> {
+	public interface DialogActionListener<T> {
 		T handle(EditorDialog dialog);
 	}
 
@@ -48,22 +50,22 @@ public interface EditorDialog {
 	}
 
 	public static class BaseEditorDialogProperties<T extends BaseEditorDialogProperties<T>> {
-		public DialogContentFactory dialogAreaFactory;
-		public DialogContentFactory trayFactory;
+		public DialogPart content;
+		public DialogPart tray;
 		public Array<DialogAction<?>> actions;
 		public boolean blockOnOpen = true;
 
-		public BaseEditorDialogProperties(DialogContentFactory dialogAreaFactory) {
-			this.dialogAreaFactory = dialogAreaFactory;
+		public BaseEditorDialogProperties(DialogPart content) {
+			this.content = content;
 		}
 
-		public T dialogAreaFactory(DialogContentFactory dialogAreaFactory) {
-			this.dialogAreaFactory = dialogAreaFactory;
+		public T content(DialogPart content) {
+			this.content = content;
 			return cast(this);
 		}
 
-		public T trayFactory(DialogContentFactory trayFactory) {
-			this.trayFactory = trayFactory;
+		public T tray(DialogPart tray) {
+			this.tray = tray;
 			return cast(this);
 		}
 
@@ -112,7 +114,7 @@ public interface EditorDialog {
 	}
 
 	public static class EditorDialogProperties extends BaseEditorDialogProperties<EditorDialogProperties> {
-		public EditorDialogProperties(DialogContentFactory dialogAreaFactory) {
+		public EditorDialogProperties(DialogPart dialogAreaFactory) {
 			super(dialogAreaFactory);
 		}
 

@@ -38,7 +38,7 @@ public interface EditorTitleAreaDialog extends EditorDialog {
 		public Color titleAreaColor;
 		public InputStream titleImage;
 
-		public EditorTitleAreaDialogProperties(DialogContentFactory dialogAreaFactory) {
+		public EditorTitleAreaDialogProperties(DialogPart dialogAreaFactory) {
 			super(dialogAreaFactory);
 		}
 

@@ -15,7 +15,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorText;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
-import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogContentFactory;
+import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogPart;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
@@ -107,13 +107,13 @@ public class LayerPropertyEditorFactory implements PropertyEditorFactory<Layer> 
 		}
 	}
 
-	private static class AddLayerDialogContentFactory implements DialogContentFactory {
+	private static class AddLayerDialogContentFactory implements DialogPart {
 		private EditorUi uiFactory;
 		private EditorText ordinalText;
 		private EditorText nameText;
 
 		@Override
-		public void createContent(EditorDialog dialog, EditorComposite parent) {
+		public void init(EditorDialog dialog, EditorComposite parent) {
 			uiFactory = parent.getUiFactory();
 			parent.setLayout(2);
 			uiFactory.createLabel(parent, "Ordinal:");

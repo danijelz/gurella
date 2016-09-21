@@ -38,8 +38,8 @@ public class SwtEditorDialog implements EditorDialog {
 	public void create() {
 		dialog.create();
 
-		if (properties.trayFactory != null) {
-			dialog.openTray(properties.trayFactory);
+		if (properties.tray!= null) {
+			dialog.openTray(properties.tray);
 		}
 	}
 
@@ -59,14 +59,19 @@ public class SwtEditorDialog implements EditorDialog {
 	}
 
 	@Override
-	public DialogContentFactory getTray() {
+	public DialogPart getTray() {
 		DialogTrayImpl tray = (DialogTrayImpl) dialog.getTray();
 		return tray.trayFactory;
 	}
 
 	@Override
-	public void openTray(DialogContentFactory tray) {
+	public void openTray(DialogPart tray) {
 		dialog.openTray(tray);
+	}
+
+	@Override
+	public DialogPart getContent() {
+		return properties.content;
 	}
 
 	private class TrayDialogImpl extends TrayDialog {
@@ -74,17 +79,17 @@ public class SwtEditorDialog implements EditorDialog {
 			super(shell);
 		}
 
-		public void openTray(DialogContentFactory trayFactory) {
+		public void openTray(DialogPart trayFactory) {
 			openTray(trayFactory == null ? null : new DialogTrayImpl(trayFactory));
 		}
 
 		@Override
 		protected Control createDialogArea(Composite parent) {
 			Composite area = (Composite) super.createDialogArea(parent);
-			DialogContentFactory dialogAreaFactory = properties.dialogAreaFactory;
-			if (dialogAreaFactory != null) {
+			DialogPart content = properties.content;
+			if (content != null) {
 				SwtEditorComposite editorArea = new SwtEditorComposite(area);
-				dialogAreaFactory.createContent(SwtEditorDialog.this, editorArea);
+				content.init(SwtEditorDialog.this, editorArea);
 			}
 			return area;
 		}
@@ -116,9 +121,9 @@ public class SwtEditorDialog implements EditorDialog {
 	}
 
 	private class DialogTrayImpl extends DialogTray {
-		private DialogContentFactory trayFactory;
+		private DialogPart trayFactory;
 
-		public DialogTrayImpl(DialogContentFactory trayFactory) {
+		public DialogTrayImpl(DialogPart trayFactory) {
 			this.trayFactory = trayFactory;
 		}
 
@@ -126,7 +131,7 @@ public class SwtEditorDialog implements EditorDialog {
 		protected Control createContents(Composite parent) {
 			Composite content = UiUtils.createComposite(parent);
 			SwtEditorComposite editorContent = new SwtEditorComposite(content);
-			trayFactory.createContent(SwtEditorDialog.this, editorContent);
+			trayFactory.init(SwtEditorDialog.this, editorContent);
 			return content;
 		}
 	}
