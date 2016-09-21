@@ -228,9 +228,7 @@ public class PropertyEditorFactory {
 			return cast(new GdxArrayPropertyEditor<>(parent, cast(context)));
 		} else if (Collection.class.isAssignableFrom(propertyType)) {
 			return cast(new CollectionPropertyEditor<>(parent, cast(context)));
-		}
-
-		else {
+		} else {
 			return new ReflectionPropertyEditor<T>(parent, context);
 		}
 	}
