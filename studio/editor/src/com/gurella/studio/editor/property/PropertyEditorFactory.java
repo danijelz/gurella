@@ -37,7 +37,6 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
-import com.gurella.engine.scene.layer.Layer;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
@@ -188,8 +187,6 @@ public class PropertyEditorFactory {
 			return cast(new Matrix4PropertyEditor(parent, cast(context)));
 		} else if (propertyType == Color.class) {
 			return cast(new ColorPropertyEditor(parent, cast(context)));
-		} else if (propertyType == Layer.class) {
-			return cast(new LayerPropertyEditor(parent, cast(context)));
 		} else if (propertyType == Bits.class || propertyType == BitsExt.class) {
 			return cast(new BitsPropertyEditor(parent, cast(context)));
 		} else if (propertyType == BigInteger.class) {

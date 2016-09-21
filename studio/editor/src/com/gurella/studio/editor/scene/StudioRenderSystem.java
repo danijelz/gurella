@@ -20,12 +20,11 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.debug.DebugRenderable;
-import com.gurella.engine.scene.layer.Layer;
-import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
-import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
+import com.gurella.engine.scene.renderable.Layer;
+import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.studio.editor.EditorMessageListener;
@@ -95,7 +94,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		}
 
 		if (layersUpdated) {
-			orderedLayers.sort(LayerOrdinalComparator.instance);
+			orderedLayers.sort();
 		}
 	}
 
@@ -160,7 +159,7 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 		}
 
 		if (layersUpdated) {
-			orderedLayers.sort(LayerOrdinalComparator.instance);
+			orderedLayers.sort();
 		}
 	}
 

@@ -17,7 +17,7 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 
 //TODO EntitySubscription -> TagSubscription
 public class TagManager extends SceneService2 implements ComponentActivityListener {
-	private static final ComponentFamily tagComponentfamily = ComponentFamily.fromComponentType(TagComponent.class);
+	private static final ComponentFamily tagComponentFamily = ComponentFamily.fromComponentType(TagComponent.class);
 
 	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
 	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
@@ -31,12 +31,12 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 
 	@Override
 	protected void serviceActivated() {
-		scene.componentManager.registerComponentFamily(tagComponentfamily);
+		scene.componentManager.registerComponentFamily(tagComponentFamily);
 	}
 
 	@Override
 	protected void serviceDeactivated() {
-		scene.componentManager.unregisterComponentFamily(tagComponentfamily);
+		scene.componentManager.unregisterComponentFamily(tagComponentFamily);
 		for (FamilyNodes familyNodes : families.values()) {
 			PoolService.free(familyNodes);
 		}
@@ -97,7 +97,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 			return;
 		}
 
-		ImmutableArray<TagComponent> components = scene.componentManager.getComponents(tagComponentfamily);
+		ImmutableArray<TagComponent> components = scene.componentManager.getComponents(tagComponentFamily);
 		for (int i = 0; i < components.size(); i++) {
 			familyNodes.handle(components.get(i));
 		}

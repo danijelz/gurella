@@ -43,7 +43,7 @@ import com.gurella.engine.base.model.DefaultModels.StringModel;
 import com.gurella.engine.base.model.DefaultModels.UuidModel;
 import com.gurella.engine.base.model.DefaultModels.VoidModel;
 import com.gurella.engine.base.object.PrefabReference;
-import com.gurella.engine.scene.layer.Layer;
+import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;

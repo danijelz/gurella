@@ -18,9 +18,6 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
-import com.gurella.engine.scene.layer.Layer;
-import com.gurella.engine.scene.layer.Layer.LayerOrdinalComparator;
-import com.gurella.engine.scene.layer.LayerMask;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
@@ -200,7 +197,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		}
 
 		if (layersUpdated) {
-			orderedLayers.sort(LayerOrdinalComparator.instance);
+			orderedLayers.sort();
 		}
 	}
 
@@ -253,7 +250,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		}
 
 		if (layersUpdated) {
-			orderedLayers.sort(LayerOrdinalComparator.instance);
+			orderedLayers.sort();
 		}
 	}
 

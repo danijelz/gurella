@@ -1,9 +1,12 @@
 package com.gurella.engine.scene.tag;
 
+import static com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment.FILL;
+import static com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment.LEFT;
+import static com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment.TOP;
+
 import java.util.Arrays;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.model.ModelEditorContext;
@@ -17,11 +20,9 @@ import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
-import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
-import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 
 public class TagComponentEditorFactory implements ModelEditorFactory<TagComponent> {
-	private static final BlankTextValidator tagNameValidator = new BlankTextValidator("Tag name must not be empty.");
+	private static final BlankTextValidator tagNameValidator = new BlankTextValidator("Empty name in invalid.");
 	private static final Property<String[]> tagsProperty = Models.getModel(TagComponent.class).getProperty("tags");
 
 	@Override
@@ -30,67 +31,96 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 
 		final EditorUi uiFactory = context.getEditorUi();
 		final EditorScrolledForm scroll = uiFactory.createScrolledForm(parent);
-		int size = MathUtils.clamp(Tag.values().size, 1, 7);
-		new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-				.minSize(150, 10).sizeHint(150, size * 21).applyTo(scroll);
+		scroll.setLayoutData(createScrollLayoutData());
 		scroll.setExpandHorizontal(true);
 
 		final EditorComposite content = scroll.getForm().getBody();
-		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(content);
+		new EditorLayoutData().alignment(LEFT, TOP).applyTo(content);
 		content.setLayout(1);
 
-		buildTagChecks(context, content);
+		buildTagComponents(context, content);
 		EditorButton addButton = uiFactory.createButton(parent);
-		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.TOP).applyTo(addButton);
+		new EditorLayoutData().alignment(LEFT, TOP).applyTo(addButton);
 		addButton.setText("Add");
-		addButton.addListener(EditorEventType.Selection, new EditorEventListener() {
-			@Override
-			public void handleEvent(EditorEvent event) {
-				String tagName = uiFactory.showInputDialog("Add tag", "Select new tag name", "", tagNameValidator);
-				if (tagName != null) {
-					context.getModelInstance().addTag(tagName);
-					context.propertyValueChanged(tagsProperty, null, null);
-					content.removeAllChildren();
-					buildTagChecks(context, content);
-					int size = MathUtils.clamp(Tag.values().size, 1, 7);
-					new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-							.minSize(150, 10).sizeHint(150, size * 21).applyTo(scroll);
-					scroll.reflow();
-					parent.layout();
-				}
-			}
-		});
+		addButton.addListener(EditorEventType.Selection, new AddButtonSelectionListener(scroll, context));
 		scroll.reflow();
 	}
 
-	protected void buildTagChecks(final ModelEditorContext<TagComponent> context, final EditorComposite content) {
-		final EditorUi uiFactory = context.getEditorUi();
+	private static EditorLayoutData createScrollLayoutData() {
+		int size = MathUtils.clamp(Tag.values().size(), 1, 7);
+		return new EditorLayoutData().alignment(FILL, TOP).grab(true, false).minSize(150, 10).sizeHint(150, size * 21);
+	}
+
+	private static void buildTagComponents(final ModelEditorContext<TagComponent> context,
+			final EditorComposite parent) {
 		final TagComponent tagComponent = context.getModelInstance();
 		String[] tags = tagComponent.getTags();
 		Arrays.sort(tags);
 
-		Array<Tag> allTags = Tag.values();
-		allTags.sort();
+		Tag[] allTags = Tag.values().toArray(Tag.class);
+		Arrays.sort(allTags);
 
-		for (int i = 0; i < allTags.size; i++) {
-			Tag tag = allTags.get(i);
-			final String tagName = tag.name;
-			final EditorButton checkBox = uiFactory.createCheckBox(content);
-			new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-					.applyTo(checkBox);
-			checkBox.setText(tagName);
-			checkBox.setSelection(Arrays.binarySearch(tags, tag.name) > -1);
-			checkBox.addListener(EditorEventType.Selection, new EditorEventListener() {
-				@Override
-				public void handleEvent(EditorEvent event) {
-					if (checkBox.getSelection()) {
-						tagComponent.addTag(tagName);
-					} else {
-						tagComponent.removeTag(tagName);
-					}
-					context.propertyValueChanged(tagsProperty, null, null);
-				}
-			});
+		for (int i = 0; i < allTags.length; i++) {
+			buildTagComponent(context, parent, tags, allTags[i]);
+		}
+	}
+
+	protected static void buildTagComponent(final ModelEditorContext<TagComponent> context,
+			final EditorComposite parent, String[] tags, Tag tag) {
+		final EditorButton checkBox = context.getEditorUi().createCheckBox(parent);
+		new EditorLayoutData().alignment(FILL, TOP).grab(true, false).applyTo(checkBox);
+		checkBox.setText(tag.name);
+		checkBox.setSelection(Arrays.binarySearch(tags, tag.name) > -1);
+		checkBox.addListener(EditorEventType.Selection, new TagSelectionListener(context, checkBox));
+	}
+
+	private static final class AddButtonSelectionListener implements EditorEventListener {
+		private final EditorScrolledForm scroll;
+		private final ModelEditorContext<TagComponent> context;
+
+		private AddButtonSelectionListener(EditorScrolledForm scroll, ModelEditorContext<TagComponent> context) {
+			this.scroll = scroll;
+			this.context = context;
+		}
+
+		@Override
+		public void handleEvent(EditorEvent event) {
+			String tagName = context.getEditorUi().showInputDialog("Add tag", "Select new tag name", "",
+					tagNameValidator);
+			if (tagName == null) {
+				return;
+			}
+
+			EditorComposite content = (EditorComposite) scroll.getContent();
+			context.getModelInstance().addTag(tagName);
+			context.propertyValueChanged(tagsProperty, null, null);
+			content.removeAllChildren();
+			buildTagComponents(context, content);
+			scroll.setLayoutData(createScrollLayoutData());
+			scroll.reflow();
+			scroll.getParent().layout();
+		}
+	}
+
+	private static final class TagSelectionListener implements EditorEventListener {
+		private final ModelEditorContext<TagComponent> context;
+		private final EditorButton checkBox;
+
+		private TagSelectionListener(ModelEditorContext<TagComponent> context, EditorButton checkBox) {
+			this.context = context;
+			this.checkBox = checkBox;
+		}
+
+		@Override
+		public void handleEvent(EditorEvent event) {
+			TagComponent tagComponent = context.getModelInstance();
+			String tagName = checkBox.getText();
+			if (checkBox.getSelection()) {
+				tagComponent.addTag(tagName);
+			} else {
+				tagComponent.removeTag(tagName);
+			}
+			context.propertyValueChanged(tagsProperty, null, null);
 		}
 	}
 }

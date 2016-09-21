@@ -9,7 +9,6 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.audio.AudioSystem;
 import com.gurella.engine.scene.bullet.BulletPhysicsSystem;
 import com.gurella.engine.scene.input.InputSystem;
-import com.gurella.engine.scene.layer.LayerManager;
 import com.gurella.engine.scene.manager.ComponentManager;
 import com.gurella.engine.scene.manager.NodeManager;
 import com.gurella.engine.scene.renderable.RenderSystem;
@@ -29,7 +28,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	public final transient ComponentManager componentManager = new ComponentManager(this);
 	public final transient NodeManager nodeManager = new NodeManager(this);
 	public final transient TagManager tagManager = new TagManager(this);
-	public final transient LayerManager layerManager = new LayerManager(this);
 
 	public final transient SpatialSystem<?> spatialSystem = new BvhSpatialSystem(this);
 	public final transient InputSystem inputSystem = new InputSystem(this);
@@ -76,7 +74,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		componentManager.activate();
 		nodeManager.activate();
 		tagManager.activate();
-		layerManager.activate();
 
 		spatialSystem.activate();
 		inputSystem.activate();
@@ -105,7 +102,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		componentManager.deactivate();
 		nodeManager.deactivate();
 		tagManager.deactivate();
-		layerManager.deactivate();
 
 		spatialSystem.deactivate();
 		inputSystem.deactivate();

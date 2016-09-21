@@ -1,26 +1,29 @@
 package com.gurella.engine.scene.tag;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.utils.ArrayExt;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.ValueRegistry;
 
 public final class Tag implements Comparable<Tag> {
 	private static final ValueRegistry<Tag> registry = new ValueRegistry<Tag>();
-	private static ObjectMap<String, Tag> tagsByName = new ObjectMap<String, Tag>();
+	private static final ObjectMap<String, Tag> tagsByName = new ObjectMap<String, Tag>();
+	private static final ArrayExt<Tag> values = new ArrayExt<Tag>();
 
-	final int id;
+	public final int id;
 	public final String name;
 
 	Tag(String name) {
 		id = registry.getId(this);
 		this.name = name;
+		values.add(this);
 	}
 
-	public static Tag get(int id) {
+	public static Tag valueOf(int id) {
 		return registry.getValue(id);
 	}
 
-	public static Tag get(String name) {
+	public static Tag valueOf(String name) {
 		Tag tag = tagsByName.get(name);
 		if (tag == null) {
 			tag = new Tag(name);
@@ -29,8 +32,8 @@ public final class Tag implements Comparable<Tag> {
 		return tag;
 	}
 
-	public static Array<Tag> values() {
-		return tagsByName.values().toArray();
+	public static ImmutableArray<Tag> values() {
+		return values.immutable();
 	}
 
 	@Override

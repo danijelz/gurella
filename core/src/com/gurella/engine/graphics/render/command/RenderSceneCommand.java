@@ -5,7 +5,7 @@ import com.gurella.engine.base.object.ObjectInstanceMask;
 import com.gurella.engine.graphics.render.RenderContext;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.camera.CameraComponent;
-import com.gurella.engine.scene.layer.LayerMask;
+import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderSystem;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.tag.TagMask;

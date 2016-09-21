@@ -1,9 +1,8 @@
-package com.gurella.engine.scene.layer;
+package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.scene.renderable.RenderableComponent;
 
 public class LayerMask implements Predicate<RenderableComponent>, Poolable {
 	private boolean allAlowed = true;

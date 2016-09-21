@@ -26,9 +26,8 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
-import com.gurella.engine.scene.layer.Layer;
-import com.gurella.engine.scene.layer.Layer.DescendingLayerOrdinalComparator;
-import com.gurella.engine.scene.layer.LayerMask;
+import com.gurella.engine.scene.renderable.Layer;
+import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
@@ -130,7 +129,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 
 		if (layersUpdated) {
-			orderedLayers.sort(DescendingLayerOrdinalComparator.instance);
+			orderedLayers.sort(Layer.descendingOdinalComparator);
 		}
 	}
 
@@ -169,7 +168,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 
 		if (layersUpdated) {
-			orderedLayers.sort(DescendingLayerOrdinalComparator.instance);
+			orderedLayers.sort(Layer.descendingOdinalComparator);
 		}
 	}
 

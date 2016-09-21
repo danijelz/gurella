@@ -24,16 +24,7 @@ public class ValueRegistry<T> {
 		return type;
 	}
 
-	public boolean contains(T value) {
-		return idsByValue.get(value, invalidId) != invalidId;
-	}
-
 	public synchronized T getValue(int id) {
 		return valuesById.get(id);
-	}
-
-	public synchronized T remove(T value) {
-		int id = idsByValue.remove(value, invalidId);
-		return id == invalidId ? null : valuesById.remove(id);
 	}
 }
