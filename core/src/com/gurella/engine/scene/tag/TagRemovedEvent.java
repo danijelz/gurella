@@ -1,18 +1,19 @@
 package com.gurella.engine.scene.tag;
 
-import com.gurella.engine.event.SubscriptionEvent;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.subscriptions.scene.tag.TagActivityListener;
 
-class TagRemovedEvent extends SubscriptionEvent<TagActivityListener> {
+class TagRemovedEvent implements Event<TagActivityListener, Void> {
 	TagComponent component;
 	int tagId;
 
-	TagRemovedEvent() {
-		super(TagActivityListener.class);
+	@Override
+	public Class<TagActivityListener> getSubscriptionType() {
+		return TagActivityListener.class;
 	}
 
 	@Override
-	protected void notify(TagActivityListener listener) {
+	public void notify(TagActivityListener listener, Void data) {
 		listener.tagRemoved(component, tagId);
 	}
 }
