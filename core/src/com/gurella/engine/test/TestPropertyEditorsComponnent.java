@@ -26,6 +26,7 @@ import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorControl;
 import com.gurella.engine.editor.ui.EditorControlDecoration;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
@@ -55,6 +56,7 @@ import com.gurella.engine.editor.ui.event.EditorEventType;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.utils.GridRectangle;
 
 public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	public Date date;
@@ -381,16 +383,23 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			gc.setBackground(255, 255, 255, 0);
 			gc.setForeground(255, 0, 0, 255);
 			gc.drawRectangle(20, 20, 100, 100);
-			gc.drawText("TEXT", 40, 40, true);
+
+			String text = "TEXT";
+			gc.drawText(text, 40, 40, true);
 			gc.getTransform(transform);
 			transform.translate(5, 5);
 			gc.setTransform(transform);
 			gc.setForeground(0, 255, 0, 255);
-			gc.drawText("TEXT", 40, 40, true);
-			gc.getTransform(transform);
-			GridPoint2 extent = gc.stringExtent("TEXT");
-			gc.setTransform(transform.rotate(65).translate(extent.x, extent.x));
-			gc.drawText("TEXT", 0, 0, true);
+			gc.drawText(text, 40, 40, true);
+
+			GridPoint2 p = gc.stringExtent(text);
+			int w = event.getWidth();
+			int h = event.getHeight();
+			transform.translate(w / 2, h / 2);
+			transform.rotate(-90);
+			gc.setTransform(transform);
+			GridRectangle r = ((EditorControl) event.getWidget()).getBounds();
+			gc.drawString(text, r.x - (p.x / 3) * 2, r.y - p.y, true);
 		}
 	}
 }
