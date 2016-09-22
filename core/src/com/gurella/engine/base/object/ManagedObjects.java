@@ -85,7 +85,7 @@ final class ManagedObjects {
 		}
 	}
 
-	// TODO are this notifications needed
+	// TODO are this notifications needed?
 	static void activated(ManagedObject object) {
 		EventService.notify(objectsActivatedEvent, object);
 		EventService.notify(object.instanceId, objectActivatedEvent);
