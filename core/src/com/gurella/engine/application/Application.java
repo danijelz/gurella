@@ -54,7 +54,7 @@ public final class Application implements ApplicationListener {
 	public final void resize(int width, int height) {
 		resizeEvent.width = width;
 		resizeEvent.height = height;
-		EventService.notify(resizeEvent, null);
+		EventService.notify(resizeEvent);
 	}
 
 	@Override
@@ -63,13 +63,13 @@ public final class Application implements ApplicationListener {
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		EventService.notify(updateEvent, null);
+		EventService.notify(updateEvent);
 	}
 
 	@Override
 	public final void pause() {
 		paused = true;
-		EventService.notify(pauseEvent, null);
+		EventService.notify(pauseEvent);
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public final class Application implements ApplicationListener {
 		if (Gdx.app.getType() == ApplicationType.Android) {
 			AssetService.reloadInvalidated();
 		}
-		EventService.notify(resumeEvent, null);
+		EventService.notify(resumeEvent);
 	}
 
 	public final boolean isPaused() {
@@ -99,7 +99,7 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public void dispose() {
-		EventService.notify(new ApplicationShutdownEvent(), null);
+		EventService.notify(new ApplicationShutdownEvent());
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
 	}

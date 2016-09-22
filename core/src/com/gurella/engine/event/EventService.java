@@ -8,6 +8,10 @@ public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
 	private static final IntMap<EventBus> channelEventBuses = new IntMap<EventBus>();
 
+	public static <L extends EventSubscription> void notify(Event<L, Void> event) {
+		globalEventBus.notify(event, null);
+	}
+
 	public static <L extends EventSubscription, D> void notify(Event<L, D> event, D data) {
 		globalEventBus.notify(event, data);
 	}
@@ -55,6 +59,17 @@ public class EventService {
 					PoolService.free(eventBus);
 				}
 			}
+		}
+	}
+
+	public static <L extends EventSubscription> void notify(int channel, Event<L, Void> event) {
+		EventBus eventBus;
+		synchronized (channelEventBuses) {
+			eventBus = channelEventBuses.get(channel);
+		}
+
+		if (eventBus != null) {
+			eventBus.notify(event, null);
 		}
 	}
 
