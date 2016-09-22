@@ -5,12 +5,12 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -21,8 +21,7 @@ import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListe
 //TODO make logic to reparent node and 
 @ModelDescriptor(descriptiveName = "Transform")
 public class TransformComponent extends SceneNodeComponent2 implements PropertyChangeListener, Poolable {
-	private static final Array<NodeTransformChangedListener> listeners = new Array<NodeTransformChangedListener>();
-	private static final Object mutex = new Object();
+	private static final TransformChangedEvent event = new TransformChangedEvent();
 
 	private transient int nodeId;
 
@@ -77,17 +76,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 			transformDirty = true;
 			transformInvDirty = true;
 			worldTransformInvDirty = true;
-			notifyChange(this);
-		}
-	}
-
-	private static void notifyChange(TransformComponent component) {
-		synchronized (mutex) {
-			EventService.getSubscribers(component.nodeId, NodeTransformChangedListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onNodeTransformChanged();
-			}
-			listeners.clear();
+			EventService.notify(nodeId, event, null);
 		}
 	}
 
@@ -564,7 +553,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		notifyChange(this);
+		EventService.notify(nodeId, event, null);
 	}
 
 	public void rotateAroundWorld(Vector3 point, Vector3 axis, float degrees) {
@@ -591,7 +580,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		notifyChange(this);
+		EventService.notify(nodeId, event, null);
 	}
 
 	public TransformComponent eulerRotate(Vector3 additionalEulerRotation) {
@@ -683,7 +672,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		notifyChange(this);
+		EventService.notify(nodeId, event, null);
 	}
 
 	public void setWorldTransform(Matrix4 newWorldTransform) {
@@ -701,7 +690,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		notifyChange(this);
+		EventService.notify(nodeId, event, null);
 	}
 
 	public Matrix4 getTransform(Matrix4 outTransform) {
@@ -887,7 +876,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		notifyChange(this);
+		EventService.notify(nodeId, event, null);
 	}
 
 	public void lookAtWorld(Vector3 target) {
@@ -914,7 +903,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		notifyChange(this);
+		EventService.notify(nodeId, event, null);
 	}
 
 	@Override
@@ -1001,6 +990,18 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		@Override
 		public void onNodeTransformChanged() {
 			notifyChanged();
+		}
+	}
+
+	private static class TransformChangedEvent implements Event<NodeTransformChangedListener, Void> {
+		@Override
+		public Class<NodeTransformChangedListener> getSubscriptionType() {
+			return NodeTransformChangedListener.class;
+		}
+
+		@Override
+		public void notify(NodeTransformChangedListener listener, Void data) {
+			listener.onNodeTransformChanged();
 		}
 	}
 }

@@ -44,11 +44,12 @@ public class EventBus implements Poolable {
 		PoolService.free(comparator);
 	}
 
-	private <L> OrderedIdentitySet<L> listenersByType(Object eventType) {
-		OrderedIdentitySet<L> listenersByType = Values.cast(listeners.get(eventType));
+	private <L> OrderedIdentitySet<L> listenersByType(Class<? extends EventSubscription> subscription) {
+		@SuppressWarnings("unchecked")
+		OrderedIdentitySet<L> listenersByType = (OrderedIdentitySet<L>) listeners.get(subscription);
 		if (listenersByType == null) {
 			listenersByType = new OrderedIdentitySet<L>();
-			listeners.put(eventType, listenersByType);
+			listeners.put(subscription, listenersByType);
 		}
 		return listenersByType;
 	}

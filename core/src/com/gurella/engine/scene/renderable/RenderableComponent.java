@@ -3,10 +3,10 @@ package com.gurella.engine.scene.renderable;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -20,9 +20,7 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2
 		implements NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
-	// TODO remove synchronization
-	private static final Array<SceneRenderableChangedListener> listeners = new Array<SceneRenderableChangedListener>();
-	private static final Object mutex = new Object();
+	private static final RenderableChangedEvent event = new RenderableChangedEvent();
 
 	private transient int sceneId;
 
@@ -66,16 +64,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	public void setDirty() {
 		if (!dirty) {
 			dirty = true;
-			notifyChanged(this);
-		}
-	}
-
-	private static void notifyChanged(RenderableComponent component) {
-		synchronized (mutex) {
-			EventService.getSubscribers(component.sceneId, SceneRenderableChangedListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onRenderableChanged(component);
-			}
+			EventService.notify(sceneId, event, this);
 		}
 	}
 
@@ -142,5 +131,17 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		layer = Layer.DEFAULT;
 		transformComponent = null;
 		dirty = true;
+	}
+
+	private static class RenderableChangedEvent implements Event<SceneRenderableChangedListener, RenderableComponent> {
+		@Override
+		public Class<SceneRenderableChangedListener> getSubscriptionType() {
+			return SceneRenderableChangedListener.class;
+		}
+
+		@Override
+		public void notify(SceneRenderableChangedListener listener, RenderableComponent component) {
+			listener.onRenderableChanged(component);
+		}
 	}
 }
