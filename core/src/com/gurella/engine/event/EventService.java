@@ -6,7 +6,7 @@ import com.gurella.engine.pool.PoolService;
 
 public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
-	private static final IntMap<EventBus> eventBuses = new IntMap<EventBus>();
+	private static final IntMap<EventBus> channelEventBuses = new IntMap<EventBus>();
 
 	public static <L extends EventSubscription, D> void notify(Event<L, D> event, D data) {
 		globalEventBus.notify(event, data);
@@ -26,11 +26,11 @@ public class EventService {
 	}
 
 	private static EventBus getEventBusByChannel(int channel) {
-		synchronized (eventBuses) {
-			EventBus eventBus = eventBuses.get(channel);
+		synchronized (channelEventBuses) {
+			EventBus eventBus = channelEventBuses.get(channel);
 			if (eventBus == null) {
 				eventBus = PoolService.obtain(EventBus.class);
-				eventBuses.put(channel, eventBus);
+				channelEventBuses.put(channel, eventBus);
 			}
 			return eventBus;
 		}
@@ -47,8 +47,8 @@ public class EventService {
 		if (Subscriptions.getSubscriptions(subscriber.getClass()).size == 0) {
 			return;
 		}
-		synchronized (eventBuses) {
-			EventBus eventBus = eventBuses.get(channel);
+		synchronized (channelEventBuses) {
+			EventBus eventBus = channelEventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.unsubscribe(subscriber);
 				if (eventBus.isEmpty()) {
@@ -60,8 +60,8 @@ public class EventService {
 
 	public static <L extends EventSubscription, D> void notify(int channel, Event<L, D> event, D data) {
 		EventBus eventBus;
-		synchronized (eventBuses) {
-			eventBus = eventBuses.get(channel);
+		synchronized (channelEventBuses) {
+			eventBus = channelEventBuses.get(channel);
 		}
 
 		if (eventBus != null) {
@@ -71,8 +71,8 @@ public class EventService {
 
 	public static <L extends EventSubscription> Array<? super L> getSubscribers(int channel, Class<L> subscriptionType,
 			Array<? super L> out) {
-		synchronized (eventBuses) {
-			EventBus eventBus = eventBuses.get(channel);
+		synchronized (channelEventBuses) {
+			EventBus eventBus = channelEventBuses.get(channel);
 			if (eventBus != null) {
 				eventBus.getSubscribers(subscriptionType, out);
 			}

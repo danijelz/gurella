@@ -4,11 +4,11 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.scene.Scene;
@@ -16,9 +16,13 @@ import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
-import com.gurella.engine.utils.Values;
 
 public final class Application implements ApplicationListener {
+	private static final PauseEvent pauseEvent = new PauseEvent();
+	private static final ResumeEvent resumeEvent = new ResumeEvent();
+	private static final UpdateEvent updateEvent = new UpdateEvent();
+	private static final ResizeEvent resizeEvent = new ResizeEvent();
+
 	private static boolean initialized;
 
 	public static float deltaTime;
@@ -27,8 +31,6 @@ public final class Application implements ApplicationListener {
 	private static ApplicationConfig config;
 	private static String initialScenePath;
 	private static final SceneManager sceneManager = new SceneManager(null);
-
-	private static final Array<Object> tempListeners = new Array<Object>(64);
 
 	Application(ApplicationConfig config) {
 		this.config = config;
@@ -50,11 +52,9 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public final void resize(int width, int height) {
-		Array<ApplicationResizeListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ApplicationResizeListener.class, listeners);
-		for (int i = 0, n = listeners.size; i < n; i++) {
-			listeners.get(i).resize(width, height);
-		}
+		resizeEvent.width = width;
+		resizeEvent.height = height;
+		EventService.notify(resizeEvent, null);
 	}
 
 	@Override
@@ -63,21 +63,13 @@ public final class Application implements ApplicationListener {
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		Array<ApplicationUpdateListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ApplicationUpdateListener.class, listeners);
-		for (int i = 0, n = listeners.size; i < n; i++) {
-			listeners.get(i).update();
-		}
+		EventService.notify(updateEvent, null);
 	}
 
 	@Override
 	public final void pause() {
 		paused = true;
-		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ApplicationActivityListener.class, listeners);
-		for (int i = 0, n = listeners.size; i < n; i++) {
-			listeners.get(i).pause();
-		}
+		EventService.notify(pauseEvent, null);
 	}
 
 	@Override
@@ -86,11 +78,7 @@ public final class Application implements ApplicationListener {
 		if (Gdx.app.getType() == ApplicationType.Android) {
 			AssetService.reloadInvalidated();
 		}
-		Array<ApplicationActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ApplicationActivityListener.class, listeners);
-		for (int i = 0, n = listeners.size; i < n; i++) {
-			listeners.get(i).resume();
-		}
+		EventService.notify(resumeEvent, null);
 	}
 
 	public final boolean isPaused() {
@@ -111,12 +99,71 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public void dispose() {
-		Array<ApplicationShutdownListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ApplicationShutdownListener.class, listeners);
-		for (int i = 0, n = listeners.size; i < n; i++) {
-			listeners.get(i).shutdown();
-		}
+		EventService.notify(new ApplicationShutdownEvent(), null);
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
+	}
+
+	private static class ApplicationShutdownEvent implements Event<ApplicationShutdownListener, Void> {
+		@Override
+		public Class<ApplicationShutdownListener> getSubscriptionType() {
+			return ApplicationShutdownListener.class;
+		}
+
+		@Override
+		public void notify(ApplicationShutdownListener listener, Void data) {
+			listener.shutdown();
+		}
+	}
+
+	private static class PauseEvent implements Event<ApplicationActivityListener, Void> {
+		@Override
+		public Class<ApplicationActivityListener> getSubscriptionType() {
+			return ApplicationActivityListener.class;
+		}
+
+		@Override
+		public void notify(ApplicationActivityListener listener, Void data) {
+			listener.pause();
+		}
+	}
+
+	private static class ResumeEvent implements Event<ApplicationActivityListener, Void> {
+		@Override
+		public Class<ApplicationActivityListener> getSubscriptionType() {
+			return ApplicationActivityListener.class;
+		}
+
+		@Override
+		public void notify(ApplicationActivityListener listener, Void data) {
+			listener.resume();
+		}
+	}
+
+	private static class UpdateEvent implements Event<ApplicationUpdateListener, Void> {
+		@Override
+		public Class<ApplicationUpdateListener> getSubscriptionType() {
+			return ApplicationUpdateListener.class;
+		}
+
+		@Override
+		public void notify(ApplicationUpdateListener listener, Void data) {
+			listener.update();
+		}
+	}
+
+	private static class ResizeEvent implements Event<ApplicationResizeListener, Void> {
+		int width;
+		int height;
+
+		@Override
+		public Class<ApplicationResizeListener> getSubscriptionType() {
+			return ApplicationResizeListener.class;
+		}
+
+		@Override
+		public void notify(ApplicationResizeListener listener, Void data) {
+			listener.resize(width, height);
+		}
 	}
 }
