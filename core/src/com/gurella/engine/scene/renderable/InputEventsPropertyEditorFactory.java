@@ -13,15 +13,29 @@ import com.gurella.engine.editor.ui.event.EditorEventListener;
 class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 	@Override
 	public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
-		createCheck(context, parent, "tap", (byte) 1);
-		createCheck(context, parent, "touch", (byte) 2);
+		parent.setLayout(7);
+
+		createLabel(parent, "tap");
+		createLabel(parent, "touch");
+		createLabel(parent, "dbl. touch");
+		createLabel(parent, "long press");
+		createLabel(parent, "mouse move");
+		createLabel(parent, "scroll");
+		createLabel(parent, "drag");
+
+		for (int i = 0; i < 7; i++) {
+			createCheck(context, parent, i);
+		}
 	}
 
-	private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, String text,
-			byte index) {
+	private static void createLabel(EditorComposite parent, String text) {
+		EditorUi uiFactory = parent.getUiFactory();
+		uiFactory.createLabel(parent, text);
+	}
+
+	private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent, int index) {
 		EditorUi uiFactory = parent.getUiFactory();
 		EditorButton check = uiFactory.createCheckBox(parent);
-		check.setText(text);
 		byte byteValue = context.getPropertyValue().byteValue();
 		check.setSelection((byteValue & (1 << index)) != 0);
 		check.addListener(Selection, new InputEventsSelectionListener(context, check, index));
@@ -30,9 +44,9 @@ class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 	private static class InputEventsSelectionListener implements EditorEventListener {
 		private PropertyEditorContext<Byte> contex;
 		private EditorButton check;
-		private byte index;
+		private int index;
 
-		public InputEventsSelectionListener(PropertyEditorContext<Byte> contex, EditorButton check, byte index) {
+		public InputEventsSelectionListener(PropertyEditorContext<Byte> contex, EditorButton check, int index) {
 			this.contex = contex;
 			this.check = check;
 			this.index = index;

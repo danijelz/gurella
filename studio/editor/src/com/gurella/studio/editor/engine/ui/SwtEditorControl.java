@@ -20,6 +20,7 @@ import com.gurella.engine.editor.ui.EditorControlDecoration;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorFont;
+import com.gurella.engine.editor.ui.EditorGraphicContex;
 import com.gurella.engine.editor.ui.EditorMenu;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.utils.GridRectangle;
@@ -27,6 +28,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 
 public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidget<T> implements EditorControl {
 	SwtEditorControlDecoration decoration;
+	SwtEditorGraphicContex graphicContex;
 
 	SwtEditorControl(T control) {
 		super(control);
@@ -383,5 +385,13 @@ public abstract class SwtEditorControl<T extends Control> extends SwtEditorWidge
 		if (decoration != null) {
 			decoration.dispose();
 		}
+	}
+
+	@Override
+	public EditorGraphicContex getGraphicContex() {
+		if (graphicContex == null) {
+			graphicContex = new SwtEditorGraphicContex(widget);
+		}
+		return graphicContex;
 	}
 }

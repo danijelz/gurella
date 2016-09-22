@@ -2,7 +2,10 @@ package com.gurella.studio.editor.engine.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
+import org.eclipse.swt.widgets.Control;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Affine2;
@@ -13,10 +16,15 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorGraphicContex implements EditorGraphicContex {
-	GC gc;
+	private Control owner;
+	private GC gc;
+	private Transform transform;
+	private float[] transformElements;
 
-	public SwtEditorGraphicContex(GC gc) {
-		this.gc = gc;
+	public SwtEditorGraphicContex(Control owner) {
+		this.owner = owner;
+		this.gc = new GC(owner);
+		owner.addDisposeListener(e -> gc.dispose());
 	}
 
 	@Override
@@ -182,254 +190,385 @@ public class SwtEditorGraphicContex implements EditorGraphicContex {
 
 	@Override
 	public GridRectangle getClipping() {
-		 Rectangle rect = gc.getClipping();
-		 return new GridRectangle(rect.x, rect.y, rect.width, rect.height);
+		Rectangle rect = gc.getClipping();
+		return new GridRectangle(rect.x, rect.y, rect.width, rect.height);
 	}
 
 	@Override
-	public int getFillRule() {
-		// TODO Auto-generated method stub
-		return 0;
+	public FillRule getFillRule() {
+		switch (gc.getFillRule()) {
+		case SWT.FILL_EVEN_ODD:
+			return FillRule.EVEN_ODD;
+		case SWT.FILL_WINDING:
+			return FillRule.WINDING;
+		default:
+			return null;
+		}
 	}
 
 	@Override
 	public Color getForeground() {
-		// TODO Auto-generated method stub
-		return null;
+		return SwtEditorWidget.toGdxColor(gc.getForeground());
 	}
 
 	@Override
-	public int getInterpolation() {
-		// TODO Auto-generated method stub
-		return 0;
+	public Interpolation getInterpolation() {
+		switch (gc.getInterpolation()) {
+		case SWT.DEFAULT:
+			return Interpolation.DEFAULT;
+		case SWT.NONE:
+			return Interpolation.NONE;
+		case SWT.LOW:
+			return Interpolation.LOW;
+		case SWT.HIGH:
+			return Interpolation.HIGH;
+		default:
+			return null;
+		}
 	}
 
 	@Override
-	public int getLineCap() {
-		// TODO Auto-generated method stub
-		return 0;
+	public LineCap getLineCap() {
+		switch (gc.getLineCap()) {
+		case SWT.CAP_FLAT:
+			return LineCap.FLAT;
+		case SWT.CAP_ROUND:
+			return LineCap.ROUND;
+		case SWT.CAP_SQUARE:
+			return LineCap.SQUARE;
+		default:
+			return null;
+		}
 	}
 
 	@Override
 	public int[] getLineDash() {
-		// TODO Auto-generated method stub
-		return null;
+		return gc.getLineDash();
 	}
 
 	@Override
 	public float getDashOffset() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getLineAttributes().dashOffset;
 	}
 
 	@Override
 	public void setDashOffset(float dashOffset) {
-		// TODO Auto-generated method stub
-
+		gc.getLineAttributes().dashOffset = dashOffset;
 	}
 
 	@Override
 	public float getMiterLimit() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getLineAttributes().miterLimit;
 	}
 
 	@Override
 	public void setMiterLimit(float miterLimit) {
-		// TODO Auto-generated method stub
-
+		gc.getLineAttributes().miterLimit = miterLimit;
 	}
 
 	@Override
-	public int getLineJoin() {
-		// TODO Auto-generated method stub
-		return 0;
+	public LineJoin getLineJoin() {
+		switch (gc.getLineJoin()) {
+		case SWT.JOIN_BEVEL:
+			return LineJoin.BEVEL;
+		case SWT.JOIN_MITER:
+			return LineJoin.MITER;
+		case SWT.JOIN_ROUND:
+			return LineJoin.ROUND;
+		default:
+			return null;
+		}
 	}
 
 	@Override
-	public int getLineStyle() {
-		// TODO Auto-generated method stub
-		return 0;
+	public LineStyle getLineStyle() {
+		switch (gc.getLineStyle()) {
+		case SWT.LINE_CUSTOM:
+			return LineStyle.CUSTOM;
+		case SWT.LINE_DASH:
+			return LineStyle.DASH;
+		case SWT.LINE_DASHDOT:
+			return LineStyle.DASHDOT;
+		case SWT.LINE_DASHDOTDOT:
+			return LineStyle.DASHDOTDOT;
+		case SWT.LINE_DOT:
+			return LineStyle.DOT;
+		case SWT.LINE_SOLID:
+			return LineStyle.SOLID;
+		default:
+			return null;
+		}
 	}
 
 	@Override
 	public int getLineWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getLineWidth();
 	}
 
 	@Override
-	public int getStyle() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getTextAntialias() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void getTransform(Affine2 transform) {
-		// TODO Auto-generated method stub
-
+	public Antialias getTextAntialias() {
+		switch (gc.getTextAntialias()) {
+		case SWT.DEFAULT:
+			return Antialias.DEFAULT;
+		case SWT.ON:
+			return Antialias.ON;
+		case SWT.OFF:
+			return Antialias.OFF;
+		default:
+			return Antialias.DEFAULT;
+		}
 	}
 
 	@Override
 	public boolean isClipped() {
-		// TODO Auto-generated method stub
-		return false;
+		return gc.isClipped();
 	}
 
 	@Override
 	public void setAdvanced(boolean advanced) {
-		// TODO Auto-generated method stub
-
+		gc.setAdvanced(advanced);
 	}
 
 	@Override
 	public void setAlpha(int alpha) {
-		// TODO Auto-generated method stub
-
+		gc.setAlpha(alpha);
 	}
 
 	@Override
 	public void setAntialias(Antialias antialias) {
-		// TODO Auto-generated method stub
-
+		switch (antialias) {
+		case DEFAULT:
+			gc.setAntialias(SWT.DEFAULT);
+			break;
+		case ON:
+			gc.setAntialias(SWT.ON);
+			break;
+		case OFF:
+			gc.setAntialias(SWT.OFF);
+			break;
+		default:
+			gc.setAntialias(SWT.DEFAULT);
+			break;
+		}
 	}
 
 	@Override
 	public void setBackground(Color color) {
-		// TODO Auto-generated method stub
+		gc.setBackground(SwtEditorUi.toSwtColor(owner, color));
+	}
 
+	@Override
+	public void setBackground(int r, int g, int b, int a) {
+		gc.setBackground(SwtEditorUi.toSwtColor(owner, r, g, b, a));
 	}
 
 	@Override
 	public void setClipping(int x, int y, int width, int height) {
-		// TODO Auto-generated method stub
-
+		gc.setClipping(x, y, width, height);
 	}
 
 	@Override
-	public void setFillRule(int rule) {
-		// TODO Auto-generated method stub
-
+	public void setFillRule(FillRule rule) {
+		switch (rule) {
+		case EVEN_ODD:
+			gc.setFillRule(SWT.FILL_EVEN_ODD);
+			break;
+		case WINDING:
+			gc.setFillRule(SWT.FILL_WINDING);
+			break;
+		}
 	}
 
 	@Override
 	public void setFont(EditorFont font) {
-		// TODO Auto-generated method stub
-
+		gc.setFont(font == null ? null : ((SwtEditorFont) font).font);
 	}
 
 	@Override
 	public void setForeground(Color color) {
-		// TODO Auto-generated method stub
-
+		gc.setForeground(SwtEditorUi.toSwtColor(owner, color));
 	}
 
 	@Override
-	public void setInterpolation(int interpolation) {
-		// TODO Auto-generated method stub
-
+	public void setForeground(int r, int g, int b, int a) {
+		gc.setForeground(SwtEditorUi.toSwtColor(owner, r, g, b, a));
 	}
 
 	@Override
-	public void setLineCap(int cap) {
-		// TODO Auto-generated method stub
+	public void setInterpolation(Interpolation interpolation) {
+		switch (interpolation) {
+		case DEFAULT:
+			gc.setInterpolation(SWT.DEFAULT);
+			return;
+		case NONE:
+			gc.setInterpolation(SWT.NONE);
+			return;
+		case LOW:
+			gc.setInterpolation(SWT.LOW);
+			return;
+		case HIGH:
+			gc.setInterpolation(SWT.HIGH);
+			return;
+		default:
+			return;
+		}
+	}
 
+	@Override
+	public void setLineCap(LineCap cap) {
+		switch (cap) {
+		case FLAT:
+			gc.setLineCap(SWT.CAP_FLAT);
+			return;
+		case ROUND:
+			gc.setLineCap(SWT.CAP_ROUND);
+			return;
+		case SQUARE:
+			gc.setLineCap(SWT.CAP_SQUARE);
+			return;
+		default:
+			return;
+		}
 	}
 
 	@Override
 	public void setLineDash(int[] dashes) {
-		// TODO Auto-generated method stub
-
+		gc.setLineDash(dashes);
 	}
 
 	@Override
-	public void setLineJoin(int join) {
-		// TODO Auto-generated method stub
-
+	public void setLineJoin(LineJoin join) {
+		switch (join) {
+		case BEVEL:
+			gc.setLineJoin(SWT.JOIN_BEVEL);
+			return;
+		case MITER:
+			gc.setLineJoin(SWT.JOIN_MITER);
+			return;
+		case ROUND:
+			gc.setLineJoin(SWT.JOIN_ROUND);
+			return;
+		default:
+			return;
+		}
 	}
 
 	@Override
-	public void setLineStyle(int lineStyle) {
-		// TODO Auto-generated method stub
-
+	public void setLineStyle(LineStyle lineStyle) {
+		switch (lineStyle) {
+		case CUSTOM:
+			gc.setLineStyle(SWT.LINE_CUSTOM);
+			return;
+		case DASH:
+			gc.setLineStyle(SWT.LINE_DASH);
+			return;
+		case DASHDOT:
+			gc.setLineStyle(SWT.LINE_DASHDOT);
+			return;
+		case DASHDOTDOT:
+			gc.setLineStyle(SWT.LINE_DASHDOTDOT);
+			return;
+		case DOT:
+			gc.setLineStyle(SWT.LINE_DOT);
+			return;
+		case SOLID:
+			gc.setLineStyle(SWT.LINE_SOLID);
+			return;
+		default:
+			return;
+		}
 	}
 
 	@Override
 	public void setLineWidth(int lineWidth) {
-		// TODO Auto-generated method stub
-
+		gc.setLineWidth(lineWidth);
 	}
 
 	@Override
-	public void setTextAntialias(int antialias) {
-		// TODO Auto-generated method stub
+	public void setTextAntialias(Antialias antialias) {
+		switch (antialias) {
+		case DEFAULT:
+			gc.setTextAntialias(SWT.DEFAULT);
+			break;
+		case ON:
+			gc.setTextAntialias(SWT.ON);
+			break;
+		case OFF:
+			gc.setTextAntialias(SWT.OFF);
+			break;
+		default:
+			gc.setTextAntialias(SWT.DEFAULT);
+			break;
+		}
+	}
 
+	@Override
+	public Affine2 getTransform(Affine2 out) {
+		getTransform().getElements(transformElements);
+		out.m00 = transformElements[0];
+		out.m01 = transformElements[1];
+		out.m02 = transformElements[4];
+		out.m10 = transformElements[2];
+		out.m11 = transformElements[3];
+		out.m12 = transformElements[5];
+		return out;
+	}
+
+	private Transform getTransform() {
+		if (transform == null) {
+			transform = new Transform(owner.getDisplay());
+			owner.addDisposeListener(e -> transform.dispose());
+			transformElements = new float[6];
+		}
+		return transform;
 	}
 
 	@Override
 	public void setTransform(Affine2 transform) {
-		// TODO Auto-generated method stub
-
+		Transform swtTransform = getTransform();
+		swtTransform.setElements(transform.m00, transform.m01, transform.m10, transform.m11, transform.m02,
+				transform.m12);
 	}
 
 	@Override
 	public GridPoint2 stringExtent(String string) {
-		// TODO Auto-generated method stub
-		return null;
+		Point point = gc.stringExtent(string);
+		return new GridPoint2(point.x, point.y);
 	}
 
 	@Override
 	public GridPoint2 textExtent(String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public GridPoint2 textExtent(String string, int flags) {
-		// TODO Auto-generated method stub
-		return null;
+		Point point = gc.textExtent(string);
+		return new GridPoint2(point.x, point.y);
 	}
 
 	@Override
 	public EditorFont getFont() {
-		// TODO Auto-generated method stub
-		return null;
+		return SwtEditorWidget.toEditorFont(gc.getFont());
 	}
 
 	@Override
 	public int getFontAscent() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getFontMetrics().getAscent();
 	}
 
 	@Override
 	public int getFontDescent() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getFontMetrics().getDescent();
 	}
 
 	@Override
 	public int getFontHeight() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getFontMetrics().getHeight();
 	}
 
 	@Override
 	public int getFontLeading() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getFontMetrics().getLeading();
 	}
 
 	@Override
 	public int getFontAverageCharWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return gc.getFontMetrics().getAverageCharWidth();
 	}
-
 }

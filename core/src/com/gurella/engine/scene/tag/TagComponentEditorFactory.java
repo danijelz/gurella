@@ -28,14 +28,14 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 	@Override
 	public void buildUi(final EditorComposite parent, final ModelEditorContext<TagComponent> context) {
 		parent.setLayout(1);
-
 		final EditorUi uiFactory = context.getEditorUi();
+
 		final EditorScrolledForm scroll = uiFactory.createScrolledForm(parent);
+		new EditorLayoutData().alignment(LEFT, TOP).applyTo(scroll);
 		scroll.setLayoutData(createScrollLayoutData());
 		scroll.setExpandHorizontal(true);
 
 		final EditorComposite content = scroll.getForm().getBody();
-		new EditorLayoutData().alignment(LEFT, TOP).applyTo(content);
 		content.setLayout(1);
 
 		buildTagComponents(context, content);
@@ -91,14 +91,13 @@ public class TagComponentEditorFactory implements ModelEditorFactory<TagComponen
 				return;
 			}
 
-			EditorComposite content = (EditorComposite) scroll.getContent();
+			EditorComposite content = scroll.getForm().getBody();
 			context.getModelInstance().addTag(tagName);
 			context.propertyValueChanged(tagsProperty, null, null);
-			content.removeAllChildren();
+			content.disposeAllChildren();
 			buildTagComponents(context, content);
 			scroll.setLayoutData(createScrollLayoutData());
 			scroll.reflow();
-			scroll.getParent().layout();
 		}
 	}
 

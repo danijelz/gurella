@@ -37,9 +37,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorButton.ArrowButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
@@ -157,6 +159,18 @@ public class SwtEditorUi implements EditorUi {
 		Font oldFont = ((SwtEditorControl<?>) control).widget.getFont();
 		Font font = createSwtFont(oldFont, height, bold, italic);
 		return font == null ? null : new SwtEditorFont(font);
+	}
+
+	public static org.eclipse.swt.graphics.Color toSwtColor(Widget widget, Color color) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(color);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		return swtColor;
+	}
+
+	public static org.eclipse.swt.graphics.Color toSwtColor(Widget widget, int r, int g, int b, int a) {
+		org.eclipse.swt.graphics.Color swtColor = GurellaStudioPlugin.createColor(r, g, b, a);
+		widget.addListener(SWT.Dispose, e -> GurellaStudioPlugin.destroyColor(swtColor));
+		return swtColor;
 	}
 
 	public static Display getDisplay() {

@@ -13,5 +13,5 @@ public interface EditorLayoutComposite extends EditorBaseComposite {
 
 	void setLayout(int numColumns);
 
-	public void removeAllChildren();
+	public void disposeAllChildren();
 }

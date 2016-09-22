@@ -1,5 +1,8 @@
 package com.gurella.studio.editor.engine.ui;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.eclipse.ui.forms.widgets.ScrolledPageBook;
 
 import com.gurella.engine.editor.ui.EditorControl;
@@ -72,5 +75,11 @@ public class SwtEditorScrolledPageBook extends SwtEditorBaseScrolledComposite<Sc
 	@Override
 	public void showPage(Object key) {
 		widget.showPage(key);
+	}
+
+	@Override
+	public void disposeAllChildren() {
+		Optional.ofNullable(widget.getContainer())
+				.ifPresent(cont -> Arrays.stream(cont.getChildren()).forEach(c -> c.dispose()));
 	}
 }

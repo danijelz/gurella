@@ -123,6 +123,8 @@ public interface EditorControl extends EditorWidget {
 			VerticalAlignment verticalAlignment);
 
 	void clearDecoration();
+	
+	EditorGraphicContex getGraphicContex();
 
 	public static class ControlStyle<T extends ControlStyle<T>> {
 		public Direction textDirection;

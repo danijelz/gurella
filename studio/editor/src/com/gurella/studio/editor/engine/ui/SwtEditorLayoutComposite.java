@@ -52,7 +52,7 @@ public abstract class SwtEditorLayoutComposite<T extends Composite> extends SwtE
 	}
 
 	@Override
-	public void removeAllChildren() {
+	public void disposeAllChildren() {
 		Arrays.stream(widget.getChildren()).forEach(c -> c.dispose());
 	}
 }

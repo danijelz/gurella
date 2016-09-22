@@ -2,6 +2,8 @@ package com.gurella.studio.editor.engine.ui;
 
 import static com.gurella.engine.utils.Values.cast;
 
+import java.util.Optional;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -100,6 +102,11 @@ public abstract class SwtEditorBaseExpandableComposite<T extends ExpandableCompo
 	@Override
 	public void setToggleColor(int r, int g, int b, int a) {
 		widget.setToggleColor(toSwtColor(r, g, b, a));
+	}
+
+	@Override
+	public void disposeAllChildren() {
+		Optional.ofNullable(widget.getClient()).ifPresent(c -> c.dispose());
 	}
 
 	@Override

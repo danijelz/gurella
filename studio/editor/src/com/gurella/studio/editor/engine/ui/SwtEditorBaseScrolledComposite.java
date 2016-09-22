@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.engine.ui;
 
+import java.util.Optional;
+
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
 
@@ -102,5 +104,10 @@ public abstract class SwtEditorBaseScrolledComposite<T extends ScrolledComposite
 	@Override
 	public void showControl(EditorControl control) {
 		widget.showControl(control == null ? null : ((SwtEditorControl<?>) control).widget);
+	}
+
+	@Override
+	public void disposeAllChildren() {
+		Optional.ofNullable(widget.getContent()).ifPresent(c -> c.dispose());
 	}
 }

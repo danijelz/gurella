@@ -40,7 +40,7 @@ public abstract class SwtEditorBaseComposite<T extends Composite> extends SwtEdi
 				.toArray(i -> new Control[i]));
 	}
 
-	public void paintBorders() {
+	void paintBorders() {
 		if (!paintFormBorders) {
 			GurellaStudioPlugin.getToolkit().paintBordersFor(widget);
 		}

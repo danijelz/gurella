@@ -2,6 +2,7 @@ package com.gurella.studio.editor.engine.ui;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.Form;
@@ -138,5 +139,10 @@ public class SwtEditorForm extends SwtEditorLayoutComposite<Form> implements Edi
 	public void setTextBackground(Color[] gradientColors, int[] percents, boolean vertical) {
 		widget.setTextBackground(Arrays.stream(gradientColors).map(c -> toSwtColor(c))
 				.toArray(i -> new org.eclipse.swt.graphics.Color[i]), percents, vertical);
+	}
+
+	@Override
+	public void disposeAllChildren() {
+		Optional.ofNullable(widget.getBody()).ifPresent(b -> Arrays.stream(b.getChildren()).forEach(c -> c.dispose()));
 	}
 }
