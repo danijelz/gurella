@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Affine2;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector;
@@ -28,6 +30,7 @@ import com.gurella.engine.editor.ui.EditorControlDecoration;
 import com.gurella.engine.editor.ui.EditorControlDecoration.HorizontalAlignment;
 import com.gurella.engine.editor.ui.EditorControlDecoration.VerticalAlignment;
 import com.gurella.engine.editor.ui.EditorExpandableComposite;
+import com.gurella.engine.editor.ui.EditorGraphicContex;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorLink;
 import com.gurella.engine.editor.ui.EditorTable;
@@ -49,6 +52,7 @@ import com.gurella.engine.editor.ui.dialog.EditorTitleAreaDialog.EditorTitleArea
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
@@ -178,6 +182,10 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			OpenDialogListener listener = new OpenDialogListener();
 			expandableComposite.addListener(EditorEventType.Expand, listener);
 			expandableComposite.removeListener(EditorEventType.Expand, listener);
+
+			EditorComposite canvas = uiFactory.createComposite(parent);
+			canvas.addListener(EditorEventType.Paint, new PaintCanvasListener());
+			new EditorLayoutData().minSize(155, 155).sizeHint(155, 155).applyTo(canvas);
 		}
 
 		private final class TreeSelectionListener implements EditorEventListener {
@@ -360,6 +368,29 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			Property<Integer> property = model.getProperty("testInt");
 			context.createPropertyLabel(parent, property);
 			context.createPropertyEditor(parent, property);
+		}
+	}
+
+	private static final class PaintCanvasListener implements EditorEventListener {
+		Affine2 transform = new Affine2();
+
+		@Override
+		public void handleEvent(EditorEvent event) {
+			EditorGraphicContex gc = event.getGraphicContex();
+			gc.setAdvanced(true);
+			gc.setBackground(255, 255, 255, 0);
+			gc.setForeground(255, 0, 0, 255);
+			gc.drawRectangle(20, 20, 100, 100);
+			gc.drawText("TEXT", 40, 40, true);
+			gc.getTransform(transform);
+			transform.translate(5, 5);
+			gc.setTransform(transform);
+			gc.setForeground(0, 255, 0, 255);
+			gc.drawText("TEXT", 40, 40, true);
+			gc.getTransform(transform);
+			GridPoint2 extent = gc.stringExtent("TEXT");
+			gc.setTransform(transform.rotate(65).translate(extent.x, extent.x));
+			gc.drawText("TEXT", 0, 0, true);
 		}
 	}
 }

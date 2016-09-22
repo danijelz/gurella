@@ -534,6 +534,7 @@ public class SwtEditorGraphicContex implements EditorGraphicContex {
 		Transform swtTransform = getTransform();
 		swtTransform.setElements(transform.m00, transform.m01, transform.m10, transform.m11, transform.m02,
 				transform.m12);
+		gc.setTransform(swtTransform);
 	}
 
 	@Override
