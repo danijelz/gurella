@@ -34,8 +34,8 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, complex = false)
 	Layer layer = Layer.DEFAULT;
 
-	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class, complex = false)
-	public byte inputEvents;// TODO flags to enable input events (tap, touch, doubleTuch, longPress,
+	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class)
+	public byte inputEventsSensitivity;// TODO flags to enable input events (tap, touch, doubleTuch, longPress,
 							// mouseMove, scroll, drag)
 
 	protected abstract void updateGeometry();

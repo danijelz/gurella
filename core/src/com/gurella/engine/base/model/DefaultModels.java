@@ -544,7 +544,7 @@ public class DefaultModels {
 
 		@Override
 		public void writeValue(Layer value, Output output) {
-			output.writeString(Integer.toString(value.id) + ":" + value.name);
+			output.writeString(Integer.toString(value.ordinal) + ":" + value.name);
 		}
 
 		@Override

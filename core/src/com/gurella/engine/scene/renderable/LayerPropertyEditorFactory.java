@@ -13,6 +13,7 @@ import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.editor.ui.EditorText;
+import com.gurella.engine.editor.ui.EditorText.TextStyle;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.dialog.EditorDialog;
 import com.gurella.engine.editor.ui.dialog.EditorDialog.DialogActionListener;
@@ -126,10 +127,10 @@ public class LayerPropertyEditorFactory implements PropertyEditorFactory<Layer> 
 			uiFactory = parent.getUiFactory();
 			parent.setLayout(2);
 			uiFactory.createLabel(parent, "Ordinal:");
-			ordinalText = uiFactory.createText(parent, "");
+			ordinalText = uiFactory.createText(parent, "", new TextStyle().formBorder(true));
 			ordinalText.addListener(EditorEventType.Verify, new OrdinalValidator());
 			uiFactory.createLabel(parent, "Name:");
-			nameText = uiFactory.createText(parent, "");
+			nameText = uiFactory.createText(parent, "", new TextStyle().formBorder(true));
 			nameText.addListener(EditorEventType.Verify, new NameValidator());
 		}
 

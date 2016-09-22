@@ -6,6 +6,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Widget;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Affine2;
@@ -16,7 +17,7 @@ import com.gurella.engine.editor.ui.EditorImage;
 import com.gurella.engine.utils.GridRectangle;
 
 public class SwtEditorGraphicContex implements EditorGraphicContex {
-	private Control owner;
+	private Widget owner;
 	private GC gc;
 	private Transform transform;
 	private float[] transformElements;
@@ -25,6 +26,11 @@ public class SwtEditorGraphicContex implements EditorGraphicContex {
 		this.owner = owner;
 		this.gc = new GC(owner);
 		owner.addDisposeListener(e -> gc.dispose());
+	}
+
+	public SwtEditorGraphicContex(Widget owner, GC gc) {
+		this.owner = owner;
+		this.gc = gc;
 	}
 
 	@Override

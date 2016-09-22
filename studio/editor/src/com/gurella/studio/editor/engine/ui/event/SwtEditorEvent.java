@@ -7,11 +7,13 @@ import org.eclipse.swt.widgets.Event;
 import com.gurella.engine.editor.ui.EditorWidget;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventType;
+import com.gurella.studio.editor.engine.ui.SwtEditorGraphicContex;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
 
 public class SwtEditorEvent implements EditorEvent {
 	private Event event;
+	private SwtEditorGraphicContex graphicContex;
 
 	public SwtEditorEvent(Event event) {
 		this.event = event;
@@ -290,5 +292,17 @@ public class SwtEditorEvent implements EditorEvent {
 	@Override
 	public SwtEditorUi getEditorUi() {
 		return SwtEditorUi.instance;
+	}
+
+	@Override
+	public SwtEditorGraphicContex getGraphicContex() {
+		if (event.gc == null || event.widget == null) {
+			return null;
+		} else {
+			if (graphicContex == null) {
+				graphicContex = new SwtEditorGraphicContex(event.widget, event.gc);
+			}
+			return graphicContex;
+		}
 	}
 }

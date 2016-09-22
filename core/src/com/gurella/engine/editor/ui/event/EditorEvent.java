@@ -1,5 +1,6 @@
 package com.gurella.engine.editor.ui.event;
 
+import com.gurella.engine.editor.ui.EditorGraphicContex;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.EditorWidget;
 
@@ -113,4 +114,6 @@ public interface EditorEvent {
 	void setyDirection(int yDirection);
 
 	EditorUi getEditorUi();
+	
+	EditorGraphicContex getGraphicContex();
 }

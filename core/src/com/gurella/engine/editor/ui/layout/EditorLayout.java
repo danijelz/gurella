@@ -72,6 +72,11 @@ public class EditorLayout {
 		return this;
 	}
 
+	public EditorLayout columnsEqualWidth() {
+		this.makeColumnsEqualWidth = true;
+		return this;
+	}
+
 	public void applyTo(EditorComposite c) {
 		c.setLayout(this);
 	}
