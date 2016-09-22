@@ -31,6 +31,7 @@ final class ManagedObjects {
 	private static final ChildrenRemovedEvent childrenRemovedEvent = new ChildrenRemovedEvent();
 	private static final ChildRemovedEvent childRemovedEvent = new ChildRemovedEvent();
 
+	private static final ParentsChangedEvent parentsChangedEvent = new ParentsChangedEvent();
 	private static final ParentChangedEvent parentChangedEvent = new ParentChangedEvent();
 
 	private static final Cleaner cleaner = new Cleaner();
@@ -86,12 +87,12 @@ final class ManagedObjects {
 	// TODO are this notifications needed
 	static void activated(ManagedObject object) {
 		EventService.notify(objectsActivatedEvent, object);
-		EventService.notify(objectActivatedEvent);
+		EventService.notify(object.instanceId, objectActivatedEvent);
 	}
 
 	static void deactivated(ManagedObject object) {
 		EventService.notify(objectsDeactivatedEvent, object);
-		EventService.notify(objectDeactivatedEvent);
+		EventService.notify(object.instanceId, objectDeactivatedEvent);
 	}
 
 	static void destroyed(ManagedObject object) {
@@ -141,16 +142,17 @@ final class ManagedObjects {
 			return;
 		}
 
-		Array<ObjectsParentListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ObjectsParentListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).parentChanged(object, oldParent, newParent);
-		}
-		tempListeners.clear();
+		parentsChangedEvent.child = object;
+		parentsChangedEvent.oldParent = oldParent;
+		parentsChangedEvent.newParent = newParent;
+		EventService.notify(parentsChangedEvent);
+		parentsChangedEvent.child = null;
+		parentsChangedEvent.oldParent = null;
+		parentsChangedEvent.newParent = null;
 
 		parentChangedEvent.oldParent = oldParent;
 		parentChangedEvent.newParent = newParent;
-		EventService.notify(parentChangedEvent);
+		EventService.notify(object.instanceId, parentChangedEvent);
 		parentChangedEvent.oldParent = null;
 		parentChangedEvent.newParent = null;
 	}
@@ -300,6 +302,22 @@ final class ManagedObjects {
 		@Override
 		public void notify(ObjectParentChangeListener listener, Void data) {
 			listener.parentChanged(oldParent, newParent);
+		}
+	}
+
+	private static class ParentsChangedEvent implements Event<ObjectsParentListener, Void> {
+		ManagedObject child;
+		ManagedObject oldParent;
+		ManagedObject newParent;
+
+		@Override
+		public Class<ObjectsParentListener> getSubscriptionType() {
+			return ObjectsParentListener.class;
+		}
+
+		@Override
+		public void notify(ObjectsParentListener listener, Void data) {
+			listener.parentChanged(child, oldParent, newParent);
 		}
 	}
 }

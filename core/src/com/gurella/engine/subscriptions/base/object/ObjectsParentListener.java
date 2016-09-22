@@ -4,5 +4,5 @@ import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 
 public interface ObjectsParentListener extends ApplicationEventSubscription {
-	void parentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent);
+	void parentChanged(ManagedObject child, ManagedObject oldParent, ManagedObject newParent);
 }
