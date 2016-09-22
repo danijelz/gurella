@@ -26,8 +26,12 @@ final class ManagedObjects {
 	private static final ObjectActivatedEvent objectActivatedEvent = new ObjectActivatedEvent();
 	private static final ObjectDeactivatedEvent objectDeactivatedEvent = new ObjectDeactivatedEvent();
 
+	private static final ChildrenAddedEvent childrenAddedEvent = new ChildrenAddedEvent();
 	private static final ChildAddedEvent childAddedEvent = new ChildAddedEvent();
+	private static final ChildrenRemovedEvent childrenRemovedEvent = new ChildrenRemovedEvent();
 	private static final ChildRemovedEvent childRemovedEvent = new ChildRemovedEvent();
+
+	private static final ParentChangedEvent parentChangedEvent = new ParentChangedEvent();
 
 	private static final Cleaner cleaner = new Cleaner();
 	private static final Array<Object> tempListeners = new Array<Object>(64);
@@ -111,13 +115,11 @@ final class ManagedObjects {
 			return;
 		}
 
-		Array<ObjectsCompositionListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ObjectsCompositionListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).childAdded(parent, child);
-		}
-		tempListeners.clear();
-
+		childrenAddedEvent.parent = parent;
+		childrenAddedEvent.child = child;
+		EventService.notify(childrenAddedEvent);
+		childrenAddedEvent.parent = null;
+		childrenAddedEvent.child = null;
 		EventService.notify(parent.instanceId, childAddedEvent, child);
 	}
 
@@ -126,13 +128,11 @@ final class ManagedObjects {
 			return;
 		}
 
-		Array<ObjectsCompositionListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ObjectsCompositionListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).childRemoved(parent, child);
-		}
-		tempListeners.clear();
-
+		childrenRemovedEvent.parent = parent;
+		childrenRemovedEvent.child = child;
+		EventService.notify(childrenRemovedEvent);
+		childrenRemovedEvent.parent = null;
+		childrenRemovedEvent.child = null;
 		EventService.notify(parent.instanceId, childRemovedEvent, child);
 	}
 
@@ -148,12 +148,11 @@ final class ManagedObjects {
 		}
 		tempListeners.clear();
 
-		Array<ObjectParentChangeListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.instanceId, ObjectParentChangeListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).parentChanged(oldParent, newParent);
-		}
-		tempListeners.clear();
+		parentChangedEvent.oldParent = oldParent;
+		parentChangedEvent.newParent = newParent;
+		EventService.notify(parentChangedEvent);
+		parentChangedEvent.oldParent = null;
+		parentChangedEvent.newParent = null;
 	}
 
 	@TypePriorities({
@@ -235,27 +234,33 @@ final class ManagedObjects {
 
 	///////////////////
 
-	private static class ChildsAddedEvent implements Event<ObjectsCompositionListener, ManagedObject> {
+	private static class ChildrenAddedEvent implements Event<ObjectsCompositionListener, Void> {
+		ManagedObject parent;
+		ManagedObject child;
+
 		@Override
 		public Class<ObjectsCompositionListener> getSubscriptionType() {
 			return ObjectsCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsCompositionListener listener, ManagedObject data) {
-			listener.objectActivated(data);
+		public void notify(ObjectsCompositionListener listener, Void data) {
+			listener.childAdded(parent, child);
 		}
 	}
 
-	private static class ChildsRemovedEvent implements Event<ObjectsCompositionListener, ManagedObject> {
+	private static class ChildrenRemovedEvent implements Event<ObjectsCompositionListener, Void> {
+		ManagedObject parent;
+		ManagedObject child;
+
 		@Override
 		public Class<ObjectsCompositionListener> getSubscriptionType() {
 			return ObjectsCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsCompositionListener listener, ManagedObject data) {
-			listener.objectDeactivated(data);
+		public void notify(ObjectsCompositionListener listener, Void data) {
+			listener.childRemoved(parent, child);
 		}
 	}
 
@@ -280,6 +285,21 @@ final class ManagedObjects {
 		@Override
 		public void notify(ObjectCompositionListener listener, ManagedObject data) {
 			listener.childRemoved(data);
+		}
+	}
+
+	private static class ParentChangedEvent implements Event<ObjectParentChangeListener, Void> {
+		ManagedObject oldParent;
+		ManagedObject newParent;
+
+		@Override
+		public Class<ObjectParentChangeListener> getSubscriptionType() {
+			return ObjectParentChangeListener.class;
+		}
+
+		@Override
+		public void notify(ObjectParentChangeListener listener, Void data) {
+			listener.parentChanged(oldParent, newParent);
 		}
 	}
 }
