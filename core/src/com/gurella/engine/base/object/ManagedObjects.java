@@ -18,7 +18,6 @@ import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
-import com.gurella.engine.utils.Values;
 
 final class ManagedObjects {
 	private static final ObjectsActivatedEvent objectsActivatedEvent = new ObjectsActivatedEvent();
@@ -34,8 +33,10 @@ final class ManagedObjects {
 	private static final ParentsChangedEvent parentsChangedEvent = new ParentsChangedEvent();
 	private static final ParentChangedEvent parentChangedEvent = new ParentChangedEvent();
 
+	private static final ObjectsDestoyedEvent objectsDestoyedEvent = new ObjectsDestoyedEvent();
+	private static final ObjectDestoyedEvent objectDestoyedEvent = new ObjectDestoyedEvent();
+
 	private static final Cleaner cleaner = new Cleaner();
-	private static final Array<Object> tempListeners = new Array<Object>(64);
 	private static final Object mutex = new Object();
 
 	//TODO private static pool with initial objects
@@ -96,19 +97,8 @@ final class ManagedObjects {
 	}
 
 	static void destroyed(ManagedObject object) {
-		Array<ObjectsDestroyedListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ObjectsDestroyedListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).objectDestroyed(object);
-		}
-		tempListeners.clear();
-
-		Array<ObjectDestroyedListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(object.instanceId, ObjectDestroyedListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).objectDestroyed();
-		}
-		tempListeners.clear();
+		EventService.notify(objectsDestoyedEvent, object);
+		EventService.notify(object.instanceId, objectDestoyedEvent);
 	}
 
 	static void childAdded(ManagedObject parent, ManagedObject child) {
@@ -290,6 +280,22 @@ final class ManagedObjects {
 		}
 	}
 
+	private static class ParentsChangedEvent implements Event<ObjectsParentListener, Void> {
+		ManagedObject child;
+		ManagedObject oldParent;
+		ManagedObject newParent;
+
+		@Override
+		public Class<ObjectsParentListener> getSubscriptionType() {
+			return ObjectsParentListener.class;
+		}
+
+		@Override
+		public void notify(ObjectsParentListener listener, Void data) {
+			listener.parentChanged(child, oldParent, newParent);
+		}
+	}
+
 	private static class ParentChangedEvent implements Event<ObjectParentChangeListener, Void> {
 		ManagedObject oldParent;
 		ManagedObject newParent;
@@ -305,19 +311,27 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ParentsChangedEvent implements Event<ObjectsParentListener, Void> {
-		ManagedObject child;
-		ManagedObject oldParent;
-		ManagedObject newParent;
-
+	private static class ObjectsDestoyedEvent implements Event<ObjectsDestroyedListener, ManagedObject> {
 		@Override
-		public Class<ObjectsParentListener> getSubscriptionType() {
-			return ObjectsParentListener.class;
+		public Class<ObjectsDestroyedListener> getSubscriptionType() {
+			return ObjectsDestroyedListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsParentListener listener, Void data) {
-			listener.parentChanged(child, oldParent, newParent);
+		public void notify(ObjectsDestroyedListener listener, ManagedObject data) {
+			listener.objectDestroyed(data);
+		}
+	}
+
+	private static class ObjectDestoyedEvent implements Event<ObjectDestroyedListener, Void> {
+		@Override
+		public Class<ObjectDestroyedListener> getSubscriptionType() {
+			return ObjectDestroyedListener.class;
+		}
+
+		@Override
+		public void notify(ObjectDestroyedListener listener, Void data) {
+			listener.objectDestroyed();
 		}
 	}
 }
