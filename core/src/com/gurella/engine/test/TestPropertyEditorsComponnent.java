@@ -395,8 +395,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 			GridPoint2 p = gc.stringExtent(text);
 			int w = event.getWidth();
 			int h = event.getHeight();
-			transform.translate(w / 2, h / 2);
-			transform.rotate(-90);
+			transform.idt().translate(w / 2, h / 2).rotate(90);
 			gc.setTransform(transform);
 			GridRectangle r = ((EditorControl) event.getWidget()).getBounds();
 			gc.drawString(text, r.x - (p.x / 3) * 2, r.y - p.y, true);

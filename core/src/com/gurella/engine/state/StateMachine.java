@@ -3,15 +3,12 @@ package com.gurella.engine.state;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.event.Signal;
-import com.gurella.engine.event.SubscriptionEvent;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 
 @TypePriority(priority = CommonUpdatePriority.logicPriority, type = ApplicationUpdateListener.class)
 public class StateMachine<STATE> implements ApplicationUpdateListener {
-	// private int instanceId;
-	// private StateChangedEvent<STATE> stateChangedEvent = new StateChangedEvent<STATE>();
 	private StateChangedSignal signal = new StateChangedSignal();
 
 	private StateMachineContext<STATE> context;
@@ -21,7 +18,6 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 	private STATE destinationState;
 
 	public StateMachine(StateMachineContext<STATE> context) {
-		// instanceId = SequenceGenerator.next();
 		this.context = context;
 		currentState = context.getInitialState();
 	}
@@ -124,21 +120,6 @@ public class StateMachine<STATE> implements ApplicationUpdateListener {
 				item.stateChanged(oldState, newState);
 			}
 			listeners.end();
-		}
-	}
-
-	private static class StateChangedEvent<STATE> extends SubscriptionEvent<StateChangedListener> {
-		STATE sourceState;
-		STATE destinationState;
-
-		private StateChangedEvent() {
-			super(StateChangedListener.class);
-		}
-
-		@Override
-		protected void notify(StateChangedListener listener) {
-			listener.stateChanged(sourceState, destinationState);
-
 		}
 	}
 }

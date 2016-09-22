@@ -128,7 +128,7 @@ public class EventBus implements Poolable {
 			}
 		}
 
-		notifyListeners(event);
+		notifyTypedListeners(event);
 	}
 
 	public void notify(Object eventType) {
@@ -141,7 +141,7 @@ public class EventBus implements Poolable {
 			}
 		}
 
-		notifyListeners(eventType);
+		notifySimpleListeners(eventType);
 	}
 
 	public <L extends EventSubscription> void notify(SubscriptionEvent<L> event) {
@@ -154,10 +154,10 @@ public class EventBus implements Poolable {
 			}
 		}
 
-		notifyListeners(event);
+		notifySubscriptionListeners(event);
 	}
 
-	private <L> void notifyListeners(final Event<L> event) {
+	private <L> void notifyTypedListeners(final Event<L> event) {
 		Class<? extends Event<L>> eventType = Values.cast(event.getClass());
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
@@ -180,7 +180,7 @@ public class EventBus implements Poolable {
 		processPool();
 	}
 
-	private <L extends EventSubscription> void notifyListeners(final SubscriptionEvent<L> event) {
+	private <L extends EventSubscription> void notifySubscriptionListeners(final SubscriptionEvent<L> event) {
 		Class<L> eventType = event.subscriptionType;
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
@@ -203,7 +203,7 @@ public class EventBus implements Poolable {
 		processPool();
 	}
 
-	private <T> void notifyListeners(T eventType) {
+	private <T> void notifySimpleListeners(T eventType) {
 		ArrayExt<Listener1<T>> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
 			OrderedIdentitySet<Listener1<T>> temp = Values.cast(listeners.get(eventType));
@@ -233,11 +233,11 @@ public class EventBus implements Poolable {
 		}
 
 		if (event instanceof SubscriptionEvent) {
-			notifyListeners((SubscriptionEvent<?>) event);
+			notifySubscriptionListeners((SubscriptionEvent<?>) event);
 		} else if (event instanceof Event) {
-			notifyListeners((Event<?>) event);
+			notifyTypedListeners((Event<?>) event);
 		} else {
-			notifyListeners(event);
+			notifySimpleListeners(event);
 		}
 	}
 
@@ -324,5 +324,9 @@ public class EventBus implements Poolable {
 		public void reset() {
 			subscription = null;
 		}
+	}
+
+	private enum EventType {
+		simple, typed, subscription;
 	}
 }
