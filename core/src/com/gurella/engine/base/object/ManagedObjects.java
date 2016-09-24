@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.Event2;
+import com.gurella.engine.event.Event3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
@@ -125,14 +126,7 @@ final class ManagedObjects {
 			return;
 		}
 
-		parentsChangedEvent.child = object;
-		parentsChangedEvent.oldParent = oldParent;
-		parentsChangedEvent.newParent = newParent;
-		EventService.notify(parentsChangedEvent);
-		parentsChangedEvent.child = null;
-		parentsChangedEvent.oldParent = null;
-		parentsChangedEvent.newParent = null;
-
+		EventService.notify(parentsChangedEvent, object, oldParent, newParent);
 		EventService.notify(object.instanceId, parentChangedEvent, oldParent, newParent);
 	}
 
@@ -265,18 +259,16 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ParentsChangedEvent implements Event<ObjectsParentListener, Void> {
-		ManagedObject child;
-		ManagedObject oldParent;
-		ManagedObject newParent;
-
+	private static class ParentsChangedEvent
+			implements Event3<ObjectsParentListener, ManagedObject, ManagedObject, ManagedObject> {
 		@Override
 		public Class<ObjectsParentListener> getSubscriptionType() {
 			return ObjectsParentListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsParentListener listener, Void data) {
+		public void notify(ObjectsParentListener listener, ManagedObject child, ManagedObject oldParent,
+				ManagedObject newParent) {
 			listener.parentChanged(child, oldParent, newParent);
 		}
 	}

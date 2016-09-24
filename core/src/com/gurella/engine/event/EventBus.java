@@ -124,6 +124,36 @@ public class EventBus implements Poolable {
 		processPool();
 	}
 
+	public <L extends EventSubscription, D1, D2, D3> void notify(Event3<L, D1, D2, D3> event, D1 data1, D2 data2,
+			D3 data3) {
+		synchronized (eventPool) {
+			if (processing) {
+				eventPool.add(event);
+				eventPool.add(data1);
+				eventPool.add(data2);
+				eventPool.add(data3);
+				return;
+			} else {
+				processing = true;
+			}
+		}
+
+		notifyListeners(event, data1, data2, data3);
+	}
+
+	private <L extends EventSubscription, D1, D2, D3> void notifyListeners(final Event3<L, D1, D2, D3> event, D1 data1,
+			D2 data2, D3 data3) {
+		ArrayExt<L> listenersByType = getListenersByType(event);
+
+		for (int i = 0; i < listenersByType.size; i++) {
+			L listener = listenersByType.get(i);
+			event.notify(listener, data1, data2, data3);
+		}
+
+		listenersByType.clear();
+		processPool();
+	}
+
 	private <L extends EventSubscription, D> ArrayExt<L> getListenersByType(final Event<L, D> event) {
 		Class<L> eventType = event.getSubscriptionType();
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);

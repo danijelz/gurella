@@ -20,6 +20,11 @@ public class EventService {
 		globalEventBus.notify(event, data1, data2);
 	}
 
+	public static <L extends EventSubscription, D1, D2, D3> void notify(Event3<L, D1, D2, D3> event, D1 data1, D2 data2,
+			D3 data3) {
+		globalEventBus.notify(event, data1, data2, data3);
+	}
+
 	public static void subscribe(Object subscriber) {
 		globalEventBus.subscribe(subscriber);
 	}
@@ -97,6 +102,18 @@ public class EventService {
 
 		if (eventBus != null) {
 			eventBus.notify(event, data1, data2);
+		}
+	}
+
+	public static <L extends EventSubscription, D1, D2, D3> void notify(int channel, Event3<L, D1, D2, D3> event,
+			D1 data1, D2 data2, D3 data3) {
+		EventBus eventBus;
+		synchronized (channelEventBuses) {
+			eventBus = channelEventBuses.get(channel);
+		}
+
+		if (eventBus != null) {
+			eventBus.notify(event, data1, data2, data3);
 		}
 	}
 
