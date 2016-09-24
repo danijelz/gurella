@@ -70,7 +70,7 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public <L extends EventSubscription, D> void notify(Event<L, D> event, D data) {
+	public <L extends EventSubscription, D> void notify(Event1<L, D> event, D data) {
 		synchronized (eventPool) {
 			if (processing) {
 				eventPool.add(event);
@@ -84,7 +84,7 @@ public class EventBus implements Poolable {
 		notifyListeners(event, data);
 	}
 
-	private <L extends EventSubscription, D> void notifyListeners(final Event<L, D> event, D data) {
+	private <L extends EventSubscription, D> void notifyListeners(final Event1<L, D> event, D data) {
 		ArrayExt<L> listenersByType = getListenersByType(event);
 
 		for (int i = 0; i < listenersByType.size; i++) {
@@ -154,7 +154,7 @@ public class EventBus implements Poolable {
 		processPool();
 	}
 
-	private <L extends EventSubscription, D> ArrayExt<L> getListenersByType(final Event<L, D> event) {
+	private <L extends EventSubscription, D> ArrayExt<L> getListenersByType(final Event1<L, D> event) {
 		Class<L> eventType = event.getSubscriptionType();
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
@@ -167,12 +167,12 @@ public class EventBus implements Poolable {
 	}
 
 	private void processPool() {
-		Event<EventSubscription, Object> event = null;
+		Event1<EventSubscription, Object> event = null;
 		Object data = null;
 		synchronized (eventPool) {
 			if (eventPool.size > 0) {
 				@SuppressWarnings("unchecked")
-				Event<EventSubscription, Object> casted = (Event<EventSubscription, Object>) eventPool.get(0);
+				Event1<EventSubscription, Object> casted = (Event1<EventSubscription, Object>) eventPool.get(0);
 				event = casted;
 				data = eventPool.get(1);
 				eventPool.removeRange(0, 1);

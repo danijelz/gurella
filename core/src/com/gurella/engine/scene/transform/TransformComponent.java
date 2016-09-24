@@ -10,7 +10,7 @@ import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
-import com.gurella.engine.event.Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -993,7 +993,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		}
 	}
 
-	private static class TransformChangedEvent implements Event<NodeTransformChangedListener, Void> {
+	private static class TransformChangedEvent implements Event1<NodeTransformChangedListener, Void> {
 		@Override
 		public Class<NodeTransformChangedListener> getSubscriptionType() {
 			return NodeTransformChangedListener.class;

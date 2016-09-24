@@ -2,7 +2,7 @@ package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
-import com.gurella.engine.event.Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.event.Event2;
 import com.gurella.engine.event.Event3;
 import com.gurella.engine.event.EventService;
@@ -159,7 +159,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectsActivatedEvent implements Event<ObjectsActivityListener, ManagedObject> {
+	private static class ObjectsActivatedEvent implements Event1<ObjectsActivityListener, ManagedObject> {
 		@Override
 		public Class<ObjectsActivityListener> getSubscriptionType() {
 			return ObjectsActivityListener.class;
@@ -171,7 +171,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectsDeactivatedEvent implements Event<ObjectsActivityListener, ManagedObject> {
+	private static class ObjectsDeactivatedEvent implements Event1<ObjectsActivityListener, ManagedObject> {
 		@Override
 		public Class<ObjectsActivityListener> getSubscriptionType() {
 			return ObjectsActivityListener.class;
@@ -183,7 +183,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectActivatedEvent implements Event<ObjectActivityListener, Void> {
+	private static class ObjectActivatedEvent implements Event1<ObjectActivityListener, Void> {
 		@Override
 		public Class<ObjectActivityListener> getSubscriptionType() {
 			return ObjectActivityListener.class;
@@ -195,7 +195,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectDeactivatedEvent implements Event<ObjectActivityListener, Void> {
+	private static class ObjectDeactivatedEvent implements Event1<ObjectActivityListener, Void> {
 		@Override
 		public Class<ObjectActivityListener> getSubscriptionType() {
 			return ObjectActivityListener.class;
@@ -235,7 +235,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ChildAddedEvent implements Event<ObjectCompositionListener, ManagedObject> {
+	private static class ChildAddedEvent implements Event1<ObjectCompositionListener, ManagedObject> {
 		@Override
 		public Class<ObjectCompositionListener> getSubscriptionType() {
 			return ObjectCompositionListener.class;
@@ -247,7 +247,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ChildRemovedEvent implements Event<ObjectCompositionListener, ManagedObject> {
+	private static class ChildRemovedEvent implements Event1<ObjectCompositionListener, ManagedObject> {
 		@Override
 		public Class<ObjectCompositionListener> getSubscriptionType() {
 			return ObjectCompositionListener.class;
@@ -286,7 +286,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectsDestoyedEvent implements Event<ObjectsDestroyedListener, ManagedObject> {
+	private static class ObjectsDestoyedEvent implements Event1<ObjectsDestroyedListener, ManagedObject> {
 		@Override
 		public Class<ObjectsDestroyedListener> getSubscriptionType() {
 			return ObjectsDestroyedListener.class;
@@ -298,7 +298,7 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectDestoyedEvent implements Event<ObjectDestroyedListener, Void> {
+	private static class ObjectDestoyedEvent implements Event1<ObjectDestroyedListener, Void> {
 		@Override
 		public Class<ObjectDestroyedListener> getSubscriptionType() {
 			return ObjectDestroyedListener.class;

@@ -9,7 +9,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.engine.event.Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
@@ -80,7 +80,7 @@ public class SceneEditorUtils {
 		EventService.unsubscribe(getCurrentApplicationId(), subscriber);
 	}
 
-	public static <L extends EventSubscription> void notify(Event<L, ?> event) {
+	public static <L extends EventSubscription> void notify(Event1<L, ?> event) {
 		EventService.notify(getCurrentApplicationId(), event, null);
 	}
 
@@ -96,7 +96,7 @@ public class SceneEditorUtils {
 		EventService.unsubscribe(getApplicationId(subscriber), subscriber);
 	}
 
-	public static <L extends EventSubscription> void notify(Control source, Event<L, ?> event) {
+	public static <L extends EventSubscription> void notify(Control source, Event1<L, ?> event) {
 		EventService.notify(getApplicationId(source), event, null);
 	}
 
@@ -105,7 +105,7 @@ public class SceneEditorUtils {
 		EventService.notify(getApplicationId(source), new GenericEvent<L, D>(subscriptionType, handler), data);
 	}
 
-	private static class GenericEvent<L extends EventSubscription, D> implements Event<L, D> {
+	private static class GenericEvent<L extends EventSubscription, D> implements Event1<L, D> {
 		private Class<L> subscriptionType;
 		private BiConsumer<L, D> eventHandler;
 

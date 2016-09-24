@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.disposable.DisposablesService;
-import com.gurella.engine.event.Event;
+import com.gurella.engine.event.Event1;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.GraphicsService;
 import com.gurella.engine.scene.Scene;
@@ -52,8 +52,6 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public final void resize(int width, int height) {
-		resizeEvent.width = width;
-		resizeEvent.height = height;
 		EventService.notify(resizeEvent);
 	}
 
@@ -104,7 +102,7 @@ public final class Application implements ApplicationListener {
 		DisposablesService.disposeAll();
 	}
 
-	private static class ApplicationShutdownEvent implements Event<ApplicationShutdownListener, Void> {
+	private static class ApplicationShutdownEvent implements Event1<ApplicationShutdownListener, Void> {
 		@Override
 		public Class<ApplicationShutdownListener> getSubscriptionType() {
 			return ApplicationShutdownListener.class;
@@ -116,7 +114,7 @@ public final class Application implements ApplicationListener {
 		}
 	}
 
-	private static class PauseEvent implements Event<ApplicationActivityListener, Void> {
+	private static class PauseEvent implements Event1<ApplicationActivityListener, Void> {
 		@Override
 		public Class<ApplicationActivityListener> getSubscriptionType() {
 			return ApplicationActivityListener.class;
@@ -128,7 +126,7 @@ public final class Application implements ApplicationListener {
 		}
 	}
 
-	private static class ResumeEvent implements Event<ApplicationActivityListener, Void> {
+	private static class ResumeEvent implements Event1<ApplicationActivityListener, Void> {
 		@Override
 		public Class<ApplicationActivityListener> getSubscriptionType() {
 			return ApplicationActivityListener.class;
@@ -140,7 +138,7 @@ public final class Application implements ApplicationListener {
 		}
 	}
 
-	private static class UpdateEvent implements Event<ApplicationUpdateListener, Void> {
+	private static class UpdateEvent implements Event1<ApplicationUpdateListener, Void> {
 		@Override
 		public Class<ApplicationUpdateListener> getSubscriptionType() {
 			return ApplicationUpdateListener.class;
@@ -152,10 +150,7 @@ public final class Application implements ApplicationListener {
 		}
 	}
 
-	private static class ResizeEvent implements Event<ApplicationResizeListener, Void> {
-		int width;
-		int height;
-
+	private static class ResizeEvent implements Event1<ApplicationResizeListener, Void> {
 		@Override
 		public Class<ApplicationResizeListener> getSubscriptionType() {
 			return ApplicationResizeListener.class;
@@ -163,7 +158,7 @@ public final class Application implements ApplicationListener {
 
 		@Override
 		public void notify(ApplicationResizeListener listener, Void data) {
-			listener.resize(width, height);
+			listener.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
 	}
 }

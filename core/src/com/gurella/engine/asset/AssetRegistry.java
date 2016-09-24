@@ -119,7 +119,8 @@ public class AssetRegistry extends AssetManager {
 			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 			setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
 			setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
-			setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+			setLoader(MaterialDescriptor.class, "gmat",
+					new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 			setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 			setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
 		}
@@ -431,7 +432,7 @@ public class AssetRegistry extends AssetManager {
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
 		dereferenceDependencies(fileName, reference);
-		
+
 		if (asset instanceof Poolable) {
 			PoolService.free(asset);
 		} else {
@@ -522,7 +523,7 @@ public class AssetRegistry extends AssetManager {
 			EventService.getSubscribers(ResourceActivityListener.class, listeners);
 
 			Entries<String, AssetReference> entries = assetsByFileName.entries();
-			for (; entries.hasNext();) {
+			while (entries.hasNext()) {
 				Entry<String, AssetReference> entry = entries.next();
 				AssetReference reference = entry.value;
 				Object asset = reference.asset;

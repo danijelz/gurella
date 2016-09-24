@@ -8,11 +8,11 @@ public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
 	private static final IntMap<EventBus> channelEventBuses = new IntMap<EventBus>();
 
-	public static <L extends EventSubscription> void notify(Event<L, Void> event) {
+	public static <L extends EventSubscription> void notify(Event1<L, Void> event) {
 		globalEventBus.notify(event, null);
 	}
 
-	public static <L extends EventSubscription, D> void notify(Event<L, D> event, D data) {
+	public static <L extends EventSubscription, D> void notify(Event1<L, D> event, D data) {
 		globalEventBus.notify(event, data);
 	}
 
@@ -71,7 +71,7 @@ public class EventService {
 		}
 	}
 
-	public static <L extends EventSubscription> void notify(int channel, Event<L, Void> event) {
+	public static <L extends EventSubscription> void notify(int channel, Event1<L, Void> event) {
 		EventBus eventBus;
 		synchronized (channelEventBuses) {
 			eventBus = channelEventBuses.get(channel);
@@ -82,7 +82,7 @@ public class EventService {
 		}
 	}
 
-	public static <L extends EventSubscription, D> void notify(int channel, Event<L, D> event, D data) {
+	public static <L extends EventSubscription, D> void notify(int channel, Event1<L, D> event, D data) {
 		EventBus eventBus;
 		synchronized (channelEventBuses) {
 			eventBus = channelEventBuses.get(channel);
