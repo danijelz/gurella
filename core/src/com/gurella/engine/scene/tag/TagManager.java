@@ -18,12 +18,11 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 //TODO EntitySubscription -> TagSubscription
 public class TagManager extends SceneService2 implements ComponentActivityListener {
 	private static final ComponentFamily tagComponentFamily = ComponentFamily.fromComponentType(TagComponent.class);
+	private static final TagAddedEvent tagAddedEvent = new TagAddedEvent();
+	private static final TagRemovedEvent tagRemovedEvent = new TagRemovedEvent();
 
 	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
 	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
-
-	private final TagAddedEvent tagAddedEvent = new TagAddedEvent();
-	private final TagRemovedEvent tagRemovedEvent = new TagRemovedEvent();
 
 	public TagManager(Scene scene) {
 		super(scene);
@@ -52,7 +51,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 			Bits tags = tagComponent._tags;
 
 			for (int tagId = tags.nextSetBit(0); tagId >= 0; tagId = tags.nextSetBit(tagId + 1)) {
-				tagAdded(tagComponent, tagId);
+				tagAdded(tagComponent, Tag.valueOf(tagId));
 			}
 		}
 	}
@@ -71,7 +70,7 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 			Bits tags = tagComponent._tags;
 
 			for (int tagId = tags.nextSetBit(0); tagId >= 0; tagId = tags.nextSetBit(tagId + 1)) {
-				tagRemoved(tagComponent, tagId);
+				tagRemoved(tagComponent, Tag.valueOf(tagId));
 			}
 		}
 	}
@@ -121,20 +120,16 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 		return nodes;
 	}
 
-	public void tagAdded(TagComponent component, int tagId) {
+	void tagAdded(TagComponent component, Tag tag) {
+		int tagId = tag.id;
 		getNodesByTag(tagId).add(component.getNode());
-		tagAddedEvent.component = component;
-		tagAddedEvent.tagId = tagId;
-		EventService.notify(scene.getInstanceId(), tagAddedEvent, null);
-		tagAddedEvent.component = null;
+		EventService.notify(scene.getInstanceId(), tagAddedEvent, component, tag);
 	}
 
-	public void tagRemoved(TagComponent component, int tagId) {
+	void tagRemoved(TagComponent component, Tag tag) {
+		int tagId = tag.id;
 		nodesByTag.get(tagId).remove(component.getNode());
-		tagRemovedEvent.component = component;
-		tagRemovedEvent.tagId = tagId;
-		EventService.notify(scene.getInstanceId(), tagRemovedEvent, null);
-		tagRemovedEvent.component = null;
+		EventService.notify(scene.getInstanceId(), tagRemovedEvent, component, tag);
 	}
 
 	public ImmutableArray<SceneNode2> getNodes(Tag tag) {

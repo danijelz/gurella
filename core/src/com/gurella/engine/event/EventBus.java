@@ -85,6 +85,46 @@ public class EventBus implements Poolable {
 	}
 
 	private <L extends EventSubscription, D> void notifyListeners(final Event<L, D> event, D data) {
+		ArrayExt<L> listenersByType = getListenersByType(event);
+
+		for (int i = 0; i < listenersByType.size; i++) {
+			L listener = listenersByType.get(i);
+			event.notify(listener, data);
+		}
+
+		listenersByType.clear();
+		processPool();
+	}
+
+	public <L extends EventSubscription, D1, D2> void notify(Event2<L, D1, D2> event, D1 data1, D2 data2) {
+		synchronized (eventPool) {
+			if (processing) {
+				eventPool.add(event);
+				eventPool.add(data1);
+				eventPool.add(data2);
+				return;
+			} else {
+				processing = true;
+			}
+		}
+
+		notifyListeners(event, data1, data2);
+	}
+
+	private <L extends EventSubscription, D1, D2> void notifyListeners(final Event2<L, D1, D2> event, D1 data1,
+			D2 data2) {
+		ArrayExt<L> listenersByType = getListenersByType(event);
+
+		for (int i = 0; i < listenersByType.size; i++) {
+			L listener = listenersByType.get(i);
+			event.notify(listener, data1, data2);
+		}
+
+		listenersByType.clear();
+		processPool();
+	}
+
+	private <L extends EventSubscription, D> ArrayExt<L> getListenersByType(final Event<L, D> event) {
 		Class<L> eventType = event.getSubscriptionType();
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
@@ -93,18 +133,7 @@ public class EventBus implements Poolable {
 				temp.orderedItems().appendAll(listenersByType);
 			}
 		}
-
-		for (int i = 0; i < listenersByType.size; i++) {
-			L listener = listenersByType.get(i);
-			event.notify(listener, data);
-		}
-
-		listenersByType.clear();
-		if (event instanceof Poolable) {
-			PoolService.free(event);
-		}
-
-		processPool();
+		return listenersByType;
 	}
 
 	private void processPool() {

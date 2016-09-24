@@ -3,6 +3,7 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
 import com.gurella.engine.event.Event;
+import com.gurella.engine.event.Event2;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
@@ -106,11 +107,7 @@ final class ManagedObjects {
 			return;
 		}
 
-		childrenAddedEvent.parent = parent;
-		childrenAddedEvent.child = child;
-		EventService.notify(childrenAddedEvent);
-		childrenAddedEvent.parent = null;
-		childrenAddedEvent.child = null;
+		EventService.notify(childrenAddedEvent, parent, child);
 		EventService.notify(parent.instanceId, childAddedEvent, child);
 	}
 
@@ -119,11 +116,7 @@ final class ManagedObjects {
 			return;
 		}
 
-		childrenRemovedEvent.parent = parent;
-		childrenRemovedEvent.child = child;
-		EventService.notify(childrenRemovedEvent);
-		childrenRemovedEvent.parent = null;
-		childrenRemovedEvent.child = null;
+		EventService.notify(childrenRemovedEvent, parent, child);
 		EventService.notify(parent.instanceId, childRemovedEvent, child);
 	}
 
@@ -140,11 +133,7 @@ final class ManagedObjects {
 		parentsChangedEvent.oldParent = null;
 		parentsChangedEvent.newParent = null;
 
-		parentChangedEvent.oldParent = oldParent;
-		parentChangedEvent.newParent = newParent;
-		EventService.notify(object.instanceId, parentChangedEvent);
-		parentChangedEvent.oldParent = null;
-		parentChangedEvent.newParent = null;
+		EventService.notify(object.instanceId, parentChangedEvent, oldParent, newParent);
 	}
 
 	@TypePriorities({
@@ -226,33 +215,29 @@ final class ManagedObjects {
 
 	///////////////////
 
-	private static class ChildrenAddedEvent implements Event<ObjectsCompositionListener, Void> {
-		ManagedObject parent;
-		ManagedObject child;
-
+	private static class ChildrenAddedEvent
+			implements Event2<ObjectsCompositionListener, ManagedObject, ManagedObject> {
 		@Override
 		public Class<ObjectsCompositionListener> getSubscriptionType() {
 			return ObjectsCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsCompositionListener listener, Void data) {
-			listener.childAdded(parent, child);
+		public void notify(ObjectsCompositionListener listener, ManagedObject data1, ManagedObject data2) {
+			listener.childAdded(data1, data2);
 		}
 	}
 
-	private static class ChildrenRemovedEvent implements Event<ObjectsCompositionListener, Void> {
-		ManagedObject parent;
-		ManagedObject child;
-
+	private static class ChildrenRemovedEvent
+			implements Event2<ObjectsCompositionListener, ManagedObject, ManagedObject> {
 		@Override
 		public Class<ObjectsCompositionListener> getSubscriptionType() {
 			return ObjectsCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsCompositionListener listener, Void data) {
-			listener.childRemoved(parent, child);
+		public void notify(ObjectsCompositionListener listener, ManagedObject data1, ManagedObject data2) {
+			listener.childRemoved(data1, data2);
 		}
 	}
 
@@ -296,18 +281,16 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ParentChangedEvent implements Event<ObjectParentChangeListener, Void> {
-		ManagedObject oldParent;
-		ManagedObject newParent;
-
+	private static class ParentChangedEvent
+			implements Event2<ObjectParentChangeListener, ManagedObject, ManagedObject> {
 		@Override
 		public Class<ObjectParentChangeListener> getSubscriptionType() {
 			return ObjectParentChangeListener.class;
 		}
 
 		@Override
-		public void notify(ObjectParentChangeListener listener, Void data) {
-			listener.parentChanged(oldParent, newParent);
+		public void notify(ObjectParentChangeListener listener, ManagedObject data1, ManagedObject data2) {
+			listener.parentChanged(data1, data2);
 		}
 	}
 

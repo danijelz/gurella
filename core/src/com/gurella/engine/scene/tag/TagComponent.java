@@ -21,18 +21,16 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public void addTag(Tag tag) {
-		int tagId = tag.id;
-		if (!_tags.getAndSet(tagId) && isActive()) {
-			getScene().tagManager.tagAdded(this, tagId);
+		if (!_tags.getAndSet(tag.id) && isActive()) {
+			getScene().tagManager.tagAdded(this, tag);
 		}
 	}
 
 	public void addTags(Tag... tags) {
 		boolean active = isActive();
 		for (Tag tag : tags) {
-			int tagId = tag.id;
-			if (!_tags.getAndSet(tagId) && active) {
-				getScene().tagManager.tagAdded(this, tagId);
+			if (!_tags.getAndSet(tag.id) && active) {
+				getScene().tagManager.tagAdded(this, tag);
 			}
 		}
 	}
@@ -42,18 +40,16 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 	}
 
 	public void removeTag(Tag tag) {
-		int tagId = tag.id;
-		if (_tags.getAndClear(tagId) && isActive()) {
-			getScene().tagManager.tagRemoved(this, tagId);
+		if (_tags.getAndClear(tag.id) && isActive()) {
+			getScene().tagManager.tagRemoved(this, tag);
 		}
 	}
 
 	public void removeTags(Tag... tags) {
 		boolean active = isActive();
 		for (Tag tag : tags) {
-			int tagId = tag.id;
-			if (_tags.getAndClear(tagId) && active) {
-				getScene().tagManager.tagRemoved(this, tagId);
+			if (_tags.getAndClear(tag.id) && active) {
+				getScene().tagManager.tagRemoved(this, tag);
 			}
 		}
 	}
@@ -123,9 +119,8 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 			String tagName = tags[i];
 			if (tagName != null) {
 				Tag tag = Tag.valueOf(tagName);
-				int tagId = tag.id;
-				if (!_tags.getAndSet(tagId) && active) {
-					getScene().tagManager.tagAdded(this, tagId);
+				if (!_tags.getAndSet(tag.id) && active) {
+					getScene().tagManager.tagAdded(this, tag);
 				}
 			}
 		}
