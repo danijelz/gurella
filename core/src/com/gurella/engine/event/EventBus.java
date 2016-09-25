@@ -70,6 +70,31 @@ public class EventBus implements Poolable {
 		}
 	}
 
+	public <L extends EventSubscription> void notify(Event0<L> event) {
+		synchronized (eventPool) {
+			if (processing) {
+				eventPool.add(event);
+				return;
+			} else {
+				processing = true;
+			}
+		}
+
+		notifyListeners(event);
+	}
+
+	private <L extends EventSubscription> void notifyListeners(Event0<L> event) {
+		ArrayExt<L> listenersByType = getListenersByType(event);
+
+		for (int i = 0; i < listenersByType.size; i++) {
+			L listener = listenersByType.get(i);
+			event.notify(listener);
+		}
+
+		listenersByType.clear();
+		processPool();
+	}
+
 	public <L extends EventSubscription, D> void notify(Event1<L, D> event, D data) {
 		synchronized (eventPool) {
 			if (processing) {
@@ -154,7 +179,7 @@ public class EventBus implements Poolable {
 		processPool();
 	}
 
-	private <L extends EventSubscription, D> ArrayExt<L> getListenersByType(final Event1<L, D> event) {
+	private <L extends EventSubscription> ArrayExt<L> getListenersByType(final Event<L> event) {
 		Class<L> eventType = event.getSubscriptionType();
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);
 		synchronized (listeners) {
@@ -167,22 +192,73 @@ public class EventBus implements Poolable {
 	}
 
 	private void processPool() {
-		Event1<EventSubscription, Object> event = null;
-		Object data = null;
+		Event0<EventSubscription> event0 = null;
+		Event1<EventSubscription, Object> event1 = null;
+		Event2<EventSubscription, Object, Object> event2 = null;
+		Event3<EventSubscription, Object, Object, Object> event3 = null;
+
+		Object data1 = null;
+		Object data2 = null;
+		Object data3 = null;
+
+		int eventType;
+
 		synchronized (eventPool) {
 			if (eventPool.size > 0) {
 				@SuppressWarnings("unchecked")
-				Event1<EventSubscription, Object> casted = (Event1<EventSubscription, Object>) eventPool.get(0);
-				event = casted;
-				data = eventPool.get(1);
-				eventPool.removeRange(0, 1);
+				Event<EventSubscription> event = (Event<EventSubscription>) eventPool.get(0);
+
+				if (event instanceof Event0) {
+					event0 = (Event0<EventSubscription>) event;
+					eventPool.removeIndex(0);
+					eventType = 0;
+				} else if (event instanceof Event1) {
+					@SuppressWarnings("unchecked")
+					Event1<EventSubscription, Object> casted = (Event1<EventSubscription, Object>) event;
+					event1 = casted;
+					data1 = eventPool.get(1);
+					eventPool.removeRange(0, 1);
+					eventType = 1;
+				} else if (event instanceof Event2) {
+					@SuppressWarnings("unchecked")
+					Event2<EventSubscription, Object, Object> casted = (Event2<EventSubscription, Object, Object>) event;
+					event2 = casted;
+					data1 = eventPool.get(1);
+					data2 = eventPool.get(2);
+					eventPool.removeRange(0, 2);
+					eventType = 2;
+				} else /*if(event instanceof Event3)*/ {
+					@SuppressWarnings("unchecked")
+					Event3<EventSubscription, Object, Object, Object> casted = (Event3<EventSubscription, Object, Object, Object>) event;
+					event3 = casted;
+					data1 = eventPool.get(1);
+					data2 = eventPool.get(2);
+					data3 = eventPool.get(3);
+					eventPool.removeRange(0, 3);
+					eventType = 3;
+				}
 			} else {
 				processing = false;
 				return;
 			}
 		}
 
-		notifyListeners(event, data);
+		switch (eventType) {
+		case 0:
+			notifyListeners(event0);
+			break;
+		case 1:
+			notifyListeners(event1, data1);
+			break;
+		case 2:
+			notifyListeners(event2, data1, data2);
+			break;
+		case 3:
+			notifyListeners(event3, data1, data2, data3);
+			break;
+		default:
+			break;
+		}
 	}
 
 	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> type, Array<? super L> out) {
