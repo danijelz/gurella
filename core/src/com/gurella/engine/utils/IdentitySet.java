@@ -555,6 +555,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable {
 
 	@Override
 	public void reset() {
+		stashSize = 0;
 		T[] oldKeyTable = keyTable;
 		init(32, 0.8f);
 		PoolService.free(oldKeyTable);
