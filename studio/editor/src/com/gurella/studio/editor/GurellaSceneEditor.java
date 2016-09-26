@@ -30,15 +30,12 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.serialization.json.JsonOutput;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
@@ -212,18 +209,9 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		super.dispose();
 		context.dispose();
 		SceneEditorUtils.remove(this);
-
-		Array<ApplicationDebugUpdateListener> listeners = new Array<>();
-		EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).debugUpdate();
-		}
-		
-		EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).debugUpdate();
-		}
-
+		// TODO
+		applicationListener.debugUpdate();
+		applicationListener.debugUpdate();
 		application.exit();
 	}
 

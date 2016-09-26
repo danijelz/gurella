@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.event.Event0;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
@@ -44,6 +45,9 @@ import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
 		implements EditorMessageListener, SceneEditorMouseListener {
+	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
+	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
+
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
 	private PerspectiveCamera perspectiveCamera;
@@ -133,26 +137,16 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		renderScene();
 	}
 
-	private void debugUpdate() {
-		Array<ApplicationDebugUpdateListener> listeners = Values.cast(tempArray);
-		EventService.getSubscribers(ApplicationDebugUpdateListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).debugUpdate();
-		}
-		listeners.clear();
+	void debugUpdate() {
+		EventService.notify(debugUpdateEvent);
 	}
 
 	private void preRender() {
 		if (scene == null) {
 			return;
 		}
-
-		Array<PreRenderUpdateListener> listeners = Values.cast(tempArray);
-		EventService.getSubscribers(scene.getInstanceId(), PreRenderUpdateListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).onPreRenderUpdate();
-		}
-		listeners.clear();
+		
+		EventService.notify(scene.getInstanceId(), preRenderUpdateEvent);
 	}
 
 	public void renderScene() {
@@ -316,6 +310,30 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		if (this.scene != null) {
 			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
 			renderSystem.dispose();
+		}
+	}
+
+	private static class DebugUpdateEvent implements Event0<ApplicationDebugUpdateListener> {
+		@Override
+		public Class<ApplicationDebugUpdateListener> getSubscriptionType() {
+			return ApplicationDebugUpdateListener.class;
+		}
+
+		@Override
+		public void notify(ApplicationDebugUpdateListener listener) {
+			listener.debugUpdate();
+		}
+	}
+
+	private static class PreRenderUpdateEvent implements Event0<PreRenderUpdateListener> {
+		@Override
+		public Class<PreRenderUpdateListener> getSubscriptionType() {
+			return PreRenderUpdateListener.class;
+		}
+
+		@Override
+		public void notify(PreRenderUpdateListener listener) {
+			listener.onPreRenderUpdate();
 		}
 	}
 }
