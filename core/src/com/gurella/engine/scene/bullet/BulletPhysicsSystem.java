@@ -58,7 +58,6 @@ public class BulletPhysicsSystem extends SceneService2
 
 		tickCallback = DisposablesService.add(new CollisionTrackingCallback(tempListeners));
 		tickCallback.attach(dynamicsWorld, false);
-
 	}
 
 	// @Override
