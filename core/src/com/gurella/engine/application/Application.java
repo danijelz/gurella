@@ -4,7 +4,6 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.disposable.DisposablesService;
@@ -23,28 +22,30 @@ public final class Application implements ApplicationListener {
 	private static final UpdateEvent updateEvent = new UpdateEvent();
 	private static final ResizeEvent resizeEvent = new ResizeEvent();
 
-	private static boolean initialized;
+	public float deltaTime;
+	private boolean paused;
 
-	public static float deltaTime;
-	private static boolean paused;
+	private ApplicationConfig config;
+	private String initialScenePath;
+	private final SceneManager sceneManager = new SceneManager(null);
 
-	private static ApplicationConfig config;
-	private static String initialScenePath;
-	private static final SceneManager sceneManager = new SceneManager(null);
+	private Thread renderThread;
 
 	Application(ApplicationConfig config) {
 		this.config = config;
 	}
+	
+	public static Application current() {
+		return (Application) Gdx.app.getApplicationListener();
+	}
 
 	@Override
 	public final void create() {
-		if (initialized) {
-			throw new GdxRuntimeException("Application already initialized.");
-		}
+		renderThread = Thread.currentThread();
 
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
-		//TODO config.init(this);
+		// TODO config.init(this);
 		// TODO add init scripts to initializer
 		GraphicsService.init();
 		sceneManager.showScene(initialScenePath);

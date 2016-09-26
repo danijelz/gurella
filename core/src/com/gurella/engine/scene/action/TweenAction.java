@@ -1,7 +1,7 @@
 package com.gurella.engine.scene.action;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Interpolation;
-import com.gurella.engine.application.Application;
 
 public class TweenAction extends Action {
 	Tween tween;
@@ -27,7 +27,7 @@ public class TweenAction extends Action {
 
 	@Override
 	public boolean doAct() {
-		float delta = Application.deltaTime;
+		float delta = Gdx.graphics.getDeltaTime();
 		time += delta;
 		boolean complete = time >= duration;
 		float percent;

@@ -77,10 +77,14 @@ public class EventBus implements Poolable {
 				return;
 			} else {
 				processing = true;
+				if (eventPool.size > 0) {
+					eventPool.add(event);
+					processPool();
+				} else {
+					notifyListeners(event);
+				}
 			}
 		}
-
-		notifyListeners(event);
 	}
 
 	private <L extends EventSubscription> void notifyListeners(Event0<L> event) {
@@ -103,10 +107,15 @@ public class EventBus implements Poolable {
 				return;
 			} else {
 				processing = true;
+				if (eventPool.size > 0) {
+					eventPool.add(event);
+					eventPool.add(data);
+					processPool();
+				} else {
+					notifyListeners(event, data);
+				}
 			}
 		}
-
-		notifyListeners(event, data);
 	}
 
 	private <L extends EventSubscription, D> void notifyListeners(final Event1<L, D> event, D data) {
@@ -130,10 +139,16 @@ public class EventBus implements Poolable {
 				return;
 			} else {
 				processing = true;
+				if (eventPool.size > 0) {
+					eventPool.add(event);
+					eventPool.add(data1);
+					eventPool.add(data2);
+					processPool();
+				} else {
+					notifyListeners(event, data1, data2);
+				}
 			}
 		}
-
-		notifyListeners(event, data1, data2);
 	}
 
 	private <L extends EventSubscription, D1, D2> void notifyListeners(final Event2<L, D1, D2> event, D1 data1,
@@ -160,10 +175,17 @@ public class EventBus implements Poolable {
 				return;
 			} else {
 				processing = true;
+				if (eventPool.size > 0) {
+					eventPool.add(event);
+					eventPool.add(data1);
+					eventPool.add(data2);
+					eventPool.add(data3);
+					processPool();
+				} else {
+					notifyListeners(event, data1, data2, data3);
+				}
 			}
 		}
-
-		notifyListeners(event, data1, data2, data3);
 	}
 
 	private <L extends EventSubscription, D1, D2, D3> void notifyListeners(final Event3<L, D1, D2, D3> event, D1 data1,
@@ -227,7 +249,7 @@ public class EventBus implements Poolable {
 					data2 = eventPool.get(2);
 					eventPool.removeRange(0, 2);
 					eventType = 2;
-				} else /*if(event instanceof Event3)*/ {
+				} else /* if(event instanceof Event3) */ {
 					@SuppressWarnings("unchecked")
 					Event3<EventSubscription, Object, Object, Object> casted = (Event3<EventSubscription, Object, Object, Object>) event;
 					event3 = casted;
