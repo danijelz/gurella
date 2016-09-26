@@ -71,7 +71,7 @@ public class IdentitySet<T> implements Iterable<T>, Poolable {
 		hashShift = 31 - Integer.numberOfTrailingZeros(capacity);
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Math.max(Math.min(capacity, 8), (int) Math.sqrt(capacity) / 8);
-		keyTable = Values.cast(PoolService.obtainArray(Object.class, capacity + stashCapacity, 0.3f));
+		keyTable = Values.cast(PoolService.obtainArray(Object.class, capacity + stashCapacity, 0));
 	}
 
 	/** Creates a new set identical to the specified set. */
