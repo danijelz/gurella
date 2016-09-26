@@ -34,7 +34,6 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.scene.GridModelInstance;
@@ -75,7 +74,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private final Vector3 intersection = new Vector3();
 	private SceneNode2 selectedNode;
 
-	private final Array<Object> tempArray = new Array<>(64);
+	private final Array<Spatial> spatials = new Array<>(64);
 
 	@Override
 	public void create() {
@@ -145,7 +144,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		if (scene == null) {
 			return;
 		}
-		
+
 		EventService.notify(scene.getInstanceId(), preRenderUpdateEvent);
 	}
 
@@ -194,7 +193,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		pickRayTime = System.currentTimeMillis();
 		selectedCamera.update(true);
 		pickRay.set(selectedCamera.getPickRay(x, y));
-		Array<Spatial> spatials = Values.cast(tempArray);
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
 
 		if (spatials.size == 0) {

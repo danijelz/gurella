@@ -2,6 +2,8 @@ package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.event.Event0;
+import com.gurella.engine.event.Event3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
@@ -23,6 +25,21 @@ import com.gurella.engine.utils.Values;
 
 @TypePriority(priority = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
 class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
+	private static final SceneStartedEvent sceneStartedEvent = new SceneStartedEvent();
+	private static final SceneStoppedEvent sceneStoppedEvent = new SceneStoppedEvent();
+
+	private static final NodeRenamedEvent modeRenamedEvent = new NodeRenamedEvent();
+
+	private static final IoUpdateEvent ioUpdateEvent = new IoUpdateEvent();
+	private static final InputUpdateEvent inputUpdateEvent = new InputUpdateEvent();
+	private static final LogicUpdateEvent logicUpdateEvent = new LogicUpdateEvent();
+	private static final PhysicsUpdateEvent physicsUpdateEvent = new PhysicsUpdateEvent();
+	private static final UpdateEvent updateEvent = new UpdateEvent();
+	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
+	private static final RenderUpdateEvent renderUpdateEvent = new RenderUpdateEvent();
+	private static final PostRenderUpdateEvent postRenderUpdateEvent = new PostRenderUpdateEvent();
+	private static final CleanupUpdateEvent cleanupUpdateEvent = new CleanupUpdateEvent();
+
 	private final Scene scene;
 	private final Array<Object> tempListeners = new Array<Object>(64);
 
@@ -35,21 +52,11 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 	void activate() {
 		EventService.subscribe(this);
-		Array<SceneActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, SceneActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).sceneStarted();
-		}
-		tempListeners.clear();
+		EventService.notify(sceneId, sceneStartedEvent);
 	}
 
 	void deactivate() {
-		Array<SceneActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, SceneActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).sceneStopped();
-		}
-		tempListeners.clear();
+		EventService.notify(sceneId, sceneStoppedEvent);
 		EventService.unsubscribe(this);
 	}
 
@@ -86,82 +93,168 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	void nodeRenamed(SceneNode2 node, String oldName, String newName) {
-		Array<NodeRenamedListener> sceneListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, NodeRenamedListener.class, sceneListeners);
-		for (int i = 0; i < sceneListeners.size; i++) {
-			sceneListeners.get(i).nodeRenamed(node, oldName, newName);
-		}
-		tempListeners.clear();
+		EventService.notify(sceneId, modeRenamedEvent, node, oldName, newName);
 	}
 
 	@Override
 	public void update() {
-		Array<IoUpdateListener> ioUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, IoUpdateListener.class, ioUpdateListeners);
-		for (int i = 0; i < ioUpdateListeners.size; i++) {
-			ioUpdateListeners.get(i).onIoUpdate();
-		}
-		tempListeners.clear();
-
-		Array<InputUpdateListener> inputUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, InputUpdateListener.class, inputUpdateListeners);
-		for (int i = 0; i < inputUpdateListeners.size; i++) {
-			inputUpdateListeners.get(i).onInputUpdate();
-		}
-		tempListeners.clear();
-
-		Array<LogicUpdateListener> logicUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, LogicUpdateListener.class, logicUpdateListeners);
-		for (int i = 0; i < logicUpdateListeners.size; i++) {
-			logicUpdateListeners.get(i).onLogicUpdate();
-		}
-		tempListeners.clear();
-
-		Array<PhysicsUpdateListener> physicsUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, PhysicsUpdateListener.class, physicsUpdateListeners);
-		for (int i = 0; i < physicsUpdateListeners.size; i++) {
-			physicsUpdateListeners.get(i).onPhysicsUpdate();
-		}
-		tempListeners.clear();
-
-		Array<UpdateListener> updateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, UpdateListener.class, updateListeners);
-		for (int i = 0; i < updateListeners.size; i++) {
-			updateListeners.get(i).onUpdate();
-		}
-		tempListeners.clear();
-
-		Array<PreRenderUpdateListener> preRenderUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, PreRenderUpdateListener.class, preRenderUpdateListeners);
-		for (int i = 0; i < preRenderUpdateListeners.size; i++) {
-			preRenderUpdateListeners.get(i).onPreRenderUpdate();
-		}
-		tempListeners.clear();
-
-		Array<RenderUpdateListener> renderUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, RenderUpdateListener.class, renderUpdateListeners);
-		for (int i = 0; i < renderUpdateListeners.size; i++) {
-			renderUpdateListeners.get(i).onRenderUpdate();
-		}
-		tempListeners.clear();
-
-		Array<PostRenderUpdateListener> postRenderUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, PostRenderUpdateListener.class, postRenderUpdateListeners);
-		for (int i = 0; i < renderUpdateListeners.size; i++) {
-			postRenderUpdateListeners.get(i).onPostRenderUpdate();
-		}
-		tempListeners.clear();
-
-		Array<CleanupUpdateListener> cleanupUpdateListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, CleanupUpdateListener.class, cleanupUpdateListeners);
-		for (int i = 0; i < cleanupUpdateListeners.size; i++) {
-			cleanupUpdateListeners.get(i).onCleanupUpdate();
-		}
-		tempListeners.clear();
+		EventService.notify(sceneId, ioUpdateEvent);
+		EventService.notify(sceneId, inputUpdateEvent);
+		EventService.notify(sceneId, logicUpdateEvent);
+		EventService.notify(sceneId, physicsUpdateEvent);
+		EventService.notify(sceneId, updateEvent);
+		EventService.notify(sceneId, preRenderUpdateEvent);
+		EventService.notify(sceneId, renderUpdateEvent);
+		EventService.notify(sceneId, postRenderUpdateEvent);
+		EventService.notify(sceneId, cleanupUpdateEvent);
 	}
 
 	@Override
 	public void reset() {
 		sceneId = scene.getInstanceId();
+	}
+
+	private static class SceneStartedEvent implements Event0<SceneActivityListener> {
+		@Override
+		public Class<SceneActivityListener> getSubscriptionType() {
+			return SceneActivityListener.class;
+		}
+
+		@Override
+		public void notify(SceneActivityListener listener) {
+			listener.sceneStarted();
+		}
+	}
+
+	private static class SceneStoppedEvent implements Event0<SceneActivityListener> {
+		@Override
+		public Class<SceneActivityListener> getSubscriptionType() {
+			return SceneActivityListener.class;
+		}
+
+		@Override
+		public void notify(SceneActivityListener listener) {
+			listener.sceneStopped();
+		}
+	}
+
+	private static class NodeRenamedEvent implements Event3<NodeRenamedListener, SceneNode2, String, String> {
+		@Override
+		public Class<NodeRenamedListener> getSubscriptionType() {
+			return NodeRenamedListener.class;
+		}
+
+		@Override
+		public void notify(NodeRenamedListener listener, SceneNode2 node, String oldName, String newName) {
+			listener.nodeRenamed(node, oldName, newName);
+		}
+	}
+
+	private static class IoUpdateEvent implements Event0<IoUpdateListener> {
+		@Override
+		public Class<IoUpdateListener> getSubscriptionType() {
+			return IoUpdateListener.class;
+		}
+
+		@Override
+		public void notify(IoUpdateListener listener) {
+			listener.onIoUpdate();
+		}
+	}
+
+	private static class InputUpdateEvent implements Event0<InputUpdateListener> {
+		@Override
+		public Class<InputUpdateListener> getSubscriptionType() {
+			return InputUpdateListener.class;
+		}
+
+		@Override
+		public void notify(InputUpdateListener listener) {
+			listener.onInputUpdate();
+		}
+	}
+
+	private static class LogicUpdateEvent implements Event0<LogicUpdateListener> {
+		@Override
+		public Class<LogicUpdateListener> getSubscriptionType() {
+			return LogicUpdateListener.class;
+		}
+
+		@Override
+		public void notify(LogicUpdateListener listener) {
+			listener.onLogicUpdate();
+		}
+	}
+
+	private static class PhysicsUpdateEvent implements Event0<PhysicsUpdateListener> {
+		@Override
+		public Class<PhysicsUpdateListener> getSubscriptionType() {
+			return PhysicsUpdateListener.class;
+		}
+
+		@Override
+		public void notify(PhysicsUpdateListener listener) {
+			listener.onPhysicsUpdate();
+		}
+	}
+
+	private static class UpdateEvent implements Event0<UpdateListener> {
+		@Override
+		public Class<UpdateListener> getSubscriptionType() {
+			return UpdateListener.class;
+		}
+
+		@Override
+		public void notify(UpdateListener listener) {
+			listener.onUpdate();
+		}
+	}
+
+	private static class PreRenderUpdateEvent implements Event0<PreRenderUpdateListener> {
+		@Override
+		public Class<PreRenderUpdateListener> getSubscriptionType() {
+			return PreRenderUpdateListener.class;
+		}
+
+		@Override
+		public void notify(PreRenderUpdateListener listener) {
+			listener.onPreRenderUpdate();
+		}
+	}
+
+	private static class RenderUpdateEvent implements Event0<RenderUpdateListener> {
+		@Override
+		public Class<RenderUpdateListener> getSubscriptionType() {
+			return RenderUpdateListener.class;
+		}
+
+		@Override
+		public void notify(RenderUpdateListener listener) {
+			listener.onRenderUpdate();
+		}
+	}
+
+	private static class PostRenderUpdateEvent implements Event0<PostRenderUpdateListener> {
+		@Override
+		public Class<PostRenderUpdateListener> getSubscriptionType() {
+			return PostRenderUpdateListener.class;
+		}
+
+		@Override
+		public void notify(PostRenderUpdateListener listener) {
+			listener.onPostRenderUpdate();
+		}
+	}
+
+	private static class CleanupUpdateEvent implements Event0<CleanupUpdateListener> {
+		@Override
+		public Class<CleanupUpdateListener> getSubscriptionType() {
+			return CleanupUpdateListener.class;
+		}
+
+		@Override
+		public void notify(CleanupUpdateListener listener) {
+			listener.onCleanupUpdate();
+		}
 	}
 }
