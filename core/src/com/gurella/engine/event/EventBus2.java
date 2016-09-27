@@ -20,8 +20,8 @@ public class EventBus2 implements Poolable {
 	private volatile int size;
 	private final ObjectMap<Class<? extends EventSubscription>, OrderedIdentitySet<?>> listeners = new ObjectMap<Class<? extends EventSubscription>, OrderedIdentitySet<?>>();
 
-	private final ArrayExt<Object> eventQueue = new ArrayExt<Object>();
-	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>();
+	private final ArrayExt<Object> eventQueue = new ArrayExt<Object>(256);
+	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>(256);
 
 	private boolean processing;
 
@@ -72,10 +72,13 @@ public class EventBus2 implements Poolable {
 	}
 
 	public <L extends EventSubscription> void post(Event0<L> event) {
-		if(!GurellaEngine.isInRenderThread()) {
-			//TODO
+		if (!GurellaEngine.isInRenderThread()) {
+			synchronized (eventQueue) {
+				eventQueue.add(event);
+				return;
+			}
 		}
-		
+
 		synchronized (eventQueue) {
 			if (processing) {
 				eventQueue.add(event);

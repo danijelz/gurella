@@ -19,8 +19,8 @@ public class EventBus implements Poolable {
 
 	private final ObjectMap<Class<? extends EventSubscription>, OrderedIdentitySet<?>> listeners = new ObjectMap<Class<? extends EventSubscription>, OrderedIdentitySet<?>>();
 
-	private final ArrayExt<Object> eventQueue = new ArrayExt<Object>();
-	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>();
+	private final ArrayExt<Object> eventQueue = new ArrayExt<Object>(256);
+	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>(256);
 
 	private boolean processing;
 
