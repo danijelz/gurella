@@ -64,7 +64,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	public void setDirty() {
 		if (!dirty) {
 			dirty = true;
-			EventService.notify(sceneId, event, this);
+			EventService.post(sceneId, event, this);
 		}
 	}
 

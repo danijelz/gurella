@@ -76,7 +76,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 			transformDirty = true;
 			transformInvDirty = true;
 			worldTransformInvDirty = true;
-			EventService.notify(nodeId, event, null);
+			EventService.post(nodeId, event, null);
 		}
 	}
 
@@ -553,7 +553,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.notify(nodeId, event, null);
+		EventService.post(nodeId, event, null);
 	}
 
 	public void rotateAroundWorld(Vector3 point, Vector3 axis, float degrees) {
@@ -580,7 +580,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.notify(nodeId, event, null);
+		EventService.post(nodeId, event, null);
 	}
 
 	public TransformComponent eulerRotate(Vector3 additionalEulerRotation) {
@@ -672,7 +672,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.notify(nodeId, event, null);
+		EventService.post(nodeId, event, null);
 	}
 
 	public void setWorldTransform(Matrix4 newWorldTransform) {
@@ -690,7 +690,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.notify(nodeId, event, null);
+		EventService.post(nodeId, event, null);
 	}
 
 	public Matrix4 getTransform(Matrix4 outTransform) {
@@ -876,7 +876,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.notify(nodeId, event, null);
+		EventService.post(nodeId, event, null);
 	}
 
 	public void lookAtWorld(Vector3 target) {
@@ -903,7 +903,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.notify(nodeId, event, null);
+		EventService.post(nodeId, event, null);
 	}
 
 	@Override

@@ -241,7 +241,6 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 		if (!cleaning && asyncPool.size > 0) {
 			cleaning = true;
 			prepareForCleaning();
-			//TODO release GL resources in main thread
 			AsyncService.submit(this);
 		}
 	}

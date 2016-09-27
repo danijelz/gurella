@@ -90,18 +90,18 @@ final class ManagedObjects {
 
 	// TODO are this notifications needed?
 	static void activated(ManagedObject object) {
-		EventService.notify(objectsActivatedEvent, object);
-		EventService.notify(object.instanceId, objectActivatedEvent);
+		EventService.post(objectsActivatedEvent, object);
+		EventService.post(object.instanceId, objectActivatedEvent);
 	}
 
 	static void deactivated(ManagedObject object) {
-		EventService.notify(objectsDeactivatedEvent, object);
-		EventService.notify(object.instanceId, objectDeactivatedEvent);
+		EventService.post(objectsDeactivatedEvent, object);
+		EventService.post(object.instanceId, objectDeactivatedEvent);
 	}
 
 	static void destroyed(ManagedObject object) {
-		EventService.notify(objectsDestoyedEvent, object);
-		EventService.notify(object.instanceId, objectDestoyedEvent);
+		EventService.post(objectsDestoyedEvent, object);
+		EventService.post(object.instanceId, objectDestoyedEvent);
 	}
 
 	static void childAdded(ManagedObject parent, ManagedObject child) {
@@ -109,8 +109,8 @@ final class ManagedObjects {
 			return;
 		}
 
-		EventService.notify(childrenAddedEvent, parent, child);
-		EventService.notify(parent.instanceId, childAddedEvent, child);
+		EventService.post(childrenAddedEvent, parent, child);
+		EventService.post(parent.instanceId, childAddedEvent, child);
 	}
 
 	static void childRemoved(ManagedObject parent, ManagedObject child) {
@@ -118,8 +118,8 @@ final class ManagedObjects {
 			return;
 		}
 
-		EventService.notify(childrenRemovedEvent, parent, child);
-		EventService.notify(parent.instanceId, childRemovedEvent, child);
+		EventService.post(childrenRemovedEvent, parent, child);
+		EventService.post(parent.instanceId, childRemovedEvent, child);
 	}
 
 	static void parentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent) {
@@ -127,8 +127,8 @@ final class ManagedObjects {
 			return;
 		}
 
-		EventService.notify(parentsChangedEvent, object, oldParent, newParent);
-		EventService.notify(object.instanceId, parentChangedEvent, oldParent, newParent);
+		EventService.post(parentsChangedEvent, object, oldParent, newParent);
+		EventService.post(object.instanceId, parentChangedEvent, oldParent, newParent);
 	}
 
 	@TypePriorities({

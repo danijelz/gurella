@@ -81,11 +81,11 @@ public class SceneEditorUtils {
 	}
 
 	public static <L extends EventSubscription> void notify(Event1<L, ?> event) {
-		EventService.notify(getCurrentApplicationId(), event, null);
+		EventService.post(getCurrentApplicationId(), event, null);
 	}
 
 	public static <L extends EventSubscription> void notify(Class<L> subscriptionType, BiConsumer<L, Void> handler) {
-		EventService.notify(getCurrentApplicationId(), new GenericEvent<L, Void>(subscriptionType, handler), null);
+		EventService.post(getCurrentApplicationId(), new GenericEvent<L, Void>(subscriptionType, handler), null);
 	}
 
 	public static void subscribe(Control subscriber) {
@@ -97,12 +97,12 @@ public class SceneEditorUtils {
 	}
 
 	public static <L extends EventSubscription> void notify(Control source, Event1<L, ?> event) {
-		EventService.notify(getApplicationId(source), event, null);
+		EventService.post(getApplicationId(source), event, null);
 	}
 
 	public static <L extends EventSubscription, D> void notify(Control source, Class<L> subscriptionType,
 			BiConsumer<L, D> handler, D data) {
-		EventService.notify(getApplicationId(source), new GenericEvent<L, D>(subscriptionType, handler), data);
+		EventService.post(getApplicationId(source), new GenericEvent<L, D>(subscriptionType, handler), data);
 	}
 
 	private static class GenericEvent<L extends EventSubscription, D> implements Event1<L, D> {

@@ -3,7 +3,6 @@ package com.gurella.engine.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.gurella.engine.GurellaEngine;
 
 public class HtmlLauncher extends GwtApplication {
 	@Override
@@ -13,6 +12,6 @@ public class HtmlLauncher extends GwtApplication {
 
 	@Override
 	public ApplicationListener createApplicationListener() {
-		return new GurellaEngine();
+		return null;
 	}
 }

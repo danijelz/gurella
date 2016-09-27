@@ -123,13 +123,13 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 	void tagAdded(TagComponent component, Tag tag) {
 		int tagId = tag.id;
 		getNodesByTag(tagId).add(component.getNode());
-		EventService.notify(scene.getInstanceId(), tagAddedEvent, component, tag);
+		EventService.post(scene.getInstanceId(), tagAddedEvent, component, tag);
 	}
 
 	void tagRemoved(TagComponent component, Tag tag) {
 		int tagId = tag.id;
 		nodesByTag.get(tagId).remove(component.getNode());
-		EventService.notify(scene.getInstanceId(), tagRemovedEvent, component, tag);
+		EventService.post(scene.getInstanceId(), tagRemovedEvent, component, tag);
 	}
 
 	public ImmutableArray<SceneNode2> getNodes(Tag tag) {

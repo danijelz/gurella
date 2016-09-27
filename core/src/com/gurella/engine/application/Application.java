@@ -16,7 +16,7 @@ import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 
-public final class Application implements ApplicationListener {
+public final class Application implements ApplicationListener, GurellaStateProvider {
 	private static final PauseEvent pauseEvent = new PauseEvent();
 	private static final ResumeEvent resumeEvent = new ResumeEvent();
 	private static final UpdateEvent updateEvent = new UpdateEvent();
@@ -53,7 +53,7 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public final void resize(int width, int height) {
-		EventService.notify(resizeEvent);
+		EventService.post(resizeEvent);
 	}
 
 	@Override
@@ -62,13 +62,13 @@ public final class Application implements ApplicationListener {
 		// TODO clear must be handled by RenderSystem with spec from camera
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		EventService.notify(updateEvent);
+		EventService.post(updateEvent);
 	}
 
 	@Override
 	public final void pause() {
 		paused = true;
-		EventService.notify(pauseEvent);
+		EventService.post(pauseEvent);
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public final class Application implements ApplicationListener {
 		if (Gdx.app.getType() == ApplicationType.Android) {
 			AssetService.reloadInvalidated();
 		}
-		EventService.notify(resumeEvent);
+		EventService.post(resumeEvent);
 	}
 
 	public final boolean isPaused() {
@@ -98,9 +98,14 @@ public final class Application implements ApplicationListener {
 
 	@Override
 	public void dispose() {
-		EventService.notify(new ApplicationShutdownEvent());
+		EventService.post(new ApplicationShutdownEvent());
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
+	}
+	
+	@Override
+	public boolean isInRenderThread() {
+		return renderThread == Thread.currentThread();
 	}
 
 	private static class ApplicationShutdownEvent implements Event0<ApplicationShutdownListener> {

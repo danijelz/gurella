@@ -54,39 +54,39 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 
 	void activate() {
 		EventService.subscribe(this);
-		EventService.notify(sceneId, sceneStartedEvent);
+		EventService.post(sceneId, sceneStartedEvent);
 	}
 
 	void deactivate() {
-		EventService.notify(sceneId, sceneStoppedEvent);
+		EventService.post(sceneId, sceneStoppedEvent);
 		EventService.unsubscribe(this);
 	}
 
 	void componentActivated(SceneNodeComponent2 component) {
-		EventService.notify(sceneId, componentActivatedEvent, component);
-		EventService.notify(component.getNodeId(), nodeComponentActivatedEvent, component);
+		EventService.post(sceneId, componentActivatedEvent, component);
+		EventService.post(component.getNodeId(), nodeComponentActivatedEvent, component);
 	}
 
 	void componentDeactivated(SceneNodeComponent2 component) {
-		EventService.notify(sceneId, componentDeactivatedEvent, component);
-		EventService.notify(component.getNodeId(), nodeComponentDeactivatedEvent, component);
+		EventService.post(sceneId, componentDeactivatedEvent, component);
+		EventService.post(component.getNodeId(), nodeComponentDeactivatedEvent, component);
 	}
 
 	void nodeRenamed(SceneNode2 node, String oldName, String newName) {
-		EventService.notify(sceneId, modeRenamedEvent, node, oldName, newName);
+		EventService.post(sceneId, modeRenamedEvent, node, oldName, newName);
 	}
 
 	@Override
 	public void update() {
-		EventService.notify(sceneId, ioUpdateEvent);
-		EventService.notify(sceneId, inputUpdateEvent);
-		EventService.notify(sceneId, logicUpdateEvent);
-		EventService.notify(sceneId, physicsUpdateEvent);
-		EventService.notify(sceneId, updateEvent);
-		EventService.notify(sceneId, preRenderUpdateEvent);
-		EventService.notify(sceneId, renderUpdateEvent);
-		EventService.notify(sceneId, postRenderUpdateEvent);
-		EventService.notify(sceneId, cleanupUpdateEvent);
+		EventService.post(sceneId, ioUpdateEvent);
+		EventService.post(sceneId, inputUpdateEvent);
+		EventService.post(sceneId, logicUpdateEvent);
+		EventService.post(sceneId, physicsUpdateEvent);
+		EventService.post(sceneId, updateEvent);
+		EventService.post(sceneId, preRenderUpdateEvent);
+		EventService.post(sceneId, renderUpdateEvent);
+		EventService.post(sceneId, postRenderUpdateEvent);
+		EventService.post(sceneId, cleanupUpdateEvent);
 	}
 
 	@Override

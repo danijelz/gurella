@@ -1,6 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -149,7 +147,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	private void presentScene(Scene scene) {
 		dirty = false;
-
 		context.setScene(scene);
 		applicationListener.presentScene(scene);
 	}
@@ -183,14 +180,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		return context.project;
 	}
 
-	public IJavaProject getJavaProject() {
-		return context.javaProject;
-	}
-
-	public URLClassLoader getClassLoader() {
-		return context.classLoader;
-	}
-
 	public void addEditorMessageListener(EditorMessageListener listener) {
 		context.addEditorMessageListener(listener);
 	}
@@ -209,8 +198,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		super.dispose();
 		context.dispose();
 		SceneEditorUtils.remove(this);
-		// TODO
-		applicationListener.debugUpdate();
+		// TODO context and applicationListener should be unified
 		applicationListener.debugUpdate();
 		application.exit();
 	}

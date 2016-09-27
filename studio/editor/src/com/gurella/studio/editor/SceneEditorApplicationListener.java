@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.application.GurellaStateProvider;
 import com.gurella.engine.event.Event0;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
@@ -43,9 +44,11 @@ import com.gurella.studio.editor.scene.StudioRenderSystem;
 import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements EditorMessageListener, SceneEditorMouseListener {
+		implements EditorMessageListener, SceneEditorMouseListener, GurellaStateProvider {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
+	
+	private Thread renderThread;
 
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
@@ -78,6 +81,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void create() {
+		renderThread = Thread.currentThread();
+		
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		perspectiveCamera.position.set(0f, 0f, 3f);
 		perspectiveCamera.lookAt(0, 0, 0);
@@ -136,8 +141,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		renderScene();
 	}
 
-	void debugUpdate() {
-		EventService.notify(debugUpdateEvent);
+	static void debugUpdate() {
+		EventService.post(debugUpdateEvent);
 	}
 
 	private void preRender() {
@@ -145,7 +150,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			return;
 		}
 
-		EventService.notify(scene.getInstanceId(), preRenderUpdateEvent);
+		EventService.post(scene.getInstanceId(), preRenderUpdateEvent);
 	}
 
 	public void renderScene() {
@@ -175,6 +180,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 				shapeRenderer.end();
 			}
 		}
+	}
+	
+	@Override
+	public boolean isInRenderThread() {
+		return renderThread == Thread.currentThread();
 	}
 
 	@Override
@@ -304,6 +314,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void dispose() {
+		debugUpdate();
 		SceneEditorUtils.unsubscribe(this);
 		if (this.scene != null) {
 			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
