@@ -139,10 +139,10 @@ public class EventBus2 implements Poolable {
 	}
 
 	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> type, Array<? super L> out) {
-		return getListenersInternal(type, out);
+		return getSubscribersInternal(type, out);
 	}
 
-	private <T> Array<T> getListenersInternal(Class<? extends EventSubscription> eventType, Array<T> out) {
+	private <T> Array<T> getSubscribersInternal(Class<? extends EventSubscription> eventType, Array<T> out) {
 		synchronized (listeners) {
 			OrderedIdentitySet<T> listenersByType = Values.cast(listeners.get(eventType));
 			if (listenersByType != null) {
