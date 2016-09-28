@@ -1,5 +1,7 @@
 # gurella
-Wrapper around libGDX and solid basis for merging its addons and contributions under one umbrella (gdx umbrella -> gurella). It features editor (Eclipse plugin) based around scene graph and entity/component system with support for:
+Wrapper around libGDX and solid basis for merging its addons and contributions under one umbrella (gdx umbrella -> gurella). It features editor (Eclipse plugin) based around scene graph and entity/component system. This project is at a very early stage in development.
+
+##Current features:
  * textures
  * models 
  * lights (directional, point, spot)
