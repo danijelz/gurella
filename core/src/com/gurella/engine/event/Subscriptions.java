@@ -28,13 +28,8 @@ public final class Subscriptions {
 	}
 
 	static ObjectSet<Class<? extends EventSubscription>> getSubscriptions(Class<?> listenerType) {
-		ObjectSet<Class<? extends EventSubscription>> impementedSubscribers = subscriptions.get(listenerType);
-		if (impementedSubscribers != null) {
-			return impementedSubscribers;
-		}
-
 		synchronized (mutex) {
-			impementedSubscribers = subscriptions.get(listenerType);
+			ObjectSet<Class<? extends EventSubscription>> impementedSubscribers = subscriptions.get(listenerType);
 			if (impementedSubscribers != null) {
 				return impementedSubscribers;
 			}
