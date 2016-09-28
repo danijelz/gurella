@@ -7,3 +7,7 @@ Wrapper around libGDX and solid basis for merging its addons and contributions u
  - box2d physics (comming soon)
  - custom components (add custom component by extending SceneNodeComponent class, attach it to scene node and edit its properties in inspector)
  - prefabs (create entity and instantiate it)
+ 
+ Some screenshots:
+ 
+ 
