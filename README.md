@@ -16,15 +16,7 @@ Editor:
 Create new component and edit its properties in inspector:
 ![Create new component and edit its properties in inspector](images/Create new component and edit properties in inspector.png)
 
-Sene graph view:
-![Sene graph view](images/Sene view.png)
-
-Assets view:
-![Assets view](images/Assets view.png)
-
-Inspector view:
-![Inspector view](images/Inspector view.png)
- 
-Material inspector:
-![Material inspector](images/Material inspector.png)
+Sene graph view | Assets view | Inspector view | Material inspector
+--- | --- | --- | ---
+![Sene graph view](images/Sene view.png) | ![Assets view](images/Assets view.png) | ![Inspector view](images/Inspector view.png) | ![Material inspector](images/Material inspector.png)
  
