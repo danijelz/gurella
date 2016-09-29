@@ -91,7 +91,7 @@ public class EventBus implements Poolable {
 		if (listener instanceof GurellaStateProvider) {
 			return ((GurellaStateProvider) listener).isInRenderThread();
 		} else {
-			return true;
+			return false;
 		}
 	}
 
