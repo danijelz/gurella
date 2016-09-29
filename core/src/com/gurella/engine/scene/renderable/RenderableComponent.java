@@ -140,7 +140,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		}
 
 		@Override
-		public void notify(SceneRenderableChangedListener listener) {
+		public void dispatch(SceneRenderableChangedListener listener) {
 			listener.onRenderableChanged(component);
 		}
 	}

@@ -2,6 +2,7 @@ package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.Event0;
 import com.gurella.engine.event.Event1;
 import com.gurella.engine.event.Event2;
@@ -184,31 +185,29 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectActivatedEvent implements Event0<ObjectActivityListener> {
+	private static class ObjectActivatedEvent implements Event<ObjectActivityListener> {
 		@Override
 		public Class<ObjectActivityListener> getSubscriptionType() {
 			return ObjectActivityListener.class;
 		}
 
 		@Override
-		public void notify(ObjectActivityListener listener) {
+		public void dispatch(ObjectActivityListener listener) {
 			listener.activated();
 		}
 	}
 
-	private static class ObjectDeactivatedEvent implements Event0<ObjectActivityListener> {
+	private static class ObjectDeactivatedEvent implements Event<ObjectActivityListener> {
 		@Override
 		public Class<ObjectActivityListener> getSubscriptionType() {
 			return ObjectActivityListener.class;
 		}
 
 		@Override
-		public void notify(ObjectActivityListener listener) {
+		public void dispatch(ObjectActivityListener listener) {
 			listener.deactivated();
 		}
 	}
-
-	///////////////////
 
 	private static class ChildrenAddedEvent
 			implements Event2<ObjectsCompositionListener, ManagedObject, ManagedObject> {
@@ -299,14 +298,14 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectDestoyedEvent implements Event0<ObjectDestroyedListener> {
+	private static class ObjectDestoyedEvent implements Event<ObjectDestroyedListener> {
 		@Override
 		public Class<ObjectDestroyedListener> getSubscriptionType() {
 			return ObjectDestroyedListener.class;
 		}
 
 		@Override
-		public void notify(ObjectDestroyedListener listener) {
+		public void dispatch(ObjectDestroyedListener listener) {
 			listener.objectDestroyed();
 		}
 	}

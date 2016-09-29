@@ -118,10 +118,11 @@ public class EventBus implements Poolable {
 	}
 
 	private <L extends EventSubscription> ArrayExt<L> getListenersByType(final Event<L> event) {
-		Class<L> eventType = event.getSubscriptionType();
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(event.getSubscriptionType());
 		ArrayExt<L> listenersByType = Values.cast(workingListeners);
+		Class<L> subscriptionType = event.getSubscriptionType();
 		synchronized (listeners) {
-			OrderedIdentitySet<L> temp = Values.cast(listeners.get(eventType));
+			OrderedIdentitySet<L> temp = Values.cast(listeners.get(subscriptionType));
 			if (temp != null) {
 				temp.appendTo(listenersByType);
 			}
