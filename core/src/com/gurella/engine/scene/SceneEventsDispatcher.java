@@ -37,6 +37,13 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	private static final PostRenderUpdateEvent postRenderUpdateEvent = new PostRenderUpdateEvent();
 	private static final CleanupUpdateEvent cleanupUpdateEvent = new CleanupUpdateEvent();
 
+	private final ComponentActivatedEvent componentActivatedEvent = new ComponentActivatedEvent();
+	private final ComponentDeactivatedEvent componentDeactivatedEvent = new ComponentDeactivatedEvent();
+	private final NodeComponentActivatedEvent nodeComponentActivatedEvent = new NodeComponentActivatedEvent();
+	private final NodeComponentDeactivatedEvent nodeComponentDeactivatedEvent = new NodeComponentDeactivatedEvent();
+
+	private final NodeRenamedEvent modeRenamedEvent = new NodeRenamedEvent();
+
 	private final Scene scene;
 	private int sceneId;
 
@@ -58,35 +65,23 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	void componentActivated(SceneNodeComponent2 component) {
-		Array<ComponentActivityListener> sceneListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, ComponentActivityListener.class, sceneListeners);
-		for (int i = 0; i < sceneListeners.size; i++) {
-			sceneListeners.get(i).componentActivated(component);
-		}
-		tempListeners.clear();
+		componentActivatedEvent.component = component;
+		EventService.post(sceneId, componentActivatedEvent);
+		componentActivatedEvent.component = null;
 
-		Array<NodeComponentActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(component.getNodeId(), NodeComponentActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).nodeComponentActivated(component);
-		}
-		tempListeners.clear();
+		nodeComponentActivatedEvent.component = component;
+		EventService.post(component.getNodeId(), nodeComponentActivatedEvent);
+		nodeComponentActivatedEvent.component = null;
 	}
 
 	void componentDeactivated(SceneNodeComponent2 component) {
-		Array<ComponentActivityListener> sceneListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, ComponentActivityListener.class, sceneListeners);
-		for (int i = 0; i < sceneListeners.size; i++) {
-			sceneListeners.get(i).componentDeactivated(component);
-		}
-		tempListeners.clear();
+		componentDeactivatedEvent.component = component;
+		EventService.post(sceneId, componentDeactivatedEvent);
+		componentDeactivatedEvent.component = null;
 
-		Array<NodeComponentActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(component.getNodeId(), NodeComponentActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).nodeComponentDeactivated(component);
-		}
-		tempListeners.clear();
+		nodeComponentDeactivatedEvent.component = component;
+		EventService.post(component.getNodeId(), nodeComponentDeactivatedEvent);
+		nodeComponentDeactivatedEvent.component = null;
 	}
 
 	void nodeRenamed(SceneNode2 node, String oldName, String newName) {
@@ -245,6 +240,74 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		@Override
 		public void dispatch(CleanupUpdateListener listener) {
 			listener.onCleanupUpdate();
+		}
+	}
+
+	private static class ComponentActivatedEvent implements Event<ComponentActivityListener> {
+		SceneNodeComponent2 component;
+
+		@Override
+		public Class<ComponentActivityListener> getSubscriptionType() {
+			return ComponentActivityListener.class;
+		}
+
+		@Override
+		public void dispatch(ComponentActivityListener listener) {
+			listener.componentActivated(component);
+		}
+	}
+
+	private static class ComponentDeactivatedEvent implements Event<ComponentActivityListener> {
+		SceneNodeComponent2 component;
+
+		@Override
+		public Class<ComponentActivityListener> getSubscriptionType() {
+			return ComponentActivityListener.class;
+		}
+
+		@Override
+		public void dispatch(ComponentActivityListener listener) {
+			listener.componentDeactivated(component);
+		}
+	}
+
+	private static class NodeComponentActivatedEvent implements Event<NodeComponentActivityListener> {
+		SceneNodeComponent2 component;
+
+		@Override
+		public Class<NodeComponentActivityListener> getSubscriptionType() {
+			return NodeComponentActivityListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeComponentActivityListener listener) {
+			listener.nodeComponentActivated(component);
+		}
+	}
+
+	private static class NodeComponentDeactivatedEvent implements Event<NodeComponentActivityListener> {
+		SceneNodeComponent2 component;
+
+		@Override
+		public Class<NodeComponentActivityListener> getSubscriptionType() {
+			return NodeComponentActivityListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeComponentActivityListener listener) {
+			listener.nodeComponentDeactivated(component);
+		}
+	}
+
+	private static class NodeRenamedEvent implements Event3<NodeRenamedListener, SceneNode2, String, String> {
+		@Override
+		public Class<NodeRenamedListener> getSubscriptionType() {
+			return NodeRenamedListener.class;
+		}
+
+		@Override
+		public void notify(NodeRenamedListener listener, SceneNode2 node, String oldName, String newName) {
+			listener.nodeRenamed(node, oldName, newName);
 		}
 	}
 }
