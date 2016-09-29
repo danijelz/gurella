@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.gurella.engine.application.GurellaStateProvider;
+import com.gurella.engine.pool.ObjectArrayPool;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.OrderedIdentitySet;
@@ -24,6 +25,12 @@ public class EventBus implements Poolable {
 
 	private final ArrayExt<Object> eventQueue = new ArrayExt<Object>(256);
 	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>(256);
+	private ObjectArrayPool<Object> subscribersPool = new ObjectArrayPool<Object>(Object.class) {
+		@Override
+		protected Object[] newObject(int length) {
+			return new Object[length];
+		}
+	};
 
 	private boolean processing;
 
@@ -188,7 +195,7 @@ public class EventBus implements Poolable {
 		eventQueue.clear();
 		workingListeners.clear();
 		processing = false;
-		// TODO listeners.reset(), eventPool.reset(), workingListeners.reset()
+		// TODO listeners.reset(), eventQueue.reset(), workingListeners.reset()
 	}
 
 	private static class SubscriberComparator implements Comparator<Object>, Poolable {
