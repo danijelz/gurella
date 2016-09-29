@@ -74,7 +74,7 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 	}
 
 	public void addAll(ImmutableArray<? extends T> array) {
-		array.appendAll(this);
+		array.appendTo(this);
 	}
 
 	public void addAll(ImmutableArray<? extends T> array, int start, int count) {

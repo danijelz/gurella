@@ -26,7 +26,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.GurellaStateProvider;
-import com.gurella.engine.event.Event0;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
@@ -47,7 +47,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		implements EditorMessageListener, SceneEditorMouseListener, GurellaStateProvider {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
-	
+
 	private Thread renderThread;
 
 	private final InputEventQueue inputQueue = new InputEventQueue();
@@ -82,7 +82,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public void create() {
 		renderThread = Thread.currentThread();
-		
+
 		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		perspectiveCamera.position.set(0f, 0f, 3f);
 		perspectiveCamera.lookAt(0, 0, 0);
@@ -181,7 +181,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean isInRenderThread() {
 		return renderThread == Thread.currentThread();
@@ -322,26 +322,26 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		}
 	}
 
-	private static class DebugUpdateEvent implements Event0<ApplicationDebugUpdateListener> {
+	private static class DebugUpdateEvent implements Event<ApplicationDebugUpdateListener> {
 		@Override
 		public Class<ApplicationDebugUpdateListener> getSubscriptionType() {
 			return ApplicationDebugUpdateListener.class;
 		}
 
 		@Override
-		public void notify(ApplicationDebugUpdateListener listener) {
+		public void dispatch(ApplicationDebugUpdateListener listener) {
 			listener.debugUpdate();
 		}
 	}
 
-	private static class PreRenderUpdateEvent implements Event0<PreRenderUpdateListener> {
+	private static class PreRenderUpdateEvent implements Event<PreRenderUpdateListener> {
 		@Override
 		public Class<PreRenderUpdateListener> getSubscriptionType() {
 			return PreRenderUpdateListener.class;
 		}
 
 		@Override
-		public void notify(PreRenderUpdateListener listener) {
+		public void dispatch(PreRenderUpdateListener listener) {
 			listener.onPreRenderUpdate();
 		}
 	}

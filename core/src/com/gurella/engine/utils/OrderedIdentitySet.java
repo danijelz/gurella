@@ -71,6 +71,10 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 		return items.immutable();
 	}
 
+	public void appendTo(Array<? super T> out) {
+		out.addAll(items);
+	}
+
 	public void sort(Comparator<? super T> comparator) {
 		items.sort(comparator);
 	}

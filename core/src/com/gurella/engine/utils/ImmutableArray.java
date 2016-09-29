@@ -65,7 +65,7 @@ public class ImmutableArray<T> implements Iterable<T> {
 		return array.toArray(type);
 	}
 
-	public void appendAll(Array<? super T> out) {
+	public void appendTo(Array<? super T> out) {
 		out.addAll(array);
 	}
 

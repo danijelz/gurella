@@ -4,11 +4,14 @@ import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 
 import java.util.Comparator;
 
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.async.ThreadUtils;
+import com.gurella.engine.application.GurellaStateProvider;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.OrderedIdentitySet;
@@ -70,139 +73,48 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	public <L extends EventSubscription> void post(Event0<L> event) {
+	public <L extends EventSubscription> void post(Event<L> event) {
+		boolean processPool = false;
+		boolean inRenderThread = isInRenderThread();
+
 		synchronized (eventQueue) {
-			if (processing) {
+			if (processing || !inRenderThread) {
 				eventQueue.add(event);
 				return;
+			} else if (eventQueue.size > 0) {
+				eventQueue.add(event);
+				processPool = true;
 			} else {
 				processing = true;
 			}
 		}
 
-		if (eventQueue.size > 0) {
-			eventQueue.add(event);
-			processPool();
+		if (processPool) {
+			processQueue();
 		} else {
-			notifyListeners(event);
+			dispatch(event);
 		}
 	}
 
-	private <L extends EventSubscription> void notifyListeners(Event0<L> event) {
+	private static boolean isInRenderThread() {
+		ApplicationListener listener = Gdx.app.getApplicationListener();
+		if (listener instanceof GurellaStateProvider) {
+			return ((GurellaStateProvider) listener).isInRenderThread();
+		} else {
+			return true;
+		}
+	}
+
+	private <L extends EventSubscription> void dispatch(Event<L> event) {
 		ArrayExt<L> listenersByType = getListenersByType(event);
 
 		for (int i = 0; i < listenersByType.size; i++) {
 			L listener = listenersByType.get(i);
-			event.notify(listener);
+			event.dispatch(listener);
 		}
 
 		listenersByType.clear();
-		processPool();
-	}
-
-	public <L extends EventSubscription, D> void post(Event1<L, D> event, D data) {
-		synchronized (eventQueue) {
-			if (processing) {
-				eventQueue.add(event);
-				eventQueue.add(data);
-				return;
-			} else {
-				processing = true;
-			}
-		}
-
-		if (eventQueue.size > 0) {
-			eventQueue.add(event);
-			eventQueue.add(data);
-			processPool();
-		} else {
-			notifyListeners(event, data);
-		}
-	}
-
-	private <L extends EventSubscription, D> void notifyListeners(final Event1<L, D> event, D data) {
-		ArrayExt<L> listenersByType = getListenersByType(event);
-
-		for (int i = 0; i < listenersByType.size; i++) {
-			L listener = listenersByType.get(i);
-			event.notify(listener, data);
-		}
-
-		listenersByType.clear();
-		processPool();
-	}
-
-	public <L extends EventSubscription, D1, D2> void post(Event2<L, D1, D2> event, D1 data1, D2 data2) {
-		synchronized (eventQueue) {
-			if (processing) {
-				eventQueue.add(event);
-				eventQueue.add(data1);
-				eventQueue.add(data2);
-				return;
-			} else {
-				processing = true;
-			}
-		}
-
-		if (eventQueue.size > 0) {
-			eventQueue.add(event);
-			eventQueue.add(data1);
-			eventQueue.add(data2);
-			processPool();
-		} else {
-			notifyListeners(event, data1, data2);
-		}
-	}
-
-	private <L extends EventSubscription, D1, D2> void notifyListeners(final Event2<L, D1, D2> event, D1 data1,
-			D2 data2) {
-		ArrayExt<L> listenersByType = getListenersByType(event);
-
-		for (int i = 0; i < listenersByType.size; i++) {
-			L listener = listenersByType.get(i);
-			event.notify(listener, data1, data2);
-		}
-
-		listenersByType.clear();
-		processPool();
-	}
-
-	public <L extends EventSubscription, D1, D2, D3> void post(Event3<L, D1, D2, D3> event, D1 data1, D2 data2,
-			D3 data3) {
-		synchronized (eventQueue) {
-			if (processing) {
-				eventQueue.add(event);
-				eventQueue.add(data1);
-				eventQueue.add(data2);
-				eventQueue.add(data3);
-				return;
-			} else {
-				processing = true;
-			}
-		}
-
-		if (eventQueue.size > 0) {
-			eventQueue.add(event);
-			eventQueue.add(data1);
-			eventQueue.add(data2);
-			eventQueue.add(data3);
-			processPool();
-		} else {
-			notifyListeners(event, data1, data2, data3);
-		}
-	}
-
-	private <L extends EventSubscription, D1, D2, D3> void notifyListeners(final Event3<L, D1, D2, D3> event, D1 data1,
-			D2 data2, D3 data3) {
-		ArrayExt<L> listenersByType = getListenersByType(event);
-
-		for (int i = 0; i < listenersByType.size; i++) {
-			L listener = listenersByType.get(i);
-			event.notify(listener, data1, data2, data3);
-		}
-
-		listenersByType.clear();
-		processPool();
+		processQueue();
 	}
 
 	private <L extends EventSubscription> ArrayExt<L> getListenersByType(final Event<L> event) {
@@ -211,91 +123,35 @@ public class EventBus implements Poolable {
 		synchronized (listeners) {
 			OrderedIdentitySet<L> temp = Values.cast(listeners.get(eventType));
 			if (temp != null) {
-				temp.orderedItems().appendAll(listenersByType);
+				temp.appendTo(listenersByType);
 			}
 		}
 		return listenersByType;
 	}
 
-	private void processPool() {
-		Event0<EventSubscription> event0 = null;
-		Event1<EventSubscription, Object> event1 = null;
-		Event2<EventSubscription, Object, Object> event2 = null;
-		Event3<EventSubscription, Object, Object, Object> event3 = null;
-
-		Object data1 = null;
-		Object data2 = null;
-		Object data3 = null;
-
-		int eventType;
+	private void processQueue() {
+		Event<EventSubscription> event;
 
 		synchronized (eventQueue) {
 			if (eventQueue.size > 0) {
 				@SuppressWarnings("unchecked")
-				Event<EventSubscription> event = (Event<EventSubscription>) eventQueue.get(0);
-
-				if (event instanceof Event0) {
-					event0 = (Event0<EventSubscription>) event;
-					eventQueue.removeIndex(0);
-					eventType = 0;
-				} else if (event instanceof Event1) {
-					@SuppressWarnings("unchecked")
-					Event1<EventSubscription, Object> casted = (Event1<EventSubscription, Object>) event;
-					event1 = casted;
-					data1 = eventQueue.get(1);
-					eventQueue.removeRange(0, 1);
-					eventType = 1;
-				} else if (event instanceof Event2) {
-					@SuppressWarnings("unchecked")
-					Event2<EventSubscription, Object, Object> casted = (Event2<EventSubscription, Object, Object>) event;
-					event2 = casted;
-					data1 = eventQueue.get(1);
-					data2 = eventQueue.get(2);
-					eventQueue.removeRange(0, 2);
-					eventType = 2;
-				} else /* if(event instanceof Event3) */ {
-					@SuppressWarnings("unchecked")
-					Event3<EventSubscription, Object, Object, Object> casted = (Event3<EventSubscription, Object, Object, Object>) event;
-					event3 = casted;
-					data1 = eventQueue.get(1);
-					data2 = eventQueue.get(2);
-					data3 = eventQueue.get(3);
-					eventQueue.removeRange(0, 3);
-					eventType = 3;
-				}
+				Event<EventSubscription> casted = (Event<EventSubscription>) eventQueue.removeIndex(0);
+				event = casted;
 			} else {
 				processing = false;
 				return;
 			}
 		}
 
-		switch (eventType) {
-		case 0:
-			notifyListeners(event0);
-			break;
-		case 1:
-			notifyListeners(event1, data1);
-			break;
-		case 2:
-			notifyListeners(event2, data1, data2);
-			break;
-		case 3:
-			notifyListeners(event3, data1, data2, data3);
-			break;
-		default:
-			break;
-		}
+		dispatch(event);
 	}
 
-	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> type, Array<? super L> out) {
-		return getListenersInternal(type, out);
-	}
-
-	private <T> Array<T> getListenersInternal(Class<? extends EventSubscription> subscriptionType, Array<T> out) {
+	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
+			Array<? super L> out) {
 		synchronized (listeners) {
-			OrderedIdentitySet<T> listenersByType = Values.cast(listeners.get(subscriptionType));
+			OrderedIdentitySet<L> listenersByType = Values.cast(listeners.get(subscriptionType));
 			if (listenersByType != null) {
-				listenersByType.orderedItems().appendAll(out);
+				listenersByType.orderedItems().appendTo(out);
 			}
 			return out;
 		}

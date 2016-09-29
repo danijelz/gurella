@@ -103,7 +103,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		ImmutableArray<T> value = getValue(object);
 		if (template == null) {
 			if (value.size() != 0) {
-				value.appendAll(sceneElements.elements);
+				value.appendTo(sceneElements.elements);
 				output.writeObjectProperty(name, SceneElements.class, null, sceneElements, true);
 			}
 			return;

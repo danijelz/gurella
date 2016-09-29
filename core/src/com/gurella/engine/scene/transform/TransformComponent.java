@@ -10,7 +10,7 @@ import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ManagedObject;
-import com.gurella.engine.event.Event1;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -76,7 +76,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 			transformDirty = true;
 			transformInvDirty = true;
 			worldTransformInvDirty = true;
-			EventService.post(nodeId, event, null);
+			EventService.post(nodeId, event);
 		}
 	}
 
@@ -553,7 +553,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.post(nodeId, event, null);
+		EventService.post(nodeId, event);
 	}
 
 	public void rotateAroundWorld(Vector3 point, Vector3 axis, float degrees) {
@@ -580,7 +580,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.post(nodeId, event, null);
+		EventService.post(nodeId, event);
 	}
 
 	public TransformComponent eulerRotate(Vector3 additionalEulerRotation) {
@@ -672,7 +672,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.post(nodeId, event, null);
+		EventService.post(nodeId, event);
 	}
 
 	public void setWorldTransform(Matrix4 newWorldTransform) {
@@ -690,7 +690,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.post(nodeId, event, null);
+		EventService.post(nodeId, event);
 	}
 
 	public Matrix4 getTransform(Matrix4 outTransform) {
@@ -876,7 +876,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.post(nodeId, event, null);
+		EventService.post(nodeId, event);
 	}
 
 	public void lookAtWorld(Vector3 target) {
@@ -903,7 +903,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transformDirty = false;
 		transformInvDirty = true;
 		worldTransformInvDirty = true;
-		EventService.post(nodeId, event, null);
+		EventService.post(nodeId, event);
 	}
 
 	@Override
@@ -993,14 +993,14 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		}
 	}
 
-	private static class TransformChangedEvent implements Event1<NodeTransformChangedListener, Void> {
+	private static class TransformChangedEvent implements Event<NodeTransformChangedListener> {
 		@Override
 		public Class<NodeTransformChangedListener> getSubscriptionType() {
 			return NodeTransformChangedListener.class;
 		}
 
 		@Override
-		public void notify(NodeTransformChangedListener listener, Void data) {
+		public void dispatch(NodeTransformChangedListener listener) {
 			listener.onNodeTransformChanged();
 		}
 	}

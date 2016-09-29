@@ -20,10 +20,10 @@ public class SceneCameraInputController extends CameraInputController {
 
 			switch (button) {
 			case Buttons.RIGHT:
-				SceneEditorUtils.notify(SceneEditorMouseListener.class, (l, d) -> l.onMouseMenu(x, y));
+				SceneEditorUtils.notify(SceneEditorMouseListener.class, l -> l.onMouseMenu(x, y));
 				return false;
 			case Buttons.LEFT:
-				SceneEditorUtils.notify(SceneEditorMouseListener.class, (l, d) -> l.onMouseSelection(x, y));
+				SceneEditorUtils.notify(SceneEditorMouseListener.class, l -> l.onMouseSelection(x, y));
 				return false;
 			default:
 				return false;

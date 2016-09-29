@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.event.Event1;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -64,7 +64,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	public void setDirty() {
 		if (!dirty) {
 			dirty = true;
-			EventService.post(sceneId, event, this);
+			EventService.post(sceneId, event);
 		}
 	}
 
@@ -133,14 +133,14 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 		dirty = true;
 	}
 
-	private static class RenderableChangedEvent implements Event1<SceneRenderableChangedListener, RenderableComponent> {
+	private static class RenderableChangedEvent implements Event<SceneRenderableChangedListener> {
 		@Override
 		public Class<SceneRenderableChangedListener> getSubscriptionType() {
 			return SceneRenderableChangedListener.class;
 		}
 
 		@Override
-		public void notify(SceneRenderableChangedListener listener, RenderableComponent component) {
+		public void notify(SceneRenderableChangedListener listener) {
 			listener.onRenderableChanged(component);
 		}
 	}

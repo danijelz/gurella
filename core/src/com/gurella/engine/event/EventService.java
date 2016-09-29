@@ -8,23 +8,6 @@ public class EventService {
 	private static final EventBus globalEventBus = new EventBus();
 	private static final IntMap<EventBus> channelEventBuses = new IntMap<EventBus>();
 
-	public static <L extends EventSubscription> void post(Event0<L> event) {
-		globalEventBus.post(event);
-	}
-
-	public static <L extends EventSubscription, D> void post(Event1<L, D> event, D data) {
-		globalEventBus.post(event, data);
-	}
-
-	public static <L extends EventSubscription, D1, D2> void post(Event2<L, D1, D2> event, D1 data1, D2 data2) {
-		globalEventBus.post(event, data1, data2);
-	}
-
-	public static <L extends EventSubscription, D1, D2, D3> void post(Event3<L, D1, D2, D3> event, D1 data1, D2 data2,
-			D3 data3) {
-		globalEventBus.post(event, data1, data2, data3);
-	}
-
 	public static void subscribe(Object subscriber) {
 		globalEventBus.subscribe(subscriber);
 	}
@@ -33,27 +16,27 @@ public class EventService {
 		globalEventBus.unsubscribe(subscriber);
 	}
 
+	public static <L extends EventSubscription> void post(Event<L> event) {
+		globalEventBus.post(event);
+	}
+
 	public static <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
 			Array<? super L> out) {
 		return globalEventBus.getSubscribers(subscriptionType, out);
-	}
-
-	private static EventBus getEventBusByChannel(int channel) {
-		synchronized (channelEventBuses) {
-			EventBus eventBus = channelEventBuses.get(channel);
-			if (eventBus == null) {
-				eventBus = PoolService.obtain(EventBus.class);
-				channelEventBuses.put(channel, eventBus);
-			}
-			return eventBus;
-		}
 	}
 
 	public static void subscribe(int channel, Object subscriber) {
 		if (Subscriptions.getSubscriptions(subscriber.getClass()).size == 0) {
 			return;
 		}
-		getEventBusByChannel(channel).subscribe(subscriber);
+		synchronized (channelEventBuses) {
+			EventBus eventBus = channelEventBuses.get(channel);
+			if (eventBus == null) {
+				eventBus = PoolService.obtain(EventBus.class);
+				channelEventBuses.put(channel, eventBus);
+			}
+			eventBus.subscribe(subscriber);
+		}
 	}
 
 	public static void unsubscribe(int channel, Object subscriber) {
@@ -71,7 +54,7 @@ public class EventService {
 		}
 	}
 
-	public static <L extends EventSubscription> void post(int channel, Event0<L> event) {
+	public static <L extends EventSubscription> void post(int channel, Event<L> event) {
 		EventBus eventBus;
 		synchronized (channelEventBuses) {
 			eventBus = channelEventBuses.get(channel);
@@ -79,41 +62,6 @@ public class EventService {
 
 		if (eventBus != null) {
 			eventBus.post(event);
-		}
-	}
-
-	public static <L extends EventSubscription, D> void post(int channel, Event1<L, D> event, D data) {
-		EventBus eventBus;
-		synchronized (channelEventBuses) {
-			eventBus = channelEventBuses.get(channel);
-		}
-
-		if (eventBus != null) {
-			eventBus.post(event, data);
-		}
-	}
-
-	public static <L extends EventSubscription, D1, D2> void post(int channel, Event2<L, D1, D2> event, D1 data1,
-			D2 data2) {
-		EventBus eventBus;
-		synchronized (channelEventBuses) {
-			eventBus = channelEventBuses.get(channel);
-		}
-
-		if (eventBus != null) {
-			eventBus.post(event, data1, data2);
-		}
-	}
-
-	public static <L extends EventSubscription, D1, D2, D3> void post(int channel, Event3<L, D1, D2, D3> event,
-			D1 data1, D2 data2, D3 data3) {
-		EventBus eventBus;
-		synchronized (channelEventBuses) {
-			eventBus = channelEventBuses.get(channel);
-		}
-
-		if (eventBus != null) {
-			eventBus.post(event, data1, data2, data3);
 		}
 	}
 

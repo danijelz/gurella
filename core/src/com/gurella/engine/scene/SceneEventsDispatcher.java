@@ -1,7 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.event.Event0;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.Event1;
 import com.gurella.engine.event.Event3;
 import com.gurella.engine.event.EventService;
@@ -94,26 +94,26 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		sceneId = scene.getInstanceId();
 	}
 
-	private static class SceneStartedEvent implements Event0<SceneActivityListener> {
+	private static class SceneStartedEvent implements Event<SceneActivityListener> {
 		@Override
 		public Class<SceneActivityListener> getSubscriptionType() {
 			return SceneActivityListener.class;
 		}
 
 		@Override
-		public void notify(SceneActivityListener listener) {
+		public void dispatch(SceneActivityListener listener) {
 			listener.sceneStarted();
 		}
 	}
 
-	private static class SceneStoppedEvent implements Event0<SceneActivityListener> {
+	private static class SceneStoppedEvent implements Event<SceneActivityListener> {
 		@Override
 		public Class<SceneActivityListener> getSubscriptionType() {
 			return SceneActivityListener.class;
 		}
 
 		@Override
-		public void notify(SceneActivityListener listener) {
+		public void dispatch(SceneActivityListener listener) {
 			listener.sceneStopped();
 		}
 	}
@@ -180,110 +180,110 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		}
 	}
 
-	private static class IoUpdateEvent implements Event0<IoUpdateListener> {
+	private static class IoUpdateEvent implements Event<IoUpdateListener> {
 		@Override
 		public Class<IoUpdateListener> getSubscriptionType() {
 			return IoUpdateListener.class;
 		}
 
 		@Override
-		public void notify(IoUpdateListener listener) {
+		public void dispatch(IoUpdateListener listener) {
 			listener.onIoUpdate();
 		}
 	}
 
-	private static class InputUpdateEvent implements Event0<InputUpdateListener> {
+	private static class InputUpdateEvent implements Event<InputUpdateListener> {
 		@Override
 		public Class<InputUpdateListener> getSubscriptionType() {
 			return InputUpdateListener.class;
 		}
 
 		@Override
-		public void notify(InputUpdateListener listener) {
+		public void dispatch(InputUpdateListener listener) {
 			listener.onInputUpdate();
 		}
 	}
 
-	private static class LogicUpdateEvent implements Event0<LogicUpdateListener> {
+	private static class LogicUpdateEvent implements Event<LogicUpdateListener> {
 		@Override
 		public Class<LogicUpdateListener> getSubscriptionType() {
 			return LogicUpdateListener.class;
 		}
 
 		@Override
-		public void notify(LogicUpdateListener listener) {
+		public void dispatch(LogicUpdateListener listener) {
 			listener.onLogicUpdate();
 		}
 	}
 
-	private static class PhysicsUpdateEvent implements Event0<PhysicsUpdateListener> {
+	private static class PhysicsUpdateEvent implements Event<PhysicsUpdateListener> {
 		@Override
 		public Class<PhysicsUpdateListener> getSubscriptionType() {
 			return PhysicsUpdateListener.class;
 		}
 
 		@Override
-		public void notify(PhysicsUpdateListener listener) {
+		public void dispatch(PhysicsUpdateListener listener) {
 			listener.onPhysicsUpdate();
 		}
 	}
 
-	private static class UpdateEvent implements Event0<UpdateListener> {
+	private static class UpdateEvent implements Event<UpdateListener> {
 		@Override
 		public Class<UpdateListener> getSubscriptionType() {
 			return UpdateListener.class;
 		}
 
 		@Override
-		public void notify(UpdateListener listener) {
+		public void dispatch(UpdateListener listener) {
 			listener.onUpdate();
 		}
 	}
 
-	private static class PreRenderUpdateEvent implements Event0<PreRenderUpdateListener> {
+	private static class PreRenderUpdateEvent implements Event<PreRenderUpdateListener> {
 		@Override
 		public Class<PreRenderUpdateListener> getSubscriptionType() {
 			return PreRenderUpdateListener.class;
 		}
 
 		@Override
-		public void notify(PreRenderUpdateListener listener) {
+		public void dispatch(PreRenderUpdateListener listener) {
 			listener.onPreRenderUpdate();
 		}
 	}
 
-	private static class RenderUpdateEvent implements Event0<RenderUpdateListener> {
+	private static class RenderUpdateEvent implements Event<RenderUpdateListener> {
 		@Override
 		public Class<RenderUpdateListener> getSubscriptionType() {
 			return RenderUpdateListener.class;
 		}
 
 		@Override
-		public void notify(RenderUpdateListener listener) {
+		public void dispatch(RenderUpdateListener listener) {
 			listener.onRenderUpdate();
 		}
 	}
 
-	private static class PostRenderUpdateEvent implements Event0<PostRenderUpdateListener> {
+	private static class PostRenderUpdateEvent implements Event<PostRenderUpdateListener> {
 		@Override
 		public Class<PostRenderUpdateListener> getSubscriptionType() {
 			return PostRenderUpdateListener.class;
 		}
 
 		@Override
-		public void notify(PostRenderUpdateListener listener) {
+		public void dispatch(PostRenderUpdateListener listener) {
 			listener.onPostRenderUpdate();
 		}
 	}
 
-	private static class CleanupUpdateEvent implements Event0<CleanupUpdateListener> {
+	private static class CleanupUpdateEvent implements Event<CleanupUpdateListener> {
 		@Override
 		public Class<CleanupUpdateListener> getSubscriptionType() {
 			return CleanupUpdateListener.class;
 		}
 
 		@Override
-		public void notify(CleanupUpdateListener listener) {
+		public void dispatch(CleanupUpdateListener listener) {
 			listener.onCleanupUpdate();
 		}
 	}

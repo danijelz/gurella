@@ -1,6 +1,6 @@
 package com.gurella.studio.editor;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -9,7 +9,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectIntMap;
-import com.gurella.engine.event.Event1;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
@@ -80,12 +80,12 @@ public class SceneEditorUtils {
 		EventService.unsubscribe(getCurrentApplicationId(), subscriber);
 	}
 
-	public static <L extends EventSubscription> void notify(Event1<L, ?> event) {
-		EventService.post(getCurrentApplicationId(), event, null);
+	public static <L extends EventSubscription> void notify(Event<L> event) {
+		EventService.post(getCurrentApplicationId(), event);
 	}
 
-	public static <L extends EventSubscription> void notify(Class<L> subscriptionType, BiConsumer<L, Void> handler) {
-		EventService.post(getCurrentApplicationId(), new GenericEvent<L, Void>(subscriptionType, handler), null);
+	public static <L extends EventSubscription> void notify(Class<L> subscriptionType, Consumer<L> dispatcher) {
+		EventService.post(getCurrentApplicationId(), new GenericEvent<L>(subscriptionType, dispatcher));
 	}
 
 	public static void subscribe(Control subscriber) {
@@ -96,27 +96,27 @@ public class SceneEditorUtils {
 		EventService.unsubscribe(getApplicationId(subscriber), subscriber);
 	}
 
-	public static <L extends EventSubscription> void notify(Control source, Event1<L, ?> event) {
-		EventService.post(getApplicationId(source), event, null);
+	public static <L extends EventSubscription> void notify(Control source, Event<L> event) {
+		EventService.post(getApplicationId(source), event);
 	}
 
-	public static <L extends EventSubscription, D> void notify(Control source, Class<L> subscriptionType,
-			BiConsumer<L, D> handler, D data) {
-		EventService.post(getApplicationId(source), new GenericEvent<L, D>(subscriptionType, handler), data);
+	public static <L extends EventSubscription> void notify(Control source, Class<L> subscriptionType,
+			Consumer<L> dispatcher) {
+		EventService.post(getApplicationId(source), new GenericEvent<L>(subscriptionType, dispatcher));
 	}
 
-	private static class GenericEvent<L extends EventSubscription, D> implements Event1<L, D> {
+	private static class GenericEvent<L extends EventSubscription> implements Event<L> {
 		private Class<L> subscriptionType;
-		private BiConsumer<L, D> eventHandler;
+		private Consumer<L> dispatcher;
 
-		public GenericEvent(Class<L> subscriptionType, BiConsumer<L, D> eventHandler) {
+		public GenericEvent(Class<L> subscriptionType, Consumer<L> dispatcher) {
 			this.subscriptionType = subscriptionType;
-			this.eventHandler = eventHandler;
+			this.dispatcher = dispatcher;
 		}
 
 		@Override
-		public void notify(L listener, D data) {
-			eventHandler.accept(listener, data);
+		public void dispatch(L listener) {
+			dispatcher.accept(listener);
 		}
 
 		@Override
