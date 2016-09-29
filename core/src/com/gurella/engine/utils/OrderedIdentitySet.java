@@ -138,6 +138,11 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 		return iterator2;
 	}
 
+	public void toArray(T[] arr) {
+		T[] temp = items.items;
+		System.arraycopy(temp, 0, arr, 0, temp.length);
+	}
+
 	@Override
 	public void reset() {
 		super.reset();

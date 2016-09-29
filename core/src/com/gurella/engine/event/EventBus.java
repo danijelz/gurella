@@ -23,14 +23,10 @@ public class EventBus implements Poolable {
 
 	private final ObjectMap<Class<? extends EventSubscription>, OrderedIdentitySet<?>> listeners = new ObjectMap<Class<? extends EventSubscription>, OrderedIdentitySet<?>>();
 
-	private final ArrayExt<Object> eventQueue = new ArrayExt<Object>(256);
-	private final ArrayExt<Object> workingListeners = new ArrayExt<Object>(256);
-	private ObjectArrayPool<Object> subscribersPool = new ObjectArrayPool<Object>(Object.class) {
-		@Override
-		protected Object[] newObject(int length) {
-			return new Object[length];
-		}
-	};
+	private ArrayExt<Event<?>> eventQueue = new ArrayExt<Event<?>>(256);
+	private ArrayExt<Event<?>> workingEvents = new ArrayExt<Event<?>>(256);
+
+	private ObjectArrayPool<Object> subscribersPool = new SubscribersPool(Object.class);
 
 	private boolean processing;
 
@@ -81,29 +77,16 @@ public class EventBus implements Poolable {
 	}
 
 	public <L extends EventSubscription> void post(Event<L> event) {
-		boolean processPool = false;
-		boolean inRenderThread = isInRenderThread();
-
-		synchronized (eventQueue) {
-			if (processing || !inRenderThread) {
-				eventQueue.add(event);
-				return;
-			} else if (eventQueue.size > 0) {
-				eventQueue.add(event);
-				processPool = true;
-			} else {
-				processing = true;
-			}
-		}
-
-		if (processPool) {
-			processQueue();
-		} else {
+		if (inRenderThread()) {
 			dispatch(event);
+		} else {
+			synchronized (eventQueue) {
+				eventQueue.add(event);
+			}
 		}
 	}
 
-	private static boolean isInRenderThread() {
+	private static boolean inRenderThread() {
 		ApplicationListener listener = Gdx.app.getApplicationListener();
 		if (listener instanceof GurellaStateProvider) {
 			return ((GurellaStateProvider) listener).isInRenderThread();
@@ -112,29 +95,50 @@ public class EventBus implements Poolable {
 		}
 	}
 
-	private <L extends EventSubscription> void dispatch(Event<L> event) {
-		ArrayExt<L> listenersByType = getListenersByType(event);
+	public void drain() {
+		if (!inRenderThread()) {
+			return;
+		}
 
-		for (int i = 0; i < listenersByType.size; i++) {
-			L listener = listenersByType.get(i);
+		synchronized (eventQueue) {
+			ArrayExt<Event<?>> workingEventQueue = eventQueue;
+			eventQueue = workingEvents;
+			workingEvents = workingEventQueue;
+		}
+
+		for (int i = 0; i < workingEvents.size; i++) {
+			dispatch(workingEvents.get(i));
+		}
+
+		workingEvents.clear();
+	}
+
+	private <L extends EventSubscription> void dispatch(Event<L> event) {
+		Class<L> subscriptionType = event.getSubscriptionType();
+		Object[] listenersByType;
+		int listenersSize;
+
+		synchronized (listeners) {
+			@SuppressWarnings("unchecked")
+			OrderedIdentitySet<Object> temp = (OrderedIdentitySet<Object>) listeners.get(subscriptionType);
+			if (temp == null || temp.size == 0) {
+				return;
+			}
+
+			listenersSize = temp.size;
+			listenersByType = subscribersPool.obtain(listenersSize, Integer.MAX_VALUE);
+			temp.toArray(listenersByType);
+			System.arraycopy(temp, 0, listenersByType, 0, listenersSize);
+		}
+
+		for (int i = 0; i < listenersSize; i++) {
+			@SuppressWarnings("unchecked")
+			L listener = (L) listenersByType[i];
 			event.dispatch(listener);
 		}
 
-		listenersByType.clear();
+		subscribersPool.free(listenersByType);
 		processQueue();
-	}
-
-	private <L extends EventSubscription> ArrayExt<L> getListenersByType(final Event<L> event) {
-		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(event.getSubscriptionType());
-		ArrayExt<L> listenersByType = Values.cast(workingListeners);
-		Class<L> subscriptionType = event.getSubscriptionType();
-		synchronized (listeners) {
-			OrderedIdentitySet<L> temp = Values.cast(listeners.get(subscriptionType));
-			if (temp != null) {
-				temp.appendTo(listenersByType);
-			}
-		}
-		return listenersByType;
 	}
 
 	private void processQueue() {
@@ -193,7 +197,7 @@ public class EventBus implements Poolable {
 		size = 0;
 		listeners.clear();
 		eventQueue.clear();
-		workingListeners.clear();
+		workingEvents.clear();
 		processing = false;
 		// TODO listeners.reset(), eventQueue.reset(), workingListeners.reset()
 	}
@@ -210,6 +214,17 @@ public class EventBus implements Poolable {
 		@Override
 		public void reset() {
 			subscription = null;
+		}
+	}
+
+	private static final class SubscribersPool extends ObjectArrayPool<Object> {
+		private SubscribersPool(Class<Object> componentType) {
+			super(componentType);
+		}
+
+		@Override
+		protected Object[] newObject(int length) {
+			return new Object[length];
 		}
 	}
 }

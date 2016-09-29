@@ -18,8 +18,8 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 //TODO EntitySubscription -> TagSubscription
 public class TagManager extends SceneService2 implements ComponentActivityListener {
 	private static final ComponentFamily tagComponentFamily = ComponentFamily.fromComponentType(TagComponent.class);
-	private static final TagAddedEvent tagAddedEvent = new TagAddedEvent();
-	private static final TagRemovedEvent tagRemovedEvent = new TagRemovedEvent();
+	//	private static final TagAddedEvent tagAddedEvent = new TagAddedEvent();
+	//	private static final TagRemovedEvent tagRemovedEvent = new TagRemovedEvent();
 
 	private final IntMap<OrderedIdentitySet<SceneNode2>> nodesByTag = new IntMap<OrderedIdentitySet<SceneNode2>>();
 	private final IntMap<FamilyNodes> families = new IntMap<FamilyNodes>();
@@ -123,13 +123,21 @@ public class TagManager extends SceneService2 implements ComponentActivityListen
 	void tagAdded(TagComponent component, Tag tag) {
 		int tagId = tag.id;
 		getNodesByTag(tagId).add(component.getNode());
-		EventService.post(scene.getInstanceId(), tagAddedEvent, component, tag);
+		TagAddedEvent tagAddedEvent = PoolService.obtain(TagAddedEvent.class);
+		tagAddedEvent.component = component;
+		tagAddedEvent.tag = tag;
+		EventService.post(scene.getInstanceId(), tagAddedEvent);
+		PoolService.free(tagAddedEvent);
 	}
 
 	void tagRemoved(TagComponent component, Tag tag) {
 		int tagId = tag.id;
 		nodesByTag.get(tagId).remove(component.getNode());
-		EventService.post(scene.getInstanceId(), tagRemovedEvent, component, tag);
+		TagRemovedEvent tagRemovedEvent = PoolService.obtain(TagRemovedEvent.class);
+		tagRemovedEvent.component = component;
+		tagRemovedEvent.tag = tag;
+		EventService.post(scene.getInstanceId(), tagRemovedEvent);
+		PoolService.free(tagRemovedEvent);
 	}
 
 	public ImmutableArray<SceneNode2> getNodes(Tag tag) {

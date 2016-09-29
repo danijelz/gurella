@@ -1,16 +1,26 @@
 package com.gurella.engine.scene.tag;
 
-import com.gurella.engine.event.Event2;
+import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.subscriptions.scene.tag.TagActivityListener;
 
-class TagRemovedEvent implements Event2<TagActivityListener, TagComponent, Tag> {
+class TagRemovedEvent implements Event<TagActivityListener>, Poolable {
+	TagComponent component;
+	Tag tag;
+
 	@Override
 	public Class<TagActivityListener> getSubscriptionType() {
 		return TagActivityListener.class;
 	}
 
 	@Override
-	public void notify(TagActivityListener listener, TagComponent component, Tag tag) {
+	public void dispatch(TagActivityListener listener) {
 		listener.tagRemoved(component, tag);
+	}
+
+	@Override
+	public void reset() {
+		component = null;
+		tag = null;
 	}
 }
