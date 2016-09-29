@@ -18,10 +18,8 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElement
-public abstract class RenderableComponent extends SceneNodeComponent2
-		implements NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
-	private static final RenderableChangedEvent event = new RenderableChangedEvent();
-
+public abstract class RenderableComponent extends SceneNodeComponent2 implements NodeComponentActivityListener,
+		NodeTransformChangedListener, Event<SceneRenderableChangedListener>, Poolable {
 	private transient int sceneId;
 
 	transient boolean visible;
@@ -64,7 +62,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	void setDirty() {
 		if (!dirty) {
 			dirty = true;
-			EventService.post(sceneId, event);
+			EventService.post(sceneId, this);
 		}
 	}
 
@@ -126,22 +124,20 @@ public abstract class RenderableComponent extends SceneNodeComponent2
 	}
 
 	@Override
+	public Class<SceneRenderableChangedListener> getSubscriptionType() {
+		return SceneRenderableChangedListener.class;
+	}
+
+	@Override
+	public void dispatch(SceneRenderableChangedListener listener) {
+		listener.onRenderableChanged(this);
+	}
+
+	@Override
 	public void reset() {
 		sceneId = -1;
 		layer = Layer.DEFAULT;
 		transformComponent = null;
 		dirty = true;
-	}
-
-	private static class RenderableChangedEvent implements Event<SceneRenderableChangedListener> {
-		@Override
-		public Class<SceneRenderableChangedListener> getSubscriptionType() {
-			return SceneRenderableChangedListener.class;
-		}
-
-		@Override
-		public void dispatch(SceneRenderableChangedListener listener) {
-			listener.onRenderableChanged(component);
-		}
 	}
 }
