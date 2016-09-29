@@ -1,10 +1,10 @@
 package com.gurella.engine.scene;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriority;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
@@ -20,7 +20,6 @@ import com.gurella.engine.subscriptions.scene.update.PostRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.UpdateListener;
-import com.gurella.engine.utils.Values;
 
 @TypePriority(priority = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
 class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
@@ -42,12 +41,8 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	private final NodeComponentActivatedEvent nodeComponentActivatedEvent = new NodeComponentActivatedEvent();
 	private final NodeComponentDeactivatedEvent nodeComponentDeactivatedEvent = new NodeComponentDeactivatedEvent();
 
-	private final NodeRenamedEvent modeRenamedEvent = new NodeRenamedEvent();
-
 	private final Scene scene;
 	private int sceneId;
-
-	private final Array<Object> tempListeners = new Array<Object>(128);
 
 	SceneEventsDispatcher(Scene scene) {
 		this.scene = scene;
@@ -85,12 +80,12 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 	}
 
 	void nodeRenamed(SceneNode2 node, String oldName, String newName) {
-		Array<NodeRenamedListener> sceneListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(sceneId, NodeRenamedListener.class, sceneListeners);
-		for (int i = 0; i < sceneListeners.size; i++) {
-			sceneListeners.get(i).nodeRenamed(node, oldName, newName);
-		}
-		tempListeners.clear();
+		NodeRenamedEvent nodeRenamedEvent = PoolService.obtain(NodeRenamedEvent.class);
+		nodeRenamedEvent.node = node;
+		nodeRenamedEvent.oldName = oldName;
+		nodeRenamedEvent.newName = newName;
+		EventService.post(sceneId, nodeRenamedEvent);
+		PoolService.free(nodeRenamedEvent);
 	}
 
 	@Override
@@ -299,15 +294,26 @@ class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {
 		}
 	}
 
-	private static class NodeRenamedEvent implements Event3<NodeRenamedListener, SceneNode2, String, String> {
+	private static class NodeRenamedEvent implements Event<NodeRenamedListener>, Poolable {
+		SceneNode2 node;
+		String oldName;
+		String newName;
+
 		@Override
 		public Class<NodeRenamedListener> getSubscriptionType() {
 			return NodeRenamedListener.class;
 		}
 
 		@Override
-		public void notify(NodeRenamedListener listener, SceneNode2 node, String oldName, String newName) {
+		public void dispatch(NodeRenamedListener listener) {
 			listener.nodeRenamed(node, oldName, newName);
+		}
+
+		@Override
+		public void reset() {
+			node = null;
+			oldName = null;
+			newName = null;
 		}
 	}
 }

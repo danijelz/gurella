@@ -91,17 +91,26 @@ final class ManagedObjects {
 
 	// TODO are this notifications needed?
 	static void activated(ManagedObject object) {
-		EventService.post(objectsActivatedEvent, object);
+		objectsActivatedEvent.object = object;
+		EventService.post(objectsActivatedEvent);
+		objectsActivatedEvent.object = null;
+
 		EventService.post(object.instanceId, objectActivatedEvent);
 	}
 
 	static void deactivated(ManagedObject object) {
-		EventService.post(objectsDeactivatedEvent, object);
+		objectsDeactivatedEvent.object = object;
+		EventService.post(objectsDeactivatedEvent);
+		objectsDeactivatedEvent.object = null;
+
 		EventService.post(object.instanceId, objectDeactivatedEvent);
 	}
 
 	static void destroyed(ManagedObject object) {
-		EventService.post(objectsDestoyedEvent, object);
+		objectsDestoyedEvent.object = object;
+		EventService.post(objectsDestoyedEvent);
+		objectsDestoyedEvent.object = null;
+
 		EventService.post(object.instanceId, objectDestoyedEvent);
 	}
 
@@ -110,7 +119,12 @@ final class ManagedObjects {
 			return;
 		}
 
-		EventService.post(childrenAddedEvent, parent, child);
+		childrenAddedEvent.parent = parent;
+		childrenAddedEvent.child = child;
+		EventService.post(childrenAddedEvent);
+		childrenAddedEvent.parent = null;
+		childrenAddedEvent.child = null;
+
 		EventService.post(parent.instanceId, childAddedEvent, child);
 	}
 
@@ -161,27 +175,31 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ObjectsActivatedEvent implements Event1<ObjectsActivityListener, ManagedObject> {
+	private static class ObjectsActivatedEvent implements Event<ObjectsActivityListener> {
+		ManagedObject object;
+
 		@Override
 		public Class<ObjectsActivityListener> getSubscriptionType() {
 			return ObjectsActivityListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsActivityListener listener, ManagedObject data) {
-			listener.objectActivated(data);
+		public void dispatch(ObjectsActivityListener listener) {
+			listener.objectActivated(object);
 		}
 	}
 
-	private static class ObjectsDeactivatedEvent implements Event1<ObjectsActivityListener, ManagedObject> {
+	private static class ObjectsDeactivatedEvent implements Event<ObjectsActivityListener> {
+		ManagedObject object;
+
 		@Override
 		public Class<ObjectsActivityListener> getSubscriptionType() {
 			return ObjectsActivityListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsActivityListener listener, ManagedObject data) {
-			listener.objectDeactivated(data);
+		public void dispatch(ObjectsActivityListener listener) {
+			listener.objectDeactivated(object);
 		}
 	}
 
@@ -209,53 +227,61 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ChildrenAddedEvent
-			implements Event2<ObjectsCompositionListener, ManagedObject, ManagedObject> {
+	private static class ChildrenAddedEvent implements Event<ObjectsCompositionListener> {
+		ManagedObject parent;
+		ManagedObject child;
+
 		@Override
 		public Class<ObjectsCompositionListener> getSubscriptionType() {
 			return ObjectsCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsCompositionListener listener, ManagedObject data1, ManagedObject data2) {
-			listener.childAdded(data1, data2);
+		public void dispatch(ObjectsCompositionListener listener) {
+			listener.childAdded(parent, child);
 		}
 	}
 
-	private static class ChildrenRemovedEvent
-			implements Event2<ObjectsCompositionListener, ManagedObject, ManagedObject> {
+	private static class ChildrenRemovedEvent implements Event<ObjectsCompositionListener> {
+		ManagedObject parent;
+		ManagedObject child;
+
 		@Override
 		public Class<ObjectsCompositionListener> getSubscriptionType() {
 			return ObjectsCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsCompositionListener listener, ManagedObject data1, ManagedObject data2) {
-			listener.childRemoved(data1, data2);
+		public void dispatch(ObjectsCompositionListener listener) {
+			listener.childRemoved(parent, child);
 		}
 	}
 
-	private static class ChildAddedEvent implements Event1<ObjectCompositionListener, ManagedObject> {
+	private static class ChildAddedEvent implements Event<ObjectCompositionListener> {
+		ManagedObject child;
+
 		@Override
 		public Class<ObjectCompositionListener> getSubscriptionType() {
 			return ObjectCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectCompositionListener listener, ManagedObject data) {
-			listener.childAdded(data);
+		public void dispatch(ObjectCompositionListener listener) {
+			listener.childAdded(child);
 		}
 	}
 
-	private static class ChildRemovedEvent implements Event1<ObjectCompositionListener, ManagedObject> {
+	private static class ChildRemovedEvent implements Event<ObjectCompositionListener> {
+		ManagedObject child;
+
 		@Override
 		public Class<ObjectCompositionListener> getSubscriptionType() {
 			return ObjectCompositionListener.class;
 		}
 
 		@Override
-		public void notify(ObjectCompositionListener listener, ManagedObject data) {
-			listener.childRemoved(data);
+		public void dispatch(ObjectCompositionListener listener) {
+			listener.childRemoved(child);
 		}
 	}
 
@@ -267,7 +293,7 @@ final class ManagedObjects {
 		}
 
 		@Override
-		public void notify(ObjectsParentListener listener, ManagedObject child, ManagedObject oldParent,
+		public void dispatch(ObjectsParentListener listener, ManagedObject child, ManagedObject oldParent,
 				ManagedObject newParent) {
 			listener.parentChanged(child, oldParent, newParent);
 		}
@@ -281,20 +307,22 @@ final class ManagedObjects {
 		}
 
 		@Override
-		public void notify(ObjectParentChangeListener listener, ManagedObject data1, ManagedObject data2) {
+		public void dispatch(ObjectParentChangeListener listener, ManagedObject data1, ManagedObject data2) {
 			listener.parentChanged(data1, data2);
 		}
 	}
 
-	private static class ObjectsDestoyedEvent implements Event1<ObjectsDestroyedListener, ManagedObject> {
+	private static class ObjectsDestoyedEvent implements Event<ObjectsDestroyedListener> {
+		ManagedObject object;
+
 		@Override
 		public Class<ObjectsDestroyedListener> getSubscriptionType() {
 			return ObjectsDestroyedListener.class;
 		}
 
 		@Override
-		public void notify(ObjectsDestroyedListener listener, ManagedObject data) {
-			listener.objectDestroyed(data);
+		public void dispatch(ObjectsDestroyedListener listener) {
+			listener.objectDestroyed(object);
 		}
 	}
 
