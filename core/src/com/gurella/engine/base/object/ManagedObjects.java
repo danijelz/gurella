@@ -3,10 +3,6 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
 import com.gurella.engine.event.Event;
-import com.gurella.engine.event.Event0;
-import com.gurella.engine.event.Event1;
-import com.gurella.engine.event.Event2;
-import com.gurella.engine.event.Event3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.TypePriorities;
 import com.gurella.engine.event.TypePriority;
@@ -125,7 +121,9 @@ final class ManagedObjects {
 		childrenAddedEvent.parent = null;
 		childrenAddedEvent.child = null;
 
-		EventService.post(parent.instanceId, childAddedEvent, child);
+		childAddedEvent.child = child;
+		EventService.post(parent.instanceId, childAddedEvent);
+		childAddedEvent.child = null;
 	}
 
 	static void childRemoved(ManagedObject parent, ManagedObject child) {
@@ -133,8 +131,15 @@ final class ManagedObjects {
 			return;
 		}
 
-		EventService.post(childrenRemovedEvent, parent, child);
-		EventService.post(parent.instanceId, childRemovedEvent, child);
+		childrenRemovedEvent.parent = parent;
+		childrenRemovedEvent.child = child;
+		EventService.post(childrenRemovedEvent);
+		childrenRemovedEvent.parent = null;
+		childrenRemovedEvent.child = null;
+
+		childRemovedEvent.child = child;
+		EventService.post(parent.instanceId, childRemovedEvent);
+		childRemovedEvent.child = null;
 	}
 
 	static void parentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent) {
@@ -142,8 +147,19 @@ final class ManagedObjects {
 			return;
 		}
 
-		EventService.post(parentsChangedEvent, object, oldParent, newParent);
-		EventService.post(object.instanceId, parentChangedEvent, oldParent, newParent);
+		parentsChangedEvent.child = object;
+		parentsChangedEvent.oldParent = oldParent;
+		parentsChangedEvent.newParent = newParent;
+		EventService.post(parentsChangedEvent);
+		parentsChangedEvent.child = null;
+		parentsChangedEvent.oldParent = null;
+		parentsChangedEvent.newParent = null;
+
+		parentChangedEvent.oldParent = oldParent;
+		parentChangedEvent.newParent = newParent;
+		EventService.post(parentChangedEvent);
+		parentChangedEvent.oldParent = null;
+		parentChangedEvent.newParent = null;
 	}
 
 	@TypePriorities({
@@ -285,30 +301,34 @@ final class ManagedObjects {
 		}
 	}
 
-	private static class ParentsChangedEvent
-			implements Event3<ObjectsParentListener, ManagedObject, ManagedObject, ManagedObject> {
+	private static class ParentsChangedEvent implements Event<ObjectsParentListener> {
+		ManagedObject child;
+		ManagedObject oldParent;
+		ManagedObject newParent;
+
 		@Override
 		public Class<ObjectsParentListener> getSubscriptionType() {
 			return ObjectsParentListener.class;
 		}
 
 		@Override
-		public void dispatch(ObjectsParentListener listener, ManagedObject child, ManagedObject oldParent,
-				ManagedObject newParent) {
+		public void dispatch(ObjectsParentListener listener) {
 			listener.parentChanged(child, oldParent, newParent);
 		}
 	}
 
-	private static class ParentChangedEvent
-			implements Event2<ObjectParentChangeListener, ManagedObject, ManagedObject> {
+	private static class ParentChangedEvent implements Event<ObjectParentChangeListener> {
+		ManagedObject oldParent;
+		ManagedObject newParent;
+
 		@Override
 		public Class<ObjectParentChangeListener> getSubscriptionType() {
 			return ObjectParentChangeListener.class;
 		}
 
 		@Override
-		public void dispatch(ObjectParentChangeListener listener, ManagedObject data1, ManagedObject data2) {
-			listener.parentChanged(data1, data2);
+		public void dispatch(ObjectParentChangeListener listener) {
+			listener.parentChanged(oldParent, newParent);
 		}
 	}
 
