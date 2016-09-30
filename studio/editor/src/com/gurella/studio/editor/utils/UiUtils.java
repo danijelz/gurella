@@ -12,15 +12,21 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+
+import com.gurella.engine.utils.Values;
 
 public class UiUtils {
 	private static Font TEXT_FONT;
@@ -44,6 +50,9 @@ public class UiUtils {
 	public static Text createFloatWidget(Composite parent) {
 		Text text = createText(parent);
 		text.addVerifyListener(e -> verifyFloat(e, text.getText()));
+		WheelEventListener listener = UiUtils::floatWidgetWheelEvent;
+		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(text, listener, e));
+		text.addListener(SWT.MouseDown, e -> onTrackerStart(text, listener, e));
 		return text;
 	}
 
@@ -56,6 +65,15 @@ public class UiUtils {
 		} catch (Exception e2) {
 			e.doit = false;
 		}
+	}
+
+	private static void floatWidgetWheelEvent(Text text, int amount, float multiplier) {
+		String str = text.getText();
+		if (Values.isBlank(str)) {
+			return;
+		}
+		float value = Float.parseFloat(str);
+		text.setText(String.valueOf(value + (amount * multiplier)));
 	}
 
 	private static String getNewText(VerifyEvent e, String oldValue) {
@@ -256,5 +274,105 @@ public class UiUtils {
 		Rectangle area = composite.getClientArea();
 		gc.setForeground(composite.getDisplay().getSystemColor(SWT.COLOR_GRAY));
 		gc.drawRectangle(0, 0, area.width - 1, area.height - 1);
+	}
+
+	private static void onMouseVerticalWheel(Text text, WheelEventListener listener, Event e) {
+		if (Values.isBlank(text.getText())) {
+			return;
+		}
+
+		float multiplier = -1;
+		int stateMask = e.stateMask;
+		if ((stateMask & SWT.SHIFT) != 0) {
+			multiplier = 1;
+		} else if ((stateMask & SWT.CONTROL) != 0) {
+			multiplier = 10;
+		} else if ((stateMask & SWT.ALT) != 0) {
+			multiplier = 0.1f;
+		}
+
+		if (multiplier < 0) {
+			return;
+		}
+
+		e.doit = false;
+		int amount = e.count > 0 ? 1 : -1;
+		listener.onWheelEvent(text, amount, multiplier);
+	}
+
+	private static void onTrackerStart(Text text, WheelEventListener listener, Event e) {
+		int stateMask = e.stateMask;
+		if (((stateMask & (SWT.SHIFT | SWT.CONTROL | SWT.ALT)) == 0) || e.button != 1) {
+			return;
+		}
+
+		DragManager.manage(text, listener);
+	}
+
+	private static class DragManager implements Listener {
+		private Text text;
+		private WheelEventListener listener;
+
+		private int startY;
+		private int ratio;
+
+		static void manage(Text text, WheelEventListener listener) {
+			DragManager manager = new DragManager();
+			manager.init(text, listener);
+		}
+
+		private void init(Text text, WheelEventListener listener) {
+			this.text = text;
+			this.listener = listener;
+			Display display = text.getDisplay();
+			startY = getCursorYLocation();
+			ratio = display.getClientArea().height / 100;
+			display.addFilter(SWT.MouseMove, this);
+			display.addFilter(SWT.MouseUp, this);
+			Cursor resizeCursor = display.getSystemCursor(SWT.CURSOR_SIZENS);
+			text.getShell().setCursor(resizeCursor);
+			text.setCursor(resizeCursor);
+		}
+
+		private int getCursorYLocation() {
+			return text.getDisplay().getCursorLocation().y;
+		}
+
+		@Override
+		public void handleEvent(Event event) {
+			switch (event.type) {
+			case SWT.MouseMove:
+				onMouseMove(event);
+				return;
+			case SWT.MouseUp:
+				onMouseUp();
+				return;
+			default:
+				return;
+			}
+		}
+
+		private void onMouseMove(Event event) {
+			int stateMask = event.stateMask;
+			float multiplier = ((stateMask & SWT.CONTROL) != 0) ? 10 : ((stateMask & SWT.ALT) != 0) ? 0.1f : 1;
+			int currentY = getCursorYLocation();
+			int diffY = (startY - currentY) / ratio;
+			if (diffY != 0) {
+				startY = currentY;
+				listener.onWheelEvent(text, diffY, multiplier);
+			}
+		}
+
+		private void onMouseUp() {
+			Display display = text.getDisplay();
+			display.removeFilter(SWT.MouseMove, this);
+			display.removeFilter(SWT.MouseUp, this);
+			text.setCursor(null);
+			text.getShell().setCursor(null);
+		}
+	}
+
+	public interface WheelEventListener {
+		void onWheelEvent(Text text, int amount, float multiplier);
 	}
 }
