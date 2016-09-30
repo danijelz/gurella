@@ -2,15 +2,17 @@
 Wrapper around libGDX and solid basis for merging its addons and contributions under one umbrella (gdx umbrella -> gurella). It features editor (Eclipse plugin) based around scene graph and entity/component system. This project is at a very early stage in development.
 
 ##Current features:
- * textures
- * models 
+ * sprites
+ * 3d models
  * lights (directional, point, spot)
+ * cameras (ortographic and perspective)
  * bullet physics
- * custom components (add custom component by extending SceneNodeComponent class, attach it to scene node and edit its properties in inspector)
+ * spatial audio
  * prefabs (create entity and instantiate it)
- * other
+ * custom components (add custom component by extending SceneNodeComponent class, attach it to scene node and edit its properties in inspector)
+ * ...
  
-##Some screenshots:
+##Screenshots:
 
 Editor:
 ![Editor](images/Editor.png)
