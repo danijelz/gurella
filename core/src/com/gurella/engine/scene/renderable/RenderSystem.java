@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.Scene;
@@ -39,7 +40,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 
 	private IdentitySet<RenderableComponent> lastVisibleRenderables = new IdentitySet<RenderableComponent>(256);
 	private IdentitySet<RenderableComponent> currentVisibleRenderables = new IdentitySet<RenderableComponent>(256);
-	private final Array<RenderableVisibilityListener> visibilityListeners = new Array<RenderableVisibilityListener>();
+	private final VisibilityChangedEvent visibilityChangedEvent = new VisibilityChangedEvent();
 
 	private final Environment environment = new Environment();
 	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
@@ -83,9 +84,11 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 			render(layer);
 		}
 
+		visibilityChangedEvent.visible = true;
+
 		for (RenderableComponent renderable : lastVisibleRenderables) {
 			if (!currentVisibleRenderables.contains(renderable)) {
-				notifyVisibilityChange(renderable, false);
+				EventService.post(renderable.getNodeId(), visibilityChangedEvent);
 			}
 		}
 
@@ -145,29 +148,20 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 	private void renderSpatials(Layer layer, Camera camera) {
 		layerMask.reset();
 		spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask.allowed(layer));
+		visibilityChangedEvent.visible = true;
 
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			RenderableComponent renderable = spatial.renderableComponent;
 
 			if (!lastVisibleRenderables.contains(renderable) && !currentVisibleRenderables.add(renderable)) {
-				notifyVisibilityChange(renderable, true);
+				EventService.post(renderable.getNodeId(), visibilityChangedEvent);
 			}
 
 			renderable.render(batch);
 		}
 
 		tempSpatials.clear();
-	}
-
-	private void notifyVisibilityChange(RenderableComponent renderableComponent, boolean visible) {
-		renderableComponent.visible = visible;
-		int nodeId = renderableComponent.getNodeId();
-		EventService.getSubscribers(nodeId, RenderableVisibilityListener.class, visibilityListeners);
-		for (int i = 0; i < visibilityListeners.size; i++) {
-			visibilityListeners.get(i).visibilityChanged(visible);
-		}
-		visibilityListeners.clear();
 	}
 
 	@Override
@@ -266,6 +260,20 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		} else {
 			layerCameras.sort();
 			return false;
+		}
+	}
+
+	private static class VisibilityChangedEvent implements Event<RenderableVisibilityListener> {
+		boolean visible;
+
+		@Override
+		public Class<RenderableVisibilityListener> getSubscriptionType() {
+			return RenderableVisibilityListener.class;
+		}
+
+		@Override
+		public void dispatch(RenderableVisibilityListener subscriber) {
+			subscriber.visibilityChanged(visible);
 		}
 	}
 }

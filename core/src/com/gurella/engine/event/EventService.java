@@ -21,10 +21,6 @@ public class EventService {
 		globalEventBus.unsubscribe(subscriber);
 	}
 
-	public static <L extends EventSubscription> void post1(Event<L> event) {
-		globalEventBus.post(event);
-	}
-
 	public static <L extends EventSubscription> void post(Event<L> event) {
 		Class<L> subscriptionType = event.getSubscriptionType();
 		Object[] listenersByType;
@@ -82,17 +78,6 @@ public class EventService {
 					PoolService.free(eventBus);
 				}
 			}
-		}
-	}
-
-	public static <L extends EventSubscription> void post1(int channel, Event<L> event) {
-		EventBus eventBus;
-		synchronized (channels) {
-			eventBus = channels.get(channel);
-		}
-
-		if (eventBus != null) {
-			eventBus.post(event);
 		}
 	}
 

@@ -5,31 +5,43 @@ import com.badlogic.gdx.physics.bullet.collision.btManifoldPoint;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.badlogic.gdx.physics.bullet.dynamics.InternalTickCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionPairListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationStepListener;
-import com.gurella.engine.utils.Values;
 
 class CollisionTrackingCallback extends InternalTickCallback {
-	private Array<Object> tempListeners;
+	private final int sceneId;
 
-	private Collision collision0 = new Collision();
-	private Collision collision1 = new Collision();
-	private CollisionPair collisionPair = new CollisionPair();
+	private final Collision collision0 = new Collision();
+	private final Collision collision1 = new Collision();
+	private final CollisionPair collisionPair = new CollisionPair();
 
 	private ObjectSet<CachedCollisionPair> previousTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 	private ObjectSet<CachedCollisionPair> currentTickCollisionPairs = new ObjectSet<CachedCollisionPair>();
 
-	CollisionTrackingCallback(Array<Object> tempListeners) {
-		this.tempListeners = tempListeners;
+	private final SimulationStepEvent simulationStepEvent = new SimulationStepEvent();
+
+	private final CollisionEnterEvent collisionEnterEvent = new CollisionEnterEvent();
+	private final CollisionPairEnterEvent collisionPairEnterEvent = new CollisionPairEnterEvent();
+	private final CollisionStayEvent collisionStayEvent = new CollisionStayEvent();
+	private final CollisionPairStayEvent collisionPairStayEvent = new CollisionPairStayEvent();
+	private final CollisionExitEvent collisionExitEvent = new CollisionExitEvent();
+	private final CollisionPairExitEvent collisionPairExitEvent = new CollisionPairExitEvent();
+
+	CollisionTrackingCallback(int sceneId) {
+		this.sceneId = sceneId;
 	}
 
 	@Override
 	public void onInternalTick(btDynamicsWorld dynamicsWorld, float timeStep) {
-		fireSimulationStepEvent(dynamicsWorld, timeStep);
+		simulationStepEvent.dynamicsWorld = dynamicsWorld;
+		simulationStepEvent.timeStep = timeStep;
+		EventService.post(sceneId, simulationStepEvent);
+		simulationStepEvent.dynamicsWorld = null;
+
 		updateCurrentCollisions(dynamicsWorld, timeStep);
 		clearPreviousCollisions();
 		swapCollisionPairs();
@@ -72,41 +84,19 @@ class CollisionTrackingCallback extends InternalTickCallback {
 		currentTickCollisionPairs.add(cachedCollisionPair);
 
 		if (previousTickCollisionPairs.contains(cachedCollisionPair)) {
-			Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onCollisionStay(collision0);
-			}
-
-			listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent1.getNodeId(), BulletCollisionListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onCollisionStay(collision1);
-			}
-
-			Array<BulletCollisionPairListener> pairListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(BulletCollisionPairListener.class, pairListeners);
-			for (int i = 0; i < pairListeners.size; i++) {
-				pairListeners.get(i).onCollisionStay(collisionPair);
-			}
+			collisionEnterEvent.collision = collision0;
+			EventService.post(rigidBodyComponent0.getNodeId(), collisionEnterEvent);
+			collisionEnterEvent.collision = collision1;
+			EventService.post(rigidBodyComponent1.getNodeId(), collisionEnterEvent);
+			collisionEnterEvent.collision = null;
+			EventService.post(sceneId, collisionPairEnterEvent);
 		} else {
-			Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onCollisionEnter(collision0);
-			}
-
-			listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(rigidBodyComponent1.getNodeId(), BulletCollisionListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onCollisionEnter(collision1);
-			}
-
-			Array<BulletCollisionPairListener> pairListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(BulletCollisionPairListener.class, pairListeners);
-			for (int i = 0; i < pairListeners.size; i++) {
-				pairListeners.get(i).onCollisionEnter(collisionPair);
-			}
+			collisionStayEvent.collision = collision0;
+			EventService.post(rigidBodyComponent0.getNodeId(), collisionStayEvent);
+			collisionStayEvent.collision = collision1;
+			EventService.post(rigidBodyComponent1.getNodeId(), collisionStayEvent);
+			collisionStayEvent.collision = null;
+			EventService.post(sceneId, collisionPairStayEvent);
 		}
 
 		collisionPair.reset();
@@ -128,37 +118,23 @@ class CollisionTrackingCallback extends InternalTickCallback {
 		BulletRigidBodyComponent rigidBodyComponent0 = cachedCollisionPair.rigidBodyComponent0;
 		BulletRigidBodyComponent rigidBodyComponent1 = cachedCollisionPair.rigidBodyComponent1;
 
-		Array<BulletCollisionListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(rigidBodyComponent0.getNodeId(), BulletCollisionListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).onCollisionExit(rigidBodyComponent1);
-		}
+		collisionExitEvent.rigidBodyComponent = rigidBodyComponent1;
+		EventService.post(rigidBodyComponent0.getNodeId(), collisionExitEvent);
+		collisionExitEvent.rigidBodyComponent = rigidBodyComponent0;
+		EventService.post(rigidBodyComponent1.getNodeId(), collisionExitEvent);
+		collisionExitEvent.rigidBodyComponent = null;
 
-		listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(rigidBodyComponent1.getNodeId(), BulletCollisionListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).onCollisionExit(rigidBodyComponent0);
-		}
-
-		Array<BulletCollisionPairListener> pairListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(BulletCollisionPairListener.class, pairListeners);
-		for (int i = 0; i < pairListeners.size; i++) {
-			pairListeners.get(i).onCollisionExit(rigidBodyComponent0, rigidBodyComponent1);
-		}
+		collisionPairExitEvent.rigidBodyComponent0 = rigidBodyComponent0;
+		collisionPairExitEvent.rigidBodyComponent1 = rigidBodyComponent1;
+		EventService.post(sceneId, collisionPairExitEvent);
+		collisionPairExitEvent.rigidBodyComponent0 = null;
+		collisionPairExitEvent.rigidBodyComponent1 = null;
 	}
 
 	private void swapCollisionPairs() {
 		ObjectSet<CachedCollisionPair> temp = previousTickCollisionPairs;
 		previousTickCollisionPairs = currentTickCollisionPairs;
 		currentTickCollisionPairs = temp;
-	}
-
-	private void fireSimulationStepEvent(btDynamicsWorld dynamicsWorld, float timeStep) {
-		Array<BulletSimulationStepListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(BulletSimulationStepListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).onPhysicsSimulationStep(dynamicsWorld, timeStep);
-		}
 	}
 
 	void clear() {
@@ -171,5 +147,101 @@ class CollisionTrackingCallback extends InternalTickCallback {
 			cachedCollisionPair.free();
 		}
 		currentTickCollisionPairs.clear();
+	}
+
+	private static class SimulationStepEvent implements Event<BulletSimulationStepListener> {
+		btDynamicsWorld dynamicsWorld;
+		float timeStep;
+
+		@Override
+		public Class<BulletSimulationStepListener> getSubscriptionType() {
+			return BulletSimulationStepListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletSimulationStepListener subscriber) {
+			subscriber.onPhysicsSimulationStep(dynamicsWorld, timeStep);
+		}
+	}
+
+	private static class CollisionEnterEvent implements Event<BulletCollisionListener> {
+		Collision collision;
+
+		@Override
+		public Class<BulletCollisionListener> getSubscriptionType() {
+			return BulletCollisionListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletCollisionListener subscriber) {
+			subscriber.onCollisionEnter(collision);
+		}
+	}
+
+	private class CollisionPairEnterEvent implements Event<BulletCollisionPairListener> {
+		@Override
+		public Class<BulletCollisionPairListener> getSubscriptionType() {
+			return BulletCollisionPairListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletCollisionPairListener subscriber) {
+			subscriber.onCollisionEnter(collisionPair);
+		}
+	}
+
+	private static class CollisionStayEvent implements Event<BulletCollisionListener> {
+		Collision collision;
+
+		@Override
+		public Class<BulletCollisionListener> getSubscriptionType() {
+			return BulletCollisionListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletCollisionListener subscriber) {
+			subscriber.onCollisionStay(collision);
+		}
+	}
+
+	private class CollisionPairStayEvent implements Event<BulletCollisionPairListener> {
+		@Override
+		public Class<BulletCollisionPairListener> getSubscriptionType() {
+			return BulletCollisionPairListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletCollisionPairListener subscriber) {
+			subscriber.onCollisionStay(collisionPair);
+		}
+	}
+
+	private static class CollisionExitEvent implements Event<BulletCollisionListener> {
+		BulletRigidBodyComponent rigidBodyComponent;
+
+		@Override
+		public Class<BulletCollisionListener> getSubscriptionType() {
+			return BulletCollisionListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletCollisionListener subscriber) {
+			subscriber.onCollisionExit(rigidBodyComponent);
+		}
+	}
+
+	private static class CollisionPairExitEvent implements Event<BulletCollisionPairListener> {
+		BulletRigidBodyComponent rigidBodyComponent0;
+		BulletRigidBodyComponent rigidBodyComponent1;
+
+		@Override
+		public Class<BulletCollisionPairListener> getSubscriptionType() {
+			return BulletCollisionPairListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletCollisionPairListener subscriber) {
+			subscriber.onCollisionExit(rigidBodyComponent0, rigidBodyComponent1);
+		}
 	}
 }

@@ -14,8 +14,8 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -24,13 +24,14 @@ import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
-import com.gurella.engine.utils.Values;
 
 public class BulletPhysicsSystem extends SceneService2
 		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener {
 	static {
 		Bullet.init();
 	}
+
+	private int sceneId;
 
 	private btCollisionConfiguration collisionConfig;
 	private btDispatcher dispatcher;
@@ -43,10 +44,12 @@ public class BulletPhysicsSystem extends SceneService2
 	private boolean paused;
 	private final Vector3 gravity = new Vector3(0f, -9.8f, 0f);
 
-	private final Array<Object> tempListeners = new Array<Object>(64);
+	private PhysicsSimulationStartEvent physicsSimulationStartEvent = new PhysicsSimulationStartEvent();
+	private PhysicsSimulationEndEvent physicsSimulationEndEvent = new PhysicsSimulationEndEvent();
 
 	public BulletPhysicsSystem(Scene scene) {
 		super(scene);
+		sceneId = scene.getInstanceId();
 		collisionConfig = DisposablesService.add(new btDefaultCollisionConfiguration());
 		dispatcher = DisposablesService.add(new btCollisionDispatcher(collisionConfig));
 		broadphase = DisposablesService.add(new btDbvtBroadphase());
@@ -56,14 +59,14 @@ public class BulletPhysicsSystem extends SceneService2
 				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
-		tickCallback = DisposablesService.add(new CollisionTrackingCallback(tempListeners));
+		tickCallback = DisposablesService.add(new CollisionTrackingCallback(sceneId));
 		tickCallback.attach(dynamicsWorld, false);
 	}
 
-	// @Override
-	// protected void serviceActivated() {
-	// // TODO paused = Application.isPaused();
-	// }
+	/*@Override
+	protected void serviceActivated() {
+		// TODO paused = Application.isPaused();
+	}*/
 
 	@Override
 	protected void serviceDeactivated() {
@@ -84,25 +87,9 @@ public class BulletPhysicsSystem extends SceneService2
 			return;
 		}
 
-		dispatchSimulationStartEvent();
+		EventService.post(sceneId, physicsSimulationStartEvent);
 		dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1f / 60f);
-		dispatchSimulationEndEvent();
-	}
-
-	private void dispatchSimulationStartEvent() {
-		Array<BulletSimulationTickListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(BulletSimulationTickListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).onPhysicsSimulationStart(dynamicsWorld);
-		}
-	}
-
-	private void dispatchSimulationEndEvent() {
-		Array<BulletSimulationTickListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(BulletSimulationTickListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).onPhysicsSimulationEnd(dynamicsWorld);
-		}
+		EventService.post(sceneId, physicsSimulationEndEvent);
 	}
 
 	@Override
@@ -129,5 +116,29 @@ public class BulletPhysicsSystem extends SceneService2
 	@Override
 	public void resume() {
 		paused = false;
+	}
+
+	private class PhysicsSimulationStartEvent implements Event<BulletSimulationTickListener> {
+		@Override
+		public Class<BulletSimulationTickListener> getSubscriptionType() {
+			return BulletSimulationTickListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletSimulationTickListener subscriber) {
+			subscriber.onPhysicsSimulationStart(dynamicsWorld);
+		}
+	}
+
+	private class PhysicsSimulationEndEvent implements Event<BulletSimulationTickListener> {
+		@Override
+		public Class<BulletSimulationTickListener> getSubscriptionType() {
+			return BulletSimulationTickListener.class;
+		}
+
+		@Override
+		public void dispatch(BulletSimulationTickListener subscriber) {
+			subscriber.onPhysicsSimulationStart(dynamicsWorld);
+		}
 	}
 }
