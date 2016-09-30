@@ -20,11 +20,11 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
+public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	public Vector3PropertyEditor(Composite parent, PropertyEditorContext<?, Vector3> context) {
 		super(parent, context);
 
-		GridLayout layout = new GridLayout(6, false);
+		GridLayout layout = new GridLayout(3, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 2;
@@ -45,29 +45,29 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Vector3 value = getValue();
 		if (value == null) {
-			String descriptiveName = context.getDescriptiveName();
+			/*String descriptiveName = context.getDescriptiveName();
 			boolean hasName = Values.isNotBlank(descriptiveName);
 			if (hasName) {
 				Label label = toolkit.createLabel(body, descriptiveName + ":");
 				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-			}
+			}*/
 
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, hasName ? 5 : 6, 1));
+			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, /*hasName ? 3 : 4*/3, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			String descriptiveName = context.getDescriptiveName();
+			/*String descriptiveName = context.getDescriptiveName();
 			boolean standalone = Values.isNotBlank(descriptiveName);
 			if (standalone) {
 				Label label = toolkit.createLabel(body, descriptiveName + ":");
-				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 6, 1));
+				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-			}
+			}*/
 
 			Model<Vector3> model = Models.getModel(Vector3.class);
-			createEditorField(model, "x", standalone ? "\t" : "");
+			createEditorField(model, "x", /*standalone ? "\t" : */"");
 			createEditorField(model, "y", "");
 			createEditorField(model, "z", "");
 		}
@@ -77,16 +77,17 @@ public class Vector3PropertyEditor extends PropertyEditor<Vector3> {
 
 	private void createEditorField(final Model<Vector3> model, String propertyName, String prefix) {
 		Property<Float> childProperty = model.getProperty(propertyName);
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+		/*FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
 		Label label = toolkit.createLabel(body, prefix + childProperty.getDescriptiveName() + ":");
 		label.setAlignment(SWT.LEFT);
-		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));*/
 
 		PropertyEditorContext<Vector3, Float> propertyContext = new PropertyEditorContext<>(context, model, getValue(),
 				childProperty);
 		PropertyEditor<Float> editor = createEditor(body, propertyContext);
 		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
+		editor.getComposite().setToolTipText(propertyName);
 	}
 
 	private void rebuildUi() {

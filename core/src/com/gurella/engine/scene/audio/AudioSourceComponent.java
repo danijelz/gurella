@@ -8,10 +8,12 @@ import com.gurella.engine.audio.AudioTrack;
 import com.gurella.engine.audio.Pan;
 import com.gurella.engine.audio.Pitch;
 import com.gurella.engine.audio.Volume;
+import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
+@ModelDescriptor(descriptiveName = "Audio Source")
 public class AudioSourceComponent extends SceneNodeComponent2 implements Poolable {
 	transient AudioSystem audioProcessor;
 	public AudioClip audioClip;

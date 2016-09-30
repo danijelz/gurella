@@ -13,6 +13,7 @@ import org.eclipse.jface.resource.DeviceResourceManager;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -21,6 +22,7 @@ import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -306,7 +308,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 	private static final class GurellaFormToolkit extends FormToolkit {
 		private GurellaFormToolkit(Display display) {
-			super(display);
+			super(new GurellaFormColors(display));
 		}
 
 		public void disposePrivate() {
@@ -328,6 +330,17 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		@Override
 		public void dispose() {
 			throw new UnsupportedOperationException("");
+		}
+	}
+
+	private static final class GurellaFormColors extends FormColors {
+		public GurellaFormColors(Display display) {
+			super(display);
+		}
+
+		@Override
+		protected void updateBorderColor() {
+			this.border = display.getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
 		}
 	}
 }

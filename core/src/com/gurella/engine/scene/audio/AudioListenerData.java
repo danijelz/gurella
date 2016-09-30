@@ -28,8 +28,9 @@ class AudioListenerData implements Poolable {
 		PoolService.free(this);
 	}
 
-	void init(AudioListenerComponent initAudioListenerComponent) {
-		SceneNode2 node = initAudioListenerComponent.getNode();
+	void init(AudioListenerComponent audioListenerComponent) {
+		this.audioListenerComponent = audioListenerComponent;
+		SceneNode2 node = audioListenerComponent.getNode();
 		this.transformComponent = node.getComponent(TransformComponent.class);
 	}
 
