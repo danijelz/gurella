@@ -78,6 +78,7 @@ public class EventBus implements Poolable {
 
 	public <L extends EventSubscription> void post(Event<L> event) {
 		if (inRenderThread()) {
+			drain();
 			dispatch(event);
 		} else {
 			synchronized (eventQueue) {
@@ -128,7 +129,6 @@ public class EventBus implements Poolable {
 			listenersSize = temp.size;
 			listenersByType = subscribersPool.obtain(listenersSize, Integer.MAX_VALUE);
 			temp.toArray(listenersByType);
-			System.arraycopy(temp, 0, listenersByType, 0, listenersSize);
 		}
 
 		for (int i = 0; i < listenersSize; i++) {

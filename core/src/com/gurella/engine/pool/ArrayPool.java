@@ -38,26 +38,28 @@ public abstract class ArrayPool<T> {
 		int low = 0;
 		int high = freeObjects.size - 1;
 
+		int potencial = -1;
+		int potencialLength = -1;
+
 		while (low <= high) {
 			int mid = (low + high) >>> 1;
 			T midVal = freeObjects.get(mid);
+			int midLength = length(midVal);
 
-			if (length(midVal) < length) {
+			if (midLength < length) {
 				low = mid + 1;
-			} else if (length(midVal) > length) {
+			} else if (midLength > length) {
 				high = mid - 1;
-				if (high >= 0) {
-					T temp = freeObjects.get(high);
-					if (length(temp) < length && length(midVal) <= maxLength) {
-						return freeObjects.removeIndex(high);
-					}
+				if (midLength <= maxLength && (potencial == -1 || (potencialLength - length) < (midLength - length))) {
+					potencial = mid;
+					potencialLength = midLength;
 				}
 			} else {
 				return freeObjects.removeIndex(mid);
 			}
 		}
 
-		return null;
+		return potencial >= 0 ? freeObjects.removeIndex(potencial) : null;
 	}
 
 	public void free(T object) {

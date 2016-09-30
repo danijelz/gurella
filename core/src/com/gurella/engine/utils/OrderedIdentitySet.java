@@ -140,7 +140,7 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 
 	public void toArray(T[] arr) {
 		T[] temp = items.items;
-		System.arraycopy(temp, 0, arr, 0, temp.length);
+		System.arraycopy(temp, 0, arr, 0, Math.min(arr.length, temp.length));
 	}
 
 	@Override
