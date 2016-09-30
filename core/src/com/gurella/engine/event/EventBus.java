@@ -66,32 +66,6 @@ class EventBus implements Poolable {
 		}
 	}
 
-	public <L extends EventSubscription> void post(Event<L> event) {
-		Class<L> subscriptionType = event.getSubscriptionType();
-		Object[] listenersByType;
-		int listenersSize;
-
-		synchronized (listeners) {
-			@SuppressWarnings("unchecked")
-			OrderedIdentitySet<Object> temp = (OrderedIdentitySet<Object>) listeners.get(subscriptionType);
-			if (temp == null || temp.size == 0) {
-				return;
-			}
-
-			listenersSize = temp.size;
-			listenersByType = PoolService.obtainObjectArray(listenersSize, Integer.MAX_VALUE);
-			temp.toArray(listenersByType);
-		}
-
-		for (int i = 0; i < listenersSize; i++) {
-			@SuppressWarnings("unchecked")
-			L listener = (L) listenersByType[i];
-			event.dispatch(listener);
-		}
-
-		PoolService.free(listenersByType);
-	}
-
 	public <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
 			Array<? super L> out) {
 		synchronized (listeners) {

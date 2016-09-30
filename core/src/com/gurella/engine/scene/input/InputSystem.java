@@ -9,6 +9,7 @@ import java.util.Arrays;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputEventQueue;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -42,7 +43,6 @@ import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchDraggedListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
@@ -60,48 +60,44 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 	private transient final Array<Object> tempListeners = new Array<Object>(64);
 
-	private transient final MouseMoveProcessor mouseMoveProcessor = new MouseMoveProcessor(tempListeners);
+	private transient final MouseMoveProcessor mouseMoveProcessor;
 	private transient final DragAndDropProcessor dragAndDropProcessor = new DragAndDropProcessor(tempListeners);
 	private transient final TouchProcessor touchProcessor = new TouchProcessor(tempListeners, dragAndDropProcessor);
+	private transient final DoubleTouchProcessor doubleTouchProcessor;
 	private transient final DragProcessor dragProcessor = new DragProcessor(tempListeners);
-	private transient final DoubleTouchProcessor doubleTouchProcessor = new DoubleTouchProcessor(tempListeners,
-			dragAndDropProcessor);
 
 	public byte inputActionsPerSecond;// TODO limit mouse moves;
 	private transient long lastActionHandled;
 
 	public InputSystem(Scene scene) {
 		super(scene);
+		mouseMoveProcessor = new MouseMoveProcessor(scene);
+		
 		pointerActivitySignal.addListener(dragAndDropProcessor);
 		pointerActivitySignal.addListener(touchProcessor);
-		pointerActivitySignal.addListener(doubleTouchProcessor);
+		pointerActivitySignal.addListener(doubleTouchProcessor = new DoubleTouchProcessor(scene, dragAndDropProcessor));
 		pointerActivitySignal.addListener(dragProcessor);
 	}
 
 	@Override
 	protected void serviceActivated() {
 		spatialSystem = scene.spatialSystem;
-
-		// TODO use componentManager
-		ImmutableArray<SceneNodeComponent2> components = scene.activeComponents;
-		for (int i = 0; i < components.size(); i++) {
-			componentActivated(components.get(i));
-		}
-
 		InputService.addInputProcessor(inputQueue);
 	}
 
 	@Override
 	protected void serviceDeactivated() {
 		InputService.removeInputProcessor(inputQueue);
-		spatialSystem = null;
 		// TODO update listeners and finish actions
 		inputQueue.setProcessor(dummyDelegate);
 		inputQueue.drain();
 		inputQueue.setProcessor(delegate);
+		
 		delegate.reset();
 		pointerActivitySignal.reset();
 		mouseMoveProcessor.reset();
+		
+		spatialSystem = null;
 	}
 
 	@Override
@@ -327,7 +323,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		return trackers.get(key);
 	}
 
-	private class InputProcessorDelegate implements com.badlogic.gdx.InputProcessor {
+	private class InputProcessorDelegate implements InputProcessor {
 		private final TouchEvent touchEvent = new TouchEvent();
 		private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
 

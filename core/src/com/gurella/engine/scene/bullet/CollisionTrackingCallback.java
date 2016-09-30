@@ -8,12 +8,13 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionPairListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationStepListener;
 
 class CollisionTrackingCallback extends InternalTickCallback {
-	private final int sceneId;
+	private final Scene scene;
 
 	private final Collision collision0 = new Collision();
 	private final Collision collision1 = new Collision();
@@ -31,15 +32,15 @@ class CollisionTrackingCallback extends InternalTickCallback {
 	private final CollisionExitEvent collisionExitEvent = new CollisionExitEvent();
 	private final CollisionPairExitEvent collisionPairExitEvent = new CollisionPairExitEvent();
 
-	CollisionTrackingCallback(int sceneId) {
-		this.sceneId = sceneId;
+	CollisionTrackingCallback(Scene scene) {
+		this.scene = scene;
 	}
 
 	@Override
 	public void onInternalTick(btDynamicsWorld dynamicsWorld, float timeStep) {
 		simulationStepEvent.dynamicsWorld = dynamicsWorld;
 		simulationStepEvent.timeStep = timeStep;
-		EventService.post(sceneId, simulationStepEvent);
+		EventService.post(scene.getInstanceId(), simulationStepEvent);
 		simulationStepEvent.dynamicsWorld = null;
 
 		updateCurrentCollisions(dynamicsWorld, timeStep);
@@ -89,14 +90,14 @@ class CollisionTrackingCallback extends InternalTickCallback {
 			collisionEnterEvent.collision = collision1;
 			EventService.post(rigidBodyComponent1.getNodeId(), collisionEnterEvent);
 			collisionEnterEvent.collision = null;
-			EventService.post(sceneId, collisionPairEnterEvent);
+			EventService.post(scene.getInstanceId(), collisionPairEnterEvent);
 		} else {
 			collisionStayEvent.collision = collision0;
 			EventService.post(rigidBodyComponent0.getNodeId(), collisionStayEvent);
 			collisionStayEvent.collision = collision1;
 			EventService.post(rigidBodyComponent1.getNodeId(), collisionStayEvent);
 			collisionStayEvent.collision = null;
-			EventService.post(sceneId, collisionPairStayEvent);
+			EventService.post(scene.getInstanceId(), collisionPairStayEvent);
 		}
 
 		collisionPair.reset();
@@ -126,7 +127,7 @@ class CollisionTrackingCallback extends InternalTickCallback {
 
 		collisionPairExitEvent.rigidBodyComponent0 = rigidBodyComponent0;
 		collisionPairExitEvent.rigidBodyComponent1 = rigidBodyComponent1;
-		EventService.post(sceneId, collisionPairExitEvent);
+		EventService.post(scene.getInstanceId(), collisionPairExitEvent);
 		collisionPairExitEvent.rigidBodyComponent0 = null;
 		collisionPairExitEvent.rigidBodyComponent1 = null;
 	}

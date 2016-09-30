@@ -1,18 +1,21 @@
 package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.IntersectionDoubleTouchDownListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchDownListener;
 import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchDownListener;
 import com.gurella.engine.utils.IntLongMap;
-import com.gurella.engine.utils.Values;
 
 public class DoubleTouchProcessor implements PointerActivityListener {
+	private final Scene scene;
+	private DragAndDropProcessor dragAndDropProcessor;
+
 	private float tapSquareSize = 20;
 	private long maxDoubleClickDelay = (long) (0.4f * 1000000000l);
 
@@ -23,11 +26,12 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 	private final TouchEvent touchEvent = new TouchEvent();
 	private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
 
-	private Array<Object> tempListeners;
-	private DragAndDropProcessor dragAndDropProcessor;
+	private final SceneDoubleTouchDownEvent sceneDoubleTouchDownEvent = new SceneDoubleTouchDownEvent();
+	private final NodeDoubleTouchDownEvent nodeDoubleTouchDownEvent = new NodeDoubleTouchDownEvent();
+	private final IntersectionDoubleTouchDownEvent intersectionDoubleTouchDownEvent = new IntersectionDoubleTouchDownEvent();
 
-	public DoubleTouchProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
-		this.tempListeners = tempListeners;
+	public DoubleTouchProcessor(Scene scene, DragAndDropProcessor dragAndDropProcessor) {
+		this.scene = scene;
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}
 
@@ -93,27 +97,16 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
 		touchEvent.set(pointer, button, screenX, screenY);
-		Array<SceneDoubleTouchDownListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneDoubleTouchDownListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).doubleTouchDown(touchEvent);
-		}
+		EventService.post(scene.getInstanceId(), sceneDoubleTouchDownEvent);
 
 		SceneNode2 node = pointerTrack.getCommonNode();
 		if (node != null) {
 			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
 			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			Array<IntersectionDoubleTouchDownListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDoubleTouchDownListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onDoubleTouch(renderableComponent, intersectionTouchEvent);
-			}
-
-			Array<NodeDoubleTouchDownListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDoubleTouchDownListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onDoubleTouch(intersectionTouchEvent);
-			}
+			intersectionDoubleTouchDownEvent.renderableComponent = renderableComponent;
+			EventService.post(scene.getInstanceId(), intersectionDoubleTouchDownEvent);
+			intersectionDoubleTouchDownEvent.renderableComponent = null;
+			EventService.post(renderableComponent.getNodeId(), nodeDoubleTouchDownEvent);
 
 			if (pointer == 0 && button == Buttons.LEFT) {
 				dragAndDropProcessor.doubleTouch(pointerTrack);
@@ -126,5 +119,44 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 		startTimes.clear();
 		startScreenX.clear();
 		startScreenY.clear();
+	}
+
+	private class SceneDoubleTouchDownEvent implements Event<SceneDoubleTouchDownListener> {
+		@Override
+		public Class<SceneDoubleTouchDownListener> getSubscriptionType() {
+			return SceneDoubleTouchDownListener.class;
+		}
+
+		@Override
+		public void dispatch(SceneDoubleTouchDownListener subscriber) {
+			subscriber.doubleTouchDown(touchEvent);
+		}
+	}
+
+	private class NodeDoubleTouchDownEvent implements Event<NodeDoubleTouchDownListener> {
+		@Override
+		public Class<NodeDoubleTouchDownListener> getSubscriptionType() {
+			return NodeDoubleTouchDownListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeDoubleTouchDownListener subscriber) {
+			subscriber.onDoubleTouch(intersectionTouchEvent);
+		}
+	}
+
+	private static class IntersectionDoubleTouchDownEvent implements Event<IntersectionDoubleTouchDownListener> {
+		RenderableComponent renderableComponent;
+		IntersectionTouchEvent touchEvent;
+
+		@Override
+		public Class<IntersectionDoubleTouchDownListener> getSubscriptionType() {
+			return IntersectionDoubleTouchDownListener.class;
+		}
+
+		@Override
+		public void dispatch(IntersectionDoubleTouchDownListener subscriber) {
+			subscriber.onDoubleTouch(renderableComponent, touchEvent);
+		}
 	}
 }

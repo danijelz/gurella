@@ -1,57 +1,54 @@
 package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.SceneMouseListener;
-import com.gurella.engine.subscriptions.scene.input.IntersectionMouseListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionMouseOverListener;
 import com.gurella.engine.subscriptions.scene.input.NodeMouseOverListener;
-import com.gurella.engine.utils.Values;
+import com.gurella.engine.subscriptions.scene.input.SceneMouseListener;
 
-public class MouseMoveProcessor {
+class MouseMoveProcessor {
+	private final Scene scene;
+
+	private final SceneMouseEvent sceneMouseEvent = new SceneMouseEvent();
+	private final IntersectionMouseOverStartEvent intersectionMouseOverStartEvent = new IntersectionMouseOverStartEvent();
+	private final MouseOverStartEvent mouseOverStartEvent = new MouseOverStartEvent();
+	private final IntersectionMouseOverMoveEvent intersectionMouseOverMoveEvent = new IntersectionMouseOverMoveEvent();
+	private final MouseOverMoveEvent mouseOverMoveEvent = new MouseOverMoveEvent();
+	private final IntersectionMouseOverEndEvent intersectionMouseOverEndEvent = new IntersectionMouseOverEndEvent();
+	private final MouseOverEndEvent mouseOverEndEvent = new MouseOverEndEvent();
+
 	private SceneNode2 mouseOverNode;
 
-	private Array<Object> tempListeners;
-
-	MouseMoveProcessor(Array<Object> tempListeners) {
-		this.tempListeners = tempListeners;
+	MouseMoveProcessor(Scene scene) {
+		this.scene = scene;
 	}
 
 	void mouseMoved(int screenX, int screenY, SceneNode2 pointerNode, Vector3 intersection) {
-		Array<SceneMouseListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneMouseListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).mouseMoved(screenX, screenY);
-		}
+		sceneMouseEvent.screenX = screenX;
+		sceneMouseEvent.screenY = screenY;
+		EventService.post(scene.getInstanceId(), sceneMouseEvent);
 
 		if (mouseOverNode != null) {
-			RenderableComponent renderableComponent = mouseOverNode.getComponent(RenderableComponent.class);
+			RenderableComponent intersected = mouseOverNode.getComponent(RenderableComponent.class);
 			if (pointerNode == mouseOverNode) {
-				Array<IntersectionMouseListener> intersectionListeners = Values.cast(tempListeners);
-				EventService.getSubscribers(IntersectionMouseListener.class, intersectionListeners);
-				for (int i = 0; i < intersectionListeners.size; i++) {
-					intersectionListeners.get(i).onMouseOverMove(renderableComponent, screenX, screenY, intersection);
-				}
+				intersectionMouseOverMoveEvent.set(intersected, screenX, screenY, intersection);
+				EventService.post(scene.getInstanceId(), intersectionMouseOverMoveEvent);
+				intersectionMouseOverMoveEvent.reset();
 
-				Array<NodeMouseOverListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), NodeMouseOverListener.class, listeners);
-				for (int i = 0; i < listeners.size; i++) {
-					listeners.get(i).onMouseOverMove(screenX, screenY, intersection);
-				}
+				mouseOverMoveEvent.set(screenX, screenY, intersection);
+				EventService.post(intersected.getNodeId(), mouseOverMoveEvent);
+				mouseOverMoveEvent.reset();
 			} else {
-				Array<IntersectionMouseListener> intersectionListeners = Values.cast(tempListeners);
-				EventService.getSubscribers(IntersectionMouseListener.class, intersectionListeners);
-				for (int i = 0; i < intersectionListeners.size; i++) {
-					intersectionListeners.get(i).onMouseOverEnd(renderableComponent, screenX, screenY);
-				}
+				intersectionMouseOverEndEvent.set(intersected, screenX, screenY);
+				EventService.post(scene.getInstanceId(), intersectionMouseOverEndEvent);
+				intersectionMouseOverEndEvent.reset();
 
-				Array<NodeMouseOverListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), NodeMouseOverListener.class, listeners);
-				for (int i = 0; i < listeners.size; i++) {
-					listeners.get(i).onMouseOverEnd(screenX, screenY);
-				}
+				mouseOverEndEvent.set(screenX, screenY);
+				EventService.post(intersected.getNodeId(), mouseOverEndEvent);
 
 				mouseOverNode = null;
 			}
@@ -59,22 +56,190 @@ public class MouseMoveProcessor {
 
 		if (pointerNode != null && pointerNode != mouseOverNode) {
 			mouseOverNode = pointerNode;
-			RenderableComponent renderableComponent = pointerNode.getComponent(RenderableComponent.class);
-			Array<IntersectionMouseListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionMouseListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onMouseOverStart(renderableComponent, screenX, screenY, intersection);
-			}
+			RenderableComponent intersected = pointerNode.getComponent(RenderableComponent.class);
 
-			Array<NodeMouseOverListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeMouseOverListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onMouseOverStart(screenX, screenY, intersection);
-			}
+			intersectionMouseOverStartEvent.set(intersected, screenX, screenY, intersection);
+			EventService.post(scene.getInstanceId(), intersectionMouseOverStartEvent);
+			intersectionMouseOverStartEvent.reset();
+
+			mouseOverStartEvent.set(screenX, screenY, intersection);
+			EventService.post(intersected.getNodeId(), mouseOverStartEvent);
+			mouseOverStartEvent.reset();
 		}
 	}
 
 	void reset() {
 		mouseOverNode = null;
+	}
+
+	private static class SceneMouseEvent implements Event<SceneMouseListener> {
+		int screenX;
+		int screenY;
+
+		@Override
+		public Class<SceneMouseListener> getSubscriptionType() {
+			return SceneMouseListener.class;
+		}
+
+		@Override
+		public void dispatch(SceneMouseListener subscriber) {
+			subscriber.mouseMoved(screenX, screenY);
+		}
+	}
+
+	private static class IntersectionMouseOverStartEvent implements Event<IntersectionMouseOverListener> {
+		RenderableComponent intersected;
+		int screenX;
+		int screenY;
+		Vector3 intersection;
+
+		void set(RenderableComponent intersected, int screenX, int screenY, Vector3 intersection) {
+			this.intersected = intersected;
+			this.screenX = screenX;
+			this.screenY = screenY;
+			this.intersection = intersection;
+		}
+
+		void reset() {
+			this.intersected = null;
+			this.intersection = null;
+		}
+
+		@Override
+		public Class<IntersectionMouseOverListener> getSubscriptionType() {
+			return IntersectionMouseOverListener.class;
+		}
+
+		@Override
+		public void dispatch(IntersectionMouseOverListener subscriber) {
+			subscriber.onMouseOverStart(intersected, screenX, screenY, intersection);
+		}
+	}
+
+	private static class MouseOverStartEvent implements Event<NodeMouseOverListener> {
+		int screenX;
+		int screenY;
+		Vector3 intersection;
+
+		void set(int screenX, int screenY, Vector3 intersection) {
+			this.screenX = screenX;
+			this.screenY = screenY;
+			this.intersection = intersection;
+		}
+
+		void reset() {
+			this.intersection = null;
+		}
+
+		@Override
+		public Class<NodeMouseOverListener> getSubscriptionType() {
+			return NodeMouseOverListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeMouseOverListener subscriber) {
+			subscriber.onMouseOverStart(screenX, screenY, intersection);
+		}
+	}
+
+	private static class IntersectionMouseOverMoveEvent implements Event<IntersectionMouseOverListener> {
+		RenderableComponent intersected;
+		int screenX;
+		int screenY;
+		Vector3 intersection;
+
+		void set(RenderableComponent intersected, int screenX, int screenY, Vector3 intersection) {
+			this.intersected = intersected;
+			this.screenX = screenX;
+			this.screenY = screenY;
+			this.intersection = intersection;
+		}
+
+		void reset() {
+			this.intersected = null;
+			this.intersection = null;
+		}
+
+		@Override
+		public Class<IntersectionMouseOverListener> getSubscriptionType() {
+			return IntersectionMouseOverListener.class;
+		}
+
+		@Override
+		public void dispatch(IntersectionMouseOverListener subscriber) {
+			subscriber.onMouseOverMove(intersected, screenX, screenY, intersection);
+		}
+	}
+
+	private static class MouseOverMoveEvent implements Event<NodeMouseOverListener> {
+		int screenX;
+		int screenY;
+		Vector3 intersection;
+
+		void set(int screenX, int screenY, Vector3 intersection) {
+			this.screenX = screenX;
+			this.screenY = screenY;
+			this.intersection = intersection;
+		}
+
+		void reset() {
+			this.intersection = null;
+		}
+
+		@Override
+		public Class<NodeMouseOverListener> getSubscriptionType() {
+			return NodeMouseOverListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeMouseOverListener subscriber) {
+			subscriber.onMouseOverMove(screenX, screenY, intersection);
+		}
+	}
+
+	private static class IntersectionMouseOverEndEvent implements Event<IntersectionMouseOverListener> {
+		RenderableComponent intersected;
+		int screenX;
+		int screenY;
+
+		void set(RenderableComponent intersected, int screenX, int screenY) {
+			this.intersected = intersected;
+			this.screenX = screenX;
+			this.screenY = screenY;
+		}
+
+		void reset() {
+			this.intersected = null;
+		}
+
+		@Override
+		public Class<IntersectionMouseOverListener> getSubscriptionType() {
+			return IntersectionMouseOverListener.class;
+		}
+
+		@Override
+		public void dispatch(IntersectionMouseOverListener subscriber) {
+			subscriber.onMouseOverEnd(intersected, screenX, screenY);
+		}
+	}
+
+	private static class MouseOverEndEvent implements Event<NodeMouseOverListener> {
+		int screenX;
+		int screenY;
+
+		void set(int screenX, int screenY) {
+			this.screenX = screenX;
+			this.screenY = screenY;
+		}
+
+		@Override
+		public Class<NodeMouseOverListener> getSubscriptionType() {
+			return NodeMouseOverListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeMouseOverListener subscriber) {
+			subscriber.onMouseOverEnd(screenX, screenY);
+		}
 	}
 }

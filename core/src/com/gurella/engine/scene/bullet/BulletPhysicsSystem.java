@@ -31,8 +31,6 @@ public class BulletPhysicsSystem extends SceneService2
 		Bullet.init();
 	}
 
-	private int sceneId;
-
 	private btCollisionConfiguration collisionConfig;
 	private btDispatcher dispatcher;
 	private btBroadphaseInterface broadphase;
@@ -49,7 +47,6 @@ public class BulletPhysicsSystem extends SceneService2
 
 	public BulletPhysicsSystem(Scene scene) {
 		super(scene);
-		sceneId = scene.getInstanceId();
 		collisionConfig = DisposablesService.add(new btDefaultCollisionConfiguration());
 		dispatcher = DisposablesService.add(new btCollisionDispatcher(collisionConfig));
 		broadphase = DisposablesService.add(new btDbvtBroadphase());
@@ -59,14 +56,13 @@ public class BulletPhysicsSystem extends SceneService2
 				.add(new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig));
 		dynamicsWorld.setGravity(gravity);
 
-		tickCallback = DisposablesService.add(new CollisionTrackingCallback(sceneId));
+		tickCallback = DisposablesService.add(new CollisionTrackingCallback(scene));
 		tickCallback.attach(dynamicsWorld, false);
 	}
 
-	/*@Override
-	protected void serviceActivated() {
-		// TODO paused = Application.isPaused();
-	}*/
+	/*
+	 * @Override protected void serviceActivated() { // TODO paused = Application.isPaused(); }
+	 */
 
 	@Override
 	protected void serviceDeactivated() {
@@ -87,9 +83,9 @@ public class BulletPhysicsSystem extends SceneService2
 			return;
 		}
 
-		EventService.post(sceneId, physicsSimulationStartEvent);
+		EventService.post(scene.getInstanceId(), physicsSimulationStartEvent);
 		dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1f / 60f);
-		EventService.post(sceneId, physicsSimulationEndEvent);
+		EventService.post(scene.getInstanceId(), physicsSimulationEndEvent);
 	}
 
 	@Override
