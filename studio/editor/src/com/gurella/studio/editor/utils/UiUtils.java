@@ -83,6 +83,9 @@ public class UiUtils {
 	public static Text createIntegerWidget(Composite parent) {
 		Text text = createText(parent);
 		text.addVerifyListener(e -> verifyInteger(e, text.getText()));
+		WheelEventListener listener = UiUtils::intWidgetWheelEvent;
+		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(text, listener, e));
+		text.addListener(SWT.MouseDown, e -> onTrackerStart(text, listener, e));
 		return text;
 	}
 
@@ -95,6 +98,15 @@ public class UiUtils {
 		} catch (Exception e2) {
 			e.doit = false;
 		}
+	}
+
+	private static void intWidgetWheelEvent(Text text, int amount, float multiplier) {
+		String str = text.getText();
+		if (Values.isBlank(str)) {
+			return;
+		}
+		int value = Integer.parseInt(str);
+		text.setText(String.valueOf(value + (amount * multiplier)));
 	}
 
 	public static Text createBigIntegerWidget(Composite parent) {
@@ -136,6 +148,9 @@ public class UiUtils {
 	public static Text createLongWidget(Composite parent) {
 		Text text = createText(parent);
 		text.addVerifyListener(e -> verifyLong(e, text.getText()));
+		WheelEventListener listener = UiUtils::longWidgetWheelEvent;
+		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(text, listener, e));
+		text.addListener(SWT.MouseDown, e -> onTrackerStart(text, listener, e));
 		return text;
 	}
 
@@ -148,6 +163,15 @@ public class UiUtils {
 		} catch (Exception e2) {
 			e.doit = false;
 		}
+	}
+
+	private static void longWidgetWheelEvent(Text text, int amount, float multiplier) {
+		String str = text.getText();
+		if (Values.isBlank(str)) {
+			return;
+		}
+		long value = Long.parseLong(str);
+		text.setText(String.valueOf(value + (amount * multiplier)));
 	}
 
 	public static Text createByteWidget(Composite parent) {

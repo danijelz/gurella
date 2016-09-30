@@ -72,7 +72,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 			text.setText(childProperty.getValue(value).toString());
 		}
 
-		text.addModifyListener((e) -> valueChanged(childProperty, text.getText()));
+		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
 	}
 
 	private void valueChanged(Property<Float> childProperty, String txtValue) {
