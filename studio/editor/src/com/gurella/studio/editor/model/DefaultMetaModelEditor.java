@@ -94,9 +94,9 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			layoutData.horizontalSpan = 2;
 		}
 
-		if (addSeperator) {
+		/*if (addSeperator) {
 			Label separator = toolkit.createSeparator(this, SWT.HORIZONTAL);
 			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
-		}
+		}*/
 	}
 }

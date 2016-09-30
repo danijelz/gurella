@@ -340,7 +340,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 
 		@Override
 		protected void updateBorderColor() {
-			this.border = display.getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
+			this.border = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
 		}
 	}
 }
