@@ -29,6 +29,16 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	private static final PoolService instance = new PoolService();
 	private static final FreeObjectsComparator comparatorInstance = new FreeObjectsComparator();
 
+	private static final BooleanArrayPool booleanArrayPool;
+	private static final ByteArrayPool byteArrayPool;
+	private static final CharArrayPool charArrayPool;
+	private static final ShortArrayPool shortArrayPool;
+	private static final IntArrayPool intArrayPool;
+	private static final LongArrayPool longArrayPool;
+	private static final FloatArrayPool floatArrayPool;
+	private static final DoubleArrayPool doubleArrayPool;
+	private static final SimpleObjectArrayPool objectArrayPool;
+
 	private static final ObjectMap<Class<?>, Pool<?>> pools = new ObjectMap<Class<?>, Pool<?>>();
 	private static final ObjectMap<Class<?>, ArrayPool<?>> arrayPools = new ObjectMap<Class<?>, ArrayPool<?>>();
 
@@ -38,20 +48,15 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	private static final Sort sort = new Sort();
 
 	static {
-		arrayPools.put(boolean.class, new BooleanArrayPool());
-		arrayPools.put(byte.class, new ByteArrayPool());
-		arrayPools.put(char.class, new CharArrayPool());
-		arrayPools.put(short.class, new ShortArrayPool());
-		arrayPools.put(int.class, new IntArrayPool());
-		arrayPools.put(long.class, new LongArrayPool());
-		arrayPools.put(float.class, new FloatArrayPool());
-		arrayPools.put(double.class, new DoubleArrayPool());
-		arrayPools.put(Object.class, new ObjectArrayPool<Object>(Object.class) {
-			@Override
-			protected Object[] newObject(int length) {
-				return new Object[length];
-			}
-		});
+		arrayPools.put(boolean.class, booleanArrayPool = new BooleanArrayPool());
+		arrayPools.put(byte.class, byteArrayPool = new ByteArrayPool());
+		arrayPools.put(char.class, charArrayPool = new CharArrayPool());
+		arrayPools.put(short.class, shortArrayPool = new ShortArrayPool());
+		arrayPools.put(int.class, intArrayPool = new IntArrayPool());
+		arrayPools.put(long.class, longArrayPool = new LongArrayPool());
+		arrayPools.put(float.class, floatArrayPool = new FloatArrayPool());
+		arrayPools.put(double.class, doubleArrayPool = new DoubleArrayPool());
+		arrayPools.put(Object.class, objectArrayPool = new SimpleObjectArrayPool());
 
 		EventService.subscribe(instance);
 	}
@@ -92,67 +97,111 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	}
 
 	public static boolean[] obtainBooleanArray(int length, float maxDeviation) {
-		return obtainArrayInternal(boolean.class, length, length + (int) (length * maxDeviation));
+		synchronized (booleanArrayPool) {
+			return booleanArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static boolean[] obtainBooleanArray(int length, int maxLength) {
-		return obtainArrayInternal(boolean.class, length, maxLength);
+		synchronized (booleanArrayPool) {
+			return booleanArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static byte[] obtainByteArray(int length, float maxDeviation) {
-		return obtainArrayInternal(byte.class, length, length + (int) (length * maxDeviation));
+		synchronized (byteArrayPool) {
+			return byteArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static byte[] obtainByteArray(int length, int maxLength) {
-		return obtainArrayInternal(byte.class, length, maxLength);
+		synchronized (byteArrayPool) {
+			return byteArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static char[] obtainCharArray(int length, float maxDeviation) {
-		return obtainArrayInternal(char.class, length, length + (int) (length * maxDeviation));
+		synchronized (charArrayPool) {
+			return charArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static char[] obtainCharArray(int length, int maxLength) {
-		return obtainArrayInternal(char.class, length, maxLength);
+		synchronized (charArrayPool) {
+			return charArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static short[] obtainShortArray(int length, float maxDeviation) {
-		return obtainArrayInternal(short.class, length, length + (int) (length * maxDeviation));
+		synchronized (shortArrayPool) {
+			return shortArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static short[] obtainShortArray(int length, int maxLength) {
-		return obtainArrayInternal(short.class, length, maxLength);
+		synchronized (shortArrayPool) {
+			return shortArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static int[] obtainIntArray(int length, float maxDeviation) {
-		return obtainArrayInternal(int.class, length, length + (int) (length * maxDeviation));
+		synchronized (intArrayPool) {
+			return intArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static int[] obtainIntArray(int length, int maxLength) {
-		return obtainArrayInternal(int.class, length, maxLength);
+		synchronized (intArrayPool) {
+			return intArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static long[] obtainLongArray(int length, float maxDeviation) {
-		return obtainArrayInternal(long.class, length, length + (int) (length * maxDeviation));
+		synchronized (longArrayPool) {
+			return longArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static long[] obtainLongArray(int length, int maxLength) {
-		return obtainArrayInternal(long.class, length, maxLength);
+		synchronized (longArrayPool) {
+			return longArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static float[] obtainFloatArray(int length, float maxDeviation) {
-		return obtainArrayInternal(float.class, length, length + (int) (length * maxDeviation));
+		synchronized (floatArrayPool) {
+			return floatArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static float[] obtainFloatArray(int length, int maxLength) {
-		return obtainArrayInternal(float.class, length, maxLength);
+		synchronized (floatArrayPool) {
+			return floatArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static double[] obtainDoubleArray(int length, float maxDeviation) {
-		return obtainArrayInternal(double.class, length, length + (int) (length * maxDeviation));
+		synchronized (doubleArrayPool) {
+			return doubleArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
 	}
 
 	public static double[] obtainDoubleArray(int length, int maxLength) {
-		return obtainArrayInternal(double.class, length, maxLength);
+		synchronized (doubleArrayPool) {
+			return doubleArrayPool.obtain(length, maxLength);
+		}
+	}
+
+	public static Object[] obtainObjectArray(int length, float maxDeviation) {
+		synchronized (objectArrayPool) {
+			return objectArrayPool.obtain(length, length + (int) (length * maxDeviation));
+		}
+	}
+
+	public static Object[] obtainObjectArray(int length, int maxLength) {
+		synchronized (objectArrayPool) {
+			return objectArrayPool.obtain(length, maxLength);
+		}
 	}
 
 	public static <T> T[] obtainArray(Class<T> componentType, int length, float maxDeviation) {
@@ -270,6 +319,17 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 			} else {
 				return o1.getClass().getSimpleName().compareTo(o2.getClass().getSimpleName());
 			}
+		}
+	}
+
+	private static final class SimpleObjectArrayPool extends ObjectArrayPool<Object> {
+		public SimpleObjectArrayPool() {
+			super(Object.class);
+		}
+
+		@Override
+		protected Object[] newObject(int length) {
+			return new Object[length];
 		}
 	}
 }
