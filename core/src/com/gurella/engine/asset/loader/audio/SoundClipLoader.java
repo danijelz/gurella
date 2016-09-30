@@ -10,6 +10,7 @@ import com.badlogic.gdx.assets.loaders.SoundLoader.SoundParameter;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectFloatMap;
+import com.gurella.engine.audio.SoundClip;
 
 public class SoundClipLoader extends AsynchronousAssetLoader<SoundClip, SoundClipLoader.SoundClipParameters> {
 	private static final ObjectFloatMap<String> durationsByFilename = new ObjectFloatMap<String>(64);

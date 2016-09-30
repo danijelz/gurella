@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix4;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -83,7 +84,7 @@ public class Matrix4PropertyEditor extends ComplexPropertyEditor<Matrix4> {
 	private void valueChanged(int index, String value) {
 		Matrix4 matrix = getValue();
 		Matrix4 oldValue = new Matrix4(matrix);
-		matrix.val[index] = Float.valueOf(value).floatValue();
+		matrix.val[index] = Values.isBlank(value) ? 0 : Float.valueOf(value).floatValue();
 		context.propertyValueChanged(oldValue, matrix);
 	}
 

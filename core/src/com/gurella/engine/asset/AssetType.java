@@ -13,7 +13,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.asset.loader.audio.SoundClip;
+import com.gurella.engine.audio.AudioClip;
+import com.gurella.engine.audio.SoundClip;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.graphics.render.shader.template.ShaderTemplate;
@@ -31,6 +32,7 @@ public enum AssetType {
 	music(Music.class, "wav", "ogg", "mp3", "scl"),
 	sound(Sound.class, "wav", "ogg", "mp3", "scl"),
 	soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
+	audioClip(AudioClip.class, "wav", "ogg", "mp3", "scl"),
 	pixmap(Pixmap.class, "bmp", "jpg", "jpeg"),
 	polygonRegion(PolygonRegion.class, "psh"),
 	inputActionMap(InputActionMap.class, "giam"),

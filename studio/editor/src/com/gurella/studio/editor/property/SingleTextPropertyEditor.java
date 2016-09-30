@@ -49,7 +49,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		text = UiUtils.createText(body);
 		text.addVerifyListener(e -> getVerifyListener().accept(e, text.getText()));
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 60;
+		layoutData.widthHint = 100;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 

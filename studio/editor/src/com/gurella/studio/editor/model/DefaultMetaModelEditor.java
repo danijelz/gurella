@@ -44,12 +44,11 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		int length = array.length;
 		if (length > 0) {
-			Property<?> last = array[array.length - 1];
-			Arrays.stream(array).sequential().filter(p -> p.isEditable()).forEach(p -> addEditor(p, p != last));
+			Arrays.stream(array).sequential().filter(p -> p.isEditable()).forEach(p -> addEditor(p));
 		}
 	}
 
-	private <V> void addEditor(Property<V> property, boolean addSeperator) {
+	private <V> void addEditor(Property<V> property) {
 		FormToolkit toolkit = getToolkit();
 		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
@@ -93,10 +92,5 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		} else {
 			layoutData.horizontalSpan = 2;
 		}
-
-		/*if (addSeperator) {
-			Label separator = toolkit.createSeparator(this, SWT.HORIZONTAL);
-			separator.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1));
-		}*/
 	}
 }

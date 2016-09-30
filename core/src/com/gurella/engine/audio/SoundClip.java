@@ -1,4 +1,4 @@
-package com.gurella.engine.asset.loader.audio;
+package com.gurella.engine.audio;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.Disposable;

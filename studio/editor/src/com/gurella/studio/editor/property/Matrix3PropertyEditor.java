@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix3;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -19,7 +20,6 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 		super(parent, context);
 
 		body.setLayout(new GridLayout(6, false));
-
 		buildUi();
 
 		if (!context.isFixedValue()) {
@@ -77,7 +77,7 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 	private void valueChanged(int index, String value) {
 		Matrix3 matrix = getValue();
 		Matrix3 oldValue = new Matrix3(matrix);
-		matrix.val[index] = Float.valueOf(value).floatValue();
+		matrix.val[index] = Values.isBlank(value) ? 0 : Float.valueOf(value).floatValue();
 		context.propertyValueChanged(oldValue, matrix);
 	}
 
