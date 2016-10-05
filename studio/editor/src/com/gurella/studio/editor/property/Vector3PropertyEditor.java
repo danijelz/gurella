@@ -49,16 +49,16 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Model<Vector3> model = Models.getModel(Vector3.class);
-			createEditorField(model, "x");
-			createEditorField(model, "y");
-			createEditorField(model, "z");
+			createEditorField(model, value, "x");
+			createEditorField(model, value, "y");
+			createEditorField(model, value, "z");
 			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();
 	}
 
-	private void createEditorField(final Model<Vector3> model, String propertyName) {
+	private void createEditorField(final Model<Vector3> model, Vector3 value, String propertyName) {
 		Property<Float> childProperty = model.getProperty(propertyName);
 
 		Text text = UiUtils.createFloatWidget(body);
@@ -67,12 +67,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
-
-		Vector3 value = getValue();
-		if (value != null) {
-			text.setText(childProperty.getValue(value).toString());
-		}
-
+		text.setText(childProperty.getValue(value).toString());
 		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
 	}
 

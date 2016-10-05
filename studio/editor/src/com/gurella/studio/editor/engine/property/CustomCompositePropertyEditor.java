@@ -8,8 +8,8 @@ import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.studio.editor.property.CompositePropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 
-public class CustomComplexPropertyEditor<P> extends CompositePropertyEditor<P> {
-	public CustomComplexPropertyEditor(Composite parent, PropertyEditorContext<?, P> context,
+public class CustomCompositePropertyEditor<P> extends CompositePropertyEditor<P> {
+	public CustomCompositePropertyEditor(Composite parent, PropertyEditorContext<?, P> context,
 			PropertyEditorFactory<P> factory) {
 		super(parent, context);
 		factory.buildUi(createComposite(body), new CustomPropertyEditorContextAdapter<P>(context, this));

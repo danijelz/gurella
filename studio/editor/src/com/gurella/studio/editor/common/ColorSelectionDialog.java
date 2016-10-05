@@ -41,9 +41,12 @@ public class ColorSelectionDialog extends Dialog {
 	private Color color;
 	private RGBA rgba;
 
-	public ColorSelectionDialog(Shell parent) {
+	private boolean alphaEnabled;
+
+	public ColorSelectionDialog(Shell parent, boolean alphaEnabled) {
 		super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		setText("Color");
+		this.alphaEnabled = alphaEnabled;
 	}
 
 	public RGBA open(Point location) {
@@ -141,6 +144,7 @@ public class ColorSelectionDialog extends Dialog {
 		aSlider.setMinimum(0);
 		aSlider.setMaximum(255);
 		aSlider.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, false, true));
+		aSlider.setEnabled(alphaEnabled);
 		a = UiUtils.createIntegerWidget(shell);
 		layoutData = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 		layoutData.widthHint = 20;
@@ -168,6 +172,9 @@ public class ColorSelectionDialog extends Dialog {
 			aSlider.setSelection(color.getAlpha());
 
 			colorText.setText(toColorString());
+		} else if (!alphaEnabled) {
+			a.setText(Integer.toString(255));
+			aSlider.setSelection(255);
 		}
 
 		image.redraw();

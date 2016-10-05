@@ -94,5 +94,4 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 		setValue(value);
 		rebuildUi();
 	}
-
 }

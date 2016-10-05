@@ -276,6 +276,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		layerMask.reset();
 		spatialSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
+		
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderableComponent = spatial.renderableComponent;

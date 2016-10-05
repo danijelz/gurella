@@ -49,28 +49,22 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Model<Vector2> model = Models.getModel(Vector2.class);
-			createEditorField(model, "x");
-			createEditorField(model, "y");
+			createEditorField(model, value, "x");
+			createEditorField(model, value, "y");
 		}
 
 		body.layout();
 	}
 
-	private void createEditorField(final Model<Vector2> model, String propertyName) {
+	private void createEditorField(final Model<Vector2> model, Vector2 value, String propertyName) {
 		Property<Float> childProperty = model.getProperty(propertyName);
-
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
-
-		Vector2 value = getValue();
-		if (value != null) {
-			text.setText(childProperty.getValue(value).toString());
-		}
-
+		text.setText(childProperty.getValue(value).toString());
 		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
 	}
 

@@ -36,33 +36,28 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			createText(Matrix3.M00);
-			createText(Matrix3.M01);
-			createText(Matrix3.M02);
-			createText(Matrix3.M10);
-			createText(Matrix3.M11);
-			createText(Matrix3.M12);
-			createText(Matrix3.M20);
-			createText(Matrix3.M21);
-			createText(Matrix3.M22);
+			createText(Matrix3.M00, value);
+			createText(Matrix3.M01, value);
+			createText(Matrix3.M02, value);
+			createText(Matrix3.M10, value);
+			createText(Matrix3.M11, value);
+			createText(Matrix3.M12, value);
+			createText(Matrix3.M20, value);
+			createText(Matrix3.M21, value);
+			createText(Matrix3.M22, value);
 			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();
 	}
 
-	private void createText(int index) {
+	private void createText(int index, Matrix3 value) {
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
-
-		Matrix3 value = getValue();
-		if (value != null) {
-			text.setText(Float.toString(value.val[index]));
-		}
-
+		text.setText(Float.toString(value.val[index]));
 		text.addModifyListener((e) -> valueChanged(index, text.getText()));
 	}
 

@@ -32,15 +32,18 @@ public class ColorSelectionWidget extends Composite {
 
 	private Consumer<Color> colorChangeListener;
 	private Color defaultColor;
+	
+	private boolean alphaEnabled;
 
 	public ColorSelectionWidget(Composite parent) {
-		this(parent, null, null);
+		this(parent, null, null, true);
 	}
 
-	public ColorSelectionWidget(Composite parent, Color color, Color defaultColor) {
+	public ColorSelectionWidget(Composite parent, Color color, Color defaultColor, boolean alphaEnabled) {
 		super(parent, SWT.NONE);
 
 		this.defaultColor = defaultColor;
+		this.alphaEnabled = alphaEnabled;
 
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
@@ -49,7 +52,7 @@ public class ColorSelectionWidget extends Composite {
 
 		text = UiUtils.createText(this);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
-		layoutData.widthHint = 60;
+		layoutData.widthHint = 100;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 
@@ -174,7 +177,7 @@ public class ColorSelectionWidget extends Composite {
 	}
 
 	public void openDialog() {
-		ColorSelectionDialog colorDialog = new ColorSelectionDialog(getShell());
+		ColorSelectionDialog colorDialog = new ColorSelectionDialog(getShell(), alphaEnabled);
 		colorDialog.setColor(swtColor == null ? new RGBA(255, 255, 255, 255) : swtColor.getRGBA());
 		RGBA newColor = colorDialog.open(button.toDisplay(0, 0));
 		if (newColor != null) {

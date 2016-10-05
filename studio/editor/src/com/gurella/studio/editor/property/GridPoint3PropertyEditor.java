@@ -49,30 +49,24 @@ public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Model<GridPoint3> model = Models.getModel(GridPoint3.class);
-			createEditorField(model, "x");
-			createEditorField(model, "y");
-			createEditorField(model, "z");
+			createEditorField(model, value, "x");
+			createEditorField(model, value, "y");
+			createEditorField(model, value, "z");
 			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();
 	}
 
-	private void createEditorField(final Model<GridPoint3> model, String propertyName) {
+	private void createEditorField(final Model<GridPoint3> model, GridPoint3 value, String propertyName) {
 		Property<Integer> childProperty = model.getProperty(propertyName);
-
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
-
-		GridPoint3 value = getValue();
-		if (value != null) {
-			text.setText(childProperty.getValue(value).toString());
-		}
-
+		text.setText(childProperty.getValue(value).toString());
 		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
 	}
 

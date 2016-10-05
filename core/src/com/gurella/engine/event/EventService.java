@@ -1,5 +1,7 @@
 package com.gurella.engine.event;
 
+import static com.gurella.engine.event.Subscriptions.getSubscriptions;
+
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -54,8 +56,7 @@ public class EventService {
 	}
 
 	public static void subscribe(int channel, Object subscriber) {
-		ObjectSet<Class<? extends EventSubscription>> subscriptions = Subscriptions
-				.getSubscriptions(subscriber.getClass());
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
 		if (subscriptions.size == 0) {
 			return;
 		}

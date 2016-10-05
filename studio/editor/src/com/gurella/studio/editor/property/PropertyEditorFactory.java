@@ -39,7 +39,7 @@ import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.engine.property.CustomComplexPropertyEditor;
+import com.gurella.studio.editor.engine.property.CustomCompositePropertyEditor;
 import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 import com.gurella.studio.editor.property.bullet.BulletCollisionShapePropertyEditor;
 
@@ -68,7 +68,7 @@ public class PropertyEditorFactory {
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
 			Object factory = constructor.newInstance(new Object[0]);
-			return data.complex ? new CustomComplexPropertyEditor<>(parent, context, cast(factory))
+			return data.complex ? new CustomCompositePropertyEditor<>(parent, context, cast(factory))
 					: new CustomSimplePropertyEditor<>(parent, context, cast(factory));
 		} catch (Exception e) {
 			String modelClass = context.modelInstance.getClass().getName();

@@ -79,7 +79,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 		FormToolkit toolkit = getToolkit();
 		P value = getValue();
 		if (value == null) {
-			Label label = toolkit.createLabel(body, "null");
+			Label label = toolkit.createLabel(body, "null (" + context.getPropertyType().getSimpleName() + ")");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());

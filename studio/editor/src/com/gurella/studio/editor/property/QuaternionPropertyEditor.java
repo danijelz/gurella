@@ -49,30 +49,24 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
 			Model<Quaternion> model = Models.getModel(Quaternion.class);
-			createEditorField(model, "x");
-			createEditorField(model, "y");
-			createEditorField(model, "z");
+			createEditorField(model, value, "x");
+			createEditorField(model, value, "y");
+			createEditorField(model, value, "z");
 			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();
 	}
 
-	private void createEditorField(final Model<Quaternion> model, String propertyName) {
+	private void createEditorField(final Model<Quaternion> model, Quaternion value, String propertyName) {
 		Property<Float> childProperty = model.getProperty(propertyName);
-
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 40;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
-
-		Quaternion value = getValue();
-		if (value != null) {
-			text.setText(childProperty.getValue(value).toString());
-		}
-
+		text.setText(childProperty.getValue(value).toString());
 		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
 	}
 
