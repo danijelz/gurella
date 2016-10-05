@@ -3,7 +3,6 @@ package com.gurella.engine.scene.bullet;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.editor.model.ModelEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.Alignment;
