@@ -40,7 +40,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class GdxArrayPropertyEditor<T> extends ComplexPropertyEditor<Array<T>> {
+public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
 	private Class<Object> componentType;
 

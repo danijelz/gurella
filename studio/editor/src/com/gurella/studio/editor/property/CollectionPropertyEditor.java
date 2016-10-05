@@ -41,7 +41,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class CollectionPropertyEditor<T> extends ComplexPropertyEditor<Collection<T>> {
+public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collection<T>> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
 	private Class<Object> componentType;
 

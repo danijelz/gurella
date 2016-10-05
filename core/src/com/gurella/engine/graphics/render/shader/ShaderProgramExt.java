@@ -4,7 +4,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class ShaderProgramExt extends ShaderProgram {
-
 	public ShaderProgramExt(FileHandle vertexShader, FileHandle fragmentShader) {
 		super(vertexShader, fragmentShader);
 	}
@@ -14,7 +13,7 @@ public class ShaderProgramExt extends ShaderProgram {
 		// Gdx.gl20.glUniform
 	}
 
-	private static class ProgramUniform {
+	public static class ProgramUniform {
 		String name;
 		int location;
 		int type;
@@ -25,7 +24,7 @@ public class ShaderProgramExt extends ShaderProgram {
 		boolean dirty;
 	}
 
-	private static class ProgramAttribute {
+	public static class ProgramAttribute {
 		String name;
 		int location;
 		int type;

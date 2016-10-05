@@ -14,7 +14,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.badlogic.gdx.utils.Bits;
 import com.gurella.studio.GurellaStudioPlugin;
 
-public class BitsPropertyEditor extends ComplexPropertyEditor<Bits> {
+public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 	private GridLayout bodyLayout;
 
 	public BitsPropertyEditor(Composite parent, PropertyEditorContext<?, Bits> context) {

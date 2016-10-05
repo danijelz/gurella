@@ -19,7 +19,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.property.ComplexPropertyEditor;
+import com.gurella.studio.editor.property.CompositePropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 import com.gurella.studio.editor.property.SimplePropertyEditor;
@@ -77,7 +77,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 				labelLayoutData.horizontalSpan = 2;
 				layoutData.horizontalSpan = 2;
 			}
-		} else if (editor instanceof ComplexPropertyEditor) {
+		} else if (editor instanceof CompositePropertyEditor) {
 			Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 			section.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);

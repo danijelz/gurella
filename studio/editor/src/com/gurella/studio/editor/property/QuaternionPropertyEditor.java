@@ -1,16 +1,13 @@
 package com.gurella.studio.editor.property;
 
-import static com.gurella.studio.GurellaStudioPlugin.createFont;
-import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
-
 import java.util.Arrays;
 
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Quaternion;
@@ -19,24 +16,25 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
-public class QuaternionPropertyEditor extends PropertyEditor<Quaternion> {
+public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 	public QuaternionPropertyEditor(Composite parent, PropertyEditorContext<?, Quaternion> context) {
 		super(parent, context);
 
-		GridLayout layout = new GridLayout(8, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 2;
+		GridLayout layout = new GridLayout(4, false);
+		layout.marginWidth = 1;
+		layout.marginHeight = 2;
+		layout.horizontalSpacing = 4;
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New instance", () -> newInstance());
+			addMenuItem("New Vector3", () -> newInstance());
 			if (context.isNullable()) {
-				addMenuItem("Set null", () -> setNull());
+				addMenuItem("Set to null", () -> setNull());
 			}
 		}
 	}
@@ -45,48 +43,44 @@ public class QuaternionPropertyEditor extends PropertyEditor<Quaternion> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Quaternion value = getValue();
 		if (value == null) {
-			String descriptiveName = context.getDescriptiveName();
-			boolean hasName = Values.isNotBlank(descriptiveName);
-			if (hasName) {
-				Label label = toolkit.createLabel(body, descriptiveName + ":");
-				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
-				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-			}
-
 			Label label = toolkit.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, hasName ? 7 : 8, 1));
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 4, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			String descriptiveName = context.getDescriptiveName();
-			if (Values.isNotBlank(descriptiveName)) {
-				Label label = toolkit.createLabel(body, descriptiveName);
-				label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 8, 1));
-				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
-			}
-
 			Model<Quaternion> model = Models.getModel(Quaternion.class);
-			createEditorField(model, "x", "");
-			createEditorField(model, "y", "");
-			createEditorField(model, "z", "");
-			createEditorField(model, "w", "");
+			createEditorField(model, "x");
+			createEditorField(model, "y");
+			createEditorField(model, "z");
+			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();
 	}
 
-	private void createEditorField(final Model<Quaternion> model, String propertyName, String prefix) {
+	private void createEditorField(final Model<Quaternion> model, String propertyName) {
 		Property<Float> childProperty = model.getProperty(propertyName);
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 
-		Label label = toolkit.createLabel(body, prefix + childProperty.getDescriptiveName() + ":");
-		label.setAlignment(SWT.LEFT);
-		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		Text text = UiUtils.createFloatWidget(body);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.widthHint = 40;
+		layoutData.heightHint = 16;
+		text.setLayoutData(layoutData);
+		text.setToolTipText(propertyName);
 
-		PropertyEditorContext<Quaternion, Float> propertyContext = new PropertyEditorContext<>(context, model,
-				getValue(), childProperty);
-		PropertyEditor<Float> editor = createEditor(body, propertyContext);
-		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
+		Quaternion value = getValue();
+		if (value != null) {
+			text.setText(childProperty.getValue(value).toString());
+		}
+
+		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
+	}
+
+	private void valueChanged(Property<Float> childProperty, String txtValue) {
+		Quaternion value = getValue();
+		Quaternion oldValue = new Quaternion(value);
+		childProperty.setValue(value, Values.isBlank(txtValue) ? Float.valueOf(0) : Float.valueOf(txtValue));
+		context.propertyValueChanged(oldValue, value);
 	}
 
 	private void rebuildUi() {

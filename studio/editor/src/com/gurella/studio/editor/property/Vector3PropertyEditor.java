@@ -66,6 +66,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		layoutData.widthHint = 60;
 		layoutData.heightHint = 16;
 		text.setLayoutData(layoutData);
+		text.setToolTipText(propertyName);
 
 		Vector3 value = getValue();
 		if (value != null) {

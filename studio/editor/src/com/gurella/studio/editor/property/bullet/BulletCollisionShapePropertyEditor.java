@@ -31,12 +31,12 @@ import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.TetrahedronCollisionShape;
 import com.gurella.engine.scene.bullet.shapes.TriangleCollisionShape;
 import com.gurella.studio.editor.model.ModelEditorContext;
-import com.gurella.studio.editor.property.ComplexPropertyEditor;
+import com.gurella.studio.editor.property.CompositePropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 import com.gurella.studio.editor.model.DefaultMetaModelEditor;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class BulletCollisionShapePropertyEditor extends ComplexPropertyEditor<BulletCollisionShape> {
+public class BulletCollisionShapePropertyEditor extends CompositePropertyEditor<BulletCollisionShape> {
 	public BulletCollisionShapePropertyEditor(Composite parent,
 			PropertyEditorContext<?, BulletCollisionShape> context) {
 		super(parent, context);

@@ -8,18 +8,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Matrix3;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
+public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 	public Matrix3PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix3> context) {
 		super(parent, context);
 
-		body.setLayout(new GridLayout(6, false));
+		body.setLayout(new GridLayout(3, false));
 		buildUi();
 
 		if (!context.isFixedValue()) {
@@ -35,31 +33,25 @@ public class Matrix3PropertyEditor extends ComplexPropertyEditor<Matrix3> {
 		if (value == null) {
 			Label label = UiUtils.createLabel(body, "null");
 			label.setAlignment(SWT.CENTER);
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 6, 1));
+			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			createText(Matrix3.M00, "00");
-			createText(Matrix3.M01, "01");
-			createText(Matrix3.M02, "02");
-			createText(Matrix3.M10, "10");
-			createText(Matrix3.M11, "11");
-			createText(Matrix3.M12, "12");
-			createText(Matrix3.M20, "20");
-			createText(Matrix3.M21, "21");
-			createText(Matrix3.M22, "22");
+			createText(Matrix3.M00);
+			createText(Matrix3.M01);
+			createText(Matrix3.M02);
+			createText(Matrix3.M10);
+			createText(Matrix3.M11);
+			createText(Matrix3.M12);
+			createText(Matrix3.M20);
+			createText(Matrix3.M21);
+			createText(Matrix3.M22);
 			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();
 	}
 
-	private void createText(int index, String name) {
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-
-		Label label = toolkit.createLabel(body, name);
-		label.setAlignment(SWT.LEFT);
-		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-
+	private void createText(int index) {
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;

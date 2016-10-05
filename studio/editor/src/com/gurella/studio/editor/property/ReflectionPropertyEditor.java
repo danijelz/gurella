@@ -34,7 +34,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorFactory;
 
-public class ReflectionPropertyEditor<P> extends ComplexPropertyEditor<P> {
+public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 	public ReflectionPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
 

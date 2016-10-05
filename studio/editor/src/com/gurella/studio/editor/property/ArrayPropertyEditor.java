@@ -23,7 +23,7 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Values;
 
-public class ArrayPropertyEditor<P> extends ComplexPropertyEditor<P> {
+public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
 
 	public ArrayPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {

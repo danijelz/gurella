@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.property;
 
-import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
-
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
@@ -9,22 +7,25 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.math.Vector2;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 	public Vector2PropertyEditor(Composite parent, PropertyEditorContext<?, Vector2> context) {
 		super(parent, context);
 
 		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 2;
+		layout.marginWidth = 1;
+		layout.marginHeight = 2;
+		layout.horizontalSpacing = 4;
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
 
@@ -57,10 +58,27 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 
 	private void createEditorField(final Model<Vector2> model, String propertyName) {
 		Property<Float> childProperty = model.getProperty(propertyName);
-		PropertyEditorContext<Vector2, Float> propertyContext = new PropertyEditorContext<>(context, model, getValue(),
-				childProperty);
-		PropertyEditor<Float> editor = createEditor(body, propertyContext);
-		editor.getComposite().setLayoutData(new GridData(SWT.LEFT, SWT.BEGINNING, false, false));
+
+		Text text = UiUtils.createFloatWidget(body);
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
+		layoutData.widthHint = 60;
+		layoutData.heightHint = 16;
+		text.setLayoutData(layoutData);
+		text.setToolTipText(propertyName);
+
+		Vector2 value = getValue();
+		if (value != null) {
+			text.setText(childProperty.getValue(value).toString());
+		}
+
+		text.addModifyListener(e -> valueChanged(childProperty, text.getText()));
+	}
+
+	private void valueChanged(Property<Float> childProperty, String txtValue) {
+		Vector2 value = getValue();
+		Vector2 oldValue = new Vector2(value);
+		childProperty.setValue(value, Values.isBlank(txtValue) ? Float.valueOf(0) : Float.valueOf(txtValue));
+		context.propertyValueChanged(oldValue, value);
 	}
 
 	private void rebuildUi() {
