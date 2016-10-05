@@ -9,11 +9,15 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
+@ModelDescriptor(descriptiveName = "Collision Object 3D")
 public class BulletRigidBodyComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable {
 	static {
 		Bullet.init();
@@ -26,6 +30,8 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 	public int collisionMask;
 	public BulletRigidBodyType rigidBodyType = BulletRigidBodyType.DYNAMIC;
 
+	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
+	@PropertyDescriptor(nullable = false)
 	public BulletCollisionShape collisionShape;
 	public final BulletMaterial material = new BulletMaterial();
 

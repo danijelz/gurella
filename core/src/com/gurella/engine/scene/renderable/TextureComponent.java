@@ -1,7 +1,9 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.gurella.engine.base.model.ModelDescriptor;
 
+@ModelDescriptor(descriptiveName = "Sprite")
 public class TextureComponent extends RenderableComponent2d {
 	private Texture texture;
 

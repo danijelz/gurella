@@ -103,6 +103,8 @@ public interface EditorUi {
 
 	<ELEMENT> EditorCombo<ELEMENT> createCombo(EditorComposite parent, ComboStyle style);
 
+	<ELEMENT extends Enum<?>> EditorCombo<ELEMENT> createEnumCombo(EditorComposite parent, Class<ELEMENT> enumType);
+
 	EditorDateTime createDate(EditorComposite parent, DateTimeLength length);
 
 	EditorDateTime createDate(EditorComposite parent, DateStyle styles);

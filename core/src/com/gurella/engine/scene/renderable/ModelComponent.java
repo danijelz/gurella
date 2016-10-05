@@ -2,7 +2,9 @@ package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.gurella.engine.base.model.ModelDescriptor;
 
+@ModelDescriptor(descriptiveName = "3D Model")
 public class ModelComponent extends RenderableComponent3d {
 	private Model model;
 	public transient ModelInstance instance;

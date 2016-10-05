@@ -20,6 +20,7 @@ import static com.gurella.studio.editor.engine.ui.style.SwtWidgetStyle.extractTr
 import static com.gurella.studio.editor.engine.ui.style.SwtWidgetStyle.length;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -43,6 +44,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
+import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorButton.ArrowButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
 import com.gurella.engine.editor.ui.EditorButton.ButtonStyle;
@@ -377,6 +379,14 @@ public class SwtEditorUi implements EditorUi {
 	@Override
 	public <ELEMENT> SwtEditorCombo<ELEMENT> createCombo(EditorComposite parent, ComboStyle style) {
 		return new SwtEditorCombo<ELEMENT>(cast(parent), SWT.DROP_DOWN | extractComboStyle(style));
+	}
+	
+	@Override
+	public <ELEMENT extends Enum<?>> EditorCombo<ELEMENT> createEnumCombo(EditorComposite parent,
+			Class<ELEMENT> enumType) {
+		SwtEditorCombo<ELEMENT> combo = createCombo(parent);
+		combo.setInput(enumType.getEnumConstants());
+		return combo;
 	}
 
 	@Override

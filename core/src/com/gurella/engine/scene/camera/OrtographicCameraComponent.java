@@ -2,7 +2,9 @@ package com.gurella.engine.scene.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.gurella.engine.base.model.ModelDescriptor;
 
+@ModelDescriptor(descriptiveName = "Ortographic Camera")
 public class OrtographicCameraComponent extends CameraComponent<OrthographicCamera> {
 	private float zoom = 1;
 

@@ -1,7 +1,10 @@
 package com.gurella.engine.editor.property;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUi;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 
 public interface PropertyEditorContext<P> {
 	Property<P> getProperty();
@@ -17,4 +20,12 @@ public interface PropertyEditorContext<P> {
 	void removeMenuItem(String text);
 	
 	EditorUi getEditorUi();
+	
+	EditorComposite createPropertyEditor(EditorComposite parent, Property<?> property);
+
+	EditorComposite createPropertyEditor(EditorComposite parent, Property<?> property, EditorLayoutData layoutData);
+
+	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property);
+
+	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property, EditorLayoutData layoutData);
 }

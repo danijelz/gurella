@@ -3,7 +3,9 @@ package com.gurella.engine.scene.camera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.gurella.engine.base.model.ModelDescriptor;
 
+@ModelDescriptor(descriptiveName = "Perspective Camera")
 public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> {
 	/** the field of view in degrees **/
 	private float fieldOfView = 67;

@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -8,6 +9,7 @@ import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
+@ModelDescriptor(descriptiveName = "Point Light")
 public class PointLightComponent extends LightComponent<PointLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
 	@SuppressWarnings("unused")

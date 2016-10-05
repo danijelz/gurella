@@ -2,6 +2,7 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
 import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -9,6 +10,7 @@ import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
+@ModelDescriptor(descriptiveName = "Spot Light")
 public class SpotLightComponent extends LightComponent<SpotLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
 	private final Vector3 direction = new Vector3(0, -1, 0);
