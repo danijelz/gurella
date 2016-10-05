@@ -19,6 +19,8 @@ import com.gurella.studio.editor.engine.ui.SwtEditorComposite;
 import com.gurella.studio.editor.engine.ui.SwtEditorLabel;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
+import com.gurella.studio.editor.model.DefaultMetaModelEditor;
+import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
 
@@ -85,6 +87,22 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 		Composite body = propertyEditor.getBody();
 		EditorComposite editorBody = SwtEditorWidget.getEditorWidget(body);
 		return editorBody == null ? new SwtEditorComposite(body) : editorBody;
+	}
+
+	@Override
+	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance) {
+		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
+		ModelEditorContext<Object> modelContext = new ModelEditorContext<>(context, modelInstance);
+		DefaultMetaModelEditor<Object> modelEditor = new DefaultMetaModelEditor<>(swtParent, modelContext);
+		return new SwtEditorComposite(modelEditor);
+	}
+
+	@Override
+	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance,
+			EditorLayoutData layoutData) {
+		EditorComposite modelEditor = createModelEditor(parent, modelInstance);
+		modelEditor.setLayoutData(layoutData);
+		return modelEditor;
 	}
 
 	@Override

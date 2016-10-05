@@ -1,8 +1,6 @@
 package com.gurella.engine.scene.bullet;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.base.model.Models;
-import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.Alignment;
@@ -64,7 +62,7 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 		} else {
 			EditorLabel label = uiFactory.createLabel(parent, "type:");
 			label.setAlignment(Alignment.RIGHT);
-			// label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
+			label.setFont(label.getFont().getHeight(), true, false);
 			new EditorLayoutData().alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER).grab(false, false)
 					.applyTo(label);
 
@@ -75,15 +73,10 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 					.applyTo(combo);
 
 			if (!(value instanceof EmptyCollisionShape)) {
-				Property<BulletCollisionShape> property = Models.getModel(BulletRigidBodyComponent.class)
-						.getProperty("collisionShape");
-				EditorLayoutData layoutData = new EditorLayoutData()
-						.alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false).span(2, 1);
-				EditorComposite shapeModelEditor = context.createPropertyEditor(parent, property, layoutData);
+				EditorComposite modelEditor = context.createModelEditor(parent, value);
+				new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
+						.span(2, 1).applyTo(modelEditor);
 			}
-
-			// UiUtils.adapt(body);
-			// UiUtils.paintBordersFor(body);
 		}
 
 		parent.layout();

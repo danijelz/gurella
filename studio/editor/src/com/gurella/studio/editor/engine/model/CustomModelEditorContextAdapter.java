@@ -14,6 +14,7 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.editor.model.ModelEditorFactory;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorLabel;
+import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -21,6 +22,7 @@ import com.gurella.studio.editor.engine.ui.SwtEditorComposite;
 import com.gurella.studio.editor.engine.ui.SwtEditorLabel;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
+import com.gurella.studio.editor.model.DefaultMetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.property.PropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditorContext;
@@ -73,9 +75,25 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 	}
 
 	@Override
+	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance) {
+		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
+		ModelEditorContext<Object> context = new ModelEditorContext<>(this, modelInstance);
+		DefaultMetaModelEditor<Object> modelEditor = new DefaultMetaModelEditor<>(swtParent, context);
+		return new SwtEditorComposite(modelEditor);
+	}
+
+	@Override
+	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance,
+			EditorLayoutData layoutData) {
+		EditorComposite modelEditor = createModelEditor(parent, modelInstance);
+		modelEditor.setLayoutData(layoutData);
+		return modelEditor;
+	}
+
+	@Override
 	public EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property) {
-		SwtEditorLabel editorLabel = (SwtEditorLabel) parent.getUiFactory().createLabel(parent,
-				property.getDescriptiveName());
+		EditorUi uiFactory = parent.getUiFactory();
+		SwtEditorLabel editorLabel = (SwtEditorLabel) uiFactory.createLabel(parent, property.getDescriptiveName());
 		Label label = editorLabel.getWidget();
 		label.setAlignment(SWT.RIGHT);
 		Font font = createFont(label, SWT.BOLD);

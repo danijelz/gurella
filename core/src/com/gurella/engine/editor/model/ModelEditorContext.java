@@ -19,6 +19,10 @@ public interface ModelEditorContext<T> {
 	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property);
 
 	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property, EditorLayoutData layoutData);
+	
+	EditorComposite createModelEditor(EditorComposite parent, Object modelInstance);
+
+	EditorComposite createModelEditor(EditorComposite parent, Object modelInstance, EditorLayoutData layoutData);
 
 	void propertyValueChanged(Property<?> property, Object oldValue, Object newValue);
 

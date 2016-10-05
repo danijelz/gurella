@@ -28,4 +28,8 @@ public interface PropertyEditorContext<P> {
 	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property);
 
 	EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property, EditorLayoutData layoutData);
+	
+	EditorComposite createModelEditor(EditorComposite parent, Object modelInstance);
+
+	EditorComposite createModelEditor(EditorComposite parent, Object modelInstance, EditorLayoutData layoutData);
 }
