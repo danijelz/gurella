@@ -20,7 +20,6 @@ import static com.gurella.studio.editor.engine.ui.style.SwtWidgetStyle.extractTr
 import static com.gurella.studio.editor.engine.ui.style.SwtWidgetStyle.length;
 
 import java.io.InputStream;
-import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
