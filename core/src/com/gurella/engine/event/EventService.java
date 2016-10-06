@@ -9,18 +9,18 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
 public class EventService {
-	private static final EventBus globalEventBus = new EventBus();
+	private static final EventBus global = new EventBus();
 	private static final IntMap<EventBus> channels = new IntMap<EventBus>();
 
 	private EventService() {
 	}
 
 	public static void subscribe(Object subscriber) {
-		globalEventBus.subscribe(subscriber);
+		global.subscribe(subscriber);
 	}
 
 	public static void unsubscribe(Object subscriber) {
-		globalEventBus.unsubscribe(subscriber);
+		global.unsubscribe(subscriber);
 	}
 
 	public static <L extends EventSubscription> void post(Event<L> event) {
@@ -28,10 +28,9 @@ public class EventService {
 		Object[] listenersByType;
 		int listenersSize;
 
-		synchronized (globalEventBus) {
+		synchronized (global) {
 			@SuppressWarnings("unchecked")
-			OrderedIdentitySet<Object> temp = (OrderedIdentitySet<Object>) globalEventBus.listeners
-					.get(subscriptionType);
+			OrderedIdentitySet<Object> temp = (OrderedIdentitySet<Object>) global.listeners.get(subscriptionType);
 			if (temp == null || temp.size == 0) {
 				return;
 			}
@@ -52,7 +51,7 @@ public class EventService {
 
 	public static <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
 			Array<? super L> out) {
-		return globalEventBus.getSubscribers(subscriptionType, out);
+		return global.getSubscribers(subscriptionType, out);
 	}
 
 	public static void subscribe(int channel, Object subscriber) {

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
@@ -509,6 +510,29 @@ public class DefaultModels {
 		@Override
 		public Date copy(Date original, CopyContext context) {
 			return new Date(original.getTime());
+		}
+	}
+
+	public static final class ColorModel extends SimpleObjectModel<Color> {
+		public static final ColorModel instance = new ColorModel();
+
+		private ColorModel() {
+			super(Color.class);
+		}
+
+		@Override
+		public void writeValue(Color value, Output output) {
+			output.writeInt(Color.rgba8888(value));
+		}
+
+		@Override
+		public Color readValue(Input input) {
+			return new Color(input.readInt());
+		}
+
+		@Override
+		public Color copy(Color original, CopyContext context) {
+			return new Color(original);
 		}
 	}
 

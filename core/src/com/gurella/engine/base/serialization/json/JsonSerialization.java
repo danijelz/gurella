@@ -18,6 +18,17 @@ public class JsonSerialization {
 	}
 
 	static <T> Class<T> resolveObjectType(Class<T> knownType, JsonValue serializedObject) {
+		Class<T> resolvedType = resolveObjectType(serializedObject);
+		if (resolvedType != null) {
+			return resolvedType;
+		} else if (knownType != null) {
+			return knownType;
+		} else {
+			throw new GdxRuntimeException("Can't resolve serialized object type.");
+		}
+	}
+
+	static <T> Class<T> resolveObjectType(JsonValue serializedObject) {
 		if (serializedObject.isArray()) {
 			if (serializedObject.size > 0) {
 				JsonValue itemValue = serializedObject.child;
@@ -32,12 +43,8 @@ public class JsonSerialization {
 				return Reflection.<T> forName(explicitTypeName);
 			}
 		}
-
-		if (knownType == null) {
-			throw new GdxRuntimeException("Can't resolve serialized object type.");
-		}
-
-		return knownType;
+		
+		return null;
 	}
 
 	static boolean isSimpleType(Object obj) {

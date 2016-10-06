@@ -294,15 +294,19 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public void deserialize(Object object, Object template, Input input) {
 		if (input.hasProperty(name)) {
-			Object templateValue = template == null ? null : getValue(template);
-			setValue(object, input.readObjectProperty(name, type, templateValue));
+			T value = getValue(object);
+			T templateValue = getValue(template);
+			Object templatePropertyValue = template == null ? value : templateValue;
+			setValue(object, input.readObjectProperty(name, type, templatePropertyValue));
 		} else if (template != null) {
 			T value = getValue(object);
 			T templateValue = getValue(template);
+
 			if (Values.isEqual(value, templateValue)) {
 				return;
+			} else {
+				setValue(object, field.isFinal() ? templateValue : input.copyObject(templateValue));
 			}
-			setValue(object, field.isFinal() ? templateValue : input.copyObject(templateValue));
 		}
 	}
 

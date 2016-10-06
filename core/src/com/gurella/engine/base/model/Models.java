@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.Method;
@@ -27,6 +28,7 @@ import com.gurella.engine.base.model.DefaultModels.BytePrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.CharModel;
 import com.gurella.engine.base.model.DefaultModels.CharPrimitiveModel;
 import com.gurella.engine.base.model.DefaultModels.ClassModel;
+import com.gurella.engine.base.model.DefaultModels.ColorModel;
 import com.gurella.engine.base.model.DefaultModels.DateModel;
 import com.gurella.engine.base.model.DefaultModels.DoubleModel;
 import com.gurella.engine.base.model.DefaultModels.DoublePrimitiveModel;
@@ -80,6 +82,7 @@ public class Models {
 		resolvedModels.put(Uuid.class, UuidModel.instance);
 		resolvedModels.put(Locale.class, LocaleModel.instance);
 		resolvedModels.put(Layer.class, LayerModel.instance);
+		resolvedModels.put(Color.class, ColorModel.instance);
 		resolvedModels.put(int[].class, IntArrayModel.instance);
 		resolvedModels.put(long[].class, LongArrayModel.instance);
 		resolvedModels.put(short[].class, ShortArrayModel.instance);

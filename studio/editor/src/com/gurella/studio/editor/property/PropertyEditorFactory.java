@@ -35,13 +35,11 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.engine.property.CustomCompositePropertyEditor;
 import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
-import com.gurella.studio.editor.property.bullet.BulletCollisionShapePropertyEditor;
 
 public class PropertyEditorFactory {
 	private static final Map<CustomFactoryKey, CustomFactoryData> customFactories = new HashMap<>();
@@ -212,12 +210,6 @@ public class PropertyEditorFactory {
 		} else if (context.property.isFinal() && context.modelInstance != null && isSimpleProperty(propertyType)) {
 			// TODO handle in ReflectionPropertyEditor
 			return cast(new SimpleObjectPropertyEditor<>(parent, context));
-		}
-
-		/////
-
-		else if (BulletCollisionShape.class.isAssignableFrom(propertyType)) {
-			return cast(new BulletCollisionShapePropertyEditor(parent, cast(context)));
 		}
 
 		///// custom models for collections...

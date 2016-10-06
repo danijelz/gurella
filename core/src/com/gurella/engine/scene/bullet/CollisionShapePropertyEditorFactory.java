@@ -52,31 +52,28 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 
 	private void buildContent(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context) {
 		BulletCollisionShape value = context.getPropertyValue();
+		if (value == null) {
+			value = new EmptyCollisionShape();
+		}
+
 		EditorUi uiFactory = parent.getUiFactory();
 
-		if (value == null) {
-			EditorLabel label = uiFactory.createLabel(parent, "null");
-			label.setAlignment(Alignment.CENTER);
-			new EditorLayoutData().alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER).grab(false, false)
-					.horizontalSpan(2).applyTo(label);
-		} else {
-			EditorLabel label = uiFactory.createLabel(parent, "type:");
-			label.setAlignment(Alignment.RIGHT);
-			label.setFont(label.getFont().getHeight(), true, false);
-			new EditorLayoutData().alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER).grab(false, false)
-					.applyTo(label);
+		EditorLabel label = uiFactory.createLabel(parent, "type:");
+		label.setAlignment(Alignment.RIGHT);
+		label.setFont(label.getFont().getHeight(), true, false);
+		new EditorLayoutData().alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER).grab(false, false)
+				.applyTo(label);
 
-			EditorCombo<CollisionShapeType> combo = uiFactory.createEnumCombo(parent, CollisionShapeType.class);
-			combo.setSelection(CollisionShapeType.valuesByType.get(value.getClass()));
-			combo.addListener(EditorEventType.Selection, new SelectionChangedListener(this, parent, context, combo));
-			new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER).grab(true, false)
-					.applyTo(combo);
+		EditorCombo<CollisionShapeType> combo = uiFactory.createEnumCombo(parent, CollisionShapeType.class);
+		combo.setSelection(CollisionShapeType.valuesByType.get(value.getClass()));
+		combo.addListener(EditorEventType.Selection, new SelectionChangedListener(this, parent, context, combo));
+		new EditorLayoutData().alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER).grab(true, false)
+				.applyTo(combo);
 
-			if (!(value instanceof EmptyCollisionShape)) {
-				EditorComposite modelEditor = context.createModelEditor(parent, value);
-				new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
-						.span(2, 1).applyTo(modelEditor);
-			}
+		if (!(value instanceof EmptyCollisionShape)) {
+			EditorComposite modelEditor = context.createModelEditor(parent, value);
+			new EditorLayoutData().alignment(HorizontalAlignment.FILL, VerticalAlignment.TOP).grab(true, false)
+					.span(2, 1).applyTo(modelEditor);
 		}
 
 		parent.layout();
