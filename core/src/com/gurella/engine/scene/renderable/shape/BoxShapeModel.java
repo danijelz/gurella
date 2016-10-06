@@ -36,6 +36,13 @@ public class BoxShapeModel extends ShapeModel {
 		dirty = true;
 	}
 
+	public void set(float width, float height, float depth) {
+		this.width = width;
+		this.height = height;
+		this.depth = depth;
+		dirty = true;
+	}
+
 	@Override
 	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
 		MeshPartBuilder part = builder.part("box", getGlPrimitiveType(), getVertexAttributes(), getMaterial());

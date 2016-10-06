@@ -3,6 +3,7 @@ package com.gurella.engine.scene.bullet.shapes;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btTriangleShapeEx;
+import com.gurella.engine.graphics.render.GenericBatch;
 
 public class TriangleCollisionShape extends BulletCollisionShape {
 	public final Vector3 p0 = new Vector3(1, 0, 0);
@@ -12,5 +13,11 @@ public class TriangleCollisionShape extends BulletCollisionShape {
 	@Override
 	public btCollisionShape createNativeShape() {
 		return new btTriangleShapeEx(p0, p1, p2);
+	}
+
+	@Override
+	public void debugRender(GenericBatch batch) {
+		// TODO Auto-generated method stub
+		
 	}
 }

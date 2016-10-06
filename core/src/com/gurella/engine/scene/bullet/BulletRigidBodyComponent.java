@@ -1,5 +1,8 @@
 package com.gurella.engine.scene.bullet;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -12,13 +15,18 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
+import com.gurella.engine.scene.bullet.shapes.EmptyCollisionShape;
+import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
 @ModelDescriptor(descriptiveName = "Collision Object 3D")
-public class BulletRigidBodyComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable {
+public class BulletRigidBodyComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable, DebugRenderable {
+	private static final Color DEBUG_OUTLINE_COLOR = new Color(0f, 0f, 1f, 1f);
+	
 	static {
 		Bullet.init();
 	}
@@ -112,6 +120,20 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 		info.setAdditionalAngularDampingFactor(material.additionalAngularDampingFactor);
 
 		return info;
+	}
+
+	@Override
+	public void debugRender(GenericBatch batch) {
+		if(collisionShape == null || collisionShape instanceof EmptyCollisionShape) {
+			return;
+		}
+		
+		Gdx.gl20.glLineWidth(2.4f);
+		batch.setShapeRendererTransform(transformComponent);
+		batch.setShapeRendererColor(DEBUG_OUTLINE_COLOR);
+		batch.setShapeRendererShapeType(ShapeType.Line);
+		collisionShape.debugRender(batch);
+		Gdx.gl20.glLineWidth(1f);
 	}
 
 	@Override

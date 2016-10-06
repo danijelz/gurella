@@ -178,6 +178,12 @@ public class GenericBatch implements Disposable {
 		shapeRenderer.setProjectionMatrix(activeCamera.combined);
 		shapeRenderer.line(x1, y1, x2, y2);
 	}
+	
+	public void box(float x, float y, float z, float width, float height, float depth) {
+		ensureShapes();
+		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.box(x, y, z, width, height, depth);
+	}
 
 	public void setShapeRendererShapeType(ShapeType shapeType) {
 		ensureShapes();

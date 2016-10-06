@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCapsuleShapeX;
 import com.badlogic.gdx.physics.bullet.collision.btCapsuleShapeZ;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.math.geometry.Axis;
 
 public class CapsuleCollisionShape extends BulletCollisionShape {
@@ -32,5 +33,11 @@ public class CapsuleCollisionShape extends BulletCollisionShape {
 		default:
 			throw new GdxRuntimeException("Unsuported axis.");
 		}
+	}
+
+	@Override
+	public void debugRender(GenericBatch batch) {
+		// TODO Auto-generated method stub
+		
 	}
 }
