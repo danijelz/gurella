@@ -10,17 +10,33 @@ import com.gurella.engine.utils.OrderedIdentitySet;
 
 public class EventService {
 	private static final EventBus global = new EventBus();
+	private static final SubscriberComparator globalComparator = new SubscriberComparator();
 	private static final IntMap<EventBus> channels = new IntMap<EventBus>();
+	private static final SubscriberComparator channelsComparator = new SubscriberComparator();
 
 	private EventService() {
 	}
 
 	public static void subscribe(Object subscriber) {
-		global.subscribe(subscriber);
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		synchronized (global) {
+			global.subscribe(subscriber, subscriptions, globalComparator);
+		}
 	}
 
 	public static void unsubscribe(Object subscriber) {
-		global.unsubscribe(subscriber);
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		synchronized (global) {
+			global.unsubscribe(subscriber, subscriptions);
+		}
 	}
 
 	public static <L extends EventSubscription> void post(Event<L> event) {
@@ -51,7 +67,9 @@ public class EventService {
 
 	public static <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
 			Array<? super L> out) {
-		return global.getSubscribers(subscriptionType, out);
+		synchronized (global) {
+			return global.getSubscribers(subscriptionType, out);
+		}
 	}
 
 	public static void subscribe(int channel, Object subscriber) {
@@ -59,25 +77,38 @@ public class EventService {
 		if (subscriptions.size == 0) {
 			return;
 		}
+
 		synchronized (channels) {
 			EventBus eventBus = channels.get(channel);
 			if (eventBus == null) {
 				eventBus = PoolService.obtain(EventBus.class);
 				channels.put(channel, eventBus);
 			}
-			eventBus.subscribe(subscriber, subscriptions);
+			eventBus.subscribe(subscriber, subscriptions, channelsComparator);
 		}
 	}
 
 	public static void unsubscribe(int channel, Object subscriber) {
+		ObjectSet<Class<? extends EventSubscription>> subscriptions = getSubscriptions(subscriber.getClass());
+		if (subscriptions.size == 0) {
+			return;
+		}
+
+		EventBus emptyEventBus = null;
 		synchronized (channels) {
 			EventBus eventBus = channels.get(channel);
-			if (eventBus != null) {
-				eventBus.unsubscribe(subscriber);
-				if (eventBus.size == 0) {
-					PoolService.free(eventBus);
-				}
+			if (eventBus == null) {
+				return;
 			}
+
+			eventBus.unsubscribe(subscriber, subscriptions);
+			if (eventBus.size == 0) {
+				emptyEventBus = eventBus;
+			}
+		}
+
+		if (emptyEventBus != null) {
+			PoolService.free(emptyEventBus);
 		}
 	}
 
