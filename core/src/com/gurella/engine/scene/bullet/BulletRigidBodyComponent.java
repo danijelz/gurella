@@ -92,13 +92,13 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 		nativeShape.setMargin(material.margin);
 
 		float mass = material.mass;
+		mass = mass < 0 ? 0 : mass;
 		Vector3 inertia = material.localInertia;
 		if (mass > 0 && material.inertiaFromShape) {
 			nativeShape.calculateLocalInertia(mass, inertia);
 		}
 
 		// TODO create info from pool
-		mass = mass < 0 ? 0 : mass;
 		btRigidBodyConstructionInfo info = new btRigidBodyConstructionInfo(mass, motionState, nativeShape, inertia);
 		info.setFriction(material.friction);
 		info.setRollingFriction(material.rollingFriction);

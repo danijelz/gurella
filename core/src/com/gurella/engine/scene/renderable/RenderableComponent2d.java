@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.debug.DebugRenderable;
 
 public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
@@ -26,7 +27,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 
 	// TODO flipX, flipY, zOrder, origin (center, leftBottom)
 
-	public transient final Sprite sprite = new Sprite();
+	transient final Sprite sprite = new Sprite();
 
 	public RenderableComponent2d() {
 		sprite.setColor(tint);
@@ -154,10 +155,9 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 			transformComponent.transformRayFromWorld(inv);
 		}
 		
-		//TODO vectors from cache
-		Vector3 v1 = new Vector3();
-		Vector3 v2 = new Vector3();
-		Vector3 v3 = new Vector3();
+		Vector3 v1 = PoolService.obtain(Vector3.class).setZero();
+		Vector3 v2 = PoolService.obtain(Vector3.class).setZero();
+		Vector3 v3 = PoolService.obtain(Vector3.class).setZero();
 		
 		float[] vertices = sprite.getVertices();
 		
@@ -166,13 +166,22 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		v3.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
 		
 		if(Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection)) {
+			PoolService.free(v1);
+			PoolService.free(v2);
+			PoolService.free(v3);
 			return true;
 		}
 		
 		v1.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
 		v2.set(vertices[Batch.X4], vertices[Batch.Y4], 0);
 		v3.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
-		return Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection);
+		boolean result = Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection);
+		
+		PoolService.free(v1);
+		PoolService.free(v2);
+		PoolService.free(v3);
+		
+		return result;
 	}
 
 	@Override

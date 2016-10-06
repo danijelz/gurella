@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.model;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
+import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
@@ -10,6 +11,7 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -66,7 +68,9 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 
 			Label label = toolkit.createLabel(this, name + ":");
 			label.setAlignment(SWT.RIGHT);
-			label.setFont(createFont(label, SWT.BOLD));
+			Font font = createFont(label, SWT.BOLD);
+			label.addDisposeListener(e -> destroyFont(font));
+			label.setFont(font);
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(composite);
