@@ -34,8 +34,8 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public int collisionMask;
 	public BulletRigidBodyType rigidBodyType = BulletRigidBodyType.DYNAMIC;
 
-	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
 	@PropertyDescriptor(nullable = false)
+	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
 	public BulletCollisionShape collisionShape;
 	public final BulletMaterial material = new BulletMaterial();
 

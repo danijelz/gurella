@@ -53,9 +53,9 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 	private <V> void addEditor(Property<V> property) {
 		FormToolkit toolkit = getToolkit();
 		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
-		GridData contentLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		GridData compositeLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite composite = editor.getComposite();
-		composite.setLayoutData(contentLayoutData);
+		composite.setLayoutData(compositeLayoutData);
 
 		PropertyEditorContext<?, V> editorContext = editor.getContext();
 		Class<V> propertyType = editorContext.getPropertyType();
@@ -79,7 +79,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			if (longName) {
 				labelLayoutData.horizontalAlignment = SWT.BEGINNING;
 				labelLayoutData.horizontalSpan = 2;
-				contentLayoutData.horizontalSpan = 2;
+				compositeLayoutData.horizontalSpan = 2;
 			}
 		} else if (editor instanceof CompositePropertyEditor) {
 			Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
@@ -93,8 +93,10 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			section.setExpanded(true);
 			section.layout(true, true);
 			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
+			compositeLayoutData.horizontalIndent = 0;
+			compositeLayoutData.verticalIndent = 0;
 		} else {
-			contentLayoutData.horizontalSpan = 2;
+			compositeLayoutData.horizontalSpan = 2;
 		}
 	}
 }

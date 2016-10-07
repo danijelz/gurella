@@ -58,7 +58,7 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 
 		EditorUi uiFactory = parent.getUiFactory();
 
-		EditorLabel label = uiFactory.createLabel(parent, "type:");
+		EditorLabel label = uiFactory.createLabel(parent, "shape:");
 		label.setAlignment(Alignment.RIGHT);
 		label.setFont(label.getFont().getHeight(), true, false);
 		new EditorLayoutData().alignment(HorizontalAlignment.RIGHT, VerticalAlignment.CENTER).grab(false, false)
