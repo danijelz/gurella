@@ -51,6 +51,7 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 			Model<Vector2> model = Models.getModel(Vector2.class);
 			createEditorField(model, value, "x");
 			createEditorField(model, value, "y");
+			UiUtils.paintBordersFor(body);
 		}
 
 		body.layout();

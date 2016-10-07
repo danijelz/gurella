@@ -46,9 +46,7 @@ public class BoxShapeModel extends ShapeModel {
 	@Override
 	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
 		MeshPartBuilder part = builder.part("box", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
-		if (parentTransform != null) {
-			part.setVertexTransform(parentTransform);
-		}
+		part.setVertexTransform(parentTransform);
 		part.box(width, height, depth);
 	}
 }

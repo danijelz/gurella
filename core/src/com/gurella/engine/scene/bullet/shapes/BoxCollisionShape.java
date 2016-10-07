@@ -8,9 +8,11 @@ import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.renderable.debug.WireframeShader;
 import com.gurella.engine.scene.renderable.shape.BoxShapeModel;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class BoxCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
 	public final Vector3 halfExtents = new Vector3(0.5f, 0.5f, 0.5f);
+
 	private BoxShapeModel debugModel;
 
 	@Override
@@ -19,13 +21,15 @@ public class BoxCollisionShape extends BulletCollisionShape implements PropertyC
 	}
 
 	@Override
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(GenericBatch batch, TransformComponent transformComponent) {
 		if (debugModel == null) {
 			debugModel = new BoxShapeModel();
+			debugModel.set(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
 		}
 
 		ModelInstance instance = debugModel.getModelInstance();
 		if (instance != null) {
+			transformComponent.getWorldTransform(instance.transform);
 			batch.render(instance, WireframeShader.getInstance());
 		}
 	}

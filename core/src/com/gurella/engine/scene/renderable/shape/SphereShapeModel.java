@@ -96,12 +96,17 @@ public class SphereShapeModel extends ShapeModel {
 		dirty = true;
 	}
 
+	public void set(float width, float height, float depth) {
+		this.width = width;
+		this.height = height;
+		this.depth = depth;
+		dirty = true;
+	}
+
 	@Override
 	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
 		MeshPartBuilder part = builder.part("sphere", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
-		if (parentTransform != null) {
-			part.setVertexTransform(parentTransform);
-		}
+		part.setVertexTransform(parentTransform);
 		part.sphere(width, height, depth, divisionsU, divisionsV, angleUFrom, angleUTo, angleVFrom, angleVTo);
 	}
 }

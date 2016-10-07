@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
+import com.gurella.engine.pool.PoolService;
 
 public abstract class ShapeModel implements Disposable {
 	private static final ModelBuilder modelBuilder = new ModelBuilder();
@@ -84,7 +85,10 @@ public abstract class ShapeModel implements Disposable {
 
 	private Model createModel(ModelBuilder builder) {
 		builder.begin();
-		buildParts(builder, null);
+		Matrix4 transform = PoolService.obtain(Matrix4.class);
+		transform.idt();
+		buildParts(builder, transform);
+		PoolService.free(transform);
 		return builder.end();
 	}
 

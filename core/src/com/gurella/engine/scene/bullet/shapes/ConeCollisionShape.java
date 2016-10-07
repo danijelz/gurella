@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.bullet.collision.btConeShapeZ;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.math.geometry.Axis;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class ConeCollisionShape extends BulletCollisionShape {
 	private Axis axis = Axis.y;
@@ -36,7 +37,7 @@ public class ConeCollisionShape extends BulletCollisionShape {
 	}
 
 	@Override
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(GenericBatch batch, TransformComponent transformComponent) {
 		// TODO Auto-generated method stub
 		
 	}

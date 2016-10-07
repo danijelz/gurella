@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.scene.transform.TransformComponent;
 
@@ -178,7 +179,19 @@ public class GenericBatch implements Disposable {
 		shapeRenderer.setProjectionMatrix(activeCamera.combined);
 		shapeRenderer.line(x1, y1, x2, y2);
 	}
-	
+
+	public void line(float x1, float y1, float z1, float x2, float y2, float z2) {
+		ensureShapes();
+		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.line(x1, y1, z1, x2, y2, z2);
+	}
+
+	public void line(Vector3 v1, Vector3 v2) {
+		ensureShapes();
+		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.line(v1, v2);
+	}
+
 	public void box(float x, float y, float z, float width, float height, float depth) {
 		ensureShapes();
 		shapeRenderer.setProjectionMatrix(activeCamera.combined);

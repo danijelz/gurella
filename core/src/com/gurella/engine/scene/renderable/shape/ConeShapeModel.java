@@ -3,8 +3,11 @@ package com.gurella.engine.scene.renderable.shape;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
+import com.gurella.engine.math.geometry.Axis;
+import com.gurella.engine.pool.PoolService;
 
 public class ConeShapeModel extends ShapeModel {
+	private Axis axis = Axis.y;
 	private float width = 1;
 	private float height = 1;
 	private float depth = 1;
@@ -69,9 +72,15 @@ public class ConeShapeModel extends ShapeModel {
 	@Override
 	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
 		MeshPartBuilder part = builder.part("cone", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
-		if (parentTransform != null) {
-			part.setVertexTransform(parentTransform);
+
+		if (axis != Axis.y) {
+			Matrix4 rotationMatrix = PoolService.obtain(Matrix4.class);
+			rotationMatrix.setToRotation(axis == Axis.z ? 1 : 0, 0, axis == Axis.x ? 1 : 0, 90);
+			parentTransform.mulLeft(rotationMatrix);
+			PoolService.free(rotationMatrix);
 		}
+
+		part.setVertexTransform(parentTransform);
 		part.cone(width, height, depth, divisions, angleFrom, angleTo);
 	}
 }

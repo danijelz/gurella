@@ -163,9 +163,7 @@ public class RectangleShapeModel extends ShapeModel {
 	@Override
 	protected void buildParts(ModelBuilder builder, Matrix4 parentTransform) {
 		MeshPartBuilder part = builder.part("rect", getGlPrimitiveType(), getVertexAttributes(), getMaterial());
-		if (parentTransform != null) {
-			part.setVertexTransform(parentTransform);
-		}
+		part.setVertexTransform(parentTransform);
 		part.rect(x00, y00, z00, x10, y10, z10, x11, y11, z11, x01, y01, z01, normalX, normalY, normalZ);
 	}
 }

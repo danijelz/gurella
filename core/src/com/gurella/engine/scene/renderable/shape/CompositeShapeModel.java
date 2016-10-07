@@ -51,11 +51,7 @@ public class CompositeShapeModel extends ShapeModel {
 	private void updateItemTransform(ShapeModelItem item, Matrix4 parentTransform) {
 		rotation.setEulerAngles(item.eulerRotation.y, item.eulerRotation.x, item.eulerRotation.z);
 		transform.set(item.translation, rotation, item.scale);
-		if (parentTransform == null) {
-			worldTransform.set(transform);
-		} else {
-			worldTransform.set(parentTransform).mul(transform);
-		}
+		worldTransform.set(parentTransform).mul(transform);
 	}
 
 	public static class ShapeModelItem {

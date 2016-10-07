@@ -1,8 +1,5 @@
 package com.gurella.engine.scene.bullet;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -24,9 +21,9 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
 @ModelDescriptor(descriptiveName = "Collision Object 3D")
-public class BulletRigidBodyComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable, DebugRenderable {
-	private static final Color DEBUG_OUTLINE_COLOR = new Color(0f, 0f, 1f, 1f);
-	
+public class BulletRigidBodyComponent extends SceneNodeComponent2
+		implements NodeComponentActivityListener, Poolable, DebugRenderable {
+
 	static {
 		Bullet.init();
 	}
@@ -124,16 +121,9 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2 implements Nod
 
 	@Override
 	public void debugRender(GenericBatch batch) {
-		if(collisionShape == null || collisionShape instanceof EmptyCollisionShape) {
-			return;
+		if (collisionShape != null && !(collisionShape instanceof EmptyCollisionShape)) {
+			collisionShape.debugRender(batch, transformComponent);
 		}
-		
-		Gdx.gl20.glLineWidth(2.4f);
-		batch.setShapeRendererTransform(transformComponent);
-		batch.setShapeRendererColor(DEBUG_OUTLINE_COLOR);
-		batch.setShapeRendererShapeType(ShapeType.Line);
-		collisionShape.debugRender(batch);
-		Gdx.gl20.glLineWidth(1f);
 	}
 
 	@Override
