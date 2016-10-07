@@ -15,6 +15,15 @@ public class ConeShapeModel extends ShapeModel {
 	private float angleFrom = 0;
 	private float angleTo = 360;
 
+	public Axis getAxis() {
+		return axis;
+	}
+
+	public void setAxis(Axis axis) {
+		this.axis = axis == null ? Axis.y : axis;
+		dirty = true;
+	}
+
 	public float getWidth() {
 		return width;
 	}
@@ -66,6 +75,14 @@ public class ConeShapeModel extends ShapeModel {
 
 	public void setAngleTo(float angleTo) {
 		this.angleTo = angleTo;
+		dirty = true;
+	}
+
+	public void set(Axis axis, float width, float height, float depth) {
+		this.axis = axis == null ? Axis.y : axis;
+		this.width = width;
+		this.height = height;
+		this.depth = depth;
 		dirty = true;
 	}
 

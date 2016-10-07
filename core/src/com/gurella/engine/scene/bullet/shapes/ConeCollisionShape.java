@@ -1,18 +1,24 @@
 package com.gurella.engine.scene.bullet.shapes;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btConeShape;
 import com.badlogic.gdx.physics.bullet.collision.btConeShapeX;
 import com.badlogic.gdx.physics.bullet.collision.btConeShapeZ;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.math.geometry.Axis;
+import com.gurella.engine.scene.renderable.debug.WireframeShader;
+import com.gurella.engine.scene.renderable.shape.ConeShapeModel;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class ConeCollisionShape extends BulletCollisionShape {
+public class ConeCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
 	private Axis axis = Axis.y;
 	float radius = 1;
-	float height = 0.2f;
+	float height = 1;
+
+	private ConeShapeModel debugModel;
 
 	public Axis getAxis() {
 		return axis;
@@ -38,7 +44,22 @@ public class ConeCollisionShape extends BulletCollisionShape {
 
 	@Override
 	public void debugRender(GenericBatch batch, TransformComponent transformComponent) {
-		// TODO Auto-generated method stub
-		
+		if (debugModel == null) {
+			debugModel = new ConeShapeModel();
+			debugModel.set(axis, radius, height, radius);
+		}
+
+		ModelInstance instance = debugModel.getModelInstance();
+		if (instance != null) {
+			transformComponent.getWorldTransform(instance.transform);
+			batch.render(instance, WireframeShader.getInstance());
+		}
+	}
+
+	@Override
+	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
+		if (debugModel != null) {
+			debugModel.set(axis, radius, height, radius);
+		}
 	}
 }

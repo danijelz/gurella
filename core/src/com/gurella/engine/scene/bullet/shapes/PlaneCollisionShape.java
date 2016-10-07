@@ -18,6 +18,5 @@ public class PlaneCollisionShape extends BulletCollisionShape {
 	@Override
 	public void debugRender(GenericBatch batch, TransformComponent transformComponent) {
 		// TODO Auto-generated method stub
-		
 	}
 }
