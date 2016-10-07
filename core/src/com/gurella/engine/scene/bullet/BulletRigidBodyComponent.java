@@ -15,7 +15,6 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.EmptyCollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
@@ -122,7 +121,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	@Override
 	public void debugRender(GenericBatch batch) {
-		if (collisionShape != null && !(collisionShape instanceof EmptyCollisionShape)) {
+		if (collisionShape != null) {
 			collisionShape.debugRender(batch, transformComponent);
 		}
 	}
