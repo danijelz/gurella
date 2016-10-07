@@ -35,7 +35,7 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 		buildContent(parent, context);
 
 		for (CollisionShapeType value : CollisionShapeType.values()) {
-			context.addMenuItem("Set " + value.name(), () -> updateValue(parent, context, value.type));
+			context.addMenuItem("Set " + value.name(), new MenuItemAction(parent, context, value));
 		}
 	}
 
@@ -77,6 +77,24 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 		}
 
 		parent.layout();
+	}
+
+	private final class MenuItemAction implements Runnable {
+		private final EditorComposite parent;
+		private final PropertyEditorContext<BulletCollisionShape> context;
+		private final CollisionShapeType value;
+
+		private MenuItemAction(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context,
+				CollisionShapeType value) {
+			this.parent = parent;
+			this.context = context;
+			this.value = value;
+		}
+
+		@Override
+		public void run() {
+			updateValue(parent, context, value.type);
+		}
 	}
 
 	private enum CollisionShapeType {
