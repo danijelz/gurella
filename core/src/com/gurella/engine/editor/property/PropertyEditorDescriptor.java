@@ -12,5 +12,9 @@ import java.lang.annotation.Target;
 public @interface PropertyEditorDescriptor {
 	Class<? extends PropertyEditorFactory<?>> factory();
 
-	boolean complex() default true;
+	EditorType type() default EditorType.composite;
+
+	public enum EditorType {
+		simple, composite, custom
+	}
 }

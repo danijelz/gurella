@@ -35,10 +35,12 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.engine.property.CustomCompositePropertyEditor;
+import com.gurella.studio.editor.engine.property.CustomPropertyEditor;
 import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 
 public class PropertyEditorFactory {
@@ -66,8 +68,16 @@ public class PropertyEditorFactory {
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
 			Object factory = constructor.newInstance(new Object[0]);
-			return data.complex ? new CustomCompositePropertyEditor<>(parent, context, cast(factory))
-					: new CustomSimplePropertyEditor<>(parent, context, cast(factory));
+			switch (data.type) {
+			case composite:
+				return new CustomCompositePropertyEditor<>(parent, context, cast(factory));
+			case simple:
+				return new CustomSimplePropertyEditor<>(parent, context, cast(factory));
+			case custom:
+				return new CustomPropertyEditor<>(parent, context, cast(factory));
+			default:
+				return new CustomCompositePropertyEditor<>(parent, context, cast(factory));
+			}
 		} catch (Exception e) {
 			String modelClass = context.modelInstance.getClass().getName();
 			customFactories.put(new CustomFactoryKey(modelClass, context.property.getName()), null);
@@ -131,7 +141,7 @@ public class PropertyEditorFactory {
 	private static CustomFactoryData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		String factoryName = null;
-		boolean complex = true;
+		EditorType editorType = EditorType.composite;
 		for (IMemberValuePair memberValuePair : memberValuePairs) {
 			if ("factory".equals(memberValuePair.getMemberName())) {
 				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
@@ -149,12 +159,17 @@ public class PropertyEditorFactory {
 					builder.append(part);
 				}
 				factoryName = builder.toString();
-			} else if ("complex".equals(memberValuePair.getMemberName())) {
-				complex = !Boolean.FALSE.equals(memberValuePair.getValue());
+			} else if ("type".equals(memberValuePair.getMemberName())) {
+				String editorTypeStr = memberValuePair.getValue().toString();
+				if (editorTypeStr.contains(EditorType.simple.name())) {
+					editorType = EditorType.simple;
+				} else if (editorTypeStr.contains(EditorType.custom.name())) {
+					editorType = EditorType.custom;
+				}
 			}
 		}
 
-		return new CustomFactoryData(complex, factoryName);
+		return new CustomFactoryData(editorType, factoryName);
 	}
 
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context,
@@ -276,11 +291,11 @@ public class PropertyEditorFactory {
 	}
 
 	private static class CustomFactoryData {
-		boolean complex;
+		EditorType type;
 		String factoryClass;
 
-		public CustomFactoryData(boolean complex, String factoryClass) {
-			this.complex = complex;
+		public CustomFactoryData(EditorType type, String factoryClass) {
+			this.type = type;
 			this.factoryClass = factoryClass;
 		}
 	}

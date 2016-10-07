@@ -55,7 +55,7 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
-		layoutData.heightHint = 16;
+		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setText(Float.toString(value.val[index]));
 		text.addModifyListener((e) -> valueChanged(index, text.getText()));

@@ -61,7 +61,7 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 		Text text = UiUtils.createIntegerWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 60;
-		layoutData.heightHint = 16;
+		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
 		text.setText(childProperty.getValue(value).toString());

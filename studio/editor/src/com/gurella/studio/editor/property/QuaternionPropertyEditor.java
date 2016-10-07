@@ -63,7 +63,7 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 40;
-		layoutData.heightHint = 16;
+		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
 		text.setText(childProperty.getValue(value).toString());

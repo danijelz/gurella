@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -27,7 +28,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	private transient boolean dirty = true;
 
 	@PropertyDescriptor(nullable = false)
-	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, complex = false)
+	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, type = EditorType.simple)
 	Layer layer = Layer.DEFAULT;
 
 	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class)

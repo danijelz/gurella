@@ -58,7 +58,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		text.setEditable(false);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		layoutData.widthHint = 60;
-		layoutData.heightHint = 16;
+		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 
 		selectAssetButton = toolkit.createButton(this, "", SWT.PUSH);

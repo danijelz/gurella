@@ -53,7 +53,7 @@ public class ColorSelectionWidget extends Composite {
 		text = UiUtils.createText(this);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 		layoutData.widthHint = 100;
-		layoutData.heightHint = 16;
+		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 
 		Point textSize = text.computeSize(60, 16, true);
