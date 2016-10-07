@@ -81,6 +81,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 			btRigidBodyConstructionInfo info = createConstructionInfo();
 			rigidBody = new btRigidBody(info);
 			rigidBody.userData = this;
+			rigidBody.setLinearFactor(material.linearFactor);
 			rigidBody.setAngularFactor(material.angularFactor);
 			rigidBody.setGravity(material.gravity);
 			info.dispose();// TODO remove when pooled
