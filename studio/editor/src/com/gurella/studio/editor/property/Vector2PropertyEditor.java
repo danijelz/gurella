@@ -61,7 +61,7 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 		Property<Float> childProperty = model.getProperty(propertyName);
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 60;
+		layoutData.widthHint = 50;
 		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);

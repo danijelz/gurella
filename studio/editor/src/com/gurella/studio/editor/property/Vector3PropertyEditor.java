@@ -63,7 +63,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 60;
+		layoutData.widthHint = 50;
 		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);

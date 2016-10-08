@@ -50,7 +50,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 			date = new DateTime(body, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN);
 			UiUtils.adapt(date);
 			GridData gridData = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
-			gridData.widthHint = 110;
+			gridData.widthHint = 100;
 			date.setLayoutData(gridData);
 			date.setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
 					calendar.get(Calendar.DAY_OF_MONTH));
@@ -61,7 +61,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 			time = new DateTime(body, SWT.TIME | SWT.SHORT | SWT.DROP_DOWN);
 			UiUtils.adapt(time);
 			gridData = new GridData(SWT.BEGINNING, SWT.CENTER, true, false);
-			gridData.widthHint = 130;
+			gridData.widthHint = 75;
 			time.setLayoutData(gridData);
 			time.setTime(calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
 			time.addListener(SWT.Selection, e -> setValue(extractTimestamp()));

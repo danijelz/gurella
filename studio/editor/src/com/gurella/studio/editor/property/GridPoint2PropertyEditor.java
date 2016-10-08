@@ -60,7 +60,7 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 		Property<Integer> childProperty = model.getProperty(propertyName);
 		Text text = UiUtils.createIntegerWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 60;
+		layoutData.widthHint = 50;
 		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);

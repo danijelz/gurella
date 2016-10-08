@@ -26,7 +26,6 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 	private boolean paused;
 
 	private ApplicationConfig config;
-	private String initialScenePath;
 	private final SceneManager sceneManager = new SceneManager(null);
 
 	private Thread renderThread;
@@ -48,7 +47,7 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 		// TODO config.init(this);
 		// TODO add init scripts to initializer
 		GraphicsService.init();
-		sceneManager.showScene(initialScenePath);
+		sceneManager.showScene(config.initialScenePath);
 	}
 
 	@Override

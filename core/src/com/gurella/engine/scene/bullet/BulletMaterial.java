@@ -1,8 +1,10 @@
 package com.gurella.engine.scene.bullet;
 
 import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.base.model.PropertyDescriptor;
 
 public class BulletMaterial {
+	@PropertyDescriptor(descriptiveName = "Calc. inertia")
 	public boolean inertiaFromShape = true;
 	public final Vector3 localInertia = new Vector3(0, 0, 0);
 

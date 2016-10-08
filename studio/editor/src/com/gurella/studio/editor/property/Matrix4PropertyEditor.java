@@ -61,7 +61,7 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 	private void createText(int index, Matrix4 value) {
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 43;
+		layoutData.widthHint = 40;
 		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setText(Float.toString(value.val[index]));

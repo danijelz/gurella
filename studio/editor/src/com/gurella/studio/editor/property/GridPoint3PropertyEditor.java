@@ -62,7 +62,7 @@ public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 		Property<Integer> childProperty = model.getProperty(propertyName);
 		Text text = UiUtils.createFloatWidget(body);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = 60;
+		layoutData.widthHint = 50;
 		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 		text.setToolTipText(propertyName);
