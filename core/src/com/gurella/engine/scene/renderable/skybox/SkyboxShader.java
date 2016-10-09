@@ -85,21 +85,8 @@ public class SkyboxShader extends BaseShader {
 	@Override
 	public void render(Renderable renderable) {
 		CubemapAttribute cubemapAttribute = (CubemapAttribute) renderable.material.get(EnvironmentMap);
-		if (cubemapAttribute != null) {
-			set(UNIFORM_TEXTURE, cubemapAttribute.textureDescription);
-		}
-
-		// Fog
-		//        Fog fog = ((MundusEnvironment) renderable.environment).getFog();
-		//        if (fog == null) {
-		//            set(UNIFORM_FOG, 0);
-		//        } else {
-		//            set(UNIFORM_FOG, 1);
-		//            set(UNIFORM_FOG_COLOR, fog.color);
-		//        }
-
+		set(UNIFORM_TEXTURE, cubemapAttribute.textureDescription);
 		set(UNIFORM_FOG, 0);
-
 		renderable.meshPart.render(program);
 	}
 
