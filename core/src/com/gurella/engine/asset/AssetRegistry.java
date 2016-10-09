@@ -10,6 +10,7 @@ import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.BitmapFontLoader;
+import com.badlogic.gdx.assets.loaders.CubemapLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.I18NBundleLoader;
 import com.badlogic.gdx.assets.loaders.MusicLoader;
@@ -123,6 +124,7 @@ public class AssetRegistry extends AssetManager {
 					new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 			setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 			setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
+			setLoader(Cubemap.class, "zktx", new CubemapLoader(resolver));
 		}
 	}
 

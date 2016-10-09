@@ -1,5 +1,7 @@
 package com.gurella.engine.scene.renderable.skybox;
 
+import static com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute.EnvironmentMap;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -82,8 +84,7 @@ public class SkyboxShader extends BaseShader {
 
 	@Override
 	public void render(Renderable renderable) {
-		CubemapAttribute cubemapAttribute = ((CubemapAttribute) (renderable.material
-				.get(CubemapAttribute.EnvironmentMap)));
+		CubemapAttribute cubemapAttribute = (CubemapAttribute) renderable.material.get(EnvironmentMap);
 		if (cubemapAttribute != null) {
 			set(UNIFORM_TEXTURE, cubemapAttribute.textureDescription);
 		}

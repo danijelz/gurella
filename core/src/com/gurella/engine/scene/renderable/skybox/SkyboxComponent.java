@@ -21,6 +21,16 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	private Model boxModel;
 	private ModelInstance boxInstance;
+	private CubemapAttribute cubemapAttribute;
+
+	public Cubemap getCubemap() {
+		return cubemap;
+	}
+
+	public void setCubemap(Cubemap cubemap) {
+		this.cubemap = cubemap;
+		cubemapAttribute.textureDescription.texture = cubemap;
+	}
 
 	@Override
 	protected void componentActivated() {
@@ -32,10 +42,8 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	private Model createModel() {
 		ModelBuilder modelBuilder = new ModelBuilder();
-		Model model = modelBuilder.createBox(1, 1, 1,
-				new Material(new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap)),
-				VertexAttributes.Usage.Position);
-		return model;
+		cubemapAttribute = new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap);
+		return modelBuilder.createBox(1, 1, 1, new Material(cubemapAttribute), VertexAttributes.Usage.Position);
 	}
 
 	@Override
@@ -44,6 +52,9 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	protected void doRender(GenericBatch batch) {
+		if (cubemap == null) {
+			return;
+		}
 		batch.render(boxInstance, SkyboxShader.getInstance());
 	}
 
