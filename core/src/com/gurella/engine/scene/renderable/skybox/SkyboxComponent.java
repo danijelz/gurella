@@ -22,10 +22,12 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	private Model boxModel;
 	private ModelInstance boxInstance;
 
-	public SkyboxComponent() {
-
-		boxModel = createModel();
-		boxInstance = new ModelInstance(boxModel);
+	@Override
+	protected void componentActivated() {
+		if (boxModel == null) {
+			boxModel = createModel();
+			boxInstance = new ModelInstance(boxModel);
+		}
 	}
 
 	private Model createModel() {
@@ -38,7 +40,6 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	protected void updateGeometry() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -48,7 +49,8 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	protected void doGetBounds(BoundingBox bounds) {
-		// TODO Auto-generated method stub
+		bounds.ext(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+		bounds.ext(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 	}
 
 	@Override
