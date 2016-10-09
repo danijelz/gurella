@@ -51,7 +51,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
-import com.gurella.engine.scene.bullet.BulletRigidBodyComponent;
+import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;

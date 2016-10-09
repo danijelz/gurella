@@ -20,6 +20,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService2;
+import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 import com.gurella.engine.subscriptions.application.ApplicationActivityListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;

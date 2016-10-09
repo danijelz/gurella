@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.bullet;
 
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 
 class CachedCollisionPair {
 	BulletRigidBodyComponent rigidBodyComponent0;

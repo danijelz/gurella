@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.bullet;
+package com.gurella.engine.scene.bullet.rigidbody;
 
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.editor.property.PropertyEditorContext;

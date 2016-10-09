@@ -3,6 +3,7 @@ package com.gurella.engine.scene.bullet;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btPersistentManifold;
 import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 
 public class CollisionPair {
 	private btPersistentManifold contactManifold;

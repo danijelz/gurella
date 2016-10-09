@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletCollisionPairListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationStepListener;

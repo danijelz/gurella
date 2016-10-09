@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.bullet;
+package com.gurella.engine.scene.bullet.rigidbody;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -40,7 +40,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public final BulletMaterial material = new BulletMaterial();
 
 	private final transient MotionState motionState = new MotionState();
-	transient btRigidBody rigidBody;
+	public transient btRigidBody rigidBody;
 
 	private transient TransformComponent transformComponent;
 
