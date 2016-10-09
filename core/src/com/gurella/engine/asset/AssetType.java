@@ -25,9 +25,9 @@ import com.gurella.engine.scene.SceneNode2;
 public enum AssetType {
 	texture(Texture.class, "png", "jpg", "jpeg"),
 	textureAtlas(TextureAtlas.class, "atl"),
-	cubemap(Cubemap.class),
+	cubemap(Cubemap.class, "zktx"),
 	bitmapFont(BitmapFont.class, "fnt"),
-	I18NBundle(I18NBundle.class),
+	I18NBundle(I18NBundle.class, "i18n"),
 	model(Model.class, "g3dj", "g3db", "obj"),
 	music(Music.class, "wav", "ogg", "mp3", "scl"),
 	sound(Sound.class, "wav", "ogg", "mp3", "scl"),
