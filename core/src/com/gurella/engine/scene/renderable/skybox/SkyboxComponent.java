@@ -1,6 +1,10 @@
 package com.gurella.engine.scene.renderable.skybox;
 
+import static com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute.EnvironmentMap;
+
 import com.badlogic.gdx.graphics.Cubemap;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -30,6 +34,8 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	public void setCubemap(Cubemap cubemap) {
 		this.cubemap = cubemap;
 		cubemapAttribute.textureDescription.texture = cubemap;
+		CubemapAttribute attribute = (CubemapAttribute) boxInstance.materials.get(0).get(EnvironmentMap);
+		attribute.textureDescription.texture = cubemap;
 	}
 
 	@Override
@@ -43,6 +49,10 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	private Model createModel() {
 		ModelBuilder modelBuilder = new ModelBuilder();
 		cubemapAttribute = new CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap);
+		cubemapAttribute.textureDescription.magFilter = TextureFilter.Linear;
+		cubemapAttribute.textureDescription.minFilter = TextureFilter.Linear;
+		cubemapAttribute.textureDescription.uWrap = TextureWrap.ClampToEdge;
+		cubemapAttribute.textureDescription.vWrap = TextureWrap.ClampToEdge;
 		return modelBuilder.createBox(1, 1, 1, new Material(cubemapAttribute), VertexAttributes.Usage.Position);
 	}
 
