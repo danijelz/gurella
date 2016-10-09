@@ -61,6 +61,7 @@ import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.ShapeComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
+import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
@@ -149,6 +150,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		addMenuItem(menu, TextureComponent.class);
 		addMenuItem(menu, TextureRegionComponent.class);
 		addMenuItem(menu, AtlasRegionComponent.class);
+		addMenuItem(menu, SkyboxComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, ModelComponent.class);
 		addMenuItem(menu, ShapeComponent.class);

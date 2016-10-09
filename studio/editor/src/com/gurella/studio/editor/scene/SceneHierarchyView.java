@@ -40,6 +40,7 @@ import com.gurella.engine.scene.renderable.shape.CylinderShapeModel;
 import com.gurella.engine.scene.renderable.shape.RectangleShapeModel;
 import com.gurella.engine.scene.renderable.shape.ShapeModel;
 import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
+import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
@@ -157,6 +158,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		addMenuItem(subMenu, TextureComponent.class);
 		addMenuItem(subMenu, TextureRegionComponent.class);
 		addMenuItem(subMenu, AtlasRegionComponent.class);
+		addMenuItem(menu, SkyboxComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, ModelComponent.class);
 		addMenuItem(subMenu, ShapeComponent.class);

@@ -61,6 +61,7 @@ import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.ShapeComponent;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.renderable.TextureRegionComponent;
+import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponnent;
@@ -150,10 +151,10 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TagComponent.class);
 		new MenuItem(menu, SEPARATOR);
-		// addItem("Layer", LayerComponent.class);
 		addMenuItem(menu, TextureComponent.class);
 		addMenuItem(menu, TextureRegionComponent.class);
 		addMenuItem(menu, AtlasRegionComponent.class);
+		addMenuItem(menu, SkyboxComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, ModelComponent.class);
 		addMenuItem(menu, ShapeComponent.class);
@@ -186,7 +187,8 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
 				component);
-		componentEditor.getContext().propertyChangedSignal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		componentEditor.getContext().propertyChangedSignal
+				.addListener((event) -> postMessage(SceneChangedMessage.instance));
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 
