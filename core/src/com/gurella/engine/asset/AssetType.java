@@ -25,7 +25,7 @@ import com.gurella.engine.scene.SceneNode2;
 public enum AssetType {
 	texture(Texture.class, "png", "jpg", "jpeg"),
 	textureAtlas(TextureAtlas.class, "atl"),
-	cubemap(Cubemap.class, "zktx"),
+	cubemap(Cubemap.class, "ktx", "zktx"),
 	bitmapFont(BitmapFont.class, "fnt"),
 	I18NBundle(I18NBundle.class, "i18n"),
 	model(Model.class, "g3dj", "g3db", "obj"),
@@ -33,7 +33,7 @@ public enum AssetType {
 	sound(Sound.class, "wav", "ogg", "mp3", "scl"),
 	soundClip(SoundClip.class, "wav", "ogg", "mp3", "scl"),
 	audioClip(AudioClip.class, "wav", "ogg", "mp3", "scl"),
-	pixmap(Pixmap.class, "bmp", "jpg", "jpeg"),
+	pixmap(Pixmap.class, "png", "bmp", "jpg", "jpeg"),
 	polygonRegion(PolygonRegion.class, "psh"),
 	inputActionMap(InputActionMap.class, "giam"),
 	prefab(SceneNode2.class, "pref"),

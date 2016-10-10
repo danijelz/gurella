@@ -3,6 +3,7 @@ package com.gurella.engine.scene.renderable.skybox;
 import static com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute.EnvironmentMap;
 
 import com.badlogic.gdx.graphics.Cubemap;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -21,18 +22,54 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 
 @ModelDescriptor(descriptiveName = "Skybox")
 public class SkyboxComponent extends RenderableComponent implements Disposable {
-	Cubemap cubemap;
+	Pixmap sky;
+
+	private Pixmap positiveX;
+	private Pixmap negativeX;
+	private Pixmap positiveY;
+	private Pixmap negativeY;
+	private Pixmap positiveZ;
+	private Pixmap negativeZ;
+
+	transient Cubemap cubemap;
 
 	private Model boxModel;
 	private ModelInstance boxInstance;
 	private CubemapAttribute cubemapAttribute;
 
-	public Cubemap getCubemap() {
-		return cubemap;
+	public Pixmap getSky() {
+		return sky;
 	}
 
-	public void setCubemap(Cubemap cubemap) {
-		this.cubemap = cubemap;
+	public void setSky(Pixmap sky) {
+		disposeSky();
+
+		this.sky = sky;
+		if (sky != null) {
+			int width = sky.getWidth() / 4;
+			int height = sky.getHeight() / 3;
+
+			negativeX = new Pixmap(width, height, sky.getFormat());
+			negativeX.drawPixmap(sky, 0, 0, 0, height, width, height);
+
+			positiveY = new Pixmap(width, height, sky.getFormat());
+			positiveY.drawPixmap(sky, 0, 0, width, 0, width, height);
+
+			positiveZ = new Pixmap(width, height, sky.getFormat());
+			positiveZ.drawPixmap(sky, 0, 0, width, height, width, height);
+
+			negativeY = new Pixmap(width, height, sky.getFormat());
+			negativeY.drawPixmap(sky, 0, 0, width, height * 2, width, height);
+
+			positiveX = new Pixmap(width, height, sky.getFormat());
+			positiveX.drawPixmap(sky, 0, 0, width * 2, height, width, height);
+
+			negativeZ = new Pixmap(width, height, sky.getFormat());
+			negativeZ.drawPixmap(sky, 0, 0, width * 3, height, width, height);
+
+			cubemap = new Cubemap(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ);
+		}
+
 		cubemapAttribute.textureDescription.texture = cubemap;
 		CubemapAttribute attribute = (CubemapAttribute) boxInstance.materials.get(0).get(EnvironmentMap);
 		attribute.textureDescription.texture = cubemap;
@@ -81,7 +118,36 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	public void dispose() {
-		boxModel.dispose();
-		cubemap.dispose();
+		if (boxModel != null) {
+			boxModel.dispose();
+		}
+		disposeSky();
+	}
+
+	protected void disposeSky() {
+		if (this.sky != null) {
+			this.sky.dispose();
+
+			cubemap.dispose();
+			cubemap = null;
+
+			positiveX.dispose();
+			positiveX = null;
+
+			negativeX.dispose();
+			negativeX = null;
+
+			positiveY.dispose();
+			positiveY = null;
+
+			negativeY.dispose();
+			negativeY = null;
+
+			positiveZ.dispose();
+			positiveZ = null;
+
+			negativeZ.dispose();
+			negativeZ = null;
+		}
 	}
 }

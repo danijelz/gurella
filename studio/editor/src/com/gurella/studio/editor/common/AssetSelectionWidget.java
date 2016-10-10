@@ -99,7 +99,7 @@ public class AssetSelectionWidget<T> extends Composite {
 
 	private void assetSelected(final String path) {
 		T oldAsset = asset;
-		asset = AssetService.load(path);
+		asset = AssetService.load(path, assetType);
 		text.setText(extractFileName(path));
 		text.setMessage("");
 		if (selectionChangedListener != null) {

@@ -124,6 +124,7 @@ public class AssetRegistry extends AssetManager {
 					new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
 			setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 			setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
+			setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));
 			setLoader(Cubemap.class, "zktx", new CubemapLoader(resolver));
 		}
 	}
