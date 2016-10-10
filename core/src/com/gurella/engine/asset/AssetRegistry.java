@@ -578,6 +578,7 @@ public class AssetRegistry extends AssetManager {
 			try {
 				task.loadSync();
 			} catch (Exception e) {
+				task.exception = e;
 				handleTaskException(task);
 				continue;
 			}

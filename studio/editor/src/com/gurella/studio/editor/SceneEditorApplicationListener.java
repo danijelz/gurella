@@ -87,7 +87,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		perspectiveCamera.position.set(0f, 0f, 3f);
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
-		perspectiveCamera.far = 1000;
+		perspectiveCamera.far = 10000;
 
 		perspectiveCamera.update();
 		selectedCamera = perspectiveCamera;
