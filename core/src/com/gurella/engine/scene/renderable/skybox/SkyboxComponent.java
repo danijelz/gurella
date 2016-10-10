@@ -107,7 +107,7 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 
 	@Override
 	protected void doGetBounds(BoundingBox bounds) {
-		bounds.ext(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+		bounds.ext(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
 		bounds.ext(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 	}
 
