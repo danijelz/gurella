@@ -4,6 +4,7 @@ Wrapper around libGDX and solid basis for merging its addons and contributions u
 ##Current features:
  * sprites
  * 3d models
+ * skybox
  * lights (directional, point, spot)
  * cameras (ortographic and perspective)
  * bullet physics
