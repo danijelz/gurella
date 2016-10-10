@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.renderable.RenderableComponent;
@@ -125,8 +126,9 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	}
 
 	protected void disposeSky() {
-		if (this.sky != null) {
-			this.sky.dispose();
+		if (sky != null) {
+			AssetService.unload(sky);
+			sky = null;
 
 			cubemap.dispose();
 			cubemap = null;

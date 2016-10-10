@@ -86,8 +86,8 @@ public final class AssetService {
 		return assetRegistry.isLoaded(fileName);
 	}
 
-	public static <T> void unload(T resource) {
-		assetRegistry.unload(resource);
+	public static <T> boolean unload(T resource) {
+		return assetRegistry.unload(resource);
 	}
 
 	public static <T> T get(String fileName) {
