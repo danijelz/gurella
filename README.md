@@ -7,8 +7,8 @@ Wrapper around libGDX and solid basis for merging its addons and contributions u
  * skybox
  * lights (directional, point, spot)
  * cameras (ortographic and perspective)
- * bullet physics
- * spatial audio
+ * bullet rigid body
+ * spatial audio source and listener
  * prefabs (create entity and instantiate it)
  * custom components (add custom component by extending SceneNodeComponent class, attach it to scene node and edit its properties in inspector)
  * ...
