@@ -29,9 +29,9 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New Date", () -> updateValue(new Date()));
+			addMenuItem("New Date", () -> newValue(new Date()));
 			if (context.isNullable()) {
-				addMenuItem("Set to null", () -> updateValue(null));
+				addMenuItem("Set to null", () -> newValue(null));
 			}
 		}
 	}
@@ -90,8 +90,13 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 		buildUi();
 	}
 
-	private void updateValue(Date value) {
+	private void newValue(Date value) {
 		setValue(value);
+		rebuildUi();
+	}
+
+	@Override
+	protected void updateValue(Date value) {
 		rebuildUi();
 	}
 }

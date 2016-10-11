@@ -32,9 +32,9 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New instance", () -> newInstance());
+			addMenuItem("New instance", () -> newValue(new GridPoint2()));
 			if (context.isNullable()) {
-				addMenuItem("Set null", () -> setNull());
+				addMenuItem("Set null", () -> newValue(null));
 			}
 		}
 	}
@@ -80,13 +80,13 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 		buildUi();
 	}
 
-	private void setNull() {
-		setValue(null);
+	private void newValue(GridPoint2 value) {
+		setValue(value);
 		rebuildUi();
 	}
 
-	private void newInstance() {
-		setValue(new GridPoint2());
+	@Override
+	protected void updateValue(GridPoint2 value) {
 		rebuildUi();
 	}
 }

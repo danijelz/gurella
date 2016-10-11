@@ -32,9 +32,9 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New Vector3", () -> newInstance());
+			addMenuItem("New Vector3", () -> newValue(new Vector3()));
 			if (context.isNullable()) {
-				addMenuItem("Set to null", () -> setNull());
+				addMenuItem("Set to null", () -> newValue(null));
 			}
 		}
 	}
@@ -83,13 +83,13 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		buildUi();
 	}
 
-	private void setNull() {
-		setValue(null);
+	private void newValue(Vector3 value) {
+		setValue(value);
 		rebuildUi();
 	}
 
-	private void newInstance() {
-		setValue(new Vector3());
+	@Override
+	protected void updateValue(Vector3 value) {
 		rebuildUi();
 	}
 }

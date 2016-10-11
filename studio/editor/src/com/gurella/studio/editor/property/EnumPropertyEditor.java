@@ -64,4 +64,10 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		IStructuredSelection selection = comboViewer.getStructuredSelection();
 		setValue(Values.cast(selection.getFirstElement()));
 	}
+
+	@Override
+	protected void updateValue(P value) {
+		final ISelection selection = new StructuredSelection(value);
+		comboViewer.setSelection(selection);
+	}
 }

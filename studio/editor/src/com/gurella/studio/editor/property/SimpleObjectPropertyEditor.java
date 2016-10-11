@@ -2,6 +2,8 @@ package com.gurella.studio.editor.property;
 
 import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -13,11 +15,14 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 
 public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
+	private Model<P> model;
+	private Property<Object> delegateProperty;
+
 	public SimpleObjectPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
 
-		Model<P> model = Models.getModel(context.getPropertyType());
-		Property<Object> delegateProperty = Values.cast(model.getProperties().get(0));
+		model = Models.getModel(context.getPropertyType());
+		delegateProperty = Values.cast(model.getProperties().get(0));
 
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
@@ -25,8 +30,23 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		body.setLayout(layout);
+		buildUi();
+	}
+
+	protected void buildUi() {
 		P value = getValue();
-		PropertyEditor<Object> delegate = createEditor(body, new PropertyEditorContext<>(context, model, value, delegateProperty));
+		PropertyEditor<Object> delegate = createEditor(body,
+				new PropertyEditorContext<>(context, model, value, delegateProperty));
 		delegate.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+	}
+
+	private void rebuildUi() {
+		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		buildUi();
+	}
+
+	@Override
+	protected void updateValue(P value) {
+		rebuildUi();
 	}
 }

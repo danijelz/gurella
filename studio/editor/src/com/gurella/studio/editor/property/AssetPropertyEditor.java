@@ -30,8 +30,13 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 
 	private void assetSelectionChanged(T oldAsset, T newAsset) {
 		if (oldAsset != null) {
-			AssetService.unload(oldAsset); //TODO resource deprendencies
+			AssetService.unload(oldAsset); // TODO resource deprendencies
 		}
 		setValue(newAsset);
+	}
+
+	@Override
+	protected void updateValue(T value) {
+		assetWidget.setAsset(value);
 	}
 }

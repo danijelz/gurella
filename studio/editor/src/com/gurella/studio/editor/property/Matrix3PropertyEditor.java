@@ -21,9 +21,9 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New instance", () -> updateValue(new Matrix3()));
+			addMenuItem("New instance", () -> newValue(new Matrix3()));
 			if (context.isNullable()) {
-				addMenuItem("Set null", () -> updateValue(null));
+				addMenuItem("Set null", () -> newValue(null));
 			}
 		}
 	}
@@ -73,8 +73,13 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 		buildUi();
 	}
 
-	private void updateValue(Matrix3 value) {
+	private void newValue(Matrix3 value) {
 		setValue(value);
+		rebuildUi();
+	}
+
+	@Override
+	protected void updateValue(Matrix3 value) {
 		rebuildUi();
 	}
 }

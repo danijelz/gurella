@@ -239,6 +239,11 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}
 
+	@Override
+	protected void updateValue(Array<T> value) {
+		rebuildUi();
+	}
+
 	private static class ItemContext<M, P> extends PropertyEditorContext<M, P> {
 		private Array<P> array;
 		private int index;

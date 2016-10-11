@@ -30,4 +30,9 @@ public class ColorPropertyEditor extends SimplePropertyEditor<Color> {
 		Color defaultColor = ModelDefaults.getDefault(context.model.getType(), context.property);
 		return defaultColor == null ? new Color(Color.WHITE) : new Color(defaultColor);
 	}
+
+	@Override
+	protected void updateValue(Color value) {
+		colorSelector.setColor(value);
+	}
 }

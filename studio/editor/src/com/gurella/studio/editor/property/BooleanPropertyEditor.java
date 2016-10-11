@@ -25,10 +25,10 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("Set to False", () -> updateValue(Boolean.FALSE));
-			addMenuItem("Set to True", () -> updateValue(Boolean.TRUE));
+			addMenuItem("Set to False", () -> newValue(Boolean.FALSE));
+			addMenuItem("Set to True", () -> newValue(Boolean.TRUE));
 			if (context.isNullable()) {
-				addMenuItem("Set to null", () -> updateValue(null));
+				addMenuItem("Set to null", () -> newValue(null));
 			}
 		}
 	}
@@ -56,8 +56,13 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		buildUi();
 	}
 
-	private void updateValue(Boolean value) {
+	private void newValue(Boolean value) {
 		setValue(value);
+		rebuildUi();
+	}
+
+	@Override
+	protected void updateValue(Boolean value) {
 		rebuildUi();
 	}
 }

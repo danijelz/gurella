@@ -249,6 +249,11 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}
 
+	@Override
+	protected void updateValue(Collection<T> value) {
+		rebuildUi();
+	}
+
 	private static class ItemContext<M, P> extends PropertyEditorContext<M, P> {
 		private Collection<P> collection;
 		private int index;

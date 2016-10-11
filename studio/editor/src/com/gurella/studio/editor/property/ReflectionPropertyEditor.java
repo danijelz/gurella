@@ -154,4 +154,9 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 		}
 	}
+
+	@Override
+	protected void updateValue(P value) {
+		rebuildUi();
+	}
 }

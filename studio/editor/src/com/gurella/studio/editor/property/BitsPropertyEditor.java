@@ -30,9 +30,9 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New instance", () -> newInstance());
+			addMenuItem("New instance", () -> newValue(new Bits()));
 			if (context.isNullable()) {
-				addMenuItem("Set null", () -> setNull());
+				addMenuItem("Set null", () -> newValue(null));
 			}
 		}
 	}
@@ -75,13 +75,13 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 		buildUi();
 	}
 
-	private void setNull() {
-		setValue(null);
+	private void newValue(Bits value) {
+		setValue(value);
 		rebuildUi();
 	}
 
-	private void newInstance() {
-		setValue(new Bits());
+	@Override
+	protected void updateValue(Bits value) {
 		rebuildUi();
 	}
 }

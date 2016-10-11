@@ -102,7 +102,6 @@ public abstract class PropertyEditor<P> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// context.setValue(value);
 	}
 
 	public void setHover(boolean hover) {
@@ -175,6 +174,8 @@ public abstract class PropertyEditor<P> {
 		}
 	}
 
+	protected abstract void updateValue(P value);
+
 	private static final class BodyComposite extends Composite {
 		private BodyComposite(Composite parent, int style) {
 			super(parent, style);
@@ -221,12 +222,18 @@ public abstract class PropertyEditor<P> {
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			editor.context.setValue(newValue);
+			if(!editor.composite.isDisposed()) {
+				editor.updateValue(newValue);
+			}
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			editor.context.setValue(oldValue);
+			if(!editor.composite.isDisposed()) {
+				editor.updateValue(oldValue);
+			}
 			return Status.OK_STATUS;
 		}
 	}

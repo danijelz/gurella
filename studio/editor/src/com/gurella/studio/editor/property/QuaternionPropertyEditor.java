@@ -32,9 +32,9 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New Vector3", () -> newInstance());
+			addMenuItem("New Vector3", () -> newValue(new Quaternion()));
 			if (context.isNullable()) {
-				addMenuItem("Set to null", () -> setNull());
+				addMenuItem("Set to null", () -> newValue(null));
 			}
 		}
 	}
@@ -82,13 +82,13 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 		buildUi();
 	}
 
-	private void setNull() {
-		setValue(null);
+	private void newValue(Quaternion value) {
+		setValue(value);
 		rebuildUi();
 	}
 
-	private void newInstance() {
-		setValue(new Quaternion());
+	@Override
+	protected void updateValue(Quaternion value) {
 		rebuildUi();
 	}
 }

@@ -169,6 +169,11 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 		buildUi();
 	}
 
+	@Override
+	protected void updateValue(P value) {
+		rebuildUi();
+	}
+
 	private static class ItemContext<M, P> extends PropertyEditorContext<M, P> {
 		private Object parentModelInstance;
 		private int index;

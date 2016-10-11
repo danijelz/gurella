@@ -11,7 +11,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.texteditor.BasicTextEditorActionContributor;
+import org.eclipse.ui.part.EditorActionBarContributor;
 
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
@@ -19,8 +19,7 @@ import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneEditorViewClosedMessage;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 
-public class GurellaEditorActionBarContributor extends BasicTextEditorActionContributor
-		implements EditorMessageListener {
+public class GurellaEditorActionBarContributor extends EditorActionBarContributor implements EditorMessageListener {
 	private GurellaSceneEditor gurellaSceneEditor;
 	private ToggleEditorViewAction toggleSceneHierarcyViewAction = new ToggleEditorViewAction("Scene hierarcy",
 			SceneHierarchyView.class, SceneHierarchyView::new);
@@ -59,7 +58,6 @@ public class GurellaEditorActionBarContributor extends BasicTextEditorActionCont
 				actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(), ((GurellaSceneEditor) part).undoAction);
 				actionBars.setGlobalActionHandler(ActionFactory.REDO.getId(), ((GurellaSceneEditor) part).redoAction);
 			}
-
 		} else {
 			gurellaSceneEditor = null;
 		}
