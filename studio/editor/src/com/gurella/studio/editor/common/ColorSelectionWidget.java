@@ -73,7 +73,7 @@ public class ColorSelectionWidget extends Composite {
 		GurellaStudioPlugin.getToolkit().adapt(this);
 
 		modifyTextListener = e -> modifyColor(text.getText());
-		setColor(color);
+		presentColor(color);
 
 		text.addVerifyListener(e -> UiUtils.verifyHexRgba(e, text.getText()));
 		text.addModifyListener(modifyTextListener);
@@ -147,9 +147,13 @@ public class ColorSelectionWidget extends Composite {
 
 	public void setColor(Color color) {
 		text.removeModifyListener(modifyTextListener);
+		presentColor(color);
+		text.addModifyListener(modifyTextListener);
+	}
+
+	private void presentColor(Color color) {
 		updateColor(color);
 		text.setText(color == null ? "" : color.toString());
-		text.addModifyListener(modifyTextListener);
 	}
 
 	private void updateColor(Color color) {
