@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -94,7 +95,7 @@ public abstract class PropertyEditor<P> {
 		return context.getValue();
 	}
 
-	protected void setValue(P value) {
+	public void setValue(P value) {
 		SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(this, getValue(), value);
 		try {
 			context.sceneEditorContext.operationHistory.execute(operation, null, null);
@@ -208,7 +209,7 @@ public abstract class PropertyEditor<P> {
 		public SetPropertyValueOperation(PropertyEditor<P> editor, P oldValue, P newValue) {
 			super("Property");
 			this.editor = editor;
-			this.oldValue = oldValue;
+			this.oldValue = new CopyContext().copy(oldValue);
 			this.newValue = newValue;
 			addContext(editor.getContext().sceneEditorContext.undoContext);
 		}

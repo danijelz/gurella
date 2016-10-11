@@ -27,6 +27,7 @@ public class CustomCompositePropertyEditor<P> extends CompositePropertyEditor<P>
 	private void rebuildUi() {
 		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
 		buildUi();
+		body.layout(true);
 	}
 
 	@Override

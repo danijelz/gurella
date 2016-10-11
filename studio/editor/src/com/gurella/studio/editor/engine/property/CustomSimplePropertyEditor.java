@@ -36,6 +36,7 @@ public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 	private void rebuildUi() {
 		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
 		buildUi();
+		body.layout(true);
 	}
 
 	@Override

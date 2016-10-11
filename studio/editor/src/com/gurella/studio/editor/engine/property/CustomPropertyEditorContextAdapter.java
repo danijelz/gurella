@@ -50,8 +50,7 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 
 	@Override
 	public void setPropertyValue(P value) {
-		//TODO undo/redo
-		context.setValue(value);
+		editor.setValue(value);
 	}
 
 	@Override
