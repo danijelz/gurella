@@ -35,6 +35,6 @@ public class BigIntegerPropertyEditor extends SingleTextPropertyEditor<BigIntege
 
 	private void onWheelEvent(int amount, float multiplier) {
 		BigInteger value = getValue();
-		updateValue(value.add(BigInteger.valueOf((long) (amount * multiplier))));
+		newValue(value.add(BigInteger.valueOf((long) (amount * multiplier))));
 	}
 }

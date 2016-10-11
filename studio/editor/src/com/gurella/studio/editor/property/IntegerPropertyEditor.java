@@ -34,6 +34,6 @@ public class IntegerPropertyEditor extends SingleTextPropertyEditor<Integer> {
 
 	private void onWheelEvent(int amount, float multiplier) {
 		Integer value = getValue();
-		updateValue(Integer.valueOf((int) (value.intValue() + (amount * multiplier))));
+		newValue(Integer.valueOf((int) (value.intValue() + (amount * multiplier))));
 	}
 }

@@ -40,6 +40,6 @@ public class BigDecimalPropertyEditor extends SingleTextPropertyEditor<BigDecima
 
 	private void onWheelEvent(int amount, float multiplier) {
 		BigDecimal value = getValue();
-		updateValue(value.add(new BigDecimal(amount * multiplier)));
+		newValue(value.add(new BigDecimal(amount * multiplier)));
 	}
 }

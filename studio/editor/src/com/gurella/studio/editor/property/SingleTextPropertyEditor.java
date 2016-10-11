@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.property;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import org.eclipse.swt.SWT;
@@ -31,9 +32,9 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("Set to default", () -> updateValue(getDefaultValue()));
+			addMenuItem("Set to default", () -> newValue(getDefaultValue()));
 			if (context.isNullable()) {
-				addMenuItem("Set to null", () -> updateValue(null));
+				addMenuItem("Set to null", () -> newValue(null));
 			}
 		}
 	}
@@ -82,7 +83,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		}
 	}
 
-	protected void updateValue(P value) {
+	protected void newValue(P value) {
 		setValue(value);
 		if (value == null) {
 			text.setText("");
@@ -91,6 +92,17 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			text.setText(toStringNonNullValue(value));
 			text.setMessage("");
 		}
+	}
+
+	@Override
+	protected void updateValue(P value) {
+		rebuildUi();
+	}
+
+	private void rebuildUi() {
+		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		buildUi();
+		body.layout(true);
 	}
 
 	protected String toStringNonNullValue(P value) {
@@ -207,7 +219,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		}
 	}
 
-	//TODO rename
+	// TODO rename
 	public interface WheelEventListener {
 		void onWheelEvent(int amount, float multiplier);
 	}

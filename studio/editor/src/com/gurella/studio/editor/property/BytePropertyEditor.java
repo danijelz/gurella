@@ -34,6 +34,6 @@ public class BytePropertyEditor extends SingleTextPropertyEditor<Byte> {
 
 	private void onWheelEvent(int amount, float multiplier) {
 		Byte value = getValue();
-		updateValue(Byte.valueOf((byte) (value.byteValue() + (amount * multiplier))));
+		newValue(Byte.valueOf((byte) (value.byteValue() + (amount * multiplier))));
 	}
 }

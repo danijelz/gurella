@@ -34,6 +34,6 @@ public class DoublePropertyEditor extends SingleTextPropertyEditor<Double> {
 
 	private void onWheelEvent(int amount, float multiplier) {
 		Double value = getValue();
-		updateValue(Double.valueOf(value.doubleValue() + (amount * multiplier)));
+		newValue(Double.valueOf(value.doubleValue() + (amount * multiplier)));
 	}
 }

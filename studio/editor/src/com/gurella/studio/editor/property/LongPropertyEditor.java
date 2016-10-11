@@ -34,6 +34,6 @@ public class LongPropertyEditor extends SingleTextPropertyEditor<Long> {
 
 	private void onWheelEvent(int amount, float multiplier) {
 		Long value = getValue();
-		updateValue(Long.valueOf((long) (value.longValue() + (amount * multiplier))));
+		newValue(Long.valueOf((long) (value.longValue() + (amount * multiplier))));
 	}
 }

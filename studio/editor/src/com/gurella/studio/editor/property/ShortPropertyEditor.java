@@ -34,6 +34,6 @@ public class ShortPropertyEditor extends SingleTextPropertyEditor<Short> {
 
 	private void onWheelEvent(int amount, float multiplier) {
 		Short value = getValue();
-		updateValue(Short.valueOf((short) (value.shortValue() + (amount * multiplier))));
+		newValue(Short.valueOf((short) (value.shortValue() + (amount * multiplier))));
 	}
 }
