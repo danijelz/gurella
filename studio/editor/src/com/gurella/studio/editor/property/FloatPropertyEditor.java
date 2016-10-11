@@ -34,6 +34,6 @@ public class FloatPropertyEditor extends SingleTextPropertyEditor<Float> {
 
 	private void onWheelEvent(int amount, float multiplier) {
 		Float value = getValue();
-		newValue(Float.valueOf(value.floatValue() + (amount * multiplier)));
+		updateValue(Float.valueOf(value.floatValue() + (amount * multiplier)));
 	}
 }

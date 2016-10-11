@@ -1,9 +1,9 @@
 package com.gurella.studio.editor.property;
 
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
@@ -18,6 +18,7 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P> {
 	private Text text;
+	private ModifyListener textModifyListener;
 
 	public SingleTextPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
 		super(parent, context);
@@ -60,7 +61,8 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			text.setText(value.toString());
 		}
 
-		text.addModifyListener(e -> textModified());
+		textModifyListener = e -> textModified();
+		text.addModifyListener(textModifyListener);
 		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(e));
 		text.addListener(SWT.MouseDown, e -> onTrackerStart(e));
 
@@ -85,6 +87,11 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 
 	protected void newValue(P value) {
 		setValue(value);
+		updateTextValue(value);
+	}
+
+	private void updateTextValue(P value) {
+		text.removeModifyListener(textModifyListener);
 		if (value == null) {
 			text.setText("");
 			text.setMessage("null");
@@ -92,17 +99,12 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 			text.setText(toStringNonNullValue(value));
 			text.setMessage("");
 		}
+		text.addModifyListener(textModifyListener);
 	}
 
 	@Override
 	protected void updateValue(P value) {
-		rebuildUi();
-	}
-
-	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
-		buildUi();
-		body.layout(true);
+		updateTextValue(value);
 	}
 
 	protected String toStringNonNullValue(P value) {
