@@ -7,8 +7,10 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.texteditor.BasicTextEditorActionContributor;
 
 import com.gurella.studio.editor.assets.AssetsExplorerView;
@@ -41,16 +43,23 @@ public class GurellaEditorActionBarContributor extends BasicTextEditorActionCont
 	}
 
 	@Override
-	public void setActiveEditor(IEditorPart targetEditor) {
-		super.setActiveEditor(targetEditor);
+	public void setActiveEditor(IEditorPart part) {
+		super.setActiveEditor(part);
 
 		if (gurellaSceneEditor != null) {
 			gurellaSceneEditor.removeEditorMessageListener(this);
 		}
 
-		if (targetEditor instanceof GurellaSceneEditor) {
-			gurellaSceneEditor = (GurellaSceneEditor) targetEditor;
+		if (part instanceof GurellaSceneEditor) {
+			gurellaSceneEditor = (GurellaSceneEditor) part;
 			gurellaSceneEditor.addEditorMessageListener(this);
+
+			IActionBars actionBars = this.getActionBars();
+			if (actionBars != null) {
+				actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(), ((GurellaSceneEditor) part).undoAction);
+				actionBars.setGlobalActionHandler(ActionFactory.REDO.getId(), ((GurellaSceneEditor) part).redoAction);
+			}
+
 		} else {
 			gurellaSceneEditor = null;
 		}

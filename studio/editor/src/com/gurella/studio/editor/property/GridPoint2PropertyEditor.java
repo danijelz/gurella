@@ -70,9 +70,9 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 
 	private void valueChanged(Property<Integer> childProperty, String txtValue) {
 		GridPoint2 value = getValue();
-		GridPoint2 oldValue = new GridPoint2(value);
-		childProperty.setValue(value, Values.isBlank(txtValue) ? Integer.valueOf(0) : Integer.valueOf(txtValue));
-		context.propertyValueChanged(oldValue, value);
+		GridPoint2 newValue = new GridPoint2(value);
+		childProperty.setValue(newValue, Values.isBlank(txtValue) ? Integer.valueOf(0) : Integer.valueOf(txtValue));
+		setValue(newValue);
 	}
 
 	private void rebuildUi() {

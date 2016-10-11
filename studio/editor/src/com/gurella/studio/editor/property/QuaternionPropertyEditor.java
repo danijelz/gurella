@@ -72,9 +72,9 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 
 	private void valueChanged(Property<Float> childProperty, String txtValue) {
 		Quaternion value = getValue();
-		Quaternion oldValue = new Quaternion(value);
-		childProperty.setValue(value, Values.isBlank(txtValue) ? Float.valueOf(0) : Float.valueOf(txtValue));
-		context.propertyValueChanged(oldValue, value);
+		Quaternion newValue = new Quaternion(value);
+		childProperty.setValue(newValue, Values.isBlank(txtValue) ? Float.valueOf(0) : Float.valueOf(txtValue));
+		setValue(newValue);
 	}
 
 	private void rebuildUi() {

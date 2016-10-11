@@ -73,9 +73,9 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 
 	private void valueChanged(Property<Float> childProperty, String txtValue) {
 		Vector3 value = getValue();
-		Vector3 oldValue = new Vector3(value);
-		childProperty.setValue(value, Values.isBlank(txtValue) ? Float.valueOf(0) : Float.valueOf(txtValue));
-		context.propertyValueChanged(oldValue, value);
+		Vector3 newValue = new Vector3(value);
+		childProperty.setValue(newValue, Values.isBlank(txtValue) ? Float.valueOf(0) : Float.valueOf(txtValue));
+		setValue(newValue);
 	}
 
 	private void rebuildUi() {

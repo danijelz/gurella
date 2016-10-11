@@ -61,11 +61,11 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 		text.addModifyListener((e) -> valueChanged(index, text.getText()));
 	}
 
-	private void valueChanged(int index, String value) {
-		Matrix3 matrix = getValue();
-		Matrix3 oldValue = new Matrix3(matrix);
-		matrix.val[index] = Values.isBlank(value) ? 0 : Float.valueOf(value).floatValue();
-		context.propertyValueChanged(oldValue, matrix);
+	private void valueChanged(int index, String strValue) {
+		Matrix3 value = getValue();
+		Matrix3 newValue = new Matrix3(value);
+		newValue.val[index] = Values.isBlank(strValue) ? 0 : Float.valueOf(strValue).floatValue();
+		setValue(newValue);
 	}
 
 	private void rebuildUi() {

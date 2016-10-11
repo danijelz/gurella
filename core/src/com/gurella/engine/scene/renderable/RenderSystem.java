@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -52,8 +53,10 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 
 	private SpatialSystem<?> spatialSystem;
 
+	@SuppressWarnings("deprecation")
 	public RenderSystem(Scene scene) {
 		super(scene);
+		DefaultShader.defaultCullFace = 0;
 	}
 
 	@Override

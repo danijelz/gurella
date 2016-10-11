@@ -9,6 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.operations.AbstractOperation;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -67,7 +73,7 @@ public abstract class PropertyEditor<P> {
 	protected FormToolkit getToolkit() {
 		return GurellaStudioPlugin.getToolkit();
 	}
-	
+
 	public PropertyEditorContext<?, P> getContext() {
 		return context;
 	}
@@ -89,7 +95,14 @@ public abstract class PropertyEditor<P> {
 	}
 
 	protected void setValue(P value) {
-		context.setValue(value);
+		SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(this, getValue(), value);
+		try {
+			context.sceneEditorContext.operationHistory.execute(operation, null, null);
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// context.setValue(value);
 	}
 
 	public void setHover(boolean hover) {
@@ -183,6 +196,38 @@ public abstract class PropertyEditor<P> {
 					return;
 				}
 			}
+		}
+	}
+
+	private static class SetPropertyValueOperation<P> extends AbstractOperation {
+		final PropertyEditor<P> editor;
+		final P oldValue;
+		final P newValue;
+
+		public SetPropertyValueOperation(PropertyEditor<P> editor, P oldValue, P newValue) {
+			super("Property");
+			this.editor = editor;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+			addContext(editor.getContext().sceneEditorContext.undoContext);
+		}
+
+		@Override
+		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			editor.context.setValue(newValue);
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			editor.context.setValue(newValue);
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			editor.context.setValue(oldValue);
+			return Status.OK_STATUS;
 		}
 	}
 }

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.commands.operations.IOperationHistory;
+import org.eclipse.core.commands.operations.IUndoContext;
+import org.eclipse.core.commands.operations.UndoContext;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -25,7 +28,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.operations.RedoActionHandler;
+import org.eclipse.ui.operations.UndoActionHandler;
+import org.eclipse.ui.operations.UndoRedoActionGroup;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.utils.JsonReader;
@@ -50,13 +57,19 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private Composite contentComposite;
 	private SceneEditorPartControl partControl;
 
+	private IUndoContext undoContext;
+	UndoActionHandler undoAction;
+	RedoActionHandler redoAction;
+	
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
-	private SceneEditorContext context;
+	private SceneEditorContext editorContext;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
 
 	private boolean dirty;
+
+
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -75,7 +88,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, context.scene);
+		String string = output.serialize(Scene.class, editorContext.scene);
 		monitor.beginTask("Saving", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);
@@ -95,6 +108,12 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
 		setInput(input);
+
+		undoContext = new UndoContext();
+		undoAction = new UndoActionHandler(site, undoContext);
+		redoAction = new RedoActionHandler(site, undoContext);
+		UndoRedoActionGroup historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
+		historyActionGroup.fillActionBars(site.getActionBars());
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) input;
 		String[] segments = pathEditorInput.getPath().segments();
@@ -116,20 +135,22 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		this.contentComposite = parent;
 		parent.setLayout(new GridLayout());
 
-		context = new SceneEditorContext((IPathEditorInput) getEditorInput());
-		context.addEditorMessageListener(this);
+		IWorkbench workbench = getSite().getWorkbenchWindow().getWorkbench();
+		IOperationHistory operationHistory = workbench.getOperationSupport().getOperationHistory();
+		editorContext = new SceneEditorContext((IPathEditorInput) getEditorInput(), operationHistory, undoContext);
+		editorContext.addEditorMessageListener(this);
 
 		partControl = new SceneEditorPartControl(this, parent, SWT.NONE);
 		partControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		applicationListener = new SceneEditorApplicationListener();
-		context.addEditorMessageListener(applicationListener);
+		editorContext.addEditorMessageListener(applicationListener);
 
 		synchronized (GurellaStudioPlugin.glMutex) {
 			application = new SwtLwjglApplication(partControl.getCenter(), applicationListener);
 		}
 
-		SceneEditorUtils.put(this, partControl, application, context);
+		SceneEditorUtils.put(this, partControl, application, editorContext);
 		SceneEditorUtils.subscribe(applicationListener);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
@@ -147,7 +168,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	private void presentScene(Scene scene) {
 		dirty = false;
-		context.setScene(scene);
+		editorContext.setScene(scene);
 		applicationListener.presentScene(scene);
 	}
 
@@ -164,28 +185,28 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		return partControl;
 	}
 
-	public SceneEditorContext getContext() {
-		return context;
+	public SceneEditorContext getEditorContext() {
+		return editorContext;
 	}
 
 	public Scene getScene() {
-		return context.scene;
+		return editorContext.scene;
 	}
 
 	public IWorkspace getWorkspace() {
-		return context.workspace;
+		return editorContext.workspace;
 	}
 
 	public IProject getProject() {
-		return context.project;
+		return editorContext.project;
 	}
 
 	public void addEditorMessageListener(EditorMessageListener listener) {
-		context.addEditorMessageListener(listener);
+		editorContext.addEditorMessageListener(listener);
 	}
 
 	public void removeEditorMessageListener(EditorMessageListener listener) {
-		context.removeEditorMessageListener(listener);
+		editorContext.removeEditorMessageListener(listener);
 	}
 
 	@Override
@@ -196,7 +217,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	@Override
 	public void dispose() {
 		super.dispose();
-		context.dispose();
+		editorContext.dispose();
 		SceneEditorUtils.remove(this);
 		// TODO context and applicationListener should be unified
 		applicationListener.debugUpdate();
@@ -204,7 +225,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	}
 
 	public void postMessage(Object source, Object message) {
-		context.postMessage(source, message);
+		editorContext.postMessage(source, message);
 	}
 
 	@Override
