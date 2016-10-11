@@ -1,9 +1,5 @@
 package com.gurella.engine.application;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
-
 //TODO unused
 public class JsonApplicationInitializer implements ApplicationInitializer {
 	private final String projectFileName;
