@@ -5,7 +5,6 @@ import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -37,6 +36,7 @@ import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
@@ -177,7 +177,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 		body.layout(true);
 	}

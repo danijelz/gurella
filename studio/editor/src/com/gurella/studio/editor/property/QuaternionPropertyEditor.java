@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.property;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -78,7 +76,7 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 

@@ -12,6 +12,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SelectionMessage;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class InspectorView extends SceneEditorView {
 	private Object currentTarget;
@@ -45,7 +46,7 @@ public class InspectorView extends SceneEditorView {
 			try {
 				replaceInspectable(inspectable);
 			} catch (Exception e) {
-				Arrays.stream(getChildren()).forEach(c -> c.dispose());
+				UiUtils.disposeChildren(this);
 				currentTarget = null;
 				currentContainer = new ErrorInspectableContainer(this, e);
 				currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

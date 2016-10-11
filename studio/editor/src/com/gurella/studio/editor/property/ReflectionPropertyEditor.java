@@ -5,7 +5,6 @@ import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
-import java.util.Arrays;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
@@ -31,6 +30,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorFactory;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 	public ReflectionPropertyEditor(Composite parent, PropertyEditorContext<?, P> context) {
@@ -95,7 +95,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 

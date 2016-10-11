@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.property;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -79,7 +77,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 

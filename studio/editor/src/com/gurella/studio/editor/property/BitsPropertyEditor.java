@@ -1,6 +1,5 @@
 package com.gurella.studio.editor.property;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.eclipse.swt.SWT;
@@ -13,6 +12,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.utils.Bits;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 	private GridLayout bodyLayout;
@@ -71,7 +71,7 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 

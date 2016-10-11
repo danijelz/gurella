@@ -2,8 +2,6 @@ package com.gurella.studio.editor.property;
 
 import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -13,6 +11,7 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 	private Model<P> model;
@@ -41,7 +40,7 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 

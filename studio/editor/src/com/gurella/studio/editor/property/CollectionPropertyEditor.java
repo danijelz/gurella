@@ -5,7 +5,6 @@ import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +37,7 @@ import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collection<T>> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
@@ -187,7 +187,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 		body.layout(true);
 	}

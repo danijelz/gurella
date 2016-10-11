@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.scene;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -91,7 +89,7 @@ public class SceneEditorPartControl extends Composite {
 	}
 
 	public void setCenterControl(Control centerControl) {
-		Arrays.stream(center.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(center);
 		centerControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		centerControl.setParent(center);
 	}
@@ -388,7 +386,7 @@ public class SceneEditorPartControl extends Composite {
 
 			maxImage = createMaxButtonImage();
 			addDisposeListener(e -> maxImage.dispose());
-			
+
 			maxItem = new ToolItem(dockToolBar, SWT.PUSH);
 			maxItem.setImage(maxImage);
 			maxItem.setToolTipText(SWT.getMessage("SWT_Restore"));

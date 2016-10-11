@@ -1,6 +1,5 @@
 package com.gurella.studio.editor.property;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -86,7 +85,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 

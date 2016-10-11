@@ -4,7 +4,6 @@ import static com.gurella.studio.GurellaStudioPlugin.createFont;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.InputDialog;
@@ -22,6 +21,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	private List<PropertyEditor<?>> itemEditors = new ArrayList<>();
@@ -165,7 +165,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	private void rebuildUi() {
-		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(body);
 		buildUi();
 	}
 
