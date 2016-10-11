@@ -179,6 +179,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	private void rebuildUi() {
 		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
 		buildUi();
+		body.layout(true);
 	}
 
 	private void newTypeInstance() {
