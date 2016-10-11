@@ -221,19 +221,19 @@ public abstract class PropertyEditor<P> {
 		}
 
 		@Override
-		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			editor.context.setValue(newValue);
+		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			editor.context.setValue(oldValue);
 			if(!editor.composite.isDisposed()) {
-				editor.updateValue(newValue);
+				editor.updateValue(oldValue);
 			}
 			return Status.OK_STATUS;
 		}
 
 		@Override
-		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			editor.context.setValue(oldValue);
+		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			editor.context.setValue(newValue);
 			if(!editor.composite.isDisposed()) {
-				editor.updateValue(oldValue);
+				editor.updateValue(newValue);
 			}
 			return Status.OK_STATUS;
 		}
