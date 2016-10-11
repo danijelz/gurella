@@ -392,10 +392,13 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	public <T> void unload(T asset) {
+	public <T> boolean unload(T asset) {
 		String fileName = fileNamesByAsset.get(asset);
 		if (fileName != null) {
 			unloadAsset(fileName);
+			return true;
+		} else {
+			return false;
 		}
 	}
 
