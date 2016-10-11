@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
@@ -108,6 +109,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		inputQueue.setProcessor(selectedController);
 		InputService.addInputProcessor(inputQueue);
+		
+		DefaultShader.defaultCullFace = 0;
 	}
 
 	public void presentScene(Scene scene) {
@@ -159,6 +162,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			Color color = backgroundColor;
 			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
 			Gdx.gl.glClearStencil(0);
+			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

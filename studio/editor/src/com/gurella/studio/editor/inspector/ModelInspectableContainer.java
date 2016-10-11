@@ -89,7 +89,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		cam.position.set(0f, 1f, -1f);
 		cam.lookAt(0, 0, 0);
 		cam.near = 0.1f;
-		cam.far = 1000;
+		cam.far = 10000;
 		cam.update();
 
 		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
