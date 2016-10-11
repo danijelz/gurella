@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -34,6 +35,7 @@ public class ColorSelectionWidget extends Composite {
 	private Color defaultColor;
 	
 	private boolean alphaEnabled;
+	private ModifyListener modifyTextListener;
 
 	public ColorSelectionWidget(Composite parent) {
 		this(parent, null, null, true);
@@ -70,10 +72,11 @@ public class ColorSelectionWidget extends Composite {
 		UiUtils.paintBordersFor(this);
 		GurellaStudioPlugin.getToolkit().adapt(this);
 
+		modifyTextListener = e -> modifyColor(text.getText());
 		setColor(color);
 
 		text.addVerifyListener(e -> UiUtils.verifyHexRgba(e, text.getText()));
-		text.addModifyListener(e -> modifyColor(text.getText()));
+		text.addModifyListener(modifyTextListener);
 	}
 
 	private void paintButton(PaintEvent e) {
@@ -143,8 +146,10 @@ public class ColorSelectionWidget extends Composite {
 	}
 
 	public void setColor(Color color) {
+		text.removeModifyListener(modifyTextListener);
 		updateColor(color);
 		text.setText(color == null ? "" : color.toString());
+		text.addModifyListener(modifyTextListener);
 	}
 
 	private void updateColor(Color color) {
