@@ -5,6 +5,7 @@ import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -331,6 +332,10 @@ public class UiUtils {
 		}
 
 		DragManager.manage(text, listener);
+	}
+	
+	public static void disposeChildren(Composite composite) {
+		Arrays.stream(composite.getChildren()).forEach(c -> c.dispose());
 	}
 
 	private static class DragManager implements Listener {

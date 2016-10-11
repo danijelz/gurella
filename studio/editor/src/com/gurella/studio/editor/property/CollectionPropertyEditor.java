@@ -189,6 +189,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	private void rebuildUi() {
 		Arrays.stream(body.getChildren()).forEach(c -> c.dispose());
 		buildUi();
+		body.layout(true);
 	}
 
 	private void newTypeInstance() {

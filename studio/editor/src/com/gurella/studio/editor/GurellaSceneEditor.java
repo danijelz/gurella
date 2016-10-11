@@ -1,7 +1,6 @@
 package com.gurella.studio.editor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.commands.operations.IOperationHistory;
@@ -49,6 +48,7 @@ import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class GurellaSceneEditor extends EditorPart implements EditorMessageListener {
 	public final int id = SequenceGenerator.next();
@@ -169,7 +169,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	}
 
 	private void presentException(Throwable exception) {
-		Arrays.stream(contentComposite.getChildren()).forEach(c -> c.dispose());
+		UiUtils.disposeChildren(contentComposite);
 		String message = "Error opening scene";
 		IStatus status = GurellaStudioPlugin.log(exception, message);
 		ErrorComposite errorComposite = new ErrorComposite(contentComposite, status, message);
