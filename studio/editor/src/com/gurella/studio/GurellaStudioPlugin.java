@@ -7,6 +7,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.DeviceResourceDescriptor;
 import org.eclipse.jface.resource.DeviceResourceManager;
@@ -291,6 +292,12 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 			throw new IllegalArgumentException();
 		}
 		log(new Status(swtLevel, PLUGIN_ID, message));
+	}
+	
+	public static void showError(Throwable t, String message) {
+		MultiStatus status = createErrorStatus(t, message);
+		getDefault().getLog().log(status);
+		ErrorDialog.openError(getDisplay().getActiveShell(), message, t.getLocalizedMessage(), status);
 	}
 
 	public static IStatus log(Throwable t, String message) {

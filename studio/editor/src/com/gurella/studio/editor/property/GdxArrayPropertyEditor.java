@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
@@ -18,7 +17,6 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
@@ -191,8 +189,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			rebuildUi();
 		} catch (Exception e) {
 			String message = "Error occurred while creating value";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		}
 	}
 
@@ -204,8 +201,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			}
 		} catch (Exception e) {
 			String message = "Error occurred while creating value";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		}
 	}
 

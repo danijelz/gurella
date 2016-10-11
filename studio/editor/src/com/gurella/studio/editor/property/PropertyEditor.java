@@ -100,8 +100,7 @@ public abstract class PropertyEditor<P> {
 		try {
 			context.sceneEditorContext.operationHistory.execute(operation, null, null);
 		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			GurellaStudioPlugin.showError(e, "Error updating property.");
 		}
 	}
 
@@ -223,7 +222,7 @@ public abstract class PropertyEditor<P> {
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			editor.context.setValue(oldValue);
-			if(!editor.composite.isDisposed()) {
+			if (!editor.composite.isDisposed()) {
 				editor.updateValue(oldValue);
 			}
 			return Status.OK_STATUS;
@@ -232,7 +231,7 @@ public abstract class PropertyEditor<P> {
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			editor.context.setValue(newValue);
-			if(!editor.composite.isDisposed()) {
+			if (!editor.composite.isDisposed()) {
 				editor.updateValue(newValue);
 			}
 			return Status.OK_STATUS;

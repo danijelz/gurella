@@ -47,7 +47,7 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 			image = new Image(getDisplay(), contents);
 			addListener(SWT.Dispose, e -> image.dispose());
 		} catch (CoreException e) {
-			GurellaStudioPlugin.log(e, "Error loading image");
+			GurellaStudioPlugin.showError(e, "Error loading image");
 		}
 
 		reflow(true);

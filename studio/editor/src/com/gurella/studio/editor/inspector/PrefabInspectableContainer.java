@@ -21,12 +21,10 @@ import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
@@ -224,8 +222,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 			addScriptComponent();
 		} catch (Exception e) {
 			String message = "Error occurred while adding script component";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		} finally {
 			current.setContextClassLoader(contextClassLoader);
 		}

@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -60,7 +59,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	private IUndoContext undoContext;
 	UndoActionHandler undoAction;
 	RedoActionHandler redoAction;
-	
+
 	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 	private SceneEditorContext editorContext;
 
@@ -69,16 +68,13 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 
 	private boolean dirty;
 
-
-
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
 			save(monitor);
 		} catch (CoreException e) {
 			String message = "Error saving scene";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(contentComposite.getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		} finally {
 			monitor.done();
 		}

@@ -7,14 +7,12 @@ import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
@@ -70,8 +68,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			rebuildUi();
 		} catch (Exception e) {
 			String message = "Error occurred while creating value";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		}
 	}
 
@@ -115,8 +112,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			}
 		} catch (Exception e) {
 			String message = "Error occurred while creating value";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(body.getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		}
 	}
 

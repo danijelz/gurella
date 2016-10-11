@@ -20,12 +20,10 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
@@ -183,7 +181,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 
 		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
 				component);
-		componentEditor.getContext().propertyChangedSignal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		componentEditor.getContext().propertyChangedSignal
+				.addListener((event) -> postMessage(SceneChangedMessage.instance));
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 
@@ -219,8 +218,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 			addScriptComponent();
 		} catch (Exception e) {
 			String message = "Error occurred while adding script component";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorDialog.openError(getShell(), message, e.getLocalizedMessage(), status);
+			GurellaStudioPlugin.showError(e, message);
 		} finally {
 			current.setContextClassLoader(contextClassLoader);
 		}
