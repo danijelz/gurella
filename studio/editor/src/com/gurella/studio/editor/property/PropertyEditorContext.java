@@ -56,11 +56,12 @@ public class PropertyEditorContext<M, P> extends ModelEditorContext<M> {
 	}
 
 	public String getDescriptiveName() {
-		return property.getDescriptiveName();
+		return EditorPropertyData.getDescriptiveName(this);
 	}
 
 	public void propertyValueChanged(Object oldValue, Object newValue) {
-		propertyChangedSignal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
+		propertyChangedSignal
+				.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
 
 		ModelEditorContext<?> temp = this;
 		while (temp != null) {

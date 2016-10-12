@@ -49,7 +49,7 @@ public class CompositeShapeModel extends ShapeModel {
 	}
 
 	private void updateItemTransform(ShapeModelItem item, Matrix4 parentTransform) {
-		rotation.setEulerAngles(item.eulerRotation.y, item.eulerRotation.x, item.eulerRotation.z);
+		rotation.setEulerAngles(item.rotation.y, item.rotation.x, item.rotation.z);
 		transform.set(item.translation, rotation, item.scale);
 		worldTransform.set(parentTransform).mul(transform);
 	}
@@ -58,8 +58,8 @@ public class CompositeShapeModel extends ShapeModel {
 		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 translation = new Vector3();
 
-		@PropertyDescriptor(descriptiveName = "rotation", flatSerialization = true)
-		private final Vector3 eulerRotation = new Vector3();
+		@PropertyDescriptor(flatSerialization = true)
+		private final Vector3 rotation = new Vector3();
 
 		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 scale = new Vector3(1, 1, 1);

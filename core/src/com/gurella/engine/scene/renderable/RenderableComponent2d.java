@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.debug.DebugRenderable;
@@ -21,8 +20,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	float height;
 	boolean dimensionsFromTexture = true;
 	int pixelsPerUnit = -1;
-	@PropertyDescriptor(descriptiveName = "2.5D")
-	boolean _25d;
 	final Color tint = new Color(1, 1, 1, 1);
 
 	// TODO flipX, flipY, zOrder, origin (center, leftBottom)
@@ -75,17 +72,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		sprite.setColor(this.tint.set(r, g, b, a));
 	}
 
-	public boolean is_25d() {
-		return _25d;
-	}
-
-	public void set_25d(boolean _25d) {
-		if (this._25d != _25d) {
-			this._25d = _25d;
-			setDirty();
-		}
-	}
-
 	public boolean isDimensionsFromTexture() {
 		return dimensionsFromTexture;
 	}
@@ -106,21 +92,14 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 
 	@Override
 	protected void updateGeometry() {
-		/*if (transformComponent == null) {
-			sprite.setScale(1, 1);
-			sprite.setRotation(0);
-			sprite.setCenter(0, 0);
-		} else {
-			float y = transformComponent.getWorldTranslationY();
-			if (_25d) {
-				y += transformComponent.getWorldTranslationZ();
-			}
-			sprite.setScale(transformComponent.getWorldScaleX(), transformComponent.getWorldScaleY());
-			sprite.setRotation(transformComponent.getWorldEulerRotationZ());
-			sprite.setCenter(transformComponent.getWorldTranslationX(), y);
-			sprite.setOriginCenter();
-		}*/
-		
+		/*
+		 * if (transformComponent == null) { sprite.setScale(1, 1); sprite.setRotation(0); sprite.setCenter(0, 0); }
+		 * else { float y = transformComponent.getWorldTranslationY(); if (_25d) { y +=
+		 * transformComponent.getWorldTranslationZ(); } sprite.setScale(transformComponent.getWorldScaleX(),
+		 * transformComponent.getWorldScaleY()); sprite.setRotation(transformComponent.getWorldEulerRotationZ());
+		 * sprite.setCenter(transformComponent.getWorldTranslationX(), y); sprite.setOriginCenter(); }
+		 */
+
 		sprite.setCenter(0, 0);
 	}
 
@@ -151,36 +130,36 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	@Override
 	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
 		Ray inv = new Ray().set(ray);
-		if(transformComponent != null) {
+		if (transformComponent != null) {
 			transformComponent.transformRayFromWorld(inv);
 		}
-		
+
 		Vector3 v1 = PoolService.obtain(Vector3.class).setZero();
 		Vector3 v2 = PoolService.obtain(Vector3.class).setZero();
 		Vector3 v3 = PoolService.obtain(Vector3.class).setZero();
-		
+
 		float[] vertices = sprite.getVertices();
-		
+
 		v1.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
 		v2.set(vertices[Batch.X2], vertices[Batch.Y2], 0);
 		v3.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
-		
-		if(Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection)) {
+
+		if (Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection)) {
 			PoolService.free(v1);
 			PoolService.free(v2);
 			PoolService.free(v3);
 			return true;
 		}
-		
+
 		v1.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
 		v2.set(vertices[Batch.X4], vertices[Batch.Y4], 0);
 		v3.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
 		boolean result = Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection);
-		
+
 		PoolService.free(v1);
 		PoolService.free(v2);
 		PoolService.free(v3);
-		
+
 		return result;
 	}
 
@@ -212,7 +191,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		height = 0;
 		dimensionsFromTexture = true;
 		pixelsPerUnit = -1;
-		_25d = false;
 		tint.set(1, 1, 1, 1);
 	}
 }

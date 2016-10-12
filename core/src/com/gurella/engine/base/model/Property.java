@@ -9,7 +9,7 @@ public interface Property<T> {
 
 	Class<T> getType();
 
-	Range<?> getRange(); //TODO remove
+	Range<?> getRange(); // TODO remove
 
 	boolean isNullable();
 
@@ -19,11 +19,7 @@ public interface Property<T> {
 
 	boolean isFlatSerialization();
 
-	String getDescriptiveName();
-
-	String getDescription();
-
-	boolean isEditable(); //TODO remove
+	boolean isEditable(); // TODO remove
 
 	Property<T> newInstance(Model<?> model);
 

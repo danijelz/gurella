@@ -48,16 +48,6 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	}
 
 	@Override
-	public String getDescriptiveName() {
-		return name;
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-	
-	@Override
 	public boolean isEditable() {
 		return false;
 	}

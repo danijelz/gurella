@@ -65,16 +65,6 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	}
 
 	@Override
-	public String getDescriptiveName() {
-		return name;
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
 	public Property<ImmutableArray<T>> newInstance(Model<?> model) {
 		return this;
 	}

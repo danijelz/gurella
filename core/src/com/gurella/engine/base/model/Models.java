@@ -227,7 +227,7 @@ public class Models {
 		StringBuilder builder = new StringBuilder().append(model.getName()).append("[");
 		for (int i = 0; i < properties.size(); i++) {
 			Property<?> property = properties.get(i);
-			builder.append("\n\t").append(property.getDescriptiveName());
+			builder.append("\n\t").append(property.getName());
 		}
 		return builder.append("\n]").toString();
 	}

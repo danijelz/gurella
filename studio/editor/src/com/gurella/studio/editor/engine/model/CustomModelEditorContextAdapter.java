@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.engine.model;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
+import static com.gurella.studio.editor.property.EditorPropertyData.getDescriptiveName;
 import static com.gurella.studio.editor.property.PropertyEditorFactory.createEditor;
 
 import org.eclipse.swt.SWT;
@@ -93,7 +94,7 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 	@Override
 	public EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property) {
 		EditorUi uiFactory = parent.getUiFactory();
-		SwtEditorLabel editorLabel = (SwtEditorLabel) uiFactory.createLabel(parent, property.getDescriptiveName());
+		SwtEditorLabel editorLabel = (SwtEditorLabel) uiFactory.createLabel(parent, getDescriptiveName(this, property));
 		Label label = editorLabel.getWidget();
 		label.setAlignment(SWT.RIGHT);
 		Font font = createFont(label, SWT.BOLD);
@@ -106,8 +107,8 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 
 	@Override
 	public EditorLabel createPropertyLabel(EditorComposite parent, Property<?> property, EditorLayoutData layoutData) {
-		SwtEditorLabel editorLabel = (SwtEditorLabel) parent.getUiFactory().createLabel(parent,
-				property.getDescriptiveName());
+		EditorUi uiFactory = parent.getUiFactory();
+		SwtEditorLabel editorLabel = (SwtEditorLabel) uiFactory.createLabel(parent, getDescriptiveName(this, property));
 		editorLabel.setLayoutData(layoutData);
 		return editorLabel;
 	}

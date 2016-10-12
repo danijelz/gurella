@@ -183,16 +183,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public String getDescriptiveName() {
-			return name;
-		}
-
-		@Override
-		public String getDescription() {
-			return name;
-		}
-
-		@Override
 		public boolean isEditable() {
 			return true;
 		}
@@ -277,16 +267,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		@Override
 		public boolean isFlatSerialization() {
 			return true;
-		}
-
-		@Override
-		public String getDescriptiveName() {
-			return name;
-		}
-
-		@Override
-		public String getDescription() {
-			return null;
 		}
 
 		@Override

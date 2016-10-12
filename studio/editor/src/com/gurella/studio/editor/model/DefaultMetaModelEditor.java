@@ -166,7 +166,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			editorBody.setParent(client);
 			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			section.setClient(client);
-			section.setExpanded(false);
+			section.setExpanded(true);
 			section.layout(true, true);
 			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 			editorBodyLayoutData.horizontalIndent = 0;

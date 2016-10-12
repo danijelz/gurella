@@ -28,9 +28,9 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	@PropertyDescriptor(flatSerialization = true)
 	private final Vector3 translation = new Vector3();
 
-	@PropertyDescriptor(descriptiveName = "rotation", flatSerialization = true)
-	private final Vector3 eulerRotation = new Vector3();
-	private final Quaternion rotation = new Quaternion();
+	@PropertyDescriptor(flatSerialization = true)
+	private final Vector3 rotation = new Vector3();
+	private final Quaternion rotationQuat = new Quaternion();
 
 	@PropertyDescriptor(flatSerialization = true)
 	private final Vector3 scale = new Vector3(1, 1, 1);
@@ -403,14 +403,14 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	// ///////////////rotation
 
-	public TransformComponent setRotation(Quaternion rotation) {
+	public TransformComponent setRotationQuat(Quaternion rotation) {
 		return setRotation(rotation.x, rotation.y, rotation.z, rotation.w);
 	}
 
 	public TransformComponent setRotation(float x, float y, float z, float w) {
-		rotation.set(x, y, z, w);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotationQuat.set(x, y, z, w);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
@@ -421,26 +421,26 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	public TransformComponent setWorldRotation(float x, float y, float z, float w) {
 		if (parentTransform == null) {
-			rotation.set(x, y, z, w);
-			eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+			rotationQuat.set(x, y, z, w);
+			rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		} else {
 			parentTransform.getWorldRotation(rotator).conjugate();
-			rotation.set(x, y, z, w).mul(rotator);
-			rotation.nor();
-			eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+			rotationQuat.set(x, y, z, w).mul(rotator);
+			rotationQuat.nor();
+			rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		}
 
 		notifyChanged();
 		return this;
 	}
 
-	public TransformComponent setEulerRotation(Vector3 eulerDegrees) {
+	public TransformComponent setRotation(Vector3 eulerDegrees) {
 		return setEulerRotation(eulerDegrees.x, eulerDegrees.y, eulerDegrees.z);
 	}
 
 	public TransformComponent setEulerRotation(float x, float y, float z) {
-		rotation.setEulerAngles(y, x, z);
-		eulerRotation.set(x, y, z);
+		rotationQuat.setEulerAngles(y, x, z);
+		rotation.set(x, y, z);
 		notifyChanged();
 		return this;
 	}
@@ -450,84 +450,84 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setWorldEulerRotation(float xDegrees, float yDegrees, float zDegrees) {
-		eulerRotation.set(xDegrees, yDegrees, zDegrees);
+		rotation.set(xDegrees, yDegrees, zDegrees);
 		if (parentTransform != null) {
-			eulerRotation.sub(parentTransform.getWorldEulerRotation());
+			rotation.sub(parentTransform.getWorldEulerRotation());
 		}
-		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+		rotationQuat.setEulerAngles(rotation.y, rotation.x, rotation.z);
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setEulerRotationX(float degrees) {
-		eulerRotation.x = degrees;
-		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+		rotation.x = degrees;
+		rotationQuat.setEulerAngles(rotation.y, rotation.x, rotation.z);
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setEulerRotationY(float degrees) {
-		eulerRotation.y = degrees;
-		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+		rotation.y = degrees;
+		rotationQuat.setEulerAngles(rotation.y, rotation.x, rotation.z);
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent setEulerRotationZ(float degrees) {
-		eulerRotation.z = degrees;
-		rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+		rotation.z = degrees;
+		rotationQuat.setEulerAngles(rotation.y, rotation.x, rotation.z);
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotate(Quaternion additionalRotation) {
-		this.rotation.mul(additionalRotation);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		this.rotationQuat.mul(additionalRotation);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotate(float x, float y, float z, float w) {
-		this.rotation.mul(x, y, z, w);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		this.rotationQuat.mul(x, y, z, w);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotateX(float degrees) {
 		rotator.set(Vector3.X, degrees);
-		rotation.mul(rotator);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotationQuat.mul(rotator);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotateY(float degrees) {
 		rotator.set(Vector3.Y, degrees);
-		rotation.mul(rotator);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotationQuat.mul(rotator);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotateZ(float degrees) {
 		rotator.set(Vector3.Z, degrees);
-		rotation.mul(rotator);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotationQuat.mul(rotator);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
 
 	public TransformComponent rotate(Vector3 axis, float degrees) {
 		rotator.set(axis, degrees);
-		rotation.mul(rotator);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotationQuat.mul(rotator);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
@@ -542,7 +542,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transform.rotate(axis, degrees);
 		tempVector.rotate(axis, degrees).scl(-1);
 		transform.translate(tempVector);
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 
 		if (parentTransform == null) {
 			worldTransform.set(transform);
@@ -574,8 +574,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transform.getTranslation(translation);
 		transform.getScale(scale);
-		transform.getRotation(rotation, true);
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		transform.getRotation(rotationQuat, true);
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 
 		transformDirty = false;
 		transformInvDirty = true;
@@ -589,31 +589,31 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	public TransformComponent eulerRotate(float x, float y, float z) {
 		rotator.setEulerAngles(y, x, z);
-		rotation.mul(rotator);
-		rotation.nor();
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		rotationQuat.mul(rotator);
+		rotationQuat.nor();
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 		notifyChanged();
 		return this;
 	}
 
 	public float getEulerRotationX() {
-		return eulerRotation.x;
+		return rotation.x;
 	}
 
 	public float getEulerRotationY() {
-		return eulerRotation.y;
+		return rotation.y;
 	}
 
 	public float getEulerRotationZ() {
-		return eulerRotation.z;
+		return rotation.z;
 	}
 
 	public Vector3 getEulerRotation(Vector3 outRotation) {
-		return outRotation.set(eulerRotation);
+		return outRotation.set(rotation);
 	}
 
 	public Quaternion getRotation(Quaternion outRotation) {
-		return outRotation.set(rotation);
+		return outRotation.set(rotationQuat);
 	}
 
 	public float getWorldEulerRotationX() {
@@ -634,7 +634,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	private Vector3 getWorldEulerRotation() {
 		if (parentTransform == null) {
-			return eulerRotation;
+			return rotation;
 		} else {
 			Quaternion worldRotation = getWorldRotation();
 			return tempVector.set(worldRotation.getPitch(), worldRotation.getYaw(), worldRotation.getRoll());
@@ -648,7 +648,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	private Quaternion getWorldRotation() {
 		update();
 		if (parentTransform == null) {
-			return rotation;
+			return rotationQuat;
 		} else {
 			return worldTransform.getRotation(rotator, true);
 		}
@@ -660,8 +660,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		transform.set(newTransform);
 		transform.getTranslation(translation);
 		transform.getScale(scale);
-		transform.getRotation(rotation, true);
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		transform.getRotation(rotationQuat, true);
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 
 		if (parentTransform == null) {
 			worldTransform.set(transform);
@@ -684,8 +684,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transform.getTranslation(translation);
 		transform.getScale(scale);
-		transform.getRotation(rotation, true);
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		transform.getRotation(rotationQuat, true);
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 
 		transformDirty = false;
 		transformInvDirty = true;
@@ -713,7 +713,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	private void update() {
 		if (transformDirty) {
-			transform.set(translation, rotation, scale);
+			transform.set(translation, rotationQuat, scale);
 			if (parentTransform == null) {
 				worldTransform.set(transform);
 			} else {
@@ -810,7 +810,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public Vector3 transformDirection(Vector3 direction) {
-		return rotation.transform(direction);
+		return rotationQuat.transform(direction);
 	}
 
 	public Vector3 transformDirectionFromLocal(Vector3 direction) {
@@ -819,7 +819,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public Vector3 transformVector(Vector3 vector) {
-		return vector.mul(rotation).add(translation);
+		return vector.mul(rotationQuat).add(translation);
 	}
 
 	public Vector3 transformVectorFromLocal(Vector3 vector) {
@@ -864,8 +864,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	public void lookAt(Vector3 target, Vector3 up) {
 		update();
 		transform.setToLookAt(translation, target, up).scl(scale);
-		transform.getRotation(rotation, true);
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		transform.getRotation(rotationQuat, true);
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 
 		if (parentTransform == null) {
 			worldTransform.set(transform);
@@ -897,8 +897,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 		transform.getTranslation(translation);
 		transform.getScale(scale);
-		transform.getRotation(rotation, true);
-		eulerRotation.set(rotation.getPitch(), rotation.getYaw(), rotation.getRoll());
+		transform.getRotation(rotationQuat, true);
+		rotation.set(rotationQuat.getPitch(), rotationQuat.getYaw(), rotationQuat.getRoll());
 
 		transformDirty = false;
 		transformInvDirty = true;
@@ -909,7 +909,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	@Override
 	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
 		if ("eulerRotation".equals(propertyName)) {
-			rotation.setEulerAngles(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+			rotationQuat.setEulerAngles(rotation.y, rotation.x, rotation.z);
 		}
 		notifyChanged();
 	}
@@ -919,8 +919,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		nodeId = -1;
 		parentTransform = null;
 		translation.setZero();
-		rotation.idt();
-		eulerRotation.setZero();
+		rotationQuat.idt();
+		rotation.setZero();
 		scale.set(1, 1, 1);
 		transformDirty = true;
 		transformInvDirty = true;

@@ -38,7 +38,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
 	public BulletCollisionShape shape;
 
-	@PropertyDescriptor(descriptiveName = "Calc. inertia")
+	@PropertyEditorDescriptor(descriptiveName = "Calc. inertia")
 	public boolean inertiaFromShape = true;
 	public final Vector3 inertia = new Vector3(0, 0, 0);
 

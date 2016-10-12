@@ -22,8 +22,6 @@ import com.gurella.engine.utils.Values;
 public class ReflectionProperty<T> implements Property<T> {
 	private Class<?> declaringClass;
 	private String name;
-	private String descriptiveName;
-	private String description;
 	private boolean editable;
 	private Class<T> type;
 	private Range<?> range;
@@ -72,17 +70,10 @@ public class ReflectionProperty<T> implements Property<T> {
 
 		PropertyDescriptor propertyDescriptor = findAnnotation(PropertyDescriptor.class);
 		if (propertyDescriptor == null) {
-			descriptiveName = name;
-			description = "";
 			nullable = isDefaultNullable();
 			copyable = true;
 			flatSerialization = isDefaultFlatSerialization();
 		} else {
-			descriptiveName = propertyDescriptor.descriptiveName();
-			if (Values.isBlank(descriptiveName)) {
-				descriptiveName = name;
-			}
-			description = propertyDescriptor.description();
 			nullable = isDefaultNullable() ? propertyDescriptor.nullable() : false;
 			copyable = propertyDescriptor.copyable();
 			flatSerialization = isDefaultFlatSerialization() ? true : propertyDescriptor.flatSerialization();
@@ -95,7 +86,7 @@ public class ReflectionProperty<T> implements Property<T> {
 		} else {
 			editable = editorDescriptor.editable();
 		}
-		
+
 		defaultValue = getValue(ModelDefaults.getDefault(model.getType()));
 	}
 
@@ -220,16 +211,6 @@ public class ReflectionProperty<T> implements Property<T> {
 	@Override
 	public boolean isFlatSerialization() {
 		return flatSerialization;
-	}
-
-	@Override
-	public String getDescriptiveName() {
-		return descriptiveName;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
 	}
 
 	@Override

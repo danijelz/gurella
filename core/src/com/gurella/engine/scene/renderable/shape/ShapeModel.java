@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.pool.PoolService;
 
@@ -22,7 +23,7 @@ public abstract class ShapeModel implements Disposable {
 	public static final Material defaulMaterial = new Material(ColorAttribute.createDiffuse(1, 1, 1, 1));
 	public static final VertexAttributes defaultAttributes = new VertexAttributes(Position(), Normal());
 
-	@PropertyDescriptor(descriptiveName = "material")
+	@PropertyEditorDescriptor(descriptiveName = "material")
 	public MaterialDescriptor materialDescriptor;
 	private transient Material material;
 

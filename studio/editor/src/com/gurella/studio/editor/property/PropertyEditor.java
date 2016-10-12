@@ -80,7 +80,7 @@ public abstract class PropertyEditor<P> {
 	}
 
 	public String getDescriptiveName() {
-		return context.property.getDescriptiveName();
+		return EditorPropertyData.getDescriptiveName(context);
 	}
 
 	public Property<P> getProperty() {

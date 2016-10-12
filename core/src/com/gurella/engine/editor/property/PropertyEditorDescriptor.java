@@ -15,13 +15,17 @@ public @interface PropertyEditorDescriptor {
 
 	EditorType type() default EditorType.composite;
 
-	boolean editable() default true; // TODO unused
+	boolean editable() default true;
 
 	boolean nullable() default false; // TODO unused
 
 	String group() default "";
 
 	int index() default 0;
+
+	String descriptiveName() default "";
+
+	String description() default "";
 
 	public enum EditorType {
 		simple, composite, custom
