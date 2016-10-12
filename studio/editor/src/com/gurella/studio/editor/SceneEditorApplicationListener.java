@@ -41,7 +41,7 @@ import com.gurella.studio.editor.scene.Compass;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
-import com.gurella.studio.editor.scene.StudioRenderSystem;
+import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
@@ -71,7 +71,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private Compass compass;
 
 	private Scene scene;
-	private StudioRenderSystem renderSystem;
+	private SceneEditorRenderSystem renderSystem;
 
 	private final Ray pickRay = new Ray();
 	private long pickRayTime = 0;
@@ -120,7 +120,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		}
 
 		this.scene = scene;
-		renderSystem = new StudioRenderSystem(scene);
+		renderSystem = new SceneEditorRenderSystem(scene);
 
 		if (scene != null) {
 			EventService.subscribe(scene.getInstanceId(), renderSystem);

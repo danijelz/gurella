@@ -6,7 +6,7 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 public class BulletMaterial {
 	@PropertyDescriptor(descriptiveName = "Calc. inertia")
 	public boolean inertiaFromShape = true;
-	public final Vector3 localInertia = new Vector3(0, 0, 0);
+	public final Vector3 inertia = new Vector3(0, 0, 0);
 
 	public final Vector3 angularFactor = new Vector3(1, 1, 1);
 	public final Vector3 linearFactor = new Vector3(1, 1, 1);

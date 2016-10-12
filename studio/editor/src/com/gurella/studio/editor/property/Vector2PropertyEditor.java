@@ -25,7 +25,7 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 4;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -41,7 +41,7 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Vector2 value = getValue();
 		if (value == null) {
-			Label label = toolkit.createLabel(body, "null");
+			Label label = toolkit.createLabel(content, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -49,15 +49,15 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 			Model<Vector2> model = Models.getModel(Vector2.class);
 			createEditorField(model, value, "x");
 			createEditorField(model, value, "y");
-			UiUtils.paintBordersFor(body);
+			UiUtils.paintBordersFor(content);
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void createEditorField(final Model<Vector2> model, Vector2 value, String propertyName) {
 		Property<Float> childProperty = model.getProperty(propertyName);
-		Text text = UiUtils.createFloatWidget(body);
+		Text text = UiUtils.createFloatWidget(content);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 50;
 		layoutData.heightHint = 14;
@@ -75,7 +75,7 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

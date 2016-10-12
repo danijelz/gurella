@@ -49,7 +49,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -71,7 +71,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 		Collection<T> values = getValue();
 
 		if (values == null || values.isEmpty()) {
-			Label label = toolkit.createLabel(body, values == null ? "null" : "empty");
+			Label label = toolkit.createLabel(content, values == null ? "null" : "empty");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -82,20 +82,20 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 			IntStream.range(0, values.size()).forEach(i -> addItemEditor(itemModel, iter.next(), i));
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private int addItemEditor(Model<Object> itemModel, T item, int index) {
-		Label label = getToolkit().createLabel(body, Integer.toString(index) + ".");
+		Label label = getToolkit().createLabel(content, Integer.toString(index) + ".");
 		label.setAlignment(SWT.RIGHT);
 		label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 		label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 		Property<Object> property = Values.cast(getProperty());
 		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemModel, item, property, index);
-		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(body, itemContext, itemModel.getType());
+		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, itemModel.getType());
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		editor.getComposite().setLayoutData(layoutData);
+		editor.getBody().setLayoutData(layoutData);
 
 		addEditorMenus(editor, index);
 		itemEditors.add(editor);
@@ -187,9 +187,9 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
-		body.layout(true);
+		content.layout(true);
 	}
 
 	private void newTypeInstance() {
@@ -235,7 +235,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 	private SelectionDialog createJavaSearchDialog() throws JavaModelException {
 		IJavaSearchScope scope = getSearchScope();
-		Shell shell = body.getShell();
+		Shell shell = content.getShell();
 		ProgressMonitorDialog monitor = new ProgressMonitorDialog(shell);
 		return JavaUI.createTypeDialog(shell, monitor, scope, CONSIDER_CLASSES, false);
 	}

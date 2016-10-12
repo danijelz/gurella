@@ -18,11 +18,12 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 
 @ModelDescriptor(descriptiveName = "Skybox")
 public class SkyboxComponent extends RenderableComponent implements Disposable {
-	Pixmap sky;
+	Pixmap texture;
 
 	private Pixmap positiveX;
 	private Pixmap negativeX;
@@ -37,14 +38,18 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	private ModelInstance boxInstance;
 	private CubemapAttribute cubemapAttribute;
 
-	public Pixmap getSky() {
-		return sky;
+	public SkyboxComponent() {
+		setLayer(Layer.SKY);
 	}
 
-	public void setSky(Pixmap sky) {
+	public Pixmap getTexture() {
+		return texture;
+	}
+
+	public void setTexture(Pixmap sky) {
 		disposeData();
 
-		this.sky = sky;
+		this.texture = sky;
 		if (sky != null) {
 			int width = sky.getWidth() / 4;
 			int height = sky.getHeight() / 3;
@@ -125,9 +130,9 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	}
 
 	protected void disposeData() {
-		if (sky != null) {
-			//TODO AssetService.unload(sky);
-			sky = null;
+		if (texture != null) {
+			// TODO AssetService.unload(sky);
+			texture = null;
 
 			cubemap.dispose();
 			cubemap = null;

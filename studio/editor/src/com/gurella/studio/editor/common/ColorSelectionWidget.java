@@ -58,7 +58,7 @@ public class ColorSelectionWidget extends Composite {
 		layoutData.heightHint = 14;
 		text.setLayoutData(layoutData);
 
-		Point textSize = text.computeSize(60, 16, true);
+		Point textSize = text.computeSize(60, 14, true);
 
 		button = UiUtils.createComposite(this, SWT.NONE);
 		layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
@@ -91,7 +91,6 @@ public class ColorSelectionWidget extends Composite {
 			gc.setLineWidth(2);
 			int widthBorder = width - 2;
 			int heightBorder = height - 2;
-			// gc.drawLine(2, 2, widthBorder, heightBorder);
 			gc.drawLine(widthBorder, 2, 2, heightBorder);
 			int radius = Math.min(widthBorder, heightBorder);
 			gc.drawOval(4, 3, radius - 6, radius - 4);

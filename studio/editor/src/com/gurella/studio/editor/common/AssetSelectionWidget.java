@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -50,20 +50,18 @@ public class AssetSelectionWidget<T> extends Composite {
 
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
-		layout.marginHeight = 0;
+		layout.marginHeight = 2;
 		layout.verticalSpacing = 0;
 		setLayout(layout);
 
 		text = UiUtils.createText(this);
 		text.setEditable(false);
-		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		layoutData.widthHint = 100;
-		layoutData.heightHint = 14;
-		text.setLayoutData(layoutData);
+		GridDataFactory.defaultsFor(text).align(SWT.FILL, SWT.CENTER).grab(true, false).hint(100, 14).applyTo(text);
 
 		selectAssetButton = toolkit.createButton(this, "", SWT.PUSH);
 		selectAssetButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
-		selectAssetButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		GridDataFactory.defaultsFor(selectAssetButton).align(SWT.BEGINNING, SWT.BEGINNING).grab(false, false)
+				.hint(32, 22).applyTo(selectAssetButton);
 		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
 
 		DropTarget target = new DropTarget(text, DND.DROP_MOVE);

@@ -72,8 +72,8 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 	public EditorComposite createPropertyEditor(EditorComposite parent, Property<?> property) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
 		PropertyEditor<?> propertyEditor = createEditor(swtParent, new PropertyEditorContext<>(context, property));
-		propertyEditor.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
-		Composite body = propertyEditor.getBody();
+		propertyEditor.getBody().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		Composite body = propertyEditor.getContent();
 		EditorComposite editorBody = SwtEditorWidget.getEditorWidget(body);
 		return editorBody == null ? new SwtEditorComposite(body) : editorBody;
 	}
@@ -83,8 +83,8 @@ class CustomPropertyEditorContextAdapter<P> implements com.gurella.engine.editor
 			EditorLayoutData layoutData) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
 		PropertyEditor<?> propertyEditor = createEditor(swtParent, new PropertyEditorContext<>(context, property));
-		propertyEditor.getComposite().setLayoutData(SwtEditorUi.transformLayoutData(layoutData));
-		Composite body = propertyEditor.getBody();
+		propertyEditor.getBody().setLayoutData(SwtEditorUi.transformLayoutData(layoutData));
+		Composite body = propertyEditor.getContent();
 		EditorComposite editorBody = SwtEditorWidget.getEditorWidget(body);
 		return editorBody == null ? new SwtEditorComposite(body) : editorBody;
 	}

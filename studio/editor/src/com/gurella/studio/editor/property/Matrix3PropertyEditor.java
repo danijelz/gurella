@@ -15,7 +15,7 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 	public Matrix3PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix3> context) {
 		super(parent, context);
 
-		body.setLayout(new GridLayout(3, false));
+		content.setLayout(new GridLayout(3, false));
 		buildUi();
 
 		if (!context.isFixedValue()) {
@@ -29,7 +29,7 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 	private void buildUi() {
 		Matrix3 value = getValue();
 		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
+			Label label = UiUtils.createLabel(content, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -43,14 +43,14 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 			createText(Matrix3.M20, value);
 			createText(Matrix3.M21, value);
 			createText(Matrix3.M22, value);
-			UiUtils.paintBordersFor(body);
+			UiUtils.paintBordersFor(content);
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void createText(int index, Matrix3 value) {
-		Text text = UiUtils.createFloatWidget(body);
+		Text text = UiUtils.createFloatWidget(content);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 50;
 		layoutData.heightHint = 14;
@@ -67,7 +67,7 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

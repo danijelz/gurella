@@ -31,7 +31,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, type = EditorType.simple)
 	Layer layer = Layer.DEFAULT;
 
-	@PropertyEditorDescriptor(factory = InputEventsPropertyEditorFactory.class)
+	@PropertyEditorDescriptor(factory = InputSensitivityPropertyEditorFactory.class)
 	public byte inputSensitivity;
 
 	protected abstract void updateGeometry();

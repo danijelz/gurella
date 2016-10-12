@@ -57,8 +57,8 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 	public EditorComposite createPropertyEditor(EditorComposite parent, Property<?> property) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
 		PropertyEditor<?> propertyEditor = createEditor(swtParent, new PropertyEditorContext<>(this, property));
-		propertyEditor.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
-		Composite body = propertyEditor.getBody();
+		propertyEditor.getBody().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		Composite body = propertyEditor.getContent();
 		EditorComposite editorBody = SwtEditorWidget.getEditorWidget(body);
 		return editorBody == null ? new SwtEditorComposite(body) : editorBody;
 	}
@@ -68,8 +68,8 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 			EditorLayoutData layoutData) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
 		PropertyEditor<?> propertyEditor = createEditor(swtParent, new PropertyEditorContext<>(this, property));
-		propertyEditor.getComposite().setLayoutData(SwtEditorUi.transformLayoutData(layoutData));
-		Composite body = propertyEditor.getBody();
+		propertyEditor.getBody().setLayoutData(SwtEditorUi.transformLayoutData(layoutData));
+		Composite body = propertyEditor.getContent();
 		EditorComposite editorBody = SwtEditorWidget.getEditorWidget(body);
 		return editorBody == null ? new SwtEditorComposite(body) : editorBody;
 	}

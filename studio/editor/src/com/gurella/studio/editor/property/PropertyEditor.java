@@ -33,8 +33,8 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class PropertyEditor<P> {
-	private Composite composite;
-	protected Composite body;
+	private Composite body;
+	protected Composite content;
 	private Label menuButton;
 	private Image menuImage;
 
@@ -47,28 +47,28 @@ public abstract class PropertyEditor<P> {
 		this.context = context;
 
 		FormToolkit toolkit = getToolkit();
-		composite = toolkit.createComposite(parent);
+		body = toolkit.createComposite(parent);
 		GridLayout layout = new GridLayout(1, false);
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
-		composite.setLayout(layout);
-		composite.setData(PropertyEditor.class.getName(), this);
+		body.setLayout(layout);
+		body.setData(PropertyEditor.class.getName(), this);
 
-		body = new BodyComposite(composite, SWT.NULL);
-		body.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
-		body.addListener(SWT.MouseUp, e -> showMenuOnMouseUp(e));
+		content = new BodyComposite(body, SWT.NULL);
+		content.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		content.addListener(SWT.MouseUp, e -> showMenuOnMouseUp(e));
 
-		menuImage = GurellaStudioPlugin.createImage("icons/popup_menu.gif");
-	}
-
-	public Composite getComposite() {
-		return composite;
+		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
 	}
 
 	public Composite getBody() {
 		return body;
+	}
+
+	public Composite getContent() {
+		return content;
 	}
 
 	protected FormToolkit getToolkit() {
@@ -138,16 +138,16 @@ public abstract class PropertyEditor<P> {
 	private void updateMenu() {
 		boolean empty = menuItems.isEmpty();
 		if (empty && menuButton != null) {
-			((GridLayout) composite.getLayout()).numColumns = 1;
+			((GridLayout) body.getLayout()).numColumns = 1;
 			menuButton.dispose();
 			menuButton = null;
-			composite.layout(true, true);
+			body.layout(true, true);
 		} else if (!empty && menuButton == null) {
-			((GridLayout) composite.getLayout()).numColumns = 2;
-			menuButton = getToolkit().createLabel(composite, "     ", NONE);
+			((GridLayout) body.getLayout()).numColumns = 2;
+			menuButton = getToolkit().createLabel(body, "     ", NONE);
 			menuButton.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
 			menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
-			composite.layout(true, true);
+			body.layout(true, true);
 		}
 	}
 
@@ -156,9 +156,9 @@ public abstract class PropertyEditor<P> {
 			return;
 		}
 
-		Menu menu = new Menu(composite.getShell(), POP_UP);
+		Menu menu = new Menu(body.getShell(), POP_UP);
 		menuItemsOrder.forEach(text -> addMenuAction(menu, text, menuItems.get(text)));
-		menu.setLocation(composite.getDisplay().getCursorLocation());
+		menu.setLocation(body.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
 
@@ -222,7 +222,7 @@ public abstract class PropertyEditor<P> {
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			editor.context.setValue(oldValue);
-			if (!editor.composite.isDisposed()) {
+			if (!editor.body.isDisposed()) {
 				editor.updateValue(oldValue);
 			}
 			return Status.OK_STATUS;
@@ -231,7 +231,7 @@ public abstract class PropertyEditor<P> {
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			editor.context.setValue(newValue);
-			if (!editor.composite.isDisposed()) {
+			if (!editor.body.isDisposed()) {
 				editor.updateValue(newValue);
 			}
 			return Status.OK_STATUS;

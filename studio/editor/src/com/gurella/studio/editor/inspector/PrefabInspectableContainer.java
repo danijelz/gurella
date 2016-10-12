@@ -4,7 +4,6 @@ import static com.gurella.studio.editor.model.ModelEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
-import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.CENTER;
 import static org.eclipse.swt.SWT.CHECK;
 import static org.eclipse.swt.SWT.END;
@@ -27,6 +26,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -71,6 +71,7 @@ import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private Text nameText;
@@ -84,19 +85,19 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	public PrefabInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
 
+		prefab = AssetService.load(target.getLocation().toString());
+
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
-		GridLayout layout = new GridLayout(4, false);
-		layout.marginWidth = 0;
-		layout.marginRight = 10;
-		getBody().setLayout(layout);
 
-		prefab = AssetService.load(target.getLocation().toString());
+		Composite body = getBody();
+		GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(0, 10, 4, 0).applyTo(body);
 
 		Label nameLabel = toolkit.createLabel(getBody(), " Name: ");
 		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
 
-		nameText = toolkit.createText(getBody(), prefab.getName(), BORDER);
+		nameText = UiUtils.createText(body);
+		nameText.setText(target.getName());
 		nameText.setLayoutData(new GridData(FILL, BEGINNING, true, false));
 		nameText.addListener(SWT.Modify, (e) -> nodeNameChanged());
 
@@ -106,7 +107,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		enabledCheck.addListener(SWT.Selection, (e) -> nodeEnabledChanged());
 
 		menuButton = toolkit.createLabel(getBody(), " ", NONE);
-		menuButton.setImage(GurellaStudioPlugin.createImage("icons/popup_menu.gif"));
+		menuButton.setImage(GurellaStudioPlugin.createImage("icons/menu.png"));
 		menuButton.setLayoutData(new GridData(END, CENTER, false, false));
 		menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
 
@@ -116,6 +117,8 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		componentsLayout.marginWidth = 0;
 		componentsComposite.setLayout(componentsLayout);
 		componentsComposite.setLayoutData(new GridData(FILL, FILL, true, true, 4, 1));
+
+		UiUtils.paintBordersFor(body);
 		initComponentContainers();
 		layout(true, true);
 		addDisposeListener(e -> AssetService.unload(prefab));

@@ -28,19 +28,19 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 		buildUi();
 	}
 
 	protected void buildUi() {
 		P value = getValue();
-		PropertyEditor<Object> delegate = createEditor(body,
+		PropertyEditor<Object> delegate = createEditor(content,
 				new PropertyEditorContext<>(context, model, value, delegateProperty));
-		delegate.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		delegate.getBody().setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

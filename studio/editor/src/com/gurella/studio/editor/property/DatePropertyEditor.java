@@ -23,7 +23,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -38,7 +38,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 	private void buildUi() {
 		Date value = getValue();
 		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
+			Label label = UiUtils.createLabel(content, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 2, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -46,7 +46,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(value);
 
-			date = new DateTime(body, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN);
+			date = new DateTime(content, SWT.DATE | SWT.MEDIUM | SWT.DROP_DOWN);
 			UiUtils.adapt(date);
 			GridData gridData = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 			gridData.widthHint = 100;
@@ -57,7 +57,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 			date.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
 			UiUtils.paintBordersFor(date);
 
-			time = new DateTime(body, SWT.TIME | SWT.SHORT | SWT.DROP_DOWN);
+			time = new DateTime(content, SWT.TIME | SWT.SHORT | SWT.DROP_DOWN);
 			UiUtils.adapt(time);
 			gridData = new GridData(SWT.BEGINNING, SWT.CENTER, true, false);
 			gridData.widthHint = 75;
@@ -66,10 +66,10 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 			time.addListener(SWT.Selection, e -> setValue(extractTimestamp()));
 			UiUtils.paintBordersFor(time);
 
-			UiUtils.paintBordersFor(body);
+			UiUtils.paintBordersFor(content);
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private Date extractTimestamp() {
@@ -85,7 +85,7 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

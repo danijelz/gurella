@@ -13,15 +13,19 @@ import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorComposite;
+import com.gurella.engine.editor.ui.EditorLabel;
 import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.layout.EditorLayout;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
+import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 
-class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
+class InputSensitivityPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 	@Override
 	public void buildUi(EditorComposite parent, PropertyEditorContext<Byte> context) {
-		new EditorLayout().numColumns(4).columnsEqualWidth(true).applyTo(parent);
+		new EditorLayout().numColumns(4).columnsEqualWidth(true).spacing(5, 0).margins(0, 0).applyTo(parent);
 
 		createLabel(parent, "tap");
 		createLabel(parent, "touch");
@@ -45,7 +49,8 @@ class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 
 	private static void createLabel(EditorComposite parent, String text) {
 		EditorUi uiFactory = parent.getUiFactory();
-		uiFactory.createLabel(parent, text);
+		EditorLabel label = uiFactory.createLabel(parent, text);
+		new EditorLayoutData().alignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP).indent(0, 0).applyTo(label);
 	}
 
 	private static void createCheck(PropertyEditorContext<Byte> context, EditorComposite parent,
@@ -55,6 +60,7 @@ class InputEventsPropertyEditorFactory implements PropertyEditorFactory<Byte> {
 		byte byteValue = context.getPropertyValue().byteValue();
 		check.setSelection((byteValue & (1 << index.ordinal())) != 0);
 		check.addListener(Selection, new InputEventsSelectionListener(context, check, index));
+		new EditorLayoutData().alignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP).indent(0, 0).applyTo(check);
 	}
 
 	private static class InputEventsSelectionListener implements EditorEventListener {

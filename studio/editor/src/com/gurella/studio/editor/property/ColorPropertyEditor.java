@@ -18,11 +18,11 @@ public class ColorPropertyEditor extends SimplePropertyEditor<Color> {
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		Color color = getValue();
 		Color defaultColor = context.isNullable() ? null : getDefaultColor();
-		colorSelector = new ColorSelectionWidget(body, color, defaultColor, true);
+		colorSelector = new ColorSelectionWidget(content, color, defaultColor, true);
 		colorSelector.setColorChangeListener(e -> setValue(colorSelector.getColor()));
 	}
 

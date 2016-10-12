@@ -23,19 +23,19 @@ public class CustomSimplePropertyEditor<P> extends SimplePropertyEditor<P> {
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 	}
 
 	private void buildUi() {
-		factory.buildUi(createComposite(body), new CustomPropertyEditorContextAdapter<P>(context, this));
+		factory.buildUi(createComposite(content), new CustomPropertyEditorContextAdapter<P>(context, this));
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
-		body.layout(true);
+		content.layout(true);
 	}
 
 	@Override

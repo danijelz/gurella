@@ -28,7 +28,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -48,7 +48,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 
 	private void buildUi() {
 		P value = getValue();
-		text = UiUtils.createText(body);
+		text = UiUtils.createText(content);
 		text.addVerifyListener(e -> getVerifyListener().accept(e, text.getText()));
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 100;
@@ -66,7 +66,7 @@ public abstract class SingleTextPropertyEditor<P> extends SimplePropertyEditor<P
 		text.addListener(SWT.MouseVerticalWheel, e -> onMouseVerticalWheel(e));
 		text.addListener(SWT.MouseDown, e -> onTrackerStart(e));
 
-		UiUtils.paintBordersFor(body);
+		UiUtils.paintBordersFor(content);
 	}
 
 	private void textModified() {

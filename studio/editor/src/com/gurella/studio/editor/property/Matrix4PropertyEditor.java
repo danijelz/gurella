@@ -15,7 +15,7 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 	public Matrix4PropertyEditor(Composite parent, PropertyEditorContext<?, Matrix4> context) {
 		super(parent, context);
 
-		body.setLayout(new GridLayout(4, false));
+		content.setLayout(new GridLayout(4, false));
 		buildUi();
 
 		if (!context.isFixedValue()) {
@@ -29,7 +29,7 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 	private void buildUi() {
 		Matrix4 value = getValue();
 		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
+			Label label = UiUtils.createLabel(content, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 4, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -50,14 +50,14 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 			createText(Matrix4.M31, value);
 			createText(Matrix4.M32, value);
 			createText(Matrix4.M33, value);
-			UiUtils.paintBordersFor(body);
+			UiUtils.paintBordersFor(content);
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void createText(int index, Matrix4 value) {
-		Text text = UiUtils.createFloatWidget(body);
+		Text text = UiUtils.createFloatWidget(content);
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
 		layoutData.widthHint = 40;
 		layoutData.heightHint = 14;
@@ -74,7 +74,7 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

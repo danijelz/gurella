@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.gurella.engine.editor.property.PropertyEditorContext;
 import com.gurella.engine.editor.property.PropertyEditorFactory;
+import com.gurella.engine.editor.ui.Alignment;
 import com.gurella.engine.editor.ui.EditorButton;
 import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorComposite;
@@ -22,6 +23,7 @@ import com.gurella.engine.editor.ui.dialog.EditorDialog.EditorDialogProperties;
 import com.gurella.engine.editor.ui.event.EditorEvent;
 import com.gurella.engine.editor.ui.event.EditorEventListener;
 import com.gurella.engine.editor.ui.event.EditorEventType;
+import com.gurella.engine.editor.ui.layout.EditorLayout;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.engine.utils.Values;
@@ -31,19 +33,22 @@ public class LayerPropertyEditorFactory implements PropertyEditorFactory<Layer> 
 
 	@Override
 	public void buildUi(EditorComposite parent, PropertyEditorContext<Layer> context) {
-		parent.setLayout(2);
+		new EditorLayout().numColumns(2).margins(0, 0).spacing(0, 0).applyTo(parent);
 
 		final EditorUi uiFactory = context.getEditorUi();
 
 		EditorCombo<Layer> combo = uiFactory.createCombo(parent);
-		new EditorLayoutData().alignment(LEFT, CENTER).grab(false, false).applyTo(combo);
+		new EditorLayoutData().alignment(LEFT, CENTER).grab(false, false).indent(0, 0).widthHint(100).applyTo(combo);
 		combo.setLabelProvider(labelProvider);
 		combo.addListener(EditorEventType.Selection, new LayerSelectionListener(context, combo));
+		combo.setFont(9, false, false);
 		setComboInput(combo);
 
 		EditorButton addButton = uiFactory.createButton(parent);
-		new EditorLayoutData().alignment(LEFT, CENTER).horizontalIndent(5).applyTo(addButton);
-		addButton.setText("Add");
+		new EditorLayoutData().alignment(LEFT, CENTER).indent(5, 0).heightHint(22).applyTo(addButton);
+		addButton.setAlignment(Alignment.CENTER);
+		addButton.setText("+");
+		addButton.setFont(15, true, false);
 		addButton.addListener(EditorEventType.Selection, new AddButtonSelectionListener(context, combo));
 
 		Layer value = context.getPropertyValue();

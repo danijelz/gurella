@@ -25,7 +25,7 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 		bodyLayout.marginHeight = 0;
 		bodyLayout.horizontalSpacing = 2;
 		bodyLayout.verticalSpacing = 0;
-		body.setLayout(bodyLayout);
+		content.setLayout(bodyLayout);
 
 		buildUi();
 
@@ -42,7 +42,7 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 		Bits value = getValue();
 		if (value == null) {
 			bodyLayout.numColumns = 1;
-			Label label = toolkit.createLabel(body, "null");
+			Label label = toolkit.createLabel(content, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -51,11 +51,11 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 			IntStream.range(0, value.numBits()).forEach(i -> buildCheck(value, i));
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void buildCheck(Bits value, int index) {
-		Button check = GurellaStudioPlugin.getToolkit().createButton(body, "", SWT.CHECK);
+		Button check = GurellaStudioPlugin.getToolkit().createButton(content, "", SWT.CHECK);
 		check.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		check.setSelection(value.get(index));
 		check.setToolTipText(Integer.toString(index));
@@ -71,7 +71,7 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

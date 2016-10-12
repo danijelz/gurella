@@ -98,7 +98,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 		float mass = material.mass;
 		mass = mass < 0 ? 0 : mass;
-		Vector3 inertia = material.localInertia;
+		Vector3 inertia = material.inertia;
 		if (mass > 0 && material.inertiaFromShape) {
 			nativeShape.calculateLocalInertia(mass, inertia);
 		}

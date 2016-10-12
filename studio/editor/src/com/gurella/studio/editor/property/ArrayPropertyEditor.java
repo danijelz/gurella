@@ -32,7 +32,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -48,7 +48,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 		P values = getValue();
 
 		if (values == null || Array.getLength(values) == 0) {
-			Label label = toolkit.createLabel(body, values == null ? "null" : "empty");
+			Label label = toolkit.createLabel(content, values == null ? "null" : "empty");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
@@ -58,23 +58,23 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 			Model<Object> model = Models.getModel(componentType);
 
 			for (int i = 0, n = Array.getLength(values); i < n; i++) {
-				Label label = toolkit.createLabel(body, Integer.toString(i) + ".");
+				Label label = toolkit.createLabel(content, Integer.toString(i) + ".");
 				label.setAlignment(SWT.RIGHT);
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 				label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 				Object item = Array.get(values, i);
 				ItemContext<Object, Object> itemContext = new ItemContext<>(context, model, item, property, i);
-				PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(body, itemContext, componentType);
+				PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, componentType);
 				GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-				editor.getComposite().setLayoutData(layoutData);
+				editor.getBody().setLayoutData(layoutData);
 
 				addEditorMenus(editor, i);
 				itemEditors.add(editor);
 			}
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void setNull() {
@@ -87,7 +87,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 		int length = values == null ? 0 : Array.getLength(values);
 		String lengthStr = Integer.toString(length);
 		String message = "Enter new array length";
-		InputDialog dlg = new InputDialog(body.getShell(), "Resize", message, lengthStr, this::isValid);
+		InputDialog dlg = new InputDialog(content.getShell(), "Resize", message, lengthStr, this::isValid);
 		if (dlg.open() == Window.OK) {
 			int newSize = Integer.parseInt(dlg.getValue());
 			setValue(resizeValues(newSize - length));
@@ -165,7 +165,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

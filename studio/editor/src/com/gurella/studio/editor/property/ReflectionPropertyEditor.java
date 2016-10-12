@@ -39,7 +39,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -76,26 +76,26 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 		FormToolkit toolkit = getToolkit();
 		P value = getValue();
 		if (value == null) {
-			Label label = toolkit.createLabel(body, "null (" + context.getPropertyType().getSimpleName() + ")");
+			Label label = toolkit.createLabel(content, "null (" + context.getPropertyType().getSimpleName() + ")");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else if (Models.getModel(value.getClass()) instanceof SimpleModel) {
 			PropertyEditorContext<Object, P> casted = Values.cast(context);
 			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);
-			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(body, child, Values.cast(value.getClass()));
+			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(content, child, Values.cast(value.getClass()));
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-			editor.getComposite().setLayoutData(layoutData);
+			editor.getBody().setLayoutData(layoutData);
 		} else {
-			MetaModelEditor<P> modelEditor = ModelEditorFactory.createEditor(body, context, value);
+			MetaModelEditor<P> modelEditor = ModelEditorFactory.createEditor(content, context, value);
 			modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 
@@ -135,7 +135,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private SelectionDialog createJavaSearchDialog() throws JavaModelException {
 		IJavaSearchScope scope = getSearchScope();
-		Shell shell = body.getShell();
+		Shell shell = content.getShell();
 		ProgressMonitorDialog monitor = new ProgressMonitorDialog(shell);
 		return JavaUI.createTypeDialog(shell, monitor, scope, CONSIDER_CLASSES, false);
 	}

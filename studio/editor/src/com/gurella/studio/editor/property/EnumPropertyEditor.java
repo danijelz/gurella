@@ -28,14 +28,14 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
-		combo = new Combo(body, SWT.READ_ONLY);
+		combo = new Combo(content, SWT.READ_ONLY);
 		Font font = GurellaStudioPlugin.createFont(combo, 8, 0);
 		combo.addDisposeListener(e -> GurellaStudioPlugin.destroyFont(font));
 		combo.setFont(font);
 		GridData comboLayoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false);
-		comboLayoutData.minimumWidth = 100;
+		comboLayoutData.minimumWidth = 105;
 		combo.setLayoutData(comboLayoutData);
 
 		comboViewer = new ComboViewer(combo);
@@ -57,7 +57,7 @@ public class EnumPropertyEditor<P extends Enum<P>> extends SimplePropertyEditor<
 		comboViewer.setSelection(selection);
 
 		combo.addListener(SWT.Selection, e -> selectionChanged());
-		getToolkit().adapt(body);
+		getToolkit().adapt(content);
 	}
 
 	public void selectionChanged() {

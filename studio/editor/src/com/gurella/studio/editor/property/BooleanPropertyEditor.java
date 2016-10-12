@@ -18,7 +18,7 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
 		buildUi();
 
@@ -34,23 +34,23 @@ public class BooleanPropertyEditor extends SimplePropertyEditor<Boolean> {
 	private void buildUi() {
 		Boolean value = getValue();
 		if (value == null) {
-			Label label = UiUtils.createLabel(body, "null");
+			Label label = UiUtils.createLabel(content, "null");
 			label.setAlignment(SWT.CENTER);
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else {
-			check = getToolkit().createButton(body, "", SWT.CHECK);
+			check = getToolkit().createButton(content, "", SWT.CHECK);
 			check.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
 			check.setSelection(value.booleanValue());
 			check.addListener(SWT.Selection, e -> setValue(Boolean.valueOf(check.getSelection())));
-			UiUtils.paintBordersFor(body);
+			UiUtils.paintBordersFor(content);
 		}
 
-		body.layout();
+		content.layout();
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
 	}
 

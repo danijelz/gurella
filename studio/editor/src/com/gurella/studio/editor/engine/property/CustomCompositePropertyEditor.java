@@ -20,13 +20,13 @@ public class CustomCompositePropertyEditor<P> extends CompositePropertyEditor<P>
 	}
 
 	private void buildUi() {
-		factory.buildUi(createComposite(body), new CustomPropertyEditorContextAdapter<P>(context, this));
+		factory.buildUi(createComposite(content), new CustomPropertyEditorContextAdapter<P>(context, this));
 	}
 
 	private void rebuildUi() {
-		UiUtils.disposeChildren(body);
+		UiUtils.disposeChildren(content);
 		buildUi();
-		body.layout(true);
+		content.layout(true);
 	}
 
 	@Override

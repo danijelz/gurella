@@ -19,13 +19,13 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		layout.verticalSpacing = 0;
-		body.setLayout(layout);
+		content.setLayout(layout);
 
-		assetWidget = new AssetSelectionWidget<>(body, assetType);
+		assetWidget = new AssetSelectionWidget<>(content, assetType);
 		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		assetWidget.setAsset(getValue());
 		assetWidget.setSelectionChangedListener(this::assetSelectionChanged);
-		UiUtils.paintBordersFor(body);
+		UiUtils.paintBordersFor(content);
 	}
 
 	private void assetSelectionChanged(T oldAsset, T newAsset) {

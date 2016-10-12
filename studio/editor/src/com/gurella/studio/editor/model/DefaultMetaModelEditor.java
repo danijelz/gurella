@@ -10,6 +10,8 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.util.Arrays;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -20,6 +22,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Property;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.property.CompositePropertyEditor;
 import com.gurella.studio.editor.property.PropertyEditor;
@@ -54,8 +57,8 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		FormToolkit toolkit = getToolkit();
 		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
 		GridData compositeLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		Composite composite = editor.getComposite();
-		composite.setLayoutData(compositeLayoutData);
+		Composite editorBody = editor.getBody();
+		editorBody.setLayoutData(compositeLayoutData);
 
 		PropertyEditorContext<?, V> editorContext = editor.getContext();
 		Class<V> propertyType = editorContext.getPropertyType();
@@ -73,7 +76,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			label.setFont(font);
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
-			label.moveAbove(composite);
+			label.moveAbove(editorBody);
 			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 
 			if (longName) {
@@ -88,8 +91,14 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			sectionLayoutData.widthHint = 100;
 			section.setLayoutData(sectionLayoutData);
 			section.setText(name);
-			composite.setParent(section);
-			section.setClient(composite);
+			Composite client = toolkit.createComposite(section);
+			GridLayoutFactory.swtDefaults().numColumns(2).spacing(0, 0).margins(0, 0).applyTo(client);
+			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
+			separator.setForeground(GurellaStudioPlugin.getColor(88, 158, 255));
+			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
+			editorBody.setParent(client);
+			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			section.setClient(client);
 			section.setExpanded(true);
 			section.layout(true, true);
 			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));

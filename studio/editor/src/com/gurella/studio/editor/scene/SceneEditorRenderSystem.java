@@ -33,7 +33,7 @@ import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
 import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
 
-public class StudioRenderSystem implements ComponentActivityListener, EditorMessageListener, Disposable {
+public class SceneEditorRenderSystem implements ComponentActivityListener, EditorMessageListener, Disposable {
 	private Scene scene;
 
 	private GenericBatch batch;
@@ -53,9 +53,10 @@ public class StudioRenderSystem implements ComponentActivityListener, EditorMess
 
 	private SceneNode2 selectedNode;
 
-	public StudioRenderSystem(Scene scene) {
+	public SceneEditorRenderSystem(Scene scene) {
 		this.scene = scene;
 		layerMask.allowed(Layer.DEFAULT);
+		layerMask.allowed(Layer.SKY);
 		batch = new GenericBatch();
 
 		environment.set(ambientLight);
