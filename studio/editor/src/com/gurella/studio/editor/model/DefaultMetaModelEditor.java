@@ -115,7 +115,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2)
 					.applyTo(editorBody);
 			GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-			editorBodyLayoutData.horizontalIndent = 0;
+			editorBodyLayoutData.horizontalIndent = 3;
 			editorBodyLayoutData.verticalIndent = 0;
 			editorBody.setLayoutData(editorBodyLayoutData);
 
