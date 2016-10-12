@@ -36,7 +36,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	@PropertyDescriptor(nullable = false)
 	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
-	public BulletCollisionShape collisionShape;
+	public BulletCollisionShape shape;
 
 	@PropertyDescriptor(descriptiveName = "Calc. inertia")
 	public boolean inertiaFromShape = true;
@@ -62,11 +62,11 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public float linearSleepingThreshold;
 	public float angularSleepingThreshold;
 
-	@PropertyEditorDescriptor(group = "additional")
+	@PropertyEditorDescriptor(group = "Additional damping")
 	public boolean additionalDamping;
-	@PropertyEditorDescriptor(group = "additional")
+	@PropertyEditorDescriptor(group = "Additional damping")
 	public float additionalDampingFactor;
-	@PropertyEditorDescriptor(group = "additional")
+	@PropertyEditorDescriptor(group = "Additional damping")
 	public float additionalAngularDampingFactor;
 
 	private final transient MotionState motionState = new MotionState();
@@ -123,7 +123,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	}
 
 	private btRigidBodyConstructionInfo createConstructionInfo() {
-		btCollisionShape nativeShape = collisionShape == null ? new btEmptyShape() : collisionShape.createNativeShape();
+		btCollisionShape nativeShape = shape == null ? new btEmptyShape() : shape.createNativeShape();
 		nativeShape.setMargin(margin);
 
 		float mass = this.mass;
@@ -151,8 +151,8 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	@Override
 	public void debugRender(GenericBatch batch) {
-		if (collisionShape != null) {
-			collisionShape.debugRender(batch, transformComponent);
+		if (shape != null) {
+			shape.debugRender(batch, transformComponent);
 		}
 	}
 

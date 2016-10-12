@@ -99,7 +99,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			sectionLayoutData.widthHint = 100;
 			section.setLayoutData(sectionLayoutData);
 			section.setText(groupName);
-			section.setExpanded(true);
+			section.setExpanded(false);
 
 			Composite client = toolkit.createComposite(section);
 			section.setClient(client);
@@ -114,10 +114,9 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			editorBodyLayoutData.horizontalIndent = 0;
 			editorBodyLayoutData.verticalIndent = 0;
 			editorBody.setLayoutData(editorBodyLayoutData);
-			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			editorBody.setBackground(GurellaStudioPlugin.createColor(255, 0, 0));
+
 			properties.stream().sequential().forEach(p -> addEditor(editorBody, p));
-			
-			section.layout(true, true);
 		}
 	}
 
@@ -167,7 +166,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			editorBody.setParent(client);
 			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			section.setClient(client);
-			section.setExpanded(true);
+			section.setExpanded(false);
 			section.layout(true, true);
 			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 			editorBodyLayoutData.horizontalIndent = 0;
