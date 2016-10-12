@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.bullet.shapes;
+package com.gurella.engine.scene.bullet.rigidbody.shape;
 
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btEmptyShape;

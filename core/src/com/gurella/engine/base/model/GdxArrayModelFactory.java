@@ -166,7 +166,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isFinal() {
 			return false;
@@ -190,11 +190,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		@Override
 		public String getDescription() {
 			return name;
-		}
-
-		@Override
-		public String getGroup() {
-			return null;
 		}
 
 		@Override
@@ -268,7 +263,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isFinal() {
 			return false;
@@ -291,11 +286,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public String getDescription() {
-			return null;
-		}
-
-		@Override
-		public String getGroup() {
 			return null;
 		}
 

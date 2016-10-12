@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 /**
  * @author Marcus Brummer
  * @version 08-01-2016
- * https://github.com/mbrlabs/Mundus/blob/master/commons/src/main/com/mbrlabs/mundus/commons/skybox/SkyboxShader.java
+ *          https://github.com/mbrlabs/Mundus/blob/master/commons/src/main/com/mbrlabs/mundus/commons/skybox/SkyboxShader.java
  */
 public class SkyboxShader extends BaseShader {
 	private static final ObjectMap<Application, SkyboxShader> instances = new ObjectMap<Application, SkyboxShader>();

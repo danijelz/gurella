@@ -8,11 +8,20 @@ import java.lang.annotation.Target;
 
 @Inherited
 @Retention(RetentionPolicy.CLASS)
-@Target(value = { ElementType.FIELD })
+@Target(value = { ElementType.FIELD, ElementType.METHOD })
 public @interface PropertyEditorDescriptor {
-	Class<? extends PropertyEditorFactory<?>> factory();
+	@SuppressWarnings("rawtypes")
+	Class<? extends PropertyEditorFactory> factory() default PropertyEditorFactory.class;
 
 	EditorType type() default EditorType.composite;
+
+	boolean editable() default true; // TODO unused
+
+	boolean nullable() default false; // TODO unused
+
+	String group() default "";
+
+	int index() default 0;
 
 	public enum EditorType {
 		simple, composite, custom

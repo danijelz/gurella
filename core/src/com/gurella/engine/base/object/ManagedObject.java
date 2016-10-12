@@ -6,9 +6,9 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.base.model.PropertyEditor;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
 import com.gurella.engine.disposable.DisposablesService;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
@@ -23,11 +23,11 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to byte
 
 	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
-	@PropertyEditor(editable = false)
+	@PropertyEditorDescriptor(editable = false)
 	String uuid;
 
 	@PropertyDescriptor(property = ManagedObjectPrefabProperty.class)
-	@PropertyEditor(editable = false)
+	@PropertyEditorDescriptor(editable = false)
 	PrefabReference prefab;
 
 	private transient ManagedObject parent;
@@ -212,7 +212,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 			prefab.free();
 			prefab = null;
 		}
-		
+
 		// TODO EventService.removeChannel(instanceId);
 	}
 

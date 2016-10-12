@@ -197,7 +197,7 @@ public class CollectionModelFactory implements ModelFactory {
 		public boolean isNullable() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isFinal() {
 			return false;
@@ -220,11 +220,6 @@ public class CollectionModelFactory implements ModelFactory {
 
 		@Override
 		public String getDescription() {
-			return null;
-		}
-
-		@Override
-		public String getGroup() {
 			return null;
 		}
 

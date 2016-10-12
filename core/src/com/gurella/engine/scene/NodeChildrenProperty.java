@@ -18,9 +18,4 @@ class NodeChildrenProperty extends SceneElementsProperty<SceneNode2> {
 	protected void addElement(Object object, SceneNode2 element) {
 		((SceneNode2) object).addChild(element);
 	}
-
-	@Override
-	public boolean isEditable() {
-		return false;
-	}
 }

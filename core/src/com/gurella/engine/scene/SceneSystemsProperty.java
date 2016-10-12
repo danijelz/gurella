@@ -18,9 +18,4 @@ class SceneSystemsProperty extends SceneElementsProperty<SceneSystem2> {
 	protected void addElement(Object object, SceneSystem2 element) {
 		((Scene) object).addSystem(element);
 	}
-
-	@Override
-	public boolean isEditable() {
-		return false;
-	}
 }

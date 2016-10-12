@@ -13,6 +13,7 @@ import com.gurella.engine.base.model.ValueRange.LongRange;
 import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
@@ -23,8 +24,7 @@ public class ReflectionProperty<T> implements Property<T> {
 	private String name;
 	private String descriptiveName;
 	private String description;
-	private String group;
-	private boolean editorEnabled;
+	private boolean editable;
 	private Class<T> type;
 	private Range<?> range;
 	private boolean nullable;
@@ -89,16 +89,13 @@ public class ReflectionProperty<T> implements Property<T> {
 		}
 
 		range = extractRange();
-
-		PropertyEditor propertyEditor = findAnnotation(PropertyEditor.class);
-		if (propertyEditor == null) {
-			group = "";
-			editorEnabled = true;
+		PropertyEditorDescriptor editorDescriptor = findAnnotation(PropertyEditorDescriptor.class);
+		if (editorDescriptor == null) {
+			editable = true;
 		} else {
-			group = propertyEditor.group();
-			editorEnabled = propertyEditor.editable();
+			editable = editorDescriptor.editable();
 		}
-
+		
 		defaultValue = getValue(ModelDefaults.getDefault(model.getType()));
 	}
 
@@ -236,13 +233,8 @@ public class ReflectionProperty<T> implements Property<T> {
 	}
 
 	@Override
-	public String getGroup() {
-		return group;
-	}
-
-	@Override
 	public boolean isEditable() {
-		return editorEnabled;
+		return editable;
 	}
 
 	@Override

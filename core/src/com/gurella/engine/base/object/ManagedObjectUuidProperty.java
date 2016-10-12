@@ -29,7 +29,7 @@ class ManagedObjectUuidProperty implements Property<String> {
 	public boolean isNullable() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isFinal() {
 		return false;
@@ -52,11 +52,6 @@ class ManagedObjectUuidProperty implements Property<String> {
 
 	@Override
 	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public String getGroup() {
 		return null;
 	}
 

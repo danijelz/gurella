@@ -97,11 +97,7 @@ public abstract class PropertyEditor<P> {
 
 	public void setValue(P value) {
 		SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(this, getValue(), value);
-		try {
-			context.sceneEditorContext.operationHistory.execute(operation, null, null);
-		} catch (ExecutionException e) {
-			GurellaStudioPlugin.showError(e, "Error updating property.");
-		}
+		context.sceneEditorContext.executeOperation(operation, "Error updating property.");
 	}
 
 	public void setHover(boolean hover) {
@@ -210,7 +206,6 @@ public abstract class PropertyEditor<P> {
 			this.editor = editor;
 			this.oldValue = new CopyContext().copy(oldValue);
 			this.newValue = newValue;
-			addContext(editor.getContext().sceneEditorContext.undoContext);
 		}
 
 		@Override

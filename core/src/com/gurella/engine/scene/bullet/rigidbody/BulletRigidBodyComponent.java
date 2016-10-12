@@ -14,7 +14,7 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.BulletCollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
@@ -37,7 +37,37 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@PropertyDescriptor(nullable = false)
 	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
 	public BulletCollisionShape collisionShape;
-	public final BulletMaterial material = new BulletMaterial();
+
+	@PropertyDescriptor(descriptiveName = "Calc. inertia")
+	public boolean inertiaFromShape = true;
+	public final Vector3 inertia = new Vector3(0, 0, 0);
+
+	public final Vector3 angularFactor = new Vector3(1, 1, 1);
+	public final Vector3 linearFactor = new Vector3(1, 1, 1);
+
+	public final Vector3 gravity = new Vector3(0f, -9.8f, 0f);
+
+	public float mass;
+
+	public float margin = 0.04f;
+
+	public float linearDamping;
+	public float angularDamping;
+
+	public float friction;
+	public float rollingFriction;
+
+	public float restitution;
+
+	public float linearSleepingThreshold;
+	public float angularSleepingThreshold;
+
+	@PropertyEditorDescriptor(group = "additional")
+	public boolean additionalDamping;
+	@PropertyEditorDescriptor(group = "additional")
+	public float additionalDampingFactor;
+	@PropertyEditorDescriptor(group = "additional")
+	public float additionalAngularDampingFactor;
 
 	private final transient MotionState motionState = new MotionState();
 	public transient btRigidBody rigidBody;
@@ -80,9 +110,9 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 			btRigidBodyConstructionInfo info = createConstructionInfo();
 			rigidBody = new btRigidBody(info);
 			rigidBody.userData = this;
-			rigidBody.setLinearFactor(material.linearFactor);
-			rigidBody.setAngularFactor(material.angularFactor);
-			rigidBody.setGravity(material.gravity);
+			rigidBody.setLinearFactor(linearFactor);
+			rigidBody.setAngularFactor(angularFactor);
+			rigidBody.setGravity(gravity);
 			info.dispose();// TODO remove when pooled
 		}
 
@@ -94,27 +124,27 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	private btRigidBodyConstructionInfo createConstructionInfo() {
 		btCollisionShape nativeShape = collisionShape == null ? new btEmptyShape() : collisionShape.createNativeShape();
-		nativeShape.setMargin(material.margin);
+		nativeShape.setMargin(margin);
 
-		float mass = material.mass;
+		float mass = this.mass;
 		mass = mass < 0 ? 0 : mass;
-		Vector3 inertia = material.inertia;
-		if (mass > 0 && material.inertiaFromShape) {
+		Vector3 inertia = this.inertia;
+		if (mass > 0 && inertiaFromShape) {
 			nativeShape.calculateLocalInertia(mass, inertia);
 		}
 
 		// TODO create info from pool
 		btRigidBodyConstructionInfo info = new btRigidBodyConstructionInfo(mass, motionState, nativeShape, inertia);
-		info.setFriction(material.friction);
-		info.setRollingFriction(material.rollingFriction);
-		info.setRestitution(material.restitution);
-		info.setLinearDamping(material.linearDamping);
-		info.setAngularDamping(material.angularDamping);
-		info.setLinearSleepingThreshold(material.linearSleepingThreshold);
-		info.setAngularSleepingThreshold(material.angularSleepingThreshold);
-		info.setAdditionalDamping(material.additionalDamping);
-		info.setAdditionalDampingFactor(material.additionalDampingFactor);
-		info.setAdditionalAngularDampingFactor(material.additionalAngularDampingFactor);
+		info.setFriction(friction);
+		info.setRollingFriction(rollingFriction);
+		info.setRestitution(restitution);
+		info.setLinearDamping(linearDamping);
+		info.setAngularDamping(angularDamping);
+		info.setLinearSleepingThreshold(linearSleepingThreshold);
+		info.setAngularSleepingThreshold(angularSleepingThreshold);
+		info.setAdditionalDamping(additionalDamping);
+		info.setAdditionalDampingFactor(additionalDampingFactor);
+		info.setAdditionalAngularDampingFactor(additionalAngularDampingFactor);
 
 		return info;
 	}

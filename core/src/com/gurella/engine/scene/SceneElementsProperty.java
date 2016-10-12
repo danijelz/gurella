@@ -35,6 +35,11 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	}
 
 	@Override
+	public boolean isEditable() {
+		return false;
+	}
+
+	@Override
 	public Range<?> getRange() {
 		return null;
 	}
@@ -43,7 +48,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	public boolean isNullable() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isFinal() {
 		return true;
@@ -66,11 +71,6 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 
 	@Override
 	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public String getGroup() {
 		return null;
 	}
 

@@ -9,7 +9,7 @@ public interface Property<T> {
 
 	Class<T> getType();
 
-	Range<?> getRange();
+	Range<?> getRange(); //TODO remove
 
 	boolean isNullable();
 
@@ -23,9 +23,7 @@ public interface Property<T> {
 
 	String getDescription();
 
-	String getGroup();// TODO remove or move editor properties
-
-	boolean isEditable();
+	boolean isEditable(); //TODO remove
 
 	Property<T> newInstance(Model<?> model);
 

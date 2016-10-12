@@ -4,8 +4,10 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoContext;
+import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -86,5 +88,14 @@ public class SceneEditorContext {
 		this.scene = scene;
 		scene.start();
 		postMessage(null, new SceneLoadedMessage(scene));
+	}
+
+	public void executeOperation(IUndoableOperation operation, String errorMsg) {
+		operation.addContext(undoContext);
+		try {
+			operationHistory.execute(operation, null, null);
+		} catch (ExecutionException e) {
+			GurellaStudioPlugin.showError(e, errorMsg);
+		}
 	}
 }

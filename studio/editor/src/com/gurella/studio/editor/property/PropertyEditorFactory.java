@@ -8,15 +8,8 @@ import java.math.BigInteger;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMemberValuePair;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.graphics.Color;
@@ -33,19 +26,15 @@ import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.model.ReflectionProperty;
-import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.utils.BitsExt;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.engine.property.CustomCompositePropertyEditor;
 import com.gurella.studio.editor.engine.property.CustomPropertyEditor;
 import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 
 public class PropertyEditorFactory {
-	private static final Map<CustomFactoryKey, CustomFactoryData> customFactories = new HashMap<>();
-
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		PropertyEditor<T> customEditor = createCustomEditor(parent, context);
 		if (customEditor == null) {
@@ -58,8 +47,11 @@ public class PropertyEditorFactory {
 
 	private static <T> PropertyEditor<T> createCustomEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		try {
-			CustomFactoryData data = getCustomFactoryClass(context);
-			if (data == null) {
+			IJavaProject javaProject = context.sceneEditorContext.javaProject;
+			Class<?> modelClass = context.modelInstance.getClass();
+			Property<?> property = context.property;
+			EditorPropertyData data = EditorPropertyData.get(javaProject, modelClass, property);
+			if (data == null || PropertyEditorFactory.class.getName().equals(data.factoryClass)) {
 				return null;
 			}
 
@@ -79,97 +71,9 @@ public class PropertyEditorFactory {
 				return new CustomCompositePropertyEditor<>(parent, context, cast(factory));
 			}
 		} catch (Exception e) {
-			String modelClass = context.modelInstance.getClass().getName();
-			customFactories.put(new CustomFactoryKey(modelClass, context.property.getName()), null);
+			GurellaStudioPlugin.log(e, "Error creating editor.");
 			return null;
 		}
-	}
-
-	private static CustomFactoryData getCustomFactoryClass(PropertyEditorContext<?, ?> context) throws Exception {
-		Property<?> property = context.property;
-		if (!(property instanceof ReflectionProperty)) {
-			return null;
-		}
-
-		Class<?> modelClass = context.modelInstance.getClass();
-		String propertyName = property.getName();
-		CustomFactoryKey key = new CustomFactoryKey(modelClass, propertyName);
-		CustomFactoryData data = customFactories.get(key);
-		if (data != null) {
-			return data;
-		}
-
-		ReflectionProperty<?> reflectionProperty = (ReflectionProperty<?>) property;
-		Class<?> declaringClass = reflectionProperty.getDeclaringClass();
-		CustomFactoryKey declaredKey = new CustomFactoryKey(declaringClass, propertyName);
-
-		if (reflectionProperty.getField() == null) {
-			// TODO bean properties
-			customFactories.put(declaredKey, data);
-			customFactories.put(key, data);
-			return data;
-		} else {
-			data = customFactories.get(declaredKey);
-			if (data != null) {
-				customFactories.put(key, data);
-				return data;
-			}
-
-			IJavaProject javaProject = context.sceneEditorContext.javaProject;
-			IType type = javaProject.findType(declaringClass.getName());
-			IField jdtField = type.getField(property.getName());
-			for (IAnnotation annotation : jdtField.getAnnotations()) {
-				Class<PropertyEditorDescriptor> annotationType = PropertyEditorDescriptor.class;
-				String elementName = annotation.getElementName();
-				if (elementName.equals(annotationType.getSimpleName())
-						|| elementName.equals(annotationType.getName())) {
-					data = parseAnnotation(type, annotation);
-					customFactories.put(declaredKey, data);
-					customFactories.put(key, data);
-					return data;
-				}
-			}
-
-			IAnnotation annotation = jdtField.getAnnotation(PropertyEditorDescriptor.class.getName());
-			data = annotation == null ? null : parseAnnotation(type, annotation);
-			customFactories.put(declaredKey, data);
-			customFactories.put(key, data);
-			return data;
-		}
-	}
-
-	private static CustomFactoryData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
-		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
-		String factoryName = null;
-		EditorType editorType = EditorType.composite;
-		for (IMemberValuePair memberValuePair : memberValuePairs) {
-			if ("factory".equals(memberValuePair.getMemberName())) {
-				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
-				if (resolveType.length != 1) {
-					return null;
-				}
-				String[] path = resolveType[0];
-				int last = path.length - 1;
-				path[last] = path[last].replaceAll("\\.", "\\$");
-				StringBuilder builder = new StringBuilder();
-				for (String part : path) {
-					if (builder.length() > 0) {
-						builder.append(".");
-					}
-					builder.append(part);
-				}
-				factoryName = builder.toString();
-			} else if ("type".equals(memberValuePair.getMemberName())) {
-				String editorTypeStr = memberValuePair.getValue().toString();
-				if (editorTypeStr.contains(EditorType.simple.name())) {
-					editorType = EditorType.simple;
-				} else if (editorTypeStr.contains(EditorType.custom.name())) {
-					editorType = EditorType.custom;
-				}
-			}
-		}
-
-		return new CustomFactoryData(editorType, factoryName);
 	}
 
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context,
@@ -252,51 +156,5 @@ public class PropertyEditorFactory {
 		}
 
 		return editableProperty != null && Models.getModel(editableProperty.getType()) instanceof SimpleModel;
-	}
-
-	private static class CustomFactoryKey {
-		String typeName;
-		String propertyName;
-
-		public CustomFactoryKey(String typeName, String propertyName) {
-			this.typeName = typeName;
-			this.propertyName = propertyName;
-		}
-
-		public CustomFactoryKey(Class<?> type, String propertyName) {
-			this.typeName = type.getName();
-			this.propertyName = propertyName;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + typeName.hashCode();
-			result = prime * result + propertyName.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null || getClass() != obj.getClass()) {
-				return false;
-			}
-			CustomFactoryKey other = (CustomFactoryKey) obj;
-			return typeName.equals(other.typeName) && propertyName.equals(other.propertyName);
-		}
-	}
-
-	private static class CustomFactoryData {
-		EditorType type;
-		String factoryClass;
-
-		public CustomFactoryData(EditorType type, String factoryClass) {
-			this.type = type;
-			this.factoryClass = factoryClass;
-		}
 	}
 }

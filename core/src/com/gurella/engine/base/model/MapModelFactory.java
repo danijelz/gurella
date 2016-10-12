@@ -180,11 +180,6 @@ public class MapModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public String getGroup() {
-			return null;
-		}
-
-		@Override
 		public boolean isEditable() {
 			return true;
 		}

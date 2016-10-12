@@ -131,11 +131,6 @@ public class ImmutableArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		public String getGroup() {
-			return null;
-		}
-
-		@Override
 		public boolean isEditable() {
 			return false;
 		}

@@ -15,17 +15,17 @@ import com.gurella.engine.editor.ui.layout.EditorLayout;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
-import com.gurella.engine.scene.bullet.shapes.Box2dCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.BoxCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.BulletCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.CapsuleCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.ConeCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.CylinderCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.EmptyCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.PlaneCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.SphereCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.TetrahedronCollisionShape;
-import com.gurella.engine.scene.bullet.shapes.TriangleCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.Box2dCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.BoxCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.BulletCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.CapsuleCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.ConeCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.CylinderCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.EmptyCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.PlaneCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.SphereCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.TetrahedronCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.TriangleCollisionShape;
 import com.gurella.engine.utils.Reflection;
 
 public class CollisionShapePropertyEditorFactory implements PropertyEditorFactory<BulletCollisionShape> {
