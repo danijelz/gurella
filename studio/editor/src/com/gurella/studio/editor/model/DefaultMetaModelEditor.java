@@ -19,8 +19,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -36,6 +36,8 @@ import com.gurella.studio.editor.property.PropertyEditorContext;
 import com.gurella.studio.editor.property.SimplePropertyEditor;
 
 public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
+	private static final RGB separatorRgb = new RGB(88, 158, 255);
+
 	public DefaultMetaModelEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
 	}
@@ -46,18 +48,18 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 
 	@Override
 	protected void createContent() {
-		GridLayout layout = new GridLayout(2, false);
+		/*GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 1;
 		layout.marginHeight = 1;
 		layout.verticalSpacing = 2;
-		setLayout(layout);
+		setLayout(layout);*/
+		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2).applyTo(this);
 
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		if (array.length > 0) {
 			Arrays.sort(array, (p0, p1) -> Integer.compare(getPrpertyIndex(p0), getPrpertyIndex(p1)));
 			Map<String, List<Property<?>>> groups = createGroupsMap(array);
 			groups.entrySet().stream().sequential().forEach(e -> addGroup(e.getKey(), e.getValue()));
-			// Arrays.stream(array).sequential().filter(p -> p.isEditable()).forEach(p -> addEditor(this, p));
 		}
 	}
 
@@ -68,7 +70,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 	private Map<String, List<Property<?>>> createGroupsMap(Property<?>[] array) {
 		Map<String, List<Property<?>>> groups = new LinkedHashMap<>();
 		groups.put("", new ArrayList<>());
-		Arrays.stream(array).forEach(p -> addToGroups(groups, p));
+		Arrays.stream(array).sequential().forEach(p -> addToGroups(groups, p));
 		return groups;
 	}
 
@@ -106,15 +108,16 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			GridLayoutFactory.swtDefaults().numColumns(2).spacing(0, 0).margins(0, 0).applyTo(client);
 
 			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
-			separator.setForeground(GurellaStudioPlugin.getColor(88, 158, 255));
+			separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
 			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
 
 			Composite editorBody = toolkit.createComposite(client);
+			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2)
+					.applyTo(editorBody);
 			GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 			editorBodyLayoutData.horizontalIndent = 0;
 			editorBodyLayoutData.verticalIndent = 0;
 			editorBody.setLayoutData(editorBodyLayoutData);
-			editorBody.setBackground(GurellaStudioPlugin.createColor(255, 0, 0));
 
 			properties.stream().sequential().forEach(p -> addEditor(editorBody, p));
 		}
@@ -161,7 +164,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			Composite client = toolkit.createComposite(section);
 			GridLayoutFactory.swtDefaults().numColumns(2).spacing(0, 0).margins(0, 0).applyTo(client);
 			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
-			separator.setForeground(GurellaStudioPlugin.getColor(88, 158, 255));
+			separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
 			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
 			editorBody.setParent(client);
 			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
