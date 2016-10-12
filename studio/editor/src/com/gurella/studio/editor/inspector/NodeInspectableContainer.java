@@ -19,6 +19,12 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.operations.AbstractOperation;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -120,6 +126,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	}
 
 	private void nodeNameChanged() {
+		SetNameOperation operation = new SetNameOperation(target.getName(), nameText.getText());
+		getSceneEditorContext().executeOperation(operation, "Error while renaming node");
+	}
+
+	private void renameNode() {
 		target.setName(nameText.getText());
 		postMessage(new NodeNameChangedMessage(target));
 	}
@@ -245,6 +256,44 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 			constructor.setAccessible(true);
 			SceneNodeComponent2 component = Values.cast(constructor.newInstance(new Object[0]));
 			addComponent(component);
+		}
+	}
+
+	private class SetNameOperation extends AbstractOperation {
+		final String oldValue;
+		final String newValue;
+
+		public SetNameOperation(String oldValue, String newValue) {
+			super("Name");
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.setName(newValue);
+			renameNode();
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.setName(oldValue);
+			if (!nameText.isDisposed()) {
+				nameText.setText(oldValue);
+			}
+			renameNode();
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.setName(newValue);
+			if (!nameText.isDisposed()) {
+				nameText.setText(oldValue);
+			}
+			renameNode();
+			return Status.OK_STATUS;
 		}
 	}
 }
