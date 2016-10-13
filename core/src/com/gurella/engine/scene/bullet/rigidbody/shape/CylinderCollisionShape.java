@@ -14,7 +14,7 @@ import com.gurella.engine.scene.renderable.debug.WireframeShader;
 import com.gurella.engine.scene.renderable.shape.CylinderShapeModel;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class CylinderCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
+public class CylinderCollisionShape extends CollisionShape implements PropertyChangeListener {
 	private Axis axis = Axis.y;
 	public final Vector3 halfExtents = new Vector3(0.5f, 0.5f, 0.5f);
 

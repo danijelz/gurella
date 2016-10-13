@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.bullet.collision.btStaticPlaneShape;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class PlaneCollisionShape extends BulletCollisionShape {
+public class PlaneCollisionShape extends CollisionShape {
 	public final Vector3 planeNormal = new Vector3(0, 1, 0);
 	public float planeConstant;
 

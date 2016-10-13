@@ -13,7 +13,7 @@ import com.gurella.engine.scene.renderable.debug.WireframeShader;
 import com.gurella.engine.scene.renderable.shape.CapsuleShapeModel;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class CapsuleCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
+public class CapsuleCollisionShape extends CollisionShape implements PropertyChangeListener {
 	private Axis axis = Axis.y;
 	private float radius = 0.2f;
 	private float height = 1f;

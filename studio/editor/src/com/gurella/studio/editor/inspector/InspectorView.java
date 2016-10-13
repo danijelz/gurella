@@ -1,7 +1,5 @@
 package com.gurella.studio.editor.inspector;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

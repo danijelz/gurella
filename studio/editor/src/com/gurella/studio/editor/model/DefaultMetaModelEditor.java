@@ -48,13 +48,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 
 	@Override
 	protected void createContent() {
-		/*GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 1;
-		layout.marginHeight = 1;
-		layout.verticalSpacing = 2;
-		setLayout(layout);*/
 		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2).applyTo(this);
-
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		if (array.length > 0) {
 			Arrays.sort(array, (p0, p1) -> Integer.compare(getPrpertyIndex(p0), getPrpertyIndex(p1)));
@@ -105,7 +99,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 
 			Composite client = toolkit.createComposite(section);
 			section.setClient(client);
-			GridLayoutFactory.swtDefaults().numColumns(2).spacing(0, 0).margins(0, 0).applyTo(client);
+			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
 
 			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
 			separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
@@ -115,7 +109,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2)
 					.applyTo(editorBody);
 			GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-			editorBodyLayoutData.horizontalIndent = 3;
+			editorBodyLayoutData.horizontalIndent = 0;
 			editorBodyLayoutData.verticalIndent = 0;
 			editorBody.setLayoutData(editorBodyLayoutData);
 
@@ -162,7 +156,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			section.setLayoutData(sectionLayoutData);
 			section.setText(name);
 			Composite client = toolkit.createComposite(section);
-			GridLayoutFactory.swtDefaults().numColumns(2).spacing(0, 0).margins(0, 0).applyTo(client);
+			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
 			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
 			separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
 			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);

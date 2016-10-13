@@ -9,7 +9,7 @@ import com.gurella.engine.scene.renderable.debug.WireframeShader;
 import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class SphereCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
+public class SphereCollisionShape extends CollisionShape implements PropertyChangeListener {
 	public float radius = 1;
 
 	private SphereShapeModel debugModel;

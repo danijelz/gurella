@@ -10,7 +10,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class Box2dCollisionShape extends BulletCollisionShape {
+public class Box2dCollisionShape extends CollisionShape {
 	private static final Color DEBUG_OUTLINE_COLOR = new Color(0f, 0f, 1f, 1f);
 
 	public final Vector2 halfExtents = new Vector2(0.5f, 0.5f);

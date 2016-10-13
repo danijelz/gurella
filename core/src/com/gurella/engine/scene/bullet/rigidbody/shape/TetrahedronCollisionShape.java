@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.bullet.collision.btTetrahedronShapeEx;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class TetrahedronCollisionShape extends BulletCollisionShape {
+public class TetrahedronCollisionShape extends CollisionShape {
 	private static final Color DEBUG_OUTLINE_COLOR = new Color(0f, 0f, 1f, 1f);
 
 	public final Vector3 v0 = new Vector3(-0.5f, 0, -0.5f);

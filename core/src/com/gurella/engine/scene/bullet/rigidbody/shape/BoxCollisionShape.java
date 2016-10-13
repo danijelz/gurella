@@ -10,7 +10,7 @@ import com.gurella.engine.scene.renderable.debug.WireframeShader;
 import com.gurella.engine.scene.renderable.shape.BoxShapeModel;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class BoxCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
+public class BoxCollisionShape extends CollisionShape implements PropertyChangeListener {
 	public final Vector3 halfExtents = new Vector3(0.5f, 0.5f, 0.5f);
 
 	private BoxShapeModel debugModel;

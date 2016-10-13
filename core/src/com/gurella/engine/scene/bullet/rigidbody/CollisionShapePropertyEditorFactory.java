@@ -17,7 +17,7 @@ import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 import com.gurella.engine.scene.bullet.rigidbody.shape.Box2dCollisionShape;
 import com.gurella.engine.scene.bullet.rigidbody.shape.BoxCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.BulletCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.CollisionShape;
 import com.gurella.engine.scene.bullet.rigidbody.shape.CapsuleCollisionShape;
 import com.gurella.engine.scene.bullet.rigidbody.shape.ConeCollisionShape;
 import com.gurella.engine.scene.bullet.rigidbody.shape.CylinderCollisionShape;
@@ -28,9 +28,9 @@ import com.gurella.engine.scene.bullet.rigidbody.shape.TetrahedronCollisionShape
 import com.gurella.engine.scene.bullet.rigidbody.shape.TriangleCollisionShape;
 import com.gurella.engine.utils.Reflection;
 
-public class CollisionShapePropertyEditorFactory implements PropertyEditorFactory<BulletCollisionShape> {
+public class CollisionShapePropertyEditorFactory implements PropertyEditorFactory<CollisionShape> {
 	@Override
-	public void buildUi(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context) {
+	public void buildUi(EditorComposite parent, PropertyEditorContext<CollisionShape> context) {
 		new EditorLayout().columnsEqualWidth(false).numColumns(2).margins(0, 0).applyTo(parent);
 		buildContent(parent, context);
 
@@ -39,19 +39,19 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 		}
 	}
 
-	private void updateValue(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context,
-			Class<? extends BulletCollisionShape> type) {
+	private void updateValue(EditorComposite parent, PropertyEditorContext<CollisionShape> context,
+			Class<? extends CollisionShape> type) {
 		context.setPropertyValue(Reflection.newInstance(type));
 		rebuildUi(parent, context);
 	}
 
-	private void rebuildUi(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context) {
+	private void rebuildUi(EditorComposite parent, PropertyEditorContext<CollisionShape> context) {
 		parent.disposeAllChildren();
 		buildContent(parent, context);
 	}
 
-	private void buildContent(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context) {
-		BulletCollisionShape value = context.getPropertyValue();
+	private void buildContent(EditorComposite parent, PropertyEditorContext<CollisionShape> context) {
+		CollisionShape value = context.getPropertyValue();
 		if (value == null) {
 			value = new EmptyCollisionShape();
 		}
@@ -81,10 +81,10 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 
 	private final class MenuItemAction implements Runnable {
 		private final EditorComposite parent;
-		private final PropertyEditorContext<BulletCollisionShape> context;
+		private final PropertyEditorContext<CollisionShape> context;
 		private final CollisionShapeType value;
 
-		private MenuItemAction(EditorComposite parent, PropertyEditorContext<BulletCollisionShape> context,
+		private MenuItemAction(EditorComposite parent, PropertyEditorContext<CollisionShape> context,
 				CollisionShapeType value) {
 			this.parent = parent;
 			this.context = context;
@@ -120,7 +120,7 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 
 		;
 
-		static final ObjectMap<Class<? extends BulletCollisionShape>, CollisionShapeType> valuesByType = new ObjectMap<Class<? extends BulletCollisionShape>, CollisionShapeType>();
+		static final ObjectMap<Class<? extends CollisionShape>, CollisionShapeType> valuesByType = new ObjectMap<Class<? extends CollisionShape>, CollisionShapeType>();
 
 		static {
 			for (CollisionShapeType value : values()) {
@@ -128,9 +128,9 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 			}
 		}
 
-		final Class<? extends BulletCollisionShape> type;
+		final Class<? extends CollisionShape> type;
 
-		private CollisionShapeType(Class<? extends BulletCollisionShape> type) {
+		private CollisionShapeType(Class<? extends CollisionShape> type) {
 			this.type = type;
 		}
 	}
@@ -138,11 +138,11 @@ public class CollisionShapePropertyEditorFactory implements PropertyEditorFactor
 	private static class SelectionChangedListener implements EditorEventListener {
 		CollisionShapePropertyEditorFactory factory;
 		EditorComposite parent;
-		PropertyEditorContext<BulletCollisionShape> context;
+		PropertyEditorContext<CollisionShape> context;
 		EditorCombo<CollisionShapeType> combo;
 
 		public SelectionChangedListener(CollisionShapePropertyEditorFactory factory, EditorComposite parent,
-				PropertyEditorContext<BulletCollisionShape> context, EditorCombo<CollisionShapeType> combo) {
+				PropertyEditorContext<CollisionShape> context, EditorCombo<CollisionShapeType> combo) {
 			this.factory = factory;
 			this.parent = parent;
 			this.context = context;

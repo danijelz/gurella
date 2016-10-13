@@ -18,6 +18,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
@@ -262,18 +263,27 @@ public class SceneHierarchyView extends SceneEditorView {
 					createComponentItem(found, component);
 				}
 			}
+		} else if (message instanceof ComponentRemovedMessage) {
+			ComponentRemovedMessage componentRemovedMessage = (ComponentRemovedMessage) message;
+			SceneNodeComponent2 component = componentRemovedMessage.component;
+			for (TreeItem item : graph.getItems()) {
+				TreeItem found = findItem(item, component);
+				if (found != null) {
+					found.dispose();
+				}
+			}
 		} else if (message instanceof SceneLoadedMessage) {
 			present(((SceneLoadedMessage) message).scene);
 		}
 	}
 
-	private TreeItem findItem(TreeItem item, SceneNode2 node) {
-		if (item.getData() == node) {
+	private TreeItem findItem(TreeItem item, SceneElement2 element) {
+		if (item.getData() == element) {
 			return item;
 		}
 
 		for (TreeItem child : item.getItems()) {
-			TreeItem found = findItem(child, node);
+			TreeItem found = findItem(child, element);
 			if (found != null) {
 				return found;
 			}

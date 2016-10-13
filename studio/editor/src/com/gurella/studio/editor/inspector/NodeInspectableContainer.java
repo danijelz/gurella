@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
@@ -76,11 +77,13 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.scene.ComponentAddedMessage;
+import com.gurella.studio.editor.scene.ComponentRemovedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	private Text nameText;
+	private Listener nameChangedlLstener;
 	private Button enabledCheck;
 	private Label menuButton;
 	private Composite componentsComposite;
@@ -101,17 +104,18 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		nameText = UiUtils.createText(body);
 		nameText.setText(target.getName());
 		nameText.setLayoutData(new GridData(FILL, BEGINNING, true, false));
-		nameText.addListener(SWT.Modify, (e) -> nodeNameChanged());
+		nameChangedlLstener = e -> nodeNameChanged();
+		nameText.addListener(SWT.Modify, nameChangedlLstener);
 
 		enabledCheck = toolkit.createButton(body, "Enabled", CHECK);
 		enabledCheck.setLayoutData(new GridData(END, CENTER, false, false));
 		enabledCheck.setSelection(target.isEnabled());
-		enabledCheck.addListener(SWT.Selection, (e) -> nodeEnabledChanged());
+		enabledCheck.addListener(SWT.Selection, e -> nodeEnabledChanged());
 
 		menuButton = toolkit.createLabel(body, " ", NONE);
 		menuButton.setImage(GurellaStudioPlugin.createImage("icons/menu.png"));
 		menuButton.setLayoutData(new GridData(END, CENTER, false, false));
-		menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
+		menuButton.addListener(SWT.MouseUp, e -> showMenu());
 
 		componentsComposite = toolkit.createComposite(body);
 		GridLayout componentsLayout = new GridLayout(1, false);
@@ -136,6 +140,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	}
 
 	private void nodeEnabledChanged() {
+		SetEnabledOperation operation = new SetEnabledOperation(target.isEnabled(), enabledCheck.getSelection());
+		getSceneEditorContext().executeOperation(operation, "Error while enabling node");
+	}
+
+	private void enableNode() {
 		target.setEnabled(enabledCheck.getSelection());
 		postMessage(SceneChangedMessage.instance);
 	}
@@ -204,11 +213,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
-		target.addComponent(component);
-		componentEditors.add(createSection(component));
-		postMessage(new ComponentAddedMessage(component));
-		layout(true, true);
-		reflow(true);
+		AddComponentOperation operation = new AddComponentOperation(component);
+		getSceneEditorContext().executeOperation(operation, "Error while adding component");
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
@@ -280,7 +286,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			target.setName(oldValue);
 			if (!nameText.isDisposed()) {
+				nameText.removeListener(SWT.Modify, nameChangedlLstener);
 				nameText.setText(oldValue);
+				nameText.addListener(SWT.Modify, nameChangedlLstener);
 			}
 			renameNode();
 			return Status.OK_STATUS;
@@ -290,9 +298,90 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			target.setName(newValue);
 			if (!nameText.isDisposed()) {
-				nameText.setText(oldValue);
+				nameText.removeListener(SWT.Modify, nameChangedlLstener);
+				nameText.setText(newValue);
+				nameText.addListener(SWT.Modify, nameChangedlLstener);
 			}
 			renameNode();
+			return Status.OK_STATUS;
+		}
+	}
+
+	private class SetEnabledOperation extends AbstractOperation {
+		final boolean oldValue;
+		final boolean newValue;
+
+		public SetEnabledOperation(boolean oldValue, boolean newValue) {
+			super("Enabled");
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.setEnabled(newValue);
+			enableNode();
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.setEnabled(oldValue);
+			if (!enabledCheck.isDisposed()) {
+				enabledCheck.setSelection(oldValue);
+			}
+			enableNode();
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.setEnabled(newValue);
+			if (!enabledCheck.isDisposed()) {
+				enabledCheck.setSelection(newValue);
+			}
+			enableNode();
+			return Status.OK_STATUS;
+		}
+	}
+
+	private class AddComponentOperation extends AbstractOperation {
+		final SceneNodeComponent2 newValue;
+		private MetaModelEditor<?> section;
+
+		public AddComponentOperation(SceneNodeComponent2 newValue) {
+			super("Add component");
+			this.newValue = newValue;
+		}
+
+		@Override
+		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.addComponent(newValue);
+			section = createSection(newValue);
+			componentEditors.add(section);
+			postMessage(new ComponentAddedMessage(newValue));
+			reflow(true);
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.removeComponent(newValue);
+			componentEditors.removeValue(section, true);
+			section.dispose();
+			section = null;
+			postMessage(new ComponentRemovedMessage(newValue));
+			reflow(true);
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			target.addComponent(newValue);
+			section = createSection(newValue);
+			componentEditors.add(section);
+			postMessage(new ComponentAddedMessage(newValue));
+			reflow(true);
 			return Status.OK_STATUS;
 		}
 	}

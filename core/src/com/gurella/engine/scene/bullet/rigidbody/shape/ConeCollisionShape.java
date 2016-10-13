@@ -13,7 +13,7 @@ import com.gurella.engine.scene.renderable.debug.WireframeShader;
 import com.gurella.engine.scene.renderable.shape.ConeShapeModel;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class ConeCollisionShape extends BulletCollisionShape implements PropertyChangeListener {
+public class ConeCollisionShape extends CollisionShape implements PropertyChangeListener {
 	private Axis axis = Axis.y;
 	float radius = 1;
 	float height = 1;

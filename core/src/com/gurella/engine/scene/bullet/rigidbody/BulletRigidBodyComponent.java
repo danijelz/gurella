@@ -14,7 +14,7 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.bullet.rigidbody.shape.BulletCollisionShape;
+import com.gurella.engine.scene.bullet.rigidbody.shape.CollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
@@ -36,30 +36,33 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	@PropertyDescriptor(nullable = false)
 	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
-	public BulletCollisionShape shape;
+	public CollisionShape shape;
 
 	@PropertyEditorDescriptor(descriptiveName = "Calc. inertia")
 	public boolean inertiaFromShape = true;
 	public final Vector3 inertia = new Vector3(0, 0, 0);
 
-	public final Vector3 angularFactor = new Vector3(1, 1, 1);
-	public final Vector3 linearFactor = new Vector3(1, 1, 1);
-
 	public final Vector3 gravity = new Vector3(0f, -9.8f, 0f);
 
 	public float mass;
-
 	public float margin = 0.04f;
-
-	public float linearDamping;
-	public float angularDamping;
-
 	public float friction;
 	public float rollingFriction;
-
 	public float restitution;
 
+	@PropertyEditorDescriptor(group = "Factor", descriptiveName = "linear")
+	public final Vector3 linearFactor = new Vector3(1, 1, 1);
+	@PropertyEditorDescriptor(group = "Factor", descriptiveName = "angular")
+	public final Vector3 angularFactor = new Vector3(1, 1, 1);
+
+	@PropertyEditorDescriptor(group = "Damping", descriptiveName = "linear")
+	public float linearDamping;
+	@PropertyEditorDescriptor(group = "Damping", descriptiveName = "angular")
+	public float angularDamping;
+
+	@PropertyEditorDescriptor(group = "Sleeping Threshold", descriptiveName = "linear")
 	public float linearSleepingThreshold;
+	@PropertyEditorDescriptor(group = "Sleeping Threshold", descriptiveName = "angular")
 	public float angularSleepingThreshold;
 
 	@PropertyEditorDescriptor(group = "Additional damping")
