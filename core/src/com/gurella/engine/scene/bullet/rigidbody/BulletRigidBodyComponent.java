@@ -65,11 +65,11 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@PropertyEditorDescriptor(group = "Sleeping Threshold", descriptiveName = "angular")
 	public float angularSleepingThreshold;
 
-	@PropertyEditorDescriptor(group = "Additional damping")
+	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "enable")
 	public boolean additionalDamping;
-	@PropertyEditorDescriptor(group = "Additional damping")
+	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "linear")
 	public float additionalDampingFactor;
-	@PropertyEditorDescriptor(group = "Additional damping")
+	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "angular")
 	public float additionalAngularDampingFactor;
 
 	private final transient MotionState motionState = new MotionState();
