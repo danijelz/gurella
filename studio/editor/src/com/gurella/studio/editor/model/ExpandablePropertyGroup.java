@@ -15,7 +15,6 @@ import org.eclipse.ui.forms.widgets.Twistie;
 
 import com.gurella.studio.GurellaStudioPlugin;
 
-//TODO unused
 class ExpandablePropertyGroup extends Composite {
 	private Twistie expandTwistie;
 	private Label nameLabel;
@@ -24,7 +23,7 @@ class ExpandablePropertyGroup extends Composite {
 	public ExpandablePropertyGroup(Composite parent, String name, boolean expanded) {
 		super(parent, SWT.BORDER);
 
-		//setBackground(GurellaStudioPlugin.getColor(221, 234, 255));
+		// setBackground(GurellaStudioPlugin.getColor(221, 234, 255));
 		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(0, 0).spacing(4, 0).applyTo(this);
 
 		expandTwistie = new Twistie(this, SWT.NONE);
