@@ -88,30 +88,6 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		if (groupName.length() == 0) {
 			properties.stream().sequential().forEach(p -> addEditor(this, p));
 		} else {
-			/*
-			 * FormToolkit toolkit = getToolkit();
-			 * 
-			 * Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
-			 * section.setSize(100, 100); GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true,
-			 * false, 2, 1); sectionLayoutData.widthHint = 100; section.setLayoutData(sectionLayoutData);
-			 * section.setText(groupName); section.setExpanded(false);
-			 * 
-			 * Composite client = toolkit.createComposite(section); section.setClient(client);
-			 * GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
-			 * 
-			 * Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
-			 * separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
-			 * GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
-			 * 
-			 * Composite editorBody = toolkit.createComposite(client);
-			 * GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2)
-			 * .applyTo(editorBody); GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-			 * editorBodyLayoutData.horizontalIndent = 0; editorBodyLayoutData.verticalIndent = 0;
-			 * editorBody.setLayoutData(editorBodyLayoutData);
-			 * 
-			 * properties.stream().sequential().forEach(p -> addEditor(editorBody, p));
-			 */
-
 			ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, groupName, false);
 			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
 			properties.stream().sequential().forEach(p -> addEditor(group, this, p));

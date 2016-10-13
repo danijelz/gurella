@@ -38,6 +38,7 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -47,10 +48,11 @@ import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.SceneEditorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
+import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class GurellaSceneEditor extends EditorPart implements EditorMessageListener {
+public class GurellaSceneEditor extends EditorPart implements SceneChangedListener {
 	public final int id = SequenceGenerator.next();
 
 	private Composite contentComposite;
@@ -134,7 +136,6 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		IWorkbench workbench = getSite().getWorkbenchWindow().getWorkbench();
 		IOperationHistory operationHistory = workbench.getOperationSupport().getOperationHistory();
 		editorContext = new SceneEditorContext((IPathEditorInput) getEditorInput(), operationHistory, undoContext);
-		editorContext.addEditorMessageListener(this);
 
 		partControl = new SceneEditorPartControl(this, parent, SWT.NONE);
 		partControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -166,6 +167,7 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		dirty = false;
 		editorContext.setScene(scene);
 		applicationListener.presentScene(scene);
+		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
 	private void presentException(Throwable exception) {
@@ -213,6 +215,11 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 	@Override
 	public void dispose() {
 		super.dispose();
+
+		if (editorContext.scene != null) {
+			EventService.unsubscribe(editorContext.scene.getInstanceId(), this);
+		}
+
 		editorContext.dispose();
 		SceneEditorUtils.remove(this);
 		// TODO context and applicationListener should be unified
@@ -220,16 +227,14 @@ public class GurellaSceneEditor extends EditorPart implements EditorMessageListe
 		application.exit();
 	}
 
-	public void postMessage(Object source, Object message) {
-		editorContext.postMessage(source, message);
+	@Override
+	public void sceneChanged() {
+		dirty = true;
+		firePropertyChange(PROP_DIRTY);
 	}
 
-	@Override
-	public void handleMessage(Object source, Object message) {
-		if (message instanceof SceneChangedMessage) {
-			dirty = true;
-			firePropertyChange(PROP_DIRTY);
-		}
+	public void postMessage(Object source, Object message) {
+		editorContext.postMessage(source, message);
 	}
 
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {

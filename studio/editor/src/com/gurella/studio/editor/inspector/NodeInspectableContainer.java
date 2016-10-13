@@ -52,6 +52,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.Signal1;
 import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -77,9 +78,10 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
+import com.gurella.studio.editor.model.ModelEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
+import com.gurella.studio.editor.scene.event.SceneChangedEvent;
 import com.gurella.studio.editor.scene.operation.AddComponentOperation;
 import com.gurella.studio.editor.subscription.EditorSceneListener;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -95,7 +97,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 	public NodeInspectableContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
-		
+
 		addDisposeListener(e -> EventService.unsubscribe(this));
 		EventService.subscribe(this);
 
@@ -153,7 +155,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 	private void enableNode() {
 		target.setEnabled(enabledCheck.getSelection());
-		postMessage(SceneChangedMessage.instance);
+		notifySceneChanged();
 	}
 
 	@SuppressWarnings("unused")
@@ -210,13 +212,19 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
 		MetaModelEditor<SceneNodeComponent2> editor = createEditor(section, getSceneEditorContext(), component);
-		editor.getContext().propertyChangedSignal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertyChangedSignal;
+		signal.addListener(e -> notifySceneChanged());
 
 		section.setClient(editor);
 		section.setExpanded(true);
 		editors.put(component, section);
 
 		return section;
+	}
+	
+	private void notifySceneChanged() {
+		int sceneId = getSceneEditorContext().getScene().getInstanceId();
+		EventService.post(sceneId, SceneChangedEvent.instance);
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {

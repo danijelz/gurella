@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.utils.Values;
 
@@ -333,9 +334,20 @@ public class UiUtils {
 
 		DragManager.manage(text, listener);
 	}
-	
+
 	public static void disposeChildren(Composite composite) {
 		Arrays.stream(composite.getChildren()).forEach(c -> c.dispose());
+	}
+
+	public static void reflow(Composite composite) {
+		Composite temp = composite;
+		while (temp != null) {
+			temp = temp.getParent();
+			if (temp instanceof ScrolledForm) {
+				((ScrolledForm) temp).reflow(true);
+				return;
+			}
+		}
 	}
 
 	private static class DragManager implements Listener {

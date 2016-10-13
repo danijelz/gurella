@@ -67,7 +67,6 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -130,7 +129,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 	private void nodeEnabledChanged() {
 		prefab.setEnabled(enabledCheck.getSelection());
-		postMessage(SceneChangedMessage.instance);
+		//postMessage(SceneChangedMessage.instance);
 	}
 
 	@SuppressWarnings("unused")
@@ -187,8 +186,8 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
 				component);
-		componentEditor.getContext().propertyChangedSignal
-				.addListener((event) -> postMessage(SceneChangedMessage.instance));
+		/*componentEditor.getContext().propertyChangedSignal
+				.addListener((event) -> postMessage(SceneChangedMessage.instance));*/
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 

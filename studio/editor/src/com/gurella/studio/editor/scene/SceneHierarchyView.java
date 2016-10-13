@@ -49,13 +49,13 @@ import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.SceneLoadedMessage;
 import com.gurella.studio.editor.inspector.ComponentInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.inspector.NodeInspectableContainer;
+import com.gurella.studio.editor.scene.event.SceneChangedEvent;
 import com.gurella.studio.editor.scene.operation.AddComponentOperation;
 import com.gurella.studio.editor.scene.operation.AddNodeOperation;
 import com.gurella.studio.editor.scene.operation.RemoveComponentOperation;
@@ -320,7 +320,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		componentItem.setText(Models.getModel(shapeComponent).getName());
 		componentItem.setData(shapeComponent);
 
-		postMessage(SceneChangedMessage.instance);
+		notifySceneChanged();
 	}
 
 	private void removeSelectedElement() {
@@ -342,8 +342,12 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 			}
 
 			selectedItem.dispose();
-			postMessage(SceneChangedMessage.instance);
+			notifySceneChanged();
 		}
+	}
+
+	private void notifySceneChanged() {
+		EventService.post(getScene().getInstanceId(), SceneChangedEvent.instance);
 	}
 
 	private void addRootNode() {
@@ -393,7 +397,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 			componentItem.setText(Models.getModel(transformComponent).getName());
 			componentItem.setData(transformComponent);
 
-			postMessage(SceneChangedMessage.instance);
+			notifySceneChanged();
 
 			graph.select(nodeItem);
 			postMessage(new SelectionMessage(new NodeInspectable(node)));
@@ -410,7 +414,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 			componentItem.setText(Models.getModel(transformComponent).getName());
 			componentItem.setData(transformComponent);
 
-			postMessage(SceneChangedMessage.instance);
+			notifySceneChanged();
 			parentItem.setExpanded(true);
 
 			graph.select(nodeItem);

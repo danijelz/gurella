@@ -25,7 +25,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Property;
@@ -181,18 +180,7 @@ public abstract class PropertyEditor<P> {
 		@Override
 		public void layout(boolean changed, boolean all) {
 			super.layout(changed, all);
-			reflow();
-		}
-
-		private void reflow() {
-			Composite temp = this;
-			while (temp != null) {
-				temp = temp.getParent();
-				if (temp instanceof ScrolledForm) {
-					((ScrolledForm) temp).reflow(true);
-					return;
-				}
-			}
+			UiUtils.reflow(this);
 		}
 	}
 

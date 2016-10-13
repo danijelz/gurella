@@ -1,9 +1,10 @@
 package com.gurella.studio.editor.inspector;
 
+import static com.gurella.studio.GurellaStudioPlugin.getImage;
+
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -13,18 +14,13 @@ import com.gurella.studio.editor.scene.SelectionMessage;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class InspectorView extends SceneEditorView {
-	private Object currentTarget;
-	private InspectableContainer<?> currentContainer;
+	private Object target;
+	private InspectableContainer<?> content;
 
 	public InspectorView(GurellaSceneEditor editor, int style) {
-		super(editor, "Inspector", GurellaStudioPlugin.getImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		setLayout(layout);
-
-		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
-		toolkit.adapt(this);
+		super(editor, "Inspector", getImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
+		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(this);
+		GurellaStudioPlugin.getToolkit().adapt(this);
 	}
 
 	@Override
@@ -40,14 +36,14 @@ public class InspectorView extends SceneEditorView {
 	}
 
 	private <T> void presentInspectable(Inspectable<T> inspectable) {
-		if (Values.isNotEqual(currentTarget, inspectable.getTarget(), true)) {
+		if (Values.isNotEqual(target, inspectable.getTarget(), true)) {
 			try {
 				replaceInspectable(inspectable);
 			} catch (Exception e) {
 				UiUtils.disposeChildren(this);
-				currentTarget = null;
-				currentContainer = new ErrorInspectableContainer(this, e);
-				currentContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+				target = null;
+				content = new ErrorInspectableContainer(this, e);
+				content.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				layout(true, true);
 			}
 		}
@@ -55,25 +51,25 @@ public class InspectorView extends SceneEditorView {
 
 	private <T> void replaceInspectable(Inspectable<T> inspectable) {
 		clearCurrentSelection();
-		currentTarget = inspectable.getTarget();
-		if (currentTarget == null) {
+		target = inspectable.getTarget();
+		if (target == null) {
 			return;
 		}
 
-		currentContainer = Values.cast(inspectable.createContainer(this, inspectable.getTarget()));
-		if (currentContainer != null) {
+		content = Values.cast(inspectable.createContainer(this, inspectable.getTarget()));
+		if (content != null) {
 			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gridData.widthHint = 200;
-			currentContainer.setLayoutData(gridData);
+			content.setLayoutData(gridData);
 			layout(true, true);
 		}
 	}
 
 	private void clearCurrentSelection() {
-		currentTarget = null;
-		if (currentContainer != null) {
-			currentContainer.dispose();
-			currentContainer = null;
+		target = null;
+		if (content != null) {
+			content.dispose();
+			content = null;
 		}
 	}
 
