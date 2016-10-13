@@ -30,9 +30,9 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public boolean ghost;
 	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
 
-	public int collisionGroup;
-	public int collisionMask;
-	public BulletRigidBodyType rigidBodyType = BulletRigidBodyType.DYNAMIC;
+	public int group;
+	public int mask;
+	public BulletRigidBodyType type = BulletRigidBodyType.DYNAMIC;
 
 	@PropertyDescriptor(nullable = false)
 	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
