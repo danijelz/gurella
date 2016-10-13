@@ -4,10 +4,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-import com.gurella.studio.editor.EditorMessageListener;
 import com.gurella.studio.editor.SceneEditorContext;
 
-public abstract class InspectableContainer<T> extends ScrolledForm implements EditorMessageListener {
+public abstract class InspectableContainer<T> extends ScrolledForm {
 	protected T target;
 
 	public InspectableContainer(InspectorView parent, T target) {
@@ -17,10 +16,8 @@ public abstract class InspectableContainer<T> extends ScrolledForm implements Ed
 		setExpandVertical(true);
 		setMinWidth(200);
 		setSize(200, 100);
-		
+
 		addListener(SWT.Resize, (e) -> reflow(true));
-		addDisposeListener(e -> parent.removeEditorMessageListener(this));
-		parent.addEditorMessageListener(this);
 	}
 
 	@Override
@@ -39,10 +36,6 @@ public abstract class InspectableContainer<T> extends ScrolledForm implements Ed
 
 	protected final void postMessage(Object message) {
 		getParent().postMessage(message);
-	}
-
-	@Override
-	public void handleMessage(Object source, Object message) {
 	}
 
 	public SceneEditorContext getSceneEditorContext() {

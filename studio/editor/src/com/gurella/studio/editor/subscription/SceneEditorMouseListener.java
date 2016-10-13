@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.subscriptions;
+package com.gurella.studio.editor.subscription;
 
 import com.gurella.engine.event.EventSubscription;
 

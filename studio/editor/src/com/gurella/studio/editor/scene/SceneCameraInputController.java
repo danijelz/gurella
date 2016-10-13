@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.gurella.studio.editor.SceneEditorUtils;
-import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
+import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 
 public class SceneCameraInputController extends CameraInputController {
 	public SceneCameraInputController(Camera camera) {

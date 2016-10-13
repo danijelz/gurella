@@ -42,7 +42,7 @@ import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
-import com.gurella.studio.editor.subscriptions.SceneEditorMouseListener;
+import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
 		implements EditorMessageListener, SceneEditorMouseListener, GurellaStateProvider {
