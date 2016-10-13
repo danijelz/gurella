@@ -28,10 +28,13 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	}
 
 	public boolean ghost;
+	public boolean neverSleeps;
 	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
 
 	public int group;
 	public int mask;
+
+	@PropertyDescriptor(nullable = false)
 	public BulletRigidBodyType type = BulletRigidBodyType.DYNAMIC;
 
 	@PropertyDescriptor(nullable = false)
@@ -39,12 +42,12 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public CollisionShape shape;
 
 	@PropertyEditorDescriptor(descriptiveName = "Calc. inertia")
-	public boolean inertiaFromShape = true;
+	public boolean calculetInertia = true;
 	public final Vector3 inertia = new Vector3(0, 0, 0);
 
 	public final Vector3 gravity = new Vector3(0f, -9.8f, 0f);
 
-	public float mass;
+	public float mass = 1;
 	public float margin = 0.04f;
 	public float friction;
 	public float rollingFriction;
@@ -71,6 +74,14 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public float additionalDampingFactor;
 	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "angular")
 	public float additionalAngularDampingFactor;
+
+	// TODO handle properties
+	@PropertyEditorDescriptor(group = "Initial velocity")
+	public boolean initialySleeping;
+	@PropertyEditorDescriptor(group = "Initial velocity", descriptiveName = "linear")
+	public Vector3 initialLinearVelocity;
+	@PropertyEditorDescriptor(group = "Initial velocity", descriptiveName = "angular")
+	public Vector3 initialAngularVelocity;
 
 	private final transient MotionState motionState = new MotionState();
 	public transient btRigidBody rigidBody;
@@ -132,7 +143,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 		float mass = this.mass;
 		mass = mass < 0 ? 0 : mass;
 		Vector3 inertia = this.inertia;
-		if (mass > 0 && inertiaFromShape) {
+		if (mass > 0 && calculetInertia) {
 			nativeShape.calculateLocalInertia(mass, inertia);
 		}
 
