@@ -70,7 +70,6 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 	public SceneHierarchyView(GurellaSceneEditor editor, int style) {
 		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
 
-		Scene scene = editor.getScene();
 		addDisposeListener(e -> EventService.unsubscribe(this));
 		EventService.subscribe(this);
 
@@ -84,10 +83,6 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
 		createMenu();
-
-		if (scene != null) {
-			present(scene);
-		}
 	}
 
 	private void createMenu() {
@@ -217,15 +212,13 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		return (Scene) graph.getData();
 	}
 
-	public void present(Scene scene) {
+	private void present(Scene scene) {
 		graph.removeAll();
 		graph.setData(scene);
-		menu.setEnabled(scene != null);
-		if (scene != null) {
-			addDisposeListener(e -> EventService.unsubscribe(scene.getInstanceId(), this));
-			EventService.subscribe(scene.getInstanceId(), this);
-			addNodes(null, scene);
-		}
+		menu.setEnabled(true);
+		addDisposeListener(e -> EventService.unsubscribe(scene.getInstanceId(), this));
+		EventService.subscribe(scene.getInstanceId(), this);
+		addNodes(null, scene);
 	}
 
 	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
