@@ -68,10 +68,10 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@PropertyEditorDescriptor(group = "Sleeping Threshold", descriptiveName = "angular")
 	public float angularSleepingThreshold;
 
-	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "enable")
-	public boolean additionalDamping;
+	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "enabled")
+	public boolean additionalDampingEnabled;
 	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "linear")
-	public float additionalDampingFactor;
+	public float additionalLinearDampingFactor;
 	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "angular")
 	public float additionalAngularDampingFactor;
 
@@ -127,6 +127,13 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 			rigidBody.setLinearFactor(linearFactor);
 			rigidBody.setAngularFactor(angularFactor);
 			rigidBody.setGravity(gravity);
+
+			if (initialLinearVelocity != null) {
+				rigidBody.setLinearVelocity(initialLinearVelocity);
+			}
+			if (initialAngularVelocity != null) {
+				rigidBody.setAngularVelocity(initialAngularVelocity);
+			}
 			info.dispose();// TODO remove when pooled
 		}
 
@@ -156,8 +163,8 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 		info.setAngularDamping(angularDamping);
 		info.setLinearSleepingThreshold(linearSleepingThreshold);
 		info.setAngularSleepingThreshold(angularSleepingThreshold);
-		info.setAdditionalDamping(additionalDamping);
-		info.setAdditionalDampingFactor(additionalDampingFactor);
+		info.setAdditionalDamping(additionalDampingEnabled);
+		info.setAdditionalDampingFactor(additionalLinearDampingFactor);
 		info.setAdditionalAngularDampingFactor(additionalAngularDampingFactor);
 
 		return info;
