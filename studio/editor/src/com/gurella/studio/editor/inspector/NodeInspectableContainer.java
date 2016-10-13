@@ -48,7 +48,6 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
-import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.SceneNode2;
@@ -87,7 +86,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	private Button enabledCheck;
 	private Label menuButton;
 	private Composite componentsComposite;
-	private Array<MetaModelEditor<?>> componentEditors = new Array<>();
 
 	public NodeInspectableContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
@@ -191,25 +189,24 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 	private void initComponentContainers() {
 		ImmutableArray<SceneNodeComponent2> components = target.components;
 		for (int i = 0; i < components.size(); i++) {
-			SceneNodeComponent2 component = components.get(i);
-			componentEditors.add(createSection(component));
+			createSection(components.get(i));
 		}
 	}
 
-	private MetaModelEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
+	private Section createSection(SceneNodeComponent2 component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
+
 		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
-				component);
-		componentEditor.getContext().propertyChangedSignal
-				.addListener((event) -> postMessage(SceneChangedMessage.instance));
-		section.setClient(componentEditor);
+		MetaModelEditor<SceneNodeComponent2> editor = createEditor(section, getSceneEditorContext(), component);
+		editor.getContext().propertyChangedSignal.addListener((event) -> postMessage(SceneChangedMessage.instance));
+
+		section.setClient(editor);
 		section.setExpanded(true);
 
-		return componentEditor;
+		return section;
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
@@ -347,7 +344,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 
 	private class AddComponentOperation extends AbstractOperation {
 		final SceneNodeComponent2 newValue;
-		private MetaModelEditor<?> section;
+		private Section section;
 
 		public AddComponentOperation(SceneNodeComponent2 newValue) {
 			super("Add component");
@@ -358,7 +355,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			target.addComponent(newValue);
 			section = createSection(newValue);
-			componentEditors.add(section);
 			postMessage(new ComponentAddedMessage(newValue));
 			reflow(true);
 			return Status.OK_STATUS;
@@ -367,19 +363,20 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			target.removeComponent(newValue);
-			componentEditors.removeValue(section, true);
-			section.dispose();
+			if (section != null && !section.isDisposed()) {
+				section.dispose();
+			}
 			section = null;
 			postMessage(new ComponentRemovedMessage(newValue));
-			reflow(true);
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			target.addComponent(newValue);
-			section = createSection(newValue);
-			componentEditors.add(section);
+			if (isDisposed()) {
+				section = createSection(newValue);
+			}
 			postMessage(new ComponentAddedMessage(newValue));
 			reflow(true);
 			return Status.OK_STATUS;
