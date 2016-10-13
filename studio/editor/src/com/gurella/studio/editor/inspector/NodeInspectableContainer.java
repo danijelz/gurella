@@ -80,16 +80,23 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext.PropertyValueChangedEvent;
-import com.gurella.studio.editor.scene.NodeNameChangedMessage;
+import com.gurella.studio.editor.scene.event.NodeEnabledChangedEvent;
+import com.gurella.studio.editor.scene.event.NodeNameChangedEvent;
 import com.gurella.studio.editor.scene.event.SceneChangedEvent;
 import com.gurella.studio.editor.scene.operation.AddComponentOperation;
 import com.gurella.studio.editor.subscription.EditorSceneListener;
+import com.gurella.studio.editor.subscription.NodeEnabledChangedListener;
+import com.gurella.studio.editor.subscription.NodeNameChangedListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class NodeInspectableContainer extends InspectableContainer<SceneNode2> implements EditorSceneListener {
+public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
+		implements EditorSceneListener, NodeNameChangedListener, NodeEnabledChangedListener {
 	private Text nameText;
 	private Listener nameChangedlLstener;
+
 	private Button enabledCheck;
+	private Listener nodeEnabledListener;
+
 	private Label menuButton;
 
 	private Composite componentsComposite;
@@ -100,6 +107,10 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 		addDisposeListener(e -> EventService.unsubscribe(this));
 		EventService.subscribe(this);
+
+		int sceneId = target.getScene().getInstanceId();
+		addDisposeListener(e -> EventService.unsubscribe(sceneId, this));
+		EventService.subscribe(sceneId, this);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -119,7 +130,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		enabledCheck = toolkit.createButton(body, "Enabled", CHECK);
 		enabledCheck.setLayoutData(new GridData(END, CENTER, false, false));
 		enabledCheck.setSelection(target.isEnabled());
-		enabledCheck.addListener(SWT.Selection, e -> nodeEnabledChanged());
+		nodeEnabledListener = e -> nodeEnabledChanged();
+		enabledCheck.addListener(SWT.Selection, nodeEnabledListener);
 
 		menuButton = toolkit.createLabel(body, " ", NONE);
 		menuButton.setImage(GurellaStudioPlugin.createImage("icons/menu.png"));
@@ -139,23 +151,14 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	private void nodeNameChanged() {
-		SetNameOperation operation = new SetNameOperation(target.getName(), nameText.getText());
+		SetNameOperation operation = new SetNameOperation(target, target.getName(), nameText.getText());
 		getSceneEditorContext().executeOperation(operation, "Error while renaming node");
 	}
 
-	private void renameNode() {
-		target.setName(nameText.getText());
-		postMessage(new NodeNameChangedMessage(target));
-	}
-
 	private void nodeEnabledChanged() {
-		SetEnabledOperation operation = new SetEnabledOperation(target.isEnabled(), enabledCheck.getSelection());
+		SetEnabledOperation operation = new SetEnabledOperation(target, target.isEnabled(),
+				enabledCheck.getSelection());
 		getSceneEditorContext().executeOperation(operation, "Error while enabling node");
-	}
-
-	private void enableNode() {
-		target.setEnabled(enabledCheck.getSelection());
-		notifySceneChanged();
 	}
 
 	@SuppressWarnings("unused")
@@ -221,7 +224,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 		return section;
 	}
-	
+
 	private void notifySceneChanged() {
 		int sceneId = getSceneEditorContext().getScene().getInstanceId();
 		EventService.post(sceneId, SceneChangedEvent.instance);
@@ -308,83 +311,97 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		}
 	}
 
-	private class SetNameOperation extends AbstractOperation {
-		final String oldValue;
-		final String newValue;
-
-		public SetNameOperation(String oldValue, String newValue) {
-			super("Name");
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
-
-		@Override
-		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.setName(newValue);
-			renameNode();
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.setName(oldValue);
-			if (!nameText.isDisposed()) {
-				nameText.removeListener(SWT.Modify, nameChangedlLstener);
-				nameText.setText(oldValue);
-				nameText.addListener(SWT.Modify, nameChangedlLstener);
-			}
-			renameNode();
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.setName(newValue);
-			if (!nameText.isDisposed()) {
-				nameText.removeListener(SWT.Modify, nameChangedlLstener);
-				nameText.setText(newValue);
-				nameText.addListener(SWT.Modify, nameChangedlLstener);
-			}
-			renameNode();
-			return Status.OK_STATUS;
+	@Override
+	public void nodeNameChanged(SceneNode2 node) {
+		if (target == node && !nameText.isDisposed() && !nameText.getText().equals(node.getName())) {
+			nameText.removeListener(SWT.Modify, nameChangedlLstener);
+			nameText.setText(target.getName());
+			nameText.addListener(SWT.Modify, nameChangedlLstener);
 		}
 	}
 
-	private class SetEnabledOperation extends AbstractOperation {
-		final boolean oldValue;
-		final boolean newValue;
+	@Override
+	public void nodeEnabledChanged(SceneNode2 node) {
+		if (target == node && !enabledCheck.isDisposed() && enabledCheck.getSelection() != node.isEnabled()) {
+			enabledCheck.removeListener(SWT.Selection, nodeEnabledListener);
+			enabledCheck.setSelection(node.isEnabled());
+			enabledCheck.addListener(SWT.Selection, nodeEnabledListener);
+		}
+	}
 
-		public SetEnabledOperation(boolean oldValue, boolean newValue) {
-			super("Enabled");
+	private static class SetNameOperation extends AbstractOperation {
+		final SceneNode2 node;
+		final String oldValue;
+		final String newValue;
+
+		public SetNameOperation(SceneNode2 node, String oldValue, String newValue) {
+			super("Name");
+			this.node = node;
 			this.oldValue = oldValue;
 			this.newValue = newValue;
 		}
 
 		@Override
 		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.setEnabled(newValue);
-			enableNode();
+			node.setName(newValue);
+			notifyNodeNameChanged();
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.setEnabled(oldValue);
-			if (!enabledCheck.isDisposed()) {
-				enabledCheck.setSelection(oldValue);
-			}
-			enableNode();
+			node.setName(oldValue);
+			notifyNodeNameChanged();
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.setEnabled(newValue);
-			if (!enabledCheck.isDisposed()) {
-				enabledCheck.setSelection(newValue);
-			}
-			enableNode();
+			return execute(monitor, adaptable);
+		}
+
+		private void notifyNodeNameChanged() {
+			int sceneId = node.getScene().getInstanceId();
+			EventService.post(sceneId, new NodeNameChangedEvent(node));
+			EventService.post(sceneId, SceneChangedEvent.instance);
+		}
+	}
+
+	private static class SetEnabledOperation extends AbstractOperation {
+		final SceneNode2 node;
+		final boolean oldValue;
+		final boolean newValue;
+
+		public SetEnabledOperation(SceneNode2 node, boolean oldValue, boolean newValue) {
+			super("Enabled");
+			this.node = node;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			node.setEnabled(newValue);
+			notifyNodeEnabledChanged();
 			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			node.setEnabled(oldValue);
+			notifyNodeEnabledChanged();
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
+			return execute(monitor, adaptable);
+		}
+
+		private void notifyNodeEnabledChanged() {
+			int sceneId = node.getScene().getInstanceId();
+			EventService.post(sceneId, new NodeEnabledChangedEvent(node));
+			EventService.post(sceneId, SceneChangedEvent.instance);
 		}
 	}
 }

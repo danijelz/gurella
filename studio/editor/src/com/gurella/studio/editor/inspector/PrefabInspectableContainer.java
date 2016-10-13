@@ -68,7 +68,6 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.model.MetaModelEditor;
-import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class PrefabInspectableContainer extends InspectableContainer<IFile> {
@@ -124,7 +123,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 	private void nodeNameChanged() {
 		prefab.setName(nameText.getText());
-		postMessage(new NodeNameChangedMessage(prefab));
+		//postMessage(new NodeNameChangedMessage(prefab));
 	}
 
 	private void nodeEnabledChanged() {

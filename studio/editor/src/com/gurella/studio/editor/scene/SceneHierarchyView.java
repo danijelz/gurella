@@ -61,8 +61,9 @@ import com.gurella.studio.editor.scene.operation.AddNodeOperation;
 import com.gurella.studio.editor.scene.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.scene.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.EditorSceneListener;
+import com.gurella.studio.editor.subscription.NodeNameChangedListener;
 
-public class SceneHierarchyView extends SceneEditorView implements EditorSceneListener {
+public class SceneHierarchyView extends SceneEditorView implements EditorSceneListener, NodeNameChangedListener {
 	private Tree graph;
 	private Menu menu;
 
@@ -221,6 +222,8 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		graph.setData(scene);
 		menu.setEnabled(scene != null);
 		if (scene != null) {
+			addDisposeListener(e -> EventService.unsubscribe(scene.getInstanceId(), this));
+			EventService.subscribe(scene.getInstanceId(), this);
 			addNodes(null, scene);
 		}
 	}
@@ -255,13 +258,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 
 	@Override
 	public void handleMessage(Object source, Object message) {
-		if (message instanceof NodeNameChangedMessage) {
-			SceneNode2 node = ((NodeNameChangedMessage) message).node;
-			TreeItem found = findItem(node);
-			if (found != null) {
-				found.setText(node.getName());
-			}
-		} else if (message instanceof SceneLoadedMessage) {
+		if (message instanceof SceneLoadedMessage) {
 			present(((SceneLoadedMessage) message).scene);
 		}
 	}
@@ -443,6 +440,14 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		TreeItem found = findItem(component);
 		if (found != null) {
 			found.dispose();
+		}
+	}
+
+	@Override
+	public void nodeNameChanged(SceneNode2 node) {
+		TreeItem found = findItem(node);
+		if (found != null) {
+			found.setText(node.getName());
 		}
 	}
 

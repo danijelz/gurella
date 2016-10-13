@@ -76,11 +76,11 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public float additionalAngularDampingFactor;
 
 	// TODO handle properties
-	@PropertyEditorDescriptor(group = "Initial velocity")
+	@PropertyEditorDescriptor(group = "Initial state", descriptiveName = "sleeping")
 	public boolean initialySleeping;
-	@PropertyEditorDescriptor(group = "Initial velocity", descriptiveName = "linear")
+	@PropertyEditorDescriptor(group = "Initial state", descriptiveName = "linear")
 	public Vector3 initialLinearVelocity;
-	@PropertyEditorDescriptor(group = "Initial velocity", descriptiveName = "angular")
+	@PropertyEditorDescriptor(group = "Initial state", descriptiveName = "angular")
 	public Vector3 initialAngularVelocity;
 
 	private final transient MotionState motionState = new MotionState();
