@@ -69,7 +69,6 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
-import com.gurella.studio.editor.scene.ComponentAddedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -199,7 +198,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private void addComponent(SceneNodeComponent2 component) {
 		prefab.addComponent(component);
 		componentEditors.add(createSection(component));
-		postMessage(new ComponentAddedMessage(component));
+		// TODO postMessage(new ComponentAddedMessage(component));
 		layout(true, true);
 		reflow(true);
 	}

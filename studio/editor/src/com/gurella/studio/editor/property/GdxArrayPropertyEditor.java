@@ -29,6 +29,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
@@ -153,8 +154,11 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private void removeItem(int i) {
-		Array<T> values = getValue();
-		values.removeIndex(i);
+		Array<T> oldValue = getValue();
+		Array<T> newValue = new CopyContext().copy(oldValue);
+		newValue.add(null);
+		newValue.removeIndex(i);
+		setValue(newValue);
 		rebuildUi();
 	}
 
@@ -169,11 +173,11 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private void addItem() {
-		Array<T> values = getValue();
-		if (values != null) {
-			values.add(null);
-			rebuildUi();
-		}
+		Array<T> oldValue = getValue();
+		Array<T> newValue = new CopyContext().copy(oldValue);
+		newValue.add(null);
+		setValue(newValue);
+		rebuildUi();
 	}
 
 	private void rebuildUi() {

@@ -18,6 +18,8 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
@@ -49,7 +51,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.ComponentType;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
@@ -75,20 +79,25 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneChangedMessage;
 import com.gurella.studio.editor.model.MetaModelEditor;
-import com.gurella.studio.editor.scene.ComponentAddedMessage;
-import com.gurella.studio.editor.scene.ComponentRemovedMessage;
 import com.gurella.studio.editor.scene.NodeNameChangedMessage;
+import com.gurella.studio.editor.scene.operation.AddComponentOperation;
+import com.gurella.studio.editor.subscription.EditorSceneListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
+public class NodeInspectableContainer extends InspectableContainer<SceneNode2> implements EditorSceneListener {
 	private Text nameText;
 	private Listener nameChangedlLstener;
 	private Button enabledCheck;
 	private Label menuButton;
+
 	private Composite componentsComposite;
+	private Map<SceneNodeComponent2, Section> editors = new LinkedHashMap<>();
 
 	public NodeInspectableContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
+		
+		addDisposeListener(e -> EventService.unsubscribe(this));
+		EventService.subscribe(this);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -205,12 +214,13 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 
 		section.setClient(editor);
 		section.setExpanded(true);
+		editors.put(component, section);
 
 		return section;
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
-		AddComponentOperation operation = new AddComponentOperation(component);
+		AddComponentOperation operation = new AddComponentOperation(target, component);
 		getSceneEditorContext().executeOperation(operation, "Error while adding component");
 	}
 
@@ -259,6 +269,34 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 			constructor.setAccessible(true);
 			SceneNodeComponent2 component = Values.cast(constructor.newInstance(new Object[0]));
 			addComponent(component);
+		}
+	}
+
+	@Override
+	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	}
+
+	@Override
+	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+		if (node == target) {
+			dispose();
+		}
+	}
+
+	@Override
+	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
+		if (component.getNode() == target) {
+			createSection(component);
+			reflow(true);
+		}
+	}
+
+	@Override
+	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
+		Section section = editors.get(component);
+		if (section != null) {
+			section.dispose();
+			reflow(true);
 		}
 	}
 
@@ -338,47 +376,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> {
 				enabledCheck.setSelection(newValue);
 			}
 			enableNode();
-			return Status.OK_STATUS;
-		}
-	}
-
-	private class AddComponentOperation extends AbstractOperation {
-		final SceneNodeComponent2 newValue;
-		private Section section;
-
-		public AddComponentOperation(SceneNodeComponent2 newValue) {
-			super("Add component");
-			this.newValue = newValue;
-		}
-
-		@Override
-		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.addComponent(newValue);
-			section = createSection(newValue);
-			postMessage(new ComponentAddedMessage(newValue));
-			reflow(true);
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.removeComponent(newValue);
-			if (section != null && !section.isDisposed()) {
-				section.dispose();
-			}
-			section = null;
-			postMessage(new ComponentRemovedMessage(newValue));
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			target.addComponent(newValue);
-			if (isDisposed()) {
-				section = createSection(newValue);
-			}
-			postMessage(new ComponentAddedMessage(newValue));
-			reflow(true);
 			return Status.OK_STATUS;
 		}
 	}

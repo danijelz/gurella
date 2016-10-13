@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.NodeContainer;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
@@ -55,13 +56,23 @@ import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.inspector.NodeInspectableContainer;
+import com.gurella.studio.editor.scene.operation.AddComponentOperation;
+import com.gurella.studio.editor.scene.operation.AddNodeOperation;
+import com.gurella.studio.editor.scene.operation.RemoveComponentOperation;
+import com.gurella.studio.editor.scene.operation.RemoveNodeOperation;
+import com.gurella.studio.editor.subscription.EditorSceneListener;
 
-public class SceneHierarchyView extends SceneEditorView {
+public class SceneHierarchyView extends SceneEditorView implements EditorSceneListener {
 	private Tree graph;
 	private Menu menu;
 
 	public SceneHierarchyView(GurellaSceneEditor editor, int style) {
 		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
+
+		Scene scene = editor.getScene();
+		addDisposeListener(e -> EventService.unsubscribe(this));
+		EventService.subscribe(this);
+
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -73,7 +84,6 @@ public class SceneHierarchyView extends SceneEditorView {
 
 		createMenu();
 
-		Scene scene = editor.getScene();
 		if (scene != null) {
 			present(scene);
 		}
@@ -93,7 +103,7 @@ public class SceneHierarchyView extends SceneEditorView {
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Remove Node");
-		item.addListener(SWT.Selection, e -> removeSelectedNode());
+		item.addListener(SWT.Selection, e -> removeSelectedElement());
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add sphere");
@@ -179,8 +189,8 @@ public class SceneHierarchyView extends SceneEditorView {
 		if (selection.length > 0) {
 			TreeItem seectedItem = selection[0];
 			SceneNode2 node = (SceneNode2) seectedItem.getData();
-			node.addComponent(component);
-			postMessage(new ComponentAddedMessage(component));
+			AddComponentOperation operation = new AddComponentOperation(node, component);
+			editor.getEditorContext().executeOperation(operation, "Error while adding component");
 		}
 	}
 
@@ -198,7 +208,7 @@ public class SceneHierarchyView extends SceneEditorView {
 
 	private void handleKeyUp(Event e) {
 		if (e.keyCode == SWT.DEL) {
-			removeSelectedNode();
+			removeSelectedElement();
 		}
 	}
 
@@ -247,34 +257,24 @@ public class SceneHierarchyView extends SceneEditorView {
 	public void handleMessage(Object source, Object message) {
 		if (message instanceof NodeNameChangedMessage) {
 			SceneNode2 node = ((NodeNameChangedMessage) message).node;
-			for (TreeItem item : graph.getItems()) {
-				TreeItem found = findItem(item, node);
-				if (found != null) {
-					found.setText(node.getName());
-				}
-			}
-		} else if (message instanceof ComponentAddedMessage) {
-			ComponentAddedMessage componentAddedMessage = (ComponentAddedMessage) message;
-			SceneNodeComponent2 component = componentAddedMessage.component;
-			SceneNode2 node = component.getNode();
-			for (TreeItem item : graph.getItems()) {
-				TreeItem found = findItem(item, node);
-				if (found != null) {
-					createComponentItem(found, component);
-				}
-			}
-		} else if (message instanceof ComponentRemovedMessage) {
-			ComponentRemovedMessage componentRemovedMessage = (ComponentRemovedMessage) message;
-			SceneNodeComponent2 component = componentRemovedMessage.component;
-			for (TreeItem item : graph.getItems()) {
-				TreeItem found = findItem(item, component);
-				if (found != null) {
-					found.dispose();
-				}
+			TreeItem found = findItem(node);
+			if (found != null) {
+				found.setText(node.getName());
 			}
 		} else if (message instanceof SceneLoadedMessage) {
 			present(((SceneLoadedMessage) message).scene);
 		}
+	}
+
+	private TreeItem findItem(SceneElement2 element) {
+		for (TreeItem item : graph.getItems()) {
+			TreeItem found = findItem(item, element);
+			if (found != null) {
+				return found;
+			}
+		}
+
+		return null;
 	}
 
 	private TreeItem findItem(TreeItem item, SceneElement2 element) {
@@ -323,7 +323,7 @@ public class SceneHierarchyView extends SceneEditorView {
 		postMessage(SceneChangedMessage.instance);
 	}
 
-	private void removeSelectedNode() {
+	private void removeSelectedElement() {
 		TreeItem[] selection = graph.getSelection();
 		if (selection.length > 0) {
 			TreeItem selectedItem = selection[0];
@@ -332,15 +332,13 @@ public class SceneHierarchyView extends SceneEditorView {
 			if (data instanceof SceneNode2) {
 				SceneNode2 node = (SceneNode2) data;
 				SceneNode2 parentNode = node.getParentNode();
-				if (parentNode == null) {
-					getScene().removeNode(node);
-				} else {
-					parentNode.removeChild(node);
-				}
+				RemoveNodeOperation operation = new RemoveNodeOperation(getScene(), parentNode, node);
+				editor.getEditorContext().executeOperation(operation, "Error while removing node");
 			} else if (data instanceof SceneNodeComponent2) {
 				SceneNodeComponent2 component = (SceneNodeComponent2) data;
-				SceneNode2 parentNode = component.getNode();
-				parentNode.removeComponent(component);
+				SceneNode2 node = component.getNode();
+				RemoveComponentOperation operation = new RemoveComponentOperation(node, component);
+				editor.getEditorContext().executeOperation(operation, "Error while removing component");
 			}
 
 			selectedItem.dispose();
@@ -353,7 +351,37 @@ public class SceneHierarchyView extends SceneEditorView {
 				newText -> newText.length() < 3 ? "Too short" : null);
 
 		if (dlg.open() == Window.OK) {
-			SceneNode2 node = getScene().newNode(dlg.getValue());
+			SceneNode2 node = new SceneNode2();
+			node.setName(dlg.getValue());
+			AddNodeOperation operation = new AddNodeOperation(getScene(), null, node);
+			editor.getEditorContext().executeOperation(operation, "Error while adding node");
+		}
+	}
+
+	private void addChildNode() {
+		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
+				newText -> newText.length() < 3 ? "Too short" : null);
+
+		if (dlg.open() == Window.OK) {
+			TreeItem[] selection = graph.getSelection();
+			if (selection.length > 0) {
+				TreeItem seectedItem = selection[0];
+				SceneNode2 parentNode = (SceneNode2) seectedItem.getData();
+				SceneNode2 node = new SceneNode2();
+				node.setName(dlg.getValue());
+				AddNodeOperation operation = new AddNodeOperation(getScene(), parentNode, node);
+				editor.getEditorContext().executeOperation(operation, "Error while adding node");
+			}
+		}
+	}
+
+	@Override
+	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+		if (getScene() != scene) {
+			return;
+		}
+
+		if (parentNode == null) {
 			TreeItem nodeItem = new TreeItem(graph, 0);
 			nodeItem.setData(node);
 			nodeItem.setText(node.getName());
@@ -369,37 +397,48 @@ public class SceneHierarchyView extends SceneEditorView {
 
 			graph.select(nodeItem);
 			postMessage(new SelectionMessage(new NodeInspectable(node)));
+		} else {
+			TreeItem parentItem = findItem(parentNode);
+			TreeItem nodeItem = new TreeItem(parentItem, 0);
+			nodeItem.setData(node);
+			nodeItem.setText(node.getName());
+			nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+
+			TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+			TreeItem componentItem = new TreeItem(nodeItem, 0);
+			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
+			componentItem.setText(Models.getModel(transformComponent).getName());
+			componentItem.setData(transformComponent);
+
+			postMessage(SceneChangedMessage.instance);
+			parentItem.setExpanded(true);
+
+			graph.select(nodeItem);
+			postMessage(new SelectionMessage(new NodeInspectable(node)));
 		}
 	}
 
-	private void addChildNode() {
-		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
-				newText -> newText.length() < 3 ? "Too short" : null);
+	@Override
+	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+		TreeItem found = findItem(node);
+		if (found != null) {
+			found.dispose();
+		}
+	}
 
-		if (dlg.open() == Window.OK) {
-			TreeItem[] selection = graph.getSelection();
-			if (selection.length > 0) {
-				TreeItem seectedItem = selection[0];
-				Object data = seectedItem.getData();
-				SceneNode2 node = (SceneNode2) data;
-				SceneNode2 child = node.newChild(dlg.getValue());
-				TreeItem nodeItem = new TreeItem(seectedItem, 0);
-				nodeItem.setData(child);
-				nodeItem.setText(child.getName());
-				nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+	@Override
+	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
+		TreeItem found = findItem(node);
+		if (found != null) {
+			createComponentItem(found, component);
+		}
+	}
 
-				TransformComponent transformComponent = child.newComponent(TransformComponent.class);
-				TreeItem componentItem = new TreeItem(nodeItem, 0);
-				componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
-				componentItem.setText(Models.getModel(transformComponent).getName());
-				componentItem.setData(transformComponent);
-
-				postMessage(SceneChangedMessage.instance);
-
-				seectedItem.setExpanded(true);
-				graph.select(nodeItem);
-				postMessage(new SelectionMessage(new NodeInspectable(child)));
-			}
+	@Override
+	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
+		TreeItem found = findItem(component);
+		if (found != null) {
+			found.dispose();
 		}
 	}
 

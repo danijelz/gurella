@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
@@ -162,9 +163,11 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void removeItem(int i) {
-		Collection<T> values = getValue();
+		Collection<T> oldValue = getValue();
 		PropertyEditor<?> itemEditor = itemEditors.get(i);
-		values.remove(itemEditor.getModelInstance());
+		Collection<T> newValue = new CopyContext().copy(oldValue);
+		newValue.remove(itemEditor.getModelInstance());
+		setValue(newValue);
 		rebuildUi();
 	}
 
@@ -179,11 +182,11 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void addItem() {
-		Collection<T> values = getValue();
-		if (values != null) {
-			values.add(null);
-			rebuildUi();
-		}
+		Collection<T> oldValue = getValue();
+		Collection<T> newValue = new CopyContext().copy(oldValue);
+		newValue.add(null);
+		setValue(newValue);
+		rebuildUi();
 	}
 
 	private void rebuildUi() {
