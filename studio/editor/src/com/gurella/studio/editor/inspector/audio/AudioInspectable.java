@@ -2,9 +2,9 @@ package com.gurella.studio.editor.inspector.audio;
 
 import org.eclipse.core.resources.IFile;
 
+import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 
 public class AudioInspectable implements Inspectable<IFile> {
 	IFile target;

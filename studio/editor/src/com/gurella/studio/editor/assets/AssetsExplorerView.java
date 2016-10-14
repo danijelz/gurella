@@ -35,7 +35,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.event.SelectionEvent;
-import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
+import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
 import com.gurella.studio.editor.inspector.bitmapfont.BitmapFontInspectable;
 import com.gurella.studio.editor.inspector.common.ModelInspectable;

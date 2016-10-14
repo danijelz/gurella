@@ -73,10 +73,4 @@ public class InspectorView extends SceneEditorView implements SelectionListener 
 			clearCurrentSelection();
 		}
 	}
-
-	public interface Inspectable<T> {
-		T getTarget();
-
-		InspectableContainer<T> createContainer(InspectorView parent, T target);
-	}
 }
