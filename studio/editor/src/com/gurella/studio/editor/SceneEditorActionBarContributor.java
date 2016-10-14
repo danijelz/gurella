@@ -14,7 +14,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.studio.editor.assets.AssetsExplorerView;
+import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
@@ -28,7 +28,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 	private ToggleEditorViewAction toggleInspectorViewAction = new ToggleEditorViewAction("Inspector",
 			InspectorView.class, InspectorView::new);
 	private ToggleEditorViewAction toggleAssetsViewAction = new ToggleEditorViewAction("Assets Explorer",
-			AssetsExplorerView.class, AssetsExplorerView::new);
+			AssetsView.class, AssetsView::new);
 
 	@Override
 	public void contributeToMenu(IMenuManager menuManager) {
@@ -87,7 +87,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 			toggleInspectorViewAction.setEnabled(true);
 		} else
 
-		if (view instanceof AssetsExplorerView) {
+		if (view instanceof AssetsView) {
 			toggleAssetsViewAction.setChecked(false);
 			toggleAssetsViewAction.setEnabled(true);
 		}

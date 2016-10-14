@@ -6,9 +6,6 @@ import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabFolderRenderer;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -22,10 +19,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.widgets.Tracker;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.event.SceneEditorViewClosedEvent;
@@ -35,20 +30,20 @@ class Dockable extends Composite {
 	CTabFolder tabFolder;
 	private DockableTabFolderRenderer renderer;
 	private Composite sash;
-	private SashDragManager sashDragManager;
+	SashDragManager sashDragManager;
 	int extent = 300;
 	int extentMinimized = 300;
-	private int position;
-	private boolean expanded;
+	int position;
+	boolean expanded;
 
 	private Composite closedComposite;
 	private ToolBar dockToolBar;
 	private ToolItem maxItem;
 	private Image maxImage;
 
-	private ToolBar itemsToolBar;
+	ToolBar itemsToolBar;
 
-	private CollapseRunnable collapseRunnable = new CollapseRunnable();
+	private CollapseRunnable collapseRunnable = new CollapseRunnable(this);
 
 	public Dockable(Dock parent, int position) {
 		super(parent, SWT.NONE);
@@ -76,7 +71,7 @@ class Dockable extends Composite {
 	}
 
 	protected void createTabFolder() {
-		tabFolder = new CTabFolderImpl(this, SWT.BORDER | SWT.MULTI);
+		tabFolder = new DockableTabFolder(this, SWT.BORDER | SWT.MULTI);
 		tabFolder.setMinimizeVisible(true);
 		tabFolder.setSingle(true);
 		renderer = new DockableTabFolderRenderer(tabFolder);
@@ -93,7 +88,7 @@ class Dockable extends Composite {
 		tabFolder.addCTabFolder2Listener(new CTabFolder2ListenerImpl());
 
 		tabFolder.addListener(SWT.MouseDoubleClick, e -> onTabDoubleClick(e));
-		tabFolder.addListener(SWT.DragDetect, new DragListener());
+		tabFolder.addListener(SWT.DragDetect, new DragListener(this));
 	}
 
 	private void onTabDoubleClick(Event e) {
@@ -110,7 +105,7 @@ class Dockable extends Composite {
 		sash.setCursor(display.getSystemCursor(position == SWT.BOTTOM ? SWT.CURSOR_SIZENS : SWT.CURSOR_SIZEWE));
 		sash.addListener(SWT.Paint, e -> paintSash(e.gc));
 
-		sashDragManager = new SashDragManager();
+		sashDragManager = new SashDragManager(this);
 		sash.addMouseMoveListener(sashDragManager);
 		sash.addMouseListener(sashDragManager);
 
@@ -275,7 +270,7 @@ class Dockable extends Composite {
 		return tabFolder.getItemCount();
 	}
 
-	private void stateChanged() {
+	void stateChanged() {
 		boolean contentVisible = isContentVisible();
 		closedComposite.setVisible(!contentVisible);
 		closedComposite.layout(true, true);
@@ -315,7 +310,7 @@ class Dockable extends Composite {
 		getParent().layout(true);
 	}
 
-	private void handleSashDragged(int shiftAmount) {
+	void handleSashDragged(int shiftAmount) {
 		if (isMinimized()) {
 			int newExtent = extentMinimized + (position != SWT.LEFT ? -shiftAmount : shiftAmount);
 			if (extentMinimized != newExtent) {
@@ -395,6 +390,10 @@ class Dockable extends Composite {
 		}
 	}
 
+	Rectangle computeTabFolderTrim(int part, int state, int x, int y, int width, int height) {
+		return renderer.computeTrim(part, state, x, y, width, height);
+	}
+
 	private final class CTabFolder2ListenerImpl extends CTabFolder2Adapter {
 		@Override
 		public void restore(CTabFolderEvent event) {
@@ -422,256 +421,6 @@ class Dockable extends Composite {
 
 			event.doit = false;
 			EventService.post(getParent().editor.id, new SceneEditorViewClosedEvent(view));
-		}
-	}
-
-	private final class CTabFolderImpl extends CTabFolder {
-		private CTabFolderImpl(Composite parent, int style) {
-			super(parent, style);
-		}
-
-		@Override
-		public Rectangle getClientArea() {
-			checkWidget();
-			Rectangle trim = renderer.computeTrim(CTabFolderRenderer.PART_BODY, SWT.FILL, 0, 0, 0, 0);
-			Point size = getSize();
-
-			if (!isContentVisible()) {
-				return new Rectangle(-trim.x, -trim.y, 0, 0);
-			} else {
-				int width = size.x - trim.width;
-				int height = size.y - trim.height;
-				return new Rectangle(-trim.x, -trim.y, width, height);
-			}
-		}
-	}
-
-	private final class DragListener implements Listener {
-		private CTabItem dragItem;
-		private final Point mouseLocation = new Point(0, 0);
-
-		@Override
-		public void handleEvent(Event event) {
-			mouseLocation.x = event.x;
-			mouseLocation.y = event.y;
-
-			if (dragItem == null) {
-				dragItem = tabFolder.getItem(mouseLocation);
-				if (dragItem == null) {
-					return;
-				}
-
-				final Dock mainView = getParent();
-				final Tracker tracker = new Tracker(mainView, SWT.NONE);
-				tracker.setStippled(true);
-				tracker.addListener(SWT.Move, e -> onMouseMoved(mainView, tracker));
-
-				if (tracker.open()) {
-					completeDrag();
-				}
-
-				tracker.dispose();
-			}
-		}
-
-		private void completeDrag() {
-			Dockable dockable = findDockComponent();
-			if (dockable == null) {
-				final Dock mainView = getParent();
-				Point point = mainView.toControl(getDisplay().getCursorLocation());
-				Rectangle bounds = mainView.getBounds();
-				if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
-					transferItem(mainView.west, 0);
-				} else if (point.x >= bounds.width - 200 && point.x <= bounds.width
-						&& mainView.east.getItemCount() < 1) {
-					transferItem(mainView.east, 0);
-				} else if (point.y <= bounds.height && point.y >= bounds.height - 200
-						&& mainView.south.getItemCount() < 1) {
-					transferItem(mainView.south, 0);
-				}
-			} else {
-				int dragItemNewIndex = getDragItemNewIndex(dockable);
-				CTabFolder dragTabFolder = dockable.tabFolder;
-				if (dragItemNewIndex >= 0 && (dragTabFolder.getItemCount() <= dragItemNewIndex
-						|| dragTabFolder.getItem(dragItemNewIndex) != dragItem)) {
-					transferItem(dockable, dragItemNewIndex);
-				}
-			}
-
-			dragItem = null;
-		}
-
-		protected int getDragItemNewIndex(Dockable dockable) {
-			CTabFolder dragTabFolder = dockable.tabFolder;
-			if (dockable.isContentVisible()) {
-				Point point = dragTabFolder.toControl(getDisplay().getCursorLocation());
-				CTabItem item = dragTabFolder.getItem(point);
-				if (dragItem == item) {
-					return -1;
-				}
-
-				if (item == null) {
-					return dragTabFolder.getItemCount();
-				} else {
-					Rectangle bounds = item.getBounds();
-					boolean after = point.x > bounds.x + bounds.width / 2;
-					int itemIndex = dragTabFolder.indexOf(item);
-					return after ? itemIndex + 1 : itemIndex;
-				}
-			} else {
-				Point point = dockable.itemsToolBar.toControl(getDisplay().getCursorLocation());
-				ToolItem item = dockable.itemsToolBar.getItem(point);
-				if (item == null) {
-					return dragTabFolder.getItemCount();
-				} else {
-					Rectangle bounds = item.getBounds();
-					boolean after = point.x > bounds.x + bounds.width / 2;
-					int itemIndex = dockable.itemsToolBar.indexOf(item);
-					return after ? itemIndex + 1 : itemIndex;
-				}
-			}
-		}
-
-		protected void transferItem(Dockable dockable, int dragItemNewIndex) {
-			int itemIndex = dockable.addItem(dragItem.getText(), dragItem.getImage(), null, dragItemNewIndex);
-			CTabFolder targetTabFolder = dockable.tabFolder;
-			CTabItem newItem = targetTabFolder.getItem(itemIndex);
-			Control itemControl = dragItem.getControl();
-			if (itemControl != null) {
-				itemControl.setParent(targetTabFolder);
-				newItem.setControl(itemControl);
-				dragItem.setControl(null);
-			}
-
-			ToolItem toolItem = (ToolItem) dragItem.getData();
-			toolItem.dispose();
-			dragItem.dispose();
-
-			targetTabFolder.setSelection(newItem);
-			targetTabFolder.pack();
-
-			tabFolder.setSingle(tabFolder.getItemCount() < 2);
-			dockable.layout(true);
-			itemControl.setVisible(true);
-			layoutParent();
-		}
-
-		private Dockable findDockComponent() {
-			Point cursorLocation = getDisplay().getCursorLocation();
-			Dock parent = getParent();
-			Point controlLocation = parent.toControl(cursorLocation);
-			if (parent.east.getBounds().contains(controlLocation)) {
-				return parent.east;
-			} else if (parent.west.getBounds().contains(controlLocation)) {
-				return parent.west;
-			} else if (parent.south.getBounds().contains(controlLocation)) {
-				return parent.south;
-			}
-			return null;
-		}
-
-		private void onMouseMoved(final Dock mainView, final Tracker tracker) {
-			Dockable dockable = findDockComponent();
-			if (dockable == null) {
-				Point point = mainView.toControl(getDisplay().getCursorLocation());
-				Rectangle bounds = mainView.getBounds();
-				if (point.x >= 0 && point.x <= 200 && mainView.west.getItemCount() < 1) {
-					Rectangle clientArea = mainView.getClientArea();
-					int southDockHeight = mainView.getDockHeight(mainView.south);
-					tracker.setRectangles(new Rectangle[] {
-							new Rectangle(clientArea.x, clientArea.y, 200, clientArea.height - southDockHeight - 2) });
-					tracker.setCursor(mainView.dragWest);
-				} else if (point.x >= bounds.width - 200 && point.x <= bounds.width
-						&& mainView.east.getItemCount() < 1) {
-					Rectangle clientArea = mainView.getClientArea();
-					int southDockHeight = mainView.getDockHeight(mainView.south);
-					tracker.setRectangles(new Rectangle[] { new Rectangle(clientArea.width - 200, clientArea.y, 200,
-							clientArea.height - southDockHeight - 2) });
-					tracker.setCursor(mainView.dragEast);
-				} else if (point.y <= bounds.height && point.y >= bounds.height - 200
-						&& mainView.south.getItemCount() < 1) {
-					Rectangle clientArea = mainView.getClientArea();
-					tracker.setRectangles(new Rectangle[] {
-							new Rectangle(clientArea.x, clientArea.height - 200, clientArea.width, 200) });
-					tracker.setCursor(mainView.dragSouth);
-				} else {
-					tracker.setRectangles(new Rectangle[] {});
-					tracker.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_NO));
-				}
-			} else {
-				tracker.setRectangles(new Rectangle[] {});
-				tracker.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-			}
-		}
-	}
-
-	private class CollapseRunnable implements Runnable {
-		@Override
-		public void run() {
-			if (!expanded) {
-				return;
-			} else if (sashDragManager.dragging || isDescendantOf(getDisplay().getCursorControl())) {
-				Display.getCurrent().timerExec(500, this);
-			} else {
-				expanded = false;
-				stateChanged();
-			}
-		}
-
-		private boolean isDescendantOf(Control descendant) {
-			Control temp = descendant;
-			if (temp == null) {
-				return false;
-			}
-
-			while (temp != null) {
-				if (Dockable.this == temp) {
-					return true;
-				}
-				temp = temp.getParent();
-			}
-
-			return false;
-		}
-	}
-
-	private class SashDragManager extends MouseAdapter implements MouseMoveListener {
-		protected boolean dragging = false;
-		protected boolean correctState = false;
-		protected boolean mouseDown = false;
-		protected int originPosition;
-
-		@Override
-		public void mouseDown(MouseEvent me) {
-			if (me.button != 1) {
-				return;
-			}
-			mouseDown = true;
-			correctState = expanded || !tabFolder.getMinimized();
-			originPosition = position == SWT.BOTTOM ? me.y : me.x;
-		}
-
-		@Override
-		public void mouseMove(MouseEvent me) {
-			if (mouseDown) {
-				dragging = true;
-			}
-
-			if (dragging && correctState) {
-				if (position == SWT.BOTTOM) {
-					handleSashDragged(me.y - originPosition);
-				} else {
-					handleSashDragged(me.x - originPosition);
-				}
-			}
-		}
-
-		@Override
-		public void mouseUp(MouseEvent me) {
-			dragging = false;
-			correctState = false;
-			mouseDown = false;
-			layoutParent();
 		}
 	}
 }

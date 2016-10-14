@@ -14,9 +14,9 @@ public abstract class DockableView extends Composite {
 	public final SceneEditorContext editorContext;
 
 	public DockableView(SceneEditor editor, String title, Image image, int style) {
-		super(editor.getPartControl().getDockItemParent(style), checkStyle(style));
+		super(editor.getDock().getDockItemParent(style), checkStyle(style));
 		editorContext = editor.getEditorContext();
-		editor.getPartControl().addItem(style, title, image, this);
+		editor.getDock().addItem(style, title, image, this);
 	}
 
 	private static int checkStyle(int style) {

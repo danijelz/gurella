@@ -40,7 +40,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.assets.AssetsExplorerView;
+import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
@@ -56,7 +56,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	public final int id = SequenceGenerator.next();
 
 	private Composite contentComposite;
-	private Dock partControl;
+	private Dock dock;
 
 	IUndoContext undoContext;
 	IOperationHistory operationHistory;
@@ -143,23 +143,20 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		this.contentComposite = parent;
 		parent.setLayout(new GridLayout());
 
-		partControl = new Dock(this, parent, SWT.NONE);
-		partControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		dock = new Dock(this, parent, SWT.NONE);
+		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		synchronized (GurellaStudioPlugin.glMutex) {
-			application = new SwtLwjglApplication(partControl.getCenter(), applicationListener);
+			application = new SwtLwjglApplication(dock.getCenter(), applicationListener);
 		}
 
-		SceneEditorUtils.put(this, partControl, application, editorContext);
+		SceneEditorUtils.put(this, dock, application, editorContext);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
-		AssetsExplorerView assetsExplorerView = new AssetsExplorerView(this, SWT.LEFT);
-		registeredViews.add(assetsExplorerView);
-		InspectorView inspectorView = new InspectorView(this, SWT.RIGHT);
-		registeredViews.add(inspectorView);
-
-		partControl.setSelection(sceneHierarchyView);
+		registeredViews.add(new AssetsView(this, SWT.LEFT));
+		registeredViews.add(new InspectorView(this, SWT.RIGHT));
+		dock.setSelection(sceneHierarchyView);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
@@ -179,8 +176,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		contentComposite.layout();
 	}
 
-	public Dock getPartControl() {
-		return partControl;
+	public Dock getDock() {
+		return dock;
 	}
 
 	public SceneEditorContext getEditorContext() {

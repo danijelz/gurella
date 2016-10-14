@@ -222,7 +222,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public void onMouseMenu(float x, float y) {
 		SceneEditor editor = SceneEditorUtils.getCurrentEditor();
-		Dock partControl = editor.getPartControl();
+		Dock partControl = editor.getDock();
 
 		Menu menu = new Menu(partControl.getShell(), POP_UP);
 		MenuItem item = new MenuItem(menu, PUSH);

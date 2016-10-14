@@ -26,11 +26,10 @@ public class SceneEditorUtils {
 	private SceneEditorUtils() {
 	}
 
-	static void put(SceneEditor editor, Dock partControl, SwtLwjglApplication application,
-			SceneEditorContext context) {
+	static void put(SceneEditor editor, Dock dock, SwtLwjglApplication application, SceneEditorContext context) {
 		int id = editor.id;
 		idToEditor.put(id, editor);
-		partControlToEditorId.put(partControl, id);
+		partControlToEditorId.put(dock, id);
 		gdxAppToEditorId.put(application, id);
 		appIdToContext.put(id, context);
 	}

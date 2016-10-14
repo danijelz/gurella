@@ -47,7 +47,7 @@ import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 
-public class AssetsExplorerView extends DockableView {
+public class AssetsView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
 	Tree tree;
@@ -55,7 +55,7 @@ public class AssetsExplorerView extends DockableView {
 
 	private Object lastSelection;
 
-	public AssetsExplorerView(SceneEditor editor, int style) {
+	public AssetsView(SceneEditor editor, int style) {
 		super(editor, "Assets", getImage("icons/resource_persp.gif"), style);
 
 		setLayout(new GridLayout());

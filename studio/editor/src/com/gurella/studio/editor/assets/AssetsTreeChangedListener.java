@@ -14,10 +14,10 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.gurella.studio.GurellaStudioPlugin;
 
 public class AssetsTreeChangedListener implements IResourceChangeListener {
-	private AssetsExplorerView assetsExplorer;
+	private AssetsView assetsExplorer;
 	private IResource rootResource;
 
-	public AssetsTreeChangedListener(AssetsExplorerView assetsExplorer) {
+	public AssetsTreeChangedListener(AssetsView assetsExplorer) {
 		this.assetsExplorer = assetsExplorer;
 		rootResource = assetsExplorer.rootResource;
 	}

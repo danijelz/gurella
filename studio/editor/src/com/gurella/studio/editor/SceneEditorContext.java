@@ -24,7 +24,6 @@ public class SceneEditorContext implements SceneLoadedListener {
 	public final int editorId;
 	private final SceneEditor editor;
 	public final IPathEditorInput editorInput;
-	public final IResource editorInputResource;
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
@@ -39,13 +38,12 @@ public class SceneEditorContext implements SceneLoadedListener {
 		this.editor = editor;
 		editorId = editor.id;
 		editorInput = (IPathEditorInput) editor.getEditorInput();
-		editorInputResource = editor.getEditorInput().getAdapter(IResource.class);
-		workspace = editorInputResource.getWorkspace();
-		project = editorInputResource.getProject();
+		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
+		workspace = resource.getWorkspace();
+		project = resource.getProject();
 		javaProject = JavaCore.create(project);
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
 		Reflection.classResolver = classLoader::loadClass;
-
 		EventService.subscribe(editorId, this);
 	}
 
