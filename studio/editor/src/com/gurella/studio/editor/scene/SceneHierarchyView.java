@@ -54,7 +54,6 @@ import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.inspector.NodeInspectableContainer;
-import com.gurella.studio.editor.scene.event.SceneChangedEvent;
 import com.gurella.studio.editor.scene.event.SelectionEvent;
 import com.gurella.studio.editor.scene.operation.AddComponentOperation;
 import com.gurella.studio.editor.scene.operation.AddNodeOperation;
@@ -283,25 +282,11 @@ public class SceneHierarchyView extends SceneEditorView
 
 	private void addShapeNode(String name, ShapeModel shapeModel) {
 		SceneNode2 node = getScene().newNode(name);
-		TreeItem nodeItem = new TreeItem(graph, 0);
-		nodeItem.setData(node);
-		nodeItem.setText(node.getName());
-		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
-
-		TransformComponent transformComponent = node.newComponent(TransformComponent.class);
-		TreeItem componentItem = new TreeItem(nodeItem, 0);
-		componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
-		componentItem.setText(Models.getModel(transformComponent).getName());
-		componentItem.setData(transformComponent);
-
+		node.newComponent(TransformComponent.class);
 		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
 		shapeComponent.setShape(shapeModel);
-		componentItem = new TreeItem(nodeItem, 1);
-		componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
-		componentItem.setText(Models.getModel(shapeComponent).getName());
-		componentItem.setData(shapeComponent);
-
-		notifySceneChanged();
+		AddNodeOperation operation = new AddNodeOperation(editor.id, getScene(), null, node);
+		editor.getEditorContext().executeOperation(operation, "Error while adding node");
 	}
 
 	private void removeSelectedElement() {
@@ -321,14 +306,7 @@ public class SceneHierarchyView extends SceneEditorView
 				RemoveComponentOperation operation = new RemoveComponentOperation(editor.id, node, component);
 				editor.getEditorContext().executeOperation(operation, "Error while removing component");
 			}
-
-			selectedItem.dispose();
-			notifySceneChanged();
 		}
-	}
-
-	private void notifySceneChanged() {
-		EventService.post(editor.id, SceneChangedEvent.instance);
 	}
 
 	private void addNode(boolean child) {
