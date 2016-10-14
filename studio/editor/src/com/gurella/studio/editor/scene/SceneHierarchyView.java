@@ -85,6 +85,11 @@ public class SceneHierarchyView extends DockableView
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
 		createMenu();
+		
+		Scene scene = editorContext.getScene();
+		if(scene != null) {
+			sceneLoaded(scene);
+		}
 	}
 
 	private void createMenu() {
