@@ -10,8 +10,8 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.common.ErrorInspectableContainer;
-import com.gurella.studio.editor.part.DockableView;
 import com.gurella.studio.editor.subscription.SelectionListener;
 import com.gurella.studio.editor.utils.UiUtils;
 

@@ -39,7 +39,7 @@ import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListen
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.g3d.Compass;
-import com.gurella.studio.editor.part.Dock;
+import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
 import com.gurella.studio.editor.scene.SceneEditorRenderSystem;

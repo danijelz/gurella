@@ -15,8 +15,8 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
+import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.part.DockableView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 

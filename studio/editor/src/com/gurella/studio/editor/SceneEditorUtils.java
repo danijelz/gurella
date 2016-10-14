@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
-import com.gurella.studio.editor.part.Dock;
+import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class SceneEditorUtils {

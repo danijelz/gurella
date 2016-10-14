@@ -34,6 +34,7 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
+import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.SelectionEvent;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
@@ -45,7 +46,6 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
-import com.gurella.studio.editor.part.DockableView;
 
 public class AssetsExplorerView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";

@@ -1,7 +1,7 @@
 package com.gurella.studio.editor.event;
 
 import com.gurella.engine.event.Event;
-import com.gurella.studio.editor.part.DockableView;
+import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 
 public class SceneEditorViewClosedEvent implements Event<SceneEditorViewClosedListener> {

@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.part;
+package com.gurella.studio.editor.control;
 
 import static org.eclipse.swt.SWT.BOTTOM;
 import static org.eclipse.swt.SWT.LEFT;

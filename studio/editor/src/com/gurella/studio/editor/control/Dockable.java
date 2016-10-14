@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.part;
+package com.gurella.studio.editor.control;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
