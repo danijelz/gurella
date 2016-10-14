@@ -1,8 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IProject;
@@ -17,7 +14,6 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneEditorContext implements SceneLoadedListener {
@@ -30,9 +26,7 @@ public class SceneEditorContext implements SceneLoadedListener {
 
 	public final ClassLoader classLoader;
 
-	private List<DockableView> registeredViews = new ArrayList<DockableView>();
-
-	Scene scene;
+	private Scene scene;
 
 	public SceneEditorContext(SceneEditor editor) {
 		this.editor = editor;

@@ -87,7 +87,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, editorContext.scene);
+		String string = output.serialize(Scene.class, editorContext.getScene());
 		monitor.beginTask("Saving", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);
