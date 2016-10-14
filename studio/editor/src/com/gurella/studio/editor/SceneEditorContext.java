@@ -1,6 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +17,9 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.scene.SceneEditorView;
-import com.gurella.studio.editor.scene.event.SceneLoadedEvent;
+import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneEditorContext {
+public class SceneEditorContext implements SceneLoadedListener {
 	public final int editorId;
 	private final GurellaSceneEditor editor;
 	public final IResource editorInputResource;
@@ -28,7 +27,7 @@ public class SceneEditorContext {
 	public final IProject project;
 	public final IJavaProject javaProject;
 
-	public final URLClassLoader classLoader;
+	public final ClassLoader classLoader;
 
 	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
 
@@ -43,11 +42,14 @@ public class SceneEditorContext {
 		javaProject = JavaCore.create(project);
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
 		Reflection.classResolver = classLoader::loadClass;
+
+		EventService.subscribe(editorId, this);
 	}
 
 	void dispose() {
 		scene.stop();
 		closeJavaProject();
+		EventService.unsubscribe(editorId, this);
 	}
 
 	private void closeJavaProject() {
@@ -64,10 +66,10 @@ public class SceneEditorContext {
 		return scene;
 	}
 
-	void setScene(Scene scene) {
+	@Override
+	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
 		scene.start();
-		EventService.post(editor.id, new SceneLoadedEvent(scene));
 	}
 
 	public void executeOperation(IUndoableOperation operation, String errorMsg) {

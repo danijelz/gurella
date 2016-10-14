@@ -33,9 +33,11 @@ import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
 import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
+import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.subscription.SelectionListener;
 
-public class SceneEditorRenderSystem implements ComponentActivityListener, SelectionListener, Disposable {
+public class SceneEditorRenderSystem
+		implements ComponentActivityListener, SceneLoadedListener, SelectionListener, Disposable {
 	private GurellaSceneEditor editor;
 	private Scene scene;
 
@@ -56,9 +58,8 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Selec
 
 	private SceneNode2 selectedNode;
 
-	public SceneEditorRenderSystem(GurellaSceneEditor editor, Scene scene) {
+	public SceneEditorRenderSystem(GurellaSceneEditor editor) {
 		this.editor = editor;
-		this.scene = scene;
 		layerMask.allowed(Layer.DEFAULT);
 		layerMask.allowed(Layer.SKY);
 		batch = new GenericBatch();
@@ -70,6 +71,14 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Selec
 		environment.set(spotLights);
 
 		EventService.subscribe(editor.id, this);
+	}
+
+	@Override
+	public void sceneLoaded(Scene scene) {
+		if (this.scene != null) {
+			EventService.unsubscribe(this.scene.getInstanceId(), this);
+		}
+		this.scene = scene;
 		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
@@ -200,9 +209,13 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Selec
 	}
 
 	public void renderScene(Camera camera) {
+		if (scene == null) {
+			return;
+		}
+
 		batch.begin(camera);
 		batch.setEnvironment(environment);
-		
+
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		SceneNodeComponent2 focusedComponent = findFocusedComponent();
 
@@ -257,7 +270,9 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Selec
 	@Override
 	public void dispose() {
 		EventService.unsubscribe(editor.id, this);
-		EventService.unsubscribe(scene.getInstanceId(), this);
+		if (scene != null) {
+			EventService.unsubscribe(scene.getInstanceId(), this);
+		}
 		batch.dispose();
 	}
 

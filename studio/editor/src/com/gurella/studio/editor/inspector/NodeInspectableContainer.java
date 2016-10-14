@@ -17,7 +17,6 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.lang.reflect.Constructor;
-import java.net.URLClassLoader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -275,7 +274,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		Object[] types = dialog.getResult();
 		if (types != null && types.length > 0) {
 			IType type = (IType) types[0];
-			URLClassLoader classLoader = getSceneEditorContext().classLoader;
+			ClassLoader classLoader = getSceneEditorContext().classLoader;
 			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
 			Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);

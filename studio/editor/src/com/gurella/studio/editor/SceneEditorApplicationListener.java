@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -43,9 +44,10 @@ import com.gurella.studio.editor.scene.SceneCameraInputController;
 import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
+import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements SceneEditorMouseListener, GurellaStateProvider {
+		implements GurellaStateProvider, SceneEditorMouseListener, SceneLoadedListener {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
 
@@ -91,7 +93,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	public void create() {
 		renderThread = Thread.currentThread();
 
-		perspectiveCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Graphics graphics = Gdx.graphics;
+		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), Gdx.graphics.getHeight());
 		perspectiveCamera.position.set(0f, 0f, 3f);
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
@@ -111,8 +114,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
-
 		shapeRenderer = new ShapeRenderer();
+		renderSystem = new SceneEditorRenderSystem(editor);
 
 		inputQueue.setProcessor(selectedController);
 		InputService.addInputProcessor(inputQueue);
@@ -120,14 +123,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		DefaultShader.defaultCullFace = 0;
 	}
 
-	public void presentScene(Scene scene) {
-		if (this.scene != null) {
-			renderSystem.dispose();
-		}
-
+	@Override
+	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
-		renderSystem = new SceneEditorRenderSystem(editor, scene);
-
 		debugUpdate();
 	}
 
@@ -142,7 +140,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	public void render() {
 		debugUpdate();
 		inputQueue.drain();
-		preRender();
 		renderScene();
 	}
 
@@ -150,15 +147,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		EventService.post(debugUpdateEvent);
 	}
 
-	private void preRender() {
-		if (scene == null) {
-			return;
+	public void renderScene() {
+		if (scene != null) {
+			EventService.post(scene.getInstanceId(), preRenderUpdateEvent);
 		}
 
-		EventService.post(scene.getInstanceId(), preRenderUpdateEvent);
-	}
-
-	public void renderScene() {
 		synchronized (GurellaStudioPlugin.glMutex) {
 			selectedController.update();
 			Color color = backgroundColor;
@@ -172,9 +165,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			modelBatch.render(gridModelInstance, environment);
 			compass.render(modelBatch);
 			modelBatch.end();
-			if (scene != null) {
-				renderSystem.renderScene(selectedCamera);
-			}
+			renderSystem.renderScene(selectedCamera);
 
 			if (System.currentTimeMillis() - 3000 < pickRayTime || true) {
 				shapeRenderer.setAutoShapeType(true);
@@ -203,7 +194,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		selectedCamera.update(true);
 		pickRay.set(selectedCamera.getPickRay(x, y));
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
-
 		if (spatials.size == 0) {
 			return;
 		}
@@ -315,9 +305,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	public void dispose() {
 		debugUpdate();
 		EventService.unsubscribe(editor.id, this);
-		if (scene != null) {
-			renderSystem.dispose();
-		}
+		renderSystem.dispose();
 	}
 
 	private static class DebugUpdateEvent implements Event<ApplicationDebugUpdateListener> {

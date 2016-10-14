@@ -3,7 +3,6 @@ package com.gurella.studio.editor.property;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -145,7 +144,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 			return Object.class;
 		}
 
-		URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+		ClassLoader classLoader = context.sceneEditorContext.classLoader;
 		String typeArgument = typeArguments[0];
 
 		switch (Signature.getTypeSignatureKind(typeArgument)) {
@@ -197,7 +196,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 	private void newTypeInstance() {
 		try {
-			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+			ClassLoader classLoader = context.sceneEditorContext.classLoader;
 			Collection<T> value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
@@ -220,7 +219,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	}
 
 	private void createType(IType selectedType) throws Exception {
-		URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+		ClassLoader classLoader = context.sceneEditorContext.classLoader;
 		Collection<T> value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
 		setValue(value);
 		rebuildUi();

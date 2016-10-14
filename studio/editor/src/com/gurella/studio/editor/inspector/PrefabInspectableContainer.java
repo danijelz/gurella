@@ -17,7 +17,6 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.lang.reflect.Constructor;
-import java.net.URLClassLoader;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IJavaProject;
@@ -123,12 +122,12 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 	private void nodeNameChanged() {
 		prefab.setName(nameText.getText());
-		//postMessage(new NodeNameChangedMessage(prefab));
+		// postMessage(new NodeNameChangedMessage(prefab));
 	}
 
 	private void nodeEnabledChanged() {
 		prefab.setEnabled(enabledCheck.getSelection());
-		//postMessage(SceneChangedMessage.instance);
+		// postMessage(SceneChangedMessage.instance);
 	}
 
 	@SuppressWarnings("unused")
@@ -185,8 +184,10 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, getSceneEditorContext(),
 				component);
-		/*componentEditor.getContext().propertyChangedSignal
-				.addListener((event) -> postMessage(SceneChangedMessage.instance));*/
+		/*
+		 * componentEditor.getContext().propertyChangedSignal .addListener((event) ->
+		 * postMessage(SceneChangedMessage.instance));
+		 */
 		section.setClient(componentEditor);
 		section.setExpanded(true);
 
@@ -240,7 +241,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		Object[] types = dialog.getResult();
 		if (types != null && types.length > 0) {
 			IType type = (IType) types[0];
-			URLClassLoader classLoader = getSceneEditorContext().classLoader;
+			ClassLoader classLoader = getSceneEditorContext().classLoader;
 			Class<?> resolvedClass = classLoader.loadClass(type.getFullyQualifiedName());
 			Constructor<?> constructor = resolvedClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);

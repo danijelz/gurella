@@ -4,7 +4,6 @@ import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.net.URLClassLoader;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
@@ -59,7 +58,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private void newTypeInstance() {
 		try {
-			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+			ClassLoader classLoader = context.sceneEditorContext.classLoader;
 			Class<?> valueClass = classLoader.loadClass(context.getPropertyType().getName());
 			Constructor<?> constructor = valueClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
@@ -83,7 +82,8 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 		} else if (Models.getModel(value.getClass()) instanceof SimpleModel) {
 			PropertyEditorContext<Object, P> casted = Values.cast(context);
 			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);
-			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(content, child, Values.cast(value.getClass()));
+			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(content, child,
+					Values.cast(value.getClass()));
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			editor.getBody().setLayoutData(layoutData);
 		} else {
@@ -117,7 +117,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	private void createType(IType selectedType) throws Exception {
-		URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+		ClassLoader classLoader = context.sceneEditorContext.classLoader;
 		P value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
 		setValue(value);
 		rebuildUi();

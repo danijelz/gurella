@@ -5,7 +5,6 @@ import static com.gurella.engine.utils.Values.cast;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Date;
 
@@ -51,11 +50,11 @@ public class PropertyEditorFactory {
 			Class<?> modelClass = context.modelInstance.getClass();
 			Property<?> property = context.property;
 			EditorPropertyData data = EditorPropertyData.get(javaProject, modelClass, property);
-			if (data == null || PropertyEditorFactory.class.getName().equals(data.factoryClass)) {
+			if (data == null || !data.isValidFactoryClass()) {
 				return null;
 			}
 
-			URLClassLoader classLoader = context.sceneEditorContext.classLoader;
+			ClassLoader classLoader = context.sceneEditorContext.classLoader;
 			Class<?> factoryClass = classLoader.loadClass(data.factoryClass);
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);

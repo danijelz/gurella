@@ -189,20 +189,19 @@ public class EditorPropertyData {
 		for (IMemberValuePair memberValuePair : memberValuePairs) {
 			if ("factory".equals(memberValuePair.getMemberName())) {
 				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
-				if (resolveType.length != 1) {
-					return null;
-				}
-				String[] path = resolveType[0];
-				int last = path.length - 1;
-				path[last] = path[last].replaceAll("\\.", "\\$");
-				StringBuilder builder = new StringBuilder();
-				for (String part : path) {
-					if (builder.length() > 0) {
-						builder.append(".");
+				if (resolveType.length == 1) {
+					String[] path = resolveType[0];
+					int last = path.length - 1;
+					path[last] = path[last].replaceAll("\\.", "\\$");
+					StringBuilder builder = new StringBuilder();
+					for (String part : path) {
+						if (builder.length() > 0) {
+							builder.append(".");
+						}
+						builder.append(part);
 					}
-					builder.append(part);
+					factoryName = builder.toString();
 				}
-				factoryName = builder.toString();
 			} else if ("type".equals(memberValuePair.getMemberName())) {
 				String editorTypeStr = memberValuePair.getValue().toString();
 				if (editorTypeStr.contains(EditorType.simple.name())) {
@@ -253,5 +252,9 @@ public class EditorPropertyData {
 			EditorPropertyKey other = (EditorPropertyKey) obj;
 			return typeName.equals(other.typeName) && propertyName.equals(other.propertyName);
 		}
+	}
+
+	public boolean isValidFactoryClass() {
+		return factoryClass != null && !PropertyEditorFactory.class.getName().equals(factoryClass);
 	}
 }
