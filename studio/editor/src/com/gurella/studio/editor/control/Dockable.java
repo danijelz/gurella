@@ -33,7 +33,7 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 class Dockable extends Composite {
 	CTabFolder tabFolder;
-	private DockTabsRenderer renderer;
+	private DockableTabFolderRenderer renderer;
 	private Composite sash;
 	private SashDragManager sashDragManager;
 	int extent = 300;
@@ -79,7 +79,7 @@ class Dockable extends Composite {
 		tabFolder = new CTabFolderImpl(this, SWT.BORDER | SWT.MULTI);
 		tabFolder.setMinimizeVisible(true);
 		tabFolder.setSingle(true);
-		renderer = new DockTabsRenderer(tabFolder);
+		renderer = new DockableTabFolderRenderer(tabFolder);
 
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.FILL;

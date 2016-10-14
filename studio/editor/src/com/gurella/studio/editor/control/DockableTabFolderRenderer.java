@@ -6,8 +6,8 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
-class DockTabsRenderer extends CTabFolderRenderer {
-	protected DockTabsRenderer(CTabFolder parent) {
+class DockableTabFolderRenderer extends CTabFolderRenderer {
+	protected DockableTabFolderRenderer(CTabFolder parent) {
 		super(parent);
 	}
 
