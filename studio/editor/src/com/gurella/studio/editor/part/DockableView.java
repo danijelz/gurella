@@ -10,10 +10,10 @@ import org.eclipse.swt.widgets.Composite;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.SceneEditorContext;
 
-public abstract class SceneEditorView extends Composite {
+public abstract class DockableView extends Composite {
 	public final SceneEditorContext editorContext;
 
-	public SceneEditorView(SceneEditor editor, String title, Image image, int style) {
+	public DockableView(SceneEditor editor, String title, Image image, int style) {
 		super(editor.getPartControl().getDockItemParent(style), checkStyle(style));
 		editorContext = editor.getEditorContext();
 		editor.getPartControl().addItem(style, title, image, this);

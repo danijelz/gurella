@@ -16,7 +16,7 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.part.SceneEditorView;
+import com.gurella.studio.editor.part.DockableView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 
@@ -78,7 +78,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 	}
 
 	@Override
-	public void viewClosed(SceneEditorView view) {
+	public void viewClosed(DockableView view) {
 		if (view instanceof SceneHierarchyView) {
 			toggleSceneHierarcyViewAction.setChecked(false);
 			toggleSceneHierarcyViewAction.setEnabled(true);
@@ -94,10 +94,10 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 	}
 
 	private class ToggleEditorViewAction extends Action {
-		private Class<? extends SceneEditorView> type;
+		private Class<? extends DockableView> type;
 		private BiConsumer<SceneEditor, Integer> constructor;
 
-		public ToggleEditorViewAction(String text, Class<? extends SceneEditorView> type,
+		public ToggleEditorViewAction(String text, Class<? extends DockableView> type,
 				BiConsumer<SceneEditor, Integer> constructor) {
 			super(text);
 			this.type = type;
@@ -109,7 +109,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 				setChecked(false);
 				setEnabled(false);
 			} else {
-				List<SceneEditorView> registeredViews = editor.registeredViews;
+				List<DockableView> registeredViews = editor.registeredViews;
 				setEnabled(registeredViews.stream().filter(v -> v.getClass() == type).count() == 0);
 				setChecked(!isEnabled());
 			}

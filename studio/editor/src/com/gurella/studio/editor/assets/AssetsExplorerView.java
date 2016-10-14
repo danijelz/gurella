@@ -45,9 +45,9 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
-import com.gurella.studio.editor.part.SceneEditorView;
+import com.gurella.studio.editor.part.DockableView;
 
-public class AssetsExplorerView extends SceneEditorView {
+public class AssetsExplorerView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
 	Tree tree;

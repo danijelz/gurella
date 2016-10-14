@@ -59,12 +59,12 @@ import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
-import com.gurella.studio.editor.part.SceneEditorView;
+import com.gurella.studio.editor.part.DockableView;
 import com.gurella.studio.editor.subscription.EditorSceneListener;
 import com.gurella.studio.editor.subscription.NodeNameChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneHierarchyView extends SceneEditorView
+public class SceneHierarchyView extends DockableView
 		implements EditorSceneListener, NodeNameChangedListener, SceneLoadedListener {
 	private Tree graph;
 	private Menu menu;

@@ -17,7 +17,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.part.SceneEditorView;
+import com.gurella.studio.editor.part.DockableView;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneEditorContext implements SceneLoadedListener {
@@ -31,7 +31,7 @@ public class SceneEditorContext implements SceneLoadedListener {
 
 	public final ClassLoader classLoader;
 
-	private List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
+	private List<DockableView> registeredViews = new ArrayList<DockableView>();
 
 	Scene scene;
 

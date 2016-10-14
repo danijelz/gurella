@@ -44,8 +44,8 @@ import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.event.SceneLoadedEvent;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.part.SceneEditorPartControl;
-import com.gurella.studio.editor.part.SceneEditorView;
+import com.gurella.studio.editor.part.Dock;
+import com.gurella.studio.editor.part.DockableView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -56,14 +56,14 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	public final int id = SequenceGenerator.next();
 
 	private Composite contentComposite;
-	private SceneEditorPartControl partControl;
+	private Dock partControl;
 
 	IUndoContext undoContext;
 	IOperationHistory operationHistory;
 	UndoActionHandler undoAction;
 	RedoActionHandler redoAction;
 
-	List<SceneEditorView> registeredViews = new ArrayList<SceneEditorView>();
+	List<DockableView> registeredViews = new ArrayList<DockableView>();
 	private SceneEditorContext editorContext;
 
 	private SwtLwjglApplication application;
@@ -143,7 +143,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		this.contentComposite = parent;
 		parent.setLayout(new GridLayout());
 
-		partControl = new SceneEditorPartControl(this, parent, SWT.NONE);
+		partControl = new Dock(this, parent, SWT.NONE);
 		partControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		synchronized (GurellaStudioPlugin.glMutex) {
@@ -179,7 +179,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		contentComposite.layout();
 	}
 
-	public SceneEditorPartControl getPartControl() {
+	public Dock getPartControl() {
 		return partControl;
 	}
 
@@ -197,9 +197,9 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		super.dispose();
 		EventService.unsubscribe(id, this);
 		// TODO context and applicationListener should be unified
+		editorContext.dispose();
 		applicationListener.debugUpdate();
 		application.exit();
-		editorContext.dispose();
 		SceneEditorUtils.remove(this);
 	}
 

@@ -39,7 +39,7 @@ import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListen
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.g3d.Compass;
-import com.gurella.studio.editor.part.SceneEditorPartControl;
+import com.gurella.studio.editor.part.Dock;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
 import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
@@ -222,7 +222,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public void onMouseMenu(float x, float y) {
 		SceneEditor editor = SceneEditorUtils.getCurrentEditor();
-		SceneEditorPartControl partControl = editor.getPartControl();
+		Dock partControl = editor.getPartControl();
 
 		Menu menu = new Menu(partControl.getShell(), POP_UP);
 		MenuItem item = new MenuItem(menu, PUSH);
