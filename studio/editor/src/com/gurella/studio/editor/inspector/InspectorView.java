@@ -6,14 +6,15 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.scene.SceneEditorView;
-import com.gurella.studio.editor.scene.SelectionMessage;
+import com.gurella.studio.editor.subscription.SelectionListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class InspectorView extends SceneEditorView {
+public class InspectorView extends SceneEditorView implements SelectionListener {
 	private Object target;
 	private InspectableContainer<?> content;
 
@@ -21,18 +22,8 @@ public class InspectorView extends SceneEditorView {
 		super(editor, "Inspector", getImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
 		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(this);
 		GurellaStudioPlugin.getToolkit().adapt(this);
-	}
-
-	@Override
-	public void handleMessage(Object source, Object message) {
-		if (message instanceof SelectionMessage) {
-			Object seclection = ((SelectionMessage) message).seclection;
-			if (seclection instanceof Inspectable) {
-				presentInspectable(Values.<Inspectable<Object>> cast(seclection));
-			} else {
-				clearCurrentSelection();
-			}
-		}
+		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
+		EventService.subscribe(editor.id, this);
 	}
 
 	private <T> void presentInspectable(Inspectable<T> inspectable) {
@@ -70,6 +61,15 @@ public class InspectorView extends SceneEditorView {
 		if (content != null) {
 			content.dispose();
 			content = null;
+		}
+	}
+
+	@Override
+	public void selectionChanged(Object selection) {
+		if (selection instanceof Inspectable) {
+			presentInspectable(Values.<Inspectable<Object>> cast(selection));
+		} else {
+			clearCurrentSelection();
 		}
 	}
 

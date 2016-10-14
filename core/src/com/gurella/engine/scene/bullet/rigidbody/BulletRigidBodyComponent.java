@@ -131,6 +131,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 			if (initialLinearVelocity != null) {
 				rigidBody.setLinearVelocity(initialLinearVelocity);
 			}
+
 			if (initialAngularVelocity != null) {
 				rigidBody.setAngularVelocity(initialAngularVelocity);
 			}

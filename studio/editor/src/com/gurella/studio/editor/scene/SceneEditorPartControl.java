@@ -28,8 +28,10 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
+import com.gurella.engine.event.EventService;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
+import com.gurella.studio.editor.scene.event.SceneEditorViewClosedEvent;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneEditorPartControl extends Composite {
@@ -600,7 +602,7 @@ public class SceneEditorPartControl extends Composite {
 				layoutParent();
 
 				event.doit = false;
-				getParent().editor.postMessage(null, new SceneEditorViewClosedMessage(view));
+				EventService.post(getParent().editor.id, new SceneEditorViewClosedEvent(view));
 			}
 		}
 

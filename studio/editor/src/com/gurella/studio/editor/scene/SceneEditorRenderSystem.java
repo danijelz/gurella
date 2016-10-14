@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -27,13 +28,15 @@ import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.studio.editor.EditorMessageListener;
+import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.model.MetaModelEditor;
 import com.gurella.studio.editor.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
 import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
+import com.gurella.studio.editor.subscription.SelectionListener;
 
-public class SceneEditorRenderSystem implements ComponentActivityListener, EditorMessageListener, Disposable {
+public class SceneEditorRenderSystem implements ComponentActivityListener, SelectionListener, Disposable {
+	private GurellaSceneEditor editor;
 	private Scene scene;
 
 	private GenericBatch batch;
@@ -53,7 +56,8 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Edito
 
 	private SceneNode2 selectedNode;
 
-	public SceneEditorRenderSystem(Scene scene) {
+	public SceneEditorRenderSystem(GurellaSceneEditor editor, Scene scene) {
+		this.editor = editor;
 		this.scene = scene;
 		layerMask.allowed(Layer.DEFAULT);
 		layerMask.allowed(Layer.SKY);
@@ -64,6 +68,9 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Edito
 		environment.set(directionalLights);
 		environment.set(pointLights);
 		environment.set(spotLights);
+
+		EventService.subscribe(editor.id, this);
+		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
 	@Override
@@ -195,6 +202,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Edito
 	public void renderScene(Camera camera) {
 		batch.begin(camera);
 		batch.setEnvironment(environment);
+		
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		SceneNodeComponent2 focusedComponent = findFocusedComponent();
 
@@ -248,22 +256,18 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Edito
 
 	@Override
 	public void dispose() {
+		EventService.unsubscribe(editor.id, this);
+		EventService.unsubscribe(scene.getInstanceId(), this);
 		batch.dispose();
 	}
 
 	@Override
-	public void handleMessage(Object source, Object message) {
-		if (source instanceof SceneHierarchyView && message instanceof SelectionMessage) {
-			SelectionMessage selectionMessage = (SelectionMessage) message;
-			Object selection = selectionMessage.seclection;
-			if (selection instanceof NodeInspectable) {
-				selectedNode = ((NodeInspectable) selection).target;
-			} else if (selection instanceof ComponentInspectable) {
-				SceneNodeComponent2 target = ((ComponentInspectable) selection).target;
-				selectedNode = target == null ? null : target.getNode();
-			} else {
-				selectedNode = null;
-			}
+	public void selectionChanged(Object selection) {
+		if (selection instanceof NodeInspectable) {
+			selectedNode = ((NodeInspectable) selection).target;
+		} else if (selection instanceof ComponentInspectable) {
+			SceneNodeComponent2 target = ((ComponentInspectable) selection).target;
+			selectedNode = target == null ? null : target.getNode();
 		} else {
 			selectedNode = null;
 		}

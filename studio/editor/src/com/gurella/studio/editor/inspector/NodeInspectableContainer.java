@@ -106,11 +106,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		super(parent, target);
 
 		addDisposeListener(e -> EventService.unsubscribe(this));
-		EventService.subscribe(this);
+		EventService.subscribe(parent.getSceneEditorContext().editorId, this);
 
-		int sceneId = target.getScene().getInstanceId();
-		addDisposeListener(e -> EventService.unsubscribe(sceneId, this));
-		EventService.subscribe(sceneId, this);
+		int editorId = getSceneEditorContext().editorId;
+		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
+		EventService.subscribe(editorId, this);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -151,13 +151,14 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 	}
 
 	private void nodeNameChanged() {
-		SetNameOperation operation = new SetNameOperation(target, target.getName(), nameText.getText());
+		SetNameOperation operation = new SetNameOperation(getSceneEditorContext().editorId, target, target.getName(),
+				nameText.getText());
 		getSceneEditorContext().executeOperation(operation, "Error while renaming node");
 	}
 
 	private void nodeEnabledChanged() {
-		SetEnabledOperation operation = new SetEnabledOperation(target, target.isEnabled(),
-				enabledCheck.getSelection());
+		SetEnabledOperation operation = new SetEnabledOperation(getSceneEditorContext().editorId, target,
+				target.isEnabled(), enabledCheck.getSelection());
 		getSceneEditorContext().executeOperation(operation, "Error while enabling node");
 	}
 
@@ -227,11 +228,12 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 
 	private void notifySceneChanged() {
 		int sceneId = getSceneEditorContext().getScene().getInstanceId();
-		EventService.post(sceneId, SceneChangedEvent.instance);
+		EventService.post(getSceneEditorContext().editorId, SceneChangedEvent.instance);
 	}
 
 	private void addComponent(SceneNodeComponent2 component) {
-		AddComponentOperation operation = new AddComponentOperation(target, component);
+		int editorId = getSceneEditorContext().editorId;
+		AddComponentOperation operation = new AddComponentOperation(editorId, target, component);
 		getSceneEditorContext().executeOperation(operation, "Error while adding component");
 	}
 
@@ -330,12 +332,14 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 	}
 
 	private static class SetNameOperation extends AbstractOperation {
+		final int editorId;
 		final SceneNode2 node;
 		final String oldValue;
 		final String newValue;
 
-		public SetNameOperation(SceneNode2 node, String oldValue, String newValue) {
+		public SetNameOperation(int editorId, SceneNode2 node, String oldValue, String newValue) {
 			super("Name");
+			this.editorId = editorId;
 			this.node = node;
 			this.oldValue = oldValue;
 			this.newValue = newValue;
@@ -361,19 +365,20 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		}
 
 		private void notifyNodeNameChanged() {
-			int sceneId = node.getScene().getInstanceId();
-			EventService.post(sceneId, new NodeNameChangedEvent(node));
-			EventService.post(sceneId, SceneChangedEvent.instance);
+			EventService.post(editorId, new NodeNameChangedEvent(node));
+			EventService.post(editorId, SceneChangedEvent.instance);
 		}
 	}
 
 	private static class SetEnabledOperation extends AbstractOperation {
+		final int editorId;
 		final SceneNode2 node;
 		final boolean oldValue;
 		final boolean newValue;
 
-		public SetEnabledOperation(SceneNode2 node, boolean oldValue, boolean newValue) {
+		public SetEnabledOperation(int editorId, SceneNode2 node, boolean oldValue, boolean newValue) {
 			super("Enabled");
+			this.editorId = editorId;
 			this.node = node;
 			this.oldValue = oldValue;
 			this.newValue = newValue;
@@ -399,9 +404,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		}
 
 		private void notifyNodeEnabledChanged() {
-			int sceneId = node.getScene().getInstanceId();
-			EventService.post(sceneId, new NodeEnabledChangedEvent(node));
-			EventService.post(sceneId, SceneChangedEvent.instance);
+			EventService.post(editorId, new NodeEnabledChangedEvent(node));
+			EventService.post(editorId, SceneChangedEvent.instance);
 		}
 	}
 }

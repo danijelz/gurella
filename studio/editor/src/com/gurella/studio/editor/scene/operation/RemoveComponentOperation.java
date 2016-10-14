@@ -12,13 +12,16 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.scene.event.ComponentAddedEvent;
 import com.gurella.studio.editor.scene.event.ComponentRemovedEvent;
+import com.gurella.studio.editor.scene.event.SceneChangedEvent;
 
 public class RemoveComponentOperation extends AbstractOperation {
+	final int editorId;
 	final SceneNode2 node;
 	final SceneNodeComponent2 component;
 
-	public RemoveComponentOperation(SceneNode2 node, SceneNodeComponent2 newValue) {
+	public RemoveComponentOperation(int editorId, SceneNode2 node, SceneNodeComponent2 newValue) {
 		super("Remove component");
+		this.editorId = editorId;
 		this.node = node;
 		this.component = newValue;
 	}
@@ -26,14 +29,16 @@ public class RemoveComponentOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.removeComponent(component);
-		EventService.post(new ComponentRemovedEvent(node, component));
+		EventService.post(editorId, new ComponentRemovedEvent(node, component));
+		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.addComponent(component);
-		EventService.post(new ComponentAddedEvent(node, component));
+		EventService.post(editorId, new ComponentAddedEvent(node, component));
+		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 

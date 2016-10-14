@@ -49,21 +49,23 @@ import com.gurella.engine.test.TestPropertyEditorsComponnent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.SceneLoadedMessage;
 import com.gurella.studio.editor.inspector.ComponentInspectableContainer;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.inspector.NodeInspectableContainer;
 import com.gurella.studio.editor.scene.event.SceneChangedEvent;
+import com.gurella.studio.editor.scene.event.SelectionEvent;
 import com.gurella.studio.editor.scene.operation.AddComponentOperation;
 import com.gurella.studio.editor.scene.operation.AddNodeOperation;
 import com.gurella.studio.editor.scene.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.scene.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.EditorSceneListener;
 import com.gurella.studio.editor.subscription.NodeNameChangedListener;
+import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneHierarchyView extends SceneEditorView implements EditorSceneListener, NodeNameChangedListener {
+public class SceneHierarchyView extends SceneEditorView
+		implements EditorSceneListener, NodeNameChangedListener, SceneLoadedListener {
 	private Tree graph;
 	private Menu menu;
 
@@ -71,7 +73,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
 
 		addDisposeListener(e -> EventService.unsubscribe(this));
-		EventService.subscribe(this);
+		EventService.subscribe(editor.id, this);
 
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
@@ -185,7 +187,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		if (selection.length > 0) {
 			TreeItem seectedItem = selection[0];
 			SceneNode2 node = (SceneNode2) seectedItem.getData();
-			AddComponentOperation operation = new AddComponentOperation(node, component);
+			AddComponentOperation operation = new AddComponentOperation(editor.id, node, component);
 			editor.getEditorContext().executeOperation(operation, "Error while adding component");
 		}
 	}
@@ -195,9 +197,9 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		if (selection.length > 0) {
 			Object data = selection[0].getData();
 			if (data instanceof SceneNode2) {
-				postMessage(new SelectionMessage(new NodeInspectable((SceneNode2) data)));
+				EventService.post(editor.id, new SelectionEvent(new NodeInspectable((SceneNode2) data)));
 			} else {
-				postMessage(new SelectionMessage(new ComponentInspectable((SceneNodeComponent2) data)));
+				EventService.post(editor.id, new SelectionEvent(new ComponentInspectable((SceneNodeComponent2) data)));
 			}
 		}
 	}
@@ -210,15 +212,6 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 
 	private Scene getScene() {
 		return (Scene) graph.getData();
-	}
-
-	private void present(Scene scene) {
-		graph.removeAll();
-		graph.setData(scene);
-		menu.setEnabled(true);
-		addDisposeListener(e -> EventService.unsubscribe(scene.getInstanceId(), this));
-		EventService.subscribe(scene.getInstanceId(), this);
-		addNodes(null, scene);
 	}
 
 	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
@@ -247,13 +240,6 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		}
 		componentItem.setText(Models.getModel(component).getName());
 		componentItem.setData(component);
-	}
-
-	@Override
-	public void handleMessage(Object source, Object message) {
-		if (message instanceof SceneLoadedMessage) {
-			present(((SceneLoadedMessage) message).scene);
-		}
 	}
 
 	private TreeItem findItem(SceneElement2 element) {
@@ -322,12 +308,12 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 			if (data instanceof SceneNode2) {
 				SceneNode2 node = (SceneNode2) data;
 				SceneNode2 parentNode = node.getParentNode();
-				RemoveNodeOperation operation = new RemoveNodeOperation(getScene(), parentNode, node);
+				RemoveNodeOperation operation = new RemoveNodeOperation(editor.id, getScene(), parentNode, node);
 				editor.getEditorContext().executeOperation(operation, "Error while removing node");
 			} else if (data instanceof SceneNodeComponent2) {
 				SceneNodeComponent2 component = (SceneNodeComponent2) data;
 				SceneNode2 node = component.getNode();
-				RemoveComponentOperation operation = new RemoveComponentOperation(node, component);
+				RemoveComponentOperation operation = new RemoveComponentOperation(editor.id, node, component);
 				editor.getEditorContext().executeOperation(operation, "Error while removing component");
 			}
 
@@ -337,7 +323,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 	}
 
 	private void notifySceneChanged() {
-		EventService.post(getScene().getInstanceId(), SceneChangedEvent.instance);
+		EventService.post(editor.id, SceneChangedEvent.instance);
 	}
 
 	private void addRootNode() {
@@ -347,7 +333,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		if (dlg.open() == Window.OK) {
 			SceneNode2 node = new SceneNode2();
 			node.setName(dlg.getValue());
-			AddNodeOperation operation = new AddNodeOperation(getScene(), null, node);
+			AddNodeOperation operation = new AddNodeOperation(editor.id, getScene(), null, node);
 			editor.getEditorContext().executeOperation(operation, "Error while adding node");
 		}
 	}
@@ -363,7 +349,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 				SceneNode2 parentNode = (SceneNode2) seectedItem.getData();
 				SceneNode2 node = new SceneNode2();
 				node.setName(dlg.getValue());
-				AddNodeOperation operation = new AddNodeOperation(getScene(), parentNode, node);
+				AddNodeOperation operation = new AddNodeOperation(editor.id, getScene(), parentNode, node);
 				editor.getEditorContext().executeOperation(operation, "Error while adding node");
 			}
 		}
@@ -390,7 +376,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 			notifySceneChanged();
 
 			graph.select(nodeItem);
-			postMessage(new SelectionMessage(new NodeInspectable(node)));
+			EventService.post(editor.id, new SelectionEvent(new NodeInspectable(node)));
 		} else {
 			TreeItem parentItem = findItem(parentNode);
 			TreeItem nodeItem = new TreeItem(parentItem, 0);
@@ -408,7 +394,7 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 			parentItem.setExpanded(true);
 
 			graph.select(nodeItem);
-			postMessage(new SelectionMessage(new NodeInspectable(node)));
+			EventService.post(editor.id, new SelectionEvent(new NodeInspectable(node)));
 		}
 	}
 
@@ -442,6 +428,15 @@ public class SceneHierarchyView extends SceneEditorView implements EditorSceneLi
 		if (found != null) {
 			found.setText(node.getName());
 		}
+	}
+
+	@Override
+	public void sceneLoaded(Scene scene) {
+		graph.setData(scene);
+		menu.setEnabled(true);
+		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
+		EventService.subscribe(editor.id, this);
+		addNodes(null, scene);
 	}
 
 	public static class NodeInspectable implements Inspectable<SceneNode2> {

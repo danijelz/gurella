@@ -11,7 +11,6 @@ import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -58,7 +57,8 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 	private Composite contentComposite;
 	private SceneEditorPartControl partControl;
 
-	private IUndoContext undoContext;
+	IUndoContext undoContext;
+	IOperationHistory operationHistory;
 	UndoActionHandler undoAction;
 	RedoActionHandler redoAction;
 
@@ -107,15 +107,25 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 		setSite(site);
 		setInput(input);
 
-		undoContext = new UndoContext();
-		undoAction = new UndoActionHandler(site, undoContext);
-		redoAction = new RedoActionHandler(site, undoContext);
-		UndoRedoActionGroup historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
-		historyActionGroup.fillActionBars(site.getActionBars());
-
 		IPathEditorInput pathEditorInput = (IPathEditorInput) input;
 		String[] segments = pathEditorInput.getPath().segments();
 		setPartName(segments[segments.length - 1]);
+		
+		undoContext = new UndoContext();
+		undoAction = new UndoActionHandler(site, undoContext);
+		redoAction = new RedoActionHandler(site, undoContext);
+
+		IWorkbench workbench = getSite().getWorkbenchWindow().getWorkbench();
+		operationHistory = workbench.getOperationSupport().getOperationHistory();
+
+		UndoRedoActionGroup historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
+		historyActionGroup.fillActionBars(site.getActionBars());
+		
+		applicationListener = new SceneEditorApplicationListener(this);
+		EventService.subscribe(id, applicationListener);
+		EventService.subscribe(id, this);
+		
+		editorContext = new SceneEditorContext(this);
 	}
 
 	@Override
@@ -133,22 +143,14 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 		this.contentComposite = parent;
 		parent.setLayout(new GridLayout());
 
-		IWorkbench workbench = getSite().getWorkbenchWindow().getWorkbench();
-		IOperationHistory operationHistory = workbench.getOperationSupport().getOperationHistory();
-		editorContext = new SceneEditorContext((IPathEditorInput) getEditorInput(), operationHistory, undoContext);
-
 		partControl = new SceneEditorPartControl(this, parent, SWT.NONE);
 		partControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		applicationListener = new SceneEditorApplicationListener();
-		editorContext.addEditorMessageListener(applicationListener);
 
 		synchronized (GurellaStudioPlugin.glMutex) {
 			application = new SwtLwjglApplication(partControl.getCenter(), applicationListener);
 		}
 
 		SceneEditorUtils.put(this, partControl, application, editorContext);
-		SceneEditorUtils.subscribe(applicationListener);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
@@ -167,7 +169,6 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 		dirty = false;
 		editorContext.setScene(scene);
 		applicationListener.presentScene(scene);
-		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
 	private void presentException(Throwable exception) {
@@ -191,20 +192,8 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 		return editorContext.scene;
 	}
 
-	public IWorkspace getWorkspace() {
-		return editorContext.workspace;
-	}
-
 	public IProject getProject() {
 		return editorContext.project;
-	}
-
-	public void addEditorMessageListener(EditorMessageListener listener) {
-		editorContext.addEditorMessageListener(listener);
-	}
-
-	public void removeEditorMessageListener(EditorMessageListener listener) {
-		editorContext.removeEditorMessageListener(listener);
 	}
 
 	@Override
@@ -215,10 +204,7 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 	@Override
 	public void dispose() {
 		super.dispose();
-
-		if (editorContext.scene != null) {
-			EventService.unsubscribe(editorContext.scene.getInstanceId(), this);
-		}
+		EventService.unsubscribe(id, this);
 
 		editorContext.dispose();
 		SceneEditorUtils.remove(this);
@@ -231,10 +217,6 @@ public class GurellaSceneEditor extends EditorPart implements SceneChangedListen
 	public void sceneChanged() {
 		dirty = true;
 		firePropertyChange(PROP_DIRTY);
-	}
-
-	public void postMessage(Object source, Object message) {
-		editorContext.postMessage(source, message);
 	}
 
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {

@@ -13,14 +13,16 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
+import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.assets.AssetsExplorerView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneEditorView;
-import com.gurella.studio.editor.scene.SceneEditorViewClosedMessage;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
+import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 
-public class GurellaEditorActionBarContributor extends EditorActionBarContributor implements EditorMessageListener {
-	private GurellaSceneEditor gurellaSceneEditor;
+public class GurellaEditorActionBarContributor extends EditorActionBarContributor
+		implements SceneEditorViewClosedListener {
+	private GurellaSceneEditor editor;
 	private ToggleEditorViewAction toggleSceneHierarcyViewAction = new ToggleEditorViewAction("Scene hierarcy",
 			SceneHierarchyView.class, SceneHierarchyView::new);
 	private ToggleEditorViewAction toggleInspectorViewAction = new ToggleEditorViewAction("Inspector",
@@ -45,13 +47,13 @@ public class GurellaEditorActionBarContributor extends EditorActionBarContributo
 	public void setActiveEditor(IEditorPart part) {
 		super.setActiveEditor(part);
 
-		if (gurellaSceneEditor != null) {
-			gurellaSceneEditor.removeEditorMessageListener(this);
+		if (editor != null) {
+			EventService.unsubscribe(editor.id, this);
 		}
 
 		if (part instanceof GurellaSceneEditor) {
-			gurellaSceneEditor = (GurellaSceneEditor) part;
-			gurellaSceneEditor.addEditorMessageListener(this);
+			editor = (GurellaSceneEditor) part;
+			EventService.subscribe(editor.id, this);
 
 			IActionBars actionBars = this.getActionBars();
 			if (actionBars != null) {
@@ -59,7 +61,7 @@ public class GurellaEditorActionBarContributor extends EditorActionBarContributo
 				actionBars.setGlobalActionHandler(ActionFactory.REDO.getId(), ((GurellaSceneEditor) part).redoAction);
 			}
 		} else {
-			gurellaSceneEditor = null;
+			editor = null;
 		}
 
 		toggleSceneHierarcyViewAction.updateActiveEditor();
@@ -68,21 +70,26 @@ public class GurellaEditorActionBarContributor extends EditorActionBarContributo
 	}
 
 	@Override
-	public void handleMessage(Object source, Object message) {
-		if (message instanceof SceneEditorViewClosedMessage) {
-			SceneEditorViewClosedMessage closedMessage = (SceneEditorViewClosedMessage) message;
-			if (closedMessage.view.getClass() == SceneHierarchyView.class) {
-				toggleSceneHierarcyViewAction.setChecked(false);
-				toggleSceneHierarcyViewAction.setEnabled(true);
-			} else if (closedMessage.view.getClass() == InspectorView.class) {
-				toggleInspectorViewAction.setChecked(false);
-				toggleInspectorViewAction.setEnabled(true);
-			} else
+	public void dispose() {
+		super.dispose();
+		if (editor != null) {
+			EventService.unsubscribe(editor.id, this);
+		}
+	}
 
-			if (closedMessage.view.getClass() == AssetsExplorerView.class) {
-				toggleAssetsViewAction.setChecked(false);
-				toggleAssetsViewAction.setEnabled(true);
-			}
+	@Override
+	public void viewClosed(SceneEditorView view) {
+		if (view instanceof SceneHierarchyView) {
+			toggleSceneHierarcyViewAction.setChecked(false);
+			toggleSceneHierarcyViewAction.setEnabled(true);
+		} else if (view instanceof InspectorView) {
+			toggleInspectorViewAction.setChecked(false);
+			toggleInspectorViewAction.setEnabled(true);
+		} else
+
+		if (view instanceof AssetsExplorerView) {
+			toggleAssetsViewAction.setChecked(false);
+			toggleAssetsViewAction.setEnabled(true);
 		}
 	}
 
@@ -98,11 +105,11 @@ public class GurellaEditorActionBarContributor extends EditorActionBarContributo
 		}
 
 		void updateActiveEditor() {
-			if (gurellaSceneEditor == null) {
+			if (editor == null) {
 				setChecked(false);
 				setEnabled(false);
 			} else {
-				List<SceneEditorView> registeredViews = gurellaSceneEditor.registeredViews;
+				List<SceneEditorView> registeredViews = editor.registeredViews;
 				setEnabled(registeredViews.stream().filter(v -> v.getClass() == type).count() == 0);
 				setChecked(!isEnabled());
 			}
@@ -110,7 +117,7 @@ public class GurellaEditorActionBarContributor extends EditorActionBarContributo
 
 		@Override
 		public void run() {
-			constructor.accept(gurellaSceneEditor, Integer.valueOf(SWT.LEFT));
+			constructor.accept(editor, Integer.valueOf(SWT.LEFT));
 			setChecked(true);
 			setEnabled(false);
 		}

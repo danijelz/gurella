@@ -36,10 +36,9 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		body.setLayout(new GridLayout(1, false));
 
 		SceneEditorContext sceneContext = getSceneEditorContext();
-		int sceneId = sceneContext.getScene().getInstanceId();
 		modelEditor = ModelEditorFactory.createEditor(body, sceneContext, target);
 		Signal1<PropertyValueChangedEvent> signal = modelEditor.getContext().propertyChangedSignal;
-		signal.addListener(e -> EventService.post(sceneId, SceneChangedEvent.instance));
+		signal.addListener(e -> EventService.post(getSceneEditorContext().editorId, SceneChangedEvent.instance));
 		modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		layout(true, true);
 	}

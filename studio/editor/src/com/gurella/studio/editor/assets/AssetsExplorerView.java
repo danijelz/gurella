@@ -28,13 +28,14 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.GurellaSceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
 import com.gurella.studio.editor.scene.SceneEditorView;
-import com.gurella.studio.editor.scene.SelectionMessage;
+import com.gurella.studio.editor.scene.event.SelectionEvent;
 
 public class AssetsExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -63,7 +64,7 @@ public class AssetsExplorerView extends SceneEditorView {
 		source.addDragListener(new AssetsDragSource());
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
-		IWorkspace workspace = getSceneEditor().getWorkspace();
+		IWorkspace workspace = getSceneEditorContext().workspace;
 		workspace.addResourceChangeListener(listener);
 		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
 	}
@@ -109,11 +110,11 @@ public class AssetsExplorerView extends SceneEditorView {
 
 		Object data = selection[0].getData();
 		if (data instanceof IFile) {
-			postMessage(new SelectionMessage(getInspectable()));
+			EventService.post(editor.id, new SelectionEvent(getInspectable()));
 		}
 	}
 
-	//TODO create plugin extension 
+	// TODO create plugin extension
 	private Inspectable<?> getInspectable() {
 		TreeItem[] selection = tree.getSelection();
 		if (selection.length > 0) {

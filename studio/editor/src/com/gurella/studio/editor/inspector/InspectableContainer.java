@@ -34,10 +34,6 @@ public abstract class InspectableContainer<T> extends ScrolledForm {
 		}
 	}
 
-	protected final void postMessage(Object message) {
-		getParent().postMessage(message);
-	}
-
 	public SceneEditorContext getSceneEditorContext() {
 		return getParent().getSceneEditor().getEditorContext();
 	}

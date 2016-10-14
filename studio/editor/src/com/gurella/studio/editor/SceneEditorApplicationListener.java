@@ -45,9 +45,11 @@ import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements EditorMessageListener, SceneEditorMouseListener, GurellaStateProvider {
+		implements SceneEditorMouseListener, GurellaStateProvider {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
+
+	private final GurellaSceneEditor editor;
 
 	private Thread renderThread;
 
@@ -80,6 +82,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	private final Array<Spatial> spatials = new Array<>(64);
 
+	public SceneEditorApplicationListener(GurellaSceneEditor editor) {
+		this.editor = editor;
+		EventService.subscribe(editor.id, this);
+	}
+
 	@Override
 	public void create() {
 		renderThread = Thread.currentThread();
@@ -109,22 +116,17 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		inputQueue.setProcessor(selectedController);
 		InputService.addInputProcessor(inputQueue);
-		
+
 		DefaultShader.defaultCullFace = 0;
 	}
 
 	public void presentScene(Scene scene) {
 		if (this.scene != null) {
-			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
 			renderSystem.dispose();
 		}
 
 		this.scene = scene;
-		renderSystem = new SceneEditorRenderSystem(scene);
-
-		if (scene != null) {
-			EventService.subscribe(scene.getInstanceId(), renderSystem);
-		}
+		renderSystem = new SceneEditorRenderSystem(editor, scene);
 
 		debugUpdate();
 	}
@@ -189,13 +191,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public boolean isInRenderThread() {
 		return renderThread == Thread.currentThread();
-	}
-
-	@Override
-	public void handleMessage(Object source, Object message) {
-		if (renderSystem != null) {
-			renderSystem.handleMessage(source, message);
-		}
 	}
 
 	@Override
@@ -319,9 +314,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public void dispose() {
 		debugUpdate();
-		SceneEditorUtils.unsubscribe(this);
-		if (this.scene != null) {
-			EventService.unsubscribe(this.scene.getInstanceId(), renderSystem);
+		EventService.unsubscribe(editor.id, this);
+		if (scene != null) {
 			renderSystem.dispose();
 		}
 	}

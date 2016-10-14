@@ -12,14 +12,17 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.editor.scene.event.NodeAddedEvent;
 import com.gurella.studio.editor.scene.event.NodeRemovedEvent;
+import com.gurella.studio.editor.scene.event.SceneChangedEvent;
 
 public class RemoveNodeOperation extends AbstractOperation {
+	final int editorId;
 	final Scene scene;
 	final SceneNode2 parentNode;
 	final SceneNode2 node;
 
-	public RemoveNodeOperation(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
+	public RemoveNodeOperation(int editorId, Scene scene, SceneNode2 parentNode, SceneNode2 node) {
 		super("Remove node");
+		this.editorId = editorId;
 		this.scene = scene;
 		this.parentNode = parentNode;
 		this.node = node;
@@ -33,7 +36,8 @@ public class RemoveNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node);
 		}
 
-		EventService.post(new NodeRemovedEvent(scene, parentNode, node));
+		EventService.post(editorId, new NodeRemovedEvent(scene, parentNode, node));
+		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
@@ -45,7 +49,8 @@ public class RemoveNodeOperation extends AbstractOperation {
 			parentNode.addChild(node);
 		}
 
-		EventService.post(new NodeAddedEvent(scene, parentNode, node));
+		EventService.post(editorId, new NodeAddedEvent(scene, parentNode, node));
+		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
