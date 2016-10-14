@@ -85,7 +85,7 @@ class Dockable extends Composite {
 		data.horizontalIndent = 0;
 		tabFolder.setLayoutData(data);
 
-		tabFolder.addCTabFolder2Listener(new CTabFolder2ListenerImpl());
+		tabFolder.addCTabFolder2Listener(new DockableTabFolderListener());
 
 		tabFolder.addListener(SWT.MouseDoubleClick, e -> onTabDoubleClick(e));
 		tabFolder.addListener(SWT.DragDetect, new DragListener(this));
@@ -394,7 +394,7 @@ class Dockable extends Composite {
 		return renderer.computeTrim(part, state, x, y, width, height);
 	}
 
-	private final class CTabFolder2ListenerImpl extends CTabFolder2Adapter {
+	private final class DockableTabFolderListener extends CTabFolder2Adapter {
 		@Override
 		public void restore(CTabFolderEvent event) {
 			tabFolder.setMinimized(false);
