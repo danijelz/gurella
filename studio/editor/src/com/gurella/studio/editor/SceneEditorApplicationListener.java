@@ -38,10 +38,10 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.scene.Compass;
+import com.gurella.studio.editor.common.g3d.Compass;
+import com.gurella.studio.editor.part.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;
-import com.gurella.studio.editor.scene.SceneEditorPartControl;
 import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -51,7 +51,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
 
-	private final GurellaSceneEditor editor;
+	private final SceneEditor editor;
 
 	private Thread renderThread;
 
@@ -84,7 +84,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	private final Array<Spatial> spatials = new Array<>(64);
 
-	public SceneEditorApplicationListener(GurellaSceneEditor editor) {
+	public SceneEditorApplicationListener(SceneEditor editor) {
 		this.editor = editor;
 		EventService.subscribe(editor.id, this);
 	}
@@ -221,7 +221,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void onMouseMenu(float x, float y) {
-		GurellaSceneEditor editor = SceneEditorUtils.getCurrentEditor();
+		SceneEditor editor = SceneEditorUtils.getCurrentEditor();
 		SceneEditorPartControl partControl = editor.getPartControl();
 
 		Menu menu = new Menu(partControl.getShell(), POP_UP);

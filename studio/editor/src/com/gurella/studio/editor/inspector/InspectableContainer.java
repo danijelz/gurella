@@ -7,10 +7,12 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public abstract class InspectableContainer<T> extends ScrolledForm {
+	protected final SceneEditorContext editorContext;
 	protected T target;
 
 	public InspectableContainer(InspectorView parent, T target) {
 		super(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		editorContext = parent.editorContext;
 		this.target = target;
 		setExpandHorizontal(true);
 		setExpandVertical(true);
@@ -32,9 +34,5 @@ public abstract class InspectableContainer<T> extends ScrolledForm {
 		} else {
 			throw new IllegalArgumentException();
 		}
-	}
-
-	public SceneEditorContext getSceneEditorContext() {
-		return getParent().getSceneEditor().getEditorContext();
 	}
 }

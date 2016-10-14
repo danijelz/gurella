@@ -9,8 +9,9 @@ import org.eclipse.swt.layout.GridData;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.scene.SceneEditorView;
+import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.inspector.common.ErrorInspectableContainer;
+import com.gurella.studio.editor.part.SceneEditorView;
 import com.gurella.studio.editor.subscription.SelectionListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -18,7 +19,7 @@ public class InspectorView extends SceneEditorView implements SelectionListener 
 	private Object target;
 	private InspectableContainer<?> content;
 
-	public InspectorView(GurellaSceneEditor editor, int style) {
+	public InspectorView(SceneEditor editor, int style) {
 		super(editor, "Inspector", getImage("icons/showproperties_obj.gif"), style | SWT.BORDER);
 		GridLayoutFactory.swtDefaults().margins(0, 0).applyTo(this);
 		GurellaStudioPlugin.getToolkit().adapt(this);

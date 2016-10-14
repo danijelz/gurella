@@ -28,9 +28,9 @@ import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.studio.editor.GurellaSceneEditor;
-import com.gurella.studio.editor.model.MetaModelEditor;
-import com.gurella.studio.editor.model.ModelEditorContext;
+import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.common.model.MetaModelEditor;
+import com.gurella.studio.editor.common.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
 import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -38,7 +38,7 @@ import com.gurella.studio.editor.subscription.SelectionListener;
 
 public class SceneEditorRenderSystem
 		implements ComponentActivityListener, SceneLoadedListener, SelectionListener, Disposable {
-	private GurellaSceneEditor editor;
+	private SceneEditor editor;
 	private Scene scene;
 
 	private GenericBatch batch;
@@ -58,7 +58,7 @@ public class SceneEditorRenderSystem
 
 	private SceneNode2 selectedNode;
 
-	public SceneEditorRenderSystem(GurellaSceneEditor editor) {
+	public SceneEditorRenderSystem(SceneEditor editor) {
 		this.editor = editor;
 		layerMask.allowed(Layer.DEFAULT);
 		layerMask.allowed(Layer.SKY);

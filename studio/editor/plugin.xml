@@ -8,8 +8,8 @@
             name="Gurella Editor"
             extensions="gscn"
             icon="icons/sample.gif"
-            contributorClass="com.gurella.studio.editor.GurellaEditorActionBarContributor"
-            class="com.gurella.studio.editor.GurellaSceneEditor"
+            contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
+            class="com.gurella.studio.editor.SceneEditor"
             id="com.gurella.studio.editor.GurellaEditor">
       </editor>
    </extension>

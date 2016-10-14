@@ -11,17 +11,19 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.ui.IPathEditorInput;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.scene.SceneEditorView;
+import com.gurella.studio.editor.part.SceneEditorView;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneEditorContext implements SceneLoadedListener {
 	public final int editorId;
-	private final GurellaSceneEditor editor;
+	private final SceneEditor editor;
+	public final IPathEditorInput editorInput;
 	public final IResource editorInputResource;
 	public final IWorkspace workspace;
 	public final IProject project;
@@ -33,9 +35,10 @@ public class SceneEditorContext implements SceneLoadedListener {
 
 	Scene scene;
 
-	public SceneEditorContext(GurellaSceneEditor editor) {
+	public SceneEditorContext(SceneEditor editor) {
 		this.editor = editor;
 		editorId = editor.id;
+		editorInput = (IPathEditorInput) editor.getEditorInput();
 		editorInputResource = editor.getEditorInput().getAdapter(IResource.class);
 		workspace = editorInputResource.getWorkspace();
 		project = editorInputResource.getProject();

@@ -5,6 +5,7 @@ import static com.gurella.studio.GurellaStudioPlugin.getImage;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
@@ -31,11 +32,20 @@ import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.GurellaSceneEditor;
+import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
+import com.gurella.studio.editor.event.SelectionEvent;
 import com.gurella.studio.editor.inspector.InspectorView.Inspectable;
-import com.gurella.studio.editor.scene.SceneEditorView;
-import com.gurella.studio.editor.scene.event.SelectionEvent;
+import com.gurella.studio.editor.inspector.audio.AudioInspectable;
+import com.gurella.studio.editor.inspector.bitmapfont.BitmapFontInspectable;
+import com.gurella.studio.editor.inspector.common.ModelInspectable;
+import com.gurella.studio.editor.inspector.material.MaterialInspectable;
+import com.gurella.studio.editor.inspector.pixmap.PixmapInspectable;
+import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectable;
+import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
+import com.gurella.studio.editor.inspector.texture.TextureInspectable;
+import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
+import com.gurella.studio.editor.part.SceneEditorView;
 
 public class AssetsExplorerView extends SceneEditorView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -45,33 +55,34 @@ public class AssetsExplorerView extends SceneEditorView {
 
 	private Object lastSelection;
 
-	public AssetsExplorerView(GurellaSceneEditor editor, int style) {
+	public AssetsExplorerView(SceneEditor editor, int style) {
 		super(editor, "Assets", getImage("icons/resource_persp.gif"), style);
 
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
+		
 		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		initTree(editor);
 		tree.addListener(SWT.KeyDown, e -> onKeyDown());
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
+		initTree();
 
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		source.addDragListener(new AssetsDragSource());
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
-		IWorkspace workspace = getSceneEditorContext().workspace;
+		IWorkspace workspace = editorContext.workspace;
 		workspace.addResourceChangeListener(listener);
 		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
 	}
 
-	private void initTree(GurellaSceneEditor editor) {
+	private void initTree() {
 		try {
-			createItems(editor);
+			createItems();
 		} catch (Exception e) {
 			tree.dispose();
 			String message = "Error creating assets tree";
@@ -81,9 +92,10 @@ public class AssetsExplorerView extends SceneEditorView {
 		}
 	}
 
-	private void createItems(GurellaSceneEditor editor) throws CoreException {
-		IPath rootPath = findAssetsRoot().makeRelativeTo(editor.getProject().getLocation());
-		rootResource = editor.getProject().findMember(rootPath);
+	private void createItems() throws CoreException {
+		IProject project = editorContext.project;
+		IPath rootPath = findAssetsRoot().makeRelativeTo(project.getLocation());
+		rootResource = project.findMember(rootPath);
 		if (rootResource instanceof IContainer) {
 			createItems(null, rootResource);
 		}
@@ -110,7 +122,7 @@ public class AssetsExplorerView extends SceneEditorView {
 
 		Object data = selection[0].getData();
 		if (data instanceof IFile) {
-			EventService.post(editor.id, new SelectionEvent(getInspectable()));
+			EventService.post(editorContext.editorId, new SelectionEvent(getInspectable()));
 		}
 	}
 
@@ -147,12 +159,14 @@ public class AssetsExplorerView extends SceneEditorView {
 	}
 
 	private IPath findAssetsRoot() throws CoreException {
-		IPathEditorInput pathEditorInput = (IPathEditorInput) editor.getEditorInput();
-		IPath projectPath = editor.getProject().getLocation().makeAbsolute();
-		IPath scenePath = pathEditorInput.getPath().removeLastSegments(1).makeAbsolute();
+		IProject project = editorContext.project;
+		IPathEditorInput editorInput = editorContext.editorInput;
+
+		IPath projectPath = project.getLocation().makeAbsolute();
+		IPath scenePath = editorInput.getPath().removeLastSegments(1).makeAbsolute();
 		IPath temp = scenePath;
 		while (projectPath.isPrefixOf(temp)) {
-			IResource member = editor.getProject().findMember(temp);
+			IResource member = project.findMember(temp);
 			if (member instanceof IContainer && isProjectAssetsFolder((IContainer) member)) {
 				return temp;
 			}

@@ -12,13 +12,13 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
-import com.gurella.studio.editor.scene.SceneEditorPartControl;
+import com.gurella.studio.editor.part.SceneEditorPartControl;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 
 public class SceneEditorUtils {
 	public static final int invalidId = -1;
 
-	private static final IntMap<GurellaSceneEditor> idToEditor = new IntMap<>();
+	private static final IntMap<SceneEditor> idToEditor = new IntMap<>();
 	private static final ObjectIntMap<SceneEditorPartControl> partControlToEditorId = new ObjectIntMap<>();
 	private static final ObjectIntMap<SwtLwjglApplication> gdxAppToEditorId = new ObjectIntMap<>();
 	private static final IntMap<SceneEditorContext> appIdToContext = new IntMap<>();
@@ -26,7 +26,7 @@ public class SceneEditorUtils {
 	private SceneEditorUtils() {
 	}
 
-	static void put(GurellaSceneEditor editor, SceneEditorPartControl partControl, SwtLwjglApplication application,
+	static void put(SceneEditor editor, SceneEditorPartControl partControl, SwtLwjglApplication application,
 			SceneEditorContext context) {
 		int id = editor.id;
 		idToEditor.put(id, editor);
@@ -35,7 +35,7 @@ public class SceneEditorUtils {
 		appIdToContext.put(id, context);
 	}
 
-	static void remove(GurellaSceneEditor editor) {
+	static void remove(SceneEditor editor) {
 		int id = editor.id;
 		idToEditor.remove(id);
 		partControlToEditorId.remove(partControlToEditorId.findKey(id), invalidId);
@@ -63,7 +63,7 @@ public class SceneEditorUtils {
 		}
 	}
 
-	public static GurellaSceneEditor getCurrentEditor() {
+	public static SceneEditor getCurrentEditor() {
 		Application app = Gdx.app;
 		if (app instanceof SwtLwjglApplication) {
 			return idToEditor.get(gdxAppToEditorId.get((SwtLwjglApplication) app, invalidId));

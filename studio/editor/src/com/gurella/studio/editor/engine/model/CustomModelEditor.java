@@ -4,8 +4,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
+import com.gurella.studio.editor.common.model.MetaModelEditor;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
-import com.gurella.studio.editor.model.MetaModelEditor;
 
 public class CustomModelEditor<T> extends MetaModelEditor<T> {
 	public CustomModelEditor(Composite parent, CustomModelEditorContextAdapter<T> context) {
