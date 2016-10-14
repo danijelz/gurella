@@ -64,7 +64,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	RedoActionHandler redoAction;
 
 	List<DockableView> registeredViews = new ArrayList<DockableView>();
-	private SceneEditorContext editorContext;
+	private SceneEditorContext context;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
@@ -87,7 +87,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, editorContext.getScene());
+		String string = output.serialize(Scene.class, context.getScene());
 		monitor.beginTask("Saving", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);
@@ -122,7 +122,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		UndoRedoActionGroup historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
 		historyActionGroup.fillActionBars(site.getActionBars());
 
-		editorContext = new SceneEditorContext(this);
+		context = new SceneEditorContext(this);
 		applicationListener = new SceneEditorApplicationListener(this);
 
 		EventService.subscribe(id, this);
@@ -150,7 +150,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 			application = new SwtLwjglApplication(dock.getCenter(), applicationListener);
 		}
 
-		SceneEditorUtils.put(this, dock, application, editorContext);
+		SceneEditorUtils.put(this, dock, application, context);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
@@ -180,8 +180,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		return dock;
 	}
 
-	public SceneEditorContext getEditorContext() {
-		return editorContext;
+	public SceneEditorContext getContext() {
+		return context;
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		super.dispose();
 		EventService.unsubscribe(id, this);
 		// TODO context and applicationListener should be unified
-		editorContext.dispose();
+		context.dispose();
 		applicationListener.debugUpdate();
 		application.exit();
 		SceneEditorUtils.remove(this);

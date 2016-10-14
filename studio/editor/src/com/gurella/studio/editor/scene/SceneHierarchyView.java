@@ -72,7 +72,7 @@ public class SceneHierarchyView extends DockableView
 	public SceneHierarchyView(SceneEditor editor, int style) {
 		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
 
-		addDisposeListener(e -> EventService.unsubscribe(this));
+		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 
 		setLayout(new GridLayout());
@@ -85,9 +85,9 @@ public class SceneHierarchyView extends DockableView
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
 		createMenu();
-		
+
 		Scene scene = editorContext.getScene();
-		if(scene != null) {
+		if (scene != null) {
 			sceneLoaded(scene);
 		}
 	}

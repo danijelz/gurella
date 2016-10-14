@@ -23,7 +23,6 @@ public class SceneEditorContext implements SceneLoadedListener {
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
-
 	public final ClassLoader classLoader;
 
 	private Scene scene;
