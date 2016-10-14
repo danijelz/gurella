@@ -227,7 +227,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 	}
 
 	private void notifySceneChanged() {
-		int sceneId = getSceneEditorContext().getScene().getInstanceId();
 		EventService.post(getSceneEditorContext().editorId, SceneChangedEvent.instance);
 	}
 
