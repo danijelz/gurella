@@ -13,6 +13,10 @@ public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamer
 	public boolean depthTest = true;
 	public Color ambientLight;
 	public Color fog;
+	
+	public PerspectiveCameraComponent() {
+		near = 0.1f;
+	}
 
 	@Override
 	PerspectiveCamera createCamera() {

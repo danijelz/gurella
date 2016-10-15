@@ -36,7 +36,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
-import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.g3d.Compass;
 import com.gurella.studio.editor.control.Dock;
@@ -49,7 +48,6 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 final class SceneEditorApplicationListener extends ApplicationAdapter
 		implements GurellaStateProvider, SceneEditorMouseListener, SceneLoadedListener {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
-	private static final PreRenderUpdateEvent preRenderUpdateEvent = new PreRenderUpdateEvent();
 
 	private final SceneEditor editor;
 
@@ -148,10 +146,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	}
 
 	public void renderScene() {
-		if (scene != null) {
-			EventService.post(scene.getInstanceId(), preRenderUpdateEvent);
-		}
-
 		synchronized (GurellaStudioPlugin.glMutex) {
 			selectedController.update();
 			Color color = backgroundColor;
@@ -317,18 +311,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		@Override
 		public void dispatch(ApplicationDebugUpdateListener listener) {
 			listener.debugUpdate();
-		}
-	}
-
-	private static class PreRenderUpdateEvent implements Event<PreRenderUpdateListener> {
-		@Override
-		public Class<PreRenderUpdateListener> getSubscriptionType() {
-			return PreRenderUpdateListener.class;
-		}
-
-		@Override
-		public void dispatch(PreRenderUpdateListener listener) {
-			listener.onPreRenderUpdate();
 		}
 	}
 }

@@ -135,7 +135,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 				environment.set(ambientLight);
 			}
 
-			Color fogColor = perspectiveCamera.ambientLight;
+			Color fogColor = perspectiveCamera.fog;
 			if (fogColor == null) {
 				environment.remove(fog.type);
 			} else {

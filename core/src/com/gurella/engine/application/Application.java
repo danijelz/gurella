@@ -30,10 +30,10 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 
 	private Thread renderThread;
 
-	Application(ApplicationConfig config) {
+	public Application(ApplicationConfig config) {
 		this.config = config;
 	}
-	
+
 	public static Application current() {
 		return (Application) Gdx.app.getApplicationListener();
 	}
@@ -44,10 +44,11 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
-		// TODO config.init(this);
-		// TODO add init scripts to initializer
+		// TODO add init scripts to initializer -> config.init(this);
 		GraphicsService.init();
-		sceneManager.showScene(config.initialScenePath);
+
+		Scene scene = AssetService.load(config.initialScenePath, Scene.class);
+		scene.start();
 	}
 
 	@Override
@@ -101,7 +102,7 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
 	}
-	
+
 	@Override
 	public boolean isInRenderThread() {
 		return renderThread == Thread.currentThread();

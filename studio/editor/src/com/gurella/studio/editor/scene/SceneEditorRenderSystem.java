@@ -213,6 +213,8 @@ public class SceneEditorRenderSystem
 			return;
 		}
 
+		EventService.post(scene.getInstanceId(), PreRenderUpdateEvent.instance);
+
 		batch.begin(camera);
 		batch.setEnvironment(environment);
 

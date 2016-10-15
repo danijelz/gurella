@@ -98,7 +98,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		editor.getBody().setLayoutData(layoutData);
 
-		addEditorMenus(editor, index);
+		editor.addMenuItem("Remove item", () -> removeItem(index));
 		itemEditors.add(editor);
 	}
 
@@ -146,10 +146,6 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		default:
 			return Object.class;
 		}
-	}
-
-	private void addEditorMenus(PropertyEditor<Object> editor, int i) {
-		editor.addMenuItem("Remove item", () -> removeItem(i));
 	}
 
 	private void removeItem(int i) {

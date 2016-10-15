@@ -42,7 +42,7 @@ public class SceneEditorUtils {
 		appIdToContext.remove(id);
 	}
 
-	public static int getApplicationId(Control control) {
+	public static int getEditorId(Control control) {
 		Composite parent = control instanceof Composite ? (Composite) control : control.getParent();
 		while (parent != null) {
 			if (parent instanceof Dock) {
@@ -53,7 +53,7 @@ public class SceneEditorUtils {
 		return invalidId;
 	}
 
-	public static int getCurrentApplicationId() {
+	public static int getCurrentEditorId() {
 		Application app = Gdx.app;
 		if (app instanceof SwtLwjglApplication) {
 			return gdxAppToEditorId.get((SwtLwjglApplication) app, invalidId);
@@ -72,36 +72,36 @@ public class SceneEditorUtils {
 	}
 
 	public static void subscribe(Object subscriber) {
-		EventService.subscribe(getCurrentApplicationId(), subscriber);
+		EventService.subscribe(getCurrentEditorId(), subscriber);
 	}
 
 	public static void unsubscribe(Object subscriber) {
-		EventService.unsubscribe(getCurrentApplicationId(), subscriber);
+		EventService.unsubscribe(getCurrentEditorId(), subscriber);
 	}
 
 	public static <L extends EventSubscription> void notify(Event<L> event) {
-		EventService.post(getCurrentApplicationId(), event);
+		EventService.post(getCurrentEditorId(), event);
 	}
 
 	public static <L extends EventSubscription> void notify(Class<L> subscriptionType, Consumer<L> dispatcher) {
-		EventService.post(getCurrentApplicationId(), new GenericEvent<L>(subscriptionType, dispatcher));
+		EventService.post(getCurrentEditorId(), new GenericEvent<L>(subscriptionType, dispatcher));
 	}
 
 	public static void subscribe(Control subscriber) {
-		EventService.subscribe(getApplicationId(subscriber), subscriber);
+		EventService.subscribe(getEditorId(subscriber), subscriber);
 	}
 
 	public static void unsubscribe(Control subscriber) {
-		EventService.unsubscribe(getApplicationId(subscriber), subscriber);
+		EventService.unsubscribe(getEditorId(subscriber), subscriber);
 	}
 
-	public static <L extends EventSubscription> void notify(Control source, Event<L> event) {
-		EventService.post(getApplicationId(source), event);
+	public static <L extends EventSubscription> void post(Control source, Event<L> event) {
+		EventService.post(getEditorId(source), event);
 	}
 
-	public static <L extends EventSubscription> void notify(Control source, Class<L> subscriptionType,
+	public static <L extends EventSubscription> void post(Control source, Class<L> subscriptionType,
 			Consumer<L> dispatcher) {
-		EventService.post(getApplicationId(source), new GenericEvent<L>(subscriptionType, dispatcher));
+		EventService.post(getEditorId(source), new GenericEvent<L>(subscriptionType, dispatcher));
 	}
 
 	private static class GenericEvent<L extends EventSubscription> implements Event<L> {
