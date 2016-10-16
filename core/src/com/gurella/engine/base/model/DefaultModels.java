@@ -513,7 +513,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ColorModel extends SimpleObjectModel<Color> {
+	public static final class ColorModel extends ReflectionModel<Color> {
 		public static final ColorModel instance = new ColorModel();
 
 		private ColorModel() {
@@ -521,13 +521,26 @@ public class DefaultModels {
 		}
 
 		@Override
-		public void writeValue(Color value, Output output) {
-			output.writeInt(Color.rgba8888(value));
+		public void serialize(Color value, Object template, Output output) {
+			if (Values.isEqual(template, value)) {
+				return;
+			} else if (value == null) {
+				output.writeNull();
+			} else {
+				output.writeInt(Color.rgba8888(value));
+			}
 		}
 
 		@Override
-		public Color readValue(Input input) {
-			return new Color(input.readInt());
+		public Color deserialize(Object template, Input input) {
+			if (!input.isValuePresent()) {
+				Color instance = template == null ? null : (Color) input.copyObject(template);
+				return instance;
+			} else if (input.isNull()) {
+				return null;
+			} else {
+				return new Color(input.readInt());
+			}
 		}
 
 		@Override
