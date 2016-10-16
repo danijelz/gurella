@@ -41,12 +41,10 @@ public class SceneEditorContext implements SceneLoadedListener {
 	}
 
 	void dispose() {
-		scene.stop();
-		closeJavaProject();
-		EventService.unsubscribe(editorId, this);
-	}
+		if (scene != null) {
+			scene.stop();
+		}
 
-	private void closeJavaProject() {
 		if (javaProject != null) {
 			try {
 				javaProject.close();
@@ -54,6 +52,8 @@ public class SceneEditorContext implements SceneLoadedListener {
 				GurellaStudioPlugin.log(e, "Error cloasing java project");
 			}
 		}
+
+		EventService.unsubscribe(editorId, this);
 	}
 
 	public Scene getScene() {

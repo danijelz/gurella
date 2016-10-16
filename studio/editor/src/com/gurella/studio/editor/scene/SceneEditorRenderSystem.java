@@ -40,6 +40,7 @@ public class SceneEditorRenderSystem
 		implements ComponentActivityListener, SceneLoadedListener, SelectionListener, Disposable {
 	private SceneEditor editor;
 	private Scene scene;
+	private int sceneId = -1;
 
 	private GenericBatch batch;
 	private Array<Layer> orderedLayers = new Array<Layer>();
@@ -75,10 +76,8 @@ public class SceneEditorRenderSystem
 
 	@Override
 	public void sceneLoaded(Scene scene) {
-		if (this.scene != null) {
-			EventService.unsubscribe(this.scene.getInstanceId(), this);
-		}
 		this.scene = scene;
+		sceneId = scene.getInstanceId();
 		EventService.subscribe(scene.getInstanceId(), this);
 	}
 
@@ -213,7 +212,7 @@ public class SceneEditorRenderSystem
 			return;
 		}
 
-		EventService.post(scene.getInstanceId(), PreRenderUpdateEvent.instance);
+		EventService.post(sceneId, PreRenderUpdateEvent.instance);
 
 		batch.begin(camera);
 		batch.setEnvironment(environment);
@@ -272,9 +271,7 @@ public class SceneEditorRenderSystem
 	@Override
 	public void dispose() {
 		EventService.unsubscribe(editor.id, this);
-		if (scene != null) {
-			EventService.unsubscribe(scene.getInstanceId(), this);
-		}
+		EventService.unsubscribe(sceneId, this);
 		batch.dispose();
 	}
 
