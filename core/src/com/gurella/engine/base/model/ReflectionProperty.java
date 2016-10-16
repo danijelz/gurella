@@ -35,6 +35,10 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Method getter;
 	private Method setter;
 
+	public ReflectionProperty(Class<?> declaringClass, String name, Model<?> model) {
+		this(declaringClass, name, findField(name), findGetter(name), findSetter(name), model);
+	}
+
 	public ReflectionProperty(Class<?> declaringClass, Field field, Model<?> model) {
 		this(declaringClass, field.getName(), field, null, null, model);
 	}
