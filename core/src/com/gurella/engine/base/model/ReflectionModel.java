@@ -347,13 +347,12 @@ public class ReflectionModel<T> implements Model<T> {
 		propertiesByName.put(name, property);
 	}
 
-	protected Property<?> createBeanProperty(String name, Method getter, Method setter,
-			PropertyDescriptor propertyDescriptor) {
-		if (propertyDescriptor == null) {
+	protected Property<?> createBeanProperty(String name, Method getter, Method setter, PropertyDescriptor descriptor) {
+		if (descriptor == null) {
 			return new ReflectionProperty<Object>(type, name, null, getter, setter, this);
 		} else {
 			@SuppressWarnings("unchecked")
-			Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) propertyDescriptor.property();
+			Class<? extends Property<?>> propertyType = (Class<? extends Property<?>>) descriptor.property();
 			return ReflectionProperty.class.equals(propertyType)
 					? new ReflectionProperty<Object>(type, name, null, getter, setter, this)
 					: createAnnotationProperty(propertyType);
