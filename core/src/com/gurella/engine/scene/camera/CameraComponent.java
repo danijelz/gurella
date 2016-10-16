@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.ValueRange;
+import com.gurella.engine.base.model.ValueRange.FloatRange;
+import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -36,11 +39,13 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "enable")
 	public boolean clearDepth = true;
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "value")
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
 	public float clearDepthValue = 1;
 
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "enable")
 	public boolean clearStencil = false;
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "value")
+	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255) )
 	public int clearStencilValue = 1;
 
 	// TODO notify render system for layer changes
