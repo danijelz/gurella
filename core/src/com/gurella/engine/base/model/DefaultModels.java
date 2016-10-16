@@ -9,7 +9,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.scene.renderable.Layer;
+import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
@@ -513,39 +515,180 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ColorModel extends ReflectionModel<Color> {
+	public static final class ColorModel extends SimpleObjectModel<Color> {
 		public static final ColorModel instance = new ColorModel();
+		private static final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 
 		private ColorModel() {
 			super(Color.class);
+			properties.add(new RProperty());
+			properties.add(new GProperty());
+			properties.add(new BProperty());
+			properties.add(new AProperty());
 		}
 
 		@Override
-		public void serialize(Color value, Object template, Output output) {
-			if (Values.isEqual(template, value)) {
-				return;
-			} else if (value == null) {
-				output.writeNull();
-			} else {
-				output.writeInt(Color.rgba8888(value));
-			}
+		protected void writeValue(Color value, Output output) {
+			output.writeInt(Color.rgba8888(value));
 		}
 
 		@Override
-		public Color deserialize(Object template, Input input) {
-			if (!input.isValuePresent()) {
-				Color instance = template == null ? null : (Color) input.copyObject(template);
-				return instance;
-			} else if (input.isNull()) {
-				return null;
-			} else {
-				return new Color(input.readInt());
-			}
+		protected Color readValue(Input input) {
+			return new Color(input.readInt());
 		}
 
 		@Override
 		public Color copy(Color original, CopyContext context) {
 			return new Color(original);
+		}
+
+		@Override
+		public ImmutableArray<Property<?>> getProperties() {
+			return properties.immutable();
+		}
+
+		private static abstract class ColorComponentProperty implements Property<Float> {
+			private final String name;
+
+			public ColorComponentProperty(String name) {
+				this.name = name;
+			}
+
+			@Override
+			public String getName() {
+				return name;
+			}
+
+			@Override
+			public Class<Float> getType() {
+				return Float.class;
+			}
+
+			@Override
+			public Range<?> getRange() {
+				return null;
+			}
+
+			@Override
+			public boolean isNullable() {
+				return false;
+			}
+
+			@Override
+			public boolean isFinal() {
+				return false;
+			}
+
+			@Override
+			public boolean isCopyable() {
+				return true;
+			}
+
+			@Override
+			public boolean isFlatSerialization() {
+				return true;
+			}
+
+			@Override
+			public boolean isEditable() {
+				return true;
+			}
+
+			@Override
+			public void serialize(Object object, Object template, Output output) {
+			}
+
+			@Override
+			public void deserialize(Object object, Object template, Input input) {
+			}
+
+			@Override
+			public void copy(Object original, Object duplicate, CopyContext context) {
+			}
+		}
+
+		private static class RProperty extends ColorComponentProperty {
+			public RProperty() {
+				super("r");
+			}
+
+			@Override
+			public Property<Float> newInstance(Model<?> model) {
+				return new RProperty();
+			}
+
+			@Override
+			public Float getValue(Object object) {
+				return Float.valueOf(((Color) object).r);
+			}
+
+			@Override
+			public void setValue(Object object, Float value) {
+				((Color) object).r = value.floatValue();
+			}
+		}
+
+		private static class GProperty extends ColorComponentProperty {
+			public GProperty() {
+				super("g");
+			}
+
+			@Override
+			public Property<Float> newInstance(Model<?> model) {
+				return new GProperty();
+			}
+
+			@Override
+			public Float getValue(Object object) {
+				return Float.valueOf(((Color) object).g);
+			}
+
+			@Override
+			public void setValue(Object object, Float value) {
+				((Color) object).g = value.floatValue();
+			}
+		}
+
+		private static class BProperty extends ColorComponentProperty {
+			public BProperty() {
+				super("b");
+			}
+
+			@Override
+			public Property<Float> newInstance(Model<?> model) {
+				return new BProperty();
+			}
+
+			@Override
+			public Float getValue(Object object) {
+				return Float.valueOf(((Color) object).b);
+			}
+
+			@Override
+			public void setValue(Object object, Float value) {
+				((Color) object).b = value.floatValue();
+			}
+		}
+
+		private static class AProperty extends ColorComponentProperty {
+			public AProperty() {
+				super("a");
+			}
+
+			@Override
+			public Property<Float> newInstance(Model<?> model) {
+				return new AProperty();
+			}
+
+			@Override
+			public Float getValue(Object object) {
+				return Float.valueOf(((Color) object).a);
+			}
+
+			@Override
+			public void setValue(Object object, Float value) {
+				((Color) object).a = value.floatValue();
+			}
 		}
 	}
 
