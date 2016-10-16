@@ -125,10 +125,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		renderSystem = new SceneEditorRenderSystem(editor);
 
 		infoProjection = new Matrix4().setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
-		;
 		spriteBatch = new SpriteBatch();
+		spriteBatch.enableBlending();
 		font = new BitmapFont();
-		font.setColor(1f, 0f, 0f, 1f);
+		font.setColor(Color.RED);
 
 		inputQueue.setProcessor(selectedController);
 		InputService.addInputProcessor(inputQueue);
@@ -165,6 +165,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			selectedController.update();
 			Color color = backgroundColor;
 			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
+			Gdx.gl.glClearDepthf(1);
 			Gdx.gl.glClearStencil(0);
 			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -183,7 +184,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private void renderInfo() {
 		spriteBatch.setProjectionMatrix(infoProjection);
 		spriteBatch.begin();
-		font.draw(spriteBatch, "Test", 10, 10);
+		font.draw(spriteBatch, "Testddddddddddddddddddddddddddddddddddddddddddddddddd", 30, 30);
 		spriteBatch.end();
 	}
 
