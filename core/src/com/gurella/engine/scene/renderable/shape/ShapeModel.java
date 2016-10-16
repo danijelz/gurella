@@ -39,9 +39,9 @@ public abstract class ShapeModel implements Disposable {
 		return materialDescriptor;
 	}
 
-	public void setMaterialDescriptor(MaterialDescriptor materialDescriptor) {
-		this.materialDescriptor = materialDescriptor;
-		material = materialDescriptor == null ? new Material(defaulMaterial) : materialDescriptor.createMaterial();
+	public void setMaterialDescriptor(MaterialDescriptor descriptor) {
+		this.materialDescriptor = descriptor;
+		material = descriptor == null ? new Material(defaulMaterial) : descriptor.createMaterial();
 		if (instance != null) {
 			instance.materials.set(0, material);
 		}

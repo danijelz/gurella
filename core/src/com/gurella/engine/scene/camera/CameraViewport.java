@@ -88,41 +88,41 @@ public class CameraViewport {
 
 		switch (type) {
 		case extend:
-			updateForExtend();
+			updateToExtend();
 			break;
 		case screen:
-			updateForScreen();
+			updateToScreen();
 			break;
 		case fit:
-			updateForScaling(Scaling.fit);
+			updateToScaling(Scaling.fit);
 			break;
 		case fill:
-			updateForScaling(Scaling.fill);
+			updateToScaling(Scaling.fill);
 			break;
 		case fillX:
-			updateForScaling(Scaling.fillX);
+			updateToScaling(Scaling.fillX);
 			break;
 		case fillY:
-			updateForScaling(Scaling.fillY);
+			updateToScaling(Scaling.fillY);
 			break;
 		case stretch:
-			updateForScaling(Scaling.stretch);
+			updateToScaling(Scaling.stretch);
 			break;
 		case stretchX:
-			updateForScaling(Scaling.stretchX);
+			updateToScaling(Scaling.stretchX);
 			break;
 		case stretchY:
-			updateForScaling(Scaling.stretchY);
+			updateToScaling(Scaling.stretchY);
 			break;
 		case none:
-			updateForScaling(Scaling.none);
+			updateToScaling(Scaling.none);
 			break;
 		default:
 			throw new IllegalArgumentException();
 		}
 	}
 
-	private void updateForExtend() {
+	private void updateToExtend() {
 		// Fit min size to the screen.
 		float tempWorldWidth = minWorldWidth;
 		float tempWorldHeight = minWorldHeight;
@@ -157,7 +157,7 @@ public class CameraViewport {
 				tempViewportHeight);
 	}
 
-	public void updateForScreen() {
+	public void updateToScreen() {
 		setScreenBounds(viewportScreenX, viewportScreenY, viewportScreenWidth, viewportScreenHeight);
 		setWorldSize(viewportScreenWidth * unitsPerPixel, viewportScreenHeight * unitsPerPixel);
 	}
@@ -173,7 +173,7 @@ public class CameraViewport {
 		return viewportX != 0 || viewportY != 0 || viewportWidth != 1 || viewportHeight != 1;
 	}
 
-	public void updateForScaling(Scaling scaling) {
+	public void updateToScaling(Scaling scaling) {
 		Vector2 scaled = scaling.apply(getWorldWidth(), getWorldHeight(), viewportScreenWidth, viewportScreenHeight);
 		int tempViewportWidth = Math.round(scaled.x);
 		int tempViewportHeight = Math.round(scaled.y);

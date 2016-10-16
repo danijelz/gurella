@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
@@ -28,6 +27,7 @@ import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
+import com.gurella.engine.utils.Exceptions;
 import com.gurella.engine.utils.IdentitySet;
 
 public class RenderSystem extends SceneService2 implements ComponentActivityListener, RenderUpdateListener {
@@ -44,7 +44,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 	private final VisibilityChangedEvent visibilityChangedEvent = new VisibilityChangedEvent();
 
 	private final Environment environment = new Environment();
-	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f);
+	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f);
 	private final ColorAttribute fog = new ColorAttribute(ColorAttribute.Fog, 1f, 1f, 1f, 1f);
 	private final DepthTestAttribute depthTest = new DepthTestAttribute();
 	private final DirectionalLightsAttribute directionalLights = new DirectionalLightsAttribute();
@@ -116,7 +116,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		try {
 			renderSpatials(layer, camera);
 		} catch (Exception e) {
-			throw e instanceof RuntimeException ? (RuntimeException) e : new GdxRuntimeException(e);
+			Exceptions.rethrowAsGdxRuntime(e);
 		} finally {
 			batch.end();
 			batch.setEnvironment(null);

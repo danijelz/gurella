@@ -46,7 +46,7 @@ class ExpandablePropertyGroup extends Composite {
 		Font font = createFont(nameLabel, SWT.BOLD);
 		nameLabel.addDisposeListener(e -> destroyFont(font));
 		nameLabel.setFont(font);
-		Color blue = getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
+		Color blue = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 		nameLabel.addListener(SWT.MouseEnter, e -> nameLabel.setForeground(blue));
 		Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 		nameLabel.addListener(SWT.MouseExit, e -> nameLabel.setForeground(black));
