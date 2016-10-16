@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
@@ -74,7 +75,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private GridModelInstance gridModelInstance;
 	private Compass compass;
 
-	private OrthographicCamera infoCamera;
+	private Matrix4 infoProjection;
 	private SpriteBatch spriteBatch;
 	private BitmapFont font;
 
@@ -123,7 +124,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		shapeRenderer = new ShapeRenderer();
 		renderSystem = new SceneEditorRenderSystem(editor);
 
-		infoCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
+		infoProjection = new Matrix4().setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
+		;
 		spriteBatch = new SpriteBatch();
 		font = new BitmapFont();
 		font.setColor(1f, 0f, 0f, 1f);
@@ -179,9 +181,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	}
 
 	private void renderInfo() {
-		spriteBatch.setProjectionMatrix(infoCamera.projection);
+		spriteBatch.setProjectionMatrix(infoProjection);
 		spriteBatch.begin();
-		font.draw(spriteBatch, "Test", 1, 1);
+		font.draw(spriteBatch, "Test", 10, 10);
 		spriteBatch.end();
 	}
 

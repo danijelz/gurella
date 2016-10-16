@@ -182,6 +182,10 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public void reset() {
 		transformComponent = null;
 		if (rigidBody != null) {
+			btCollisionShape collisionShape = rigidBody.getCollisionShape();
+			if(collisionShape != null) {
+				collisionShape.dispose();
+			}
 			rigidBody.dispose();
 			rigidBody = null;
 		}

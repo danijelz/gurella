@@ -213,6 +213,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 			glCanvas.setLayout(new GridLayout());
 			label = new Label(glCanvas, SWT.DM_FILL_NONE);
+			label.setBackground(glCanvas.getDisplay().getSystemColor(SWT.COLOR_TRANSPARENT));
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
 			label.setText("Loading...");
 		}
