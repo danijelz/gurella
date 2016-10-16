@@ -517,7 +517,8 @@ public class DefaultModels {
 
 	public static final class ColorModel extends SimpleObjectModel<Color> {
 		public static final ColorModel instance = new ColorModel();
-		private static final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
+
+		private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 
 		private ColorModel() {
 			super(Color.class);

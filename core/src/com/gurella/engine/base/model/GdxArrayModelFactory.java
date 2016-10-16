@@ -33,8 +33,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 	}
 
 	public static class GdxArrayModel<T extends Array<?>> implements Model<T> {
-		private Class<T> type;
-		private ArrayExt<Property<?>> properties;
+		private final Class<T> type;
+		private final ArrayExt<Property<?>> properties;
 
 		public GdxArrayModel(Class<T> type) {
 			this.type = type;
