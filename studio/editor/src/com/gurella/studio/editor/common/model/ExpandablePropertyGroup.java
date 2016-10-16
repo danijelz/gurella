@@ -39,6 +39,7 @@ class ExpandablePropertyGroup extends Composite {
 		expandTwistie = new Twistie(this, SWT.NONE);
 		expandTwistie.setExpanded(expanded);
 		expandTwistie.addHyperlinkListener(new ExpandListener());
+		UiUtils.adapt(expandTwistie);
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(expandTwistie);
 
 		Label nameLabel = toolkit.createLabel(this, name);

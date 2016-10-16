@@ -19,7 +19,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class ColorSelectionWidget extends Composite {
@@ -33,7 +32,7 @@ public class ColorSelectionWidget extends Composite {
 
 	private Consumer<Color> colorChangeListener;
 	private Color defaultColor;
-	
+
 	private boolean alphaEnabled;
 	private ModifyListener modifyTextListener;
 
@@ -70,7 +69,7 @@ public class ColorSelectionWidget extends Composite {
 		button.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
 
 		UiUtils.paintBordersFor(this);
-		GurellaStudioPlugin.getToolkit().adapt(this);
+		UiUtils.adapt(this);
 
 		modifyTextListener = e -> modifyColor(text.getText());
 		presentColor(color);
@@ -113,7 +112,7 @@ public class ColorSelectionWidget extends Composite {
 			gc.setAlpha(rgba.alpha);
 			gc.fillRectangle(0, 0, width, height);
 		}
-		
+
 		gc.setAlpha(255);
 		gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
 		gc.drawRectangle(0, 0, width - 1, height - 1);

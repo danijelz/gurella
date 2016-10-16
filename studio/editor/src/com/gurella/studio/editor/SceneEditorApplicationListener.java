@@ -92,16 +92,19 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		renderThread = Thread.currentThread();
 
 		Graphics graphics = Gdx.graphics;
-		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), Gdx.graphics.getHeight());
+		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), graphics.getHeight());
 		perspectiveCamera.position.set(0f, 0f, 3f);
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 10000;
 
 		perspectiveCamera.update();
-		selectedCamera = perspectiveCamera;
-
 		perspectiveCameraController = new SceneCameraInputController(perspectiveCamera);
+		
+		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
+		orthographicCameraController = new SceneCameraInputController(orthographicCamera);
+		
+		selectedCamera = perspectiveCamera;
 		selectedController = perspectiveCameraController;
 
 		modelBatch = new ModelBatch();

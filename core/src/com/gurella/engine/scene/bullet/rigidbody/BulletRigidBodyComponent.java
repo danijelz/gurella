@@ -113,7 +113,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
-			if (rigidBody.isActive()) {
+			if (rigidBody != null && rigidBody.isActive()) {
 				rigidBody.activate(false);
 			}
 		}
@@ -173,7 +173,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	@Override
 	public void debugRender(GenericBatch batch) {
-		if (shape != null) {
+		if (shape != null && isActive()) {
 			shape.debugRender(batch, transformComponent);
 		}
 	}
@@ -181,8 +181,10 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@Override
 	public void reset() {
 		transformComponent = null;
-		rigidBody.dispose();
-		rigidBody = null;
+		if (rigidBody != null) {
+			rigidBody.dispose();
+			rigidBody = null;
+		}
 	}
 
 	private class MotionState extends btMotionState {

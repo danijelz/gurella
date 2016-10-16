@@ -3,7 +3,6 @@ package com.gurella.engine.application;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.disposable.DisposablesService;
@@ -59,9 +58,6 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 	@Override
 	public final void render() {
 		deltaTime = Gdx.graphics.getDeltaTime();
-		// TODO clear must be handled by RenderSystem with spec from camera
-		Gdx.gl.glClearColor(1, 1, 1, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		EventService.post(updateEvent);
 	}
 

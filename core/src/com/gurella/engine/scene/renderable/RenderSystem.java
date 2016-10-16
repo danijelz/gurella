@@ -1,7 +1,9 @@
 package com.gurella.engine.scene.renderable;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
@@ -110,6 +112,9 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 	private void render(Layer layer, CameraComponent<?> cameraComponent) {
 		Camera camera = cameraComponent.camera;
 		cameraComponent.viewport.apply();
+
+		clearGlData(cameraComponent);
+
 		batch.begin(camera);
 		batch.setEnvironment(updateEnvironment(cameraComponent));
 
@@ -120,6 +125,30 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		} finally {
 			batch.end();
 			batch.setEnvironment(null);
+		}
+	}
+
+	private static void clearGlData(CameraComponent<?> cameraComponent) {
+		int clearValue = 0;
+
+		if (cameraComponent.clearColor) {
+			Color color = cameraComponent.clearColorValue;
+			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
+			clearValue |= GL20.GL_COLOR_BUFFER_BIT;
+		}
+
+		if (cameraComponent.clearDepth) {
+			Gdx.gl.glClearDepthf(cameraComponent.clearDepthValue);
+			clearValue |= GL20.GL_DEPTH_BUFFER_BIT;
+		}
+
+		if (cameraComponent.clearStencil) {
+			Gdx.gl.glClearStencil(cameraComponent.clearStencilValue);
+			clearValue |= GL20.GL_STENCIL_BUFFER_BIT;
+		}
+
+		if (clearValue != 0) {
+			Gdx.gl.glClear(clearValue);
 		}
 	}
 

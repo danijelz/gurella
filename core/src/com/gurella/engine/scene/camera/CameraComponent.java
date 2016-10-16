@@ -2,9 +2,11 @@ package com.gurella.engine.scene.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.Layer;
@@ -25,6 +27,22 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public float far = 1000;
 
 	private int ordinal;
+
+	@PropertyEditorDescriptor(group = "Clear color", descriptiveName = "enable")
+	public boolean clearColor = true;
+	@PropertyEditorDescriptor(group = "Clear color", descriptiveName = "value")
+	public final Color clearColorValue = new Color(0, 0, 0, 1);
+
+	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "enable")
+	public boolean clearDepth = true;
+	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "value")
+	public float clearDepthValue = 1;
+
+	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "enable")
+	public boolean clearStencil = false;
+	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "value")
+	public int clearStencilValue = 1;
+
 	// TODO notify render system for layer changes
 	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
 	//TODO RenderTarget
