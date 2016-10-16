@@ -16,6 +16,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -72,11 +74,14 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private GridModelInstance gridModelInstance;
 	private Compass compass;
 
+	private OrthographicCamera infoCamera;
+	private SpriteBatch spriteBatch;
+	private BitmapFont font;
+
 	private Scene scene;
 	private SceneEditorRenderSystem renderSystem;
 
 	private final Ray pickRay = new Ray();
-	private long pickRayTime = 0;
 	private final Vector3 intersection = new Vector3();
 	private SceneNode2 selectedNode;
 
@@ -100,10 +105,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		perspectiveCamera.update();
 		perspectiveCameraController = new SceneCameraInputController(perspectiveCamera);
-		
+
 		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
 		orthographicCameraController = new SceneCameraInputController(orthographicCamera);
-		
+
 		selectedCamera = perspectiveCamera;
 		selectedController = perspectiveCameraController;
 
@@ -117,6 +122,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		compass = new Compass(perspectiveCamera);
 		shapeRenderer = new ShapeRenderer();
 		renderSystem = new SceneEditorRenderSystem(editor);
+
+		infoCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
+		spriteBatch = new SpriteBatch();
+		font = new BitmapFont();
+		font.setColor(1f, 0f, 0f, 1f);
 
 		inputQueue.setProcessor(selectedController);
 		InputService.addInputProcessor(inputQueue);
@@ -163,17 +173,26 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			compass.render(modelBatch);
 			modelBatch.end();
 			renderSystem.renderScene(selectedCamera);
-
-			if (System.currentTimeMillis() - 3000 < pickRayTime || true) {
-				shapeRenderer.setAutoShapeType(true);
-				shapeRenderer.begin();
-				shapeRenderer.setProjectionMatrix(selectedCamera.combined);
-				shapeRenderer.setColor(Color.YELLOW);
-				shapeRenderer.set(ShapeType.Line);
-				shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
-				shapeRenderer.end();
-			}
+			renderPickRay();
+			renderInfo();
 		}
+	}
+
+	private void renderInfo() {
+		spriteBatch.setProjectionMatrix(infoCamera.projection);
+		spriteBatch.begin();
+		font.draw(spriteBatch, "Test", 1, 1);
+		spriteBatch.end();
+	}
+
+	private void renderPickRay() {
+		shapeRenderer.setAutoShapeType(true);
+		shapeRenderer.begin();
+		shapeRenderer.setProjectionMatrix(selectedCamera.combined);
+		shapeRenderer.setColor(Color.YELLOW);
+		shapeRenderer.set(ShapeType.Line);
+		shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
+		shapeRenderer.end();
 	}
 
 	@Override
@@ -187,7 +206,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			return;
 		}
 
-		pickRayTime = System.currentTimeMillis();
 		selectedCamera.update(true);
 		pickRay.set(selectedCamera.getPickRay(x, y));
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
@@ -303,6 +321,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		debugUpdate();
 		EventService.unsubscribe(editor.id, this);
 		renderSystem.dispose();
+		modelBatch.dispose();
+		spriteBatch.dispose();
+		font.dispose();
+		gridModelInstance.dispose();
+		compass.dispose();
 	}
 
 	private static class DebugUpdateEvent implements Event<ApplicationDebugUpdateListener> {
