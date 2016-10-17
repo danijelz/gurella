@@ -215,6 +215,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public void dispose() {
 		if (debugRenderer != null) {
 			debugRenderer.dispose();
+			debugRenderer = null;
 		}
 	}
 }
