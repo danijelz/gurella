@@ -1,6 +1,11 @@
 package com.gurella.studio.editor;
 
-import org.eclipse.core.commands.ExecutionException;
+import static com.gurella.studio.GurellaStudioPlugin.log;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
+
+import java.util.Optional;
+
+import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -13,12 +18,12 @@ import org.eclipse.ui.IPathEditorInput;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.utils.Try;
 
 public class SceneEditorContext implements SceneLoadedListener {
-	public final int editorId;
 	private final SceneEditor editor;
+	public final int editorId;
 	public final IPathEditorInput editorInput;
 	public final IWorkspace workspace;
 	public final IProject project;
@@ -41,19 +46,15 @@ public class SceneEditorContext implements SceneLoadedListener {
 	}
 
 	void dispose() {
-		if (scene != null) {
-			scene.stop();
-		}
-
-		if (javaProject != null) {
-			try {
-				javaProject.close();
-			} catch (JavaModelException e) {
-				GurellaStudioPlugin.log(e, "Error cloasing java project");
-			}
-		}
-
+		Optional.ofNullable(scene).ifPresent(s -> s.stop());
+		String msg = "Error closing java project";
+		Optional.ofNullable(javaProject).ifPresent(p -> Try.ofFailable(this::closeJavaProject).onFailure(e -> log(e, msg)));
 		EventService.unsubscribe(editorId, this);
+	}
+
+	private IJavaProject closeJavaProject() throws JavaModelException {
+		javaProject.close();
+		return javaProject;
 	}
 
 	public Scene getScene() {
@@ -63,15 +64,11 @@ public class SceneEditorContext implements SceneLoadedListener {
 	@Override
 	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
-		scene.start();
 	}
 
 	public void executeOperation(IUndoableOperation operation, String errorMsg) {
 		operation.addContext(editor.undoContext);
-		try {
-			editor.operationHistory.execute(operation, null, null);
-		} catch (ExecutionException e) {
-			GurellaStudioPlugin.showError(e, errorMsg);
-		}
+		IOperationHistory history = editor.operationHistory;
+		Try.ofFailable(() -> history.execute(operation, null, null)).onFailure(e -> showError(e, errorMsg));
 	}
 }

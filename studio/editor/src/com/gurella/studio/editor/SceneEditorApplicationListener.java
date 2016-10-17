@@ -52,7 +52,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		implements GurellaStateProvider, SceneEditorMouseListener, SceneLoadedListener {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 
-	private final SceneEditor editor;
+	private final int editorId;
 
 	private Thread renderThread;
 
@@ -64,8 +64,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private OrthographicCamera orthographicCamera;
 	private SceneCameraInputController orthographicCameraController;
 
-	private Camera selectedCamera;
-	private SceneCameraInputController selectedController;
+	private Camera camera;
+	private SceneCameraInputController inputController;
 
 	private ModelBatch modelBatch;
 	private ShapeRenderer shapeRenderer;
@@ -88,14 +88,15 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	private final Array<Spatial> spatials = new Array<>(64);
 
-	public SceneEditorApplicationListener(SceneEditor editor) {
-		this.editor = editor;
-		EventService.subscribe(editor.id, this);
+	public SceneEditorApplicationListener(int editorId) {
+		this.editorId = editorId;
+		EventService.subscribe(editorId, this);
 	}
 
 	@Override
 	public void create() {
 		renderThread = Thread.currentThread();
+		renderSystem = new SceneEditorRenderSystem(editorId);
 
 		Graphics graphics = Gdx.graphics;
 		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), graphics.getHeight());
@@ -105,13 +106,13 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		perspectiveCamera.far = 10000;
 
 		perspectiveCamera.update();
-		perspectiveCameraController = new SceneCameraInputController(perspectiveCamera);
+		perspectiveCameraController = new SceneCameraInputController(perspectiveCamera, editorId);
 
 		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
-		orthographicCameraController = new SceneCameraInputController(orthographicCamera);
+		orthographicCameraController = new SceneCameraInputController(orthographicCamera, editorId);
 
-		selectedCamera = perspectiveCamera;
-		selectedController = perspectiveCameraController;
+		camera = perspectiveCamera;
+		inputController = perspectiveCameraController;
 
 		modelBatch = new ModelBatch();
 		environment = new Environment();
@@ -122,7 +123,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
 		shapeRenderer = new ShapeRenderer();
-		renderSystem = new SceneEditorRenderSystem(editor);
 
 		infoProjection = new Matrix4().setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 		spriteBatch = new SpriteBatch();
@@ -130,7 +130,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		font = new BitmapFont();
 		font.setColor(Color.RED);
 
-		inputQueue.setProcessor(selectedController);
+		inputQueue.setProcessor(inputController);
 		InputService.addInputProcessor(inputQueue);
 
 		DefaultShader.defaultCullFace = 0;
@@ -162,7 +162,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	public void renderScene() {
 		synchronized (GurellaStudioPlugin.glMutex) {
-			selectedController.update();
+			inputController.update();
 			Color color = backgroundColor;
 			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
 			Gdx.gl.glClearDepthf(1);
@@ -171,11 +171,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			modelBatch.begin(selectedCamera);
+			modelBatch.begin(camera);
 			modelBatch.render(gridModelInstance, environment);
 			compass.render(modelBatch);
 			modelBatch.end();
-			renderSystem.renderScene(selectedCamera);
+			renderSystem.renderScene(camera);
 			renderPickRay();
 			renderInfo();
 		}
@@ -191,7 +191,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private void renderPickRay() {
 		shapeRenderer.setAutoShapeType(true);
 		shapeRenderer.begin();
-		shapeRenderer.setProjectionMatrix(selectedCamera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.setColor(Color.YELLOW);
 		shapeRenderer.set(ShapeType.Line);
 		shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
@@ -209,14 +209,14 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			return;
 		}
 
-		selectedCamera.update(true);
-		pickRay.set(selectedCamera.getPickRay(x, y));
+		camera.update(true);
+		pickRay.set(camera.getPickRay(x, y));
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
 		if (spatials.size == 0) {
 			return;
 		}
 
-		Vector3 cameraPosition = selectedCamera.position;
+		Vector3 cameraPosition = camera.position;
 		Spatial closestSpatial = null;
 		float closestDistance = Float.MAX_VALUE;
 
@@ -239,7 +239,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void onMouseMenu(float x, float y) {
-		SceneEditor editor = SceneEditorUtils.getCurrentEditor();
+		SceneEditor editor = SceneEditorRegistry.getCurrentEditor();
 		Dock partControl = editor.getDock();
 
 		Menu menu = new Menu(partControl.getShell(), POP_UP);
@@ -272,57 +272,57 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	}
 
 	private void toFront() {
-		selectedCamera.position.set(0, 0, 3);
-		selectedCamera.direction.set(0, 0, -1);
-		selectedCamera.up.set(0, 1, 0);
-		selectedCamera.lookAt(0, 0, 0);
-		selectedCamera.update(true);
+		camera.position.set(0, 0, 3);
+		camera.direction.set(0, 0, -1);
+		camera.up.set(0, 1, 0);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
 	}
 
 	private void toBack() {
-		selectedCamera.position.set(0, 0, -3);
-		selectedCamera.direction.set(0, 0, 1);
-		selectedCamera.up.set(0, 1, 0);
-		selectedCamera.lookAt(0, 0, 0);
-		selectedCamera.update(true);
+		camera.position.set(0, 0, -3);
+		camera.direction.set(0, 0, 1);
+		camera.up.set(0, 1, 0);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
 	}
 
 	private void toTop() {
-		selectedCamera.position.set(0, 3, 0);
-		selectedCamera.direction.set(0, -1, 0);
-		selectedCamera.up.set(0, 0, -1);
-		selectedCamera.lookAt(0, 0, 0);
-		selectedCamera.update(true);
+		camera.position.set(0, 3, 0);
+		camera.direction.set(0, -1, 0);
+		camera.up.set(0, 0, -1);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
 	}
 
 	private void toBottom() {
-		selectedCamera.position.set(0, -3, 0);
-		selectedCamera.direction.set(0, -1, 0);
-		selectedCamera.up.set(0, 0, 1);
-		selectedCamera.lookAt(0, 0, 0);
-		selectedCamera.update(true);
+		camera.position.set(0, -3, 0);
+		camera.direction.set(0, -1, 0);
+		camera.up.set(0, 0, 1);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
 	}
 
 	private void toRight() {
-		selectedCamera.position.set(3, 0, 0);
-		selectedCamera.direction.set(-1, 0, 0);
-		selectedCamera.up.set(0, 1, 0);
-		selectedCamera.lookAt(0, 0, 0);
-		selectedCamera.update(true);
+		camera.position.set(3, 0, 0);
+		camera.direction.set(-1, 0, 0);
+		camera.up.set(0, 1, 0);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
 	}
 
 	private void toLeft() {
-		selectedCamera.position.set(-3, 0, 0);
-		selectedCamera.direction.set(1, 0, 0);
-		selectedCamera.up.set(0, 1, 0);
-		selectedCamera.lookAt(0, 0, 0);
-		selectedCamera.update(true);
+		camera.position.set(-3, 0, 0);
+		camera.direction.set(1, 0, 0);
+		camera.up.set(0, 1, 0);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
 	}
 
 	@Override
 	public void dispose() {
 		debugUpdate();
-		EventService.unsubscribe(editor.id, this);
+		EventService.unsubscribe(editorId, this);
 		renderSystem.dispose();
 		modelBatch.dispose();
 		spriteBatch.dispose();

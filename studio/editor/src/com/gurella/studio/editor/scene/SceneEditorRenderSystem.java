@@ -28,7 +28,6 @@ import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.model.MetaModelEditor;
 import com.gurella.studio.editor.common.model.ModelEditorContext;
 import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
@@ -38,7 +37,8 @@ import com.gurella.studio.editor.subscription.SelectionListener;
 
 public class SceneEditorRenderSystem
 		implements ComponentActivityListener, SceneLoadedListener, SelectionListener, Disposable {
-	private SceneEditor editor;
+	private int editorId;
+
 	private Scene scene;
 	private int sceneId = -1;
 
@@ -59,8 +59,8 @@ public class SceneEditorRenderSystem
 
 	private SceneNode2 selectedNode;
 
-	public SceneEditorRenderSystem(SceneEditor editor) {
-		this.editor = editor;
+	public SceneEditorRenderSystem(int editorId) {
+		this.editorId = editorId;
 		layerMask.allowed(Layer.DEFAULT);
 		layerMask.allowed(Layer.SKY);
 		batch = new GenericBatch();
@@ -71,7 +71,7 @@ public class SceneEditorRenderSystem
 		environment.set(pointLights);
 		environment.set(spotLights);
 
-		EventService.subscribe(editor.id, this);
+		EventService.subscribe(editorId, this);
 	}
 
 	@Override
@@ -270,8 +270,8 @@ public class SceneEditorRenderSystem
 
 	@Override
 	public void dispose() {
-		EventService.unsubscribe(editor.id, this);
 		EventService.unsubscribe(sceneId, this);
+		EventService.unsubscribe(editorId, this);
 		batch.dispose();
 	}
 

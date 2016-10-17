@@ -3,15 +3,21 @@ package com.gurella.studio.editor.scene;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.gurella.studio.editor.SceneEditorUtils;
+import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 
 public class SceneCameraInputController extends CameraInputController {
-	public SceneCameraInputController(Camera camera) {
-		super(new SceneCameraGestureListener(), camera);
+	public SceneCameraInputController(Camera camera, int editorId) {
+		super(new SceneCameraGestureListener(editorId), camera);
 	}
 
-	protected static class SceneCameraGestureListener extends CameraGestureListener {
+	private static class SceneCameraGestureListener extends CameraGestureListener {
+		private final int editorId;
+
+		public SceneCameraGestureListener(int editorId) {
+			this.editorId = editorId;
+		}
+
 		@Override
 		public boolean tap(float x, float y, int count, int button) {
 			if (count != 1) {
@@ -20,10 +26,10 @@ public class SceneCameraInputController extends CameraInputController {
 
 			switch (button) {
 			case Buttons.RIGHT:
-				SceneEditorUtils.notify(SceneEditorMouseListener.class, l -> l.onMouseMenu(x, y));
+				SceneEditor.post(editorId, SceneEditorMouseListener.class, l -> l.onMouseMenu(x, y));
 				return false;
 			case Buttons.LEFT:
-				SceneEditorUtils.notify(SceneEditorMouseListener.class, l -> l.onMouseSelection(x, y));
+				SceneEditor.post(editorId, SceneEditorMouseListener.class, l -> l.onMouseSelection(x, y));
 				return false;
 			default:
 				return false;

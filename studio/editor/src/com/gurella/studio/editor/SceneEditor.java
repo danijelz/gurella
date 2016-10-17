@@ -2,6 +2,7 @@ package com.gurella.studio.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoContext;
@@ -19,6 +20,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -36,7 +38,9 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -44,7 +48,7 @@ import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
-import com.gurella.studio.editor.event.SceneLoadedEvent;
+import com.gurella.studio.editor.event.DispatcherEvent;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
@@ -100,6 +104,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	}
 
 	@Override
+	public boolean isSaveAsAllowed() {
+		return false;
+	}
+
+	@Override
 	public void doSaveAs() {
 	}
 
@@ -122,8 +131,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		UndoRedoActionGroup historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
 		historyActionGroup.fillActionBars(site.getActionBars());
 
+		applicationListener = new SceneEditorApplicationListener(id);
 		context = new SceneEditorContext(this);
-		applicationListener = new SceneEditorApplicationListener(this);
 
 		EventService.subscribe(id, this);
 	}
@@ -131,11 +140,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	@Override
 	public boolean isDirty() {
 		return dirty;
-	}
-
-	@Override
-	public boolean isSaveAsAllowed() {
-		return false;
 	}
 
 	@Override
@@ -150,7 +154,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 			application = new SwtLwjglApplication(dock.getCenter(), applicationListener);
 		}
 
-		SceneEditorUtils.put(this, dock, application, context);
+		SceneEditorRegistry.put(this, dock, application, context);
 
 		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
 		registeredViews.add(sceneHierarchyView);
@@ -186,7 +190,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	@Override
 	public void setFocus() {
-		application.setFocus();
+		dock.setFocus();
 	}
 
 	@Override
@@ -197,7 +201,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		context.dispose();
 		applicationListener.debugUpdate();
 		application.exit();
-		SceneEditorUtils.remove(this);
+		SceneEditorRegistry.remove(this);
 	}
 
 	@Override
@@ -206,16 +210,76 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		firePropertyChange(PROP_DIRTY);
 	}
 
+	public static int getEditorId(Control control) {
+		return SceneEditorRegistry.getEditorId(control);
+	}
+
+	public static int getCurrentEditorId() {
+		return SceneEditorRegistry.getCurrentEditorId();
+	}
+
+	public static SceneEditor getCurrentEditor() {
+		return SceneEditorRegistry.getCurrentEditor();
+	}
+
+	public static void subscribe(Object subscriber) {
+		EventService.subscribe(getCurrentEditorId(), subscriber);
+	}
+
+	public static void subscribe(int editorId, Object subscriber) {
+		EventService.subscribe(editorId, subscriber);
+	}
+
+	public static void subscribe(Control subscriber) {
+		EventService.subscribe(getEditorId(subscriber), subscriber);
+	}
+
+	public static void subscribe(int editorId, Control subscriber) {
+		EventService.subscribe(editorId, subscriber);
+	}
+
+	public static void unsubscribe(Object subscriber) {
+		EventService.unsubscribe(getCurrentEditorId(), subscriber);
+	}
+
+	public static void unsubscribe(int editorId, Object subscriber) {
+		EventService.unsubscribe(editorId, subscriber);
+	}
+
+	public static void unsubscribe(Control subscriber) {
+		EventService.unsubscribe(getEditorId(subscriber), subscriber);
+	}
+
+	public static void unsubscribe(int editorId, Control subscriber) {
+		EventService.unsubscribe(editorId, subscriber);
+	}
+
+	public static <L extends EventSubscription> void post(Control source, Event<L> event) {
+		EventService.post(getEditorId(source), event);
+	}
+
+	public static <L extends EventSubscription> void post(int editorId, Event<L> event) {
+		EventService.post(editorId, event);
+	}
+
+	public static <L extends EventSubscription> void post(Control source, Class<L> type, Consumer<L> dispatcher) {
+		EventService.post(getEditorId(source), new DispatcherEvent<L>(type, dispatcher));
+	}
+
+	public static <L extends EventSubscription> void post(int editorId, Class<L> type, Consumer<L> dispatcher) {
+		EventService.post(editorId, new DispatcherEvent<L>(type, dispatcher));
+	}
+
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
-		private Label label;
+		private Label progressLabel;
 
 		public LoadSceneCallback() {
 			GLCanvas glCanvas = application.getGraphics().getGlCanvas();
 			glCanvas.setLayout(new GridLayout());
-			label = new Label(glCanvas, SWT.DM_FILL_NONE);
-			label.setBackground(glCanvas.getDisplay().getSystemColor(SWT.COLOR_TRANSPARENT));
-			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-			label.setText("Loading...");
+			progressLabel = new Label(glCanvas, SWT.DM_FILL_NONE);
+			progressLabel.setBackground(glCanvas.getDisplay().getSystemColor(SWT.COLOR_TRANSPARENT));
+			progressLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+			progressLabel.setText("Loading...");
 		}
 
 		@Override
@@ -224,13 +288,14 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		}
 
 		private void updateProgress(int progress) {
-			label.setText("Loading... " + progress);
+			progressLabel.setText("Loading... " + progress);
 		}
 
 		@Override
 		public void onSuccess(Scene scene) {
-			EventService.post(id, new SceneLoadedEvent(scene));
-			asyncExec(() -> label.dispose());
+			DispatcherEvent.post(id, SceneLoadedListener.class, l -> l.sceneLoaded(scene));
+			scene.start();
+			asyncExec(() -> progressLabel.dispose());
 		}
 
 		@Override

@@ -378,8 +378,4 @@ public class SwtLwjglApplication implements Application {
 			lifecycleListeners.remove(lifecycleListener);
 		}
 	}
-
-	public void setFocus() {
-		graphics.getGlCanvas().setFocus();
-	}
 }
