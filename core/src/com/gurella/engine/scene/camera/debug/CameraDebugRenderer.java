@@ -28,7 +28,8 @@ public class CameraDebugRenderer {
 	private final ColorAttribute fog = new ColorAttribute(ColorAttribute.Fog, 1f, 1f, 1f, 1f);
 	private final DepthTestAttribute depthTest = new DepthTestAttribute();
 
-	public CameraDebugRenderer() {
+	public CameraDebugRenderer(CameraComponent<?> cameraComponent) {
+		this.cameraComponent = cameraComponent;
 		int width = 240;
 		int height = 180;
 		fbo = new FrameBuffer(Format.RGBA8888, width, height, true);

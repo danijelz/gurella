@@ -197,7 +197,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@Override
 	public void debugRender(GenericBatch batch) {
 		if (debugRenderer == null) {
-			debugRenderer = new CameraDebugRenderer();
+			debugRenderer = new CameraDebugRenderer(this);
 		}
 		debugRenderer.debugRender(batch);
 	}
