@@ -147,6 +147,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		perspectiveCamera.viewportWidth = width;
 		perspectiveCamera.viewportHeight = height;
 		perspectiveCamera.update();
+		infoProjection.setToOrtho2D(0, 0, width, height);
 	}
 
 	@Override
@@ -167,7 +168,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
 			Gdx.gl.glClearDepthf(1);
 			Gdx.gl.glClearStencil(0);
-			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
