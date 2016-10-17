@@ -10,8 +10,10 @@ import com.gurella.engine.base.model.ValueRange;
 import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
@@ -22,7 +24,7 @@ import com.gurella.engine.utils.ImmutableArray;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
-		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener, Poolable {
+		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener, DebugRenderable, Poolable {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -185,6 +187,11 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.transform(transformComponent.getWorldTransform(tempTransform));
 		camera.normalizeUp();
 		camera.update(true);
+	}
+	
+	@Override
+	public void debugRender(GenericBatch batch) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
