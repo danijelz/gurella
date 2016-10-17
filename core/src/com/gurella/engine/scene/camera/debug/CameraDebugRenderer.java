@@ -34,8 +34,8 @@ public class CameraDebugRenderer {
 	public CameraDebugRenderer(CameraComponent<?> cameraComponent) {
 		this.cameraComponent = cameraComponent;
 
-		int width = 240;
-		int height = 180;
+		int width = 160;
+		int height = 120;
 
 		fbo = new FrameBuffer(Format.RGBA8888, width, height, true);
 
@@ -51,7 +51,7 @@ public class CameraDebugRenderer {
 		fbo.begin();
 		Gdx.gl.glClearColor(0, 0, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		Gdx.gl.glViewport(0, 0, 240, 180);
+		Gdx.gl.glViewport(0, 0, 160, 120);
 		SpatialSystem<?> spatialSystem = cameraComponent.getScene().spatialSystem;
 		layerMask.reset();
 		layerMask.allowed(Layer.DEFAULT);
