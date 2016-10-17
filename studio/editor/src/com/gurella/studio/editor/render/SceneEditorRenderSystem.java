@@ -57,7 +57,10 @@ public class SceneEditorRenderSystem
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
-	private SceneNode2 selectedNode;
+	private SceneNode2 focusedNode;
+	private SceneNodeComponent2 focusedComponent;
+	private Control lastFocusControl;
+	private boolean focusDataFromInspectable;
 
 	public SceneEditorRenderSystem(int editorId) {
 		this.editorId = editorId;
@@ -218,7 +221,7 @@ public class SceneEditorRenderSystem
 		batch.setEnvironment(environment);
 
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
-		SceneNodeComponent2 focusedComponent = findFocusedComponent();
+		updateFocusData();
 		int focusedComponentNodeId = focusedComponent instanceof DebugRenderable ? focusedComponent.getNodeId() : -1;
 		boolean focusedComponnentRendered = focusedComponent == null ? true : false;
 
@@ -238,30 +241,40 @@ public class SceneEditorRenderSystem
 		batch.end();
 	}
 
-	private static SceneNodeComponent2 findFocusedComponent() {
+	private void updateFocusData() {
 		Display current = Display.getCurrent();
 		if (current == null) {
-			return null;
+			return;
 		}
 
 		Control focusControl = current.getFocusControl();
-		if (focusControl == null) {
-			return null;
+		if (focusControl == lastFocusControl && focusDataFromInspectable) {
+			return;
 		}
 
-		Composite parent = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
-		while (parent != null) {
-			if (parent instanceof MetaModelEditor) {
-				ModelEditorContext<?> context = ((MetaModelEditor<?>) parent).getContext();
+		lastFocusControl = focusControl;
+		focusDataFromInspectable = false;
+
+		if (focusControl == null) {
+			return;
+		}
+
+		Composite temp = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
+		while (temp != null) {
+			if (temp instanceof MetaModelEditor) {
+				ModelEditorContext<?> context = ((MetaModelEditor<?>) temp).getContext();
 				Object modelInstance = context.modelInstance;
 				if (modelInstance instanceof SceneNodeComponent2) {
-					return (SceneNodeComponent2) modelInstance;
+					focusedComponent = (SceneNodeComponent2) modelInstance;
+					focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+					return;
+				} else if (modelInstance instanceof SceneNode2) {
+					focusedComponent = null;
+					focusedNode = (SceneNode2) modelInstance;
 				}
 			}
-			parent = parent.getParent();
+			temp = temp.getParent();
 		}
-
-		return null;
 	}
 
 	private void debugRender(Spatial spatial, SceneNodeComponent2 focusedComponent) {
@@ -286,12 +299,17 @@ public class SceneEditorRenderSystem
 	@Override
 	public void selectionChanged(Object selection) {
 		if (selection instanceof NodeInspectable) {
-			selectedNode = ((NodeInspectable) selection).target;
+			focusedNode = ((NodeInspectable) selection).target;
+			focusedComponent = null;
+			focusDataFromInspectable = true;
 		} else if (selection instanceof ComponentInspectable) {
-			SceneNodeComponent2 target = ((ComponentInspectable) selection).target;
-			selectedNode = target == null ? null : target.getNode();
+			focusedComponent = ((ComponentInspectable) selection).target;
+			focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+			focusDataFromInspectable = true;
 		} else {
-			selectedNode = null;
+			focusedComponent = null;
+			focusedNode = null;
+			focusDataFromInspectable = true;
 		}
 	}
 }
