@@ -1,10 +1,9 @@
-package com.gurella.studio.editor.graph;
+package com.gurella.studio.editor.inspector.component;
 
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.inspector.component.ComponentInspectableContainer;
 
 public class ComponentInspectable implements Inspectable<SceneNodeComponent2> {
 	public final SceneNodeComponent2 target;

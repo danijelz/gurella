@@ -42,9 +42,9 @@ import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListen
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.control.Dock;
-import com.gurella.studio.editor.scene.GridModelInstance;
-import com.gurella.studio.editor.scene.SceneCameraInputController;
-import com.gurella.studio.editor.scene.SceneEditorRenderSystem;
+import com.gurella.studio.editor.render.GridModelInstance;
+import com.gurella.studio.editor.render.SceneCameraInputController;
+import com.gurella.studio.editor.render.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 

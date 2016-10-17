@@ -51,6 +51,8 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.SelectionEvent;
+import com.gurella.studio.editor.inspector.component.ComponentInspectable;
+import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;

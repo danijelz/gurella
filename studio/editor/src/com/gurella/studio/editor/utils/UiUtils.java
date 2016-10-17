@@ -6,6 +6,7 @@ import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -29,24 +30,18 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
 
 public class UiUtils {
-	private static Font TEXT_FONT;
-
 	public static Text createText(Composite parent) {
 		FormToolkit toolkit = getToolkit();
 		Text text = toolkit.createText(parent, "", SWT.SINGLE);
 		toolkit.adapt(text, false, false);
 		text.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
-		text.setFont(getTextFont(text));
+		Font font = createFont(FontDescriptor.createFrom(text.getFont()).increaseHeight(-1));
+		text.addDisposeListener(e -> GurellaStudioPlugin.destroyFont(font));
+		text.setFont(font);
 		return text;
-	}
-
-	public static Font getTextFont(Text text) {
-		if (TEXT_FONT == null) {
-			TEXT_FONT = createFont(FontDescriptor.createFrom(text.getFont()).increaseHeight(-1));
-		}
-		return TEXT_FONT;
 	}
 
 	public static Text createFloatWidget(Composite parent) {
@@ -59,14 +54,11 @@ public class UiUtils {
 	}
 
 	public static void verifyFloat(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				Float.parseFloat(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(Float::valueOf).onFailure(ex -> e.doit = false);
+	}
+
+	protected static Try<String> tryWithNewText(VerifyEvent e, String oldValue) {
+		return Try.successful(getNewText(e, oldValue)).filter(t -> t.length() > 0);
 	}
 
 	private static void floatWidgetWheelEvent(Text text, int amount, float multiplier) {
@@ -92,14 +84,7 @@ public class UiUtils {
 	}
 
 	public static void verifyInteger(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				Integer.parseInt(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(Integer::valueOf).onFailure(ex -> e.doit = false);
 	}
 
 	private static void intWidgetWheelEvent(Text text, int amount, float multiplier) {
@@ -117,16 +102,8 @@ public class UiUtils {
 		return text;
 	}
 
-	@SuppressWarnings("unused")
 	public static void verifyBigInteger(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				new BigInteger(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(BigInteger::new).onFailure(ex -> e.doit = false);
 	}
 
 	public static Text createBigDecimalWidget(Composite parent) {
@@ -135,16 +112,8 @@ public class UiUtils {
 		return text;
 	}
 
-	@SuppressWarnings("unused")
 	public static void verifyBigDecimal(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				new BigDecimal(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(BigDecimal::new).onFailure(ex -> e.doit = false);
 	}
 
 	public static Text createLongWidget(Composite parent) {
@@ -157,14 +126,7 @@ public class UiUtils {
 	}
 
 	public static void verifyLong(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				Long.parseLong(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(Long::valueOf).onFailure(ex -> e.doit = false);
 	}
 
 	private static void longWidgetWheelEvent(Text text, int amount, float multiplier) {
@@ -183,14 +145,7 @@ public class UiUtils {
 	}
 
 	public static void verifyByte(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				Byte.parseByte(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(Byte::valueOf).onFailure(ex -> e.doit = false);
 	}
 
 	public static Text createDoubleWidget(Composite parent) {
@@ -200,14 +155,7 @@ public class UiUtils {
 	}
 
 	public static void verifyDouble(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				Double.parseDouble(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(Double::valueOf).onFailure(ex -> e.doit = false);
 	}
 
 	public static Text createShortWidget(Composite parent) {
@@ -217,14 +165,7 @@ public class UiUtils {
 	}
 
 	public static void verifyShort(VerifyEvent e, String oldValue) {
-		try {
-			String newText = getNewText(e, oldValue);
-			if (newText.length() > 0) {
-				Short.parseShort(newText);
-			}
-		} catch (Exception e2) {
-			e.doit = false;
-		}
+		tryWithNewText(e, oldValue).map(Short::valueOf).onFailure(ex -> e.doit = false);
 	}
 
 	public static Text createCharacterWidget(Composite parent) {
@@ -234,10 +175,7 @@ public class UiUtils {
 	}
 
 	public static void verifyCharacter(VerifyEvent e, String oldValue) {
-		String newText = getNewText(e, oldValue);
-		if (newText.length() > 1) {
-			e.doit = false;
-		}
+		Optional.of(getNewText(e, oldValue)).filter(t -> t.length() > 1).ifPresent(t -> e.doit = false);
 	}
 
 	public static <T extends Enum<T>> ComboViewer createEnumComboViewer(Composite parent, Class<T> enumType) {
@@ -248,6 +186,7 @@ public class UiUtils {
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		comboViewer.setLabelProvider(new LabelProvider());
 		comboViewer.setInput(enumType.getEnumConstants());
+
 		return comboViewer;
 	}
 

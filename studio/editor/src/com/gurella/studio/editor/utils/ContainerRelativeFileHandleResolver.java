@@ -8,8 +8,8 @@ import com.badlogic.gdx.files.FileHandle;
 public class ContainerRelativeFileHandleResolver implements FileHandleResolver {
 	private IContainer rootFolder;
 
-	public ContainerRelativeFileHandleResolver(IContainer assetsRootFolder) {
-		this.rootFolder = assetsRootFolder;
+	public ContainerRelativeFileHandleResolver(IContainer rootFolder) {
+		this.rootFolder = rootFolder;
 	}
 
 	@Override

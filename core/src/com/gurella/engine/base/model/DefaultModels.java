@@ -522,10 +522,10 @@ public class DefaultModels {
 
 		private ColorModel() {
 			super(Color.class);
-			properties.add(new RProperty());
-			properties.add(new GProperty());
-			properties.add(new BProperty());
-			properties.add(new AProperty());
+			properties.add(new R());
+			properties.add(new G());
+			properties.add(new B());
+			properties.add(new A());
 		}
 
 		@Override
@@ -608,14 +608,14 @@ public class DefaultModels {
 			}
 		}
 
-		private static class RProperty extends ColorComponentProperty {
-			public RProperty() {
+		private static class R extends ColorComponentProperty {
+			public R() {
 				super("r");
 			}
 
 			@Override
 			public Property<Float> newInstance(Model<?> model) {
-				return new RProperty();
+				return new R();
 			}
 
 			@Override
@@ -629,14 +629,14 @@ public class DefaultModels {
 			}
 		}
 
-		private static class GProperty extends ColorComponentProperty {
-			public GProperty() {
+		private static class G extends ColorComponentProperty {
+			public G() {
 				super("g");
 			}
 
 			@Override
 			public Property<Float> newInstance(Model<?> model) {
-				return new GProperty();
+				return new G();
 			}
 
 			@Override
@@ -650,14 +650,14 @@ public class DefaultModels {
 			}
 		}
 
-		private static class BProperty extends ColorComponentProperty {
-			public BProperty() {
+		private static class B extends ColorComponentProperty {
+			public B() {
 				super("b");
 			}
 
 			@Override
 			public Property<Float> newInstance(Model<?> model) {
-				return new BProperty();
+				return new B();
 			}
 
 			@Override
@@ -671,14 +671,14 @@ public class DefaultModels {
 			}
 		}
 
-		private static class AProperty extends ColorComponentProperty {
-			public AProperty() {
+		private static class A extends ColorComponentProperty {
+			public A() {
 				super("a");
 			}
 
 			@Override
 			public Property<Float> newInstance(Model<?> model) {
-				return new AProperty();
+				return new A();
 			}
 
 			@Override

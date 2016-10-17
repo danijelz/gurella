@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.render;
 
 import com.gurella.engine.event.Event;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;

@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.render;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -30,8 +30,8 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.studio.editor.common.model.MetaModelEditor;
 import com.gurella.studio.editor.common.model.ModelEditorContext;
-import com.gurella.studio.editor.graph.ComponentInspectable;
-import com.gurella.studio.editor.graph.NodeInspectable;
+import com.gurella.studio.editor.inspector.component.ComponentInspectable;
+import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.subscription.SelectionListener;
 
@@ -219,11 +219,19 @@ public class SceneEditorRenderSystem
 
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		SceneNodeComponent2 focusedComponent = findFocusedComponent();
+		int focusedComponentNodeId = focusedComponent instanceof DebugRenderable ? focusedComponent.getNodeId() : -1;
+		boolean focusedComponnentRendered = focusedComponent == null ? true : false;
 
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			spatial.renderableComponent.render(batch);
 			debugRender(spatial, focusedComponent);
+			focusedComponnentRendered |= spatial.nodeId == focusedComponentNodeId;
+		}
+
+		if (!focusedComponnentRendered && focusedComponent instanceof DebugRenderable) {
+			DebugRenderable debugRenderable = (DebugRenderable) focusedComponent;
+			debugRenderable.debugRender(batch);
 		}
 
 		tempSpatials.clear();

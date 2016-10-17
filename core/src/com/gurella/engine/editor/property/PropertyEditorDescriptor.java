@@ -13,7 +13,7 @@ public @interface PropertyEditorDescriptor {
 	@SuppressWarnings("rawtypes")
 	Class<? extends PropertyEditorFactory> factory() default PropertyEditorFactory.class;
 
-	EditorType type() default EditorType.composite;
+	EditorType type() default EditorType.composite; //TODO move to PropertyEditorFactory
 
 	boolean editable() default true;
 

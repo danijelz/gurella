@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.render;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
