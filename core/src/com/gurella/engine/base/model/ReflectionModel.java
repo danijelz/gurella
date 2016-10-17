@@ -1,5 +1,9 @@
 package com.gurella.engine.base.model;
 
+import static com.gurella.engine.base.model.Models.getPrefix;
+import static com.gurella.engine.base.model.Models.isPrefix;
+import static com.gurella.engine.base.model.Models.setPrefix;
+
 import java.util.Arrays;
 
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -38,10 +42,6 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
 public class ReflectionModel<T> implements Model<T> {
-	private static final String getPrefix = "get";
-	private static final String setPrefix = "set";
-	private static final String isPrefix = "is";
-
 	private static final ObjectMap<Class<?>, ReflectionModel<?>> modelsByType = new ObjectMap<Class<?>, ReflectionModel<?>>();
 
 	static {
@@ -311,7 +311,7 @@ public class ReflectionModel<T> implements Model<T> {
 			return;
 		}
 
-		String prefix = Boolean.TYPE.equals(type) ? isPrefix : getPrefix;
+		String prefix = boolean.class.equals(type) ? isPrefix : getPrefix;
 		String getterName = getter.getName();
 		if (!getterName.startsWith(prefix)) {
 			return;
@@ -484,16 +484,20 @@ public class ReflectionModel<T> implements Model<T> {
 	private static Method getPropertyGetter(Class<?> owner, String upperCaseName, Class<?> type, boolean forced) {
 		String prefix = boolean.class.equals(type) ? isPrefix : getPrefix;
 		Method getter = Reflection.getDeclaredMethodSilently(owner, prefix + upperCaseName);
-		if (getter == null || (!forced && getter.isPrivate())) {
+		if (getter == null || !isValidBeanMethod(forced, getter)) {
 			return null;
 		} else {
 			return type.equals(getter.getReturnType()) ? getter : null;
 		}
 	}
 
+	private static boolean isValidBeanMethod(boolean forced, Method method) {
+		return forced || !method.isPrivate() || method.getDeclaredAnnotation(PropertyDescriptor.class) != null;
+	}
+
 	private static Method getPropertySetter(Class<?> owner, String upperCaseName, Class<?> type, boolean forced) {
 		Method setter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, type);
-		if (setter == null || (!forced && setter.isPrivate())) {
+		if (setter == null || !isValidBeanMethod(forced, setter)) {
 			return null;
 		} else {
 			return Void.TYPE.equals(setter.getReturnType()) ? setter : null;

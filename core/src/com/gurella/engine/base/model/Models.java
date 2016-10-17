@@ -52,6 +52,10 @@ import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
 public class Models {
+	static final String getPrefix = "get";
+	static final String setPrefix = "set";
+	static final String isPrefix = "is";
+
 	private static final ObjectMap<Class<?>, Model<?>> resolvedModels = new ObjectMap<Class<?>, Model<?>>();
 	private static final Array<ModelFactory> modelFactories = new Array<ModelFactory>();
 

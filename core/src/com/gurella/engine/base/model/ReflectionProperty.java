@@ -1,16 +1,14 @@
 package com.gurella.engine.base.model;
 
+import static com.gurella.engine.base.model.Models.getPrefix;
+import static com.gurella.engine.base.model.Models.isPrefix;
+import static com.gurella.engine.base.model.Models.setPrefix;
+
 import java.lang.annotation.Annotation;
 
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.Method;
-import com.gurella.engine.base.model.ValueRange.ByteRange;
-import com.gurella.engine.base.model.ValueRange.CharRange;
-import com.gurella.engine.base.model.ValueRange.DoubleRange;
-import com.gurella.engine.base.model.ValueRange.FloatRange;
-import com.gurella.engine.base.model.ValueRange.IntegerRange;
-import com.gurella.engine.base.model.ValueRange.LongRange;
-import com.gurella.engine.base.model.ValueRange.ShortRange;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
@@ -35,9 +33,47 @@ public class ReflectionProperty<T> implements Property<T> {
 	private Method getter;
 	private Method setter;
 
-	//	public ReflectionProperty(Class<?> declaringClass, String name, Model<?> model) {
-	//		this(declaringClass, name, findField(name), findGetter(name), findSetter(name), model);
-	//	}
+	public static <T> ReflectionProperty<T> newInstance(Class<?> owner, String name, Model<?> model) {
+		Field field = Reflection.getDeclaredFieldSilently(owner, name);
+		String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
+		Class<?> fieldType = field == null ? null : field.getType();
+
+		if (fieldType == null) {
+			Method boolGetter = Reflection.getDeclaredMethodSilently(owner, isPrefix + upperCaseName);
+			boolGetter = boolGetter == null || !isValidBeanMethod(boolGetter)
+					|| boolGetter.getReturnType() != boolean.class ? null : boolGetter;
+			Method getter = Reflection.getDeclaredMethodSilently(owner, getPrefix + upperCaseName);
+			getter = getter == null || !isValidBeanMethod(getter) ? null : getter;
+			if (boolGetter == null && getter == null) {
+				throw new GdxRuntimeException(name + " is not a property of " + owner.getSimpleName());
+			}
+
+			Method boolSetter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, boolean.class);
+			Method setter = getter == null ? null
+					: Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, getter.getReturnType());
+			setter = setter == null || !isValidBeanMethod(getter) ? null : getter;
+			return new ReflectionProperty<T>(owner, name, field, getter, setter, model);
+		} else {
+			String prefix = boolean.class.equals(fieldType) ? isPrefix : getPrefix;
+			Method getter = Reflection.getDeclaredMethodSilently(owner, prefix + upperCaseName);
+			getter = getter == null || !isValidBeanMethod(getter) ? null : getter;
+			if (getter == null) {
+				return new ReflectionProperty<T>(owner, field, model);
+			}
+
+			Method setter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, fieldType);
+			setter = setter == null || !isValidBeanMethod(getter) ? null : getter;
+			if (setter == null) {
+				return new ReflectionProperty<T>(owner, field, model);
+			} else {
+				return new ReflectionProperty<T>(owner, name, field, getter, setter, model);
+			}
+		}
+	}
+
+	private static boolean isValidBeanMethod(Method method) {
+		return !method.isPrivate() || method.getDeclaredAnnotation(PropertyDescriptor.class) != null;
+	}
 
 	public ReflectionProperty(Class<?> declaringClass, Field field, Model<?> model) {
 		this(declaringClass, field.getName(), field, null, null, model);
@@ -83,7 +119,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			flatSerialization = isDefaultFlatSerialization() ? true : propertyDescriptor.flatSerialization();
 		}
 
-		range = extractRange();
+		range = Range.valueOf(findAnnotation(ValueRange.class), type);
 		PropertyEditorDescriptor editorDescriptor = findAnnotation(PropertyEditorDescriptor.class);
 		if (editorDescriptor == null) {
 			editable = true;
@@ -125,45 +161,6 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	private boolean isDefaultFlatSerialization() {
 		return (type.isPrimitive() || (field != null && field.isFinal() && getter == null));
-	}
-
-	private Range<?> extractRange() {
-		ValueRange valueRange = findAnnotation(ValueRange.class);
-		if (valueRange == null) {
-			return null;
-		}
-
-		if (Integer.class == type || int.class == type || Integer[].class == type || int[].class == type) {
-			IntegerRange integerRange = valueRange.integerRange();
-			return integerRange == null ? null
-					: new Range<Integer>(Integer.valueOf(integerRange.min()), Integer.valueOf(integerRange.max()));
-		} else if (Float.class == type || float.class == type || Float[].class == type || float[].class == type) {
-			FloatRange floatRange = valueRange.floatRange();
-			return floatRange == null ? null
-					: new Range<Float>(Float.valueOf(floatRange.min()), Float.valueOf(floatRange.max()));
-		} else if (Long.class == type || long.class == type || Long[].class == type || long[].class == type) {
-			LongRange longRange = valueRange.longRange();
-			return longRange == null ? null
-					: new Range<Long>(Long.valueOf(longRange.min()), Long.valueOf(longRange.max()));
-		} else if (Double.class == type || double.class == type || Double[].class == type || double[].class == type) {
-			DoubleRange doubleRange = valueRange.doubleRange();
-			return doubleRange == null ? null
-					: new Range<Double>(Double.valueOf(doubleRange.min()), Double.valueOf(doubleRange.max()));
-		} else if (Short.class == type || short.class == type || Short[].class == type || short[].class == type) {
-			ShortRange shortRange = valueRange.shortRange();
-			return shortRange == null ? null
-					: new Range<Short>(Short.valueOf(shortRange.min()), Short.valueOf(shortRange.max()));
-		} else if (Byte.class == type || byte.class == type || Byte[].class == type || byte[].class == type) {
-			ByteRange byteRange = valueRange.byteRange();
-			return byteRange == null ? null
-					: new Range<Byte>(Byte.valueOf(byteRange.min()), Byte.valueOf(byteRange.max()));
-		} else if (Character.class == type || char.class == type || Character[].class == type || char[].class == type) {
-			CharRange charRange = valueRange.charRange();
-			return charRange == null ? null
-					: new Range<Character>(Character.valueOf(charRange.min()), Character.valueOf(charRange.max()));
-		} else {
-			return null;
-		}
 	}
 
 	public Class<?> getDeclaringClass() {
