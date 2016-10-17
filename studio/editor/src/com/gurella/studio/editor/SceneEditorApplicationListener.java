@@ -78,6 +78,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private Matrix4 infoProjection;
 	private SpriteBatch spriteBatch;
 	private BitmapFont font;
+	private StringBuffer info = new StringBuffer();
 
 	private Scene scene;
 	private SceneEditorRenderSystem renderSystem;
@@ -128,7 +129,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		spriteBatch = new SpriteBatch();
 		spriteBatch.enableBlending();
 		font = new BitmapFont();
-		font.setColor(Color.RED);
+		font.setColor(Color.WHITE);
 
 		inputQueue.setProcessor(inputController);
 		InputService.addInputProcessor(inputQueue);
@@ -184,7 +185,17 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private void renderInfo() {
 		spriteBatch.setProjectionMatrix(infoProjection);
 		spriteBatch.begin();
-		font.draw(spriteBatch, "Testddddddddddddddddddddddddddddddddddddddddddddddddd", 30, 30);
+
+		Vector3 position = camera.position;
+		info.append("X: ");
+		info.append(position.x);
+		info.append(" Y: ");
+		info.append(position.y);
+		info.append(" Z: ");
+		info.append(position.z);
+		font.draw(spriteBatch, info.toString(), 15, 20);
+		info.setLength(0);
+
 		spriteBatch.end();
 	}
 
