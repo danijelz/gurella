@@ -6,7 +6,7 @@ import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
-import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
+import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 @ModelDescriptor(descriptiveName = "Point Light")

@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common.g3d;
+package com.gurella.studio.editor.common;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;

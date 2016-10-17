@@ -16,7 +16,7 @@ import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
-import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
+import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
 

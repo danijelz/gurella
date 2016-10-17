@@ -1,5 +1,7 @@
 package com.gurella.studio.editor;
 
+import static com.gurella.studio.GurellaStudioPlugin.showError;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -54,6 +56,7 @@ import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneEditor extends EditorPart implements SceneLoadedListener, SceneChangedListener {
@@ -66,6 +69,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	IOperationHistory operationHistory;
 	UndoActionHandler undoAction;
 	RedoActionHandler redoAction;
+	private UndoRedoActionGroup historyActionGroup;
 
 	List<DockableView> registeredViews = new ArrayList<DockableView>();
 	private SceneEditorContext context;
@@ -75,16 +79,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	private boolean dirty;
 
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		try {
-			save(monitor);
-		} catch (CoreException e) {
-			String message = "Error saving scene";
-			GurellaStudioPlugin.showError(e, message);
-		} finally {
-			monitor.done();
-		}
+		Try.ofFailable(monitor, m -> save(m)).onFailure(e -> showError(e, "Error saving scene"));
+		monitor.done();
 	}
 
 	private void save(IProgressMonitor monitor) throws CoreException {
@@ -128,7 +127,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		IWorkbench workbench = getSite().getWorkbenchWindow().getWorkbench();
 		operationHistory = workbench.getOperationSupport().getOperationHistory();
 
-		UndoRedoActionGroup historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
+		historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
 		historyActionGroup.fillActionBars(site.getActionBars());
 
 		applicationListener = new SceneEditorApplicationListener(id);
@@ -202,6 +201,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		applicationListener.debugUpdate();
 		application.exit();
 		SceneEditorRegistry.remove(this);
+		
+		historyActionGroup.dispose();
+		operationHistory.dispose(undoContext, true, true, true);
+		redoAction.dispose();
+		undoAction.dispose();
 	}
 
 	@Override

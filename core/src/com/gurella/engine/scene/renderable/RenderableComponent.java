@@ -14,8 +14,8 @@ import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
-import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
+import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
 @BaseSceneElement

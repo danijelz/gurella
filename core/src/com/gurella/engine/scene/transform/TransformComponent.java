@@ -16,7 +16,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
-import com.gurella.engine.subscriptions.scene.movement.NodeTransformChangedListener;
+import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 
 //TODO make logic to reparent node and 
 @ModelDescriptor(descriptiveName = "Transform")

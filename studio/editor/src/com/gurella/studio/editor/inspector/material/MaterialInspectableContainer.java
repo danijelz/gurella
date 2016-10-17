@@ -49,7 +49,7 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.g3d.Compass;
+import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.swtgl.LwjglGL20;

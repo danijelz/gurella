@@ -40,7 +40,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.g3d.Compass;
+import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.scene.GridModelInstance;
 import com.gurella.studio.editor.scene.SceneCameraInputController;

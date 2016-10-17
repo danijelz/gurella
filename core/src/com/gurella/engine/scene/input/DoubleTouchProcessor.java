@@ -7,9 +7,9 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.IntersectionDoubleTouchDownListener;
-import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchDownListener;
-import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchDownListener;
+import com.gurella.engine.subscriptions.scene.input.IntersectionDoubleTouchListener;
+import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchListener;
+import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchListener;
 import com.gurella.engine.utils.IntLongMap;
 
 public class DoubleTouchProcessor implements PointerActivityListener {
@@ -121,41 +121,41 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 		startScreenY.clear();
 	}
 
-	private class SceneDoubleTouchDownEvent implements Event<SceneDoubleTouchDownListener> {
+	private class SceneDoubleTouchDownEvent implements Event<SceneDoubleTouchListener> {
 		@Override
-		public Class<SceneDoubleTouchDownListener> getSubscriptionType() {
-			return SceneDoubleTouchDownListener.class;
+		public Class<SceneDoubleTouchListener> getSubscriptionType() {
+			return SceneDoubleTouchListener.class;
 		}
 
 		@Override
-		public void dispatch(SceneDoubleTouchDownListener subscriber) {
+		public void dispatch(SceneDoubleTouchListener subscriber) {
 			subscriber.doubleTouchDown(touchEvent);
 		}
 	}
 
-	private class NodeDoubleTouchDownEvent implements Event<NodeDoubleTouchDownListener> {
+	private class NodeDoubleTouchDownEvent implements Event<NodeDoubleTouchListener> {
 		@Override
-		public Class<NodeDoubleTouchDownListener> getSubscriptionType() {
-			return NodeDoubleTouchDownListener.class;
+		public Class<NodeDoubleTouchListener> getSubscriptionType() {
+			return NodeDoubleTouchListener.class;
 		}
 
 		@Override
-		public void dispatch(NodeDoubleTouchDownListener subscriber) {
+		public void dispatch(NodeDoubleTouchListener subscriber) {
 			subscriber.onDoubleTouch(intersectionTouchEvent);
 		}
 	}
 
-	private static class IntersectionDoubleTouchDownEvent implements Event<IntersectionDoubleTouchDownListener> {
+	private static class IntersectionDoubleTouchDownEvent implements Event<IntersectionDoubleTouchListener> {
 		RenderableComponent renderableComponent;
 		IntersectionTouchEvent touchEvent;
 
 		@Override
-		public Class<IntersectionDoubleTouchDownListener> getSubscriptionType() {
-			return IntersectionDoubleTouchDownListener.class;
+		public Class<IntersectionDoubleTouchListener> getSubscriptionType() {
+			return IntersectionDoubleTouchListener.class;
 		}
 
 		@Override
-		public void dispatch(IntersectionDoubleTouchDownListener subscriber) {
+		public void dispatch(IntersectionDoubleTouchListener subscriber) {
 			subscriber.onDoubleTouch(renderableComponent, touchEvent);
 		}
 	}

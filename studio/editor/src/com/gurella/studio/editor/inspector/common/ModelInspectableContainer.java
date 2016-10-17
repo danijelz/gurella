@@ -35,7 +35,7 @@ import com.gurella.engine.asset.properties.G3dModelProperties;
 import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.g3d.Compass;
+import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.common.model.DefaultMetaModelEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
