@@ -16,15 +16,15 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
+import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 
 public class SceneEditorActionBarContributor extends EditorActionBarContributor
 		implements SceneEditorViewClosedListener {
 	private SceneEditor editor;
 	private ToggleEditorViewAction toggleSceneHierarcyViewAction = new ToggleEditorViewAction("Scene hierarcy",
-			SceneHierarchyView.class, SceneHierarchyView::new);
+			SceneGraphView.class, SceneGraphView::new);
 	private ToggleEditorViewAction toggleInspectorViewAction = new ToggleEditorViewAction("Inspector",
 			InspectorView.class, InspectorView::new);
 	private ToggleEditorViewAction toggleAssetsViewAction = new ToggleEditorViewAction("Assets Explorer",
@@ -79,7 +79,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 
 	@Override
 	public void viewClosed(DockableView view) {
-		if (view instanceof SceneHierarchyView) {
+		if (view instanceof SceneGraphView) {
 			toggleSceneHierarcyViewAction.setChecked(false);
 			toggleSceneHierarcyViewAction.setEnabled(true);
 		} else if (view instanceof InspectorView) {

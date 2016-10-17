@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.scene;
+package com.gurella.studio.editor.graph;
 
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
@@ -51,11 +51,6 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.SelectionEvent;
-import com.gurella.studio.editor.inspector.Inspectable;
-import com.gurella.studio.editor.inspector.InspectableContainer;
-import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.inspector.component.ComponentInspectableContainer;
-import com.gurella.studio.editor.inspector.node.NodeInspectableContainer;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
@@ -64,12 +59,12 @@ import com.gurella.studio.editor.subscription.EditorSceneListener;
 import com.gurella.studio.editor.subscription.NodeNameChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneHierarchyView extends DockableView
+public class SceneGraphView extends DockableView
 		implements EditorSceneListener, NodeNameChangedListener, SceneLoadedListener {
 	private Tree graph;
 	private Menu menu;
 
-	public SceneHierarchyView(SceneEditor editor, int style) {
+	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", GurellaStudioPlugin.createImage("icons/outline_co.png"), style);
 
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
@@ -405,42 +400,5 @@ public class SceneHierarchyView extends DockableView
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 		addNodes(null, scene);
-	}
-
-	public static class NodeInspectable implements Inspectable<SceneNode2> {
-		SceneNode2 target;
-
-		public NodeInspectable(SceneNode2 target) {
-			this.target = target;
-		}
-
-		@Override
-		public SceneNode2 getTarget() {
-			return target;
-		}
-
-		@Override
-		public InspectableContainer<SceneNode2> createContainer(InspectorView parent, SceneNode2 target) {
-			return new NodeInspectableContainer(parent, target);
-		}
-	}
-
-	public static class ComponentInspectable implements Inspectable<SceneNodeComponent2> {
-		SceneNodeComponent2 target;
-
-		public ComponentInspectable(SceneNodeComponent2 target) {
-			this.target = target;
-		}
-
-		@Override
-		public SceneNodeComponent2 getTarget() {
-			return target;
-		}
-
-		@Override
-		public InspectableContainer<SceneNodeComponent2> createContainer(InspectorView parent,
-				SceneNodeComponent2 target) {
-			return new ComponentInspectableContainer(parent, target);
-		}
 	}
 }

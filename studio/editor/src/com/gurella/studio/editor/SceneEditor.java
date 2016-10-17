@@ -51,8 +51,8 @@ import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.DispatcherEvent;
+import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.scene.SceneHierarchyView;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
@@ -155,11 +155,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		SceneEditorRegistry.put(this, dock, application, context);
 
-		SceneHierarchyView sceneHierarchyView = new SceneHierarchyView(this, SWT.LEFT);
-		registeredViews.add(sceneHierarchyView);
+		SceneGraphView sceneGraphView = new SceneGraphView(this, SWT.LEFT);
+		registeredViews.add(sceneGraphView);
 		registeredViews.add(new AssetsView(this, SWT.LEFT));
 		registeredViews.add(new InspectorView(this, SWT.RIGHT));
-		dock.setSelection(sceneHierarchyView);
+		dock.setSelection(sceneGraphView);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);

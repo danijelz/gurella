@@ -30,8 +30,8 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.studio.editor.common.model.MetaModelEditor;
 import com.gurella.studio.editor.common.model.ModelEditorContext;
-import com.gurella.studio.editor.scene.SceneHierarchyView.ComponentInspectable;
-import com.gurella.studio.editor.scene.SceneHierarchyView.NodeInspectable;
+import com.gurella.studio.editor.graph.ComponentInspectable;
+import com.gurella.studio.editor.graph.NodeInspectable;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.subscription.SelectionListener;
 
