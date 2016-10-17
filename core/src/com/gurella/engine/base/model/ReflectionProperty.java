@@ -48,6 +48,7 @@ public class ReflectionProperty<T> implements Property<T> {
 				throw new GdxRuntimeException(name + " is not a property of " + owner.getSimpleName());
 			}
 
+			//TODO not finished
 			Method boolSetter = Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, boolean.class);
 			Method setter = getter == null ? null
 					: Reflection.getDeclaredMethodSilently(owner, setPrefix + upperCaseName, getter.getReturnType());

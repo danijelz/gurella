@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ValueRange;
 import com.gurella.engine.base.model.ValueRange.FloatRange;
@@ -13,6 +14,7 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.camera.debug.CameraDebugRenderer;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.transform.TransformComponent;
@@ -24,7 +26,8 @@ import com.gurella.engine.utils.ImmutableArray;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
-		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener, DebugRenderable, Poolable {
+		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener,
+		DebugRenderable, Poolable, Disposable {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -57,6 +60,8 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public final transient T camera;
 	public final transient CameraViewport viewport;
 	private transient TransformComponent transformComponent;
+
+	private transient CameraDebugRenderer debugRenderer;
 
 	public CameraComponent() {
 		camera = createCamera();
@@ -188,10 +193,13 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.normalizeUp();
 		camera.update(true);
 	}
-	
+
 	@Override
 	public void debugRender(GenericBatch batch) {
-		// TODO Auto-generated method stub
+		if (debugRenderer == null) {
+			debugRenderer = new CameraDebugRenderer();
+		}
+		debugRenderer.debugRender(batch);
 	}
 
 	@Override
@@ -201,5 +209,12 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		ordinal = 0;
 		renderingLayers.clear();
 		transformComponent = null;
+	}
+
+	@Override
+	public void dispose() {
+		if (debugRenderer != null) {
+			debugRenderer.dispose();
+		}
 	}
 }
