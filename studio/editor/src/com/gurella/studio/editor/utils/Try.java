@@ -31,6 +31,18 @@ public abstract class Try<T> {
 		}
 	}
 
+	public static <U, E extends Throwable> Try<U> ofFailable(U value, TryConsumer<U, E> c) {
+		Objects.requireNonNull(value);
+		Objects.requireNonNull(c);
+
+		try {
+			c.accept(value);
+			return Try.successful(value);
+		} catch (Throwable t) {
+			return Try.failure(t);
+		}
+	}
+
 	/**
 	 * Transform success or pass on failure. Takes an optional type parameter of the new type. You need to be specific
 	 * about the new type if changing type

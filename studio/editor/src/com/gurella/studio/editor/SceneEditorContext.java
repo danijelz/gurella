@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.gurella.engine.event.EventService;
@@ -46,15 +45,10 @@ public class SceneEditorContext implements SceneLoadedListener {
 	}
 
 	void dispose() {
+		EventService.unsubscribe(editorId, this);
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 		String msg = "Error closing java project";
-		Optional.ofNullable(javaProject).ifPresent(p -> Try.ofFailable(this::closeJavaProject).onFailure(e -> log(e, msg)));
-		EventService.unsubscribe(editorId, this);
-	}
-
-	private IJavaProject closeJavaProject() throws JavaModelException {
-		javaProject.close();
-		return javaProject;
+		Optional.ofNullable(javaProject).ifPresent(p -> Try.ofFailable(p, t -> t.close()).onFailure(e -> log(e, msg)));
 	}
 
 	public Scene getScene() {
