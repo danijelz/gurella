@@ -31,7 +31,6 @@ import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityLis
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.Exceptions;
 import com.gurella.engine.utils.IdentitySet;
-import com.gurella.engine.utils.ImmutableArray;
 
 public class RenderSystem extends SceneService2 implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;

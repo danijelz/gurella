@@ -95,6 +95,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void create() {
 		renderThread = Thread.currentThread();
 		renderSystem = new SceneEditorRenderSystem(editorId);

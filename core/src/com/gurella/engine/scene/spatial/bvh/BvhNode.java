@@ -73,7 +73,7 @@ public class BvhNode implements Poolable {
 		}
 	}
 
-	private Axis pickSplitAxis() {
+	private BvhAxis pickSplitAxis() {
 		float axis_x = box.max.x - box.min.x;
 		float axis_y = box.max.y - box.min.y;
 		float axis_z = box.max.z - box.min.z;
@@ -81,15 +81,15 @@ public class BvhNode implements Poolable {
 		// return the biggest axis
 		if (axis_x > axis_y) {
 			if (axis_x > axis_z) {
-				return Axis.X;
+				return BvhAxis.X;
 			} else {
-				return Axis.Z;
+				return BvhAxis.Z;
 			}
 		} else {
 			if (axis_y > axis_z) {
-				return Axis.Y;
+				return BvhAxis.Y;
 			} else {
-				return Axis.Z;
+				return BvhAxis.Z;
 			}
 		}
 	}
@@ -371,7 +371,7 @@ public class BvhNode implements Poolable {
 		}
 
 		// sort along the appropriate axis
-		final Axis splitAxis = pickSplitAxis();
+		final BvhAxis splitAxis = pickSplitAxis();
 		splitlist.sort(splitAxis.comparator);
 
 		// Find the center object in our current sub-list

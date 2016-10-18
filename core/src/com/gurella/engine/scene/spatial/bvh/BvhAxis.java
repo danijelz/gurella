@@ -2,12 +2,12 @@ package com.gurella.engine.scene.spatial.bvh;
 
 import java.util.Comparator;
 
-enum Axis {
+enum BvhAxis {
 	X(XAxisComparator.instance), Y(YAxisComparator.instance), Z(ZAxisComparator.instance);
 
 	public final Comparator<BvhSpatial> comparator;
 
-	private Axis(Comparator<BvhSpatial> comparator) {
+	private BvhAxis(Comparator<BvhSpatial> comparator) {
 		this.comparator = comparator;
 	}
 

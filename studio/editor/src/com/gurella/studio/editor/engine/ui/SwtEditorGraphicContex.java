@@ -382,6 +382,8 @@ public class SwtEditorGraphicContex implements EditorGraphicContex {
 		case WINDING:
 			gc.setFillRule(SWT.FILL_WINDING);
 			break;
+		default:
+			throw new IllegalArgumentException("Unsupported fill rule: " + rule.name());
 		}
 	}
 

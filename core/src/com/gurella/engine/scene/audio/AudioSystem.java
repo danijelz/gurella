@@ -16,7 +16,6 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
-//TODO attach listeners on activate
 public class AudioSystem extends SceneService2 implements ComponentActivityListener, PreRenderUpdateListener {
 	private Array<AudioListenerData> activeListenersStack = new Array<AudioListenerData>();
 	private IntMap<AudioListenerData> activeListeners = new IntMap<AudioListenerData>();

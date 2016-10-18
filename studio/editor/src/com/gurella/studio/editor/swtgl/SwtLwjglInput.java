@@ -264,6 +264,9 @@ public class SwtLwjglInput implements Input {
 				break;
 			case TouchEvent.TOUCH_SCROLLED:
 				processor.scrolled(e.scrollAmount);
+				break;
+			default:
+				break;
 			}
 			touchEventsPool.free(e);
 		}
@@ -283,6 +286,9 @@ public class SwtLwjglInput implements Input {
 				break;
 			case KeyEvent.KEY_TYPED:
 				processor.keyTyped(e.keyChar);
+				break;
+			default:
+				break;
 			}
 			keyEventsPool.free(e);
 		}
@@ -396,7 +402,6 @@ public class SwtLwjglInput implements Input {
 
 	@Override
 	public boolean isCatchMenuKey() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -455,6 +460,8 @@ public class SwtLwjglInput implements Input {
 				event.type = TouchEvent.TOUCH_SCROLLED;
 				event.scrollAmount = e.count;
 				break;
+			default:
+				break;
 			}
 		}
 	}
@@ -494,10 +501,11 @@ public class SwtLwjglInput implements Input {
 			switch (e.type) {
 			case SWT.KeyDown:
 				char keyChar = e.character;
-
 				switch (keyCode) {
 				case Keys.FORWARD_DEL:
 					keyChar = 127;
+					break;
+				default:
 					break;
 				}
 
@@ -525,6 +533,8 @@ public class SwtLwjglInput implements Input {
 				if (pressedKeys.contains(keyCode)) {
 					pressedKeys.remove(keyCode);
 				}
+				break;
+			default:
 				break;
 			}
 

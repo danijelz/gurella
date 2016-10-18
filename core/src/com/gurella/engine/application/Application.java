@@ -20,6 +20,7 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 	private static final ResumeEvent resumeEvent = new ResumeEvent();
 	private static final UpdateEvent updateEvent = new UpdateEvent();
 	private static final ResizeEvent resizeEvent = new ResizeEvent();
+	private static final ShutdownEvent shutdownEvent = new ShutdownEvent();
 
 	public float deltaTime;
 	private boolean paused;
@@ -94,7 +95,7 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 
 	@Override
 	public void dispose() {
-		EventService.post(new ApplicationShutdownEvent());
+		EventService.post(shutdownEvent);
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
 	}
@@ -104,7 +105,7 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 		return renderThread == Thread.currentThread();
 	}
 
-	private static class ApplicationShutdownEvent implements Event<ApplicationShutdownListener> {
+	private static class ShutdownEvent implements Event<ApplicationShutdownListener> {
 		@Override
 		public Class<ApplicationShutdownListener> getSubscriptionType() {
 			return ApplicationShutdownListener.class;

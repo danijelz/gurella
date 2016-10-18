@@ -37,7 +37,7 @@ public class CameraDebugRenderer {
 		spriteBatch = new SpriteBatch();
 	}
 
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(@SuppressWarnings("unused") GenericBatch batch) {
 		fbo.begin();
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -47,10 +47,11 @@ public class CameraDebugRenderer {
 			layers.add(Layer.DEFAULT);
 		}
 		CameraViewport viewport = cameraComponent.viewport;
-		float oldViewportWidth = viewport.getViewportWidth();
-		float oldViewportHeight = viewport.getViewportHeight();
+		int oldViewportWidth = (int) viewport.getViewportWidth();
+		int oldViewportHeight = (int) viewport.getViewportHeight();
 		viewport.update(debugWidth, debugHeight);
 		renderSystem.render(cameraComponent, layers);
+		viewport.update(oldViewportWidth, oldViewportHeight);
 		layers.clear();
 		fbo.end();
 
@@ -63,8 +64,8 @@ public class CameraDebugRenderer {
 		Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
 		spriteBatch.setProjectionMatrix(projection);
 		spriteBatch.begin();
-		spriteBatch.draw(fbo.getColorBufferTexture(), (float) width - debugWidth - 20, (float) 20, (float) debugWidth,
-				(float) debugHeight, 0, 0, debugWidth, debugHeight, false, true);
+		spriteBatch.draw(fbo.getColorBufferTexture(), (float) width - debugWidth - 20, 20, debugWidth, debugHeight, 0,
+				0, debugWidth, debugHeight, false, true);
 		spriteBatch.end();
 
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
