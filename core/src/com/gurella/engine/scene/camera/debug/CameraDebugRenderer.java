@@ -63,7 +63,8 @@ public class CameraDebugRenderer {
 		Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
 		spriteBatch.setProjectionMatrix(projection);
 		spriteBatch.begin();
-		spriteBatch.draw(fbo.getColorBufferTexture(), width - debugWidth - 20, 20);
+		spriteBatch.draw(fbo.getColorBufferTexture(), (float) width - debugWidth - 20, (float) 20, (float) debugWidth,
+				(float) debugHeight, 0, 0, debugWidth, debugHeight, false, true);
 		spriteBatch.end();
 
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
