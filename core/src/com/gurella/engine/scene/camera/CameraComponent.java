@@ -44,18 +44,18 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "enable")
 	public boolean clearDepth = true;
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "value")
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	public float clearDepthValue = 1;
 
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "enable")
 	public boolean clearStencil = false;
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "value")
-	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255) )
+	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255))
 	public int clearStencilValue = 1;
 
 	// TODO notify render system for layer changes
 	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
-	//TODO RenderTarget
+	// TODO RenderTarget
 
 	public final transient T camera;
 	public final transient CameraViewport viewport;
@@ -72,13 +72,13 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	public void resize(int width, int height) {
+		// TODO if(RenderTarget != nul)...
 		viewport.update(width, height);
 	}
 
 	@Override
 	protected void componentActivated() {
 		initCamera();
-		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		transformComponent = getNode().getComponent(TransformComponent.class);
 		if (transformComponent == null) {
 			updateDefaultTransform();
@@ -90,7 +90,8 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	void initCamera() {
 		camera.near = near;
 		camera.far = far;
-		viewport.update();
+		// TODO if(RenderTarget != nul)...
+		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	}
 
 	@Override
@@ -209,6 +210,11 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		ordinal = 0;
 		renderingLayers.clear();
 		transformComponent = null;
+
+		if (debugRenderer != null) {
+			debugRenderer.dispose();
+			debugRenderer = null;
+		}
 	}
 
 	@Override

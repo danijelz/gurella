@@ -75,10 +75,6 @@ public class CameraViewport {
 		camera.update();
 	}
 
-	public void update() {
-		update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-	}
-
 	/**
 	 * Configures this viewport's screen bounds using the specified screen size. Typically called from
 	 * {@link ApplicationListener#resize(int, int)}.
@@ -135,16 +131,18 @@ public class CameraViewport {
 			float toViewportSpace = tempViewportHeight / tempWorldHeight;
 			float toWorldSpace = tempWorldHeight / tempViewportHeight;
 			float lengthen = (viewportScreenWidth - tempViewportWidth) * toWorldSpace;
-			if (maxWorldWidth > 0)
+			if (maxWorldWidth > 0) {
 				lengthen = Math.min(lengthen, maxWorldWidth - minWorldWidth);
+			}
 			tempWorldWidth += lengthen;
 			tempViewportWidth += Math.round(lengthen * toViewportSpace);
 		} else if (tempViewportHeight < viewportScreenHeight) {
 			float toViewportSpace = tempViewportWidth / tempWorldWidth;
 			float toWorldSpace = tempWorldWidth / tempViewportWidth;
 			float lengthen = (viewportScreenHeight - tempViewportHeight) * toWorldSpace;
-			if (maxWorldHeight > 0)
+			if (maxWorldHeight > 0) {
 				lengthen = Math.min(lengthen, maxWorldHeight - minWorldHeight);
+			}
 			tempWorldHeight += lengthen;
 			tempViewportHeight += Math.round(lengthen * toViewportSpace);
 		}

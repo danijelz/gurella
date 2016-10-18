@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -54,11 +55,12 @@ public class UiUtils {
 	}
 
 	public static void verifyFloat(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(Float::valueOf).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, Float::valueOf);
 	}
 
-	protected static Try<String> tryWithNewText(VerifyEvent e, String oldValue) {
-		return Try.successful(getNewText(e, oldValue)).filter(t -> t.length() > 0);
+	private static void verifyNewText(VerifyEvent e, String oldValue, Function<String, Object> f) {
+		Try.successful(Optional.of(getNewText(e, oldValue))).map(o -> o.filter(t -> t.length() > 0))
+				.map(o -> o.map(t -> f.apply(t))).onFailure(ex -> e.doit = false);
 	}
 
 	private static void floatWidgetWheelEvent(Text text, int amount, float multiplier) {
@@ -84,7 +86,7 @@ public class UiUtils {
 	}
 
 	public static void verifyInteger(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(Integer::valueOf).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, Integer::valueOf);
 	}
 
 	private static void intWidgetWheelEvent(Text text, int amount, float multiplier) {
@@ -103,7 +105,7 @@ public class UiUtils {
 	}
 
 	public static void verifyBigInteger(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(BigInteger::new).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, BigInteger::new);
 	}
 
 	public static Text createBigDecimalWidget(Composite parent) {
@@ -113,7 +115,7 @@ public class UiUtils {
 	}
 
 	public static void verifyBigDecimal(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(BigDecimal::new).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, BigDecimal::new);
 	}
 
 	public static Text createLongWidget(Composite parent) {
@@ -126,7 +128,7 @@ public class UiUtils {
 	}
 
 	public static void verifyLong(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(Long::valueOf).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, Long::valueOf);
 	}
 
 	private static void longWidgetWheelEvent(Text text, int amount, float multiplier) {
@@ -145,7 +147,7 @@ public class UiUtils {
 	}
 
 	public static void verifyByte(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(Byte::valueOf).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, Byte::valueOf);
 	}
 
 	public static Text createDoubleWidget(Composite parent) {
@@ -155,7 +157,7 @@ public class UiUtils {
 	}
 
 	public static void verifyDouble(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(Double::valueOf).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, Double::valueOf);
 	}
 
 	public static Text createShortWidget(Composite parent) {
@@ -165,7 +167,7 @@ public class UiUtils {
 	}
 
 	public static void verifyShort(VerifyEvent e, String oldValue) {
-		tryWithNewText(e, oldValue).map(Short::valueOf).onFailure(ex -> e.doit = false);
+		verifyNewText(e, oldValue, Short::valueOf);
 	}
 
 	public static Text createCharacterWidget(Composite parent) {

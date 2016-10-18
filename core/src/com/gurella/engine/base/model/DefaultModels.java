@@ -9,9 +9,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.scene.renderable.Layer;
-import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
@@ -20,10 +18,14 @@ public class DefaultModels {
 	private DefaultModels() {
 	}
 
-	public static abstract class SimpleModel<T> implements Model<T> {
+	public interface SimpleModel<T> extends Model<T> {
+
+	}
+
+	public static abstract class AbstractSimpleModel<T> implements SimpleModel<T> {
 		private Class<T> type;
 
-		public SimpleModel(Class<T> type) {
+		public AbstractSimpleModel(Class<T> type) {
 			this.type = type;
 		}
 
@@ -53,7 +55,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static abstract class PrimitiveModel<T> extends SimpleModel<T> {
+	public static abstract class PrimitiveModel<T> extends AbstractSimpleModel<T> {
 		public PrimitiveModel(Class<T> type) {
 			super(type);
 		}
@@ -222,7 +224,7 @@ public class DefaultModels {
 		}
 	}
 
-	public static abstract class SimpleObjectModel<T> extends SimpleModel<T> {
+	public static abstract class SimpleObjectModel<T> extends AbstractSimpleModel<T> {
 		public SimpleObjectModel(Class<T> type) {
 			super(type);
 		}
@@ -256,7 +258,7 @@ public class DefaultModels {
 		protected abstract T readValue(Input input);
 	}
 
-	public static final class VoidModel extends SimpleModel<Void> {
+	public static final class VoidModel extends AbstractSimpleModel<Void> {
 		public static final VoidModel instance = new VoidModel();
 
 		private VoidModel() {
@@ -515,180 +517,37 @@ public class DefaultModels {
 		}
 	}
 
-	public static final class ColorModel extends SimpleObjectModel<Color> {
+	public static final class ColorModel extends ReflectionModel<Color> implements SimpleModel<Color> {
 		public static final ColorModel instance = new ColorModel();
-
-		private final ArrayExt<Property<?>> properties = new ArrayExt<Property<?>>();
 
 		private ColorModel() {
 			super(Color.class);
-			properties.add(new R());
-			properties.add(new G());
-			properties.add(new B());
-			properties.add(new A());
 		}
 
 		@Override
-		protected void writeValue(Color value, Output output) {
-			output.writeInt(Color.rgba8888(value));
-		}
-
-		@Override
-		protected Color readValue(Input input) {
-			return new Color(input.readInt());
-		}
-
-		@Override
-		public Color copy(Color original, CopyContext context) {
-			return new Color(original);
-		}
-
-		@Override
-		public ImmutableArray<Property<?>> getProperties() {
-			return properties.immutable();
-		}
-
-		private static abstract class ColorComponentProperty implements Property<Float> {
-			private final String name;
-
-			public ColorComponentProperty(String name) {
-				this.name = name;
+		public void serialize(Color instance, Object template, Output output) {
+			if (Values.isEqual(template, instance)) {
+				return;
+			} else if (instance == null) {
+				output.writeNull();
+			} else {
+				output.writeInt(Color.rgba8888(instance));
 			}
+		}
 
-			@Override
-			public String getName() {
-				return name;
-			}
-
-			@Override
-			public Class<Float> getType() {
-				return Float.class;
-			}
-
-			@Override
-			public Range<?> getRange() {
+		@Override
+		public Color deserialize(Object template, Input input) {
+			if (!input.isValuePresent()) {
+				if (template == null) {
+					return null;
+				} else {
+					Color instance = (Color) input.copyObject(template);
+					return instance;
+				}
+			} else if (input.isNull()) {
 				return null;
-			}
-
-			@Override
-			public boolean isNullable() {
-				return false;
-			}
-
-			@Override
-			public boolean isFinal() {
-				return false;
-			}
-
-			@Override
-			public boolean isCopyable() {
-				return true;
-			}
-
-			@Override
-			public boolean isFlatSerialization() {
-				return true;
-			}
-
-			@Override
-			public boolean isEditable() {
-				return true;
-			}
-
-			@Override
-			public void serialize(Object object, Object template, Output output) {
-			}
-
-			@Override
-			public void deserialize(Object object, Object template, Input input) {
-			}
-
-			@Override
-			public void copy(Object original, Object duplicate, CopyContext context) {
-			}
-		}
-
-		private static class R extends ColorComponentProperty {
-			public R() {
-				super("r");
-			}
-
-			@Override
-			public Property<Float> newInstance(Model<?> model) {
-				return new R();
-			}
-
-			@Override
-			public Float getValue(Object object) {
-				return Float.valueOf(((Color) object).r);
-			}
-
-			@Override
-			public void setValue(Object object, Float value) {
-				((Color) object).r = value.floatValue();
-			}
-		}
-
-		private static class G extends ColorComponentProperty {
-			public G() {
-				super("g");
-			}
-
-			@Override
-			public Property<Float> newInstance(Model<?> model) {
-				return new G();
-			}
-
-			@Override
-			public Float getValue(Object object) {
-				return Float.valueOf(((Color) object).g);
-			}
-
-			@Override
-			public void setValue(Object object, Float value) {
-				((Color) object).g = value.floatValue();
-			}
-		}
-
-		private static class B extends ColorComponentProperty {
-			public B() {
-				super("b");
-			}
-
-			@Override
-			public Property<Float> newInstance(Model<?> model) {
-				return new B();
-			}
-
-			@Override
-			public Float getValue(Object object) {
-				return Float.valueOf(((Color) object).b);
-			}
-
-			@Override
-			public void setValue(Object object, Float value) {
-				((Color) object).b = value.floatValue();
-			}
-		}
-
-		private static class A extends ColorComponentProperty {
-			public A() {
-				super("a");
-			}
-
-			@Override
-			public Property<Float> newInstance(Model<?> model) {
-				return new A();
-			}
-
-			@Override
-			public Float getValue(Object object) {
-				return Float.valueOf(((Color) object).a);
-			}
-
-			@Override
-			public void setValue(Object object, Float value) {
-				((Color) object).a = value.floatValue();
+			} else {
+				return new Color(input.readInt());
 			}
 		}
 	}

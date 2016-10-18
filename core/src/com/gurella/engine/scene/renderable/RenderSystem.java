@@ -31,6 +31,7 @@ import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityLis
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.Exceptions;
 import com.gurella.engine.utils.IdentitySet;
+import com.gurella.engine.utils.ImmutableArray;
 
 public class RenderSystem extends SceneService2 implements ComponentActivityListener, RenderUpdateListener {
 	private GenericBatch batch;
@@ -81,6 +82,14 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		batch.dispose();
 		batch = null;
 	}
+	
+	public void render(CameraComponent<?> cameraComponent, Array<Layer> layers) {
+		layers.sort();
+		for(int i = 0, n = layers.size; i < n; i++)
+		{
+			render(cameraComponent, layers.get(i));
+		}
+	}
 
 	@Override
 	public void onRenderUpdate() {
@@ -105,11 +114,11 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 
 	private void render(Layer layer) {
 		for (CameraComponent<?> cameraComponent : camerasByLayer.get(layer.id)) {
-			render(layer, cameraComponent);
+			render(cameraComponent, layer);
 		}
 	}
 
-	private void render(Layer layer, CameraComponent<?> cameraComponent) {
+	private void render(CameraComponent<?> cameraComponent, Layer layer) {
 		Camera camera = cameraComponent.camera;
 		cameraComponent.viewport.apply();
 

@@ -2,7 +2,7 @@ package com.gurella.engine.base.model;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.base.model.DefaultModels.SimpleModel;
+import com.gurella.engine.base.model.DefaultModels.AbstractSimpleModel;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.Values;
@@ -26,7 +26,7 @@ public class EnumModelFactory implements ModelFactory {
 		}
 	}
 
-	public static final class EnumModel<T extends Enum<T>> extends SimpleModel<T> {
+	public static final class EnumModel<T extends Enum<T>> extends AbstractSimpleModel<T> {
 		private Class<T> enumType;
 		private T[] constants;
 

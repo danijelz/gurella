@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.GLOnlyTextureData;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class RenderTarget implements Disposable {
 	private String name;
@@ -28,7 +29,11 @@ public class RenderTarget implements Disposable {
 		frameBuffer.bind();
 	}
 
-	void init() {
+	public void init() {
+		if (frameBuffer != null) {
+			throw new GdxRuntimeException("RenderTarget is allready initialized.");
+		}
+
 		boolean depthEnabled = DepthBufferType.isDepthEnabled(depthBufferType);
 		frameBuffer = new FrameBufferExt(format, width, height, depthEnabled, hasStencil);
 	}
@@ -37,6 +42,7 @@ public class RenderTarget implements Disposable {
 	public void dispose() {
 		if (frameBuffer != null) {
 			frameBuffer.dispose();
+			frameBuffer = null;
 		}
 	}
 
@@ -52,7 +58,7 @@ public class RenderTarget implements Disposable {
 		}
 	}
 
-	//TODO EXT_draw_buffers
+	// TODO EXT_draw_buffers
 	private class FrameBufferExt extends FrameBuffer {
 		public FrameBufferExt(Format format, int width, int height, boolean hasDepth, boolean hasStencil) {
 			super(format, width, height, hasDepth, hasStencil);
