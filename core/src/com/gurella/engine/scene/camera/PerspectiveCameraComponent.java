@@ -9,11 +9,11 @@ import com.gurella.engine.base.model.ModelDescriptor;
 public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> {
 	/** the field of view in degrees **/
 	private float fieldOfView = 67;
-	
+
 	public boolean depthTest = true;
 	public Color ambientLight;
 	public Color fog;
-	
+
 	public PerspectiveCameraComponent() {
 		near = 0.1f;
 	}

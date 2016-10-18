@@ -59,7 +59,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public final transient T camera;
 	public final transient CameraViewport viewport;
 	private transient TransformComponent transformComponent;
-	
+
 	private Matrix4 tempTransform = new Matrix4();
 
 	public CameraComponent() {
@@ -78,7 +78,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@Override
 	protected void componentActivated() {
 		initCamera();
-		transformComponent = getNode().getComponent(TransformComponent.class);
+		transformComponent = getNode().getComponent(TransformComponent.class, false);
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {
@@ -101,14 +101,16 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@Override
 	public void nodeComponentActivated(SceneNodeComponent2 component) {
 		if (component instanceof TransformComponent) {
-			setTransformComponent((TransformComponent) component);
+			this.transformComponent = (TransformComponent) component;
+			updateTransform();
 		}
 	}
 
 	@Override
 	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof TransformComponent) {
-			setTransformComponent(null);
+			this.transformComponent = null;
+			updateDefaultTransform();
 		}
 	}
 
@@ -164,15 +166,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public void removeRenderingLayer(Layer layer) {
 		if (renderingLayers.removeValue(layer, true)) {
 			// TODO notify RenderSystem
-		}
-	}
-
-	private void setTransformComponent(TransformComponent transformComponent) {
-		this.transformComponent = transformComponent;
-		if (transformComponent == null) {
-			updateDefaultTransform();
-		} else {
-			updateTransform();
 		}
 	}
 
