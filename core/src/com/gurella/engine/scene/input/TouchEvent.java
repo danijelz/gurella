@@ -1,14 +1,16 @@
 package com.gurella.engine.scene.input;
 
-import com.badlogic.gdx.math.Vector2;
-
 public class TouchEvent {
-	public int pointer, button;
-	public final Vector2 screenCoordinates = new Vector2();
-	
+	public int pointer;
+	public int button;
+
+	public int screenX;
+	public int screenY;
+
 	void set(int pointer, int button, int screenX, int screenY) {
 		this.pointer = pointer;
 		this.button = button;
-		screenCoordinates.set(screenX, screenY);
+		this.screenX = screenX;
+		this.screenY = screenY;
 	}
 }

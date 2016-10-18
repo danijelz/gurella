@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ValueRange;
 import com.gurella.engine.base.model.ValueRange.FloatRange;
@@ -27,7 +26,7 @@ import com.gurella.engine.utils.ImmutableArray;
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
 		implements ApplicationResizeListener, NodeComponentActivityListener, NodeTransformChangedListener,
-		DebugRenderable, Poolable, Disposable {
+		DebugRenderable, Poolable {
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
@@ -44,13 +43,13 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "enable")
 	public boolean clearDepth = true;
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "value")
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
 	public float clearDepthValue = 1;
 
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "enable")
 	public boolean clearStencil = false;
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "value")
-	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255))
+	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255) )
 	public int clearStencilValue = 1;
 
 	// TODO notify render system for layer changes
@@ -60,8 +59,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public final transient T camera;
 	public final transient CameraViewport viewport;
 	private transient TransformComponent transformComponent;
-
-	private transient CameraDebugRenderer debugRenderer;
 
 	public CameraComponent() {
 		camera = createCamera();
@@ -197,10 +194,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	public void debugRender(GenericBatch batch) {
-		if (debugRenderer == null) {
-			debugRenderer = new CameraDebugRenderer(this);
-		}
-		debugRenderer.debugRender(batch);
+		CameraDebugRenderer.render(this);
 	}
 
 	@Override
@@ -210,18 +204,5 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		ordinal = 0;
 		renderingLayers.clear();
 		transformComponent = null;
-
-		if (debugRenderer != null) {
-			debugRenderer.dispose();
-			debugRenderer = null;
-		}
-	}
-
-	@Override
-	public void dispose() {
-		if (debugRenderer != null) {
-			debugRenderer.dispose();
-			debugRenderer = null;
-		}
 	}
 }

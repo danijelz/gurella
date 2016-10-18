@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.camera.debug;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,18 +9,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
-import com.gurella.engine.graphics.render.GenericBatch;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraViewport;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.RenderSystem;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
-public class CameraDebugRenderer {
+public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private static int debugWidth = 240;
 	private static int debugHeight = 160;
-
-	private final CameraComponent<?> cameraComponent;
-	private RenderSystem renderSystem;
+	private static final ObjectMap<Application, CameraDebugRenderer> instances = new ObjectMap<Application, CameraDebugRenderer>();
 
 	private final FrameBuffer fbo;
 
@@ -28,16 +28,24 @@ public class CameraDebugRenderer {
 	private Matrix4 projection;
 	private SpriteBatch spriteBatch;
 
-	public CameraDebugRenderer(CameraComponent<?> cameraComponent) {
-		this.cameraComponent = cameraComponent;
-		renderSystem = cameraComponent.getScene().renderSystem;
+	public static void render(CameraComponent<?> cameraComponent) {
+		CameraDebugRenderer renderer = instances.get(Gdx.app);
+		if (renderer == null) {
+			renderer = new CameraDebugRenderer();
+			instances.put(Gdx.app, renderer);
+		}
+		renderer.renderCamera(cameraComponent);
+	}
 
+	private CameraDebugRenderer() {
 		fbo = new FrameBuffer(Format.RGBA8888, debugWidth, debugHeight, true);
 		projection = new Matrix4();
 		spriteBatch = new SpriteBatch();
 	}
 
-	public void debugRender(@SuppressWarnings("unused") GenericBatch batch) {
+	private void renderCamera(CameraComponent<?> cameraComponent) {
+		RenderSystem renderSystem = cameraComponent.getScene().renderSystem;
+
 		fbo.begin();
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -71,7 +79,8 @@ public class CameraDebugRenderer {
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 	}
 
-	public void dispose() {
+	@Override
+	public void shutdown() {
 		fbo.dispose();
 		spriteBatch.dispose();
 	}
