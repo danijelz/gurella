@@ -18,7 +18,7 @@ import com.gurella.engine.subscriptions.base.object.ObjectParentChangeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 
-//TODO make logic to reparent node and 
+//TODO make logic to reparent node and update local transform
 @ModelDescriptor(descriptiveName = "Transform")
 public class TransformComponent extends SceneNodeComponent2 implements PropertyChangeListener, Poolable {
 	private static final TransformChangedEvent event = new TransformChangedEvent();
