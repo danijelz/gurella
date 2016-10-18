@@ -59,6 +59,8 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public final transient T camera;
 	public final transient CameraViewport viewport;
 	private transient TransformComponent transformComponent;
+	
+	private Matrix4 tempTransform = new Matrix4();
 
 	public CameraComponent() {
 		camera = createCamera();
@@ -180,8 +182,6 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 		camera.up.set(initialUp);
 		camera.update(true);
 	}
-
-	private Matrix4 tempTransform = new Matrix4();
 
 	private void updateTransform() {
 		camera.position.setZero();
