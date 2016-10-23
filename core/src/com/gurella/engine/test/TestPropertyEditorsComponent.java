@@ -7,7 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Matrix3;
@@ -59,7 +62,31 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.GridRectangle;
 
 public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
-	public Date date;
+	@PropertyEditorDescriptor(group = "assets")
+	public Texture texture;
+	@PropertyEditorDescriptor(group = "assets")
+	public TextureAtlas textureAtlas;
+	@PropertyEditorDescriptor(group = "assets")
+	public Cubemap cubemap;
+
+	@PropertyEditorDescriptor(group = "simple")
+	public boolean bool;
+	@PropertyEditorDescriptor(group = "simple")
+	public Color color = new Color();
+	@PropertyEditorDescriptor(group = "simple")
+	public final Color finalColor = new Color();
+	@PropertyEditorDescriptor(group = "simple")
+	public Color nullColor;
+	@PropertyEditorDescriptor(group = "simple")
+	public Date date = new Date();
+	@PropertyEditorDescriptor(group = "simple")
+	public Date nullDate;
+
+	@PropertyEditorDescriptor(group = "matrix")
+	public Matrix3 matrix3 = new Matrix3();
+	@PropertyEditorDescriptor(group = "matrix")
+	public Matrix4 matrix4 = new Matrix4();
+
 	public List<String> listString = new ArrayList<String>();
 	public final Array<Integer> garrayInteger = new Array<Integer>();
 	public Set<Integer> setInteger = new HashSet<Integer>();
@@ -71,10 +98,7 @@ public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 	public Array<Array<? extends Vector<?>>> garrayGarrayVector = new Array<Array<? extends Vector<?>>>();
 	public Array<? extends Array<?>> garrayGarrayAny = new Array<Array<Object>>();
 
-	public Matrix3 matrix3 = new Matrix3();
-	public Matrix4 matrix4 = new Matrix4();
 	public Vector3 testVector;
-	public Texture texture;
 
 	public String[] arrayString = new String[3];
 	public int[] arrayInt = new int[3];
@@ -400,5 +424,9 @@ public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 			GridRectangle r = ((EditorControl) event.getWidget()).getBounds();
 			gc.drawString(text, r.x - (p.x / 3) * 2, r.y - p.y, true);
 		}
+	}
+
+	public enum TestEnum {
+		item1, item2, item3;
 	}
 }
