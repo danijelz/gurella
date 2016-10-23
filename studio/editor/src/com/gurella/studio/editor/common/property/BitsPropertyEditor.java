@@ -50,8 +50,6 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 			bodyLayout.numColumns = 16;
 			IntStream.range(0, value.numBits()).forEach(i -> buildCheck(value, i));
 		}
-
-		content.layout();
 	}
 
 	private void buildCheck(Bits value, int index) {
@@ -73,6 +71,8 @@ public class BitsPropertyEditor extends CompositePropertyEditor<Bits> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Bits value) {

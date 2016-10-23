@@ -45,8 +45,6 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 			createText(Matrix3.M22, value);
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createText(int index, Matrix3 value) {
@@ -69,6 +67,8 @@ public class Matrix3PropertyEditor extends CompositePropertyEditor<Matrix3> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Matrix3 value) {

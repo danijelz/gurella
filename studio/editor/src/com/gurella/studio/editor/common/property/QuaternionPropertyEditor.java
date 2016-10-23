@@ -30,7 +30,7 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New Vector3", () -> newValue(new Quaternion()));
+			addMenuItem("New instance", () -> newValue(new Quaternion()));
 			if (context.isNullable()) {
 				addMenuItem("Set to null", () -> newValue(null));
 			}
@@ -50,10 +50,9 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 			createEditorField(model, value, "x");
 			createEditorField(model, value, "y");
 			createEditorField(model, value, "z");
+			createEditorField(model, value, "w");
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createEditorField(final Model<Quaternion> model, Quaternion value, String propertyName) {
@@ -78,6 +77,8 @@ public class QuaternionPropertyEditor extends SimplePropertyEditor<Quaternion> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Quaternion value) {

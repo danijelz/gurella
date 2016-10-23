@@ -81,13 +81,13 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			BeanEditor<P> modelEditor = BeanEditorFactory.createEditor(content, context, value);
 			modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
-
-		content.layout();
 	}
 
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void setNull() {

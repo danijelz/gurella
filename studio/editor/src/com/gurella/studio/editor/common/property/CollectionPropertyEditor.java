@@ -81,8 +81,6 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 			Iterator<T> iter = values.iterator();
 			IntStream.range(0, values.size()).forEach(i -> addItemEditor(itemModel, iter.next(), i));
 		}
-
-		content.layout();
 	}
 
 	private int addItemEditor(Model<Object> itemModel, T item, int index) {
@@ -191,7 +189,8 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
-		content.layout(true);
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newTypeInstance() {

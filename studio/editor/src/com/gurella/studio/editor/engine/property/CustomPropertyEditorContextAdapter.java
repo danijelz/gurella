@@ -1,7 +1,7 @@
 package com.gurella.studio.editor.engine.property;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
-import static com.gurella.studio.editor.common.property.EditorPropertyData.getDescriptiveName;
+import static com.gurella.studio.editor.common.property.PropertyEditorData.getDescriptiveName;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
 
 import org.eclipse.swt.SWT;

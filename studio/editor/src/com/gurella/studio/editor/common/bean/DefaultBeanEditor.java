@@ -3,7 +3,7 @@ package com.gurella.studio.editor.common.bean;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
-import static com.gurella.studio.editor.common.property.EditorPropertyData.getGroup;
+import static com.gurella.studio.editor.common.property.PropertyEditorData.getGroup;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
@@ -30,7 +30,7 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
-import com.gurella.studio.editor.common.property.EditorPropertyData;
+import com.gurella.studio.editor.common.property.PropertyEditorData;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
@@ -59,7 +59,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private int getPrpertyIndex(Property<?> property) {
-		return EditorPropertyData.getIndex(context, property);
+		return PropertyEditorData.getIndex(context, property);
 	}
 
 	private Map<String, List<Property<?>>> createGroupsMap(Property<?>[] array) {
@@ -118,7 +118,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(editorBody);
-			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
+			label.addListener(SWT.MouseUp, e -> editor.showMenu());
 
 			if (longName) {
 				labelLayoutData.horizontalAlignment = SWT.BEGINNING;
@@ -142,7 +142,6 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			section.setClient(client);
 			section.setExpanded(true);
 			section.layout(true, true);
-			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 			editorBodyLayoutData.horizontalIndent = 0;
 			editorBodyLayoutData.verticalIndent = 0;
 		} else {
@@ -174,7 +173,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(editorBody);
-			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
+			label.addListener(SWT.MouseUp, e -> editor.showMenu());
 
 			if (longName) {
 				labelLayoutData.horizontalAlignment = SWT.BEGINNING;
@@ -201,7 +200,6 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			section.setClient(client);
 			section.setExpanded(true);
 			section.layout(true, true);
-			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 			editorBodyLayoutData.horizontalIndent = 0;
 			editorBodyLayoutData.verticalIndent = 0;
 			group.add(section);

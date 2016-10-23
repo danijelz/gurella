@@ -74,6 +74,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public CameraComponent() {
 		camera = createCamera();
 		viewport = new CameraViewport(camera);
+		_renderingLayers.add(Layer.DEFAULT);
 	}
 
 	abstract T createCamera();

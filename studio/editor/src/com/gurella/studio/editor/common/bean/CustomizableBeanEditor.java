@@ -3,7 +3,7 @@ package com.gurella.studio.editor.common.bean;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
-import static com.gurella.studio.editor.common.property.EditorPropertyData.getDescriptiveName;
+import static com.gurella.studio.editor.common.property.PropertyEditorData.getDescriptiveName;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
@@ -167,7 +167,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 			boolean longName = name.length() > 20;
 			Label label = newLabel(this, name, longName);
 			label.moveAbove(editorBody);
-			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
+			label.addListener(SWT.MouseUp, e -> editor.showMenu());
 
 			int hSpan = longName ? 2 : 1;
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(hSpan, 1)

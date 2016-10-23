@@ -20,7 +20,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	public Vector3PropertyEditor(Composite parent, PropertyEditorContext<?, Vector3> context) {
 		super(parent, context);
 
-		GridLayout layout = new GridLayout(3, false);
+		GridLayout layout = new GridLayout(3, true);
 		layout.marginWidth = 1;
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 4;
@@ -30,7 +30,7 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New Vector3", () -> newValue(new Vector3()));
+			addMenuItem("New instance", () -> newValue(new Vector3()));
 			if (context.isNullable()) {
 				addMenuItem("Set to null", () -> newValue(null));
 			}
@@ -52,8 +52,6 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 			createEditorField(model, value, "z");
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createEditorField(final Model<Vector3> model, Vector3 value, String propertyName) {
@@ -79,6 +77,8 @@ public class Vector3PropertyEditor extends SimplePropertyEditor<Vector3> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Vector3 value) {

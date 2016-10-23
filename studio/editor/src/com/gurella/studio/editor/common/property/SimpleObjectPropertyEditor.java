@@ -42,6 +42,8 @@ public class SimpleObjectPropertyEditor<P> extends SimplePropertyEditor<P> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	@Override

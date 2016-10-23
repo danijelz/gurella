@@ -20,7 +20,7 @@ public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 	public GridPoint3PropertyEditor(Composite parent, PropertyEditorContext<?, GridPoint3> context) {
 		super(parent, context);
 
-		GridLayout layout = new GridLayout(3, false);
+		GridLayout layout = new GridLayout(3, true);
 		layout.marginWidth = 1;
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 4;
@@ -30,7 +30,7 @@ public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 		buildUi();
 
 		if (!context.isFixedValue()) {
-			addMenuItem("New Vector3", () -> newValue(new GridPoint3()));
+			addMenuItem("New instance", () -> newValue(new GridPoint3()));
 			if (context.isNullable()) {
 				addMenuItem("Set to null", () -> newValue(null));
 			}
@@ -52,8 +52,6 @@ public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 			createEditorField(model, value, "z");
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createEditorField(final Model<GridPoint3> model, GridPoint3 value, String propertyName) {
@@ -78,6 +76,8 @@ public class GridPoint3PropertyEditor extends SimplePropertyEditor<GridPoint3> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(GridPoint3 value) {

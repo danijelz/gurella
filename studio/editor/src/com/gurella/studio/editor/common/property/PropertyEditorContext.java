@@ -56,7 +56,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	}
 
 	public String getDescriptiveName() {
-		return EditorPropertyData.getDescriptiveName(this);
+		return PropertyEditorData.getDescriptiveName(this);
 	}
 
 	public void propertyValueChanged(Object oldValue, Object newValue) {

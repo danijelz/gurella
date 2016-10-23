@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
@@ -61,7 +62,7 @@ public class ColorSelectionWidget extends Composite {
 
 		button = UiUtils.createComposite(this, SWT.NONE);
 		layoutData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
-		layoutData.widthHint = textSize.y;
+		layoutData.widthHint = 16;
 		layoutData.heightHint = textSize.y;
 		button.setLayoutData(layoutData);
 		button.addPaintListener(e -> paintButton(e));
@@ -84,9 +85,10 @@ public class ColorSelectionWidget extends Composite {
 		Rectangle clientArea = button.getClientArea();
 		int width = clientArea.width;
 		int height = clientArea.height;
+		Display display = getDisplay();
 
 		if (swtColor == null) {
-			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+			gc.setForeground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
 			gc.setLineWidth(2);
 			int widthBorder = width - 2;
 			int heightBorder = height - 2;
@@ -97,13 +99,11 @@ public class ColorSelectionWidget extends Composite {
 			int halfWidth = width / 2;
 			int halfHeight = height / 2;
 
-			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
-			gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+			gc.setBackground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
 			gc.fillRectangle(0, 0, halfWidth, halfHeight);
 			gc.fillRectangle(halfWidth, halfHeight, halfWidth, halfHeight);
 
-			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-			gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 			gc.fillRectangle(halfWidth, 0, halfWidth, halfHeight);
 			gc.fillRectangle(0, halfHeight, halfWidth, halfHeight);
 
@@ -114,7 +114,7 @@ public class ColorSelectionWidget extends Composite {
 		}
 
 		gc.setAlpha(255);
-		gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+		gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
 		gc.drawRectangle(0, 0, width - 1, height - 1);
 	}
 
@@ -151,7 +151,13 @@ public class ColorSelectionWidget extends Composite {
 
 	private void presentColor(Color color) {
 		updateColor(color);
-		text.setText(color == null ? "" : color.toString());
+		if (color == null) {
+			text.setText("");
+			text.setMessage("null");
+		} else {
+			text.setText(color.toString());
+			text.setMessage("");
+		}
 	}
 
 	private void updateColor(Color color) {

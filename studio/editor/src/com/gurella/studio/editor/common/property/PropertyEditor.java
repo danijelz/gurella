@@ -20,7 +20,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -57,7 +56,6 @@ public abstract class PropertyEditor<P> {
 
 		content = new Composite(body, SWT.NULL);
 		content.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
-		content.addListener(SWT.MouseUp, e -> showMenuOnMouseUp(e));
 		UiUtils.adapt(content);
 
 		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
@@ -80,7 +78,7 @@ public abstract class PropertyEditor<P> {
 	}
 
 	public String getDescriptiveName() {
-		return EditorPropertyData.getDescriptiveName(context);
+		return PropertyEditorData.getDescriptiveName(context);
 	}
 
 	public Property<P> getProperty() {
@@ -100,12 +98,12 @@ public abstract class PropertyEditor<P> {
 		context.sceneEditorContext.executeOperation(operation, "Error updating property.");
 	}
 
-	public void setHover(boolean hover) {
+	public void setMenuVisible(boolean visible) {
 		if (menuButton == null || menuButton.isDisposed()) {
 			return;
 		}
 
-		if (hover && !menuItems.isEmpty()) {
+		if (visible && !menuItems.isEmpty()) {
 			menuButton.setImage(menuImage);
 		} else {
 			menuButton.setImage(null);
@@ -147,7 +145,7 @@ public abstract class PropertyEditor<P> {
 		}
 	}
 
-	protected void showMenu() {
+	public void showMenu() {
 		if (menuItems.isEmpty()) {
 			return;
 		}
@@ -162,12 +160,6 @@ public abstract class PropertyEditor<P> {
 		MenuItem item1 = new MenuItem(menu, PUSH);
 		item1.setText(text);
 		item1.addListener(SWT.Selection, e -> action.run());
-	}
-
-	public void showMenuOnMouseUp(Event e) {
-		if (e.type == SWT.MouseUp && e.button == 3) {
-			showMenu();
-		}
 	}
 
 	protected abstract void updateValue(P value);

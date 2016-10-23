@@ -20,7 +20,7 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 	public Vector2PropertyEditor(Composite parent, PropertyEditorContext<?, Vector2> context) {
 		super(parent, context);
 
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout(2, true);
 		layout.marginWidth = 1;
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 4;
@@ -51,8 +51,6 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 			createEditorField(model, value, "y");
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createEditorField(final Model<Vector2> model, Vector2 value, String propertyName) {
@@ -77,6 +75,8 @@ public class Vector2PropertyEditor extends SimplePropertyEditor<Vector2> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Vector2 value) {

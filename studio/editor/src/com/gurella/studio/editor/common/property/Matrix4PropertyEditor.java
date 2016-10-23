@@ -52,8 +52,6 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 			createText(Matrix4.M33, value);
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createText(int index, Matrix4 value) {
@@ -76,6 +74,8 @@ public class Matrix4PropertyEditor extends CompositePropertyEditor<Matrix4> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Matrix4 value) {

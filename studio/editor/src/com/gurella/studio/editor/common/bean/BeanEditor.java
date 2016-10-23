@@ -39,8 +39,8 @@ public abstract class BeanEditor<T> extends Composite {
 	private void mouseMoved() {
 		extractHoveredEditors();
 
-		hoverEditors.stream().filter(e -> !hoverEditorsTemp.contains(e)).forEach(e -> e.setHover(false));
-		hoverEditorsTemp.stream().filter(e -> !hoverEditors.contains(e)).forEach(e -> e.setHover(true));
+		hoverEditors.stream().filter(e -> !hoverEditorsTemp.contains(e)).forEach(e -> e.setMenuVisible(false));
+		hoverEditorsTemp.stream().filter(e -> !hoverEditors.contains(e)).forEach(e -> e.setMenuVisible(true));
 
 		hoverEditors.clear();
 		List<PropertyEditor<?>> temp = hoverEditorsTemp;

@@ -13,9 +13,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.GridPoint3;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.Model;
@@ -72,6 +75,10 @@ public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 	@PropertyEditorDescriptor(group = "simple")
 	public boolean bool;
 	@PropertyEditorDescriptor(group = "simple")
+	public Boolean objBool = Boolean.FALSE;
+	@PropertyEditorDescriptor(group = "simple")
+	public Boolean nullObjBool;
+	@PropertyEditorDescriptor(group = "simple")
 	public Color color = new Color();
 	@PropertyEditorDescriptor(group = "simple")
 	public final Color finalColor = new Color();
@@ -82,33 +89,57 @@ public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 	@PropertyEditorDescriptor(group = "simple")
 	public Date nullDate;
 
+	@PropertyEditorDescriptor(group = "gdx math")
+	public Vector3 vector3;
+	@PropertyEditorDescriptor(group = "gdx math")
+	public Vector2 vector2;
+	@PropertyEditorDescriptor(group = "gdx math")
+	public GridPoint3 gridPoint3;
+	@PropertyEditorDescriptor(group = "gdx math")
+	public GridPoint2 gridPoint2;
+	@PropertyEditorDescriptor(group = "gdx math")
+	public Quaternion quaternion;
+
 	@PropertyEditorDescriptor(group = "matrix")
 	public Matrix3 matrix3 = new Matrix3();
 	@PropertyEditorDescriptor(group = "matrix")
 	public Matrix4 matrix4 = new Matrix4();
 
-	public List<String> listString = new ArrayList<String>();
-	public final Array<Integer> garrayInteger = new Array<Integer>();
-	public Set<Integer> setInteger = new HashSet<Integer>();
-	public Array<int[]> arrayArrayInt = new Array<int[]>();
-	public Array<Integer[]> garrayArrayInteger = new Array<Integer[]>();
-	public Array<Integer[][]> garrayArray2dInteger = new Array<Integer[][]>();
-	public Array<Vector3> garrayVector3 = new Array<Vector3>();
-	public Array<Array<Integer>> garrayGarrayInteger = new Array<Array<Integer>>();
-	public Array<Array<? extends Vector<?>>> garrayGarrayVector = new Array<Array<? extends Vector<?>>>();
-	public Array<? extends Array<?>> garrayGarrayAny = new Array<Array<Object>>();
-
-	public Vector3 testVector;
-
+	@PropertyEditorDescriptor(group = "array")
 	public String[] arrayString = new String[3];
+	@PropertyEditorDescriptor(group = "array")
 	public int[] arrayInt = new int[3];
+	@PropertyEditorDescriptor(group = "array")
 	public Integer[] arrayInteger = new Integer[3];
+	@PropertyEditorDescriptor(group = "array")
 	public Vector3[] arrayVector = new Vector3[3];
 
-	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class)
-	public Object testCustomEditor;
+	@PropertyEditorDescriptor(group = "list")
+	public List<String> listString = new ArrayList<String>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public final Array<Integer> garrayInteger = new Array<Integer>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Set<Integer> setInteger = new HashSet<Integer>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<int[]> arrayArrayInt = new Array<int[]>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<Integer[]> garrayArrayInteger = new Array<Integer[]>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<Integer[][]> garrayArray2dInteger = new Array<Integer[][]>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<Vector3> garrayVector3 = new Array<Vector3>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<Array<Integer>> garrayGarrayInteger = new Array<Array<Integer>>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<Array<? extends Vector<?>>> garrayGarrayVector = new Array<Array<? extends Vector<?>>>();
+	@PropertyEditorDescriptor(group = "gdx Array")
+	public Array<? extends Array<?>> garrayGarrayAny = new Array<Array<Object>>();
 
-	public ModelEditorObject testCustomModelEditor;
+	@PropertyEditorDescriptor(group = "Custom Property Editor", factory = TestPropertyEditorFactory.class)
+	public Object customPropertyEditor;
+
+	@PropertyEditorDescriptor(group = "Custom Model Editor")
+	public ModelEditorObject customModelEditor;
 
 	static class TestPropertyEditorFactory implements PropertyEditorFactory<Object> {
 		@Override

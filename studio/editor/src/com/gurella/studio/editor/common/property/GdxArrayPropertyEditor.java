@@ -82,8 +82,6 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			Model<Object> itemModel = Models.getModel(componentType);
 			IntStream.range(0, values.size).forEach(i -> addItemEditor(itemModel, values.get(i), i));
 		}
-
-		content.layout();
 	}
 
 	private void addItemEditor(Model<Object> itemModel, T item, int index) {
@@ -178,7 +176,8 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
-		content.layout(true);
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newTypeInstance() {
@@ -248,9 +247,9 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 				int index) {
 			super(parent, model, modelInstance, property);
 			this.index = index;
-			array = Values.cast(parent.getValue());
 			valueGetter = this::getItemValue;
 			valueSetter = this::setItemValue;
+			array = Values.cast(parent.getValue());
 		}
 
 		protected P getItemValue() {

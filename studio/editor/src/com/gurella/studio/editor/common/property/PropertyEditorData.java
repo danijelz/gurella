@@ -17,8 +17,8 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 
-public class EditorPropertyData {
-	private static final Map<EditorPropertyKey, EditorPropertyData> editorProperties = new HashMap<>();
+public class PropertyEditorData {
+	private static final Map<EditorPropertyKey, PropertyEditorData> editorProperties = new HashMap<>();
 
 	public final EditorType type;
 	public final String factoryClass;
@@ -27,7 +27,7 @@ public class EditorPropertyData {
 	public final String descriptiveName;
 	public final String description;
 
-	private EditorPropertyData(EditorType type, String factoryClass, int index, String group, String descriptiveName,
+	private PropertyEditorData(EditorType type, String factoryClass, int index, String group, String descriptiveName,
 			String description) {
 		this.type = type;
 		this.factoryClass = factoryClass;
@@ -41,83 +41,83 @@ public class EditorPropertyData {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		Property<?> property = context.property;
-		return EditorPropertyData.getIndex(javaProject, modelClass, property);
+		return PropertyEditorData.getIndex(javaProject, modelClass, property);
 	}
 
 	public static int getIndex(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
-		return EditorPropertyData.getIndex(javaProject, modelClass, property);
+		return PropertyEditorData.getIndex(javaProject, modelClass, property);
 	}
 
 	public static int getIndex(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
-		EditorPropertyData editorPropertyData = get(javaProject, modelClass, property);
-		return editorPropertyData == null ? 0 : editorPropertyData.index;
+		PropertyEditorData propertyEditorData = get(javaProject, modelClass, property);
+		return propertyEditorData == null ? 0 : propertyEditorData.index;
 	}
 
 	public static String getGroup(PropertyEditorContext<?, ?> context) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		Property<?> property = context.property;
-		return EditorPropertyData.getGroup(javaProject, modelClass, property);
+		return PropertyEditorData.getGroup(javaProject, modelClass, property);
 	}
 
 	public static String getGroup(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
-		return EditorPropertyData.getGroup(javaProject, modelClass, property);
+		return PropertyEditorData.getGroup(javaProject, modelClass, property);
 	}
 
 	public static String getGroup(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
-		EditorPropertyData editorPropertyData = get(javaProject, modelClass, property);
-		return editorPropertyData == null || editorPropertyData.group == null ? "" : editorPropertyData.group;
+		PropertyEditorData propertyEditorData = get(javaProject, modelClass, property);
+		return propertyEditorData == null || propertyEditorData.group == null ? "" : propertyEditorData.group;
 	}
 
 	public static String getDescription(PropertyEditorContext<?, ?> context) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		Property<?> property = context.property;
-		return EditorPropertyData.getDescription(javaProject, modelClass, property);
+		return PropertyEditorData.getDescription(javaProject, modelClass, property);
 	}
 
 	public static String getDescription(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
-		return EditorPropertyData.getDescription(javaProject, modelClass, property);
+		return PropertyEditorData.getDescription(javaProject, modelClass, property);
 	}
 
 	public static String getDescription(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
-		EditorPropertyData editorPropertyData = get(javaProject, modelClass, property);
-		return editorPropertyData == null ? null : editorPropertyData.description;
+		PropertyEditorData propertyEditorData = get(javaProject, modelClass, property);
+		return propertyEditorData == null ? null : propertyEditorData.description;
 	}
 
 	public static String getDescriptiveName(PropertyEditorContext<?, ?> context) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		Property<?> property = context.property;
-		return EditorPropertyData.getDescriptiveName(javaProject, modelClass, property);
+		return PropertyEditorData.getDescriptiveName(javaProject, modelClass, property);
 	}
 
 	public static String getDescriptiveName(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
-		return EditorPropertyData.getDescriptiveName(javaProject, modelClass, property);
+		return PropertyEditorData.getDescriptiveName(javaProject, modelClass, property);
 	}
 
 	public static String getDescriptiveName(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
-		EditorPropertyData editorPropertyData = get(javaProject, modelClass, property);
-		String descriptiveName = editorPropertyData == null ? null : editorPropertyData.descriptiveName;
-		return Values.isBlank(descriptiveName) ? property.getName() : editorPropertyData.descriptiveName;
+		PropertyEditorData propertyEditorData = get(javaProject, modelClass, property);
+		String descriptiveName = propertyEditorData == null ? null : propertyEditorData.descriptiveName;
+		return Values.isBlank(descriptiveName) ? property.getName() : propertyEditorData.descriptiveName;
 	}
 
-	public static EditorPropertyData get(PropertyEditorContext<?, ?> context) {
+	public static PropertyEditorData get(PropertyEditorContext<?, ?> context) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		Property<?> property = context.property;
-		return EditorPropertyData.get(javaProject, modelClass, property);
+		return PropertyEditorData.get(javaProject, modelClass, property);
 	}
 
-	public static EditorPropertyData get(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
+	public static PropertyEditorData get(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
 		try {
 			return getSafely(javaProject, modelClass, property);
 		} catch (Exception e) {
@@ -126,7 +126,7 @@ public class EditorPropertyData {
 		}
 	}
 
-	private static EditorPropertyData getSafely(IJavaProject javaProject, Class<?> modelClass, Property<?> property)
+	private static PropertyEditorData getSafely(IJavaProject javaProject, Class<?> modelClass, Property<?> property)
 			throws Exception {
 		if (!(property instanceof ReflectionProperty)) {
 			return null;
@@ -134,7 +134,7 @@ public class EditorPropertyData {
 
 		String propertyName = property.getName();
 		EditorPropertyKey key = new EditorPropertyKey(modelClass, propertyName);
-		EditorPropertyData data = editorProperties.get(key);
+		PropertyEditorData data = editorProperties.get(key);
 		if (data != null) {
 			return data;
 		}
@@ -177,7 +177,7 @@ public class EditorPropertyData {
 		}
 	}
 
-	private static EditorPropertyData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
+	private static PropertyEditorData parseAnnotation(IType type, IAnnotation annotation) throws JavaModelException {
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		String factoryName = null;
 		EditorType editorType = EditorType.composite;
@@ -220,7 +220,7 @@ public class EditorPropertyData {
 			}
 		}
 
-		return new EditorPropertyData(editorType, factoryName, index, group, descriptiveName, description);
+		return new PropertyEditorData(editorType, factoryName, index, group, descriptiveName, description);
 	}
 
 	private static class EditorPropertyKey {

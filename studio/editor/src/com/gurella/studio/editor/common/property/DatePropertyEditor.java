@@ -68,8 +68,6 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 
 			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private Date extractTimestamp() {
@@ -87,6 +85,8 @@ public class DatePropertyEditor extends SimplePropertyEditor<Date> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(Date value) {

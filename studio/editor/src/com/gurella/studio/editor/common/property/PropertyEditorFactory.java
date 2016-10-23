@@ -49,7 +49,7 @@ public class PropertyEditorFactory {
 			IJavaProject javaProject = context.sceneEditorContext.javaProject;
 			Class<?> modelClass = context.modelInstance.getClass();
 			Property<?> property = context.property;
-			EditorPropertyData data = EditorPropertyData.get(javaProject, modelClass, property);
+			PropertyEditorData data = PropertyEditorData.get(javaProject, modelClass, property);
 			if (data == null || !data.isValidFactoryClass()) {
 				return null;
 			}

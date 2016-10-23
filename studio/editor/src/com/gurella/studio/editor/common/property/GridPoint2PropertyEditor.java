@@ -20,7 +20,7 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 	public GridPoint2PropertyEditor(Composite parent, PropertyEditorContext<?, GridPoint2> context) {
 		super(parent, context);
 
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout(2, true);
 		layout.marginWidth = 1;
 		layout.marginHeight = 2;
 		layout.horizontalSpacing = 4;
@@ -49,9 +49,8 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 			Model<GridPoint2> model = Models.getModel(GridPoint2.class);
 			createEditorField(model, value, "x");
 			createEditorField(model, value, "y");
+			UiUtils.paintBordersFor(content);
 		}
-
-		content.layout();
 	}
 
 	private void createEditorField(final Model<GridPoint2> model, GridPoint2 value, String propertyName) {
@@ -76,6 +75,8 @@ public class GridPoint2PropertyEditor extends SimplePropertyEditor<GridPoint2> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 	}
 
 	private void newValue(GridPoint2 value) {

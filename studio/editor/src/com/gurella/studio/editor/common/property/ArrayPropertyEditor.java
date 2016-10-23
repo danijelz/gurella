@@ -60,6 +60,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 			for (int i = 0, n = Array.getLength(values); i < n; i++) {
 				Label label = toolkit.createLabel(content, Integer.toString(i) + ".");
 				label.setAlignment(SWT.RIGHT);
+				//TODO createFont
 				label.setFont(createFont(FontDescriptor.createFrom(label.getFont()).setStyle(SWT.BOLD)));
 				label.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
@@ -69,12 +70,12 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 				GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 				editor.getBody().setLayoutData(layoutData);
 
+				label.addListener(SWT.MouseUp, e -> editor.showMenu());
+				
 				addEditorMenus(editor, i);
 				itemEditors.add(editor);
 			}
 		}
-
-		content.layout();
 	}
 
 	private void setNull() {
@@ -167,6 +168,8 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		content.layout(true, true);
+		content.redraw();
 		UiUtils.reflow(content);
 	}
 
