@@ -21,6 +21,7 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
@@ -71,7 +72,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 				editor.getBody().setLayoutData(layoutData);
 
 				label.addListener(SWT.MouseUp, e -> editor.showMenu());
-				
+
 				addEditorMenus(editor, i);
 				itemEditors.add(editor);
 			}
@@ -97,12 +98,8 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	public String isValid(String newText) {
-		try {
-			Integer.parseInt(newText);
-			return null;
-		} catch (Exception e) {
-		}
-		return "invalid length";
+		Try<Integer> failable = Try.ofFailable(() -> Integer.parseInt(newText));
+		return failable.isSuccess() ? null : "invalid length";
 	}
 
 	private Class<Object> getComponentType() {

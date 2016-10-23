@@ -36,6 +36,7 @@ import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>> {
@@ -107,20 +108,12 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private Class<Object> getComponentType() {
 		if (componentType == null) {
-			componentType = resolveComponentType();
+			componentType = Try.ofFailable(() -> resolveComponentType()).orElse(Object.class);
 		}
 		return componentType;
 	}
 
-	private Class<Object> resolveComponentType() {
-		try {
-			return resolveComponentTypeSafely();
-		} catch (Exception e) {
-			return Object.class;
-		}
-	}
-
-	private Class<Object> resolveComponentTypeSafely() throws JavaModelException, ClassNotFoundException {
+	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
 		Property<?> property = context.property;
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		String typeName = context.modelInstance.getClass().getName();
