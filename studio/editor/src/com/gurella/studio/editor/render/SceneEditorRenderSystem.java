@@ -28,8 +28,9 @@ import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.studio.editor.common.model.MetaModelEditor;
-import com.gurella.studio.editor.common.model.ModelEditorContext;
+import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.studio.editor.common.bean.BeanEditor;
+import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -101,10 +102,11 @@ public class SceneEditorRenderSystem
 
 	private void addCameraComponent(CameraComponent<?> cameraComponent) {
 		boolean layersUpdated = false;
-		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
+		int layersSize = renderingLayers.size();
 
-		if (renderingLayers.size > 0) {
-			for (int i = 0, n = renderingLayers.size; i < n; i++) {
+		if (layersSize > 0) {
+			for (int i = 0, n = layersSize; i < n; i++) {
 				Layer layer = renderingLayers.get(i);
 				layersUpdated |= addCameraComponent(layer, cameraComponent);
 			}
@@ -169,20 +171,20 @@ public class SceneEditorRenderSystem
 	}
 
 	private void removeCameraComponent(CameraComponent<?> cameraComponent) {
-		boolean layersUpdated = false;
-		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
+		int layersSize = renderingLayers.size();
 
-		for (int i = 0, n = renderingLayers.size; i < n; i++) {
-			Layer layer = renderingLayers.get(i);
-			layersUpdated |= removeCameraComponent(layer, cameraComponent);
-		}
-
-		if (layersUpdated) {
-			orderedLayers.sort();
+		if (layersSize > 0) {
+			for (int i = 0, n = layersSize; i < n; i++) {
+				Layer layer = renderingLayers.get(i);
+				removeCameraComponent(layer, cameraComponent);
+			}
+		} else {
+			removeCameraComponent(Layer.DEFAULT, cameraComponent);
 		}
 	}
 
-	private boolean removeCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
+	private void removeCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
 		int layerId = layer.id;
 		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
 		layerCameras.removeValue(cameraComponent, true);
@@ -190,10 +192,6 @@ public class SceneEditorRenderSystem
 		if (layerCameras.size < 1) {
 			camerasByLayer.remove(layerId);
 			orderedLayers.removeValue(layer, true);
-			return true;
-		} else {
-			layerCameras.sort();
-			return false;
 		}
 	}
 
@@ -261,8 +259,8 @@ public class SceneEditorRenderSystem
 
 		Composite temp = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
 		while (temp != null) {
-			if (temp instanceof MetaModelEditor) {
-				ModelEditorContext<?> context = ((MetaModelEditor<?>) temp).getContext();
+			if (temp instanceof BeanEditor) {
+				BeanEditorContext<?> context = ((BeanEditor<?>) temp).getContext();
 				Object modelInstance = context.modelInstance;
 				if (modelInstance instanceof SceneNodeComponent2) {
 					focusedComponent = (SceneNodeComponent2) modelInstance;

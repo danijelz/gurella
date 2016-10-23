@@ -65,11 +65,11 @@ public class ObjectArrayModelFactory implements ModelFactory {
 				int length = array.length;
 
 				Object[] templateArray = template != null && type == template.getClass() ? (Object[]) template : null;
-				int templateLength = templateArray == null ? 0 : templateArray.length;
+				int templateMax = templateArray == null ? 0 : templateArray.length - 1;
 
 				output.writeInt(length);
 				for (int i = 0; i < length; i++) {
-					Object templateItem = templateLength > 1 ? templateArray[i] : null;
+					Object templateItem = templateMax > i ? templateArray[i] : null;
 					output.writeObject(componentType, templateItem, array[i]);
 				}
 			}
@@ -91,11 +91,11 @@ public class ObjectArrayModelFactory implements ModelFactory {
 				int length = input.readInt();
 				Object[] array = (Object[]) ArrayReflection.newInstance(componentType, length);
 				Object[] templateArray = template != null && type == template.getClass() ? (Object[]) template : null;
-				int templateLength = templateArray == null ? 0 : templateArray.length;
+				int templateMax = templateArray == null ? 0 : templateArray.length - 1;
 
 				input.pushObject(array);
 				for (int i = 0; i < length; i++) {
-					Object templateItem = templateLength > 1 ? templateArray[i] : null;
+					Object templateItem = templateMax > i ? templateArray[i] : null;
 					array[i] = input.readObject(componentType, templateItem);
 				}
 				input.popObject();

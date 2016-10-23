@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.engine.model;
+package com.gurella.studio.editor.engine.bean;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.editor.common.property.EditorPropertyData.getDescriptiveName;
@@ -19,8 +19,8 @@ import com.gurella.engine.editor.ui.EditorUi;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.common.model.DefaultMetaModelEditor;
-import com.gurella.studio.editor.common.model.ModelEditorContext;
+import com.gurella.studio.editor.common.bean.BeanEditorContext;
+import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.engine.ui.SwtEditorComposite;
@@ -28,17 +28,17 @@ import com.gurella.studio.editor.engine.ui.SwtEditorLabel;
 import com.gurella.studio.editor.engine.ui.SwtEditorUi;
 import com.gurella.studio.editor.engine.ui.SwtEditorWidget;
 
-public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
+public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
 		implements com.gurella.engine.editor.model.ModelEditorContext<T> {
 	final ModelEditorFactory<T> factory;
 
-	public CustomModelEditorContextAdapter(ModelEditorContext<?> parent, T modelInstance,
+	public CustomBeanEditorContextAdapter(BeanEditorContext<?> parent, T modelInstance,
 			ModelEditorFactory<T> factory) {
 		super(parent, modelInstance);
 		this.factory = factory;
 	}
 
-	public CustomModelEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance,
+	public CustomBeanEditorContextAdapter(SceneEditorContext sceneEditorContext, T modelInstance,
 			ModelEditorFactory<T> factory) {
 		super(sceneEditorContext, modelInstance);
 		this.factory = factory;
@@ -78,8 +78,8 @@ public class CustomModelEditorContextAdapter<T> extends ModelEditorContext<T>
 	@Override
 	public EditorComposite createModelEditor(EditorComposite parent, Object modelInstance) {
 		Composite swtParent = ((SwtEditorComposite) parent).getWidget();
-		ModelEditorContext<Object> context = new ModelEditorContext<>(this, modelInstance);
-		DefaultMetaModelEditor<Object> modelEditor = new DefaultMetaModelEditor<>(swtParent, context);
+		BeanEditorContext<Object> context = new BeanEditorContext<>(this, modelInstance);
+		DefaultBeanEditor<Object> modelEditor = new DefaultBeanEditor<>(swtParent, context);
 		return new SwtEditorComposite(modelEditor);
 	}
 

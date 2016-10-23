@@ -43,6 +43,7 @@ import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchDraggedListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
+import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
@@ -72,7 +73,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	public InputSystem(Scene scene) {
 		super(scene);
 		mouseMoveProcessor = new MouseMoveProcessor(scene);
-		
+
 		pointerActivitySignal.addListener(dragAndDropProcessor);
 		pointerActivitySignal.addListener(touchProcessor);
 		pointerActivitySignal.addListener(doubleTouchProcessor = new DoubleTouchProcessor(scene, dragAndDropProcessor));
@@ -92,11 +93,11 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		inputQueue.setProcessor(dummyDelegate);
 		inputQueue.drain();
 		inputQueue.setProcessor(delegate);
-		
+
 		delegate.reset();
 		pointerActivitySignal.reset();
 		mouseMoveProcessor.reset();
-		
+
 		spatialSystem = null;
 	}
 
@@ -115,11 +116,13 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 	private void addCameraComponent(CameraComponent<?> cameraComponent) {
 		boolean layersUpdated = false;
-		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
-		if (renderingLayers.size == 0) {
+		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
+		int layersSize = renderingLayers.size();
+
+		if (layersSize == 0) {
 			layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
 		} else {
-			for (int i = 0; i < renderingLayers.size; i++) {
+			for (int i = 0; i < layersSize; i++) {
 				layersUpdated |= addCameraComponent(renderingLayers.get(i), cameraComponent);
 			}
 		}
@@ -276,7 +279,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		layerMask.reset();
 		spatialSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
-		
+
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderableComponent = spatial.renderableComponent;

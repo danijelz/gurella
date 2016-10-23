@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.camera;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.base.model.ModelDescriptor;
@@ -11,13 +12,13 @@ public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamer
 	public Color ambientLight;
 	public Color fog;
 
-	public PerspectiveCameraComponent() {
-		near = 0.1f;
-	}
-
 	@Override
 	PerspectiveCamera createCamera() {
-		return new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Graphics graphics = Gdx.graphics;
+		PerspectiveCamera camera = new PerspectiveCamera(67, graphics.getWidth(), graphics.getHeight());
+		camera.near = 0.1f;
+		camera.far = 1000;
+		return camera;
 	}
 
 	public float getFieldOfView() {
@@ -26,5 +27,13 @@ public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamer
 
 	public void setFieldOfView(float fieldOfView) {
 		camera.fieldOfView = fieldOfView;
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		camera.fieldOfView = 67;
+		camera.near = 0.1f;
+		camera.far = 1000;
 	}
 }

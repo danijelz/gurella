@@ -1,16 +1,24 @@
 package com.gurella.engine.scene.camera;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.model.ValueRange;
 import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.graphics.render.RenderTarget;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.debug.CameraDebugRenderer;
@@ -20,8 +28,8 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
-import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
+import com.gurella.engine.utils.Values;
 
 @BaseSceneElement
 public abstract class CameraComponent<T extends Camera> extends SceneNodeComponent2
@@ -30,10 +38,14 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	private static final Vector3 initialDirection = new Vector3(0, 0, -1);
 	private static final Vector3 initialUp = new Vector3(0, 1, 0);
 
-	public float near = 1;
-	public float far = 1000;
-
 	private int ordinal;
+
+	// TODO notify render system for layer changes
+	@PropertyDescriptor()
+	@PropertyEditorDescriptor(descriptiveName = "renderingLayers")
+	private final Array<Layer> _renderingLayers = new Array<Layer>();
+	public final transient ImmutableArray<Layer> renderingLayers = new ImmutableArray<Layer>(_renderingLayers);
+	private RenderTarget renderTarget;
 
 	@PropertyEditorDescriptor(group = "Clear color", descriptiveName = "enable")
 	public boolean clearColor = true;
@@ -52,12 +64,9 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255) )
 	public int clearStencilValue = 1;
 
-	// TODO notify render system for layer changes
-	public final ArrayExt<Layer> renderingLayers = new ArrayExt<Layer>();
-	// TODO RenderTarget
-
 	public final transient T camera;
-	public final transient CameraViewport viewport;
+	public final CameraViewport viewport;
+
 	private transient TransformComponent transformComponent;
 
 	private Matrix4 tempTransform = new Matrix4();
@@ -71,26 +80,26 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO if(RenderTarget != nul)...
-		viewport.update(width, height);
+		if (renderTarget == null) {
+			viewport.update(width, height);
+		}
 	}
 
 	@Override
 	protected void componentActivated() {
-		initCamera();
+		if (renderTarget == null) {
+			Graphics graphics = Gdx.graphics;
+			viewport.update(graphics.getWidth(), graphics.getHeight());
+		} else {
+			viewport.update(renderTarget.getWidth(), renderTarget.getHeight());
+		}
+
 		transformComponent = getNode().getComponent(TransformComponent.class, false);
 		if (transformComponent == null) {
 			updateDefaultTransform();
 		} else {
 			updateTransform();
 		}
-	}
-
-	void initCamera() {
-		camera.near = near;
-		camera.far = far;
-		// TODO if(RenderTarget != nul)...
-		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	}
 
 	@Override
@@ -120,20 +129,18 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	public float getNear() {
-		return near;
+		return camera.near;
 	}
 
 	public void setNear(float near) {
-		this.near = near;
 		camera.near = near;
 	}
 
 	public float getFar() {
-		return far;
+		return camera.far;
 	}
 
 	public void setFar(float far) {
-		this.far = far;
 		camera.far = far;
 	}
 
@@ -142,29 +149,38 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	public void setOrdinal(int ordinal) {
+		if (this.ordinal == ordinal) {
+			return;
+		}
+
 		this.ordinal = ordinal;
-		// TODO notify RenderSystem
+
+		if (isActive()) {
+			CameraOrdinalChangedEvent event = PoolService.obtain(CameraOrdinalChangedEvent.class);
+			EventService.post(getScene().getInstanceId(), event);
+			PoolService.free(event);
+		}
 	}
 
 	public ImmutableArray<Layer> getRenderingLayers() {
-		return renderingLayers.immutable();
+		return renderingLayers;
 	}
 
-	public void setRenderingLayers(Layer... layers) {
-		renderingLayers.clear();
-		renderingLayers.addAll(layers);
+	public void setRenderingLayers(Array<Layer> layers) {
+		_renderingLayers.clear();
+		_renderingLayers.addAll(layers);
 		// TODO notify RenderSystem
 	}
 
 	public void addRenderingLayer(Layer layer) {
-		if (!renderingLayers.contains(layer, true)) {
-			renderingLayers.add(layer);
+		if (!_renderingLayers.contains(layer, true)) {
+			_renderingLayers.add(layer);
 			// TODO notify RenderSystem
 		}
 	}
 
 	public void removeRenderingLayer(Layer layer) {
-		if (renderingLayers.removeValue(layer, true)) {
+		if (_renderingLayers.removeValue(layer, true)) {
 			// TODO notify RenderSystem
 		}
 	}
@@ -192,10 +208,21 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	public void reset() {
-		near = 1;
-		far = 1000;
 		ordinal = 0;
-		renderingLayers.clear();
+		_renderingLayers.clear();
 		transformComponent = null;
+		viewport.reset();
+	}
+
+	public static final class OrdinalComparator implements Comparator<CameraComponent<?>> {
+		public static final OrdinalComparator instance = new OrdinalComparator();
+
+		public OrdinalComparator() {
+		}
+
+		@Override
+		public int compare(CameraComponent<?> o1, CameraComponent<?> o2) {
+			return Values.compare(o1.ordinal, o2.ordinal);
+		}
 	}
 }

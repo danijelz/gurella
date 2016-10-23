@@ -27,6 +27,7 @@ public class SceneEditorContext implements SceneLoadedListener {
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
+	//TODO make private and expose methods: loadClass(), createType()...
 	public final ClassLoader classLoader;
 
 	private Scene scene;

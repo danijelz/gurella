@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common.model;
+package com.gurella.studio.editor.common.bean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +13,17 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 
-public abstract class MetaModelEditor<T> extends Composite {
-	ModelEditorContext<T> context;
+public abstract class BeanEditor<T> extends Composite {
+	BeanEditorContext<T> context;
 
 	private List<PropertyEditor<?>> hoverEditors = new ArrayList<PropertyEditor<?>>();
 	private List<PropertyEditor<?>> hoverEditorsTemp = new ArrayList<PropertyEditor<?>>();
 
-	public MetaModelEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
-		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
+	public BeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
+		this(parent, new BeanEditorContext<>(sceneEditorContext, modelInstance));
 	}
 
-	public MetaModelEditor(Composite parent, ModelEditorContext<T> context) {
+	public BeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, SWT.NONE);
 		this.context = context;
 		GurellaStudioPlugin.getToolkit().adapt(this);
@@ -70,7 +70,7 @@ public abstract class MetaModelEditor<T> extends Composite {
 		}
 	}
 
-	public ModelEditorContext<T> getContext() {
+	public BeanEditorContext<T> getContext() {
 		return context;
 	}
 }

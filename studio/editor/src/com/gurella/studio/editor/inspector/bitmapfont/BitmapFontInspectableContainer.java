@@ -20,12 +20,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.asset.properties.BitmapFontProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.model.DefaultMetaModelEditor;
+import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 
 public class BitmapFontInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultMetaModelEditor<BitmapFontProperties> textureProperties;
+	private DefaultBeanEditor<BitmapFontProperties> textureProperties;
 	private CTabFolder pages;
 
 	public BitmapFontInspectableContainer(InspectorView parent, IFile target) {
@@ -37,7 +37,7 @@ public class BitmapFontInspectableContainer extends InspectableContainer<IFile> 
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new DefaultMetaModelEditor<>(getBody(), editorContext, findProperties(target));
+		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

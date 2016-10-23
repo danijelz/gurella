@@ -386,7 +386,7 @@ public class ReflectionModel<T> implements Model<T> {
 		}
 
 		field.setAccessible(true);
-		T defaultInstance = ModelDefaults.getDefault(type);
+		T defaultInstance = DefaultInstances.getDefault(type);
 		if (defaultInstance != null) {
 			Object fieldValue = Reflection.getFieldValue(field, defaultInstance);
 			if (fieldValue == null) {

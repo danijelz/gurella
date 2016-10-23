@@ -5,6 +5,8 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.ImmutableBits;
@@ -22,16 +24,34 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 
 	public void addTag(Tag tag) {
 		if (!_tags.getAndSet(tag.id) && isActive()) {
-			getScene().tagManager.tagAdded(this, tag);
+			TagAddedEvent tagAddedEvent = PoolService.obtain(TagAddedEvent.class);
+			tagAddedEvent.component = this;
+			tagAddedEvent.tag = tag;
+			EventService.post(getScene().getInstanceId(), tagAddedEvent);
+			PoolService.free(tagAddedEvent);
 		}
 	}
 
 	public void addTags(Tag... tags) {
-		boolean active = isActive();
-		for (Tag tag : tags) {
-			if (!_tags.getAndSet(tag.id) && active) {
-				getScene().tagManager.tagAdded(this, tag);
+		if (Values.isEmptyArray(tags)) {
+			return;
+		}
+
+		boolean changed = false;
+
+		for (int i = 0, n = tags.length; i < n; i++) {
+			Tag tag = tags[i];
+			if (_tags.getAndClear(tag.id)) {
+				changed = true;
 			}
+		}
+
+		if (isActive() && changed) {
+			TagsAddedEvent tagsAddedEvent = PoolService.obtain(TagsAddedEvent.class);
+			tagsAddedEvent.component = this;
+			tagsAddedEvent.tags.addAll(tags);
+			EventService.post(getScene().getInstanceId(), tagsAddedEvent);
+			PoolService.free(tagsAddedEvent);
 		}
 	}
 
@@ -41,16 +61,34 @@ public final class TagComponent extends SceneNodeComponent2 implements Poolable 
 
 	public void removeTag(Tag tag) {
 		if (_tags.getAndClear(tag.id) && isActive()) {
-			getScene().tagManager.tagRemoved(this, tag);
+			TagRemovedEvent tagRemovedEvent = PoolService.obtain(TagRemovedEvent.class);
+			tagRemovedEvent.component = this;
+			tagRemovedEvent.tag = tag;
+			EventService.post(getScene().getInstanceId(), tagRemovedEvent);
+			PoolService.free(tagRemovedEvent);
 		}
 	}
 
 	public void removeTags(Tag... tags) {
-		boolean active = isActive();
-		for (Tag tag : tags) {
-			if (_tags.getAndClear(tag.id) && active) {
-				getScene().tagManager.tagRemoved(this, tag);
+		if (Values.isEmptyArray(tags)) {
+			return;
+		}
+
+		boolean changed = false;
+
+		for (int i = 0, n = tags.length; i < n; i++) {
+			Tag tag = tags[i];
+			if (_tags.getAndClear(tag.id)) {
+				changed = true;
 			}
+		}
+
+		if (isActive() && changed) {
+			TagsRemovedEvent tagsRemovedEvent = PoolService.obtain(TagsRemovedEvent.class);
+			tagsRemovedEvent.component = this;
+			tagsRemovedEvent.tags.addAll(tags);
+			EventService.post(getScene().getInstanceId(), tagsRemovedEvent);
+			PoolService.free(tagsRemovedEvent);
 		}
 	}
 

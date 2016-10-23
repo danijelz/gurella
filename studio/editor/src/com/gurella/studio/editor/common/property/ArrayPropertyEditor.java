@@ -167,6 +167,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
+		UiUtils.reflow(content);
 	}
 
 	@Override

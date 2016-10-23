@@ -1,15 +1,11 @@
 package com.gurella.engine.base.model;
 
-import java.util.Arrays;
-
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Constructor;
 import com.gurella.engine.base.serialization.Input;
 import com.gurella.engine.base.serialization.Output;
-import com.gurella.engine.utils.ArrayExt;
 import com.gurella.engine.utils.ImmutableArray;
-import com.gurella.engine.utils.Range;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 
@@ -33,14 +29,15 @@ public class GdxArrayModelFactory implements ModelFactory {
 	}
 
 	public static class GdxArrayModel<T extends Array<?>> implements Model<T> {
+		private static final String componentTypePropertyName = "componentType";
+		private static final String orderedPropertyName = "ordered";
+		private static final String sizePropertyName = "size";
+		private static final String itemsPropertyName = "items";
+
 		private final Class<T> type;
-		private final ArrayExt<Property<?>> properties;
 
 		public GdxArrayModel(Class<T> type) {
 			this.type = type;
-			properties = new ArrayExt<Property<?>>();
-			properties.add(new ArrayOrderedProperty());
-			properties.add(new ArrayItemsProperty());
 		}
 
 		@Override
@@ -55,19 +52,13 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 		@Override
 		public ImmutableArray<Property<?>> getProperties() {
-			return properties.immutable();
+			return ImmutableArray.empty();
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public <P> Property<P> getProperty(String name) {
-			if (ArrayOrderedProperty.name.equals(name)) {
-				return (Property<P>) properties.get(0);
-			} else if (ArrayItemsProperty.name.equals(name)) {
-				return (Property<P>) properties.get(1);
-			} else {
-				return null;
-			}
+			return null;
 		}
 
 		@Override
@@ -79,13 +70,23 @@ public class GdxArrayModelFactory implements ModelFactory {
 			} else {
 				Class<?> componentType = value.items.getClass().getComponentType();
 				if (Object.class != componentType) {
-					output.writeStringProperty("componentType", componentType.getName());
+					output.writeStringProperty(componentTypePropertyName, componentType.getName());
 				}
 
 				@SuppressWarnings("unchecked")
 				T templateArray = template != null && template.getClass() == type ? (T) template : null;
-				properties.get(0).serialize(value, templateArray, output);
-				properties.get(1).serialize(value, templateArray, output);
+
+				if (templateArray == null ? !value.ordered : value.ordered != templateArray.ordered) {
+					output.writeBooleanProperty(orderedPropertyName, value.ordered);
+				}
+
+				if ((templateArray == null && value.size == 0) || value.equals(templateArray)) {
+					return;
+				}
+
+				Object[] templateItems = templateArray == null ? null : templateArray.items;
+				output.writeIntProperty(sizePropertyName, value.size);
+				output.writeObjectProperty(itemsPropertyName, value.items.getClass(), templateItems, value.items);
 			}
 		}
 
@@ -106,8 +107,8 @@ public class GdxArrayModelFactory implements ModelFactory {
 				T templateArray = template != null && template.getClass() == type ? (T) template : null;
 
 				Class<?> componentType;
-				if (input.hasProperty("componentType")) {
-					componentType = Reflection.forNameSilently(input.readStringProperty("componentType"));
+				if (input.hasProperty(componentTypePropertyName)) {
+					componentType = Reflection.forNameSilently(input.readStringProperty(componentTypePropertyName));
 				} else if (templateArray != null) {
 					componentType = templateArray.items.getClass();
 				} else {
@@ -116,8 +117,33 @@ public class GdxArrayModelFactory implements ModelFactory {
 
 				T array = createArray(componentType);
 				input.pushObject(array);
-				properties.get(0).deserialize(array, templateArray, input);
-				properties.get(1).deserialize(array, templateArray, input);
+
+				if (input.hasProperty(orderedPropertyName)) {
+					array.ordered = input.readBooleanProperty(orderedPropertyName);
+				} else if (templateArray != null) {
+					array.ordered = templateArray.ordered;
+				}
+
+				if (input.hasProperty(sizePropertyName)) {
+					int size = input.readIntProperty(sizePropertyName);
+					array.ensureCapacity(size);
+					array.size = size;
+				} else if (templateArray != null) {
+					array.ensureCapacity(templateArray.size);
+					array.size = templateArray.size;
+				}
+
+				if (input.hasProperty(itemsPropertyName)) {
+					Object[] items = (Object[]) input.readObjectProperty(itemsPropertyName, componentType,
+							templateArray.items);
+					((Array<Object>) array).items = items;
+				} else if (templateArray != null) {
+					int size = templateArray.size;
+					for (int i = 0; i < size; i++) {
+						((Array<Object>) array).add(input.copyObject(templateArray.get(i)));
+					}
+				}
+
 				input.popObject();
 				return array;
 			}
@@ -137,205 +163,12 @@ public class GdxArrayModelFactory implements ModelFactory {
 			Class<?> componentType = original.items.getClass().getComponentType();
 			T array = createArray(componentType);
 			context.pushObject(array);
-			properties.get(0).copy(original, array, context);
-			properties.get(1).copy(original, array, context);
+			array.ordered = original.ordered;
+			array.size = original.size;
+			Array<Object> casted = (Array<Object>) array;
+			casted.items = (Object[]) context.copy(original.items);
 			context.popObject();
 			return array;
-		}
-	}
-
-	private static class ArrayOrderedProperty implements Property<Boolean> {
-		private static final String name = "ordered";
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public Class<Boolean> getType() {
-			return boolean.class;
-		}
-
-		@Override
-		public Range<?> getRange() {
-			return null;
-		}
-
-		@Override
-		public boolean isNullable() {
-			return false;
-		}
-
-		@Override
-		public boolean isFinal() {
-			return false;
-		}
-
-		@Override
-		public boolean isCopyable() {
-			return true;
-		}
-
-		@Override
-		public boolean isFlatSerialization() {
-			return true;
-		}
-
-		@Override
-		public boolean isEditable() {
-			return true;
-		}
-
-		@Override
-		public Property<Boolean> newInstance(Model<?> newModel) {
-			return this;
-		}
-
-		@Override
-		public Boolean getValue(Object object) {
-			return Boolean.valueOf(((Array<?>) object).ordered);
-		}
-
-		@Override
-		public void setValue(Object object, Boolean value) {
-			((Array<?>) object).ordered = Boolean.TRUE.equals(value);
-		}
-
-		@Override
-		public void serialize(Object object, Object template, Output output) {
-			Array<?> array = (Array<?>) object;
-			Array<?> templateArray = (Array<?>) template;
-			if (templateArray == null ? !array.ordered : array.ordered != templateArray.ordered) {
-				output.writeBooleanProperty(name, array.ordered);
-			}
-		}
-
-		@Override
-		public void deserialize(Object object, Object template, Input input) {
-			if (input.hasProperty(name)) {
-				((Array<?>) object).ordered = input.readBooleanProperty(name);
-			} else if (template != null) {
-				((Array<?>) object).ordered = ((Array<?>) template).ordered;
-			}
-		}
-
-		@Override
-		public void copy(Object original, Object duplicate, CopyContext context) {
-			((Array<?>) duplicate).ordered = ((Array<?>) original).ordered;
-		}
-	}
-
-	private static class ArrayItemsProperty implements Property<Object[]> {
-		private static final String name = "items";
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public Class<Object[]> getType() {
-			return Object[].class;
-		}
-
-		@Override
-		public Property<Object[]> newInstance(Model<?> model) {
-			return this;
-		}
-
-		@Override
-		public Range<?> getRange() {
-			return null;
-		}
-
-		@Override
-		public boolean isNullable() {
-			return false;
-		}
-
-		@Override
-		public boolean isFinal() {
-			return false;
-		}
-
-		@Override
-		public boolean isCopyable() {
-			return true;
-		}
-
-		@Override
-		public boolean isFlatSerialization() {
-			return true;
-		}
-
-		@Override
-		public boolean isEditable() {
-			return true;
-		}
-
-		@Override
-		public Object[] getValue(Object object) {
-			Array<?> array = (Array<?>) object;
-			return Arrays.copyOf(array.items, array.size);
-		}
-
-		@Override
-		public void setValue(Object object, Object[] value) {
-			@SuppressWarnings("unchecked")
-			Array<Object> array = (Array<Object>) object;
-			array.clear();
-			array.addAll(value);
-		}
-
-		@Override
-		public void serialize(Object object, Object template, Output output) {
-			// TODO garbage
-			Array<?> array = (Array<?>) object;
-			Array<?> templateArray = (Array<?>) template;
-			if ((templateArray == null && array.size == 0) || array.equals(templateArray)) {
-				return;
-			}
-
-			Object[] templateItems = templateArray == null ? null
-					: Arrays.copyOf(templateArray.items, templateArray.size);
-			Object[] items = Arrays.copyOf(array.items, array.size);
-			output.writeObjectProperty(name, array.items.getClass(), templateItems, items);
-		}
-
-		@Override
-		public void deserialize(Object object, Object template, Input input) {
-			if (input.hasProperty(name)) {
-				@SuppressWarnings("unchecked")
-				Array<Object> array = (Array<Object>) object;
-				// TODO garbage
-				Object[] templateValue = template == null ? null : getValue(template);
-				Object[] value = input.readObjectProperty(name, array.items.getClass(), templateValue);
-				array.ensureCapacity(value.length - array.size);
-				array.addAll(value);
-			} else if (template != null) {
-				@SuppressWarnings("unchecked")
-				Array<Object> array = (Array<Object>) object;
-				@SuppressWarnings("unchecked")
-				Array<Object> templateArray = (Array<Object>) template;
-				int size = templateArray.size;
-				array.ensureCapacity(size - array.size);
-				for (int i = 0; i < size; i++) {
-					array.add(input.copyObject(templateArray.get(i)));
-				}
-			}
-		}
-
-		@Override
-		public void copy(Object original, Object duplicate, CopyContext context) {
-			Array<?> originalArray = (Array<?>) original;
-			@SuppressWarnings("unchecked")
-			Array<Object> duplicateArray = (Array<Object>) duplicate;
-			int size = originalArray.size;
-			duplicateArray.ensureCapacity(size - duplicateArray.size);
-			for (int i = 0; i < originalArray.size; i++) {
-				duplicateArray.add(context.copy(originalArray.get(i)));
-			}
 		}
 	}
 }

@@ -42,7 +42,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public CollisionShape shape;
 
 	@PropertyEditorDescriptor(descriptiveName = "Calc. inertia")
-	public boolean calculetInertia = true;
+	public boolean calculateInertia = true;
 	public final Vector3 inertia = new Vector3(0, 0, 0);
 
 	public final Vector3 gravity = new Vector3(0f, -9.8f, 0f);
@@ -151,7 +151,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 		float mass = this.mass;
 		mass = mass < 0 ? 0 : mass;
 		Vector3 inertia = this.inertia;
-		if (mass > 0 && calculetInertia) {
+		if (mass > 0 && calculateInertia) {
 			nativeShape.calculateLocalInertia(mass, inertia);
 		}
 

@@ -19,20 +19,21 @@ public class CameraViewport {
 	@PropertyDescriptor(nullable = false)
 	private CameraViewportType type = CameraViewportType.screen;
 
-	private float worldWidth, worldHeight;
+	private float worldWidth;
+	private float worldHeight;
 
 	private int screenX;
 	private int screenY;
 	private int screenWidth;
 	private int screenHeight;
 
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
 	private float viewportX;
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
 	private float viewportY;
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
 	private float viewportWidth = 1;
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
 	private float viewportHeight = 1;
 
 	private int viewportScreenX;
@@ -44,8 +45,10 @@ public class CameraViewport {
 	private float unitsPerPixel = 1;
 
 	// ////////////extend
-	private float minWorldWidth, minWorldHeight;
-	private float maxWorldWidth, maxWorldHeight;
+	private float minWorldWidth;
+	private float minWorldHeight;
+	private float maxWorldWidth;
+	private float maxWorldHeight;
 
 	private final Vector3 tmp = new Vector3();
 
@@ -479,54 +482,68 @@ public class CameraViewport {
 		this.viewportHeight = MathUtils.clamp(viewportHeight, 0, 1);
 	}
 
+	void reset() {
+		type = CameraViewportType.screen;
+		worldWidth = 0;
+		worldHeight = 0;
+		screenX = 0;
+		screenY = 0;
+		screenWidth = 0;
+		screenHeight = 0;
+		viewportX = 0;
+		viewportY = 0;
+		viewportWidth = 1;
+		viewportHeight = 1;
+		viewportScreenX = 0;
+		viewportScreenY = 0;
+		viewportScreenWidth = 0;
+		viewportScreenHeight = 0;
+		unitsPerPixel = 1;
+		minWorldWidth = 0;
+		minWorldHeight = 0;
+		maxWorldWidth = 0;
+		maxWorldHeight = 0;
+	}
+
 	public enum CameraViewportType {
 		/**
 		 * Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be
 		 * smaller than the target in one direction.
 		 */
-		fit,
-		/**
-		 * Scales the source to fill the target while keeping the same aspect ratio. This may cause the source to be
-		 * larger than the target in one direction.
-		 */
-		fill,
-		/**
-		 * Scales the source to fill the target in the x direction while keeping the same aspect ratio. This may cause
-		 * the source to be smaller or larger than the target in the y direction.
-		 */
-		fillX,
-		/**
-		 * Scales the source to fill the target in the y direction while keeping the same aspect ratio. This may cause
-		 * the source to be smaller or larger than the target in the x direction.
-		 */
-		fillY,
-		/**
-		 * Scales the source to fill the target. This may cause the source to not keep the same aspect ratio.
-		 */
-		stretch,
-		/**
-		 * Scales the source to fill the target in the x direction, without changing the y direction. This may cause the
-		 * source to not keep the same aspect ratio.
-		 */
-		stretchX,
-		/**
-		 * Scales the source to fill the target in the y direction, without changing the x direction. This may cause the
-		 * source to not keep the same aspect ratio.
-		 */
-		stretchY,
-		/** The source is not scaled. */
-		none,
-		/**
-		 * A viewport that keeps the world aspect ratio by extending the world in one direction. The world is first
-		 * scaled to fit within the viewport, then the shorter dimension is lengthened to fill the viewport. A maximum
-		 * size can be specified to limit how much the world is extended and black bars (letterboxing) are used for any
-		 * remaining space.
-		 */
-		extend,
-		/**
-		 * A viewport where the world size is based on the size of the screen. By default 1 world unit == 1 screen
-		 * pixel, but this ratio can be {@link #setUnitsPerPixel(float) changed}.
-		 */
+		fit, /**
+				 * Scales the source to fill the target while keeping the same aspect ratio. This may cause the source to be
+				 * larger than the target in one direction.
+				 */
+		fill, /**
+				 * Scales the source to fill the target in the x direction while keeping the same aspect ratio. This may cause
+				 * the source to be smaller or larger than the target in the y direction.
+				 */
+		fillX, /**
+				 * Scales the source to fill the target in the y direction while keeping the same aspect ratio. This may cause
+				 * the source to be smaller or larger than the target in the x direction.
+				 */
+		fillY, /**
+				 * Scales the source to fill the target. This may cause the source to not keep the same aspect ratio.
+				 */
+		stretch, /**
+					 * Scales the source to fill the target in the x direction, without changing the y direction. This may cause the
+					 * source to not keep the same aspect ratio.
+					 */
+		stretchX, /**
+					 * Scales the source to fill the target in the y direction, without changing the x direction. This may cause the
+					 * source to not keep the same aspect ratio.
+					 */
+		stretchY, /** The source is not scaled. */
+		none, /**
+				 * A viewport that keeps the world aspect ratio by extending the world in one direction. The world is first
+				 * scaled to fit within the viewport, then the shorter dimension is lengthened to fill the viewport. A maximum
+				 * size can be specified to limit how much the world is extended and black bars (letterboxing) are used for any
+				 * remaining space.
+				 */
+		extend, /**
+				 * A viewport where the world size is based on the size of the screen. By default 1 world unit == 1 screen
+				 * pixel, but this ratio can be {@link #setUnitsPerPixel(float) changed}.
+				 */
 		screen;
 	}
 }

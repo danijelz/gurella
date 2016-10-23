@@ -36,7 +36,7 @@ import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.Compass;
-import com.gurella.studio.editor.common.model.DefaultMetaModelEditor;
+import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
@@ -45,7 +45,7 @@ import com.gurella.studio.editor.swtgl.SwtLwjglInput;
 import com.gurella.studio.editor.utils.ContainerRelativeFileHandleResolver;
 
 public class ModelInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultMetaModelEditor<ModelProperties> propertiesContainer;
+	private DefaultBeanEditor<ModelProperties> propertiesContainer;
 	private GLCanvas glCanvas;
 
 	private LwjglGL20 gl20 = new LwjglGL20();
@@ -67,7 +67,7 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
-		propertiesContainer = new DefaultMetaModelEditor<>(getBody(), editorContext, findProperties(target));
+		propertiesContainer = new DefaultBeanEditor<>(getBody(), editorContext, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		propertiesContainer.setLayoutData(layoutData);
 

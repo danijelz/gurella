@@ -15,12 +15,12 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.asset.properties.TextureProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.model.DefaultMetaModelEditor;
+import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 
 public class TextureInspectableContainer extends InspectableContainer<IFile> {
-	private DefaultMetaModelEditor<TextureProperties> textureProperties;
+	private DefaultBeanEditor<TextureProperties> textureProperties;
 	private Composite imageComposite;
 	private Image image;
 
@@ -33,7 +33,7 @@ public class TextureInspectableContainer extends InspectableContainer<IFile> {
 		getBody().setLayout(new GridLayout(1, false));
 		getBody().addListener(SWT.Resize, (e) -> getBody().layout(true, true));
 
-		textureProperties = new DefaultMetaModelEditor<>(getBody(), editorContext, findProperties(target));
+		textureProperties = new DefaultBeanEditor<>(getBody(), editorContext, findProperties(target));
 		GridData layoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		textureProperties.setLayoutData(layoutData);
 

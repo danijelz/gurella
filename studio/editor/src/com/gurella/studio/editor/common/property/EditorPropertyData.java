@@ -15,7 +15,7 @@ import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.editor.common.model.ModelEditorContext;
+import com.gurella.studio.editor.common.bean.BeanEditorContext;
 
 public class EditorPropertyData {
 	private static final Map<EditorPropertyKey, EditorPropertyData> editorProperties = new HashMap<>();
@@ -44,7 +44,7 @@ public class EditorPropertyData {
 		return EditorPropertyData.getIndex(javaProject, modelClass, property);
 	}
 
-	public static int getIndex(ModelEditorContext<?> context, Property<?> property) {
+	public static int getIndex(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		return EditorPropertyData.getIndex(javaProject, modelClass, property);
@@ -62,7 +62,7 @@ public class EditorPropertyData {
 		return EditorPropertyData.getGroup(javaProject, modelClass, property);
 	}
 
-	public static String getGroup(ModelEditorContext<?> context, Property<?> property) {
+	public static String getGroup(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		return EditorPropertyData.getGroup(javaProject, modelClass, property);
@@ -80,7 +80,7 @@ public class EditorPropertyData {
 		return EditorPropertyData.getDescription(javaProject, modelClass, property);
 	}
 
-	public static String getDescription(ModelEditorContext<?> context, Property<?> property) {
+	public static String getDescription(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		return EditorPropertyData.getDescription(javaProject, modelClass, property);
@@ -98,7 +98,7 @@ public class EditorPropertyData {
 		return EditorPropertyData.getDescriptiveName(javaProject, modelClass, property);
 	}
 
-	public static String getDescriptiveName(ModelEditorContext<?> context, Property<?> property) {
+	public static String getDescriptiveName(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();
 		return EditorPropertyData.getDescriptiveName(javaProject, modelClass, property);

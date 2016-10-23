@@ -43,13 +43,13 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.editor.ui.EditorButton;
-import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorButton.ArrowButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ArrowDirection;
 import com.gurella.engine.editor.ui.EditorButton.ButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.CheckBoxStyle;
 import com.gurella.engine.editor.ui.EditorButton.RadioButtonStyle;
 import com.gurella.engine.editor.ui.EditorButton.ToggleButtonStyle;
+import com.gurella.engine.editor.ui.EditorCombo;
 import com.gurella.engine.editor.ui.EditorCombo.ComboStyle;
 import com.gurella.engine.editor.ui.EditorComposite;
 import com.gurella.engine.editor.ui.EditorComposite.CompositeStyle;
@@ -99,6 +99,7 @@ import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.engine.ui.style.SwtWidgetStyle;
+import com.gurella.studio.editor.utils.UiUtils;
 
 //TODO import methods from UiUtils
 public class SwtEditorUi implements EditorUi {
@@ -119,7 +120,7 @@ public class SwtEditorUi implements EditorUi {
 
 	@Override
 	public EditorImage createImage(InputStream imageStream) {
-		return new SwtEditorImage(new Image(getDisplay(), imageStream));
+		return new SwtEditorImage(new Image(UiUtils.getDisplay(), imageStream));
 	}
 
 	@Override
@@ -129,7 +130,8 @@ public class SwtEditorUi implements EditorUi {
 	}
 
 	public Font createSwtFont(String name, int height, boolean bold, boolean italic) {
-		return FontDescriptor.createFrom(name, height, getFontStyle(bold, italic)).createFont(getDisplay());
+		Display display = UiUtils.getDisplay();
+		return FontDescriptor.createFrom(name, height, getFontStyle(bold, italic)).createFont(display);
 	}
 
 	private static int getFontStyle(boolean bold, boolean italic) {
@@ -151,7 +153,8 @@ public class SwtEditorUi implements EditorUi {
 		}
 
 		int style = getFontStyle(bold, italic);
-		Font font = FontDescriptor.createFrom(oldFont).setHeight(height).setStyle(style).createFont(getDisplay());
+		Display display = UiUtils.getDisplay();
+		Font font = FontDescriptor.createFrom(oldFont).setHeight(height).setStyle(style).createFont(display);
 		return font;
 	}
 
@@ -174,16 +177,8 @@ public class SwtEditorUi implements EditorUi {
 		return swtColor;
 	}
 
-	public static Display getDisplay() {
-		Display display = Display.getCurrent();
-		if (display == null) {
-			display = Display.getDefault();
-		}
-		return display;
-	}
-
 	public static Shell getShell() {
-		return getDisplay().getActiveShell();
+		return UiUtils.getDisplay().getActiveShell();
 	}
 
 	public static SwtEditorComposite createComposite(Composite parent) {
@@ -379,7 +374,7 @@ public class SwtEditorUi implements EditorUi {
 	public <ELEMENT> SwtEditorCombo<ELEMENT> createCombo(EditorComposite parent, ComboStyle style) {
 		return new SwtEditorCombo<ELEMENT>(cast(parent), SWT.DROP_DOWN | extractComboStyle(style));
 	}
-	
+
 	@Override
 	public <ELEMENT extends Enum<?>> EditorCombo<ELEMENT> createEnumCombo(EditorComposite parent,
 			Class<ELEMENT> enumType) {

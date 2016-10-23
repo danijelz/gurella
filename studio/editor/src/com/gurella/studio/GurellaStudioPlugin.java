@@ -22,7 +22,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -30,6 +29,7 @@ import org.osgi.framework.BundleContext;
 
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.studio.editor.utils.RGBAColorDescriptor;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.gurella.studio"; //$NON-NLS-1$
@@ -48,15 +48,10 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		Display display = getDisplay();
+		Display display = UiUtils.getDisplay();
 		// TODO http://www.eclipsezone.com/eclipse/forums/t61092.html colors...
 		toolkit = new GurellaFormToolkit(display);
 		resourceManager = new DeviceResourceManager(display);
-	}
-
-	private static Display getDisplay() {
-		Display display = Display.getCurrent();
-		return display == null ? PlatformUI.getWorkbench().getDisplay() : display;
 	}
 
 	@Override
@@ -200,7 +195,7 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 	private static <T> T getResource(DeviceResourceDescriptor descriptor) {
 		Object resource = pluginResources.get(descriptor);
 		if (resource == null) {
-			resource = descriptor.createResource(getDisplay());
+			resource = descriptor.createResource(UiUtils.getDisplay());
 			pluginResources.put(descriptor, resource);
 		}
 		@SuppressWarnings("unchecked")
@@ -293,11 +288,11 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		}
 		log(new Status(swtLevel, PLUGIN_ID, message));
 	}
-	
+
 	public static void showError(Throwable t, String message) {
 		MultiStatus status = createErrorStatus(t, message);
 		getDefault().getLog().log(status);
-		ErrorDialog.openError(getDisplay().getActiveShell(), message, t.getLocalizedMessage(), status);
+		ErrorDialog.openError(UiUtils.getDisplay().getActiveShell(), message, t.getLocalizedMessage(), status);
 	}
 
 	public static IStatus log(Throwable t, String message) {

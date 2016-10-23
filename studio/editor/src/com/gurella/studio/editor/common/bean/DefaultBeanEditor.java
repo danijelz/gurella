@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common.model;
+package com.gurella.studio.editor.common.bean;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
@@ -35,20 +35,20 @@ import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
 
-public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
+public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	private static final RGB separatorRgb = new RGB(88, 158, 255);
 
-	public DefaultMetaModelEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
-		this(parent, new ModelEditorContext<>(sceneEditorContext, modelInstance));
+	public DefaultBeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
+		this(parent, new BeanEditorContext<>(sceneEditorContext, modelInstance));
 	}
 
-	public DefaultMetaModelEditor(Composite parent, ModelEditorContext<T> context) {
+	public DefaultBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
 	}
 
 	@Override
 	protected void createContent() {
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(1, 1).spacing(5, 2).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		if (array.length > 0) {
 			Arrays.sort(array, (p0, p1) -> Integer.compare(getPrpertyIndex(p0), getPrpertyIndex(p1)));
@@ -86,17 +86,17 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 
 	private void addGroup(String groupName, List<Property<?>> properties) {
 		if (groupName.length() == 0) {
-			properties.stream().sequential().forEach(p -> addEditor(this, p));
+			properties.stream().sequential().forEach(p -> addEditor(p));
 		} else {
 			ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, groupName, false);
 			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
-			properties.stream().sequential().forEach(p -> addEditor(group, this, p));
+			properties.stream().sequential().forEach(p -> addEditor(group, p));
 		}
 	}
 
-	private <V> void addEditor(Composite parent, Property<V> property) {
+	private <V> void addEditor(Property<V> property) {
 		FormToolkit toolkit = getToolkit();
-		PropertyEditor<V> editor = createEditor(parent, new PropertyEditorContext<>(context, property));
+		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
 		GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite editorBody = editor.getBody();
 		editorBody.setLayoutData(editorBodyLayoutData);
@@ -110,7 +110,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		if (editor instanceof SimplePropertyEditor) {
 			boolean longName = name.length() > 20;
 
-			Label label = toolkit.createLabel(parent, name + ":");
+			Label label = toolkit.createLabel(this, name + ":");
 			label.setAlignment(SWT.RIGHT);
 			Font font = createFont(label, SWT.BOLD);
 			label.addDisposeListener(e -> destroyFont(font));
@@ -126,7 +126,7 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 				editorBodyLayoutData.horizontalSpan = 2;
 			}
 		} else if (editor instanceof CompositePropertyEditor) {
-			Section section = toolkit.createSection(parent, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
+			Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 			section.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
@@ -150,9 +150,9 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		}
 	}
 
-	private <V> void addEditor(ExpandablePropertyGroup group, Composite parent, Property<V> property) {
+	private <V> void addEditor(ExpandablePropertyGroup group, Property<V> property) {
 		FormToolkit toolkit = getToolkit();
-		PropertyEditor<V> editor = createEditor(parent, new PropertyEditorContext<>(context, property));
+		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
 		GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite editorBody = editor.getBody();
 		editorBody.setLayoutData(editorBodyLayoutData);
@@ -164,32 +164,32 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 		String name = editor.getDescriptiveName() + (required ? "*" : "");
 
 		if (editor instanceof SimplePropertyEditor) {
-			group.add(editorBody);
 			boolean longName = name.length() > 20;
 
-			Label label = toolkit.createLabel(parent, name + ":");
+			Label label = toolkit.createLabel(this, name + ":");
 			label.setAlignment(SWT.RIGHT);
 			Font font = createFont(label, SWT.BOLD);
 			label.addDisposeListener(e -> destroyFont(font));
 			label.setFont(font);
 			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
+			label.moveAbove(editorBody);
+			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
+
+			if (longName) {
+				labelLayoutData.horizontalAlignment = SWT.BEGINNING;
+				labelLayoutData.horizontalSpan = 2;
+				editorBodyLayoutData.horizontalSpan = 2;
+			}
+
 			group.add(label);
-			label.moveAbove(editorBody);
-			label.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
-
-			if (longName) {
-				labelLayoutData.horizontalAlignment = SWT.BEGINNING;
-				labelLayoutData.horizontalSpan = 2;
-				editorBodyLayoutData.horizontalSpan = 2;
-			}
+			group.add(editorBody);
 		} else if (editor instanceof CompositePropertyEditor) {
-			Section section = toolkit.createSection(parent, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
+			Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 			section.setSize(100, 100);
 			GridData sectionLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false, 2, 1);
 			sectionLayoutData.widthHint = 100;
 			section.setLayoutData(sectionLayoutData);
-			group.add(section);
 			section.setText(name);
 			Composite client = toolkit.createComposite(section);
 			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
@@ -204,9 +204,10 @@ public class DefaultMetaModelEditor<T> extends MetaModelEditor<T> {
 			section.addListener(SWT.MouseUp, e -> editor.showMenuOnMouseUp(e));
 			editorBodyLayoutData.horizontalIndent = 0;
 			editorBodyLayoutData.verticalIndent = 0;
+			group.add(section);
 		} else {
-			group.add(editorBody);
 			editorBodyLayoutData.horizontalSpan = 2;
+			group.add(editorBody);
 		}
 	}
 }

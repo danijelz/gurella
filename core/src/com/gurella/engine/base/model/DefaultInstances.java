@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.utils.Reflection;
 
-public class ModelDefaults {
+class DefaultInstances {
 	private static final ObjectMap<Class<?>, Object> defaults = new ObjectMap<Class<?>, Object>();
 
 	public static <T> T getDefault(Class<T> type) {

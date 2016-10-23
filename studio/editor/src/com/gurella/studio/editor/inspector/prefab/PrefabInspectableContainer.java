@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.inspector.prefab;
 
-import static com.gurella.studio.editor.common.model.ModelEditorFactory.createEditor;
+import static com.gurella.studio.editor.common.bean.BeanEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
@@ -61,12 +61,12 @@ import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestPropertyEditorsComponnent;
+import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.model.MetaModelEditor;
+import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -76,7 +76,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 	private Button enabledCheck;
 	private Label menuButton;
 	private Composite componentsComposite;
-	private Array<MetaModelEditor<?>> componentEditors = new Array<>();
+	private Array<BeanEditor<?>> componentEditors = new Array<>();
 
 	SceneNode2 prefab;
 
@@ -158,7 +158,7 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		addMenuItem(menu, ModelComponent.class);
 		addMenuItem(menu, ShapeComponent.class);
 		new MenuItem(menu, SEPARATOR);
-		addMenuItem(menu, TestPropertyEditorsComponnent.class);
+		addMenuItem(menu, TestPropertyEditorsComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 
@@ -178,13 +178,13 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 		}
 	}
 
-	private MetaModelEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
+	private BeanEditor<SceneNodeComponent2> createSection(SceneNodeComponent2 component) {
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		MetaModelEditor<SceneNodeComponent2> componentEditor = createEditor(section, editorContext, component);
+		BeanEditor<SceneNodeComponent2> componentEditor = createEditor(section, editorContext, component);
 		/*
 		 * componentEditor.getContext().propertyChangedSignal .addListener((event) ->
 		 * postMessage(SceneChangedMessage.instance));

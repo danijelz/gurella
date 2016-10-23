@@ -1,7 +1,8 @@
 package com.gurella.studio.editor.control;
 
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
+
+import com.gurella.studio.editor.utils.UiUtils;
 
 class CollapseRunnable implements Runnable {
 	private final Dockable dockable;
@@ -16,7 +17,7 @@ class CollapseRunnable implements Runnable {
 			return;
 		} else if (this.dockable.sashDragManager.dragging
 				|| isDescendantOf(this.dockable.getDisplay().getCursorControl())) {
-			Display.getCurrent().timerExec(500, this);
+			UiUtils.getDisplay().timerExec(500, this);
 		} else {
 			this.dockable.expanded = false;
 			this.dockable.stateChanged();

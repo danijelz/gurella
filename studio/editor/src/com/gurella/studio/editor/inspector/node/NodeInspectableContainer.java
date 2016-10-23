@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.inspector.node;
 
-import static com.gurella.studio.editor.common.model.ModelEditorFactory.createEditor;
+import static com.gurella.studio.editor.common.bean.BeanEditorFactory.createEditor;
 import static org.eclipse.jdt.core.search.SearchEngine.createHierarchyScope;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 import static org.eclipse.swt.SWT.BEGINNING;
@@ -72,13 +72,14 @@ import com.gurella.engine.scene.renderable.TextureRegionComponent;
 import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestPropertyEditorsComponnent;
+import com.gurella.engine.test.TestEditorComponent;
+import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.model.MetaModelEditor;
-import com.gurella.studio.editor.common.model.ModelEditorContext.PropertyValueChangedEvent;
+import com.gurella.studio.editor.common.bean.BeanEditor;
+import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
 import com.gurella.studio.editor.event.NodeEnabledChangedEvent;
 import com.gurella.studio.editor.event.NodeNameChangedEvent;
 import com.gurella.studio.editor.event.SceneChangedEvent;
@@ -187,7 +188,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		addMenuItem(menu, ModelComponent.class);
 		addMenuItem(menu, ShapeComponent.class);
 		new MenuItem(menu, SEPARATOR);
-		addMenuItem(menu, TestPropertyEditorsComponnent.class);
+		addMenuItem(menu, TestPropertyEditorsComponent.class);
+		addMenuItem(menu, TestEditorComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 
@@ -213,7 +215,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
 
-		MetaModelEditor<SceneNodeComponent2> editor = createEditor(section, editorContext, component);
+		BeanEditor<SceneNodeComponent2> editor = createEditor(section, editorContext, component);
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertyChangedSignal;
 		signal.addListener(e -> notifySceneChanged());
 

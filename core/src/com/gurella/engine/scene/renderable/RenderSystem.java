@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.IntSet;
+import com.badlogic.gdx.utils.IntSet.IntSetIterator;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -20,6 +22,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.camera.CameraComponent.OrdinalComparator;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
@@ -27,12 +30,14 @@ import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.engine.subscriptions.scene.camera.CameraOrdinalChangedListener;
 import com.gurella.engine.subscriptions.scene.renderable.RenderableVisibilityListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.utils.Exceptions;
-import com.gurella.engine.utils.IdentitySet;
+import com.gurella.engine.utils.ImmutableArray;
 
-public class RenderSystem extends SceneService2 implements ComponentActivityListener, RenderUpdateListener {
+public class RenderSystem extends SceneService2
+		implements ComponentActivityListener, RenderUpdateListener, CameraOrdinalChangedListener {
 	private GenericBatch batch;
 
 	private final Array<Layer> orderedLayers = new Array<Layer>();
@@ -41,8 +46,8 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
-	private IdentitySet<RenderableComponent> lastVisibleRenderables = new IdentitySet<RenderableComponent>(256);
-	private IdentitySet<RenderableComponent> currentVisibleRenderables = new IdentitySet<RenderableComponent>(256);
+	private IntSet lastVisibleRenderables = new IntSet(256);
+	private IntSet currentVisibleRenderables = new IntSet(256);
 	private final VisibilityChangedEvent visibilityChangedEvent = new VisibilityChangedEvent();
 
 	private final Environment environment = new Environment();
@@ -58,20 +63,16 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 	@SuppressWarnings("deprecation")
 	public RenderSystem(Scene scene) {
 		super(scene);
+		environment.set(depthTest);
+		environment.set(directionalLights);
+		environment.set(pointLights);
+		environment.set(spotLights);
 		DefaultShader.defaultCullFace = 0;
 	}
 
 	@Override
 	protected void serviceActivated() {
-		if (batch == null) {
-			batch = new GenericBatch();
-
-			environment.set(depthTest);
-			environment.set(directionalLights);
-			environment.set(pointLights);
-			environment.set(spotLights);
-		}
-
+		batch = new GenericBatch();
 		spatialSystem = scene.spatialSystem;
 	}
 
@@ -81,11 +82,10 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		batch.dispose();
 		batch = null;
 	}
-	
+
 	public void render(CameraComponent<?> cameraComponent, Array<Layer> layers) {
 		layers.sort();
-		for(int i = 0, n = layers.size; i < n; i++)
-		{
+		for (int i = 0, n = layers.size; i < n; i++) {
 			render(cameraComponent, layers.get(i));
 		}
 	}
@@ -97,15 +97,17 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 			render(layer);
 		}
 
-		visibilityChangedEvent.visible = true;
+		visibilityChangedEvent.visible = false;
 
-		for (RenderableComponent renderable : lastVisibleRenderables) {
-			if (!currentVisibleRenderables.contains(renderable)) {
-				EventService.post(renderable.getNodeId(), visibilityChangedEvent);
+		IntSetIterator iterator = lastVisibleRenderables.iterator();
+		while (iterator.hasNext) {
+			int renderableNodeId = iterator.next();
+			if (!currentVisibleRenderables.contains(renderableNodeId)) {
+				EventService.post(renderableNodeId, visibilityChangedEvent);
 			}
 		}
 
-		IdentitySet<RenderableComponent> temp = lastVisibleRenderables;
+		IntSet temp = lastVisibleRenderables;
 		lastVisibleRenderables = currentVisibleRenderables;
 		currentVisibleRenderables = temp;
 		currentVisibleRenderables.clear();
@@ -193,9 +195,10 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			RenderableComponent renderable = spatial.renderableComponent;
+			int nodeId = renderable.getNodeId();
 
-			if (!lastVisibleRenderables.contains(renderable) && !currentVisibleRenderables.add(renderable)) {
-				EventService.post(renderable.getNodeId(), visibilityChangedEvent);
+			if (!lastVisibleRenderables.contains(nodeId) && !currentVisibleRenderables.add(nodeId)) {
+				EventService.post(nodeId, visibilityChangedEvent);
 			}
 
 			renderable.render(batch);
@@ -219,10 +222,11 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 
 	private void addCameraComponent(CameraComponent<?> cameraComponent) {
 		boolean layersUpdated = false;
-		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
+		int layersSize = renderingLayers.size();
 
-		if (renderingLayers.size > 0) {
-			for (int i = 0, n = renderingLayers.size; i < n; i++) {
+		if (layersSize > 0) {
+			for (int i = 0, n = layersSize; i < n; i++) {
 				Layer layer = renderingLayers.get(i);
 				layersUpdated |= addCameraComponent(layer, cameraComponent);
 			}
@@ -243,7 +247,7 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 
 		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
 		layerCameras.add(cameraComponent);
-		layerCameras.sort();
+		layerCameras.sort(OrdinalComparator.instance);
 		return addLayer(layer);
 	}
 
@@ -275,31 +279,50 @@ public class RenderSystem extends SceneService2 implements ComponentActivityList
 	}
 
 	private void removeCameraComponent(CameraComponent<?> cameraComponent) {
-		boolean layersUpdated = false;
-		Array<Layer> renderingLayers = cameraComponent.renderingLayers;
+		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
+		int layersSize = renderingLayers.size();
 
-		for (int i = 0, n = renderingLayers.size; i < n; i++) {
-			Layer layer = renderingLayers.get(i);
-			layersUpdated |= removeCameraComponent(layer, cameraComponent);
-		}
-
-		if (layersUpdated) {
-			orderedLayers.sort();
+		if (layersSize > 0) {
+			for (int i = 0, n = layersSize; i < n; i++) {
+				Layer layer = renderingLayers.get(i);
+				removeCameraComponent(layer, cameraComponent);
+			}
+		} else {
+			removeCameraComponent(Layer.DEFAULT, cameraComponent);
 		}
 	}
 
-	private boolean removeCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
+	private void removeCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
 		int layerId = layer.id;
 		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
 		layerCameras.removeValue(cameraComponent, true);
 
-		if (layerCameras.size < 1) {
+		if (layerCameras.size == 0) {
 			camerasByLayer.remove(layerId);
 			orderedLayers.removeValue(layer, true);
-			return true;
+		}
+	}
+
+	@Override
+	public void ordinalChanged(CameraComponent<?> cameraComponent) {
+		ImmutableArray<Layer> renderingLayers = cameraComponent.getRenderingLayers();
+		int layersSize = renderingLayers.size();
+
+		if (layersSize > 0) {
+			for (int i = 0, n = renderingLayers.size(); i < n; i++) {
+				Layer layer = renderingLayers.get(i);
+				int layerId = layer.id;
+				Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
+				if (layerCameras != null) {
+					layerCameras.sort(OrdinalComparator.instance);
+				}
+			}
 		} else {
-			layerCameras.sort();
-			return false;
+			int layerId = Layer.DEFAULT.id;
+			Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
+			if (layerCameras != null) {
+				layerCameras.sort(OrdinalComparator.instance);
+			}
 		}
 	}
 

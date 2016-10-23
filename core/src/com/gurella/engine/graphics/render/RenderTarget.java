@@ -25,6 +25,14 @@ public class RenderTarget implements Disposable {
 
 	private transient FrameBuffer frameBuffer;
 
+	public short getWidth() {
+		return width;
+	}
+
+	public short getHeight() {
+		return height;
+	}
+
 	public void bind() {
 		frameBuffer.bind();
 	}

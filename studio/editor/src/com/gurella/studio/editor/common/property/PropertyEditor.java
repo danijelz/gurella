@@ -55,9 +55,10 @@ public abstract class PropertyEditor<P> {
 		body.setLayout(layout);
 		body.setData(PropertyEditor.class.getName(), this);
 
-		content = new BodyComposite(body, SWT.NULL);
+		content = new Composite(body, SWT.NULL);
 		content.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		content.addListener(SWT.MouseUp, e -> showMenuOnMouseUp(e));
+		UiUtils.adapt(content);
 
 		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
 	}
@@ -170,19 +171,6 @@ public abstract class PropertyEditor<P> {
 	}
 
 	protected abstract void updateValue(P value);
-
-	private static final class BodyComposite extends Composite {
-		private BodyComposite(Composite parent, int style) {
-			super(parent, style);
-			UiUtils.adapt(this);
-		}
-
-		@Override
-		public void layout(boolean changed, boolean all) {
-			super.layout(changed, all);
-			UiUtils.reflow(this);
-		}
-	}
 
 	private static class SetPropertyValueOperation<P> extends AbstractOperation {
 		final PropertyEditor<P> editor;

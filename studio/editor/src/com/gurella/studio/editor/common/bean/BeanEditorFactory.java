@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common.model;
+package com.gurella.studio.editor.common.bean;
 
 import static com.gurella.engine.utils.Values.cast;
 
@@ -14,30 +14,52 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.editor.model.ModelEditorDescriptor;
+import com.gurella.engine.test.TestEditorComponent;
+import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.engine.model.CustomModelEditor;
-import com.gurella.studio.editor.engine.model.CustomModelEditorContextAdapter;
+import com.gurella.studio.editor.common.bean.custom.TestCustomizableBeanEditor;
+import com.gurella.studio.editor.engine.bean.CustomBeanEditor;
+import com.gurella.studio.editor.engine.bean.CustomBeanEditorContextAdapter;
 
-public class ModelEditorFactory {
+public class BeanEditorFactory {
+	private static final Class<?>[] customBeanEditorParameterTypes = { Composite.class, BeanEditorContext.class };
+	private static final Map<Class<?>, Class<?>> defaultFactories = new HashMap<>();
 	private static final Map<Class<?>, String> customFactories = new HashMap<>();
 
-	public static <T> MetaModelEditor<T> createEditor(Composite parent, SceneEditorContext context, T instance) {
+	static {
+		defaultFactories.put(TestEditorComponent.class, TestCustomizableBeanEditor.class);
+	}
+
+	public static <T> BeanEditor<T> createEditor(Composite parent, SceneEditorContext context, T instance) {
+		Class<CustomBeanEditor<T>> beanEditorType = Values.cast(defaultFactories.get(instance.getClass()));
+		if (beanEditorType != null) {
+			BeanEditorContext<T> editorContext = new BeanEditorContext<>(context, instance);
+			return Reflection.newInstance(beanEditorType, customBeanEditorParameterTypes, parent, editorContext);
+		}
+
 		com.gurella.engine.editor.model.ModelEditorFactory<T> factory = getCustomFactory(instance, context);
 		if (factory == null) {
-			return new DefaultMetaModelEditor<T>(parent, context, instance);
+			return new DefaultBeanEditor<T>(parent, context, instance);
 		} else {
-			return new CustomModelEditor<>(parent, new CustomModelEditorContextAdapter<>(context, instance, factory));
+			return new CustomBeanEditor<>(parent, new CustomBeanEditorContextAdapter<>(context, instance, factory));
 		}
 	}
 
-	public static <T> MetaModelEditor<T> createEditor(Composite parent, ModelEditorContext<?> parentContext,
-			T instance) {
+	public static <T> BeanEditor<T> createEditor(Composite parent, BeanEditorContext<?> parentContext, T instance) {
 		SceneEditorContext sceneContext = parentContext.sceneEditorContext;
+		Class<CustomBeanEditor<T>> beanEditorType = Values.cast(defaultFactories.get(instance.getClass()));
+		if (beanEditorType != null) {
+			BeanEditorContext<T> editorContext = new BeanEditorContext<>(parentContext, instance);
+			return Reflection.newInstance(beanEditorType, customBeanEditorParameterTypes, parent, editorContext);
+		}
+
 		com.gurella.engine.editor.model.ModelEditorFactory<T> factory = getCustomFactory(instance, sceneContext);
 		if (factory == null) {
-			return new DefaultMetaModelEditor<T>(parent, new ModelEditorContext<>(parentContext, instance));
+			return new DefaultBeanEditor<T>(parent, new BeanEditorContext<>(parentContext, instance));
 		} else {
-			return new CustomModelEditor<>(parent, new CustomModelEditorContextAdapter<>(parentContext, instance, factory));
+			return new CustomBeanEditor<>(parent,
+					new CustomBeanEditorContextAdapter<>(parentContext, instance, factory));
 		}
 	}
 

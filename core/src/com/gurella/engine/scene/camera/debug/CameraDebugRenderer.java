@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
@@ -72,8 +73,9 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
 		spriteBatch.setProjectionMatrix(projection);
 		spriteBatch.begin();
-		spriteBatch.draw(fbo.getColorBufferTexture(), (float) width - debugWidth - 20, 20, debugWidth, debugHeight, 0,
-				0, debugWidth, debugHeight, false, true);
+		Texture texture = fbo.getColorBufferTexture();
+		spriteBatch.draw(texture, (float) width - debugWidth - 20, 20, debugWidth, debugHeight, 0, 0, debugWidth,
+				debugHeight, false, true);
 		spriteBatch.end();
 
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);

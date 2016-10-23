@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common.model;
+package com.gurella.studio.editor.common.bean;
 
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -6,22 +6,22 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.Signal1;
 import com.gurella.studio.editor.SceneEditorContext;
 
-public class ModelEditorContext<T> {
+public class BeanEditorContext<T> {
 	public final SceneEditorContext sceneEditorContext;
-	public final ModelEditorContext<?> parent;
+	public final BeanEditorContext<?> parent;
 	public final Model<T> model;
 	public final T modelInstance;
 	public final Signal1<PropertyValueChangedEvent> propertyChangedSignal = new Signal1<>();
 
-	public ModelEditorContext(SceneEditorContext sceneEditorContext, T modelInstance) {
+	public BeanEditorContext(SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(sceneEditorContext, null, Models.getModel(modelInstance), modelInstance);
 	}
 
-	public ModelEditorContext(ModelEditorContext<?> parent, T modelInstance) {
+	public BeanEditorContext(BeanEditorContext<?> parent, T modelInstance) {
 		this(parent.sceneEditorContext, parent, Models.getModel(modelInstance), modelInstance);
 	}
 
-	public ModelEditorContext(SceneEditorContext sceneEditorContext, ModelEditorContext<?> parent, Model<T> model,
+	public BeanEditorContext(SceneEditorContext sceneEditorContext, BeanEditorContext<?> parent, Model<T> model,
 			T modelInstance) {
 		this.sceneEditorContext = sceneEditorContext;
 		this.parent = parent;

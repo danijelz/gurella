@@ -45,7 +45,8 @@ import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestPropertyEditorsComponnent;
+import com.gurella.engine.test.TestEditorComponent;
+import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
@@ -165,16 +166,16 @@ public class SceneGraphView extends DockableView
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, TagComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
-		// addItem("Layer", LayerComponent.class);
 		addMenuItem(subMenu, TextureComponent.class);
 		addMenuItem(subMenu, TextureRegionComponent.class);
 		addMenuItem(subMenu, AtlasRegionComponent.class);
-		addMenuItem(menu, SkyboxComponent.class);
+		addMenuItem(subMenu, SkyboxComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 		addMenuItem(subMenu, ModelComponent.class);
 		addMenuItem(subMenu, ShapeComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, TestPropertyEditorsComponnent.class);
+		addMenuItem(subMenu, TestPropertyEditorsComponent.class);
+		addMenuItem(subMenu, TestEditorComponent.class);
 		new MenuItem(subMenu, SEPARATOR);
 	}
 

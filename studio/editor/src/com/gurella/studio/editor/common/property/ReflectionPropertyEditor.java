@@ -1,25 +1,15 @@
 package com.gurella.studio.editor.common.property;
 
-import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
@@ -27,8 +17,9 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.model.MetaModelEditor;
-import com.gurella.studio.editor.common.model.ModelEditorFactory;
+import com.gurella.studio.editor.common.bean.BeanEditor;
+import com.gurella.studio.editor.common.bean.BeanEditorFactory;
+import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
@@ -87,7 +78,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			editor.getBody().setLayoutData(layoutData);
 		} else {
-			MetaModelEditor<P> modelEditor = ModelEditorFactory.createEditor(content, context, value);
+			BeanEditor<P> modelEditor = BeanEditorFactory.createEditor(content, context, value);
 			modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		}
 
@@ -106,48 +97,19 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private void selectType() {
 		try {
-			IType selectedType = findType();
-			if (selectedType != null) {
-				createType(selectedType);
-			}
+			selectTypeSafely();
 		} catch (Exception e) {
-			String message = "Error occurred while creating value";
-			GurellaStudioPlugin.showError(e, message);
+			showError(e, "Error occurred while creating value");
 		}
 	}
 
-	private void createType(IType selectedType) throws Exception {
-		ClassLoader classLoader = context.sceneEditorContext.classLoader;
-		P value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
-		setValue(value);
-		rebuildUi();
-	}
-
-	private IType findType() throws JavaModelException {
-		SelectionDialog dialog = createJavaSearchDialog();
-		if (dialog.open() != IDialogConstants.OK_ID) {
-			return null;
-		}
-
-		Object[] types = dialog.getResult();
-		return types == null || types.length == 0 ? null : (IType) types[0];
-	}
-
-	private SelectionDialog createJavaSearchDialog() throws JavaModelException {
-		IJavaSearchScope scope = getSearchScope();
-		Shell shell = content.getShell();
-		ProgressMonitorDialog monitor = new ProgressMonitorDialog(shell);
-		return JavaUI.createTypeDialog(shell, monitor, scope, CONSIDER_CLASSES, false);
-	}
-
-	private IJavaSearchScope getSearchScope() throws JavaModelException {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<P> type = context.getPropertyType();
-
-		if (type == Object.class) {
-			return SearchEngine.createWorkspaceScope();
-		} else {
-			return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
+	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
+		Class<P> propertyType = context.getPropertyType();
+		Class<? extends P> selected = TypeSelectionUtils.selectType(context.sceneEditorContext, propertyType);
+		if (selected != null) {
+			P value = selected.newInstance();
+			setValue(value);
+			rebuildUi();
 		}
 	}
 

@@ -26,9 +26,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.SharedScrolledComposite;
 
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
@@ -281,14 +283,38 @@ public class UiUtils {
 	}
 
 	public static void reflow(Composite composite) {
-		Composite temp = composite;
-		while (temp != null) {
-			temp = temp.getParent();
-			if (temp instanceof ScrolledForm) {
-				((ScrolledForm) temp).reflow(true);
-				return;
+		Composite c = composite;
+		while (c != null) {
+			c.setRedraw(false);
+			c = c.getParent();
+			if (c instanceof SharedScrolledComposite || c instanceof Shell) {
+				break;
 			}
 		}
+		
+		c = composite;
+		while (c != null) {
+			c.layout(true);
+			c = c.getParent();
+			if (c instanceof SharedScrolledComposite) {
+				((SharedScrolledComposite) c).reflow(true);
+				break;
+			}
+		}
+		
+		c = composite;
+		while (c != null) {
+			c.setRedraw(true);
+			c = c.getParent();
+			if (c instanceof SharedScrolledComposite || c instanceof Shell) {
+				break;
+			}
+		}
+	}
+	
+	public static Display getDisplay() {
+		Display display = Display.getCurrent();
+		return display == null ? PlatformUI.getWorkbench().getDisplay() : display;
 	}
 
 	private static class DragManager implements Listener {

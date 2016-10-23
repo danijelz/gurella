@@ -128,7 +128,7 @@ public class ReflectionProperty<T> implements Property<T> {
 			editable = editorDescriptor.editable();
 		}
 
-		defaultValue = getValue(ModelDefaults.getDefault(model.getType()));
+		defaultValue = getValue(DefaultInstances.getDefault(model.getType()));
 	}
 
 	private <A extends Annotation> A findAnnotation(Class<A> type) {
@@ -222,7 +222,7 @@ public class ReflectionProperty<T> implements Property<T> {
 
 	@Override
 	public Property<T> newInstance(Model<?> newModel) {
-		T overriden = getValue(ModelDefaults.getDefault(newModel.getType()));
+		T overriden = getValue(DefaultInstances.getDefault(newModel.getType()));
 		return Values.isEqual(defaultValue, overriden, true) ? this
 				: new ReflectionProperty<T>(declaringClass, name, field, getter, setter, newModel);
 	}

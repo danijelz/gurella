@@ -58,28 +58,28 @@ import com.gurella.engine.editor.ui.viewer.EditorViewer.LabelProvider;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.utils.GridRectangle;
 
-public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
+public class TestPropertyEditorsComponent extends SceneNodeComponent2 {
 	public Date date;
-	public List<String> list = new ArrayList<String>();
-	public Array<Integer> arr = new Array<Integer>();
-	public Set<Integer> set = new HashSet<Integer>();
-	public Array<int[]> arrIntArr = new Array<int[]>();
-	public Array<Integer[]> arrIntegerArr = new Array<Integer[]>();
-	public Array<Integer[][]> arrIntegerArrArr = new Array<Integer[][]>();
-	public Array<Vector3> arrVec = new Array<Vector3>();
-	public Array<Array<Integer>> arrArrInt = new Array<Array<Integer>>();
-	public Array<Array<? extends Vector<?>>> arrArrVec = new Array<Array<? extends Vector<?>>>();
-	public Array<? extends Array<?>> arrAnyArr = new Array<Array<Object>>();
+	public List<String> listString = new ArrayList<String>();
+	public final Array<Integer> garrayInteger = new Array<Integer>();
+	public Set<Integer> setInteger = new HashSet<Integer>();
+	public Array<int[]> arrayArrayInt = new Array<int[]>();
+	public Array<Integer[]> garrayArrayInteger = new Array<Integer[]>();
+	public Array<Integer[][]> garrayArray2dInteger = new Array<Integer[][]>();
+	public Array<Vector3> garrayVector3 = new Array<Vector3>();
+	public Array<Array<Integer>> garrayGarrayInteger = new Array<Array<Integer>>();
+	public Array<Array<? extends Vector<?>>> garrayGarrayVector = new Array<Array<? extends Vector<?>>>();
+	public Array<? extends Array<?>> garrayGarrayAny = new Array<Array<Object>>();
 
 	public Matrix3 matrix3 = new Matrix3();
 	public Matrix4 matrix4 = new Matrix4();
 	public Vector3 testVector;
 	public Texture texture;
 
-	public String[] testStringArray = new String[3];
-	public int[] testIntArray = new int[3];
-	public Integer[] testIntegerArray = new Integer[3];
-	public Vector3[] testVectorArray = new Vector3[3];
+	public String[] arrayString = new String[3];
+	public int[] arrayInt = new int[3];
+	public Integer[] arrayInteger = new Integer[3];
+	public Vector3[] arrayVector = new Vector3[3];
 
 	@PropertyEditorDescriptor(factory = TestPropertyEditorFactory.class)
 	public Object testCustomEditor;
@@ -291,7 +291,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	}
 
 	private static final class ViewerContentNameAndOrdinalLabelProvider
-			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
+			implements LabelProvider<TestPropertyEditorsComponent.ViewerContent> {
 		@Override
 		public String getText(ViewerContent element) {
 			return element.name() + " " + element.ordinal();
@@ -304,7 +304,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	}
 
 	private static final class ViewerContentNameLabelProvider
-			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
+			implements LabelProvider<TestPropertyEditorsComponent.ViewerContent> {
 		@Override
 		public String getText(ViewerContent element) {
 			return element.name();
@@ -317,7 +317,7 @@ public class TestPropertyEditorsComponnent extends SceneNodeComponent2 {
 	}
 
 	private static final class ViewerContentOrdinalLabelProvider
-			implements LabelProvider<TestPropertyEditorsComponnent.ViewerContent> {
+			implements LabelProvider<TestPropertyEditorsComponent.ViewerContent> {
 		@Override
 		public String getText(ViewerContent element) {
 			return String.valueOf(element.ordinal());

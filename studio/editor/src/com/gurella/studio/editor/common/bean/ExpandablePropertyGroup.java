@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common.model;
+package com.gurella.studio.editor.common.bean;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
@@ -77,7 +77,19 @@ class ExpandablePropertyGroup extends Composite {
 	void add(Control control) {
 		boolean visible = expandTwistie.isExpanded();
 		control.setVisible(visible);
-		((GridData) control.getLayoutData()).exclude = !visible;
+
+		GridData layoutData = (GridData) control.getLayoutData();
+		if (layoutData == null) {
+			layoutData = new GridData();
+			control.setLayoutData(layoutData);
+		}
+		layoutData.exclude = !visible;
+
+		if (controls.size() == 0) {
+			control.moveBelow(this);
+		} else {
+			control.moveBelow(controls.get(controls.size() - 1));
+		}
 		controls.add(control);
 	}
 
