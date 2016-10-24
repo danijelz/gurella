@@ -13,32 +13,27 @@ import com.badlogic.gdx.utils.Scaling;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.model.ValueRange;
 import com.gurella.engine.base.model.ValueRange.FloatRange;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 
 public class CameraViewport {
 	private transient Camera camera;
 	@PropertyDescriptor(nullable = false)
 	private CameraViewportType type = CameraViewportType.screen;
 
-	private transient float worldWidth;
-	private transient float worldHeight;
-
-	private transient int screenX;
-	private transient int screenY;
-	private transient int screenWidth;
-	private transient int screenHeight;
-
-	private transient int viewportScreenX;
-	private transient int viewportScreenY;
-	private transient int viewportScreenWidth;
-	private transient int viewportScreenHeight;
+	private float worldWidth;
+	private float worldHeight;
 
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@PropertyEditorDescriptor(group = "clip", descriptiveName = "x")
 	private float viewportX;
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@PropertyEditorDescriptor(group = "clip", descriptiveName = "y")
 	private float viewportY;
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@PropertyEditorDescriptor(group = "clip", descriptiveName = "width")
 	private float viewportWidth = 1;
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
+	@PropertyEditorDescriptor(group = "clip", descriptiveName = "height")
 	private float viewportHeight = 1;
 
 	// ////////////screen
@@ -49,7 +44,16 @@ public class CameraViewport {
 	private float minWorldHeight;
 	private float maxWorldWidth;
 	private float maxWorldHeight;
+	
+	private transient int screenX;
+	private transient int screenY;
+	private transient int screenWidth;
+	private transient int screenHeight;
 
+	private transient int viewportScreenX;
+	private transient int viewportScreenY;
+	private transient int viewportScreenWidth;
+	private transient int viewportScreenHeight;
 	private final Vector3 tmp = new Vector3();
 
 	public CameraViewport(Camera camera) {
