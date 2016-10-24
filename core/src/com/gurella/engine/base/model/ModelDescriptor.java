@@ -14,7 +14,7 @@ public @interface ModelDescriptor {
 	@SuppressWarnings("rawtypes")
 	Class<? extends Model> model() default ReflectionModel.class;
 
-	String descriptiveName() default "";
+	String descriptiveName() default ""; //TODO move to @EditorBeanDescriptor
 
 	String description() default "";
 }
