@@ -12,6 +12,7 @@ import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
 import com.gurella.engine.scene.light.LightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class LightDebugRenderer implements ApplicationShutdownListener {
@@ -26,10 +27,15 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 	private Vector3 position = new Vector3();
 
 	public static void render(RenderContext context, LightComponent<?> lightComponent) {
-		LightDebugRenderer renderer = instances.get(Gdx.app);
+		Application app = Gdx.app;
+		if(app == null) {
+			return;
+		}
+		
+		LightDebugRenderer renderer = instances.get(app);
 		if (renderer == null) {
 			renderer = new LightDebugRenderer();
-			instances.put(Gdx.app, renderer);
+			instances.put(app, renderer);
 		}
 		renderer.renderLight(context, lightComponent);
 	}
@@ -37,10 +43,12 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 	private LightDebugRenderer() {
 		pointLightTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/light/debug/pointLight.png"));
 		pointLightSprite = new Sprite(pointLightTexture);
+		pointLightSprite.setSize(0.2f, 0.2f);
 		pointLightSprite.setOriginCenter();
 
 		spotLightTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/light/debug/spotLight.png"));
-		spotLightSprite = new Sprite(pointLightTexture);
+		spotLightSprite = new Sprite(spotLightTexture);
+		spotLightSprite.setSize(0.2f, 0.2f);
 		spotLightSprite.setOriginCenter();
 	}
 
@@ -53,8 +61,17 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 			pointLightComponent.getTransform(transform);
 			transform.getTranslation(position);
 			transform.setToLookAt(position, camera.position, up);
+			transform.inv();
 			batch.set2dTransform(transform);
 			batch.render(pointLightSprite);
+		} else if (lightComponent instanceof SpotLightComponent) {
+			SpotLightComponent spotLightComponent = (SpotLightComponent) lightComponent;
+			spotLightComponent.getTransform(transform);
+			transform.getTranslation(position);
+			transform.setToLookAt(position, camera.position, up);
+			transform.inv();
+			batch.set2dTransform(transform);
+			batch.render(spotLightSprite);
 		}
 	}
 

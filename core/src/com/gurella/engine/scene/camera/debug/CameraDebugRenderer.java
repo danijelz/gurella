@@ -31,10 +31,15 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private SpriteBatch spriteBatch;// TODO replace with BenericBatch from context
 
 	public static void render(CameraComponent<?> cameraComponent) {
-		CameraDebugRenderer renderer = instances.get(Gdx.app);
+		Application app = Gdx.app;
+		if (app == null) {
+			return;
+		}
+
+		CameraDebugRenderer renderer = instances.get(app);
 		if (renderer == null) {
 			renderer = new CameraDebugRenderer();
-			instances.put(Gdx.app, renderer);
+			instances.put(app, renderer);
 		}
 		renderer.renderCamera(cameraComponent);
 	}
