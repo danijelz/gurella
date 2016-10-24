@@ -20,9 +20,27 @@ public class CameraViewport {
 	@PropertyDescriptor(nullable = false)
 	private CameraViewportType type = CameraViewportType.screen;
 
+	////////////// scale
+	@PropertyEditorDescriptor(group = "scale")
 	private float worldWidth;
+	@PropertyEditorDescriptor(group = "scale")
 	private float worldHeight;
 
+	////////////// screen
+	@PropertyEditorDescriptor(group = "screen")
+	private float unitsPerPixel = 1;
+
+	////////////// extend
+	@PropertyEditorDescriptor(group = "extend", descriptiveName = "minWidth")
+	private float minWorldWidth;
+	@PropertyEditorDescriptor(group = "extend", descriptiveName = "minHeight")
+	private float minWorldHeight;
+	@PropertyEditorDescriptor(group = "extend", descriptiveName = "maxWidth")
+	private float maxWorldWidth;
+	@PropertyEditorDescriptor(group = "extend", descriptiveName = "maxHeight")
+	private float maxWorldHeight;
+
+	////////////// clip
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	@PropertyEditorDescriptor(group = "clip", descriptiveName = "x")
 	private float viewportX;
@@ -36,15 +54,6 @@ public class CameraViewport {
 	@PropertyEditorDescriptor(group = "clip", descriptiveName = "height")
 	private float viewportHeight = 1;
 
-	// ////////////screen
-	private float unitsPerPixel = 1;
-
-	// ////////////extend
-	private float minWorldWidth;
-	private float minWorldHeight;
-	private float maxWorldWidth;
-	private float maxWorldHeight;
-	
 	private transient int screenX;
 	private transient int screenY;
 	private transient int screenWidth;
@@ -54,7 +63,7 @@ public class CameraViewport {
 	private transient int viewportScreenY;
 	private transient int viewportScreenWidth;
 	private transient int viewportScreenHeight;
-	private final Vector3 tmp = new Vector3();
+	private transient final Vector3 tmp = new Vector3();
 
 	public CameraViewport(Camera camera) {
 		this.camera = camera;
@@ -62,7 +71,7 @@ public class CameraViewport {
 
 	public void set(CameraViewport other) {
 		camera = other.camera;
-		
+
 		type = other.type;
 
 		worldWidth = other.worldWidth;
