@@ -2,7 +2,6 @@ package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.environment.BaseLight;
-import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.scene.BaseSceneElement;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
@@ -10,12 +9,10 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 @BaseSceneElement
 public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeComponent2 {
 	transient T light;
-	@PropertyDescriptor
-	final Color color = new Color(1, 1, 1, 1);
 
 	public LightComponent() {
 		light = createLight();
-		light.setColor(color);
+		light.setColor(1, 1, 1, 1);
 	}
 
 	protected abstract T createLight();
@@ -29,7 +26,6 @@ public abstract class LightComponent<T extends BaseLight<T>> extends SceneNodeCo
 	}
 
 	public void setColor(Color color) {
-		this.color.set(color);
 		light.color.set(color);
 	}
 }

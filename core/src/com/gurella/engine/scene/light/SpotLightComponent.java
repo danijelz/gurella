@@ -1,6 +1,7 @@
 package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.SpotLight;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
@@ -14,12 +15,6 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 public class SpotLightComponent extends LightComponent<SpotLight> implements NodeComponentActivityListener,
 		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
 	private final Vector3 direction = new Vector3(0, -1, 0);
-	@SuppressWarnings("unused")
-	private float intensity = 0.1f;
-	@SuppressWarnings("unused")
-	private float cutoffAngle = 1;
-	@SuppressWarnings("unused")
-	private float exponent = 1;
 
 	private transient TransformComponent transformComponent;
 	private transient boolean dirty = true;
@@ -38,7 +33,6 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	public void setIntensity(float intensity) {
-		this.intensity = intensity;
 		light.intensity = intensity;
 	}
 
@@ -47,7 +41,6 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	public void setCutoffAngle(float cutoffAngle) {
-		this.cutoffAngle = cutoffAngle;
 		light.cutoffAngle = cutoffAngle;
 	}
 
@@ -56,7 +49,6 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	public void setExponent(float exponent) {
-		this.exponent = exponent;
 		light.exponent = exponent;
 	}
 
@@ -119,5 +111,9 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	@Override
 	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
 		dirty = true;
+	}
+
+	public Matrix4 getTransform(Matrix4 out) {
+		return transformComponent == null ? out.idt() : transformComponent.getWorldTransform(out);
 	}
 }

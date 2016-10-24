@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
-import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.rigidbody.shape.CollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
@@ -172,9 +171,9 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	}
 
 	@Override
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(RenderContext context) {
 		if (shape != null && isActive()) {
-			shape.debugRender(batch, transformComponent);
+			shape.debugRender(context.batch, transformComponent);
 		}
 	}
 
@@ -183,7 +182,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 		transformComponent = null;
 		if (rigidBody != null) {
 			btCollisionShape collisionShape = rigidBody.getCollisionShape();
-			if(collisionShape != null) {
+			if (collisionShape != null) {
 				collisionShape.dispose();
 			}
 			rigidBody.dispose();

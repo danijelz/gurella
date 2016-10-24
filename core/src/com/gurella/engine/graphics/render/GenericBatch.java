@@ -21,15 +21,22 @@ public class GenericBatch implements Disposable {
 	private final ModelBatch modelBatch = new ModelBatch();
 	private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
+	private Camera camera;
+	private Environment environment;
 	private Object activeBatch;
-	private Camera activeCamera;
-	private Environment activeEnvironment;
 
 	public void begin(Camera camera) {
-		if (activeCamera != null) {
+		if (camera == null) {
+			throw new NullPointerException("camera is null.");
+		}
+		if (this.camera != null) {
 			throw new IllegalStateException("GenericBatch.end must be called before begin.");
 		}
-		activeCamera = camera;
+		this.camera = camera;
+	}
+
+	public Camera getCamera() {
+		return camera;
 	}
 
 	public void end() {
@@ -42,8 +49,8 @@ public class GenericBatch implements Disposable {
 		}
 
 		activeBatch = null;
-		activeCamera = null;
-		activeEnvironment = null;
+		camera = null;
+		environment = null;
 	}
 
 	public void flush() {
@@ -66,7 +73,7 @@ public class GenericBatch implements Disposable {
 
 			activeBatch = polygonSpriteBatch;
 			polygonSpriteBatch.begin();
-			polygonSpriteBatch.setProjectionMatrix(activeCamera.combined);
+			polygonSpriteBatch.setProjectionMatrix(camera.combined);
 		}
 	}
 
@@ -79,7 +86,7 @@ public class GenericBatch implements Disposable {
 			}
 
 			activeBatch = modelBatch;
-			modelBatch.begin(activeCamera);
+			modelBatch.begin(camera);
 		}
 	}
 
@@ -98,7 +105,7 @@ public class GenericBatch implements Disposable {
 	}
 
 	public void setEnvironment(Environment environment) {
-		this.activeEnvironment = environment;
+		this.environment = environment;
 	}
 
 	public void render(final Renderable renderable) {
@@ -108,12 +115,12 @@ public class GenericBatch implements Disposable {
 
 	public void render(final RenderableProvider renderableProvider) {
 		ensure3d();
-		modelBatch.render(renderableProvider, activeEnvironment);
+		modelBatch.render(renderableProvider, environment);
 	}
 
 	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders) {
 		ensure3d();
-		modelBatch.render(renderableProviders, activeEnvironment);
+		modelBatch.render(renderableProviders, environment);
 	}
 
 	public void render(final RenderableProvider renderableProvider, final Environment environment) {
@@ -129,12 +136,12 @@ public class GenericBatch implements Disposable {
 
 	public void render(final RenderableProvider renderableProvider, final Shader shader) {
 		ensure3d();
-		modelBatch.render(renderableProvider, activeEnvironment, shader);
+		modelBatch.render(renderableProvider, environment, shader);
 	}
 
 	public <T extends RenderableProvider> void render(final Iterable<T> renderableProviders, final Shader shader) {
 		ensure3d();
-		modelBatch.render(renderableProviders, activeEnvironment, shader);
+		modelBatch.render(renderableProviders, environment, shader);
 	}
 
 	public void render(final RenderableProvider renderableProvider, final Environment environment,
@@ -161,6 +168,14 @@ public class GenericBatch implements Disposable {
 		polygonSpriteBatch.setTransformMatrix(transformMatrix);
 	}
 
+	public void set2dTransform(Matrix4 transform) {
+		polygonSpriteBatch.setTransformMatrix(transform);
+	}
+
+	public void set2dProjection(Matrix4 projection) {
+		polygonSpriteBatch.setProjectionMatrix(projection);
+	}
+
 	public void render(Sprite sprite) {
 		ensure2d();
 		sprite.draw(polygonSpriteBatch);
@@ -170,31 +185,31 @@ public class GenericBatch implements Disposable {
 
 	public void rectLine(float x1, float y1, float x2, float y2, float width) {
 		ensureShapes();
-		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.rectLine(x1, y1, x2, y2, width);
 	}
 
 	public void line(float x1, float y1, float x2, float y2) {
 		ensureShapes();
-		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.line(x1, y1, x2, y2);
 	}
 
 	public void line(float x1, float y1, float z1, float x2, float y2, float z2) {
 		ensureShapes();
-		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.line(x1, y1, z1, x2, y2, z2);
 	}
 
 	public void line(Vector3 v1, Vector3 v2) {
 		ensureShapes();
-		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.line(v1, v2);
 	}
 
 	public void box(float x, float y, float z, float width, float height, float depth) {
 		ensureShapes();
-		shapeRenderer.setProjectionMatrix(activeCamera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		shapeRenderer.box(x, y, z, width, height, depth);
 	}
 

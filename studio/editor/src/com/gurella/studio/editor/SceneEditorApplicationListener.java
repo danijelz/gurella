@@ -4,6 +4,9 @@ import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -33,23 +36,31 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.GurellaStateProvider;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.Compass;
+import com.gurella.studio.editor.common.bean.BeanEditor;
+import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.control.Dock;
+import com.gurella.studio.editor.inspector.component.ComponentInspectable;
+import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.render.GridModelInstance;
 import com.gurella.studio.editor.render.SceneCameraInputController;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.subscription.SelectionListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements GurellaStateProvider, SceneEditorMouseListener, SceneLoadedListener {
+		implements GurellaStateProvider, SceneEditorMouseListener, SceneLoadedListener, SelectionListener {
 	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
 
 	private final int editorId;
@@ -67,6 +78,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private Camera camera;
 	private SceneCameraInputController inputController;
 
+	private GenericBatch batch;
+	private RenderContext context = new RenderContext();
+
+	// TODO remove other batches
 	private ModelBatch modelBatch;
 	private ShapeRenderer shapeRenderer;
 	private Environment environment;
@@ -85,7 +100,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	private final Ray pickRay = new Ray();
 	private final Vector3 intersection = new Vector3();
-	private SceneNode2 selectedNode;
+
+	private SceneNode2 focusedNode;
+	private SceneNodeComponent2 focusedComponent;
+	private Control lastFocusControl;
+	private boolean focusDataFromInspectable;
 
 	private final Array<Spatial> spatials = new Array<>(64);
 
@@ -115,6 +134,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
+
+		batch = new GenericBatch();
 
 		modelBatch = new ModelBatch();
 		environment = new Environment();
@@ -177,7 +198,14 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			modelBatch.render(gridModelInstance, environment);
 			compass.render(modelBatch);
 			modelBatch.end();
-			renderSystem.renderScene(camera);
+
+			updateFocusData();
+			context.batch = batch;
+			context.camera = camera;
+			context.focusedNode = focusedNode;
+			context.focusedComponent = focusedComponent;
+			renderSystem.renderScene(context);
+
 			renderPickRay();
 			renderInfo();
 		}
@@ -213,40 +241,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public boolean isInRenderThread() {
 		return renderThread == Thread.currentThread();
-	}
-
-	@Override
-	public void onMouseSelection(float x, float y) {
-		if (scene == null) {
-			return;
-		}
-
-		camera.update(true);
-		pickRay.set(camera.getPickRay(x, y));
-		scene.spatialSystem.getSpatials(pickRay, spatials, null);
-		if (spatials.size == 0) {
-			return;
-		}
-
-		Vector3 cameraPosition = camera.position;
-		Spatial closestSpatial = null;
-		float closestDistance = Float.MAX_VALUE;
-
-		for (int i = 0; i < spatials.size; i++) {
-			Spatial spatial = spatials.get(i);
-			RenderableComponent renderableComponent = spatial.renderableComponent;
-			if (renderableComponent.getIntersection(pickRay, intersection)) {
-				float distance = intersection.dst2(cameraPosition);
-				if (closestDistance > distance) {
-					closestDistance = distance;
-					closestSpatial = spatial;
-					// TODO Z order of sprites
-				}
-			}
-		}
-		spatials.clear();
-
-		selectedNode = closestSpatial == null ? null : closestSpatial.renderableComponent.getNode();
 	}
 
 	@Override
@@ -331,11 +325,102 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		camera.update(true);
 	}
 
+	private void updateFocusData() {
+		Display current = Display.getCurrent();
+		if (current == null) {
+			return;
+		}
+
+		Control focusControl = current.getFocusControl();
+		if (focusControl == lastFocusControl && focusDataFromInspectable) {
+			return;
+		}
+
+		lastFocusControl = focusControl;
+		focusDataFromInspectable = false;
+
+		if (focusControl == null) {
+			return;
+		}
+
+		Composite temp = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
+		while (temp != null) {
+			if (temp instanceof BeanEditor) {
+				BeanEditorContext<?> context = ((BeanEditor<?>) temp).getContext();
+				Object modelInstance = context.modelInstance;
+				if (modelInstance instanceof SceneNodeComponent2) {
+					focusedComponent = (SceneNodeComponent2) modelInstance;
+					focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+					return;
+				} else if (modelInstance instanceof SceneNode2) {
+					focusedComponent = null;
+					focusedNode = (SceneNode2) modelInstance;
+				}
+			}
+			temp = temp.getParent();
+		}
+	}
+
+	@Override
+	public void onMouseSelection(float x, float y) {
+		if (scene == null) {
+			return;
+		}
+
+		camera.update(true);
+		pickRay.set(camera.getPickRay(x, y));
+		scene.spatialSystem.getSpatials(pickRay, spatials, null);
+		if (spatials.size == 0) {
+			return;
+		}
+
+		Vector3 cameraPosition = camera.position;
+		Spatial closestSpatial = null;
+		float closestDistance = Float.MAX_VALUE;
+
+		for (int i = 0; i < spatials.size; i++) {
+			Spatial spatial = spatials.get(i);
+			RenderableComponent renderableComponent = spatial.renderableComponent;
+			if (renderableComponent.getIntersection(pickRay, intersection)) {
+				float distance = intersection.dst2(cameraPosition);
+				if (closestDistance > distance) {
+					closestDistance = distance;
+					closestSpatial = spatial;
+					// TODO Z order of sprites
+				}
+			}
+		}
+
+		spatials.clear();
+		if (closestSpatial != null) {
+			focusDataFromInspectable = false;
+			focusedNode = closestSpatial.renderableComponent.getNode();
+		}
+	}
+
+	@Override
+	public void selectionChanged(Object selection) {
+		if (selection instanceof NodeInspectable) {
+			focusedNode = ((NodeInspectable) selection).target;
+			focusedComponent = null;
+			focusDataFromInspectable = true;
+		} else if (selection instanceof ComponentInspectable) {
+			focusedComponent = ((ComponentInspectable) selection).target;
+			focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+			focusDataFromInspectable = true;
+		} else {
+			focusedComponent = null;
+			focusedNode = null;
+			focusDataFromInspectable = true;
+		}
+	}
+
 	@Override
 	public void dispose() {
 		debugUpdate();
 		EventService.unsubscribe(editorId, this);
 		renderSystem.dispose();
+		batch.dispose();
 		modelBatch.dispose();
 		spriteBatch.dispose();
 		font.dispose();

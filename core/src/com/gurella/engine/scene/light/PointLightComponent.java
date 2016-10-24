@@ -1,9 +1,12 @@
 package com.gurella.engine.scene.light;
 
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.math.Matrix4;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyChangeListener;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.debug.DebugRenderable;
+import com.gurella.engine.scene.light.debug.LightDebugRenderer;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
@@ -11,9 +14,7 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 
 @ModelDescriptor(descriptiveName = "Point Light")
 public class PointLightComponent extends LightComponent<PointLight> implements NodeComponentActivityListener,
-		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener {
-	@SuppressWarnings("unused")
-	private float intensity = 0.1f;
+		NodeTransformChangedListener, PreRenderUpdateListener, PropertyChangeListener, DebugRenderable {
 
 	private transient TransformComponent transformComponent;
 	private transient boolean dirty = true;
@@ -30,13 +31,12 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	}
 
 	public void setIntensity(float intensity) {
-		this.intensity = intensity;
 		light.intensity = intensity;
 	}
 
 	@Override
 	protected void componentActivated() {
-		transformComponent = getNode().getComponent(TransformComponent.class);
+		transformComponent = getNode().getComponent(TransformComponent.class, false);
 	}
 
 	@Override
@@ -81,5 +81,14 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	@Override
 	public void propertyChanged(String propertyName, Object oldValue, Object newValue) {
 		dirty = true;
+	}
+
+	public Matrix4 getTransform(Matrix4 out) {
+		return transformComponent == null ? out.idt() : transformComponent.getWorldTransform(out);
+	}
+
+	@Override
+	public void debugRender(RenderContext context) {
+		LightDebugRenderer.render(context, this);
 	}
 }

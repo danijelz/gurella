@@ -16,7 +16,6 @@ import com.gurella.engine.base.model.ValueRange.FloatRange;
 import com.gurella.engine.base.model.ValueRange.IntegerRange;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.graphics.render.RenderTarget;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.BaseSceneElement;
@@ -55,13 +54,13 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "enable")
 	public boolean clearDepth = true;
 	@PropertyEditorDescriptor(group = "Clear depth", descriptiveName = "value")
-	@ValueRange(floatRange = @FloatRange(min = 0, max = 1) )
+	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	public float clearDepthValue = 1;
 
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "enable")
 	public boolean clearStencil = false;
 	@PropertyEditorDescriptor(group = "Clear stencil", descriptiveName = "value")
-	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255) )
+	@ValueRange(integerRange = @IntegerRange(min = 0, max = 255))
 	public int clearStencilValue = 1;
 
 	public final transient T camera;
@@ -203,7 +202,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(RenderContext context) {
 		CameraDebugRenderer.render(this);
 	}
 

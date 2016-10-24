@@ -135,10 +135,10 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	// }
 
 	@Override
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(RenderContext context) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
-			batch.render(instance, WireframeShader.getInstance());
+			context.batch.render(instance, WireframeShader.getInstance());
 		}
 	}
 
@@ -172,12 +172,12 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	private void debugRender2(GenericBatch batch, Node node, NodePart nodePart, Matrix4 transform) {
 		MeshPart meshPart = nodePart.meshPart;
 
-		//		if (nodePart.bones == null && transform != null) {
-		//			out.worldTransform.set(transform).mul(node.globalTransform);
-		//		} else if (transform != null) {
-		//			out.worldTransform.set(transform);
-		//		} else {
-		//			out.worldTransform.idt();
-		//		}
+		// if (nodePart.bones == null && transform != null) {
+		// out.worldTransform.set(transform).mul(node.globalTransform);
+		// } else if (transform != null) {
+		// out.worldTransform.set(transform);
+		// } else {
+		// out.worldTransform.idt();
+		// }
 	}
 }

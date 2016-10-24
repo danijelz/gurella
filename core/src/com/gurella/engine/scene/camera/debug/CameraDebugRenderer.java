@@ -20,6 +20,7 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private static int debugWidth = 240;
 	private static int debugHeight = 160;
+
 	private static final ObjectMap<Application, CameraDebugRenderer> instances = new ObjectMap<Application, CameraDebugRenderer>();
 
 	private final FrameBuffer fbo;
@@ -27,7 +28,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private final Array<Layer> layers = new Array<Layer>();
 
 	private Matrix4 projection;
-	private SpriteBatch spriteBatch;
+	private SpriteBatch spriteBatch;// TODO replace with BenericBatch from context
 
 	public static void render(CameraComponent<?> cameraComponent) {
 		CameraDebugRenderer renderer = instances.get(Gdx.app);
@@ -85,5 +86,6 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	public void shutdown() {
 		fbo.dispose();
 		spriteBatch.dispose();
+		instances.remove(Gdx.app);
 	}
 }

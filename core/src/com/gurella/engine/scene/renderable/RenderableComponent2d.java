@@ -164,8 +164,9 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	}
 
 	@Override
-	public void debugRender(GenericBatch batch) {
+	public void debugRender(RenderContext context) {
 		if (sprite.getTexture() != null) {
+			GenericBatch batch = context.batch;
 			Gdx.gl20.glLineWidth(2.4f);
 			batch.setShapeRendererTransform(transformComponent);
 			batch.setShapeRendererColor(DEBUG_OUTLINE_COLOR);
