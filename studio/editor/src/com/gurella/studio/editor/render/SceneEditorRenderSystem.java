@@ -49,14 +49,15 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 
 	public SceneEditorRenderSystem(int editorId) {
 		this.editorId = editorId;
-		layerMask.allowed(Layer.DEFAULT);
-		layerMask.allowed(Layer.SKY);
 
 		environment.set(ambientLight);
 		environment.set(depthTest);
 		environment.set(directionalLights);
 		environment.set(pointLights);
 		environment.set(spotLights);
+
+		layerMask.allowed(Layer.DEFAULT);
+		layerMask.allowed(Layer.SKY);
 
 		EventService.subscribe(editorId, this);
 	}
