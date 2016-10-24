@@ -149,7 +149,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 			focusedComponnentRendered |= spatial.nodeId == focusedComponentNodeId;
 		}
 
-		if (!focusedComponnentRendered && focusedComponent instanceof DebugRenderable) {
+		if (!focusedComponnentRendered && focusedComponent instanceof DebugRenderable && focusedComponent.isActive()) {
 			DebugRenderable debugRenderable = (DebugRenderable) focusedComponent;
 			debugRenderable.debugRender(context);
 		}
