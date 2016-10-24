@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
@@ -59,12 +60,14 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		fboSprite.setOriginCenter();
 
 		camera2dTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/camera/debug/camera2d.png"));
+		camera2dTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		camera2dSprite = new Sprite(camera2dTexture);
 		camera2dSprite.setSize(0.2f, 0.2f);
 		camera2dSprite.flip(true, false);
 		camera2dSprite.setOriginCenter();
 
 		camera3dTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/camera/debug/camera3d.png"));
+		camera3dTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		camera3dSprite = new Sprite(camera3dTexture);
 		camera3dSprite.setSize(0.2f, 0.2f);
 		camera3dSprite.flip(true, false);
