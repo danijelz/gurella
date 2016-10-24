@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -44,11 +45,13 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 
 	private LightDebugRenderer() {
 		pointLightTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/light/debug/pointLight.png"));
+		pointLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		pointLightSprite = new Sprite(pointLightTexture);
 		pointLightSprite.setSize(0.2f, 0.2f);
 		pointLightSprite.setOriginCenter();
 
 		spotLightTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/light/debug/spotLight.png"));
+		spotLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		spotLightSprite = new Sprite(spotLightTexture);
 		spotLightSprite.setSize(0.2f, 0.2f);
 		spotLightSprite.setOriginCenter();
