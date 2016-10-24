@@ -12,14 +12,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraViewport;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
-import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class CameraDebugRenderer implements ApplicationShutdownListener {
@@ -39,8 +37,6 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 
 	private Matrix4 transform = new Matrix4();
 	private Vector3 position = new Vector3();
-
-	private final Array<Layer> layers = new Array<Layer>();
 
 	public static void render(RenderContext context, CameraComponent<?> cameraComponent) {
 		Application app = Gdx.app;
@@ -86,7 +82,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		batch.activate2dRenderer();
 		batch.set2dTransform(transform.setToTranslation(camera.position));
 		batch.set2dProjection(camera.combined);
-		
+
 		cameraComponent.getTransform(transform);
 		transform.getTranslation(position);
 		transform.setToLookAt(position, camera.position, up);
@@ -121,19 +117,13 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		cameraComponent.getRenderingLayers().appendTo(layers);
-		if (layers.size == 0) {
-			layers.add(Layer.DEFAULT);
-		}
-		
 		CameraViewport viewport = cameraComponent.viewport;
 		int oldViewportWidth = (int) viewport.getViewportWidth();
 		int oldViewportHeight = (int) viewport.getViewportHeight();
 		viewport.update(debugWidth, debugHeight);
-		cameraComponent.getScene().renderSystem.render(cameraComponent, layers);
+		cameraComponent.getScene().renderSystem.render(cameraComponent);
 		viewport.update(oldViewportWidth, oldViewportHeight);
-		layers.clear();
-		
+
 		fbo.end();
 	}
 

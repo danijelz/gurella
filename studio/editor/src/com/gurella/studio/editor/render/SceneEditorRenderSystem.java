@@ -15,6 +15,7 @@ import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.camera.CameraComponent.OrdinalComparator;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
@@ -22,9 +23,9 @@ import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
+import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneEditorRenderSystem implements ComponentActivityListener, SceneLoadedListener, Disposable {
@@ -33,8 +34,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 	private Scene scene;
 	private int sceneId = -1;
 
-	private Array<Layer> orderedLayers = new Array<Layer>();
-	private IntMap<Array<CameraComponent<?>>> camerasByLayer = new IntMap<Array<CameraComponent<?>>>();
+	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
 	private IntMap<Array<DebugRenderable>> debugRenderablesByNode = new IntMap<Array<DebugRenderable>>();
 
 	private final Environment environment = new Environment();
@@ -71,7 +71,8 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			addCameraComponent((CameraComponent<?>) component);
+			cameras.add((CameraComponent<?>) component);
+			cameras.sort(OrdinalComparator.instance);
 		} else if (component instanceof DebugRenderable) {
 			addDebugRenderable(component);
 		} else if (component instanceof DirectionalLightComponent) {
@@ -80,25 +81,6 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 			pointLights.lights.add(((PointLightComponent) component).getLight());
 		} else if (component instanceof SpotLightComponent) {
 			spotLights.lights.add(((SpotLightComponent) component).getLight());
-		}
-	}
-
-	private void addCameraComponent(CameraComponent<?> cameraComponent) {
-		boolean layersUpdated = false;
-		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
-		int layersSize = renderingLayers.size();
-
-		if (layersSize > 0) {
-			for (int i = 0, n = layersSize; i < n; i++) {
-				Layer layer = renderingLayers.get(i);
-				layersUpdated |= addCameraComponent(layer, cameraComponent);
-			}
-		} else {
-			layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
-		}
-
-		if (layersUpdated) {
-			orderedLayers.sort();
 		}
 	}
 
@@ -112,36 +94,10 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 		renderables.add((DebugRenderable) component);
 	}
 
-	private boolean addCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
-		int layerId = layer.id;
-		if (!camerasByLayer.containsKey(layerId)) {
-			camerasByLayer.put(layerId, new Array<CameraComponent<?>>());
-		}
-
-		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
-		layerCameras.add(cameraComponent);
-		layerCameras.sort();
-		return addLayer(layer);
-	}
-
-	private boolean addLayer(Layer layer) {
-		if (mustAddLayer(layer)) {
-			orderedLayers.add(layer);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private boolean mustAddLayer(Layer layer) {
-		int layerId = layer.id;
-		return camerasByLayer.containsKey(layerId) && !orderedLayers.contains(layer, true);
-	}
-
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			removeCameraComponent((CameraComponent<?>) component);
+			cameras.removeValue((CameraComponent<?>) component, true);
 		} else if (component instanceof DebugRenderable) {
 			removeDebugRenderable(component);
 		} else if (component instanceof DirectionalLightComponent) {
@@ -150,31 +106,6 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 			pointLights.lights.removeValue(((PointLightComponent) component).getLight(), true);
 		} else if (component instanceof SpotLightComponent) {
 			spotLights.lights.removeValue(((SpotLightComponent) component).getLight(), true);
-		}
-	}
-
-	private void removeCameraComponent(CameraComponent<?> cameraComponent) {
-		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
-		int layersSize = renderingLayers.size();
-
-		if (layersSize > 0) {
-			for (int i = 0, n = layersSize; i < n; i++) {
-				Layer layer = renderingLayers.get(i);
-				removeCameraComponent(layer, cameraComponent);
-			}
-		} else {
-			removeCameraComponent(Layer.DEFAULT, cameraComponent);
-		}
-	}
-
-	private void removeCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
-		int layerId = layer.id;
-		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layerId);
-		layerCameras.removeValue(cameraComponent, true);
-
-		if (layerCameras.size < 1) {
-			camerasByLayer.remove(layerId);
-			orderedLayers.removeValue(layer, true);
 		}
 	}
 
@@ -206,6 +137,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 		batch.setEnvironment(environment);
 
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
+		tempSpatials.sort(LayerOrdinalComparator.instance);
 		int focusedComponentNodeId = focusedComponent instanceof DebugRenderable ? focusedComponent.getNodeId() : -1;
 		boolean focusedComponnentRendered = focusedComponent == null ? true : false;
 
@@ -227,12 +159,14 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 
 	private void debugRender(RenderContext context, Spatial spatial, SceneNodeComponent2 focusedComponent) {
 		Array<DebugRenderable> renderables = debugRenderablesByNode.get(spatial.nodeId);
-		if (renderables != null) {
-			for (int j = 0; j < renderables.size; j++) {
-				DebugRenderable debugRenderable = renderables.get(j);
-				if (debugRenderable == focusedComponent) {
-					debugRenderable.debugRender(context);
-				}
+		if (renderables == null) {
+			return;
+		}
+
+		for (int j = 0, n = renderables.size; j < n; j++) {
+			DebugRenderable debugRenderable = renderables.get(j);
+			if (debugRenderable == focusedComponent) {
+				debugRenderable.debugRender(context);
 			}
 		}
 	}

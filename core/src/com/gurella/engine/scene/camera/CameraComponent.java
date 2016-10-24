@@ -157,6 +157,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 		if (isActive()) {
 			CameraOrdinalChangedEvent event = PoolService.obtain(CameraOrdinalChangedEvent.class);
+			event.cameraComponent = this;
 			EventService.post(getScene().getInstanceId(), event);
 			PoolService.free(event);
 		}

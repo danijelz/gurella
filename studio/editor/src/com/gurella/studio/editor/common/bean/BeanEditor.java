@@ -27,10 +27,10 @@ public abstract class BeanEditor<T> extends Composite {
 		super(parent, SWT.NONE);
 		this.context = context;
 		GurellaStudioPlugin.getToolkit().adapt(this);
-		Listener mouseMoveListener = e -> mouseMoved();
+		Listener mouseMovedListener = e -> mouseMoved();
 		Display display = getDisplay();
-		display.addFilter(SWT.MouseMove, mouseMoveListener);
-		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMoveListener));
+		display.addFilter(SWT.MouseMove, mouseMovedListener);
+		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMovedListener));
 		createContent();
 	}
 
