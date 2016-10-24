@@ -57,7 +57,9 @@ public class CameraViewport {
 	}
 
 	public void set(CameraViewport other) {
-		CameraViewportType type = other.type;
+		this.camera = other.camera;
+		
+		type = other.type;
 
 		worldWidth = other.worldWidth;
 		worldHeight = other.worldHeight;
@@ -70,7 +72,7 @@ public class CameraViewport {
 		viewportX = other.viewportX;
 		viewportY = other.viewportY;
 		viewportWidth = other.viewportWidth;
-		viewportHeight = other.worldHeight;
+		viewportHeight = other.viewportHeight;
 
 		viewportScreenX = other.viewportScreenX;
 		viewportScreenY = other.viewportScreenY;
@@ -82,7 +84,7 @@ public class CameraViewport {
 		minWorldWidth = other.minWorldWidth;
 		minWorldHeight = other.minWorldHeight;
 		maxWorldWidth = other.maxWorldWidth;
-		maxWorldHeight = other.minWorldHeight;
+		maxWorldHeight = other.maxWorldHeight;
 	}
 
 	/**

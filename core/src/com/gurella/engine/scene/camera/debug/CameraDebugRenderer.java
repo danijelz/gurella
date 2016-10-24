@@ -117,15 +117,10 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private void renderSceneToFrameBuffer(CameraComponent<?> cameraComponent) {
 		fbo.begin();
 
-		if (cameraComponent.clearColor) {
-			Color color = cameraComponent.clearColorValue;
-			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
-		} else {
-			Gdx.gl.glClearColor(0, 0, 0, 1);
-		}
-
+		Color color = cameraComponent.clearColor ? cameraComponent.clearColorValue : Color.BLACK;
+		Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		Gdx.gl.glViewport(0, 0, debugWidth, debugHeight);
+
 		cameraComponent.getRenderingLayers().appendTo(layers);
 		if (layers.size == 0) {
 			layers.add(Layer.DEFAULT);
@@ -138,6 +133,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		cameraComponent.getScene().renderSystem.render(cameraComponent, layers);
 		viewport.update(oldViewportWidth, oldViewportHeight);
 		layers.clear();
+		
 		fbo.end();
 	}
 
