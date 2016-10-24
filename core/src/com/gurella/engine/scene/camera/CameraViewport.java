@@ -19,13 +19,18 @@ public class CameraViewport {
 	@PropertyDescriptor(nullable = false)
 	private CameraViewportType type = CameraViewportType.screen;
 
-	private float worldWidth;
-	private float worldHeight;
+	private transient float worldWidth;
+	private transient float worldHeight;
 
-	private int screenX;
-	private int screenY;
-	private int screenWidth;
-	private int screenHeight;
+	private transient int screenX;
+	private transient int screenY;
+	private transient int screenWidth;
+	private transient int screenHeight;
+
+	private transient int viewportScreenX;
+	private transient int viewportScreenY;
+	private transient int viewportScreenWidth;
+	private transient int viewportScreenHeight;
 
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float viewportX;
@@ -35,11 +40,6 @@ public class CameraViewport {
 	private float viewportWidth = 1;
 	@ValueRange(floatRange = @FloatRange(min = 0, max = 1))
 	private float viewportHeight = 1;
-
-	private int viewportScreenX;
-	private int viewportScreenY;
-	private int viewportScreenWidth;
-	private int viewportScreenHeight;
 
 	// ////////////screen
 	private float unitsPerPixel = 1;
@@ -57,7 +57,7 @@ public class CameraViewport {
 	}
 
 	public void set(CameraViewport other) {
-		this.camera = other.camera;
+		camera = other.camera;
 		
 		type = other.type;
 
@@ -267,7 +267,7 @@ public class CameraViewport {
 
 	/** @see Camera#getPickRay(float, float, float, float, float, float) */
 	public Ray getPickRay(float screenCoordX, float screenCoordY) {
-		return camera.getPickRay(screenCoordX, screenCoordY, this.screenX, this.screenY, screenWidth, screenHeight);
+		return camera.getPickRay(screenCoordX, screenCoordY, screenX, screenY, screenWidth, screenHeight);
 	}
 
 	/**
