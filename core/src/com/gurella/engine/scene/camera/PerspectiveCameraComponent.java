@@ -11,7 +11,7 @@ import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 public class PerspectiveCameraComponent extends CameraComponent<PerspectiveCamera> {
 	public boolean depthTest = true;
 	@PropertyEditorDescriptor(group = "Environment")
-	public Color ambientLight;
+	public Color ambientLight = new Color(0.5f, 0.5f, 0.5f, 1f);
 	@PropertyEditorDescriptor(group = "Environment")
 	public Color fog;
 
