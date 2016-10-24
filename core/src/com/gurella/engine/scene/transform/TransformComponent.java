@@ -725,7 +725,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	public Matrix4 getWorldTransformInverse() {
 		if (worldTransformInvDirty) {
-			transformInverse.set(getWorldTransform()).inv();
+			transformInverse.set(getWorldTransform());
+			Matrix4.inv(transformInverse.val);
 			transformInvDirty = true;
 			worldTransformInvDirty = false;
 		}
@@ -735,7 +736,8 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 
 	public Matrix4 getTransformInverse() {
 		if (transformInvDirty) {
-			transformInverse.set(getTransform()).inv();
+			transformInverse.set(getTransform());
+			Matrix4.inv(transformInverse.val);
 			transformInvDirty = false;
 			worldTransformInvDirty = true;
 		}

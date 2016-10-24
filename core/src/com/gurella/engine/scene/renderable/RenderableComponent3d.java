@@ -103,7 +103,9 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	}
 
 	private static boolean intersect(Ray ray, Model model, Matrix4 transform, Vector3 intersection) {
-		final Matrix4 reverse = new Matrix4(transform).inv();
+		final Matrix4 reverse = new Matrix4(transform);
+		Matrix4.inv(reverse.val);
+		
 		for (Mesh mesh : model.meshes) {
 			mesh.transform(transform);
 			float[] vertices = new float[mesh.getNumVertices() * 6];

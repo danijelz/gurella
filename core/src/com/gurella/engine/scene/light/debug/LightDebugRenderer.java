@@ -16,27 +16,29 @@ import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class LightDebugRenderer implements ApplicationShutdownListener {
-	private static final ObjectMap<Application, LightDebugRenderer> instances = new ObjectMap<Application, LightDebugRenderer>();
 	private static final Vector3 up = new Vector3(0, 1, 0);
+	private static final ObjectMap<Application, LightDebugRenderer> instances = new ObjectMap<Application, LightDebugRenderer>();
 
 	private Texture pointLightTexture;
 	private Sprite pointLightSprite;
 	private Texture spotLightTexture;
 	private Sprite spotLightSprite;
+	
 	private Matrix4 transform = new Matrix4();
 	private Vector3 position = new Vector3();
 
 	public static void render(RenderContext context, LightComponent<?> lightComponent) {
 		Application app = Gdx.app;
-		if(app == null) {
+		if (app == null) {
 			return;
 		}
-		
+
 		LightDebugRenderer renderer = instances.get(app);
 		if (renderer == null) {
 			renderer = new LightDebugRenderer();
 			instances.put(app, renderer);
 		}
+
 		renderer.renderLight(context, lightComponent);
 	}
 
@@ -59,26 +61,32 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 		if (lightComponent instanceof PointLightComponent) {
 			PointLightComponent pointLightComponent = (PointLightComponent) lightComponent;
 			pointLightComponent.getTransform(transform);
+
 			transform.getTranslation(position);
 			transform.setToLookAt(position, camera.position, up);
-			transform.inv();
+			Matrix4.inv(transform.val);
 			batch.set2dTransform(transform);
+
+			pointLightSprite.setColor(pointLightComponent.getColor());
 			batch.render(pointLightSprite);
 		} else if (lightComponent instanceof SpotLightComponent) {
 			SpotLightComponent spotLightComponent = (SpotLightComponent) lightComponent;
 			spotLightComponent.getTransform(transform);
+
 			transform.getTranslation(position);
 			transform.setToLookAt(position, camera.position, up);
-			transform.inv();
+			Matrix4.inv(transform.val);
 			batch.set2dTransform(transform);
+
+			spotLightSprite.setColor(spotLightComponent.getColor());
 			batch.render(spotLightSprite);
 		}
 	}
 
 	@Override
 	public void shutdown() {
+		instances.remove(Gdx.app);
 		pointLightTexture.dispose();
 		spotLightTexture.dispose();
-		instances.remove(Gdx.app);
 	}
 }

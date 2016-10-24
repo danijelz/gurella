@@ -73,7 +73,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public CameraComponent() {
 		camera = createCamera();
 		viewport = new CameraViewport(camera);
-		_renderingLayers.add(Layer.DEFAULT);
+		//_renderingLayers.add(Layer.DEFAULT);
 	}
 
 	abstract T createCamera();
@@ -203,7 +203,11 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 
 	@Override
 	public void debugRender(RenderContext context) {
-		CameraDebugRenderer.render(this);
+		CameraDebugRenderer.render(context, this);
+	}
+
+	public Matrix4 getTransform(Matrix4 out) {
+		return transformComponent == null ? out.idt() : transformComponent.getWorldTransform(out);
 	}
 
 	@Override

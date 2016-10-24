@@ -81,7 +81,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private GenericBatch batch;
 	private RenderContext context = new RenderContext();
 
-	// TODO remove other batches
+	// TODO replace batches with generic
 	private ModelBatch modelBatch;
 	private ShapeRenderer shapeRenderer;
 	private Environment environment;
@@ -355,6 +355,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 				} else if (modelInstance instanceof SceneNode2) {
 					focusedComponent = null;
 					focusedNode = (SceneNode2) modelInstance;
+					return;
 				}
 			}
 			temp = temp.getParent();
