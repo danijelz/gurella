@@ -346,6 +346,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	void set2d() {
 		camera = orthographicCamera;
+		inputController = orthographicCameraController;
+		inputQueue.setProcessor(inputController);
 	}
 
 	boolean is3d() {
@@ -354,6 +356,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	void set3d() {
 		camera = perspectiveCamera;
+		inputController = perspectiveCameraController;
+		inputQueue.setProcessor(inputController);
 	}
 
 	@Override

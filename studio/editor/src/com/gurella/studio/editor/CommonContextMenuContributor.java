@@ -13,9 +13,9 @@ import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 
 class CommonContextMenuContributor implements EditorContextMenuContributor, Disposable {
+	private static final String cameraGroupName = "Camera";
 	private static final String moveToGroupName = "Move to";
 	private static final String viewGroupName = "View";
-	private static final String cameraGroupName = "Camera";
 
 	private final SceneEditor editor;
 	private final SceneEditorApplicationListener application;
@@ -28,7 +28,11 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Disp
 
 	@Override
 	public void contribute(ContextMenuActions actions) {
-		actions.addGroup(moveToGroupName);
+		actions.addGroup(cameraGroupName, 1);
+		actions.addCheckAction(cameraGroupName, "2d", 1, application.is2d(), () -> application.set2d());
+		actions.addCheckAction(cameraGroupName, "3d", 2, application.is3d(), () -> application.set3d());
+
+		actions.addGroup(moveToGroupName, 2);
 		actions.addAction(moveToGroupName, "Front", 1, () -> toFront());
 		actions.addAction(moveToGroupName, "Back", 2, () -> toBack());
 		actions.addAction(moveToGroupName, "Top", 3, () -> toTop());
@@ -36,18 +40,13 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Disp
 		actions.addAction(moveToGroupName, "Right", 5, () -> toRight());
 		actions.addAction(moveToGroupName, "Left", 6, () -> toLeft());
 
-		actions.addGroup(viewGroupName);
+		actions.addGroup(viewGroupName, 3);
 		boolean present = editor.isViewRegistered(SceneGraphView.class);
 		actions.addCheckAction(viewGroupName, "Scene", 1, present, !present, () -> showView(SceneGraphView::new));
 		present = editor.isViewRegistered(InspectorView.class);
 		actions.addCheckAction(viewGroupName, "Inspector", 2, present, !present, () -> showView(InspectorView::new));
 		present = editor.isViewRegistered(AssetsView.class);
 		actions.addCheckAction(viewGroupName, "Assets", 3, present, !present, () -> showView(AssetsView::new));
-
-		actions.addGroup(cameraGroupName);
-		application.is2d();
-		actions.addCheckAction(cameraGroupName, "2d", 1, application.is2d(), () -> application.set2d());
-		actions.addCheckAction(cameraGroupName, "3d", 2, application.is3d(), () -> application.set3d());
 	}
 
 	private void toFront() {
