@@ -171,7 +171,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	}
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		if (shape != null && isActive()) {
 			shape.debugRender(context.batch, transformComponent);
 		}

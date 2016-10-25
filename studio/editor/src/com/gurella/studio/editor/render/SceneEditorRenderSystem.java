@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -17,7 +16,7 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraComponent.OrdinalComparator;
 import com.gurella.engine.scene.debug.DebugRenderable;
-import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
+import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
@@ -26,9 +25,10 @@ import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.studio.editor.subscription.EditorClosingListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneEditorRenderSystem implements ComponentActivityListener, SceneLoadedListener, Disposable {
+public class SceneEditorRenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorClosingListener {
 	private int editorId;
 
 	private Scene scene;
@@ -123,7 +123,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 		}
 	}
 
-	public void renderScene(RenderContext context) {
+	public void renderScene(DebugRenderContext context) {
 		if (scene == null) {
 			return;
 		}
@@ -158,7 +158,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 		batch.end();
 	}
 
-	private void debugRender(RenderContext context, Spatial spatial, SceneNodeComponent2 focusedComponent) {
+	private void debugRender(DebugRenderContext context, Spatial spatial, SceneNodeComponent2 focusedComponent) {
 		Array<DebugRenderable> renderables = debugRenderablesByNode.get(spatial.nodeId);
 		if (renderables == null) {
 			return;
@@ -173,7 +173,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 	}
 
 	@Override
-	public void dispose() {
+	public void closing() {
 		EventService.unsubscribe(sceneId, this);
 		EventService.unsubscribe(editorId, this);
 	}

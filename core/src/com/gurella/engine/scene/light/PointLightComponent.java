@@ -88,7 +88,7 @@ public class PointLightComponent extends LightComponent<PointLight> implements N
 	}
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		LightDebugRenderer.render(context, this);
 	}
 }

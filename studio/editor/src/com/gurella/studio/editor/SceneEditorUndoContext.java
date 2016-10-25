@@ -1,0 +1,54 @@
+package com.gurella.studio.editor;
+
+import static com.gurella.studio.GurellaStudioPlugin.showError;
+
+import org.eclipse.core.commands.operations.IOperationHistory;
+import org.eclipse.core.commands.operations.IUndoableOperation;
+import org.eclipse.core.commands.operations.UndoContext;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.operations.RedoActionHandler;
+import org.eclipse.ui.operations.UndoActionHandler;
+import org.eclipse.ui.operations.UndoRedoActionGroup;
+
+import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.subscription.EditorClosingListener;
+import com.gurella.studio.editor.utils.Try;
+
+public class SceneEditorUndoContext extends UndoContext implements EditorClosingListener {
+	private int editorId;
+
+	IOperationHistory operationHistory;
+	UndoActionHandler undoAction;
+	RedoActionHandler redoAction;
+	private UndoRedoActionGroup historyActionGroup;
+
+	public SceneEditorUndoContext(SceneEditor editor) {
+		editorId = editor.id;
+
+		IEditorSite site = (IEditorSite) editor.getSite();
+		undoAction = new UndoActionHandler(site, this);
+		redoAction = new RedoActionHandler(site, this);
+
+		IWorkbench workbench = site.getWorkbenchWindow().getWorkbench();
+		operationHistory = workbench.getOperationSupport().getOperationHistory();
+		historyActionGroup = new UndoRedoActionGroup(site, this, true);
+		historyActionGroup.fillActionBars(site.getActionBars());
+
+		EventService.subscribe(editorId, this);
+	}
+
+	@Override
+	public void closing() {
+		EventService.unsubscribe(editorId, this);
+		historyActionGroup.dispose();
+		operationHistory.dispose(this, true, true, true);
+		redoAction.dispose();
+		undoAction.dispose();
+	}
+
+	void executeOperation(IUndoableOperation operation, String errorMsg) {
+		operation.addContext(this);
+		Try.ofFailable(() -> operationHistory.execute(operation, null, null)).onFailure(e -> showError(e, errorMsg));
+	}
+}

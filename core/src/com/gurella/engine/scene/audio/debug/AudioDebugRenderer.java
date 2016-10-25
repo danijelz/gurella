@@ -9,20 +9,17 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
 import com.gurella.engine.scene.audio.AudioSourceComponent;
-import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
-import com.gurella.engine.scene.light.LightComponent;
-import com.gurella.engine.scene.light.PointLightComponent;
-import com.gurella.engine.scene.light.SpotLightComponent;
-import com.gurella.engine.scene.light.debug.LightDebugRenderer;
+import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
-public class AudioDebugRenderer  implements ApplicationShutdownListener {
+public class AudioDebugRenderer implements ApplicationShutdownListener {
 	private static final String listenerTextureLocation = "com/gurella/engine/scene/audio/debug/listener.png";
 	private static final String speakerTextureLocation = "com/gurella/engine/scene/light/debug/speaker.png";
-	
+
 	private static final Vector3 up = new Vector3(0, 1, 0);
 	private static final ObjectMap<Application, AudioDebugRenderer> instances = new ObjectMap<Application, AudioDebugRenderer>();
 
@@ -30,11 +27,11 @@ public class AudioDebugRenderer  implements ApplicationShutdownListener {
 	private Sprite listenerSprite;
 	private Texture speakerTexture;
 	private Sprite speakerSprite;
-	
+
 	private Matrix4 transform = new Matrix4();
 	private Vector3 position = new Vector3();
 
-	public static void render(RenderContext context, AudioListenerComponent listenerComponent) {
+	public static void render(DebugRenderContext context, AudioListenerComponent listenerComponent) {
 		Application app = Gdx.app;
 		if (app == null) {
 			return;
@@ -48,8 +45,8 @@ public class AudioDebugRenderer  implements ApplicationShutdownListener {
 
 		renderer.renderListener(context, listenerComponent);
 	}
-	
-	public static void render(RenderContext context, AudioSourceComponent sourceComponent) {
+
+	public static void render(DebugRenderContext context, AudioSourceComponent sourceComponent) {
 		Application app = Gdx.app;
 		if (app == null) {
 			return;
@@ -76,9 +73,11 @@ public class AudioDebugRenderer  implements ApplicationShutdownListener {
 		speakerSprite = new Sprite(speakerTexture);
 		speakerSprite.setSize(0.2f, 0.2f);
 		speakerSprite.setOriginCenter();
+
+		EventService.subscribe(this);
 	}
 
-	private void renderListener(RenderContext context, AudioListenerComponent listenerComponent) {
+	private void renderListener(DebugRenderContext context, AudioListenerComponent listenerComponent) {
 		GenericBatch batch = context.batch;
 		Camera camera = context.camera;
 		listenerComponent.getTransform(transform);
@@ -88,8 +87,8 @@ public class AudioDebugRenderer  implements ApplicationShutdownListener {
 		batch.set2dTransform(transform);
 		batch.render(listenerSprite);
 	}
-	
-	private void renderSource(RenderContext context, AudioSourceComponent listenerComponent) {
+
+	private void renderSource(DebugRenderContext context, AudioSourceComponent listenerComponent) {
 		GenericBatch batch = context.batch;
 		Camera camera = context.camera;
 		listenerComponent.getTransform(transform);
@@ -102,8 +101,12 @@ public class AudioDebugRenderer  implements ApplicationShutdownListener {
 
 	@Override
 	public void shutdown() {
-		instances.remove(Gdx.app);
-		listenerTexture.dispose();
-		speakerTexture.dispose();
+		Application app = Gdx.app;
+		if (instances.get(app) == this) {
+			instances.remove(app);
+			listenerTexture.dispose();
+			speakerTexture.dispose();
+			EventService.unsubscribe(this);
+		}
 	}
 }

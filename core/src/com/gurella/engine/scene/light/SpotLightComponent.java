@@ -120,7 +120,7 @@ public class SpotLightComponent extends LightComponent<SpotLight> implements Nod
 	}
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		LightDebugRenderer.render(context, this);
 	}
 }

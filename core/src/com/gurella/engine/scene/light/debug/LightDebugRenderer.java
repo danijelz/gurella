@@ -9,8 +9,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
+import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.scene.light.LightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
 import com.gurella.engine.scene.light.SpotLightComponent;
@@ -31,7 +32,7 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 	private Matrix4 transform = new Matrix4();
 	private Vector3 position = new Vector3();
 
-	public static void render(RenderContext context, LightComponent<?> lightComponent) {
+	public static void render(DebugRenderContext context, LightComponent<?> lightComponent) {
 		Application app = Gdx.app;
 		if (app == null) {
 			return;
@@ -58,9 +59,11 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 		spotLightSprite = new Sprite(spotLightTexture);
 		spotLightSprite.setSize(0.2f, 0.2f);
 		spotLightSprite.setOriginCenter();
+
+		EventService.subscribe(this);
 	}
 
-	private void renderLight(RenderContext context, LightComponent<?> lightComponent) {
+	private void renderLight(DebugRenderContext context, LightComponent<?> lightComponent) {
 		GenericBatch batch = context.batch;
 
 		if (lightComponent instanceof PointLightComponent) {
@@ -87,8 +90,12 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 
 	@Override
 	public void shutdown() {
-		instances.remove(Gdx.app);
-		pointLightTexture.dispose();
-		spotLightTexture.dispose();
+		Application app = Gdx.app;
+		if (instances.get(app) == this) {
+			instances.remove(app);
+			pointLightTexture.dispose();
+			spotLightTexture.dispose();
+			EventService.unsubscribe(this);
+		}
 	}
 }

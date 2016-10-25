@@ -14,11 +14,12 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.camera.CameraComponent;
 import com.gurella.engine.scene.camera.CameraViewport;
 import com.gurella.engine.scene.camera.OrtographicCameraComponent;
-import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
+import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class CameraDebugRenderer implements ApplicationShutdownListener {
@@ -42,7 +43,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private Matrix4 transform = new Matrix4();
 	private Vector3 position = new Vector3();
 
-	public static void render(RenderContext context, CameraComponent<?> cameraComponent) {
+	public static void render(DebugRenderContext context, CameraComponent<?> cameraComponent) {
 		Application app = Gdx.app;
 		if (app == null) {
 			return;
@@ -74,14 +75,16 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		camera3dSprite.setSize(0.2f, 0.2f);
 		camera3dSprite.flip(true, false);
 		camera3dSprite.setOriginCenter();
+		
+		EventService.subscribe(this);
 	}
 
-	private void renderCamera(RenderContext context, CameraComponent<?> cameraComponent) {
+	private void renderCamera(DebugRenderContext context, CameraComponent<?> cameraComponent) {
 		renderCameraView(context, cameraComponent);
 		renderBillboard(context, cameraComponent);
 	}
 
-	private void renderBillboard(RenderContext context, CameraComponent<?> cameraComponent) {
+	private void renderBillboard(DebugRenderContext context, CameraComponent<?> cameraComponent) {
 		GenericBatch batch = context.batch;
 		Camera camera = context.camera;
 		batch.activate2dRenderer();
@@ -97,7 +100,7 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		batch.flush();
 	}
 
-	private void renderCameraView(RenderContext context, CameraComponent<?> cameraComponent) {
+	private void renderCameraView(DebugRenderContext context, CameraComponent<?> cameraComponent) {
 		renderSceneToFrameBuffer(cameraComponent);
 
 		Graphics graphics = Gdx.graphics;
@@ -134,9 +137,13 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 
 	@Override
 	public void shutdown() {
-		instances.remove(Gdx.app);
-		fbo.dispose();
-		camera2dTexture.dispose();
-		camera3dTexture.dispose();
+		Application app = Gdx.app;
+		if (instances.get(app) == this) {
+			instances.remove(app);
+			fbo.dispose();
+			camera2dTexture.dispose();
+			camera3dTexture.dispose();
+			EventService.unsubscribe(this);
+		}
 	}
 }

@@ -164,7 +164,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	}
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		if (sprite.getTexture() != null) {
 			GenericBatch batch = context.batch;
 			Gdx.gl20.glLineWidth(2.4f);

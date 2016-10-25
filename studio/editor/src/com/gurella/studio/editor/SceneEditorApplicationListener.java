@@ -28,6 +28,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.GurellaStateProvider;
+import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -35,10 +36,11 @@ import com.gurella.engine.input.InputService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
+import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
+import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.common.bean.BeanEditor;
@@ -73,13 +75,13 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private SceneCameraInputController inputController;
 
 	private GenericBatch batch;
-	private RenderContext context = new RenderContext();
+	private DebugRenderContext renderContext = new DebugRenderContext();
+	private Environment environment;
+	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	// TODO replace batches with generic
 	private ModelBatch modelBatch;
 	private ShapeRenderer shapeRenderer;
-	private Environment environment;
-	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	private GridModelInstance gridModelInstance;
 	private Compass compass;
@@ -195,11 +197,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			modelBatch.end();
 
 			updateFocusData();
-			context.batch = batch;
-			context.camera = camera;
-			context.focusedNode = focusedNode;
-			context.focusedComponent = focusedComponent;
-			renderSystem.renderScene(context);
+			renderContext.batch = batch;
+			renderContext.camera = camera;
+			renderContext.focusedNode = focusedNode;
+			renderContext.focusedComponent = focusedComponent;
+			renderSystem.renderScene(renderContext);
 
 			renderPickRay();
 			renderInfo();
@@ -362,15 +364,16 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void dispose() {
+		SceneEditor.post(ApplicationShutdownListener.class, l -> l.shutdown());
 		debugUpdate();
 		EventService.unsubscribe(editorId, this);
-		renderSystem.dispose();
 		batch.dispose();
 		modelBatch.dispose();
 		spriteBatch.dispose();
 		font.dispose();
 		gridModelInstance.dispose();
 		compass.dispose();
+		//TODO DisposablesService.disposeAll();
 	}
 
 	private static class DebugUpdateEvent implements Event<ApplicationDebugUpdateListener> {

@@ -199,7 +199,7 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	}
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		CameraDebugRenderer.render(context, this);
 	}
 

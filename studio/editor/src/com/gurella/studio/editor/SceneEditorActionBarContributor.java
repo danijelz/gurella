@@ -6,10 +6,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
 import com.gurella.engine.event.EventService;
@@ -22,6 +20,7 @@ import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 public class SceneEditorActionBarContributor extends EditorActionBarContributor
 		implements SceneEditorViewClosedListener {
 	private SceneEditor editor;
+	private ViewRegistry views;
 
 	private ToggleEditorViewAction toggleSceneHierarcyViewAction = new ToggleEditorViewAction("Scene hierarcy",
 			SceneGraphView.class, SceneGraphView::new);
@@ -54,15 +53,11 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 
 		if (part instanceof SceneEditor) {
 			editor = (SceneEditor) part;
+			views = editor.viewRegistry;
 			EventService.subscribe(editor.id, this);
-
-			IActionBars actionBars = this.getActionBars();
-			if (actionBars != null) {
-				actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(), ((SceneEditor) part).undoAction);
-				actionBars.setGlobalActionHandler(ActionFactory.REDO.getId(), ((SceneEditor) part).redoAction);
-			}
 		} else {
 			editor = null;
+			views = null;
 		}
 
 		toggleSceneHierarcyViewAction.updateActiveEditor();
@@ -110,9 +105,9 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 				setChecked(false);
 				setEnabled(false);
 			} else {
-				boolean present = editor.isViewRegistered(type);
-				setEnabled(!present);
-				setChecked(present);
+				boolean open = views.isOpen(type);
+				setEnabled(!open);
+				setChecked(open);
 			}
 		}
 

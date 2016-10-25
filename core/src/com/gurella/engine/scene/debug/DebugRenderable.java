@@ -6,9 +6,9 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public interface DebugRenderable {
-	void debugRender(RenderContext context);
+	void debugRender(DebugRenderContext context);
 	
-	public static class RenderContext {
+	public static class DebugRenderContext {
 		public GenericBatch batch;
 		public Camera camera;
 		public SceneNode2 focusedNode;

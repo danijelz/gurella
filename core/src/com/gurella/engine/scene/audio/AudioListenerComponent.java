@@ -39,7 +39,7 @@ public class AudioListenerComponent extends SceneNodeComponent2
 	}
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		AudioDebugRenderer.render(context, this);
 	}
 

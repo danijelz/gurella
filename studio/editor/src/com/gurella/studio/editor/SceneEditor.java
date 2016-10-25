@@ -2,13 +2,8 @@ package com.gurella.studio.editor;
 
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
-import org.eclipse.core.commands.operations.IOperationHistory;
-import org.eclipse.core.commands.operations.IUndoContext;
-import org.eclipse.core.commands.operations.UndoContext;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -28,11 +23,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.operations.RedoActionHandler;
-import org.eclipse.ui.operations.UndoActionHandler;
-import org.eclipse.ui.operations.UndoRedoActionGroup;
 import org.eclipse.ui.part.EditorPart;
 
 import com.badlogic.gdx.utils.JsonReader;
@@ -46,13 +37,10 @@ import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
-import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.DispatcherEvent;
-import com.gurella.studio.editor.graph.SceneGraphView;
-import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.subscription.EditorClosingListener;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
@@ -62,22 +50,15 @@ import com.gurella.studio.editor.utils.UiUtils;
 public class SceneEditor extends EditorPart implements SceneLoadedListener, SceneChangedListener {
 	public final int id = SequenceGenerator.next();
 
-	private Composite contentComposite;
-	private Dock dock;
+	private Composite content;
+	Dock dock;
+	ViewRegistry viewRegistry;
 
-	IUndoContext undoContext;
-	IOperationHistory operationHistory;
-	UndoActionHandler undoAction;
-	RedoActionHandler redoAction;
-	private UndoRedoActionGroup historyActionGroup;
-
-	List<DockableView> registeredViews = new ArrayList<DockableView>();
-	private SceneEditorContext context;
+	SceneEditorUndoContext undoContext;
+	private SceneEditorContext sceneContext;
 
 	private SwtLwjglApplication application;
 	SceneEditorApplicationListener applicationListener;
-
-	private CommonContextMenuContributor contextMenuContributor;
 
 	private boolean dirty;
 
@@ -91,7 +72,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
 		IPath path = input.getFile().getFullPath();
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, context.getScene());
+		String string = output.serialize(Scene.class, sceneContext.getScene());
 		monitor.beginTask("Saving", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);
@@ -121,20 +102,12 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		String[] segments = pathEditorInput.getPath().segments();
 		setPartName(segments[segments.length - 1]);
 
-		undoContext = new UndoContext();
-		undoAction = new UndoActionHandler(site, undoContext);
-		redoAction = new RedoActionHandler(site, undoContext);
-
-		IWorkbench workbench = getSite().getWorkbenchWindow().getWorkbench();
-		operationHistory = workbench.getOperationSupport().getOperationHistory();
-
-		historyActionGroup = new UndoRedoActionGroup(site, undoContext, true);
-		historyActionGroup.fillActionBars(site.getActionBars());
-
+		undoContext = new SceneEditorUndoContext(this);
 		applicationListener = new SceneEditorApplicationListener(id);
-		context = new SceneEditorContext(this);
+		sceneContext = new SceneEditorContext(this);
 
-		contextMenuContributor = new CommonContextMenuContributor(this);
+		@SuppressWarnings("unused")
+		CommonContextMenuContributor menuContributor = new CommonContextMenuContributor(this);
 
 		EventService.subscribe(id, this);
 	}
@@ -146,7 +119,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.contentComposite = parent;
+		this.content = parent;
 		parent.setLayout(new GridLayout());
 
 		dock = new Dock(this, parent, SWT.NONE);
@@ -156,13 +129,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 			application = new SwtLwjglApplication(dock.getCenter(), applicationListener);
 		}
 
-		SceneEditorRegistry.put(this, dock, application, context);
-
-		SceneGraphView sceneGraphView = new SceneGraphView(this, SWT.LEFT);
-		registeredViews.add(sceneGraphView);
-		registeredViews.add(new AssetsView(this, SWT.LEFT));
-		registeredViews.add(new InspectorView(this, SWT.RIGHT));
-		dock.setSelection(sceneGraphView);
+		SceneEditorRegistry.put(this, dock, application, sceneContext);
+		viewRegistry = new ViewRegistry(this);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
@@ -174,20 +142,20 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	}
 
 	private void presentException(Throwable exception) {
-		UiUtils.disposeChildren(contentComposite);
+		UiUtils.disposeChildren(content);
 		String message = "Error opening scene";
 		IStatus status = GurellaStudioPlugin.log(exception, message);
-		ErrorComposite errorComposite = new ErrorComposite(contentComposite, status, message);
+		ErrorComposite errorComposite = new ErrorComposite(content, status, message);
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		contentComposite.layout();
+		content.layout();
 	}
 
 	public Dock getDock() {
 		return dock;
 	}
 
-	public SceneEditorContext getContext() {
-		return context;
+	public SceneEditorContext getSceneContext() {
+		return sceneContext;
 	}
 
 	@Override
@@ -195,26 +163,15 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		dock.setFocus();
 	}
 
-	boolean isViewRegistered(Class<? extends DockableView> type) {
-		return registeredViews.stream().filter(v -> v.getClass() == type).count() != 0;
-	}
-
 	@Override
 	public void dispose() {
 		super.dispose();
 		EventService.unsubscribe(id, this);
+		post(id, EditorClosingListener.class, l -> l.closing());
 		// TODO context and applicationListener should be unified
-		context.dispose();
 		applicationListener.debugUpdate();
 		application.exit();
 		SceneEditorRegistry.remove(this);
-
-		historyActionGroup.dispose();
-		operationHistory.dispose(undoContext, true, true, true);
-		redoAction.dispose();
-		undoAction.dispose();
-
-		contextMenuContributor.dispose();
 	}
 
 	@Override
@@ -283,6 +240,10 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		EventService.post(editorId, new DispatcherEvent<L>(type, dispatcher));
 	}
 
+	public static <L extends EventSubscription> void post(Class<L> type, Consumer<L> dispatcher) {
+		EventService.post(new DispatcherEvent<L>(type, dispatcher));
+	}
+
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
 		private Label progressLabel;
 
@@ -317,7 +278,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		}
 
 		private void asyncExec(Runnable runnable) {
-			contentComposite.getDisplay().asyncExec(runnable);
+			content.getDisplay().asyncExec(runnable);
 		}
 	}
 }

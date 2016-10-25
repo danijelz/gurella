@@ -137,7 +137,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	// }
 
 	@Override
-	public void debugRender(RenderContext context) {
+	public void debugRender(DebugRenderContext context) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			context.batch.render(instance, WireframeShader.getInstance());
