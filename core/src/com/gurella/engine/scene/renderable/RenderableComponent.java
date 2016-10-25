@@ -21,18 +21,18 @@ import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedList
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2 implements NodeComponentActivityListener,
 		NodeTransformChangedListener, Event<SceneRenderableChangedListener>, Poolable {
-	private transient int sceneId;
-
-	transient boolean visible;
-	transient TransformComponent transformComponent;
-	private transient boolean dirty = true;
-
 	@PropertyDescriptor(nullable = false)
 	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, type = EditorType.simple)
 	Layer layer = Layer.DEFAULT;
 
 	@PropertyEditorDescriptor(factory = InputSensitivityPropertyEditorFactory.class, index = 1000)
 	public byte inputSensitivity;
+	
+	private transient int sceneId;
+
+	transient boolean visible;
+	transient TransformComponent transformComponent;
+	private transient boolean dirty = true;
 
 	protected abstract void updateGeometry();
 

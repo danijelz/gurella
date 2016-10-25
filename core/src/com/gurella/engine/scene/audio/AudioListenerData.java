@@ -16,7 +16,7 @@ class AudioListenerData implements Poolable {
 	final Vector3 position = new Vector3();
 	final Vector3 velocity = new Vector3();
 	final Vector3 up = new Vector3();
-	final Vector3 lookAt = new Vector3();
+	final Vector3 direction = new Vector3();
 
 	private final Quaternion tempRotation = new Quaternion();
 
@@ -42,8 +42,8 @@ class AudioListenerData implements Poolable {
 		return up.set(audioListenerComponent.up);
 	}
 
-	Vector3 getLookAt() {
-		return lookAt.set(audioListenerComponent.lookAt);
+	Vector3 getDirection() {
+		return direction.set(audioListenerComponent.direction);
 	}
 
 	Vector3 getVelocity() {
@@ -53,7 +53,7 @@ class AudioListenerData implements Poolable {
 	public void updateSpatialData() {
 		updatePosition();
 		updateVelocity();
-		updateUpAndLookAt();
+		updateUpAndDirection();
 	}
 
 	private void updatePosition() {
@@ -82,13 +82,13 @@ class AudioListenerData implements Poolable {
 		return velocity;
 	}
 
-	private void updateUpAndLookAt() {
+	private void updateUpAndDirection() {
 		up.set(audioListenerComponent.up);
-		lookAt.set(audioListenerComponent.lookAt);
+		direction.set(audioListenerComponent.direction);
 		if (transformComponent != null) {
 			transformComponent.getWorldRotation(tempRotation);
 			tempRotation.transform(up);
-			tempRotation.transform(lookAt);
+			tempRotation.transform(direction);
 		}
 	}
 

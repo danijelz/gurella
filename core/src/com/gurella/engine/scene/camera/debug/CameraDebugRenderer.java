@@ -22,6 +22,9 @@ import com.gurella.engine.scene.debug.DebugRenderable.RenderContext;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class CameraDebugRenderer implements ApplicationShutdownListener {
+	private static final String camera2dTextureLocation = "com/gurella/engine/scene/camera/debug/camera2d.png";
+	private static final String camera3dTextureLocation = "com/gurella/engine/scene/camera/debug/camera3d.png";
+
 	private static final int debugWidth = 240;
 	private static final int debugHeight = 160;
 	private static final Vector3 up = new Vector3(0, 1, 0);
@@ -59,14 +62,13 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 		fboSprite = new Sprite(fbo.getColorBufferTexture());
 		fboSprite.setOriginCenter();
 
-		camera2dTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/camera/debug/camera2d.png"));
-		camera2dTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		camera2dTexture = new Texture(Gdx.files.classpath(camera2dTextureLocation));
 		camera2dSprite = new Sprite(camera2dTexture);
 		camera2dSprite.setSize(0.2f, 0.2f);
 		camera2dSprite.flip(true, false);
 		camera2dSprite.setOriginCenter();
 
-		camera3dTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/camera/debug/camera3d.png"));
+		camera3dTexture = new Texture(Gdx.files.classpath(camera3dTextureLocation));
 		camera3dTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		camera3dSprite = new Sprite(camera3dTexture);
 		camera3dSprite.setSize(0.2f, 0.2f);

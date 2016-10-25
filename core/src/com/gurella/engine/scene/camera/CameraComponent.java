@@ -170,20 +170,16 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 	public void setRenderingLayers(Array<Layer> layers) {
 		_renderingLayers.clear();
 		_renderingLayers.addAll(layers);
-		// TODO notify RenderSystem
 	}
 
 	public void addRenderingLayer(Layer layer) {
 		if (!_renderingLayers.contains(layer, true)) {
 			_renderingLayers.add(layer);
-			// TODO notify RenderSystem
 		}
 	}
 
 	public void removeRenderingLayer(Layer layer) {
-		if (_renderingLayers.removeValue(layer, true)) {
-			// TODO notify RenderSystem
-		}
+		_renderingLayers.removeValue(layer, true);
 	}
 
 	private void updateDefaultTransform() {

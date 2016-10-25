@@ -75,10 +75,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	private SceneEditorContext context;
 
 	private SwtLwjglApplication application;
-	private SceneEditorApplicationListener applicationListener;
+	SceneEditorApplicationListener applicationListener;
+
+	private CommonContextMenuContributor contextMenuContributor;
 
 	private boolean dirty;
-
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -132,6 +133,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		applicationListener = new SceneEditorApplicationListener(id);
 		context = new SceneEditorContext(this);
+
+		contextMenuContributor = new CommonContextMenuContributor(this);
 
 		EventService.subscribe(id, this);
 	}
@@ -192,6 +195,10 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		dock.setFocus();
 	}
 
+	boolean isViewRegistered(Class<? extends DockableView> type) {
+		return registeredViews.stream().filter(v -> v.getClass() == type).count() != 0;
+	}
+
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -201,11 +208,13 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		applicationListener.debugUpdate();
 		application.exit();
 		SceneEditorRegistry.remove(this);
-		
+
 		historyActionGroup.dispose();
 		operationHistory.dispose(undoContext, true, true, true);
 		redoAction.dispose();
 		undoAction.dispose();
+
+		contextMenuContributor.dispose();
 	}
 
 	@Override

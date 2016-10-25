@@ -1,14 +1,8 @@
 package com.gurella.studio.editor;
 
-import static org.eclipse.swt.SWT.POP_UP;
-import static org.eclipse.swt.SWT.PUSH;
-
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -49,12 +43,12 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
-import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.render.GridModelInstance;
 import com.gurella.studio.editor.render.SceneCameraInputController;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
+import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.subscription.SelectionListener;
@@ -125,11 +119,12 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		perspectiveCamera.lookAt(0, 0, 0);
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 10000;
-
 		perspectiveCamera.update();
 		perspectiveCameraController = new SceneCameraInputController(perspectiveCamera, editorId);
 
 		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
+		orthographicCamera.far = 10000;
+		orthographicCamera.update();
 		orthographicCameraController = new SceneCameraInputController(orthographicCamera, editorId);
 
 		camera = perspectiveCamera;
@@ -243,88 +238,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		return renderThread == Thread.currentThread();
 	}
 
-	@Override
-	public void onMouseMenu(float x, float y) {
-		SceneEditor editor = SceneEditorRegistry.getCurrentEditor();
-		Dock partControl = editor.getDock();
-
-		Menu menu = new Menu(partControl.getShell(), POP_UP);
-		MenuItem item = new MenuItem(menu, PUSH);
-		item.setText("Front");
-		item.addListener(SWT.Selection, e -> toFront());
-
-		item = new MenuItem(menu, PUSH);
-		item.setText("Back");
-		item.addListener(SWT.Selection, e -> toBack());
-
-		item = new MenuItem(menu, PUSH);
-		item.setText("Top");
-		item.addListener(SWT.Selection, e -> toTop());
-
-		item = new MenuItem(menu, PUSH);
-		item.setText("Bottom");
-		item.addListener(SWT.Selection, e -> toBottom());
-
-		item = new MenuItem(menu, PUSH);
-		item.setText("Right");
-		item.addListener(SWT.Selection, e -> toRight());
-
-		item = new MenuItem(menu, PUSH);
-		item.setText("Left");
-		item.addListener(SWT.Selection, e -> toLeft());
-
-		menu.setLocation(partControl.getDisplay().getCursorLocation());
-		menu.setVisible(true);
-	}
-
-	private void toFront() {
-		camera.position.set(0, 0, 3);
-		camera.direction.set(0, 0, -1);
-		camera.up.set(0, 1, 0);
-		camera.lookAt(0, 0, 0);
-		camera.update(true);
-	}
-
-	private void toBack() {
-		camera.position.set(0, 0, -3);
-		camera.direction.set(0, 0, 1);
-		camera.up.set(0, 1, 0);
-		camera.lookAt(0, 0, 0);
-		camera.update(true);
-	}
-
-	private void toTop() {
-		camera.position.set(0, 3, 0);
-		camera.direction.set(0, -1, 0);
-		camera.up.set(0, 0, -1);
-		camera.lookAt(0, 0, 0);
-		camera.update(true);
-	}
-
-	private void toBottom() {
-		camera.position.set(0, -3, 0);
-		camera.direction.set(0, -1, 0);
-		camera.up.set(0, 0, 1);
-		camera.lookAt(0, 0, 0);
-		camera.update(true);
-	}
-
-	private void toRight() {
-		camera.position.set(3, 0, 0);
-		camera.direction.set(-1, 0, 0);
-		camera.up.set(0, 1, 0);
-		camera.lookAt(0, 0, 0);
-		camera.update(true);
-	}
-
-	private void toLeft() {
-		camera.position.set(-3, 0, 0);
-		camera.direction.set(1, 0, 0);
-		camera.up.set(0, 1, 0);
-		camera.lookAt(0, 0, 0);
-		camera.update(true);
-	}
-
 	private void updateFocusData() {
 		Display current = Display.getCurrent();
 		if (current == null) {
@@ -360,6 +273,13 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			}
 			temp = temp.getParent();
 		}
+	}
+
+	@Override
+	public void onMouseMenu(float x, float y) {
+		ContextMenuActions actions = new ContextMenuActions();
+		SceneEditor.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
+		actions.showMenu();
 	}
 
 	@Override
@@ -414,6 +334,26 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			focusedNode = null;
 			focusDataFromInspectable = true;
 		}
+	}
+
+	Camera getCamera() {
+		return camera;
+	}
+
+	boolean is2d() {
+		return camera == orthographicCamera;
+	}
+
+	void set2d() {
+		camera = orthographicCamera;
+	}
+
+	boolean is3d() {
+		return camera == perspectiveCamera;
+	}
+
+	void set3d() {
+		camera = perspectiveCamera;
 	}
 
 	@Override

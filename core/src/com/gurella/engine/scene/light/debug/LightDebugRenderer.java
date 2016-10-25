@@ -17,6 +17,9 @@ import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class LightDebugRenderer implements ApplicationShutdownListener {
+	private static final String pointLightTextureLocation = "com/gurella/engine/scene/light/debug/pointLight.png";
+	private static final String spotLightTextureLocation = "com/gurella/engine/scene/light/debug/spotLight.png";
+
 	private static final Vector3 up = new Vector3(0, 1, 0);
 	private static final ObjectMap<Application, LightDebugRenderer> instances = new ObjectMap<Application, LightDebugRenderer>();
 
@@ -24,7 +27,7 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 	private Sprite pointLightSprite;
 	private Texture spotLightTexture;
 	private Sprite spotLightSprite;
-	
+
 	private Matrix4 transform = new Matrix4();
 	private Vector3 position = new Vector3();
 
@@ -44,13 +47,13 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 	}
 
 	private LightDebugRenderer() {
-		pointLightTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/light/debug/pointLight.png"));
+		pointLightTexture = new Texture(Gdx.files.classpath(pointLightTextureLocation));
 		pointLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		pointLightSprite = new Sprite(pointLightTexture);
 		pointLightSprite.setSize(0.2f, 0.2f);
 		pointLightSprite.setOriginCenter();
 
-		spotLightTexture = new Texture(Gdx.files.classpath("com/gurella/engine/scene/light/debug/spotLight.png"));
+		spotLightTexture = new Texture(Gdx.files.classpath(spotLightTextureLocation));
 		spotLightTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		spotLightSprite = new Sprite(spotLightTexture);
 		spotLightSprite.setSize(0.2f, 0.2f);
@@ -59,31 +62,27 @@ public class LightDebugRenderer implements ApplicationShutdownListener {
 
 	private void renderLight(RenderContext context, LightComponent<?> lightComponent) {
 		GenericBatch batch = context.batch;
-		Camera camera = context.camera;
 
 		if (lightComponent instanceof PointLightComponent) {
 			PointLightComponent pointLightComponent = (PointLightComponent) lightComponent;
 			pointLightComponent.getTransform(transform);
-
-			transform.getTranslation(position);
-			transform.setToLookAt(position, camera.position, up);
-			Matrix4.inv(transform.val);
-			batch.set2dTransform(transform);
-
+			updateTransform(batch, context.camera);
 			pointLightSprite.setColor(pointLightComponent.getColor());
 			batch.render(pointLightSprite);
 		} else if (lightComponent instanceof SpotLightComponent) {
 			SpotLightComponent spotLightComponent = (SpotLightComponent) lightComponent;
 			spotLightComponent.getTransform(transform);
-
-			transform.getTranslation(position);
-			transform.setToLookAt(position, camera.position, up);
-			Matrix4.inv(transform.val);
-			batch.set2dTransform(transform);
-
+			updateTransform(batch, context.camera);
 			spotLightSprite.setColor(spotLightComponent.getColor());
 			batch.render(spotLightSprite);
 		}
+	}
+
+	protected void updateTransform(GenericBatch batch, Camera camera) {
+		transform.getTranslation(position);
+		transform.setToLookAt(position, camera.position, up);
+		Matrix4.inv(transform.val);
+		batch.set2dTransform(transform);
 	}
 
 	@Override

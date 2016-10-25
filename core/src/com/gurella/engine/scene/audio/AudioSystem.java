@@ -208,7 +208,6 @@ public class AudioSystem extends SceneService2 implements ComponentActivityListe
 	private void updateVolume(AudioListenerData listener, AudioSourceData source) {
 		float distanceFromListener = listener.getPosition().dst(source.getPosition());
 
-		// Calculate the source's gain using the specified attenuation model:
 		float volume;
 		float maxDistance = source.getMaxDistance();
 		float rolloffFactor = source.getRolloffFactor();
@@ -279,7 +278,7 @@ public class AudioSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	private float getAngleFromSource(AudioListenerData listener, AudioSourceData source) {
-		Vector3 sourceLookAt = source.getLookAt();
+		Vector3 sourceLookAt = source.getDirection();
 		Vector3 sourcePosition = source.getPosition();
 		Vector3 listenerPosition = listener.getPosition();
 
@@ -299,10 +298,10 @@ public class AudioSystem extends SceneService2 implements ComponentActivityListe
 		}
 
 		distance.set(source.getPosition()).sub(listener.getPosition());
-		side.set(listener.getUp()).crs(listener.getLookAt()).nor();
+		side.set(listener.getUp()).crs(listener.getDirection()).nor();
 
 		float x = distance.dot(side);
-		float z = distance.dot(listener.getLookAt());
+		float z = distance.dot(listener.getDirection());
 
 		float absReferenceDistance = Math.abs(source.getReferenceDistance());
 		if (z >= 0 && z < Math.abs(absReferenceDistance)) {

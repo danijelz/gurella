@@ -1,6 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 import org.eclipse.jface.action.Action;
@@ -23,6 +22,7 @@ import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
 public class SceneEditorActionBarContributor extends EditorActionBarContributor
 		implements SceneEditorViewClosedListener {
 	private SceneEditor editor;
+
 	private ToggleEditorViewAction toggleSceneHierarcyViewAction = new ToggleEditorViewAction("Scene hierarcy",
 			SceneGraphView.class, SceneGraphView::new);
 	private ToggleEditorViewAction toggleInspectorViewAction = new ToggleEditorViewAction("Inspector",
@@ -38,6 +38,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 		menuManager.prependToGroup(IWorkbenchActionConstants.MB_ADDITIONS, gurellaMenu);
 		IMenuManager viewsSubMenu = new MenuManager("&View");
 		gurellaMenu.add(viewsSubMenu);
+
 		viewsSubMenu.add(toggleSceneHierarcyViewAction);
 		viewsSubMenu.add(toggleInspectorViewAction);
 		viewsSubMenu.add(toggleAssetsViewAction);
@@ -109,9 +110,9 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 				setChecked(false);
 				setEnabled(false);
 			} else {
-				List<DockableView> registeredViews = editor.registeredViews;
-				setEnabled(registeredViews.stream().filter(v -> v.getClass() == type).count() == 0);
-				setChecked(!isEnabled());
+				boolean present = editor.isViewRegistered(type);
+				setEnabled(!present);
+				setChecked(present);
 			}
 		}
 

@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.audio;
 
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.audio.AudioChannel;
@@ -12,10 +13,11 @@ import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.event.Listener1;
 import com.gurella.engine.math.geometry.Angle;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
 @ModelDescriptor(descriptiveName = "Audio Source")
-public class AudioSourceComponent extends SceneNodeComponent2 implements Poolable {
-	transient AudioSystem audioProcessor;
+public class AudioSourceComponent extends SceneNodeComponent2 implements NodeComponentActivityListener, Poolable {
 	public AudioClip audioClip;
 
 	public boolean spatial = true;
@@ -33,7 +35,10 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements Poolabl
 	public final Angle outerConeAngle = Angle.getFromDegrees(360);
 	public final Volume outerConeVolume = new Volume();
 	public final Vector3 up = new Vector3(0, 1, 0);
-	public final Vector3 lookAt = new Vector3(0, 0, -1);
+	public final Vector3 direction = new Vector3(0, 0, -1);
+
+	transient AudioSystem audioProcessor;
+	transient TransformComponent transformComponent;
 
 	public AudioTrack play() {
 		return play(SceneAudioChannel.GAME.getAudioChannel(), null);
@@ -56,9 +61,6 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements Poolabl
 	}
 
 	public AudioTrack play(AudioChannel audioChannel, Listener1<AudioTrack> completitionCallback) {
-		if (audioProcessor == null) {
-			return null;
-		}
 		return audioProcessor.play(this, audioChannel, completitionCallback);
 	}
 
@@ -71,9 +73,6 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements Poolabl
 	}
 
 	public void playOnce(AudioChannel audioChannel, Listener1<AudioTrack> completitionCallback) {
-		if (audioProcessor == null) {
-			return;
-		}
 		audioProcessor.playOnce(this, audioChannel, completitionCallback);
 	}
 
@@ -86,21 +85,33 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements Poolabl
 	}
 
 	public AudioTrack loop(AudioChannel audioChannel, Listener1<AudioTrack> completitionCallback) {
-		if (audioProcessor == null) {
-			return null;
-		}
 		return audioProcessor.loop(this, audioChannel, completitionCallback);
 	}
 
 	public void free(AudioTrack track) {
-		if (audioProcessor != null) {
-			audioProcessor.free(this, track);
+		audioProcessor.free(this, track);
+	}
+
+	@Override
+	public void nodeComponentActivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			this.transformComponent = (TransformComponent) component;
 		}
 	}
 
 	@Override
+	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
+		if (component instanceof TransformComponent) {
+			transformComponent = null;
+		}
+	}
+
+	public Matrix4 getTransform(Matrix4 out) {
+		return transformComponent == null ? out.idt() : transformComponent.getWorldTransform(out);
+	}
+
+	@Override
 	public void reset() {
-		audioProcessor = null;
 		audioClip = null;
 		spatial = true;
 		repeatable = false;
@@ -117,6 +128,8 @@ public class AudioSourceComponent extends SceneNodeComponent2 implements Poolabl
 		outerConeAngle.setDegrees(360);
 		outerConeVolume.reset();
 		up.set(0, 1, 0);
-		lookAt.set(0, 0, -1);
+		direction.set(0, 0, -1);
+		audioProcessor = null;
+		transformComponent = null;
 	}
 }

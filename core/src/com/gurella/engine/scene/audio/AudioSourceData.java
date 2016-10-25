@@ -24,7 +24,7 @@ class AudioSourceData implements Poolable {
 	private final Vector3 lastPosition = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 	final Vector3 position = new Vector3();
 	final Vector3 velocity = new Vector3();
-	final Vector3 lookAt = new Vector3();
+	final Vector3 direction = new Vector3();
 
 	final Volume volume = new Volume();
 	final Pan pan = new Pan();
@@ -101,8 +101,8 @@ class AudioSourceData implements Poolable {
 		return audioSourceComponent.outerConeVolume.getVolume();
 	}
 
-	Vector3 getLookAt() {
-		return lookAt.set(audioSourceComponent.lookAt);
+	Vector3 getDirection() {
+		return direction.set(audioSourceComponent.direction);
 	}
 
 	void removeInactiveTracks() {
@@ -117,7 +117,7 @@ class AudioSourceData implements Poolable {
 	public void updateSpatialData() {
 		updatePosition();
 		updateVelocity();
-		updateLookAt();
+		updateDirection();
 	}
 
 	private void updatePosition() {
@@ -146,11 +146,11 @@ class AudioSourceData implements Poolable {
 		return velocity;
 	}
 
-	private void updateLookAt() {
-		lookAt.set(audioSourceComponent.lookAt);
+	private void updateDirection() {
+		direction.set(audioSourceComponent.direction);
 		if (transformComponent != null) {
 			transformComponent.getWorldRotation(tempRotation);
-			tempRotation.transform(lookAt);
+			tempRotation.transform(direction);
 		}
 	}
 
