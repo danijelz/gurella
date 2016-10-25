@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.core;bundle-version="3.11.1",
  org.eclipse.jdt.launching;bundle-version="3.8.0",
  org.eclipse.jdt.ui;bundle-version="3.11.1"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/gdx-1.9.1.jar,
