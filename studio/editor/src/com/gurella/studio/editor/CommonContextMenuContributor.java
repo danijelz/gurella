@@ -33,7 +33,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	@Override
 	public void contribute(ContextMenuActions actions) {
 		actions.addAction("Undo", -1000, undoContext.canUndo(), undoContext::undo);
-		actions.addAction("Undo", -900, undoContext.canRedo(), undoContext::redo);
+		actions.addAction("Redo", -900, undoContext.canRedo(), undoContext::redo);
 
 		actions.addGroup(cameraGroupName, -800);
 		actions.addCheckAction(cameraGroupName, "2d", 100, appListener.is2d(), () -> appListener.set2d());
