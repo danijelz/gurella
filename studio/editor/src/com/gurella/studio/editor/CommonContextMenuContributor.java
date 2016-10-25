@@ -19,40 +19,46 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	private static final String viewGroupName = "View";
 
 	private final SceneEditor editor;
-	private final SceneEditorApplicationListener applicationListener;
+	private final SceneEditorApplicationListener appListener;
+	private final SceneEditorUndoContext undoContext;
 
 	CommonContextMenuContributor(SceneEditor editor) {
 		this.editor = editor;
-		this.applicationListener = editor.applicationListener;
+		this.appListener = editor.applicationListener;
+		this.undoContext = editor.undoContext;
+
 		EventService.subscribe(editor.id, this);
 	}
 
 	@Override
 	public void contribute(ContextMenuActions actions) {
-		actions.addGroup(cameraGroupName, 1);
-		actions.addCheckAction(cameraGroupName, "2d", 1, applicationListener.is2d(), () -> applicationListener.set2d());
-		actions.addCheckAction(cameraGroupName, "3d", 2, applicationListener.is3d(), () -> applicationListener.set3d());
+		actions.addAction("Undo", -1000, undoContext.canUndo(), undoContext::undo);
+		actions.addAction("Undo", -900, undoContext.canRedo(), undoContext::redo);
 
-		actions.addGroup(moveToGroupName, 2);
-		actions.addAction(moveToGroupName, "Front", 1, () -> toFront());
-		actions.addAction(moveToGroupName, "Back", 2, () -> toBack());
-		actions.addAction(moveToGroupName, "Top", 3, () -> toTop());
-		actions.addAction(moveToGroupName, "Bottom", 4, () -> toBottom());
-		actions.addAction(moveToGroupName, "Right", 5, () -> toRight());
-		actions.addAction(moveToGroupName, "Left", 6, () -> toLeft());
+		actions.addGroup(cameraGroupName, -800);
+		actions.addCheckAction(cameraGroupName, "2d", 100, appListener.is2d(), () -> appListener.set2d());
+		actions.addCheckAction(cameraGroupName, "3d", 200, appListener.is3d(), () -> appListener.set3d());
+
+		actions.addGroup(moveToGroupName, -700);
+		actions.addAction(moveToGroupName, "Front", 100, () -> toFront());
+		actions.addAction(moveToGroupName, "Back", 200, () -> toBack());
+		actions.addAction(moveToGroupName, "Top", 300, () -> toTop());
+		actions.addAction(moveToGroupName, "Bottom", 400, () -> toBottom());
+		actions.addAction(moveToGroupName, "Right", 500, () -> toRight());
+		actions.addAction(moveToGroupName, "Left", 600, () -> toLeft());
 
 		ViewRegistry views = editor.viewRegistry;
-		actions.addGroup(viewGroupName, 3);
+		actions.addGroup(viewGroupName, -600);
 		boolean open = views.isOpen(SceneGraphView.class);
-		actions.addCheckAction(viewGroupName, "Scene", 1, open, !open, () -> showView(SceneGraphView::new));
+		actions.addCheckAction(viewGroupName, "Scene", 100, open, !open, () -> showView(SceneGraphView::new));
 		open = views.isOpen(InspectorView.class);
-		actions.addCheckAction(viewGroupName, "Inspector", 2, open, !open, () -> showView(InspectorView::new));
+		actions.addCheckAction(viewGroupName, "Inspector", 200, open, !open, () -> showView(InspectorView::new));
 		open = views.isOpen(AssetsView.class);
-		actions.addCheckAction(viewGroupName, "Assets", 3, open, !open, () -> showView(AssetsView::new));
+		actions.addCheckAction(viewGroupName, "Assets", 300, open, !open, () -> showView(AssetsView::new));
 	}
 
 	private void toFront() {
-		Camera camera = applicationListener.getCamera();
+		Camera camera = appListener.getCamera();
 		camera.position.set(0, 0, 3);
 		camera.direction.set(0, 0, -1);
 		camera.up.set(0, 1, 0);
@@ -61,7 +67,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toBack() {
-		Camera camera = applicationListener.getCamera();
+		Camera camera = appListener.getCamera();
 		camera.position.set(0, 0, -3);
 		camera.direction.set(0, 0, 1);
 		camera.up.set(0, 1, 0);
@@ -70,7 +76,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toTop() {
-		Camera camera = applicationListener.getCamera();
+		Camera camera = appListener.getCamera();
 		camera.position.set(0, 3, 0);
 		camera.direction.set(0, -1, 0);
 		camera.up.set(0, 0, -1);
@@ -79,7 +85,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toBottom() {
-		Camera camera = applicationListener.getCamera();
+		Camera camera = appListener.getCamera();
 		camera.position.set(0, -3, 0);
 		camera.direction.set(0, -1, 0);
 		camera.up.set(0, 0, 1);
@@ -88,7 +94,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toRight() {
-		Camera camera = applicationListener.getCamera();
+		Camera camera = appListener.getCamera();
 		camera.position.set(3, 0, 0);
 		camera.direction.set(-1, 0, 0);
 		camera.up.set(0, 1, 0);
@@ -97,7 +103,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toLeft() {
-		Camera camera = applicationListener.getCamera();
+		Camera camera = appListener.getCamera();
 		camera.position.set(-3, 0, 0);
 		camera.direction.set(1, 0, 0);
 		camera.up.set(0, 1, 0);
@@ -111,7 +117,7 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 
 	@Override
 	public void shutdown() {
-		if (Gdx.app.getApplicationListener() == applicationListener) {
+		if (Gdx.app.getApplicationListener() == appListener) {
 			EventService.unsubscribe(editor.id, this);
 		}
 	}

@@ -1,10 +1,13 @@
 package com.gurella.studio.editor;
 
+import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.UndoContext;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.operations.RedoActionHandler;
@@ -50,5 +53,29 @@ public class SceneEditorUndoContext extends UndoContext implements EditorClosing
 	void executeOperation(IUndoableOperation operation, String errorMsg) {
 		operation.addContext(this);
 		Try.ofFailable(() -> operationHistory.execute(operation, null, null)).onFailure(e -> showError(e, errorMsg));
+	}
+
+	public boolean canUndo() {
+		return operationHistory.canUndo(this);
+	}
+
+	public void undo() {
+		if (canUndo()) {
+			IProgressMonitor monitor = new NullProgressMonitor();
+			String msg = "Error while executing undo.";
+			Try.ofFailable(() -> operationHistory.undo(this, monitor, null)).onFailure(e -> log(e, msg));
+		}
+	}
+
+	public boolean canRedo() {
+		return operationHistory.canRedo(this);
+	}
+
+	public void redo() {
+		if (canRedo()) {
+			IProgressMonitor monitor = new NullProgressMonitor();
+			String msg = "Error while executing redo.";
+			Try.ofFailable(() -> operationHistory.redo(this, monitor, null)).onFailure(e -> log(e, msg));
+		}
 	}
 }

@@ -37,19 +37,27 @@ public class ContextMenuActions {
 	}
 
 	public void addAction(String name, Runnable action) {
-		addAction("", name, 0, action);
+		addAction("", name, 0, true, action);
 	}
 
 	public void addAction(String group, String name, Runnable action) {
-		addAction(group, name, 0, action);
+		addAction(group, name, 0, true, action);
 	}
 
 	public void addAction(String name, int priority, Runnable action) {
-		addAction("", name, priority, action);
+		addAction("", name, priority, true, action);
 	}
 
 	public void addAction(String group, String name, int priority, Runnable action) {
-		Try.ofFailable(() -> groups.get(group)).onSuccess(g -> g.addAction(name, priority, action))
+		addAction(group, name, priority, true, action);
+	}
+
+	public void addAction(String name, int priority, boolean enabled, Runnable action) {
+		addAction("", name, priority, enabled, action);
+	}
+
+	public void addAction(String group, String name, int priority, boolean enabled, Runnable action) {
+		Try.ofFailable(() -> groups.get(group)).onSuccess(g -> g.addAction(name, priority, enabled, action))
 				.orElseThrow(() -> new NullPointerException("Group not present."));
 	}
 
@@ -66,13 +74,13 @@ public class ContextMenuActions {
 	}
 
 	public void addCheckAction(String group, String name, int priority, boolean checked, Runnable action) {
-		Try.ofFailable(() -> groups.get(group)).onSuccess(g -> g.addAction(name, priority, checked, action))
-				.orElseThrow(() -> new NullPointerException("Group not present."));
+		addCheckAction(group, name, priority, true, checked, action);
 	}
 
-	public void addCheckAction(String group, String name, int priority, boolean checked, boolean enabled,
+	public void addCheckAction(String group, String name, int priority, boolean enabled, boolean checked,
 			Runnable action) {
-		Try.ofFailable(() -> groups.get(group)).onSuccess(g -> g.addAction(name, priority, checked, enabled, action))
+		Try.ofFailable(() -> groups.get(group))
+				.onSuccess(g -> g.addCheckAction(name, priority, enabled, checked, action))
 				.orElseThrow(() -> new NullPointerException("Group not present."));
 	}
 
@@ -140,16 +148,12 @@ public class ContextMenuActions {
 			this.name = name;
 		}
 
-		void addAction(String name, int priority, Runnable action) {
-			actions.add(new MenuAction(name, priority, action));
+		void addAction(String name, int priority, boolean enabled, Runnable action) {
+			actions.add(new MenuAction(name, priority, enabled, action));
 		}
 
-		void addAction(String name, int priority, boolean checked, Runnable action) {
-			actions.add(new MenuAction(name, priority, checked, true, action));
-		}
-
-		void addAction(String name, int priority, boolean checked, boolean enabled, Runnable action) {
-			actions.add(new MenuAction(name, priority, checked, enabled, action));
+		void addCheckAction(String name, int priority, boolean enabled, boolean checked, Runnable action) {
+			actions.add(new MenuAction(name, priority, enabled, checked, action));
 		}
 
 		@Override
@@ -171,7 +175,7 @@ public class ContextMenuActions {
 		Runnable action;
 		ActionStyle style;
 
-		public MenuAction(String name, int priority, boolean checked, boolean enabled, Runnable action) {
+		public MenuAction(String name, int priority, boolean enabled, boolean checked, Runnable action) {
 			this.name = name;
 			this.priority = priority;
 			this.checked = checked;
@@ -180,12 +184,12 @@ public class ContextMenuActions {
 			style = ActionStyle.check;
 		}
 
-		public MenuAction(String name, int priority, Runnable action) {
+		public MenuAction(String name, int priority, boolean enabled, Runnable action) {
 			this.name = name;
 			this.priority = priority;
 			this.action = action;
 			style = ActionStyle.push;
-			enabled = true;
+			this.enabled = enabled;
 		}
 
 		@Override
