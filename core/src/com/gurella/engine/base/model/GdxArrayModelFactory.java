@@ -56,7 +56,6 @@ public class GdxArrayModelFactory implements ModelFactory {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public <P> Property<P> getProperty(String name) {
 			return null;
 		}
