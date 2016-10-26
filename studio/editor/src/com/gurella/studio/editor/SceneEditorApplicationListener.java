@@ -195,21 +195,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		}
 	}
 
-	private void renderPickRay() {
-		batch.begin(camera);
-		batch.activateShapeRenderer();
-		ShapeRenderer shapeRenderer = batch.getShapeRenderer();
-		shapeRenderer.setColor(Color.YELLOW);
-		shapeRenderer.set(ShapeType.Line);
-		batch.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
-		batch.end();
-	}
-
-	@Override
-	public boolean isInRenderThread() {
-		return renderThread == Thread.currentThread();
-	}
-
 	private void updateFocusData() {
 		Display current = Display.getCurrent();
 		if (current == null) {
@@ -245,6 +230,21 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			}
 			temp = temp.getParent();
 		}
+	}
+
+	private void renderPickRay() {
+		batch.begin(camera);
+		batch.activateShapeRenderer();
+		ShapeRenderer shapeRenderer = batch.getShapeRenderer();
+		shapeRenderer.setColor(Color.YELLOW);
+		shapeRenderer.set(ShapeType.Line);
+		batch.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
+		batch.end();
+	}
+
+	@Override
+	public boolean isInRenderThread() {
+		return renderThread == Thread.currentThread();
 	}
 
 	@Override
@@ -289,6 +289,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			focusDataFromInspectable = false;
 			focusedComponent = closestSpatial.renderableComponent;
 			focusedNode = focusedComponent.getNode();
+		} else if (!focusDataFromInspectable) {
+			focusedNode = null;
+			focusedComponent = null;
 		}
 	}
 
