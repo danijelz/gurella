@@ -5,7 +5,6 @@ import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.event.DispatcherEvent.Dispatcher;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
@@ -41,17 +40,11 @@ public class EventService {
 		}
 	}
 
-	public static <L extends EventSubscription> void post(Class<L> subscriptionType, Dispatcher<L> dispatcher) {
-		@SuppressWarnings("unchecked")
-		DispatcherEvent<L> event = PoolService.obtain(DispatcherEvent.class);
-		event.subscriptionType = subscriptionType;
-		event.dispatcher = dispatcher;
-		post(event);
-		PoolService.free(event);
+	public static <L extends EventSubscription> void post(Event<L> event) {
+		post(event.getSubscriptionType(), event);
 	}
 
-	public static <L extends EventSubscription> void post(Event<L> event) {
-		Class<L> subscriptionType = event.getSubscriptionType();
+	public static <L extends EventSubscription> void post(Class<L> subscriptionType, Dispatcher<L> dispatcher) {
 		Object[] listenersByType;
 		int listenersSize;
 
@@ -70,7 +63,7 @@ public class EventService {
 		for (int i = 0; i < listenersSize; i++) {
 			@SuppressWarnings("unchecked")
 			L listener = (L) listenersByType[i];
-			event.dispatch(listener);
+			dispatcher.dispatch(listener);
 		}
 
 		PoolService.free(listenersByType);
@@ -123,18 +116,12 @@ public class EventService {
 		}
 	}
 
-	public static <L extends EventSubscription> void post(int channel, Class<L> subscriptionType,
-			Dispatcher<L> dispatcher) {
-		@SuppressWarnings("unchecked")
-		DispatcherEvent<L> event = PoolService.obtain(DispatcherEvent.class);
-		event.subscriptionType = subscriptionType;
-		event.dispatcher = dispatcher;
-		post(channel, event);
-		PoolService.free(event);
+	public static <L extends EventSubscription> void post(int channel, Event<L> event) {
+		post(channel, event.getSubscriptionType(), event);
 	}
 
-	public static <L extends EventSubscription> void post(int channel, Event<L> event) {
-		Class<L> subscriptionType = event.getSubscriptionType();
+	public static <L extends EventSubscription> void post(int channel, Class<L> subscriptionType,
+			Dispatcher<L> dispatcher) {
 		Object[] listenersByType;
 		int listenersSize;
 
@@ -158,7 +145,7 @@ public class EventService {
 		for (int i = 0; i < listenersSize; i++) {
 			@SuppressWarnings("unchecked")
 			L listener = (L) listenersByType[i];
-			event.dispatch(listener);
+			dispatcher.dispatch(listener);
 		}
 
 		PoolService.free(listenersByType);

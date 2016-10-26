@@ -22,7 +22,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.GurellaStateProvider;
-import com.gurella.engine.event.DispatcherEvent.Dispatcher;
+import com.gurella.engine.event.Dispatcher;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.input.InputService;

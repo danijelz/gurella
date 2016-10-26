@@ -16,7 +16,7 @@ public class DispatcherEvent<L extends EventSubscription> implements Event<L>, P
 
 	@Override
 	public void dispatch(L listener) {
-		dispatcher.accept(listener);
+		dispatcher.dispatch(listener);
 	}
 
 	@Override
@@ -30,10 +30,6 @@ public class DispatcherEvent<L extends EventSubscription> implements Event<L>, P
 
 	public static <L extends EventSubscription> void post(int channel, Class<L> type, Dispatcher<L> dispatcher) {
 		EventService.post(channel, new DispatcherEvent<L>(type, dispatcher));
-	}
-
-	public interface Dispatcher<L extends EventSubscription> {
-		void accept(L listener);
 	}
 
 	@Override
