@@ -13,7 +13,7 @@ import com.gurella.engine.base.serialization.Serializable;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Range;
-import com.gurella.engine.utils.SequenceGenerator;
+import com.gurella.engine.utils.Sequence;
 import com.gurella.engine.utils.Values;
 
 //TODO factory method
@@ -108,7 +108,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 		for (int i = 0; i < value.size(); i++) {
 			T element = value.get(i);
 			int prefabId = getPrefabId(element);
-			if (SequenceGenerator.invalidId != prefabId) {
+			if (Sequence.invalidId != prefabId) {
 				templateIds.add(prefabId);
 			}
 			sceneElements.elements.add(element);
@@ -128,7 +128,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 	private int getPrefabId(T element) {
 		PrefabReference prefab = element.getPrefab();
 		if (prefab == null) {
-			return SequenceGenerator.invalidId;
+			return Sequence.invalidId;
 		}
 		return prefab.get().getInstanceId();
 	}
@@ -153,7 +153,7 @@ abstract class SceneElementsProperty<T extends SceneElement2> implements Propert
 				T element = elements.get(i);
 				addElement(object, elements.get(i));
 				int prefabId = getPrefabId(element);
-				if (prefabId != SequenceGenerator.invalidId) {
+				if (prefabId != Sequence.invalidId) {
 					addedTemplateIds.add(prefabId);
 				}
 			}

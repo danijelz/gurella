@@ -14,7 +14,7 @@ import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationEventSubscription;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.OrderedIdentitySet;
-import com.gurella.engine.utils.SequenceGenerator;
+import com.gurella.engine.utils.Sequence;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
@@ -38,7 +38,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	private final transient IdentityMap<Object, Attachment<?>> attachments = new IdentityMap<Object, Attachment<?>>();
 
 	public ManagedObject() {
-		instanceId = SequenceGenerator.next();
+		instanceId = Sequence.next();
 	}
 
 	public int getInstanceId() {
@@ -218,7 +218,7 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 	private void reset() {
 		if (this instanceof Poolable) {
-			instanceId = SequenceGenerator.next();
+			instanceId = Sequence.next();
 			state = ManagedObjectState.idle;
 			parent = null;
 			uuid = null;

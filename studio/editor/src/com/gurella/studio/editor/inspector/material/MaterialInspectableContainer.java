@@ -76,8 +76,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private LwjglGL20 gl20 = new LwjglGL20();
 	private SwtLwjglInput input;
 
-	private PerspectiveCamera cam;
-	// private CameraInputController camController;
+	private PerspectiveCamera camera;
 	private ModelInputController modelInputController;
 
 	private ModelBatch modelBatch;
@@ -108,10 +107,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		toolkit.adapt(content);
 		content.setLayout(new GridLayout(2, false));
 		scrolledComposite.setContent(content);
-		// content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		scrolledComposite.setMinSize(200, 100);
-
-		//////////////////////////////
 
 		/////////////////////////
 		Section group = toolkit.createSection(content,
@@ -126,7 +122,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.diffuseTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		// group.setExpanded(true);
 
 		/////////////
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
@@ -139,8 +134,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.blend, this::refreshMaterial);
 		blendAttributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(blendAttributeEditor);
-		// group.setExpanded(true);
-		//////////
 
 		/////////////
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
@@ -161,8 +154,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.specularTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false, 2, 1));
 		group.setClient(client);
-		// group.setExpanded(true);
-		//////////
 
 		/////////////
 		group = toolkit.createSection(content, ExpandableComposite.TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
@@ -176,9 +167,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				() -> materialDescriptor.emissiveTexture, this::refreshMaterial);
 		attributeEditor.setLayoutData(new GridData(GridData.FILL, GridData.BEGINNING, true, false));
 		group.setClient(attributeEditor);
-		// group.setExpanded(true);
-		//////////
 
+		//////////
 		Composite canvasComposite = toolkit.createComposite(body);
 		toolkit.adapt(canvasComposite);
 		layoutData = new GridData(GridData.FILL, GridData.FILL, true, true);
@@ -206,12 +196,12 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		glCanvas.setLayoutData(layoutData);
 
 		Point size = glCanvas.getSize();
-		cam = new PerspectiveCamera(67, size.x, size.y);
-		cam.position.set(0f, 0.5f, -1f);
-		cam.lookAt(0, 0, 0);
-		cam.near = 0.1f;
-		cam.far = 1000;
-		cam.update();
+		camera = new PerspectiveCamera(67, size.x, size.y);
+		camera.position.set(0f, 0.5f, -1f);
+		camera.lookAt(0, 0, 0);
+		camera.near = 0.1f;
+		camera.far = 1000;
+		camera.update();
 
 		glCanvas.addListener(SWT.Resize, e -> updateSizeByParent());
 
@@ -223,10 +213,8 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		boxButton.addListener(SWT.Selection, e -> updateModelType(ModelShape.box));
 		boxButton.setLayoutData(new GridData(GridData.BEGINNING, GridData.BEGINNING, false, false));
 
-		// camController = new CameraInputController(cam);
 		modelInputController = new ModelInputController();
 		input = new SwtLwjglInput(glCanvas);
-		// input.setInputProcessor(camController);
 		input.setInputProcessor(modelInputController);
 
 		environment = new Environment();
@@ -255,7 +243,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			instance = new ModelInstance(model);
 			modelInputController.instance = instance;
 
-			compass = new Compass(cam);
+			compass = new Compass(camera);
 		}
 
 		addDisposeListener(e -> onDispose());
@@ -302,14 +290,13 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void updateSizeByParent() {
 		Point size = glCanvas.getSize();
-		cam.viewportWidth = size.x;
-		cam.viewportHeight = size.y;
-		cam.update(true);
+		camera.viewportWidth = size.x;
+		camera.viewportHeight = size.y;
+		camera.update(true);
 	}
 
 	private void render() {
 		input.update();
-		// camController.update();
 		synchronized (GurellaStudioPlugin.glMutex) {
 			if (glCanvas.isDisposed()) {
 				return;
@@ -325,7 +312,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glViewport(0, 0, size.x, size.y);
 
 			gl20.glViewport(0, 0, size.x, size.y);
-			modelBatch.begin(cam);
+			modelBatch.begin(camera);
 			modelBatch.render(wallInstance, environment);
 			modelBatch.render(instance, environment);
 			compass.render(modelBatch);
@@ -358,6 +345,16 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 		default:
 			return createSphere();
 		}
+	}
+
+	private Model createSphere() {
+		float radius = 0.8f;
+		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
+		builder.begin();
+		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
+		Model result = builder.end();
+		calculateTangents(result);
+		return removeDisposables(result);
 	}
 
 	private Model createBox() {
@@ -492,16 +489,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			System.out.println(Arrays.toString(vertices));
 			mesh.setVertices(vertices);
 		}
-	}
-
-	private Model createSphere() {
-		float radius = 0.8f;
-		VertexAttributes attributes = materialDescriptor.createVertexAttributes(true, true);
-		builder.begin();
-		builder.part("sphere", GL20.GL_TRIANGLES, attributes, material).sphere(radius, radius, radius, 90, 90);
-		Model result = builder.end();
-		calculateTangents(result);
-		return removeDisposables(result);
 	}
 
 	private Model createWall() {

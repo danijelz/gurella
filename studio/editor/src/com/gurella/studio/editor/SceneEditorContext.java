@@ -2,6 +2,8 @@ package com.gurella.studio.editor;
 
 import static com.gurella.studio.GurellaStudioPlugin.log;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.core.commands.operations.IUndoableOperation;
@@ -32,11 +34,14 @@ public class SceneEditorContext implements SceneLoadedListener, EditorClosingLis
 
 	private Scene scene;
 
+	Map<String, Object> editedAssets = new HashMap<>();
+
 	public SceneEditorContext(SceneEditor editor) {
 		editorId = editor.id;
 		undoContext = editor.undoContext;
 
 		editorInput = (IPathEditorInput) editor.getEditorInput();
+		@SuppressWarnings("null")
 		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
 		workspace = resource.getWorkspace();
 		project = resource.getProject();

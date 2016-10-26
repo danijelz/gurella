@@ -4,7 +4,7 @@ import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
-import com.gurella.engine.utils.SequenceGenerator;
+import com.gurella.engine.utils.Sequence;
 
 public abstract class SceneNodeComponent2 extends SceneElement2 {
 	public final int baseComponentType;
@@ -35,7 +35,7 @@ public abstract class SceneNodeComponent2 extends SceneElement2 {
 
 	public final int getNodeId() {
 		ManagedObject parent = getParent();
-		return parent == null ? SequenceGenerator.invalidId : parent.getInstanceId();
+		return parent == null ? Sequence.invalidId : parent.getInstanceId();
 	}
 
 	@Override
