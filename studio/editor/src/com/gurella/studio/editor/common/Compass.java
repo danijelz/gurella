@@ -61,9 +61,6 @@ public class Compass implements Disposable {
 		compassModel = modelBuilder.end();
 		compassInstance = new ModelInstance(compassModel);
 
-		// trans to top right corner
-		//compassInstance.transform.translate(tempTranslation.set(0.92f, 0.92f, 0));
-
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.85f, 0.85f, 0.85f, 1f));
 		environment.set(new DepthTestAttribute());
@@ -78,11 +75,11 @@ public class Compass implements Disposable {
 		Graphics graphics = Gdx.graphics;
 		int width = graphics.getWidth();
 		int height = graphics.getHeight();
-		
-		if(width < 200 || height < 200) {
+
+		if (width < 150 || height < 150) {
 			return;
 		}
-		
+
 		update();
 		batch.setCamera(compassCamera);
 		Gdx.gl.glViewport(width - 60, height - 60, 60, 60);
