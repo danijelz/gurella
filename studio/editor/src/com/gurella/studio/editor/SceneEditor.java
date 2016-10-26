@@ -31,12 +31,11 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.serialization.json.JsonOutput;
-import com.gurella.engine.event.DispatcherEvent;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.utils.SequenceGenerator;
+import com.gurella.engine.utils.Sequence;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
@@ -48,7 +47,7 @@ import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneEditor extends EditorPart implements SceneLoadedListener, SceneChangedListener {
-	public final int id = SequenceGenerator.next();
+	public final int id = Sequence.next();
 
 	private Composite content;
 	Dock dock;
@@ -214,7 +213,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	public static <L extends EventSubscription> void postToControlEditor(Control source, Class<L> type,
 			Consumer<L> dispatcher) {
-		EventService.post(getEditorId(source), new DispatcherEvent<L>(type, l -> dispatcher.accept(l)));
+		EventService.post(getEditorId(source), type, l -> dispatcher.accept(l));
 	}
 
 	public static <L extends EventSubscription> void postToCurrentEditor(Event<L> event) {
@@ -222,7 +221,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	}
 
 	public static <L extends EventSubscription> void postToCurrentEditor(Class<L> type, Consumer<L> dispatcher) {
-		EventService.post(getCurrentEditorId(), new DispatcherEvent<L>(type, l -> dispatcher.accept(l)));
+		EventService.post(getCurrentEditorId(), type, l -> dispatcher.accept(l));
 	}
 
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
@@ -248,7 +247,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		@Override
 		public void onSuccess(Scene scene) {
-			DispatcherEvent.post(id, SceneLoadedListener.class, l -> l.sceneLoaded(scene));
+			EventService.post(id, SceneLoadedListener.class, l -> l.sceneLoaded(scene));
 			scene.start();
 			asyncExec(() -> progressLabel.dispose());
 		}

@@ -10,6 +10,17 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.utils.Values;
 
 public class Assets {
+	private static final String filePathDelimiters = "\\/";
+	private static final char unixFilePathDelimiter = '/';
+	private static final char windowsFilePathDelimiter = '\\';
+	private static final char fileExtensionDelimiter = '.';
+	private static final char localFileType = 'l';
+	private static final char absoluteFileType = 'a';
+	private static final char externalFileType = 'e';
+	private static final char classpathFileType = 'c';
+	private static final char internalFileType = 'i';
+	private static final char fileInfoDelimiter = ':';
+
 	private static final ObjectSet<Class<?>> assetTypes = new ObjectSet<Class<?>>();
 
 	static {
@@ -44,7 +55,7 @@ public class Assets {
 		if (fileName == null) {
 			return "";
 		} else {
-			int index = fileName.lastIndexOf('.');
+			int index = fileName.lastIndexOf(fileExtensionDelimiter);
 			return index > 0 ? fileName.substring(index + 1) : "";
 		}
 	}
@@ -68,18 +79,18 @@ public class Assets {
 	public static FileHandle getFileHandle(String path) {
 		boolean hasFileTypeInfo = hasFileTypeInfo(path);
 		char fileTypeInfo = hasFileTypeInfo ? path.charAt(0) : getDefaultFileTypeInfo(path);
-		String pathExtract = hasFileTypeInfo ? path.substring(2) : path;
+		String pathExtract = hasFileTypeInfo ? path.substring(3) : path;
 		Files files = Gdx.files;
 		switch (fileTypeInfo) {
-		case 'i':
+		case internalFileType:
 			return files.internal(pathExtract);
-		case 'c':
+		case classpathFileType:
 			return files.classpath(pathExtract);
-		case 'e':
+		case externalFileType:
 			return files.external(pathExtract);
-		case 'a':
+		case absoluteFileType:
 			return files.absolute(pathExtract);
-		case 'l':
+		case localFileType:
 			return files.local(pathExtract);
 		default:
 			return files.internal(pathExtract);
@@ -88,10 +99,11 @@ public class Assets {
 
 	private static char getDefaultFileTypeInfo(String path) {
 		if (path.length() < 1) {
-			return 'i';
+			return internalFileType;
 		} else {
 			char firstChar = path.charAt(0);
-			return firstChar == '/' || firstChar == '\\' ? 'a' : 'i';
+			return firstChar == unixFilePathDelimiter || firstChar == windowsFilePathDelimiter ? absoluteFileType
+					: internalFileType;
 		}
 	}
 
@@ -100,16 +112,17 @@ public class Assets {
 			return false;
 		}
 
-		if (path.charAt(1) != ':') {
+		if (path.charAt(1) != fileInfoDelimiter || path.charAt(2) != fileInfoDelimiter) {
 			return false;
 		}
 
 		char typeInfo = path.charAt(0);
-		return typeInfo == 'c' || typeInfo == 'i' || typeInfo == 'e' || typeInfo == 'a' || typeInfo == 'l';
+		return typeInfo == classpathFileType || typeInfo == internalFileType || typeInfo == externalFileType
+				|| typeInfo == absoluteFileType || typeInfo == localFileType;
 	}
 
 	public static FileHandle getRelativeFileHandle(FileHandle file, String path) {
-		StringTokenizer tokenizer = new StringTokenizer(path, "\\/");
+		StringTokenizer tokenizer = new StringTokenizer(path, filePathDelimiters);
 		FileHandle result = file.parent();
 		while (tokenizer.hasMoreElements()) {
 			String token = tokenizer.nextToken();
