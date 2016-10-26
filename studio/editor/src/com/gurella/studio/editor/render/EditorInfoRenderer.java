@@ -50,12 +50,10 @@ public class EditorInfoRenderer implements EditorClosingListener {
 		info.setLength(0);
 
 		Vector3 direction = camera.direction;
-		info.append("Direction X: ");
+		info.append("Direction   X: ");
 		info.append(direction.x);
 		info.append(" Y: ");
 		info.append(direction.y);
-		info.append(" Z: ");
-		info.append(direction.z);
 		if (camera instanceof OrthographicCamera) {
 			info.append(" Zoom: ");
 			info.append(((OrthographicCamera) camera).zoom);

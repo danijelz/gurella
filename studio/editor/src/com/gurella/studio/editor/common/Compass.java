@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.common;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -36,6 +38,7 @@ public class Compass implements Disposable {
 	private Environment environment;
 
 	private Vector3 tempTranslation = new Vector3();
+	private Vector3 tempScale = new Vector3(12, 12, 12);
 	private Quaternion tempRotation = new Quaternion();
 
 	public Compass(PerspectiveCamera worldCamera) {
@@ -59,7 +62,7 @@ public class Compass implements Disposable {
 		compassInstance = new ModelInstance(compassModel);
 
 		// trans to top right corner
-		compassInstance.transform.translate(tempTranslation.set(0.92f, 0.92f, 0));
+		//compassInstance.transform.translate(tempTranslation.set(0.92f, 0.92f, 0));
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.85f, 0.85f, 0.85f, 1f));
@@ -72,18 +75,26 @@ public class Compass implements Disposable {
 	}
 
 	public void render(ModelBatch batch) {
+		Graphics graphics = Gdx.graphics;
+		int width = graphics.getWidth();
+		int height = graphics.getHeight();
+		
+		if(width < 200 || height < 200) {
+			return;
+		}
+		
 		update();
 		batch.setCamera(compassCamera);
+		Gdx.gl.glViewport(width - 60, height - 60, 60, 60);
 		batch.render(compassInstance, environment);
+		batch.flush();
+		Gdx.gl.glViewport(0, 0, width, height);
 	}
 
 	private void update() {
-		// compassInstance.transform.getTranslation(tempTranslation);
-		// compassInstance.transform.set(worldCamera.view).inv();
-		// compassInstance.transform.setTranslation(tempTranslation);
 		worldCamera.view.getRotation(tempRotation);
 		tempRotation.conjugate();
-		compassInstance.transform.set(tempTranslation, tempRotation);
+		compassInstance.transform.set(tempTranslation, tempRotation, tempScale);
 	}
 
 	@Override

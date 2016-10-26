@@ -5,7 +5,7 @@ import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.gurella.engine.event.DispatcherEvent.Consumer;
+import com.gurella.engine.event.DispatcherEvent.Dispatcher;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
@@ -41,7 +41,7 @@ public class EventService {
 		}
 	}
 
-	public static <L extends EventSubscription> void post(Class<L> subscriptionType, Consumer<L> dispatcher) {
+	public static <L extends EventSubscription> void post(Class<L> subscriptionType, Dispatcher<L> dispatcher) {
 		@SuppressWarnings("unchecked")
 		DispatcherEvent<L> event = PoolService.obtain(DispatcherEvent.class);
 		event.subscriptionType = subscriptionType;
@@ -124,7 +124,7 @@ public class EventService {
 	}
 
 	public static <L extends EventSubscription> void post(int channel, Class<L> subscriptionType,
-			Consumer<L> dispatcher) {
+			Dispatcher<L> dispatcher) {
 		@SuppressWarnings("unchecked")
 		DispatcherEvent<L> event = PoolService.obtain(DispatcherEvent.class);
 		event.subscriptionType = subscriptionType;
