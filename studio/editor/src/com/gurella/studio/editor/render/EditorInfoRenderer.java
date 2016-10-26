@@ -11,10 +11,9 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.studio.editor.control.DockableView;
-import com.gurella.studio.editor.subscription.EditorViewClosedListener;
+import com.gurella.studio.editor.subscription.EditorClosingListener;
 
-public class EditorInfoRenderer implements EditorViewClosedListener {
+public class EditorInfoRenderer implements EditorClosingListener {
 	private final int editorId;
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
@@ -49,7 +48,7 @@ public class EditorInfoRenderer implements EditorViewClosedListener {
 		info.append(position.z);
 		font.draw(spriteBatch, info.toString(), 15, 40);
 		info.setLength(0);
-		
+
 		Vector3 direction = camera.direction;
 		info.append("Direction X: ");
 		info.append(direction.x);
@@ -57,25 +56,25 @@ public class EditorInfoRenderer implements EditorViewClosedListener {
 		info.append(direction.y);
 		info.append(" Z: ");
 		info.append(direction.z);
-		if(camera instanceof OrthographicCamera) {
+		if (camera instanceof OrthographicCamera) {
 			info.append(" Zoom: ");
 			info.append(((OrthographicCamera) camera).zoom);
 		} else {
 			info.append(" Z: ");
 			info.append(direction.z);
 		}
-		
+
 		font.draw(spriteBatch, info.toString(), 15, 20);
 		info.setLength(0);
 
 		int height = Gdx.graphics.getHeight();
 		font.draw(spriteBatch, camera instanceof OrthographicCamera ? "2D" : "3D", 15, height - 20);
-		
+
 		batch.end();
 	}
 
 	@Override
-	public void viewClosed(DockableView view) {
+	public void closing() {
 		EventService.unsubscribe(editorId, this);
 		font.dispose();
 	}

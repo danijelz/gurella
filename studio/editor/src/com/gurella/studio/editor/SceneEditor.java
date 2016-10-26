@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallbackAdapter;
 import com.gurella.engine.base.serialization.json.JsonOutput;
+import com.gurella.engine.event.DispatcherEvent;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
@@ -39,7 +40,6 @@ import com.gurella.engine.utils.SequenceGenerator;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
-import com.gurella.studio.editor.event.DispatcherEvent;
 import com.gurella.studio.editor.subscription.EditorClosingListener;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -106,9 +106,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		applicationListener = new SceneEditorApplicationListener(id);
 		sceneContext = new SceneEditorContext(this);
 
-		@SuppressWarnings("unused")
-		CommonContextMenuContributor menuContributor = new CommonContextMenuContributor(this);
-
 		EventService.subscribe(id, this);
 	}
 
@@ -131,6 +128,9 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		SceneEditorRegistry.put(this, dock, application, sceneContext);
 		viewRegistry = new ViewRegistry(this);
+
+		@SuppressWarnings("unused")
+		CommonContextMenuContributor menuContributor = new CommonContextMenuContributor(this);
 
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
@@ -167,7 +167,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	public void dispose() {
 		super.dispose();
 		EventService.unsubscribe(id, this);
-		post(id, EditorClosingListener.class, l -> l.closing());
+		EventService.post(id, EditorClosingListener.class, l -> l.closing());
 		// TODO context and applicationListener should be unified
 		applicationListener.debugUpdate();
 		application.exit();
@@ -192,56 +192,37 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		return SceneEditorRegistry.getCurrentEditor();
 	}
 
-	public static void subscribe(Object subscriber) {
+	public static void subscribeToCurrentEditor(Object subscriber) {
 		EventService.subscribe(getCurrentEditorId(), subscriber);
 	}
 
-	public static void subscribe(int editorId, Object subscriber) {
-		EventService.subscribe(editorId, subscriber);
-	}
-
-	public static void subscribe(Control subscriber) {
+	public static void subscribeToControlEditor(Control subscriber) {
 		EventService.subscribe(getEditorId(subscriber), subscriber);
 	}
 
-	public static void subscribe(int editorId, Control subscriber) {
-		EventService.subscribe(editorId, subscriber);
-	}
-
-	public static void unsubscribe(Object subscriber) {
+	public static void unsubscribeFromCurrentEditor(Object subscriber) {
 		EventService.unsubscribe(getCurrentEditorId(), subscriber);
 	}
 
-	public static void unsubscribe(int editorId, Object subscriber) {
-		EventService.unsubscribe(editorId, subscriber);
-	}
-
-	public static void unsubscribe(Control subscriber) {
+	public static void unsubscribeFromControlEditor(Control subscriber) {
 		EventService.unsubscribe(getEditorId(subscriber), subscriber);
 	}
 
-	public static void unsubscribe(int editorId, Control subscriber) {
-		EventService.unsubscribe(editorId, subscriber);
-	}
-
-	public static <L extends EventSubscription> void post(Control source, Event<L> event) {
+	public static <L extends EventSubscription> void postToControlEditor(Control source, Event<L> event) {
 		EventService.post(getEditorId(source), event);
 	}
 
-	public static <L extends EventSubscription> void post(int editorId, Event<L> event) {
-		EventService.post(editorId, event);
+	public static <L extends EventSubscription> void postToControlEditor(Control source, Class<L> type,
+			Consumer<L> dispatcher) {
+		EventService.post(getEditorId(source), new DispatcherEvent<L>(type, l -> dispatcher.accept(l)));
 	}
 
-	public static <L extends EventSubscription> void post(Control source, Class<L> type, Consumer<L> dispatcher) {
-		EventService.post(getEditorId(source), new DispatcherEvent<L>(type, dispatcher));
+	public static <L extends EventSubscription> void postToCurrentEditor(Event<L> event) {
+		EventService.post(getCurrentEditorId(), event);
 	}
 
-	public static <L extends EventSubscription> void post(int editorId, Class<L> type, Consumer<L> dispatcher) {
-		EventService.post(editorId, new DispatcherEvent<L>(type, dispatcher));
-	}
-
-	public static <L extends EventSubscription> void post(Class<L> type, Consumer<L> dispatcher) {
-		EventService.post(new DispatcherEvent<L>(type, dispatcher));
+	public static <L extends EventSubscription> void postToCurrentEditor(Class<L> type, Consumer<L> dispatcher) {
+		EventService.post(getCurrentEditorId(), new DispatcherEvent<L>(type, l -> dispatcher.accept(l)));
 	}
 
 	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {

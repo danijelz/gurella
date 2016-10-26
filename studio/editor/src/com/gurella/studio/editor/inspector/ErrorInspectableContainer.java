@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.inspector.common;
+package com.gurella.studio.editor.inspector;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,8 +11,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.inspector.InspectableContainer;
-import com.gurella.studio.editor.inspector.InspectorView;
 
 public class ErrorInspectableContainer extends InspectableContainer<Throwable> {
 	public ErrorInspectableContainer(InspectorView parent, Throwable throwable) {

@@ -1,14 +1,13 @@
-package com.gurella.studio.editor.event;
+package com.gurella.engine.event;
 
-import java.util.function.Consumer;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-import com.gurella.engine.event.Event;
-import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.EventSubscription;
+public class DispatcherEvent<L extends EventSubscription> implements Event<L>, Poolable {
+	Class<L> subscriptionType;
+	Consumer<L> dispatcher;
 
-public class DispatcherEvent<L extends EventSubscription> implements Event<L> {
-	private Class<L> subscriptionType;
-	private Consumer<L> dispatcher;
+	public DispatcherEvent() {
+	}
 
 	public DispatcherEvent(Class<L> subscriptionType, Consumer<L> dispatcher) {
 		this.subscriptionType = subscriptionType;
@@ -31,5 +30,15 @@ public class DispatcherEvent<L extends EventSubscription> implements Event<L> {
 
 	public static <L extends EventSubscription> void post(int channel, Class<L> type, Consumer<L> dispatcher) {
 		EventService.post(channel, new DispatcherEvent<L>(type, dispatcher));
+	}
+
+	public interface Consumer<T> {
+		void accept(T t);
+	}
+
+	@Override
+	public void reset() {
+		subscriptionType = null;
+		dispatcher = null;
 	}
 }

@@ -12,10 +12,10 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.EditorClosingListener;
-import com.gurella.studio.editor.subscription.EditorViewClosedListener;
+import com.gurella.studio.editor.subscription.EditorViewsListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class ViewRegistry implements EditorViewClosedListener, EditorClosingListener {
+public class ViewRegistry implements EditorViewsListener, EditorClosingListener {
 	private final SceneEditor editor;
 	private final Dock dock;
 
@@ -38,9 +38,19 @@ public class ViewRegistry implements EditorViewClosedListener, EditorClosingList
 		return registeredViews.stream().filter(v -> v.getClass() == type).count() != 0;
 	}
 
-	public void addView(Class<? extends DockableView> type, int position) {
+	public void openView(Class<? extends DockableView> type, int position) {
+		if (isOpen(type)) {
+			return;
+		}
+
 		Try.ofFailable(() -> type.getConstructor(SceneEditor.class, int.class))
-				.map(c -> c.newInstance(editor, Integer.valueOf(position))).onSuccess(v -> dock.setSelection(v));
+				.map(c -> c.newInstance(editor, Integer.valueOf(position))).onSuccess(v -> dock.setSelection(v))
+				.onSuccess(v -> EventService.post(editor.id, EditorViewsListener.class, l -> l.viewOpened(v)));
+	}
+
+	@Override
+	public void viewOpened(DockableView view) {
+		registeredViews.add(view);
 	}
 
 	@Override

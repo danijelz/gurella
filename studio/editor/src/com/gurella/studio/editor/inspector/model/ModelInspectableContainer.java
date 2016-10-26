@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.inspector.common;
+package com.gurella.studio.editor.inspector.model;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.SWT;

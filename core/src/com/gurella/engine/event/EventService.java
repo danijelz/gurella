@@ -5,6 +5,7 @@ import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.gurella.engine.event.DispatcherEvent.Consumer;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
@@ -38,6 +39,15 @@ public class EventService {
 		synchronized (global) {
 			global.unsubscribe(subscriber, subscriptions);
 		}
+	}
+
+	public static <L extends EventSubscription> void post(Class<L> subscriptionType, Consumer<L> dispatcher) {
+		@SuppressWarnings("unchecked")
+		DispatcherEvent<L> event = PoolService.obtain(DispatcherEvent.class);
+		event.subscriptionType = subscriptionType;
+		event.dispatcher = dispatcher;
+		post(event);
+		PoolService.free(event);
 	}
 
 	public static <L extends EventSubscription> void post(Event<L> event) {
@@ -111,6 +121,16 @@ public class EventService {
 		if (emptyEventBus != null) {
 			PoolService.free(emptyEventBus);
 		}
+	}
+
+	public static <L extends EventSubscription> void post(int channel, Class<L> subscriptionType,
+			Consumer<L> dispatcher) {
+		@SuppressWarnings("unchecked")
+		DispatcherEvent<L> event = PoolService.obtain(DispatcherEvent.class);
+		event.subscriptionType = subscriptionType;
+		event.dispatcher = dispatcher;
+		post(channel, event);
+		PoolService.free(event);
 	}
 
 	public static <L extends EventSubscription> void post(int channel, Event<L> event) {

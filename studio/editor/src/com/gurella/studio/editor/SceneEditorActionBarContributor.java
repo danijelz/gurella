@@ -1,7 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.util.function.BiConsumer;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -15,19 +13,18 @@ import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.subscription.EditorViewClosedListener;
+import com.gurella.studio.editor.subscription.EditorViewsListener;
 
-public class SceneEditorActionBarContributor extends EditorActionBarContributor
-		implements EditorViewClosedListener {
+public class SceneEditorActionBarContributor extends EditorActionBarContributor implements EditorViewsListener {
 	private SceneEditor editor;
 	private ViewRegistry views;
 
 	private ToggleEditorViewAction toggleSceneHierarcyViewAction = new ToggleEditorViewAction("Scene hierarcy",
-			SceneGraphView.class, SceneGraphView::new);
+			SceneGraphView.class);
 	private ToggleEditorViewAction toggleInspectorViewAction = new ToggleEditorViewAction("Inspector",
-			InspectorView.class, InspectorView::new);
+			InspectorView.class);
 	private ToggleEditorViewAction toggleAssetsViewAction = new ToggleEditorViewAction("Assets Explorer",
-			AssetsView.class, AssetsView::new);
+			AssetsView.class);
 
 	@Override
 	public void contributeToMenu(IMenuManager menuManager) {
@@ -60,9 +57,13 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 			views = null;
 		}
 
-		toggleSceneHierarcyViewAction.updateActiveEditor();
-		toggleInspectorViewAction.updateActiveEditor();
-		toggleAssetsViewAction.updateActiveEditor();
+		updateActions();
+	}
+
+	protected void updateActions() {
+		toggleSceneHierarcyViewAction.update();
+		toggleInspectorViewAction.update();
+		toggleAssetsViewAction.update();
 	}
 
 	@Override
@@ -74,33 +75,24 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 	}
 
 	@Override
-	public void viewClosed(DockableView view) {
-		if (view instanceof SceneGraphView) {
-			toggleSceneHierarcyViewAction.setChecked(false);
-			toggleSceneHierarcyViewAction.setEnabled(true);
-		} else if (view instanceof InspectorView) {
-			toggleInspectorViewAction.setChecked(false);
-			toggleInspectorViewAction.setEnabled(true);
-		} else
+	public void viewOpened(DockableView view) {
+		updateActions();
+	}
 
-		if (view instanceof AssetsView) {
-			toggleAssetsViewAction.setChecked(false);
-			toggleAssetsViewAction.setEnabled(true);
-		}
+	@Override
+	public void viewClosed(DockableView view) {
+		updateActions();
 	}
 
 	private class ToggleEditorViewAction extends Action {
 		private Class<? extends DockableView> type;
-		private BiConsumer<SceneEditor, Integer> constructor;
 
-		public ToggleEditorViewAction(String text, Class<? extends DockableView> type,
-				BiConsumer<SceneEditor, Integer> constructor) {
+		public ToggleEditorViewAction(String text, Class<? extends DockableView> type) {
 			super(text);
 			this.type = type;
-			this.constructor = constructor;
 		}
 
-		void updateActiveEditor() {
+		void update() {
 			if (editor == null) {
 				setChecked(false);
 				setEnabled(false);
@@ -113,7 +105,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor
 
 		@Override
 		public void run() {
-			constructor.accept(editor, Integer.valueOf(SWT.LEFT));
+			views.openView(type, SWT.LEFT);
 			setChecked(true);
 			setEnabled(false);
 		}

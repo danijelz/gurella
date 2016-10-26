@@ -1,7 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.util.function.BiConsumer;
-
 import org.eclipse.swt.SWT;
 
 import com.badlogic.gdx.Gdx;
@@ -9,6 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.editor.assets.AssetsView;
+import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
@@ -21,11 +20,13 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	private final SceneEditor editor;
 	private final SceneEditorApplicationListener appListener;
 	private final SceneEditorUndoContext undoContext;
+	private final ViewRegistry viewRegistry;
 
 	CommonContextMenuContributor(SceneEditor editor) {
 		this.editor = editor;
 		this.appListener = editor.applicationListener;
 		this.undoContext = editor.undoContext;
+		this.viewRegistry = editor.viewRegistry;
 
 		EventService.subscribe(editor.id, this);
 	}
@@ -50,11 +51,11 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 		ViewRegistry views = editor.viewRegistry;
 		actions.addGroup(viewGroupName, -600);
 		boolean open = views.isOpen(SceneGraphView.class);
-		actions.addCheckAction(viewGroupName, "Scene", 100, !open, open, () -> showView(SceneGraphView::new));
+		actions.addCheckAction(viewGroupName, "Scene", 100, !open, open, () -> openView(SceneGraphView.class));
 		open = views.isOpen(InspectorView.class);
-		actions.addCheckAction(viewGroupName, "Inspector", 200, !open, open, () -> showView(InspectorView::new));
+		actions.addCheckAction(viewGroupName, "Inspector", 200, !open, open, () -> openView(InspectorView.class));
 		open = views.isOpen(AssetsView.class);
-		actions.addCheckAction(viewGroupName, "Assets", 300, !open, open, () -> showView(AssetsView::new));
+		actions.addCheckAction(viewGroupName, "Assets", 300, !open, open, () -> openView(AssetsView.class));
 	}
 
 	private void toFront() {
@@ -111,8 +112,8 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 		camera.update(true);
 	}
 
-	private void showView(BiConsumer<SceneEditor, Integer> constructor) {
-		constructor.accept(editor, Integer.valueOf(SWT.LEFT));
+	private void openView(Class<? extends DockableView> type) {
+		viewRegistry.openView(type, SWT.LEFT);
 	}
 
 	@Override

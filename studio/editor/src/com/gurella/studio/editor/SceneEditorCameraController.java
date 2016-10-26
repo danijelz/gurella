@@ -1,19 +1,19 @@
-package com.gurella.studio.editor.render;
+package com.gurella.studio.editor;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.gurella.studio.editor.SceneEditor;
+import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.subscription.EditorCameraSwitch;
 import com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
 
-public class SceneCameraInputController extends CameraInputController {
+class SceneEditorCameraController extends CameraInputController {
 	private final int editorId;
 
-	public SceneCameraInputController(Camera camera, int editorId) {
+	public SceneEditorCameraController(Camera camera, int editorId) {
 		super(new SceneCameraGestureListener(editorId), camera);
 		this.editorId = editorId;
 	}
@@ -65,13 +65,13 @@ public class SceneCameraInputController extends CameraInputController {
 		}
 
 		if (keycode == Keys.NUM_2 || keycode == Keys.NUMPAD_2) {
-			SceneEditor.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera2d));
+			EventService.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera2d));
 			return true;
 		} else if (keycode == Keys.NUM_3 || keycode == Keys.NUMPAD_3) {
-			SceneEditor.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera3d));
+			EventService.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera3d));
 			return true;
 		} else if (keycode == Keys.ALT_LEFT || keycode == Keys.ALT_RIGHT) {
-			SceneEditor.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(0, 0));
+			EventService.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(0, 0));
 			return true;
 		} else {
 			return false;
@@ -93,10 +93,10 @@ public class SceneCameraInputController extends CameraInputController {
 
 			switch (button) {
 			case Buttons.RIGHT:
-				SceneEditor.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(x, y));
+				EventService.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(x, y));
 				return false;
 			case Buttons.LEFT:
-				SceneEditor.post(editorId, EditorMouseListener.class, l -> l.onMouseSelection(x, y));
+				EventService.post(editorId, EditorMouseListener.class, l -> l.onMouseSelection(x, y));
 				return false;
 			default:
 				return false;

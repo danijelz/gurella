@@ -1,7 +1,5 @@
 package com.gurella.studio.editor;
 
-import java.util.function.Consumer;
-
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -24,6 +22,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.GurellaStateProvider;
+import com.gurella.engine.event.DispatcherEvent.Consumer;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.input.InputService;
@@ -43,7 +42,6 @@ import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.render.EditorInfoRenderer;
 import com.gurella.studio.editor.render.GridModelInstance;
-import com.gurella.studio.editor.render.SceneCameraInputController;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.EditorCameraSwitch;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
@@ -62,13 +60,13 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
 	private PerspectiveCamera perspectiveCamera;
-	private SceneCameraInputController perspectiveCameraController;
+	private SceneEditorCameraController perspectiveCameraController;
 
 	private OrthographicCamera orthographicCamera;
-	private SceneCameraInputController orthographicCameraController;
+	private SceneEditorCameraController orthographicCameraController;
 
 	private Camera camera;
-	private SceneCameraInputController inputController;
+	private SceneEditorCameraController inputController;
 
 	private GenericBatch batch;
 	private DebugRenderContext renderContext = new DebugRenderContext();
@@ -111,12 +109,12 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 10000;
 		perspectiveCamera.update();
-		perspectiveCameraController = new SceneCameraInputController(perspectiveCamera, editorId);
+		perspectiveCameraController = new SceneEditorCameraController(perspectiveCamera, editorId);
 
 		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
 		orthographicCamera.far = 10000;
 		orthographicCamera.update();
-		orthographicCameraController = new SceneCameraInputController(orthographicCamera, editorId);
+		orthographicCameraController = new SceneEditorCameraController(orthographicCamera, editorId);
 
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
@@ -166,7 +164,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	}
 
 	static void debugUpdate() {
-		SceneEditor.post(ApplicationDebugUpdateListener.class, debugUpdateDispatcher);
+		EventService.post(ApplicationDebugUpdateListener.class, debugUpdateDispatcher);
 	}
 
 	public void renderScene() {
@@ -244,7 +242,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	@Override
 	public void onMouseMenu(float x, float y) {
 		ContextMenuActions actions = new ContextMenuActions();
-		SceneEditor.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
+		EventService.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
 		actions.showMenu();
 	}
 
@@ -350,7 +348,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 
 	@Override
 	public void dispose() {
-		SceneEditor.post(ApplicationShutdownListener.class, l -> l.shutdown());
+		EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
 		debugUpdate();
 		EventService.unsubscribe(editorId, this);
 		batch.dispose();
