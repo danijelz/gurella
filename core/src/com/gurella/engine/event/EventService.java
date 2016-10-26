@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.OrderedIdentitySet;
 
+//TODO add closeChannel()
 public class EventService {
 	private static final EventBus global = new EventBus();
 	private static final SubscriberComparator globalComparator = new SubscriberComparator();

@@ -13,17 +13,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
@@ -46,6 +42,7 @@ import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
+import com.gurella.studio.editor.render.EditorInfoRenderer;
 import com.gurella.studio.editor.render.GridModelInstance;
 import com.gurella.studio.editor.render.SceneCameraInputController;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
@@ -78,17 +75,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	private Environment environment;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
-	// TODO replace batches with generic
-	private ModelBatch modelBatch;
-	private ShapeRenderer shapeRenderer;
-
 	private GridModelInstance gridModelInstance;
 	private Compass compass;
 
-	private Matrix4 infoProjection;
-	private SpriteBatch spriteBatch;
-	private BitmapFont font;
-	private StringBuffer info = new StringBuffer();
+	private EditorInfoRenderer infoRenderer;
 
 	private Scene scene;
 	private SceneEditorRenderSystem renderSystem;
@@ -133,7 +123,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		batch = new GenericBatch();
 
-		modelBatch = new ModelBatch();
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
 		environment.set(new DepthTestAttribute());
@@ -141,13 +130,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 		gridModelInstance = new GridModelInstance();
 		compass = new Compass(perspectiveCamera);
-		shapeRenderer = new ShapeRenderer();
-
-		infoProjection = new Matrix4().setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
-		spriteBatch = new SpriteBatch();
-		spriteBatch.enableBlending();
-		font = new BitmapFont();
-		font.setColor(Color.WHITE);
+		infoRenderer = new EditorInfoRenderer(editorId);
 
 		inputQueue.setProcessor(inputController);
 		InputService.addInputProcessor(inputQueue);
@@ -166,7 +149,12 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		perspectiveCamera.viewportWidth = width;
 		perspectiveCamera.viewportHeight = height;
 		perspectiveCamera.update();
-		infoProjection.setToOrtho2D(0, 0, width, height);
+
+		orthographicCamera.viewportWidth = width;
+		orthographicCamera.viewportHeight = height;
+		orthographicCamera.update();
+
+		infoRenderer.resize(width, height);
 	}
 
 	@Override
@@ -190,10 +178,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			modelBatch.begin(camera);
-			modelBatch.render(gridModelInstance, environment);
-			compass.render(modelBatch);
-			modelBatch.end();
+			batch.begin(camera);
+			batch.render(gridModelInstance, environment);
+			compass.render(batch.getModelBatch());
+			batch.end();
 
 			updateFocusData();
 			renderContext.batch = batch;
@@ -203,35 +191,18 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			renderSystem.renderScene(renderContext);
 
 			renderPickRay();
-			renderInfo();
+			infoRenderer.renderInfo(camera, batch);
 		}
 	}
 
-	private void renderInfo() {
-		spriteBatch.setProjectionMatrix(infoProjection);
-		spriteBatch.begin();
-
-		Vector3 position = camera.position;
-		info.append("X: ");
-		info.append(position.x);
-		info.append(" Y: ");
-		info.append(position.y);
-		info.append(" Z: ");
-		info.append(position.z);
-		font.draw(spriteBatch, info.toString(), 15, 20);
-		info.setLength(0);
-
-		spriteBatch.end();
-	}
-
 	private void renderPickRay() {
-		shapeRenderer.setAutoShapeType(true);
-		shapeRenderer.begin();
-		shapeRenderer.setProjectionMatrix(camera.combined);
+		batch.begin(camera);
+		batch.activateShapeRenderer();
+		ShapeRenderer shapeRenderer = batch.getShapeRenderer();
 		shapeRenderer.setColor(Color.YELLOW);
 		shapeRenderer.set(ShapeType.Line);
-		shapeRenderer.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
-		shapeRenderer.end();
+		batch.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
+		batch.end();
 	}
 
 	@Override
@@ -316,7 +287,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		spatials.clear();
 		if (closestSpatial != null) {
 			focusDataFromInspectable = false;
-			focusedNode = closestSpatial.renderableComponent.getNode();
+			focusedComponent = closestSpatial.renderableComponent;
+			focusedNode = focusedComponent.getNode();
 		}
 	}
 
@@ -367,12 +339,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		debugUpdate();
 		EventService.unsubscribe(editorId, this);
 		batch.dispose();
-		modelBatch.dispose();
-		spriteBatch.dispose();
-		font.dispose();
 		gridModelInstance.dispose();
 		compass.dispose();
-		//TODO DisposablesService.disposeAll();
+		// TODO DisposablesService.disposeAll();
 	}
 
 	private static class DebugUpdateEvent implements Event<ApplicationDebugUpdateListener> {

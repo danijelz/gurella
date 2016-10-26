@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.scene.transform.TransformComponent;
 
 public class GenericBatch implements Disposable {
-	private final PolygonSpriteBatch polygonSpriteBatch = new PolygonSpriteBatch();
+	private final PolygonSpriteBatch spriteBatch = new PolygonSpriteBatch();
 	private final ModelBatch modelBatch = new ModelBatch();
 	private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
@@ -35,18 +35,20 @@ public class GenericBatch implements Disposable {
 		this.camera = camera;
 	}
 
-	public Camera getCamera() {
-		return camera;
-	}
-
 	public void end() {
-		if (activeBatch == polygonSpriteBatch) {
-			polygonSpriteBatch.end();
+		if (activeBatch == spriteBatch) {
+			spriteBatch.end();
 		} else if (activeBatch == modelBatch) {
 			modelBatch.end();
 		} else if (activeBatch == shapeRenderer) {
 			shapeRenderer.end();
 		}
+
+		spriteBatch.getTransformMatrix().idt();
+		spriteBatch.getProjectionMatrix().idt();
+
+		shapeRenderer.getTransformMatrix().idt();
+		shapeRenderer.getProjectionMatrix().idt();
 
 		activeBatch = null;
 		camera = null;
@@ -54,8 +56,8 @@ public class GenericBatch implements Disposable {
 	}
 
 	public void flush() {
-		if (activeBatch == polygonSpriteBatch) {
-			polygonSpriteBatch.flush();
+		if (activeBatch == spriteBatch) {
+			spriteBatch.flush();
 		} else if (activeBatch == modelBatch) {
 			modelBatch.flush();
 		} else if (activeBatch == shapeRenderer) {
@@ -64,44 +66,95 @@ public class GenericBatch implements Disposable {
 	}
 
 	public void activate2dRenderer() {
-		if (activeBatch != polygonSpriteBatch) {
-			if (activeBatch == modelBatch) {
-				modelBatch.end();
-			} else if (activeBatch == shapeRenderer) {
-				shapeRenderer.end();
-			}
-
-			activeBatch = polygonSpriteBatch;
-			polygonSpriteBatch.begin();
-			polygonSpriteBatch.setProjectionMatrix(camera.combined);
+		if (this.camera == null) {
+			throw new IllegalStateException("GenericBatch.begin must be called before setting camera.");
 		}
+
+		if (activeBatch == spriteBatch) {
+			return;
+		}
+
+		if (activeBatch == modelBatch) {
+			modelBatch.end();
+		} else if (activeBatch == shapeRenderer) {
+			shapeRenderer.end();
+		}
+
+		activeBatch = spriteBatch;
+		spriteBatch.setProjectionMatrix(camera.combined);
+		spriteBatch.begin();
 	}
 
 	public void activate3dRenderer() {
-		if (activeBatch != modelBatch) {
-			if (activeBatch == polygonSpriteBatch) {
-				polygonSpriteBatch.end();
-			} else if (activeBatch == shapeRenderer) {
-				shapeRenderer.end();
-			}
-
-			activeBatch = modelBatch;
-			modelBatch.begin(camera);
+		if (this.camera == null) {
+			throw new IllegalStateException("GenericBatch.begin must be called before setting camera.");
 		}
+
+		if (activeBatch == modelBatch) {
+			return;
+		}
+
+		if (activeBatch == spriteBatch) {
+			spriteBatch.end();
+		} else if (activeBatch == shapeRenderer) {
+			shapeRenderer.end();
+		}
+
+		activeBatch = modelBatch;
+		modelBatch.begin(camera);
 	}
 
 	public void activateShapeRenderer() {
-		if (activeBatch != shapeRenderer) {
-			if (activeBatch == polygonSpriteBatch) {
-				polygonSpriteBatch.end();
-			} else if (activeBatch == modelBatch) {
-				modelBatch.end();
-			}
-
-			activeBatch = shapeRenderer;
-			shapeRenderer.setAutoShapeType(true);
-			shapeRenderer.begin();
+		if (this.camera == null) {
+			throw new IllegalStateException("GenericBatch.begin must be called before setting camera.");
 		}
+
+		if (activeBatch == shapeRenderer) {
+			return;
+		}
+
+		if (activeBatch == spriteBatch) {
+			spriteBatch.end();
+		} else if (activeBatch == modelBatch) {
+			modelBatch.end();
+		}
+
+		activeBatch = shapeRenderer;
+		shapeRenderer.setAutoShapeType(true);
+		shapeRenderer.setProjectionMatrix(camera.combined);
+		shapeRenderer.begin();
+	}
+
+	public Camera getCamera() {
+		return camera;
+	}
+
+	public void setCamera(Camera camera) {
+		if (camera == null) {
+			throw new NullPointerException("camera is null.");
+		}
+		if (this.camera == null) {
+			throw new IllegalStateException("GenericBatch.begin must be called before setting camera.");
+		}
+		this.camera = camera;
+
+		if (activeBatch == modelBatch) {
+			modelBatch.setCamera(camera);
+		} else if (activeBatch == spriteBatch) {
+			spriteBatch.setProjectionMatrix(camera.combined);
+		}
+	}
+
+	public PolygonSpriteBatch getSpriteBatch() {
+		return spriteBatch;
+	}
+
+	public ShapeRenderer getShapeRenderer() {
+		return shapeRenderer;
+	}
+
+	public ModelBatch getModelBatch() {
+		return modelBatch;
 	}
 
 	public void setEnvironment(Environment environment) {
@@ -159,26 +212,26 @@ public class GenericBatch implements Disposable {
 	////////// 2D
 
 	public void set2dTransform(TransformComponent transformComponent) {
-		Matrix4 transformMatrix = polygonSpriteBatch.getTransformMatrix();
+		Matrix4 transformMatrix = spriteBatch.getTransformMatrix();
 		if (transformComponent == null) {
 			transformMatrix.idt();
 		} else {
 			transformComponent.getWorldTransform(transformMatrix);
 		}
-		polygonSpriteBatch.setTransformMatrix(transformMatrix);
+		spriteBatch.setTransformMatrix(transformMatrix);
 	}
 
 	public void set2dTransform(Matrix4 transform) {
-		polygonSpriteBatch.setTransformMatrix(transform);
+		spriteBatch.setTransformMatrix(transform);
 	}
 
 	public void set2dProjection(Matrix4 projection) {
-		polygonSpriteBatch.setProjectionMatrix(projection);
+		spriteBatch.setProjectionMatrix(projection);
 	}
 
 	public void render(Sprite sprite) {
 		activate2dRenderer();
-		sprite.draw(polygonSpriteBatch);
+		sprite.draw(spriteBatch);
 	}
 
 	// SHAPE
@@ -236,7 +289,7 @@ public class GenericBatch implements Disposable {
 
 	@Override
 	public void dispose() {
-		polygonSpriteBatch.dispose();
+		spriteBatch.dispose();
 		modelBatch.dispose();
 	}
 }

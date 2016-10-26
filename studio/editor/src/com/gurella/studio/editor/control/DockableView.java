@@ -13,6 +13,10 @@ import com.gurella.studio.editor.SceneEditorContext;
 public abstract class DockableView extends Composite {
 	public final SceneEditorContext editorContext;
 
+	public DockableView(SceneEditor editor, String title, Image image, ViewOrientation orientation) {
+		this(editor, title, image, orientation == null ? LEFT : orientation.swtValue);
+	}
+
 	public DockableView(SceneEditor editor, String title, Image image, int style) {
 		super(editor.getDock().getDockItemParent(style), checkStyle(style));
 		editorContext = editor.getSceneContext();
@@ -21,5 +25,15 @@ public abstract class DockableView extends Composite {
 
 	private static int checkStyle(int style) {
 		return ((style & LEFT) == 0 && (style & RIGHT) == 0 && (style & BOTTOM) == 0) ? style | LEFT : style;
+	}
+
+	public enum ViewOrientation {
+		left(LEFT), right(RIGHT), bottom(BOTTOM);
+
+		public final int swtValue;
+
+		private ViewOrientation(int swtValue) {
+			this.swtValue = swtValue;
+		}
 	}
 }
