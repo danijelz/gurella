@@ -72,15 +72,10 @@ public class Compass implements Disposable {
 	}
 
 	public void render(ModelBatch batch) {
+		update();
 		Graphics graphics = Gdx.graphics;
 		int width = graphics.getWidth();
 		int height = graphics.getHeight();
-
-		if (width < 150 || height < 150) {
-			return;
-		}
-
-		update();
 		batch.setCamera(compassCamera);
 		Gdx.gl.glViewport(width - 60, height - 60, 60, 60);
 		batch.render(compassInstance, environment);
