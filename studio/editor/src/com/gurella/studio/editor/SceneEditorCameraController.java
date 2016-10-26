@@ -22,9 +22,9 @@ class SceneEditorCameraController extends CameraInputController {
 	protected boolean process(float deltaX, float deltaY, int button) {
 		if (camera instanceof OrthographicCamera) {
 			if (button == rotateButton) {
-				camera.translate(deltaX * 10, deltaY * 10, 0);
+				camera.translate(-deltaX * 100, -deltaY * 100, 0);
 			} else if (button == translateButton) {
-				camera.translate(deltaX, deltaY, 0);
+				camera.translate(-deltaX * 10, -deltaY * 10, 0);
 			} else if (button == forwardButton) {
 				zoom(-deltaY * translateUnits);
 			}
@@ -46,8 +46,8 @@ class SceneEditorCameraController extends CameraInputController {
 			}
 			OrthographicCamera orthographicCamera = (OrthographicCamera) camera;
 			orthographicCamera.zoom += amount;
-			if (orthographicCamera.zoom < 0) {
-				orthographicCamera.zoom = 0;
+			if (orthographicCamera.zoom < 0.1f) {
+				orthographicCamera.zoom = 0.1f;
 			}
 			if (autoUpdate) {
 				camera.update();
