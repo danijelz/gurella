@@ -12,9 +12,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.control.DockableView;
-import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
+import com.gurella.studio.editor.subscription.EditorViewClosedListener;
 
-public class EditorInfoRenderer implements SceneEditorViewClosedListener {
+public class EditorInfoRenderer implements EditorViewClosedListener {
 	private final int editorId;
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
@@ -57,6 +57,14 @@ public class EditorInfoRenderer implements SceneEditorViewClosedListener {
 		info.append(direction.y);
 		info.append(" Z: ");
 		info.append(direction.z);
+		if(camera instanceof OrthographicCamera) {
+			info.append(" Zoom: ");
+			info.append(((OrthographicCamera) camera).zoom);
+		} else {
+			info.append(" Z: ");
+			info.append(direction.z);
+		}
+		
 		font.draw(spriteBatch, info.toString(), 15, 20);
 		info.setLength(0);
 

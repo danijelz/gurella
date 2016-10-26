@@ -1,9 +1,9 @@
 package com.gurella.studio.editor.event;
 
 import com.gurella.engine.event.Event;
-import com.gurella.studio.editor.subscription.SelectionListener;
+import com.gurella.studio.editor.subscription.EditorSelectionListener;
 
-public class SelectionEvent implements Event<SelectionListener> {
+public class SelectionEvent implements Event<EditorSelectionListener> {
 	private Object selection;
 
 	public SelectionEvent(Object selection) {
@@ -11,12 +11,12 @@ public class SelectionEvent implements Event<SelectionListener> {
 	}
 
 	@Override
-	public Class<SelectionListener> getSubscriptionType() {
-		return SelectionListener.class;
+	public Class<EditorSelectionListener> getSubscriptionType() {
+		return EditorSelectionListener.class;
 	}
 
 	@Override
-	public void dispatch(SelectionListener subscriber) {
+	public void dispatch(EditorSelectionListener subscriber) {
 		subscriber.selectionChanged(selection);
 	}
 }

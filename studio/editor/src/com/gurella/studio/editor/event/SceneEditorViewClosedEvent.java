@@ -2,9 +2,9 @@ package com.gurella.studio.editor.event;
 
 import com.gurella.engine.event.Event;
 import com.gurella.studio.editor.control.DockableView;
-import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
+import com.gurella.studio.editor.subscription.EditorViewClosedListener;
 
-public class SceneEditorViewClosedEvent implements Event<SceneEditorViewClosedListener> {
+public class SceneEditorViewClosedEvent implements Event<EditorViewClosedListener> {
 	private DockableView view;
 
 	public SceneEditorViewClosedEvent(DockableView view) {
@@ -12,12 +12,12 @@ public class SceneEditorViewClosedEvent implements Event<SceneEditorViewClosedLi
 	}
 
 	@Override
-	public Class<SceneEditorViewClosedListener> getSubscriptionType() {
-		return SceneEditorViewClosedListener.class;
+	public Class<EditorViewClosedListener> getSubscriptionType() {
+		return EditorViewClosedListener.class;
 	}
 
 	@Override
-	public void dispatch(SceneEditorViewClosedListener subscriber) {
+	public void dispatch(EditorViewClosedListener subscriber) {
 		subscriber.viewClosed(view);
 	}
 }

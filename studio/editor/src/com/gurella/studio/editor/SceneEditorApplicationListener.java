@@ -1,5 +1,7 @@
 package com.gurella.studio.editor;
 
+import java.util.function.Consumer;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -18,13 +20,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.application.GurellaStateProvider;
-import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.input.InputService;
@@ -46,14 +45,15 @@ import com.gurella.studio.editor.render.EditorInfoRenderer;
 import com.gurella.studio.editor.render.GridModelInstance;
 import com.gurella.studio.editor.render.SceneCameraInputController;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
+import com.gurella.studio.editor.subscription.EditorCameraSwitch;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
-import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
+import com.gurella.studio.editor.subscription.EditorMouseListener;
+import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
-import com.gurella.studio.editor.subscription.SelectionListener;
 
-final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements GurellaStateProvider, SceneEditorMouseListener, SceneLoadedListener, SelectionListener {
-	private static final DebugUpdateEvent debugUpdateEvent = new DebugUpdateEvent();
+final class SceneEditorApplicationListener extends ApplicationAdapter implements GurellaStateProvider,
+		EditorMouseListener, SceneLoadedListener, EditorSelectionListener, EditorCameraSwitch {
+	private static final Consumer<ApplicationDebugUpdateListener> debugUpdateDispatcher = l -> l.debugUpdate();
 
 	private final int editorId;
 
@@ -161,23 +161,18 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	public void render() {
 		debugUpdate();
 		inputQueue.drain();
+		inputController.update();
 		renderScene();
 	}
 
 	static void debugUpdate() {
-		EventService.post(debugUpdateEvent);
+		SceneEditor.post(ApplicationDebugUpdateListener.class, debugUpdateDispatcher);
 	}
 
 	public void renderScene() {
 		synchronized (GurellaStudioPlugin.glMutex) {
-			inputController.update();
-			Color color = backgroundColor;
-			Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
-			Gdx.gl.glClearDepthf(1);
-			Gdx.gl.glClearStencil(0);
-			Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
-			Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			updateGlState();
+
 			batch.begin(camera);
 			batch.render(gridModelInstance, environment);
 			compass.render(batch.getModelBatch());
@@ -189,10 +184,19 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			renderContext.focusedNode = focusedNode;
 			renderContext.focusedComponent = focusedComponent;
 			renderSystem.renderScene(renderContext);
-
-			renderPickRay();
 			infoRenderer.renderInfo(camera, batch);
 		}
+	}
+
+	protected void updateGlState() {
+		Color color = backgroundColor;
+		Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
+		Gdx.gl.glClearDepthf(1);
+		Gdx.gl.glClearStencil(0);
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
+		Graphics graphics = Gdx.graphics;
+		Gdx.gl.glViewport(0, 0, graphics.getWidth(), graphics.getHeight());
 	}
 
 	private void updateFocusData() {
@@ -230,16 +234,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			}
 			temp = temp.getParent();
 		}
-	}
-
-	private void renderPickRay() {
-		batch.begin(camera);
-		batch.activateShapeRenderer();
-		ShapeRenderer shapeRenderer = batch.getShapeRenderer();
-		shapeRenderer.setColor(Color.YELLOW);
-		shapeRenderer.set(ShapeType.Line);
-		batch.line(pickRay.origin, new Vector3(pickRay.direction).scl(10).add(pickRay.origin));
-		batch.end();
 	}
 
 	@Override
@@ -312,6 +306,24 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		}
 	}
 
+	@Override
+	public void switchCamera(CameraType cameraType) {
+		switch (cameraType) {
+		case camera2d:
+			if (!is2d()) {
+				set2d();
+			}
+			return;
+		case camera3d:
+			if (!is3d()) {
+				set3d();
+			}
+			return;
+		default:
+			return;
+		}
+	}
+
 	Camera getCamera() {
 		return camera;
 	}
@@ -345,17 +357,5 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		gridModelInstance.dispose();
 		compass.dispose();
 		// TODO DisposablesService.disposeAll();
-	}
-
-	private static class DebugUpdateEvent implements Event<ApplicationDebugUpdateListener> {
-		@Override
-		public Class<ApplicationDebugUpdateListener> getSubscriptionType() {
-			return ApplicationDebugUpdateListener.class;
-		}
-
-		@Override
-		public void dispatch(ApplicationDebugUpdateListener listener) {
-			listener.debugUpdate();
-		}
 	}
 }

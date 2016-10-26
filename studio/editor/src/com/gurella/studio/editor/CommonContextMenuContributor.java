@@ -50,11 +50,11 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 		ViewRegistry views = editor.viewRegistry;
 		actions.addGroup(viewGroupName, -600);
 		boolean open = views.isOpen(SceneGraphView.class);
-		actions.addCheckAction(viewGroupName, "Scene", 100, open, !open, () -> showView(SceneGraphView::new));
+		actions.addCheckAction(viewGroupName, "Scene", 100, !open, open, () -> showView(SceneGraphView::new));
 		open = views.isOpen(InspectorView.class);
-		actions.addCheckAction(viewGroupName, "Inspector", 200, open, !open, () -> showView(InspectorView::new));
+		actions.addCheckAction(viewGroupName, "Inspector", 200, !open, open, () -> showView(InspectorView::new));
 		open = views.isOpen(AssetsView.class);
-		actions.addCheckAction(viewGroupName, "Assets", 300, open, !open, () -> showView(AssetsView::new));
+		actions.addCheckAction(viewGroupName, "Assets", 300, !open, open, () -> showView(AssetsView::new));
 	}
 
 	private void toFront() {

@@ -12,10 +12,10 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.subscription.EditorClosingListener;
-import com.gurella.studio.editor.subscription.SceneEditorViewClosedListener;
+import com.gurella.studio.editor.subscription.EditorViewClosedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class ViewRegistry implements SceneEditorViewClosedListener, EditorClosingListener {
+public class ViewRegistry implements EditorViewClosedListener, EditorClosingListener {
 	private final SceneEditor editor;
 	private final Dock dock;
 

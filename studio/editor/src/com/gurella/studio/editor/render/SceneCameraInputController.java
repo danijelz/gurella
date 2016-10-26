@@ -1,14 +1,81 @@
 package com.gurella.studio.editor.render;
 
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.gurella.studio.editor.SceneEditor;
-import com.gurella.studio.editor.subscription.SceneEditorMouseListener;
+import com.gurella.studio.editor.subscription.EditorCameraSwitch;
+import com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType;
+import com.gurella.studio.editor.subscription.EditorMouseListener;
 
 public class SceneCameraInputController extends CameraInputController {
+	private final int editorId;
+
 	public SceneCameraInputController(Camera camera, int editorId) {
 		super(new SceneCameraGestureListener(editorId), camera);
+		this.editorId = editorId;
+	}
+
+	@Override
+	protected boolean process(float deltaX, float deltaY, int button) {
+		if (camera instanceof OrthographicCamera) {
+			if (button == rotateButton) {
+				camera.translate(deltaX * 10, deltaY * 10, 0);
+			} else if (button == translateButton) {
+				camera.translate(deltaX, deltaY, 0);
+			} else if (button == forwardButton) {
+				zoom(-deltaY * translateUnits);
+			}
+
+			if (autoUpdate) {
+				camera.update();
+			}
+			return true;
+		} else {
+			return super.process(deltaX, deltaY, button);
+		}
+	}
+
+	@Override
+	public boolean zoom(float amount) {
+		if (camera instanceof OrthographicCamera) {
+			if (!alwaysScroll && activateKey != 0 && !activatePressed) {
+				return false;
+			}
+			OrthographicCamera orthographicCamera = (OrthographicCamera) camera;
+			orthographicCamera.zoom += amount;
+			if (orthographicCamera.zoom < 0) {
+				orthographicCamera.zoom = 0;
+			}
+			if (autoUpdate) {
+				camera.update();
+			}
+			return true;
+		} else {
+			return super.zoom(amount);
+		}
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		if (super.keyUp(keycode)) {
+			return true;
+		}
+
+		if (keycode == Keys.NUM_2 || keycode == Keys.NUMPAD_2) {
+			SceneEditor.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera2d));
+			return true;
+		} else if (keycode == Keys.NUM_3 || keycode == Keys.NUMPAD_3) {
+			SceneEditor.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera3d));
+			return true;
+		} else if (keycode == Keys.ALT_LEFT || keycode == Keys.ALT_RIGHT) {
+			SceneEditor.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(0, 0));
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private static class SceneCameraGestureListener extends CameraGestureListener {
@@ -26,10 +93,10 @@ public class SceneCameraInputController extends CameraInputController {
 
 			switch (button) {
 			case Buttons.RIGHT:
-				SceneEditor.post(editorId, SceneEditorMouseListener.class, l -> l.onMouseMenu(x, y));
+				SceneEditor.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(x, y));
 				return false;
 			case Buttons.LEFT:
-				SceneEditor.post(editorId, SceneEditorMouseListener.class, l -> l.onMouseSelection(x, y));
+				SceneEditor.post(editorId, EditorMouseListener.class, l -> l.onMouseSelection(x, y));
 				return false;
 			default:
 				return false;

@@ -609,10 +609,8 @@ public class SwtLwjglInput implements Input {
 			return Input.Keys.F11;
 		case SWT.F12:
 			return Input.Keys.F12;
-		case SWT.ALPHA:
-			return toGdxAlphaKey(location, character);
 		default:
-			return Input.Keys.UNKNOWN;
+			return toGdxAlphaKey(location, character);
 		}
 	}
 
