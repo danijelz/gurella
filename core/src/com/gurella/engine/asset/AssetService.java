@@ -94,6 +94,7 @@ public final class AssetService {
 		return assetRegistry.get(fileName);
 	}
 
+	//TODO replace with save(T asset, String fileName, AssetPersister persister)
 	public static <T> void put(T asset, String fileName) {
 		assetRegistry.put(asset, fileName);
 	}
