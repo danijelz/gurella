@@ -41,7 +41,6 @@ public class SceneEditorContext implements SceneLoadedListener, EditorClosingLis
 		undoContext = editor.undoContext;
 
 		editorInput = (IPathEditorInput) editor.getEditorInput();
-		@SuppressWarnings("null")
 		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
 		workspace = resource.getWorkspace();
 		project = resource.getProject();

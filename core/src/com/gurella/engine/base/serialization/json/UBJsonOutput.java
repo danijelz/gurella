@@ -82,8 +82,8 @@ public class UBJsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String fileNameUuid = AssetService.getFileNameUuid(object);
-		if (fileNameUuid != null) {
+		String fileName = AssetService.getFileName(object);
+		if (fileName != null) {
 			//TODO
 		}
 

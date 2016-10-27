@@ -8,6 +8,7 @@ import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,6 +27,7 @@ import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
@@ -69,9 +71,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	private void save(IProgressMonitor monitor) throws CoreException {
 		IFileEditorInput input = (IFileEditorInput) getEditorInput();
-		IPath path = input.getFile().getFullPath();
+		IFile file = input.getFile();
+		IPath path = file.getFullPath();
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Scene.class, sceneContext.getScene());
+		String relativeFileName = file.getProjectRelativePath().toPortableString();
+		String string = output.serialize(new FileHandle(relativeFileName), Scene.class, sceneContext.getScene());
 		monitor.beginTask("Saving", 2000);
 		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 		manager.connect(path, LocationKind.IFILE, monitor);

@@ -2,27 +2,23 @@ package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
-import com.gurella.engine.asset.FileService;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Uuid;
 
 @ModelDescriptor(model = PrefabReferenceModel.class)
 public final class PrefabReference implements Poolable {
-	String fileUuid;
+	String fileName;
 	String uuid;
 	transient ManagedObject prefab;
 
 	public static PrefabReference obtain(String fileUuid, String uuid) {
-		if (!Uuid.isValid(fileUuid)) {
-			throw new IllegalArgumentException("Invalid fileUuid: " + fileUuid);
-		}
 		if (!Uuid.isValid(uuid)) {
 			throw new IllegalArgumentException("Invalid uuid: " + uuid);
 		}
 
 		PrefabReference prefab = PoolService.obtain(PrefabReference.class);
-		prefab.fileUuid = fileUuid;
+		prefab.fileName = fileUuid;
 		prefab.uuid = uuid;
 		return prefab;
 	}
@@ -34,25 +30,22 @@ public final class PrefabReference implements Poolable {
 	PrefabReference() {
 	}
 
-	public PrefabReference(String fileUuid, String uuid) {
-		if (!Uuid.isValid(fileUuid)) {
-			throw new IllegalArgumentException("Invalid fileUuid: " + fileUuid);
-		}
+	public PrefabReference(String fileName, String uuid) {
 		if (!Uuid.isValid(uuid)) {
 			throw new IllegalArgumentException("Invalid uuid: " + uuid);
 		}
-		this.fileUuid = fileUuid;
+		this.fileName = fileName;
 		this.uuid = uuid;
 	}
 
-	PrefabReference(String fileUuid, String uuid, ManagedObject prefab) {
-		this.fileUuid = fileUuid;
+	PrefabReference(String fileName, String uuid, ManagedObject prefab) {
+		this.fileName = fileName;
 		this.uuid = uuid;
 		this.prefab = prefab;
 	}
 
-	public String getFileUuid() {
-		return fileUuid;
+	public String getFileName() {
+		return fileName;
 	}
 
 	public String getUuid() {
@@ -61,14 +54,14 @@ public final class PrefabReference implements Poolable {
 
 	public ManagedObject get() {
 		if (prefab == null) {
-			prefab = AssetService.get(FileService.getFileName(fileUuid)/* TODO, uuid*/);
+			prefab = AssetService.get(fileName/* TODO, uuid */);
 		}
 		return prefab;
 	}
 
 	@Override
 	public void reset() {
-		fileUuid = null;
+		fileName = null;
 		uuid = null;
 		prefab = null;
 	}
@@ -80,7 +73,7 @@ public final class PrefabReference implements Poolable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		return prime * fileUuid.hashCode() + prime * uuid.hashCode();
+		return prime * fileName.hashCode() + prime * uuid.hashCode();
 	}
 
 	@Override
@@ -96,11 +89,11 @@ public final class PrefabReference implements Poolable {
 		}
 
 		PrefabReference other = (PrefabReference) obj;
-		return fileUuid.equals(other.fileUuid) && uuid.equals(other.uuid);
+		return fileName.equals(other.fileName) && uuid.equals(other.uuid);
 	}
 
 	@Override
 	public String toString() {
-		return "fileUuid: " + fileUuid + " filePath: " + FileService.getFileName(fileUuid) + " uuid: " + uuid;
+		return "fileName: " + fileName + " uuid: " + uuid;
 	}
 }

@@ -10,6 +10,7 @@ import static com.gurella.engine.base.serialization.json.JsonSerialization.value
 import java.io.ByteArrayInputStream;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -26,8 +27,10 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
 public class UBJsonInput implements Input, Poolable {
-	private UBJsonReader reader = new UBJsonReader();
+	private FileHandle file;
 	private JsonValue rootValue;
+
+	private UBJsonReader reader = new UBJsonReader();
 
 	private JsonValue value;
 	private Array<JsonValue> valueStack = new Array<JsonValue>();
@@ -51,6 +54,7 @@ public class UBJsonInput implements Input, Poolable {
 
 	@Override
 	public void reset() {
+		file = null;
 		rootValue = null;
 		value = null;
 		valueStack.clear();
@@ -319,7 +323,7 @@ public class UBJsonInput implements Input, Poolable {
 
 		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			descriptors.add(createAssetDescriptor(value.asString()));
+			descriptors.add(createAssetDescriptor(file, value.asString()));
 		}
 
 		return descriptors;

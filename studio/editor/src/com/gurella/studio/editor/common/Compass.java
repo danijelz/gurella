@@ -2,6 +2,7 @@ package com.gurella.studio.editor.common;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -31,8 +32,9 @@ public class Compass implements Disposable {
 	private final float ARROW_CAP_SIZE = 0.3f;
 	private final int ARROW_DIVISIONS = 8;
 
+	private Camera worldCamera;
+
 	private PerspectiveCamera compassCamera;
-	private PerspectiveCamera worldCamera;
 	private Model compassModel;
 	private ModelInstance compassInstance;
 	private Environment environment;
@@ -41,10 +43,10 @@ public class Compass implements Disposable {
 	private Vector3 tempScale = new Vector3(12, 12, 12);
 	private Quaternion tempRotation = new Quaternion();
 
-	public Compass(PerspectiveCamera worldCamera) {
+	public Compass(Camera worldCamera) {
 		this.worldCamera = worldCamera;
-		this.compassCamera = new PerspectiveCamera();
 
+		this.compassCamera = new PerspectiveCamera();
 		ModelBuilder modelBuilder = new ModelBuilder();
 		modelBuilder.begin();
 
@@ -67,8 +69,8 @@ public class Compass implements Disposable {
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 	}
 
-	public void setWorldCam(PerspectiveCamera cam) {
-		this.worldCamera = cam;
+	public void setWorldCamera(Camera worldCamera) {
+		this.worldCamera = worldCamera;
 	}
 
 	public void render(ModelBatch batch) {

@@ -51,7 +51,6 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.AssetLoadingTask.LoadingState;
 import com.gurella.engine.asset.loader.audio.SoundClipLoader;
 import com.gurella.engine.asset.loader.object.JsonObjectLoader;
 import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
@@ -605,7 +604,7 @@ public class AssetRegistry extends AssetManager {
 	void waitingForDependencies(AssetLoadingTask<?> task) {
 		synchronized (mutex) {
 			currentTask = null;
-			task.setLoadingState(LoadingState.waitingForDependencies);
+			task.setLoadingState(AssetLoadingState.waitingForDependencies);
 			Array<AssetLoadingTask<?>> dependencies = task.dependencies;
 			for (int i = 0; i < dependencies.size; i++) {
 				AssetLoadingTask<?> dependency = dependencies.get(i);
@@ -650,7 +649,7 @@ public class AssetRegistry extends AssetManager {
 			exception(dependency);
 		} else {
 			reference.addDependent(dependency.parent.fileName);
-			dependency.setLoadingState(LoadingState.finished);
+			dependency.setLoadingState(AssetLoadingState.finished);
 			dependency.updateProgress();
 			notifyLoadFinished(fileName, type, dependency.params, dependency.callback, Values.<T> cast(asset));
 		}
@@ -663,7 +662,7 @@ public class AssetRegistry extends AssetManager {
 			}
 
 			currentTask = null;
-			task.setLoadingState(LoadingState.readyForAsyncLoading);
+			task.setLoadingState(AssetLoadingState.readyForAsyncLoading);
 			task.updateProgress();
 			asyncQueue.insert(0, task);
 			asyncQueue.sort();
@@ -677,7 +676,7 @@ public class AssetRegistry extends AssetManager {
 			}
 
 			currentTask = null;
-			task.setLoadingState(LoadingState.readyForSyncLoading);
+			task.setLoadingState(AssetLoadingState.readyForSyncLoading);
 			task.updateProgress();
 			syncQueue.add(task);
 			syncQueue.sort();
@@ -696,7 +695,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private <T> void finishTask(AssetLoadingTask<T> task) {
-		task.setLoadingState(LoadingState.finished);
+		task.setLoadingState(AssetLoadingState.finished);
 		task.updateProgress();
 		String fileName = task.fileName;
 		AssetReference reference = task.reference;
@@ -739,7 +738,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private void handleTaskException(AssetLoadingTask<?> task) {
-		task.setLoadingState(LoadingState.error);
+		task.setLoadingState(AssetLoadingState.error);
 		unloadLoadedDependencies(task);
 		Throwable ex = task.exception;
 		boolean propagated = propagateException(task, ex);
@@ -756,7 +755,7 @@ public class AssetRegistry extends AssetManager {
 
 		for (int i = 0; i < dependencies.size; i++) {
 			AssetLoadingTask<?> dependency = dependencies.get(i);
-			if (dependency.loadingState == LoadingState.finished) {
+			if (dependency.assetLoadingState == AssetLoadingState.finished) {
 				String dependencyFileName = dependency.fileName;
 				dereferenceDependencies(fileName, assetsByFileName.get(dependencyFileName));
 			} else {

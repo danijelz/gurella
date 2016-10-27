@@ -25,12 +25,12 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonInput implements Input, Poolable {
+	private FileHandle file;
 	private JsonReader reader = new JsonReader();
-	private JsonValue rootValue;
 
+	private JsonValue rootValue;
 	private JsonValue value;
 	private Array<JsonValue> valueStack = new Array<JsonValue>();
-
 	private ArrayExt<Object> objectStack = new ArrayExt<Object>();
 
 	private IntMap<Object> references = new IntMap<Object>();
@@ -39,6 +39,7 @@ public class JsonInput implements Input, Poolable {
 	private CopyContext copyContext = new CopyContext();
 
 	public void init(FileHandle file) {
+		this.file = file;
 		this.rootValue = reader.parse(file);
 	}
 
@@ -88,17 +89,6 @@ public class JsonInput implements Input, Poolable {
 	private void pop() {
 		valueStack.pop();
 		value = valueStack.size > 0 ? valueStack.peek() : null;
-	}
-
-	@Override
-	public void reset() {
-		rootValue = null;
-		value = null;
-		valueStack.clear();
-		objectStack.clear();
-		references.clear();
-		referenceValues.clear();
-		copyContext.reset();
 	}
 
 	@Override
@@ -328,9 +318,21 @@ public class JsonInput implements Input, Poolable {
 
 		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			descriptors.add(createAssetDescriptor(value.asString()));
+			descriptors.add(createAssetDescriptor(file, value.asString()));
 		}
 
 		return descriptors;
+	}
+
+	@Override
+	public void reset() {
+		file = null;
+		rootValue = null;
+		value = null;
+		valueStack.clear();
+		objectStack.clear();
+		references.clear();
+		referenceValues.clear();
+		copyContext.reset();
 	}
 }

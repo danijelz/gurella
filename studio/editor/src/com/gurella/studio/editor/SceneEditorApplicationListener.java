@@ -331,9 +331,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	}
 
 	void set2d() {
+		inputQueue.drain();
 		camera = orthographicCamera;
 		inputController = orthographicCameraController;
 		inputQueue.setProcessor(inputController);
+		compass.setWorldCamera(camera);
 	}
 
 	boolean is3d() {
@@ -341,9 +343,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	}
 
 	void set3d() {
+		inputQueue.drain();
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
 		inputQueue.setProcessor(inputController);
+		compass.setWorldCamera(camera);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.IntSet;
@@ -71,7 +72,8 @@ public class InputOutputTest {
 		// TODO Models.isEqual must handle circular references obj.child = obj;
 
 		JsonOutput output = new JsonOutput();
-		String string = output.serialize(Test.class, obj);
+		FileHandle file = new FileHandle("");
+		String string = output.serialize(file, Test.class, obj);
 
 		System.out.println(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 
@@ -87,7 +89,7 @@ public class InputOutputTest {
 
 		System.out.println("\n\n\n\n");
 
-		String string1 = output.serialize(Test.class, obj, duplicate);
+		String string1 = output.serialize(file, Test.class, obj, duplicate);
 		System.out.println(new JsonReader().parse(string1).prettyPrint(OutputType.minimal, 120));
 		Test deserialized1 = input.deserialize(Test.class, string1, obj);
 		System.out.println(Models.isEqual(obj, deserialized1));

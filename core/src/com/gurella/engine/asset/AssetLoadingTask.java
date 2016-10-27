@@ -34,7 +34,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	final Array<AssetLoadingTask<T>> concurentTasks = new Array<AssetLoadingTask<T>>();
 
 	volatile float progress = 0;
-	LoadingState loadingState = LoadingState.ready;
+	AssetLoadingState assetLoadingState = AssetLoadingState.ready;
 
 	AssetReference reference;
 	Throwable exception;
@@ -96,7 +96,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	@SuppressWarnings("fallthrough")
 	public Void call() throws Exception {
 		try {
-			switch (loadingState) {
+			switch (assetLoadingState) {
 			case ready:
 				start();
 				break;
@@ -172,7 +172,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	}
 
 	void updateProgress() {
-		switch (loadingState) {
+		switch (assetLoadingState) {
 		case ready:
 			notifyProgress(0);
 			break;
@@ -252,10 +252,10 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		}
 	}
 
-	void setLoadingState(LoadingState loadingState) {
-		this.loadingState = loadingState;
+	void setLoadingState(AssetLoadingState assetLoadingState) {
+		this.assetLoadingState = assetLoadingState;
 		for (int i = 0; i < concurentTasks.size; i++) {
-			concurentTasks.get(i).loadingState = loadingState;
+			concurentTasks.get(i).assetLoadingState = assetLoadingState;
 		}
 	}
 
@@ -287,7 +287,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		concurentTasks.clear();
 
 		progress = 0;
-		loadingState = LoadingState.ready;
+		assetLoadingState = AssetLoadingState.ready;
 
 		exception = null;
 		if (reference != null) {
@@ -309,9 +309,5 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		buffer.append(" ");
 		buffer.append(type.getName());
 		return buffer.toString();
-	}
-
-	enum LoadingState {
-		ready, waitingForDependencies, readyForSyncLoading, readyForAsyncLoading, finished, error;
 	}
 }

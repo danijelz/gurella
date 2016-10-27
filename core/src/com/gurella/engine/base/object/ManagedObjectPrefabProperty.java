@@ -96,7 +96,7 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 				return;
 			}
 
-			PrefabReference prefab = PrefabReference.obtain(templateValue.fileUuid, templateValue.uuid);
+			PrefabReference prefab = PrefabReference.obtain(templateValue.fileName, templateValue.uuid);
 			((ManagedObject) object).prefab = prefab;
 		}
 	}
@@ -107,13 +107,13 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 		PrefabReference originalPrefab = originalObj.prefab;
 
 		if (originalPrefab == null) {
-			String fileUuid = AssetService.getFileNameUuid(originalObj);
-			if (fileUuid != null) {
-				PrefabReference prefab = PrefabReference.obtain(fileUuid, originalObj.ensureUuid());
+			String fileName = AssetService.getFileName(originalObj);
+			if (fileName != null) {
+				PrefabReference prefab = PrefabReference.obtain(fileName, originalObj.ensureUuid());
 				((ManagedObject) duplicate).prefab = prefab;
 			}
 		} else {
-			PrefabReference prefab = PrefabReference.obtain(originalPrefab.fileUuid, originalPrefab.uuid);
+			PrefabReference prefab = PrefabReference.obtain(originalPrefab.fileName, originalPrefab.uuid);
 			((ManagedObject) duplicate).prefab = prefab;
 		}
 	}

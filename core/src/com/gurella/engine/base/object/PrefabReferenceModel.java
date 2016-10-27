@@ -13,7 +13,7 @@ class PrefabReferenceModel extends SimpleObjectModel<PrefabReference> {
 
 	@Override
 	protected void writeValue(PrefabReference value, Output output) {
-		String fileUuid = value.fileUuid;
+		String fileUuid = value.fileName;
 		String uuid = value.uuid;
 		output.writeString(Values.isBlank(fileUuid) ? uuid : (fileUuid + " " + uuid));
 	}
@@ -27,6 +27,6 @@ class PrefabReferenceModel extends SimpleObjectModel<PrefabReference> {
 
 	@Override
 	public PrefabReference copy(PrefabReference original, CopyContext context) {
-		return PrefabReference.obtain(original.fileUuid, original.uuid);
+		return PrefabReference.obtain(original.fileName, original.uuid);
 	}
 }

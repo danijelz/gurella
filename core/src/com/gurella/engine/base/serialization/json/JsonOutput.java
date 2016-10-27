@@ -8,6 +8,7 @@ import static com.gurella.engine.base.serialization.json.JsonSerialization.value
 import java.io.IOException;
 import java.io.StringWriter;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -19,6 +20,7 @@ import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
 public class JsonOutput implements Output, Poolable {
+	private FileHandle file;
 	private JsonWriter writer;
 
 	private int currentId;
@@ -26,20 +28,13 @@ public class JsonOutput implements Output, Poolable {
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
 	private Array<String> externalDependencies = new Array<String>();
 
-	@Override
-	public void reset() {
-		writer = null;
-		currentId = 0;
-		references.clear();
-		objectsToSerialize.clear();
-		externalDependencies.clear();
+	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
+		return serialize(file, expectedType, null, rootObject);
 	}
 
-	public <T> String serialize(Class<T> expectedType, T rootObject) {
-		return serialize(expectedType, null, rootObject);
-	}
+	public <T> String serialize(FileHandle file, Class<T> expectedType, Object template, T rootObject) {
+		this.file = file;
 
-	public <T> String serialize(Class<T> expectedType, Object template, T rootObject) {
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);
 
@@ -82,9 +77,9 @@ public class JsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String fileNameUuid = AssetService.getFileNameUuid(object);
-		if (fileNameUuid != null) {
-			//TODO
+		String fileName = AssetService.getFileName(object);
+		if (fileName != null && !fileName.equals(file.path())) {
+			// TODO
 		}
 
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
@@ -419,5 +414,15 @@ public class JsonOutput implements Output, Poolable {
 		} catch (IOException ex) {
 			throw new SerializationException(ex);
 		}
+	}
+
+	@Override
+	public void reset() {
+		file = null;
+		writer = null;
+		currentId = 0;
+		references.clear();
+		objectsToSerialize.clear();
+		externalDependencies.clear();
 	}
 }

@@ -109,11 +109,6 @@ public final class AssetService {
 		}
 	}
 
-	public static <T> String getFileNameUuid(T resource) {
-		String fileName = getFileName(resource);
-		return fileName == null ? null : FileService.getUuid(fileName);
-	}
-
 	public static boolean isManaged(Object obj) {
 		return getFileName(obj) != null;
 	}
