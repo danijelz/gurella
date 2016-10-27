@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.tool;
 
-public class ToolManager {
+import com.badlogic.gdx.InputAdapter;
 
+public class ToolManager extends InputAdapter {
+	ScaleTool scaleTool;
 }
