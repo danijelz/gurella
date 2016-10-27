@@ -256,6 +256,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 		pickRay.set(camera.getPickRay(x, y));
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
 		if (spatials.size == 0) {
+			if (!focusDataFromInspectable) {
+				focusedNode = null;
+				focusedComponent = null;
+			}
 			return;
 		}
 

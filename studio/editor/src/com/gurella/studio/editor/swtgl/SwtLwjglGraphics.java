@@ -10,11 +10,13 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.glutils.GLVersion;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class SwtLwjglGraphics implements Graphics {
@@ -37,6 +39,7 @@ public class SwtLwjglGraphics implements Graphics {
 	private int sizeX;
 	private int sizeY;
 
+	private GLVersion glVersion;
 	private final GLCanvas glCanvas;
 
 	private final Object mutex = new Object();
@@ -85,6 +88,11 @@ public class SwtLwjglGraphics implements Graphics {
 	public void initGlInstances() {
 		String version = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
 		int major = Integer.parseInt("" + version.charAt(0));
+
+		String versionString = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VERSION);
+		String vendorString = org.lwjgl.opengl.GL11.glGetString(GL11.GL_VENDOR);
+		String rendererString = org.lwjgl.opengl.GL11.glGetString(GL11.GL_RENDERER);
+		glVersion = new GLVersion(Application.ApplicationType.Desktop, versionString, vendorString, rendererString);
 
 		if (major < 2) {
 			throw new GdxRuntimeException(
@@ -364,5 +372,18 @@ public class SwtLwjglGraphics implements Graphics {
 		protected SwtLwjglMonitor(int virtualX, int virtualY, String name) {
 			super(virtualX, virtualY, name);
 		}
+	}
+
+	@Override
+	public GLVersion getGLVersion() {
+		return glVersion;
+	}
+
+	@Override
+	public void setResizable(boolean arg0) {
+	}
+
+	@Override
+	public void setUndecorated(boolean arg0) {
 	}
 }

@@ -11,9 +11,9 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.studio.editor.subscription.EditorClosingListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-public class EditorInfoRenderer implements EditorClosingListener {
+public class EditorInfoRenderer implements EditorPreCloseListener {
 	private final int editorId;
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
@@ -72,7 +72,7 @@ public class EditorInfoRenderer implements EditorClosingListener {
 	}
 
 	@Override
-	public void closing() {
+	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
 		font.dispose();
 	}

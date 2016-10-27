@@ -25,10 +25,10 @@ import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.studio.editor.subscription.EditorClosingListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneEditorRenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorClosingListener {
+public class SceneEditorRenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener {
 	private int editorId;
 
 	private Scene scene;
@@ -173,7 +173,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 	}
 
 	@Override
-	public void closing() {
+	public void onEditorPreClose() {
 		EventService.unsubscribe(sceneId, this);
 		EventService.unsubscribe(editorId, this);
 	}

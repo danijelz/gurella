@@ -11,11 +11,11 @@ import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.subscription.EditorClosingListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorViewsListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class ViewRegistry implements EditorViewsListener, EditorClosingListener {
+public class ViewRegistry implements EditorViewsListener, EditorPreCloseListener {
 	private final SceneEditor editor;
 	private final Dock dock;
 
@@ -59,7 +59,7 @@ public class ViewRegistry implements EditorViewsListener, EditorClosingListener 
 	}
 
 	@Override
-	public void closing() {
+	public void onEditorPreClose() {
 		EventService.unsubscribe(editor.id, this);
 	}
 }

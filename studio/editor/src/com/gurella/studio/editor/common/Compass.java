@@ -22,7 +22,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
 /**
- * https://github.com/mbrlabs/Mundus
+ * Adapted from https://github.com/mbrlabs/Mundus
  * 
  * @author Marcus Brummer
  */

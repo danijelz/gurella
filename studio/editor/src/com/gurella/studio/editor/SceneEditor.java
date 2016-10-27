@@ -41,7 +41,7 @@ import com.gurella.engine.utils.Sequence;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
-import com.gurella.studio.editor.subscription.EditorClosingListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
@@ -170,7 +170,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	public void dispose() {
 		super.dispose();
 		EventService.unsubscribe(id, this);
-		EventService.post(id, EditorClosingListener.class, l -> l.closing());
+		EventService.post(id, EditorPreCloseListener.class, l -> l.onEditorPreClose());
 		// TODO context and applicationListener should be unified
 		applicationListener.debugUpdate();
 		application.exit();

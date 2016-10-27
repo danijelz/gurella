@@ -15,10 +15,10 @@ import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.studio.editor.subscription.EditorClosingListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorUndoContext extends UndoContext implements EditorClosingListener {
+public class SceneEditorUndoContext extends UndoContext implements EditorPreCloseListener {
 	private int editorId;
 
 	IOperationHistory operationHistory;
@@ -42,7 +42,7 @@ public class SceneEditorUndoContext extends UndoContext implements EditorClosing
 	}
 
 	@Override
-	public void closing() {
+	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
 		historyActionGroup.dispose();
 		operationHistory.dispose(this, true, true, true);
