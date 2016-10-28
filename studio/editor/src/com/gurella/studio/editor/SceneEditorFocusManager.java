@@ -28,6 +28,7 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
+//TODO unused
 class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
 		EditorPreCloseListener, PreRenderUpdateListener {
 	private final int editorId;
