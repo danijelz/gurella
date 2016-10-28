@@ -66,7 +66,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
 		sceneId = scene.getInstanceId();
-		EventService.subscribe(scene.getInstanceId(), this);
+		EventService.subscribe(sceneId, this);
 	}
 
 	@Override

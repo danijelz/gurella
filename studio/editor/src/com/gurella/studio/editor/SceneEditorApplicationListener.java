@@ -87,7 +87,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 	private SceneNode2 focusedNode;
 	private SceneNodeComponent2 focusedComponent;
 	private Control lastFocusControl;
-	private boolean focusDataFromInspectable;
+	private boolean focusDataFromSelection;
 
 	private final Array<Spatial> spatials = new Array<>(64);
 
@@ -204,12 +204,12 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 		}
 
 		Control focusControl = current.getFocusControl();
-		if (focusControl == lastFocusControl && focusDataFromInspectable) {
+		if (focusControl == lastFocusControl && focusDataFromSelection) {
 			return;
 		}
 
 		lastFocusControl = focusControl;
-		focusDataFromInspectable = false;
+		focusDataFromSelection = false;
 
 		if (focusControl == null) {
 			return;
@@ -256,7 +256,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 		pickRay.set(camera.getPickRay(x, y));
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
 		if (spatials.size == 0) {
-			if (!focusDataFromInspectable) {
+			if (!focusDataFromSelection) {
 				focusedNode = null;
 				focusedComponent = null;
 			}
@@ -282,10 +282,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 
 		spatials.clear();
 		if (closestSpatial != null) {
-			focusDataFromInspectable = false;
+			focusDataFromSelection = false;
 			focusedComponent = closestSpatial.renderableComponent;
 			focusedNode = focusedComponent.getNode();
-		} else if (!focusDataFromInspectable) {
+		} else if (!focusDataFromSelection) {
 			focusedNode = null;
 			focusedComponent = null;
 		}
@@ -296,15 +296,15 @@ final class SceneEditorApplicationListener extends ApplicationAdapter implements
 		if (selection instanceof NodeInspectable) {
 			focusedNode = ((NodeInspectable) selection).target;
 			focusedComponent = null;
-			focusDataFromInspectable = true;
+			focusDataFromSelection = true;
 		} else if (selection instanceof ComponentInspectable) {
 			focusedComponent = ((ComponentInspectable) selection).target;
 			focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
-			focusDataFromInspectable = true;
+			focusDataFromSelection = true;
 		} else {
 			focusedComponent = null;
 			focusedNode = null;
-			focusDataFromInspectable = true;
+			focusDataFromSelection = true;
 		}
 	}
 
