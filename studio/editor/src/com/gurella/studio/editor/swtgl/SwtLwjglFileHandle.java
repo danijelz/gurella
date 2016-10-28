@@ -55,8 +55,8 @@ public class SwtLwjglFileHandle extends FileHandle {
 			return new File(SwtLwjglFiles.externalPath, file.getPath());
 		} else if (type == FileType.Local) {
 			return new File(SwtLwjglFiles.localPath, file.getPath());
-		} else if (type == FileType.Local) {
-			return new File(internalPath, file.getPath());
+		} else if (type == FileType.Internal) {
+			return file.isAbsolute() ? file : new File(internalPath, file.getPath());
 		}
 		return file;
 	}
