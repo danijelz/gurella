@@ -37,9 +37,6 @@ public class ModelComponent extends RenderableComponent3d {
 	public void reset() {
 		super.reset();
 		instance = null;
-		if (model != null) {
-			model.dispose();
-			model = null;
-		}
+		model = null;
 	}
 }
