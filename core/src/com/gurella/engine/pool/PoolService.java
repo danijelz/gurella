@@ -307,6 +307,12 @@ public final class PoolService implements AsyncTask<Void>, ApplicationUpdateList
 	public void debugUpdate() {
 		prepareForCleaning();
 		freeAsync();
+		synchronized (asyncPool) {
+			if(asyncPool.size == 0) {
+				return;
+			}
+		}
+		debugUpdate();
 	}
 
 	private static class FreeObjectsComparator implements Comparator<Object> {

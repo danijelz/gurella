@@ -39,7 +39,7 @@ final class ManagedObjects {
 	private static final Cleaner cleaner = new Cleaner();
 	private static final Object mutex = new Object();
 
-	//TODO private static pool with initial objects
+	// TODO private static pool with initial objects
 	private static Array<ObjectOperation> operations = new Array<ObjectOperation>(64);
 	private static Array<ObjectOperation> workingOperations = new Array<ObjectOperation>(64);
 
@@ -174,6 +174,12 @@ final class ManagedObjects {
 		@Override
 		public void debugUpdate() {
 			doUpdate();
+			synchronized (mutex) {
+				if (operations.size == 0) {
+					return;
+				}
+			}
+			debugUpdate();
 		}
 
 		private static void doUpdate() {
