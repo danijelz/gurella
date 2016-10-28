@@ -69,6 +69,6 @@ public class JsonSerialization {
 		String typeName = strValue.substring(0, index);
 		String fileName = strValue.substring(index + 1, strValue.length());
 		Class<T> assetType = Reflection.forName(typeName);
-		return new AssetDescriptor<T>(Gdx.files.local(fileName), assetType);
+		return new AssetDescriptor<T>(Gdx.files.internal(fileName), assetType);
 	}
 }

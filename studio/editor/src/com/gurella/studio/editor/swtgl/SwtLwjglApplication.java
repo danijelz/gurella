@@ -3,7 +3,6 @@ package com.gurella.studio.editor.swtgl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
@@ -25,7 +24,6 @@ import com.badlogic.gdx.backends.lwjgl.audio.OpenALAudio;
 import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.SceneEditor;
 
 //https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
@@ -53,11 +51,11 @@ public class SwtLwjglApplication implements Application {
 
 	private int backgroundFPS;
 
-	public SwtLwjglApplication(SceneEditor editor, Composite parent, ApplicationListener listener) {
-		this(editor, parent, listener, createConfig(parent.getSize().x, parent.getSize().y));
+	public SwtLwjglApplication(String internalPath, Composite parent, ApplicationListener listener) {
+		this(internalPath, parent, listener, createConfig(parent.getSize().x, parent.getSize().y));
 	}
 
-	public SwtLwjglApplication(SceneEditor editor, Composite parent, ApplicationListener listener,
+	public SwtLwjglApplication(String internalPath, Composite parent, ApplicationListener listener,
 			SwtApplicationConfig config) {
 		this.listener = listener;
 		backgroundFPS = config.backgroundFPS;
@@ -67,8 +65,6 @@ public class SwtLwjglApplication implements Application {
 
 		audio = OpenAlAudioSingletone.getInstance(config);
 		graphics = new SwtLwjglGraphics(parent, config);
-		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
-		String internalPath = resource.getProject().getFile("assets").getLocation().toString();
 		files = new SwtLwjglFiles(internalPath);
 		input = new SwtLwjglInput(graphics.getGlCanvas());
 		net = new LwjglNet();

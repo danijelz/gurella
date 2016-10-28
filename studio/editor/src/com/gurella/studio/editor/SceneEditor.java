@@ -9,6 +9,7 @@ import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -125,8 +126,11 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
+		IResource resource = pathEditorInput.getAdapter(IResource.class);
+		String internalPath = resource.getProject().getFile("assets").getLocation().toString();
 		synchronized (GurellaStudioPlugin.glMutex) {
-			application = new SwtLwjglApplication(this, dock.getCenter(), applicationListener);
+			application = new SwtLwjglApplication(internalPath, dock.getCenter(), applicationListener);
 		}
 
 		SceneEditorRegistry.put(this, dock, application, sceneContext);
@@ -135,7 +139,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		@SuppressWarnings("unused")
 		CommonContextMenuContributor menuContributor = new CommonContextMenuContributor(this);
 
-		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
 	}
 
