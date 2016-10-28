@@ -46,6 +46,7 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
+import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -84,12 +85,16 @@ public class AssetsView extends DockableView {
 		try {
 			createItems();
 		} catch (Exception e) {
-			tree.dispose();
-			String message = "Error creating assets tree";
-			IStatus status = GurellaStudioPlugin.log(e, message);
-			ErrorComposite errorComposite = new ErrorComposite(this, status, message);
-			errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			presentInitException(e);
 		}
+	}
+
+	protected void presentInitException(Exception e) {
+		tree.dispose();
+		String message = "Error creating assets tree";
+		IStatus status = GurellaStudioPlugin.log(e, message);
+		ErrorComposite errorComposite = new ErrorComposite(this, status, message);
+		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
 	private void createItems() throws CoreException {

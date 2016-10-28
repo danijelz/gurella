@@ -1,5 +1,7 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeNameField;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveOutputType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
@@ -99,8 +101,8 @@ public class UBJsonOutput implements Output, Poolable {
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
 				object();
-				writeStringProperty(typePropertyName, ArrayType.class.getSimpleName());
-				writeStringProperty(ArrayType.typeNameField, actualType.getName());
+				writeStringProperty(typePropertyName, arrayTypeName);
+				writeStringProperty(arrayTypeNameField, actualType.getName());
 				pop();
 			}
 

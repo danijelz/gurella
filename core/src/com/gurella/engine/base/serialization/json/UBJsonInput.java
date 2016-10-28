@@ -1,5 +1,7 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeNameField;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.createAssetDescriptor;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.dependenciesPropertyName;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
@@ -10,7 +12,6 @@ import static com.gurella.engine.base.serialization.json.JsonSerialization.value
 import java.io.ByteArrayInputStream;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntMap;
@@ -27,7 +28,6 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
 public class UBJsonInput implements Input, Poolable {
-	private FileHandle file;
 	private JsonValue rootValue;
 
 	private UBJsonReader reader = new UBJsonReader();
@@ -54,7 +54,6 @@ public class UBJsonInput implements Input, Poolable {
 
 	@Override
 	public void reset() {
-		file = null;
 		rootValue = null;
 		value = null;
 		valueStack.clear();
@@ -85,14 +84,6 @@ public class UBJsonInput implements Input, Poolable {
 		T object = model.deserialize(template, this);
 		pop();
 
-		return object;
-	}
-
-	private <T> T deserializeObjectResolved(JsonValue jsonValue, Class<T> resolvedType, Object template) {
-		push(jsonValue);
-		Model<T> model = Models.getModel(resolvedType);
-		T object = model.deserialize(template, this);
-		pop();
 		return object;
 	}
 
@@ -187,13 +178,13 @@ public class UBJsonInput implements Input, Poolable {
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
 			String itemTypeName = firstItem.getString(typePropertyName, null);
-			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
-				Class<?> arrayType = Reflection.forName(firstItem.getString(ArrayType.typeNameField));
+			if (arrayTypeName.equals(itemTypeName)) {
+				Class<?> arrayType = Reflection.forName(firstItem.getString(arrayTypeNameField));
 				@SuppressWarnings("unchecked")
-				T array = (T) deserializeObjectResolved(firstItem.next, arrayType, template);
+				T array = (T) deserializeObject(firstItem.next, arrayType, template);
 				result = array;
 			} else {
-				result = deserializeObjectResolved(firstItem, expectedType, template);
+				result = deserializeObject(firstItem, expectedType, template);
 			}
 		} else {
 			int id = value.asInt();
@@ -323,7 +314,7 @@ public class UBJsonInput implements Input, Poolable {
 
 		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			descriptors.add(createAssetDescriptor(file, value.asString()));
+			descriptors.add(createAssetDescriptor(value.asString()));
 		}
 
 		return descriptors;

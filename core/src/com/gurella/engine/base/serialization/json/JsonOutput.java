@@ -1,5 +1,9 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeNameField;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.assetReferencePathField;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.assetReferenceTypeName;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveOutputType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
@@ -14,13 +18,15 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.base.serialization.Output;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
 public class JsonOutput implements Output, Poolable {
-	private FileHandle file;
+	private String filePath;
 	private JsonWriter writer;
 
 	private int currentId;
@@ -33,7 +39,7 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	public <T> String serialize(FileHandle file, Class<T> expectedType, Object template, T rootObject) {
-		this.file = file;
+		filePath = file.path();
 
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);
@@ -77,11 +83,6 @@ public class JsonOutput implements Output, Poolable {
 
 	private int addReference(Class<?> expectedType, Object template, Object object) {
 		references.put(object, currentId);
-		String fileName = AssetService.getFileName(object);
-		if (fileName != null && !fileName.equals(file.path())) {
-			// TODO
-		}
-
 		objectsToSerialize.add(ObjectInfo.obtain(currentId, expectedType, template, object));
 		return currentId++;
 	}
@@ -94,8 +95,8 @@ public class JsonOutput implements Output, Poolable {
 			Class<? extends Object> actualType = object.getClass();
 			if (actualType != expectedType) {
 				object();
-				writeStringProperty(typePropertyName, ArrayType.class.getSimpleName());
-				writeStringProperty(ArrayType.typeNameField, actualType.getName());
+				writeStringProperty(typePropertyName, arrayTypeName);
+				writeStringProperty(arrayTypeNameField, actualType.getName());
 				pop();
 			}
 
@@ -232,7 +233,16 @@ public class JsonOutput implements Output, Poolable {
 		} else if (flat) {
 			serializeObject(expectedType, template, value);
 		} else {
-			writeReference(expectedType, template, value);
+			String valueLocation = getExternalFileName(value);
+			if (valueLocation == null) {
+				writeReference(expectedType, template, value);
+			} else {
+				object();
+				writeStringProperty(typePropertyName, assetReferenceTypeName);
+				writeStringProperty(assetReferencePathField, valueLocation);
+				pop();
+				externalDependencies.add(value.getClass().getName() + " " + valueLocation);
+			}
 		}
 	}
 
@@ -245,6 +255,15 @@ public class JsonOutput implements Output, Poolable {
 			return expectedType == actualType.getSuperclass();
 		} else {
 			return false;
+		}
+	}
+
+	private String getExternalFileName(Object object) {
+		if (object instanceof ManagedObject || Assets.isAsset(object)) {
+			String fileName = AssetService.getFileName(object);
+			return fileName == null || fileName.equals(filePath) ? null : fileName;
+		} else {
+			return null;
 		}
 	}
 
@@ -418,7 +437,7 @@ public class JsonOutput implements Output, Poolable {
 
 	@Override
 	public void reset() {
-		file = null;
+		filePath = null;
 		writer = null;
 		currentId = 0;
 		references.clear();

@@ -1,11 +1,14 @@
 package com.gurella.engine.base.serialization.json;
 
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.arrayTypeNameField;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.createAssetDescriptor;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.dependenciesPropertyName;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.isSimpleType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.resolveObjectType;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.typePropertyName;
 import static com.gurella.engine.base.serialization.json.JsonSerialization.valuePropertyName;
+import static com.gurella.engine.base.serialization.json.JsonSerialization.*;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.files.FileHandle;
@@ -16,6 +19,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
@@ -25,7 +29,6 @@ import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 
 public class JsonInput implements Input, Poolable {
-	private FileHandle file;
 	private JsonReader reader = new JsonReader();
 
 	private JsonValue rootValue;
@@ -39,7 +42,6 @@ public class JsonInput implements Input, Poolable {
 	private CopyContext copyContext = new CopyContext();
 
 	public void init(FileHandle file) {
-		this.file = file;
 		this.rootValue = reader.parse(file);
 	}
 
@@ -178,12 +180,17 @@ public class JsonInput implements Input, Poolable {
 			result = Models.getModel(expectedType).deserialize(template, this);
 			pop();
 		} else if (value.isObject()) {
-			result = deserialize(value, expectedType, template);
+			if (assetReferenceTypeName.equals(value.getString(typePropertyName, null))) {
+				String assetLocation = value.getString(assetReferencePathField);
+				result = AssetService.get(assetLocation);
+			} else {
+				result = deserialize(value, expectedType, template);
+			}
 		} else if (value.isArray()) {
 			JsonValue firstItem = value.child;
 			String itemTypeName = firstItem.getString(typePropertyName, null);
-			if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
-				Class<?> arrayType = Reflection.forName(firstItem.getString(ArrayType.typeNameField));
+			if (arrayTypeName.equals(itemTypeName)) {
+				Class<?> arrayType = Reflection.forName(firstItem.getString(arrayTypeNameField));
 				@SuppressWarnings("unchecked")
 				T array = (T) deserializeObject(firstItem.next, arrayType, template);
 				result = array;
@@ -318,7 +325,7 @@ public class JsonInput implements Input, Poolable {
 
 		Array<AssetDescriptor<?>> descriptors = new Array<AssetDescriptor<?>>();
 		for (JsonValue value = lastValue.child; value != null; value = value.next) {
-			descriptors.add(createAssetDescriptor(file, value.asString()));
+			descriptors.add(createAssetDescriptor(value.asString()));
 		}
 
 		return descriptors;
@@ -326,7 +333,6 @@ public class JsonInput implements Input, Poolable {
 
 	@Override
 	public void reset() {
-		file = null;
 		rootValue = null;
 		value = null;
 		valueStack.clear();

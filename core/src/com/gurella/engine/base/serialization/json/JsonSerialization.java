@@ -1,11 +1,10 @@
 package com.gurella.engine.base.serialization.json;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.DefaultModels.SimpleModel;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.utils.Reflection;
@@ -14,6 +13,10 @@ public class JsonSerialization {
 	static final String typePropertyName = "#";
 	static final String valuePropertyName = "v";
 	static final String dependenciesPropertyName = "d";
+	static final String arrayTypeName = "[";
+	static final String arrayTypeNameField = "t";
+	static final String assetReferenceTypeName = "@";
+	static final String assetReferencePathField = "p";
 
 	private JsonSerialization() {
 	}
@@ -34,8 +37,8 @@ public class JsonSerialization {
 			if (serializedObject.size > 0) {
 				JsonValue itemValue = serializedObject.child;
 				String itemTypeName = itemValue.getString(typePropertyName, null);
-				if (ArrayType.class.getSimpleName().equals(itemTypeName)) {
-					return Reflection.forName(itemValue.getString(ArrayType.typeNameField));
+				if (arrayTypeName.equals(itemTypeName)) {
+					return Reflection.forName(itemValue.getString(arrayTypeNameField));
 				}
 			}
 		} else if (serializedObject.isObject()) {
@@ -61,11 +64,11 @@ public class JsonSerialization {
 				? type.getSuperclass() : type;
 	}
 
-	static <T> AssetDescriptor<T> createAssetDescriptor(FileHandle file, String strValue) {
-		String[] descriptorValues = strValue.split(" ");
-		String fileName = descriptorValues[0];
-		String typeName = descriptorValues[1];
+	static <T> AssetDescriptor<T> createAssetDescriptor(String strValue) {
+		int index = strValue.indexOf(' ');
+		String typeName = strValue.substring(0, index);
+		String fileName = strValue.substring(index + 1, strValue.length());
 		Class<T> assetType = Reflection.forName(typeName);
-		return new AssetDescriptor<T>(Assets.getRelativeFileHandle(file, fileName), assetType);
+		return new AssetDescriptor<T>(Gdx.files.local(fileName), assetType);
 	}
 }

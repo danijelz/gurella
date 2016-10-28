@@ -126,7 +126,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		synchronized (GurellaStudioPlugin.glMutex) {
-			application = new SwtLwjglApplication(dock.getCenter(), applicationListener);
+			application = new SwtLwjglApplication(this, dock.getCenter(), applicationListener);
 		}
 
 		SceneEditorRegistry.put(this, dock, application, sceneContext);

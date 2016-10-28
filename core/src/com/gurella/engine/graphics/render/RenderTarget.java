@@ -24,6 +24,10 @@ public class RenderTarget implements Disposable {
 	private TextureWrap vWrap = TextureWrap.ClampToEdge;
 
 	private transient FrameBuffer frameBuffer;
+	
+	public String getName() {
+		return name;
+	}
 
 	public short getWidth() {
 		return width;
@@ -62,7 +66,7 @@ public class RenderTarget implements Disposable {
 		none, _16bit, _24bit;
 
 		public static boolean isDepthEnabled(DepthBufferType type) {
-			return _16bit == type || _24bit == type;
+			return type != none;
 		}
 	}
 

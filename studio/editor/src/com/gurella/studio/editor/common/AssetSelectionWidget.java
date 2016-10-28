@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -82,12 +84,9 @@ public class AssetSelectionWidget<T> extends Composite {
 		dialog.setFilterExtensions(
 				new String[] { Arrays.stream(value.extensions).map(e -> "*." + e).collect(Collectors.joining(";")) });
 
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = window.getActivePage();
-		IEditorPart editor = page.getActiveEditor();
-		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-		dialog.setFilterPath(input.getFile().getLocation().removeLastSegments(1).toString());
+		IFile file = getEditorFile();
+		IPath location = file.getLocation();
+		dialog.setFilterPath(location.removeLastSegments(1).toString());
 
 		final String path = dialog.open();
 		if (path != null) {
@@ -95,19 +94,26 @@ public class AssetSelectionWidget<T> extends Composite {
 		}
 	}
 
+	private static IFile getEditorFile() {
+		IWorkbench wb = PlatformUI.getWorkbench();
+		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
+		IWorkbenchPage page = window.getActivePage();
+		IEditorPart editor = page.getActiveEditor();
+		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
+		return input.getFile();
+	}
+
 	private void assetSelected(final String path) {
+		IFile file = getEditorFile();
+		IPath assetPath = new Path(path).makeRelativeTo(file.getProject().getLocation().append("assets"));
+		
 		T oldAsset = asset;
-		asset = AssetService.load(path, assetType);
-		text.setText(extractFileName(path));
+		asset = AssetService.load(assetPath.toString(), assetType);
+		text.setText(assetPath.lastSegment());
 		text.setMessage("");
 		if (selectionChangedListener != null) {
 			selectionChangedListener.accept(oldAsset, asset);
 		}
-	}
-
-	private static String extractFileName(String path) {
-		int index = path.lastIndexOf('/');
-		return index < 0 ? path : path.substring(index + 1);
 	}
 
 	public void setSelectionChangedListener(BiConsumer<T, T> selectionChangedListener) {
@@ -128,6 +134,11 @@ public class AssetSelectionWidget<T> extends Composite {
 			text.setText(extractFileName(path));
 			text.setMessage("");
 		}
+	}
+
+	private static String extractFileName(String path) {
+		int index = path.lastIndexOf('/');
+		return index < 0 ? path : path.substring(index + 1);
 	}
 
 	private final class AssetDropTarget extends DropTargetAdapter {
