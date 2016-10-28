@@ -50,6 +50,11 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 		disposeData();
 
 		this.texture = sky;
+
+		if (!isActive()) {
+			return;
+		}
+
 		if (sky != null) {
 			int width = sky.getWidth() / 4;
 			int height = sky.getHeight() / 3;
