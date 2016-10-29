@@ -159,11 +159,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 			updateGlState();
 
 			gridModelInstance.render(batch);
-
-			renderContext.batch = batch;
-			renderContext.camera = camera;
-			renderScene(renderContext);
-
+			renderScene();
 			compass.render(batch);
 			infoRenderer.renderInfo(camera, batch);
 		}
@@ -180,7 +176,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		Gdx.gl.glViewport(0, 0, graphics.getWidth(), graphics.getHeight());
 	}
 
-	private void renderScene(DebugRenderContext context) {
+	private void renderScene() {
 		if (scene == null) {
 			return;
 		}
@@ -197,16 +193,18 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		int focusedComponentNodeId = focusedComponent instanceof DebugRenderable ? focusedComponent.getNodeId() : -1;
 		boolean focusedComponnentRendered = focusedComponent == null ? true : false;
 
+		renderContext.batch = batch;
+		renderContext.camera = camera;
+
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
 			spatial.renderableComponent.render(batch);
-			debugRender(context, spatial, focusedComponent);
+			debugRender(renderContext, spatial, focusedComponent);
 			focusedComponnentRendered |= spatial.nodeId == focusedComponentNodeId;
 		}
 
 		if (!focusedComponnentRendered && focusedComponent instanceof DebugRenderable && focusedComponent.isActive()) {
-			DebugRenderable debugRenderable = (DebugRenderable) focusedComponent;
-			debugRenderable.debugRender(context);
+			((DebugRenderable) focusedComponent).debugRender(renderContext);
 		}
 
 		tempSpatials.clear();
