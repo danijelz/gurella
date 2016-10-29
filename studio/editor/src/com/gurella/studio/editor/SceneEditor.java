@@ -61,7 +61,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	private SceneEditorContext sceneContext;
 
 	private SwtLwjglApplication application;
-	SceneEditorApplicationListener applicationListener;
+	private SceneEditorApplicationListener applicationListener;
 
 	private boolean dirty;
 
