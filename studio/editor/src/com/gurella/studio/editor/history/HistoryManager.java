@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.history;
 
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
@@ -15,13 +15,13 @@ import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-class SceneEditorUndoContext extends UndoContext
-		implements EditorPreCloseListener, EditorContextMenuContributor {
+public class HistoryManager extends UndoContext implements EditorPreCloseListener, EditorContextMenuContributor {
 	private final int editorId;
 
 	private final IOperationHistory operationHistory;
@@ -29,7 +29,7 @@ class SceneEditorUndoContext extends UndoContext
 	private final RedoActionHandler redoAction;
 	private final UndoRedoActionGroup historyActionGroup;
 
-	SceneEditorUndoContext(SceneEditor editor) {
+	public HistoryManager(SceneEditor editor) {
 		editorId = editor.id;
 
 		IEditorSite site = (IEditorSite) editor.getSite();
@@ -53,7 +53,7 @@ class SceneEditorUndoContext extends UndoContext
 		undoAction.dispose();
 	}
 
-	void executeOperation(IUndoableOperation operation, String errorMsg) {
+	public void executeOperation(IUndoableOperation operation, String errorMsg) {
 		operation.addContext(this);
 		Try.ofFailable(() -> operationHistory.execute(operation, null, null)).onFailure(e -> showError(e, errorMsg));
 	}

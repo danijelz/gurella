@@ -17,13 +17,14 @@ import org.eclipse.ui.IPathEditorInput;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
 public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseListener {
 	public final int editorId;
-	private final SceneEditorUndoContext undoContext;
+	private final HistoryManager historyManager;
 
 	public final IPathEditorInput editorInput;
 	public final IWorkspace workspace;
@@ -38,7 +39,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 
 	public SceneEditorContext(SceneEditor editor) {
 		editorId = editor.id;
-		undoContext = editor.undoContext;
+		historyManager = editor.historyManager;
 
 		editorInput = (IPathEditorInput) editor.getEditorInput();
 		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
@@ -68,6 +69,6 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	}
 
 	public void executeOperation(IUndoableOperation operation, String errorMsg) {
-		undoContext.executeOperation(operation, errorMsg);
+		historyManager.executeOperation(operation, errorMsg);
 	}
 }

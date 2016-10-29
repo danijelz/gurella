@@ -42,6 +42,7 @@ import com.gurella.engine.utils.Sequence;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
+import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneChangedListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -56,7 +57,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	Dock dock;
 	ViewRegistry viewRegistry;
 
-	SceneEditorUndoContext undoContext;
+	HistoryManager historyManager;
 	private SceneEditorContext sceneContext;
 
 	private SwtLwjglApplication application;
@@ -106,7 +107,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		String[] segments = pathEditorInput.getPath().segments();
 		setPartName(segments[segments.length - 1]);
 
-		undoContext = new SceneEditorUndoContext(this);
+		historyManager = new HistoryManager(this);
 		applicationListener = new SceneEditorApplicationListener(id);
 		sceneContext = new SceneEditorContext(this);
 
