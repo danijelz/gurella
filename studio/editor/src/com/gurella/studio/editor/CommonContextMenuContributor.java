@@ -2,33 +2,42 @@ package com.gurella.studio.editor;
 
 import org.eclipse.swt.SWT;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
+import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorCameraSwitch;
+import com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-class CommonContextMenuContributor implements EditorContextMenuContributor, ApplicationShutdownListener {
+class CommonContextMenuContributor
+		implements EditorContextMenuContributor, EditorCameraChangedListener, EditorPreCloseListener {
 	private static final String cameraGroupName = "Camera";
 	private static final String moveToGroupName = "Move to";
 	private static final String viewGroupName = "View";
 
+	private final int editorId;
 	private final SceneEditor editor;
-	private final SceneEditorApplicationListener appListener;
 	private final SceneEditorUndoContext undoContext;
 	private final ViewRegistry viewRegistry;
 
+	private Camera camera;
+
 	CommonContextMenuContributor(SceneEditor editor) {
+		editorId = editor.id;
 		this.editor = editor;
-		this.appListener = editor.applicationListener;
 		this.undoContext = editor.undoContext;
 		this.viewRegistry = editor.viewRegistry;
 
 		EventService.subscribe(editor.id, this);
+		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 	}
 
 	@Override
@@ -37,8 +46,10 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 		actions.addAction("Redo", -900, undoContext.canRedo(), undoContext::redo);
 
 		actions.addGroup(cameraGroupName, -800);
-		actions.addCheckAction(cameraGroupName, "2d", 100, appListener.is2d(), () -> appListener.set2d());
-		actions.addCheckAction(cameraGroupName, "3d", 200, appListener.is3d(), () -> appListener.set3d());
+		boolean is2dCamera = camera instanceof OrthographicCamera;
+		actions.addCheckAction(cameraGroupName, "2d", 100, is2dCamera, () -> switchCamera(CameraType.camera2d));
+		boolean is3dCamera = camera instanceof PerspectiveCamera;
+		actions.addCheckAction(cameraGroupName, "3d", 200, is3dCamera, () -> switchCamera(CameraType.camera2d));
 
 		actions.addGroup(moveToGroupName, -700);
 		actions.addAction(moveToGroupName, "Front", 100, () -> toFront());
@@ -58,8 +69,12 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 		actions.addCheckAction(viewGroupName, "Assets", 300, !open, open, () -> openView(AssetsView.class));
 	}
 
+	private void switchCamera(CameraType cameraType) {
+		EventService.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(cameraType));
+	}
+
 	private void toFront() {
-		Camera camera = appListener.getCamera();
+		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 		camera.position.set(0, 0, 3);
 		camera.direction.set(0, 0, -1);
 		camera.up.set(0, 1, 0);
@@ -68,7 +83,6 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toBack() {
-		Camera camera = appListener.getCamera();
 		camera.position.set(0, 0, -3);
 		camera.direction.set(0, 0, 1);
 		camera.up.set(0, 1, 0);
@@ -77,7 +91,6 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toTop() {
-		Camera camera = appListener.getCamera();
 		camera.position.set(0, 3, 0);
 		camera.direction.set(0, -1, 0);
 		camera.up.set(0, 0, -1);
@@ -86,7 +99,6 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toBottom() {
-		Camera camera = appListener.getCamera();
 		camera.position.set(0, -3, 0);
 		camera.direction.set(0, -1, 0);
 		camera.up.set(0, 0, 1);
@@ -95,7 +107,6 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toRight() {
-		Camera camera = appListener.getCamera();
 		camera.position.set(3, 0, 0);
 		camera.direction.set(-1, 0, 0);
 		camera.up.set(0, 1, 0);
@@ -104,7 +115,6 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	private void toLeft() {
-		Camera camera = appListener.getCamera();
 		camera.position.set(-3, 0, 0);
 		camera.direction.set(1, 0, 0);
 		camera.up.set(0, 1, 0);
@@ -117,9 +127,12 @@ class CommonContextMenuContributor implements EditorContextMenuContributor, Appl
 	}
 
 	@Override
-	public void shutdown() {
-		if (Gdx.app.getApplicationListener() == appListener) {
-			EventService.unsubscribe(editor.id, this);
-		}
+	public void cameraChanged(Camera camera) {
+		this.camera = camera;
+	}
+
+	@Override
+	public void onEditorPreClose() {
+		EventService.unsubscribe(editor.id, this);
 	}
 }

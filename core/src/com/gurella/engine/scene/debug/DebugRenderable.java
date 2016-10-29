@@ -11,7 +11,5 @@ public interface DebugRenderable {
 	public static class DebugRenderContext {
 		public GenericBatch batch;
 		public Camera camera;
-		public SceneNode2 focusedNode;
-		public SceneNodeComponent2 focusedComponent;
 	}
 }

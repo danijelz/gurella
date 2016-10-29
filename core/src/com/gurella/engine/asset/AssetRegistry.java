@@ -568,9 +568,16 @@ public class AssetRegistry extends AssetManager {
 	@SuppressWarnings("sync-override")
 	public boolean update() {
 		synchronized (mutex) {
+			processCurrentTaskException();
 			processSyncQueue();
 			processNextAsyncTask();
 			return asyncQueue.size == 0 && syncQueue.size == 0 && waitingQueue.size == 0;
+		}
+	}
+
+	private void processCurrentTaskException() {
+		if(currentTask != null && currentTask.exception != null) {
+			exception(currentTask);
 		}
 	}
 
@@ -743,6 +750,7 @@ public class AssetRegistry extends AssetManager {
 		Throwable ex = task.exception;
 		boolean propagated = propagateException(task, ex);
 		task.free();
+		
 		if (!propagated) {
 			//TODO throw exception on rendering thread
 			throw ex instanceof RuntimeException ? (RuntimeException) ex : new GdxRuntimeException(ex);

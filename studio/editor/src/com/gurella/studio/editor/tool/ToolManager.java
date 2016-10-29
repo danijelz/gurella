@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.gurella.engine.event.EventService;
 
 public class ToolManager extends InputAdapter {
 	private final int editorId;
@@ -13,5 +14,6 @@ public class ToolManager extends InputAdapter {
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
+		EventService.subscribe(editorId, this);
 	}
 }

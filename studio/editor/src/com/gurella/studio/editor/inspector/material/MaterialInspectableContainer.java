@@ -49,7 +49,6 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.swtgl.LwjglGL20;
@@ -82,7 +81,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private ModelBatch modelBatch;
 	private Environment environment;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
-	private Compass compass;
 
 	private MaterialDescriptor materialDescriptor;
 
@@ -242,8 +240,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			model = createModel();
 			instance = new ModelInstance(model);
 			modelInputController.instance = instance;
-
-			compass = new Compass(camera);
 		}
 
 		addDisposeListener(e -> onDispose());
@@ -282,7 +278,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			wall.dispose();
 			model.dispose();
 			modelBatch.dispose();
-			compass.dispose();
 			AssetService.unload(materialDescriptor);
 			glCanvas.dispose();
 		}
@@ -315,7 +310,6 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 			modelBatch.begin(camera);
 			modelBatch.render(wallInstance, environment);
 			modelBatch.render(instance, environment);
-			compass.render(modelBatch);
 			modelBatch.end();
 		}
 

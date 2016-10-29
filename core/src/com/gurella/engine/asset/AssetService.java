@@ -20,7 +20,7 @@ public final class AssetService {
 
 	private static final MockAssetManager mockManager = new MockAssetManager();
 	private static final AssetRegistry assetRegistry = new AssetRegistry();
-	private static final ResourceServiceUpdateListener updateListener = new ResourceServiceUpdateListener();
+	private static final RegistryUpdater updateListener = new RegistryUpdater();
 
 	static {
 		Texture.setAssetManager(mockManager);
@@ -129,8 +129,7 @@ public final class AssetService {
 
 	@TypePriorities({ @TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationUpdateListener.class),
 			@TypePriority(priority = CommonUpdatePriority.ioPriority, type = ApplicationDebugUpdateListener.class) })
-	private static class ResourceServiceUpdateListener
-			implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
+	private static class RegistryUpdater implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {
 			assetRegistry.update();

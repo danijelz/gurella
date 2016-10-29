@@ -25,10 +25,12 @@ import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneEditorRenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener {
+public class SceneEditorRenderSystem
+		implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener, EditorFocusListener {
 	private int editorId;
 
 	private Scene scene;
@@ -36,6 +38,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 
 	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
 	private IntMap<Array<DebugRenderable>> debugRenderablesByNode = new IntMap<Array<DebugRenderable>>();
+	private EditorFocusData focusData = new EditorFocusData(null, null);
 
 	private final Environment environment = new Environment();
 	private final ColorAttribute ambientLight = new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f);
@@ -132,7 +135,7 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 
 		GenericBatch batch = context.batch;
 		Camera camera = context.camera;
-		SceneNodeComponent2 focusedComponent = context.focusedComponent;
+		SceneNodeComponent2 focusedComponent = focusData.focusedComponent;
 
 		batch.begin(camera);
 		batch.setEnvironment(environment);
@@ -170,6 +173,11 @@ public class SceneEditorRenderSystem implements ComponentActivityListener, Scene
 				debugRenderable.debugRender(context);
 			}
 		}
+	}
+
+	@Override
+	public void focusChanged(EditorFocusData focusData) {
+		this.focusData = focusData;
 	}
 
 	@Override

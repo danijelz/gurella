@@ -21,6 +21,8 @@ import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
+import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
+import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
@@ -28,9 +30,8 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-//TODO unused
 class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
-		EditorPreCloseListener, PreRenderUpdateListener {
+		EditorPreCloseListener, PreRenderUpdateListener, EditorCameraChangedListener {
 	private final int editorId;
 
 	private SceneNode2 focusedNode;
@@ -49,6 +50,7 @@ class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListene
 	public SceneEditorFocusManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
+		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 	}
 
 	@Override
@@ -84,10 +86,12 @@ class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListene
 				if (modelInstance instanceof SceneNodeComponent2) {
 					focusedComponent = (SceneNodeComponent2) modelInstance;
 					focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+					focusChanged();
 					return;
 				} else if (modelInstance instanceof SceneNode2) {
 					focusedComponent = null;
 					focusedNode = (SceneNode2) modelInstance;
+					focusChanged();
 					return;
 				}
 			}
@@ -168,6 +172,11 @@ class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListene
 
 	@Override
 	public void onMouseMenu(float x, float y) {
+	}
+	
+	@Override
+	public void cameraChanged(Camera camera) {
+		this.camera = camera;
 	}
 
 	@Override

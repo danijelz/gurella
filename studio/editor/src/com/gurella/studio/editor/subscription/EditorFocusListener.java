@@ -5,7 +5,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 public interface EditorFocusListener extends EventSubscription {
-	void focusChanged(EditorFocusData focus);
+	void focusChanged(EditorFocusData focusData);
 
 	public static class EditorFocusData {
 		public final SceneNode2 focusedNode;

@@ -20,17 +20,22 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
+import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 /**
  * Adapted from https://github.com/mbrlabs/Mundus
  * 
  * @author Marcus Brummer
  */
-public class Compass implements Disposable {
+public class Compass implements EditorPreCloseListener, Disposable {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;
 	private final int ARROW_DIVISIONS = 8;
+
+	private final int editorId;
 
 	private Camera worldCamera;
 
@@ -43,8 +48,8 @@ public class Compass implements Disposable {
 	private Vector3 tempScale = new Vector3(12, 12, 12);
 	private Quaternion tempRotation = new Quaternion();
 
-	public Compass(Camera worldCamera) {
-		this.worldCamera = worldCamera;
+	public Compass(int editorId) {
+		this.editorId = editorId;
 
 		this.compassCamera = new PerspectiveCamera();
 		ModelBuilder modelBuilder = new ModelBuilder();
@@ -67,6 +72,9 @@ public class Compass implements Disposable {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.85f, 0.85f, 0.85f, 1f));
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+
+		EventService.subscribe(editorId, this);
+		EventService.post(editorId, EditorActiveCameraProvider.class, l -> worldCamera = l.getActiveCamera());
 	}
 
 	public void setWorldCamera(Camera worldCamera) {
@@ -89,6 +97,12 @@ public class Compass implements Disposable {
 		worldCamera.view.getRotation(tempRotation);
 		tempRotation.conjugate();
 		compassInstance.transform.set(tempTranslation, tempRotation, tempScale);
+	}
+
+	@Override
+	public void onEditorPreClose() {
+		EventService.unsubscribe(editorId, this);
+		dispose();
 	}
 
 	@Override

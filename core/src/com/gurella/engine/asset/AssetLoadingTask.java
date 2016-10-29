@@ -107,7 +107,6 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 			}
 		} catch (Exception exception) {
 			this.exception = exception;
-			manager.exception(this);
 		}
 
 		return null;
