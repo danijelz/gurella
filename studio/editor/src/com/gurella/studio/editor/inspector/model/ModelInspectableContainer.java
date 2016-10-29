@@ -35,7 +35,6 @@ import com.gurella.engine.asset.properties.G3dModelProperties;
 import com.gurella.engine.asset.properties.ModelProperties;
 import com.gurella.engine.asset.properties.ObjModelProperties;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.Compass;
 import com.gurella.studio.editor.common.bean.DefaultBeanEditor;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
@@ -58,7 +57,6 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 	private Model model;
 	private ModelInstance modelInstance;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
-	private Compass compass;
 
 	public ModelInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -114,7 +112,6 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 			ModelData modelData = loader.loadModelData(fileHandle);
 			model = new Model(modelData, new DirectTextureProvider());
 			modelInstance = new ModelInstance(model);
-			compass = new Compass(cam);
 		}
 
 		addDisposeListener(e -> onDispose());
@@ -151,7 +148,6 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 		synchronized (GurellaStudioPlugin.glMutex) {
 			model.dispose();
 			modelBatch.dispose();
-			compass.dispose();
 			glCanvas.dispose();
 		}
 	}
@@ -181,7 +177,6 @@ public class ModelInspectableContainer extends InspectableContainer<IFile> {
 			gl20.glViewport(0, 0, size.x, size.y);
 			modelBatch.begin(cam);
 			modelBatch.render(modelInstance, environment);
-			compass.render(modelBatch);
 			modelBatch.end();
 		}
 

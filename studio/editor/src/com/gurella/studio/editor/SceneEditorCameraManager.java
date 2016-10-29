@@ -11,10 +11,11 @@ import com.gurella.engine.input.InputService;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorCameraSwitch;
+import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 public class SceneEditorCameraManager
-		implements EditorCameraSwitch, EditorPreCloseListener, EditorActiveCameraProvider {
+		implements EditorCameraSwitch, EditorPreCloseListener, EditorActiveCameraProvider, EditorInputUpdateListener {
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
 	private final int editorId;
@@ -108,6 +109,12 @@ public class SceneEditorCameraManager
 	@Override
 	public Camera getActiveCamera() {
 		return camera;
+	}
+
+	@Override
+	public void onInputUpdate() {
+		inputQueue.drain();
+		inputController.update();
 	}
 
 	void resize(int width, int height) {

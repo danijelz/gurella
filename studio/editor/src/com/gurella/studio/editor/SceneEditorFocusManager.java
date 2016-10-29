@@ -16,7 +16,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
@@ -27,11 +26,12 @@ import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
-		EditorPreCloseListener, PreRenderUpdateListener, EditorCameraChangedListener {
+		EditorPreCloseListener, EditorPreRenderUpdateListener, EditorCameraChangedListener {
 	private final int editorId;
 
 	private SceneNode2 focusedNode;
@@ -136,6 +136,7 @@ class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListene
 			if (!focusDataFromSelection) {
 				focusedNode = null;
 				focusedComponent = null;
+				focusChanged();
 			}
 			return;
 		}
@@ -173,7 +174,7 @@ class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListene
 	@Override
 	public void onMouseMenu(float x, float y) {
 	}
-	
+
 	@Override
 	public void cameraChanged(Camera camera) {
 		this.camera = camera;

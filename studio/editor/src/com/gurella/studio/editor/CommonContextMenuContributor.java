@@ -1,5 +1,8 @@
 package com.gurella.studio.editor;
 
+import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera2d;
+import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera3d;
+
 import org.eclipse.swt.SWT;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -47,9 +50,9 @@ class CommonContextMenuContributor
 
 		actions.addGroup(cameraGroupName, -800);
 		boolean is2dCamera = camera instanceof OrthographicCamera;
-		actions.addCheckAction(cameraGroupName, "2d", 100, is2dCamera, () -> switchCamera(CameraType.camera2d));
+		actions.addCheckAction(cameraGroupName, "2d", 100, !is2dCamera, is2dCamera, () -> switchCamera(camera2d));
 		boolean is3dCamera = camera instanceof PerspectiveCamera;
-		actions.addCheckAction(cameraGroupName, "3d", 200, is3dCamera, () -> switchCamera(CameraType.camera2d));
+		actions.addCheckAction(cameraGroupName, "3d", 200, !is3dCamera, is3dCamera, () -> switchCamera(camera3d));
 
 		actions.addGroup(moveToGroupName, -700);
 		actions.addAction(moveToGroupName, "Front", 100, () -> toFront());

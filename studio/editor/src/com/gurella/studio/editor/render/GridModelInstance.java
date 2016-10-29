@@ -1,38 +1,65 @@
 package com.gurella.studio.editor.render;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Pool;
+import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
+import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-public class GridModelInstance implements Disposable, RenderableProvider {
+public class GridModelInstance implements EditorCameraChangedListener, EditorPreCloseListener {
+	private final int editorId;
+
 	private Model model;
 	private ModelInstance instance;
 
-	public GridModelInstance() {
+	private Environment environment;
+
+	private Camera camera;
+
+	public GridModelInstance(int editorId) {
+		this.editorId = editorId;
+		init();
+		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
+		EventService.subscribe(editorId, this);
+	}
+
+	private void init() {
 		ModelBuilder builder = new ModelBuilder();
-		model = builder.createLineGrid(20, 20, 0.5f, 0.5f, new Material(ColorAttribute.createDiffuse(Color.WHITE)),
-				Usage.Position | Usage.ColorUnpacked);
+		ColorAttribute diffuse = ColorAttribute.createDiffuse(Color.WHITE);
+		model = builder.createLineGrid(20, 20, 0.5f, 0.5f, new Material(diffuse), Usage.Position | Usage.ColorUnpacked);
 		instance = new ModelInstance(model);
+
+		environment = new Environment();
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+		environment.set(new DepthTestAttribute());
+		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 	}
 
 	@Override
-	public void dispose() {
-		if (model != null) {
-			model.dispose();
-		}
+	public void cameraChanged(Camera camera) {
+		this.camera = camera;
+	}
+
+	public void render(ModelBatch batch) {
+		batch.begin(camera);
+		batch.render(instance, environment);
+		batch.end();
 	}
 
 	@Override
-	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
-		instance.getRenderables(renderables, pool);
+	public void onEditorPreClose() {
+		EventService.unsubscribe(editorId, this);
+		model.dispose();
 	}
 }

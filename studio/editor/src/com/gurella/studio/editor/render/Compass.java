@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.common;
+package com.gurella.studio.editor.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -19,9 +19,9 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
+import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 /**
@@ -29,7 +29,7 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
  * 
  * @author Marcus Brummer
  */
-public class Compass implements EditorPreCloseListener, Disposable {
+public class Compass implements EditorPreCloseListener, EditorCameraChangedListener {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;
@@ -77,8 +77,9 @@ public class Compass implements EditorPreCloseListener, Disposable {
 		EventService.post(editorId, EditorActiveCameraProvider.class, l -> worldCamera = l.getActiveCamera());
 	}
 
-	public void setWorldCamera(Camera worldCamera) {
-		this.worldCamera = worldCamera;
+	@Override
+	public void cameraChanged(Camera camera) {
+		this.worldCamera = camera;
 	}
 
 	public void render(ModelBatch batch) {
@@ -86,10 +87,10 @@ public class Compass implements EditorPreCloseListener, Disposable {
 		Graphics graphics = Gdx.graphics;
 		int width = graphics.getWidth();
 		int height = graphics.getHeight();
-		batch.setCamera(compassCamera);
+		batch.begin(compassCamera);
 		Gdx.gl.glViewport(width - 60, height - 60, 60, 60);
 		batch.render(compassInstance, environment);
-		batch.flush();
+		batch.end();
 		Gdx.gl.glViewport(0, 0, width, height);
 	}
 
@@ -102,11 +103,6 @@ public class Compass implements EditorPreCloseListener, Disposable {
 	@Override
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
-		dispose();
-	}
-
-	@Override
-	public void dispose() {
 		compassModel.dispose();
 	}
 }

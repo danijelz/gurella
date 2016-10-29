@@ -3,15 +3,11 @@ package com.gurella.studio.editor;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.gurella.engine.application.GurellaStateProvider;
-import com.gurella.engine.event.Dispatcher;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.Scene;
@@ -19,18 +15,21 @@ import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.common.Compass;
+import com.gurella.studio.editor.render.Compass;
 import com.gurella.studio.editor.render.EditorInfoRenderer;
 import com.gurella.studio.editor.render.GridModelInstance;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
+import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
+import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
+import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
+import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
+import com.gurella.studio.editor.subscription.EditorResizeListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements GurellaStateProvider, EditorMouseListener, SceneLoadedListener {
-	private static final Dispatcher<ApplicationDebugUpdateListener> debugUpdateDispatcher = l -> l.debugUpdate();
-
+		implements GurellaStateProvider, EditorMouseListener, SceneLoadedListener, EditorCameraChangedListener {
 	private final int editorId;
 
 	private Thread renderThread;
@@ -41,20 +40,19 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	private GenericBatch batch;
 	private DebugRenderContext renderContext = new DebugRenderContext();
-	private Environment environment;
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	private GridModelInstance gridModelInstance;
 	private Compass compass;
 
 	private EditorInfoRenderer infoRenderer;
-
 	private SceneEditorRenderSystem renderSystem;
+
+	private Camera camera;
 
 	public SceneEditorApplicationListener(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
-
 	}
 
 	@Override
@@ -66,12 +64,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 		renderSystem = new SceneEditorRenderSystem(editorId);
 
 		batch = new GenericBatch();
-		environment = new Environment();
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
-		environment.set(new DepthTestAttribute());
-		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
-
-		gridModelInstance = new GridModelInstance();
+		gridModelInstance = new GridModelInstance(editorId);
 		compass = new Compass(editorId);
 		infoRenderer = new EditorInfoRenderer(editorId);
 
@@ -87,18 +80,20 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	public void resize(int width, int height) {
 		cameraManager.resize(width, height);
 		infoRenderer.resize(width, height);
+		EventService.post(editorId, EditorResizeListener.class, l -> l.resize(width, height));
 	}
 
 	@Override
 	public void render() {
 		debugUpdate();
-		inputQueue.drain();
-		inputController.update();
+		EventService.post(editorId, EditorInputUpdateListener.class, l -> l.onInputUpdate());
+		EventService.post(editorId, EditorPreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
+		EventService.post(editorId, EditorRenderUpdateListener.class, l -> l.onRenderUpdate());
 		renderScene();
 	}
 
 	static void debugUpdate() {
-		EventService.post(ApplicationDebugUpdateListener.class, debugUpdateDispatcher);
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 	}
 
 	public void renderScene() {
@@ -106,7 +101,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 			updateGlState();
 
 			batch.begin(camera);
-			batch.render(gridModelInstance, environment);
+			gridModelInstance.render(batch.getModelBatch());
 			compass.render(batch.getModelBatch());
 			batch.end();
 
@@ -145,13 +140,16 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	}
 
 	@Override
+	public void cameraChanged(Camera camera) {
+		this.camera = camera;
+	}
+
+	@Override
 	public void dispose() {
 		EventService.post(ApplicationShutdownListener.class, l -> l.shutdown());
 		debugUpdate();
 		EventService.unsubscribe(editorId, this);
 		batch.dispose();
-		gridModelInstance.dispose();
-		compass.dispose();
 		// TODO DisposablesService.disposeAll();
 	}
 }
