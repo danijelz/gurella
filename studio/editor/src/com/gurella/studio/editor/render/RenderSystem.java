@@ -158,14 +158,13 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		synchronized (GurellaStudioPlugin.glMutex) {
 			updateGlState();
 
-			batch.begin(camera);
-			gridModelInstance.render(batch.getModelBatch());
-			compass.render(batch.getModelBatch());
-			batch.end();
+			gridModelInstance.render(batch);
 
 			renderContext.batch = batch;
 			renderContext.camera = camera;
 			renderScene(renderContext);
+
+			compass.render(batch);
 			infoRenderer.renderInfo(camera, batch);
 		}
 	}
@@ -188,15 +187,13 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 		EventService.post(sceneId, PreRenderUpdateEvent.instance);
 
-		GenericBatch batch = context.batch;
-		Camera camera = context.camera;
-		SceneNodeComponent2 focusedComponent = focusData.focusedComponent;
-
 		batch.begin(camera);
 		batch.setEnvironment(environment);
 
 		scene.spatialSystem.getSpatials(camera.frustum, tempSpatials, layerMask);
 		tempSpatials.sort(LayerOrdinalComparator.instance);
+
+		SceneNodeComponent2 focusedComponent = focusData.focusedComponent;
 		int focusedComponentNodeId = focusedComponent instanceof DebugRenderable ? focusedComponent.getNodeId() : -1;
 		boolean focusedComponnentRendered = focusedComponent == null ? true : false;
 

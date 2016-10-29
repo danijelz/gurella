@@ -6,13 +6,13 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -51,7 +51,7 @@ public class GridModelInstance implements EditorCameraChangedListener, EditorPre
 		this.camera = camera;
 	}
 
-	public void render(ModelBatch batch) {
+	public void render(GenericBatch batch) {
 		batch.begin(camera);
 		batch.render(instance, environment);
 		batch.end();

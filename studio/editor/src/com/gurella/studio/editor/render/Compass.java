@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -83,7 +84,7 @@ public class Compass implements EditorPreCloseListener, EditorCameraChangedListe
 		this.worldCamera = camera;
 	}
 
-	public void render(ModelBatch batch) {
+	public void render(GenericBatch batch) {
 		Graphics graphics = Gdx.graphics;
 		int width = graphics.getWidth();
 		int height = graphics.getHeight();
