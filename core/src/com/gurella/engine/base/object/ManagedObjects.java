@@ -164,7 +164,7 @@ final class ManagedObjects {
 
 	@TypePriorities({
 			@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationUpdateListener.class),
-			@TypePriority(priority = CommonUpdatePriority.preRenderPriority, type = ApplicationDebugUpdateListener.class) })
+			@TypePriority(priority = CommonUpdatePriority.cleanupPriority, type = ApplicationDebugUpdateListener.class) })
 	private static class Cleaner implements ApplicationUpdateListener, ApplicationDebugUpdateListener {
 		@Override
 		public void update() {

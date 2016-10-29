@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.menu;
 
 import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera2d;
 import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera3d;
@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.SceneEditor;
+import com.gurella.studio.editor.SceneEditorUndoContext;
+import com.gurella.studio.editor.ViewRegistry;
 import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
@@ -20,26 +23,25 @@ import com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-class CommonContextMenuContributor
+public class CommonContextMenuContributor
 		implements EditorContextMenuContributor, EditorCameraChangedListener, EditorPreCloseListener {
 	private static final String cameraGroupName = "Camera";
 	private static final String moveToGroupName = "Move to";
 	private static final String viewGroupName = "View";
 
 	private final int editorId;
-	private final SceneEditor editor;
+	/*private final SceneEditor editor;
 	private final SceneEditorUndoContext undoContext;
-	private final ViewRegistry viewRegistry;
+	private final ViewRegistry viewRegistry;*/
 
 	private Camera camera;
 
-	CommonContextMenuContributor(SceneEditor editor) {
-		editorId = editor.id;
-		this.editor = editor;
+	public CommonContextMenuContributor(int editorId) {
+		this.editorId = editorId;
 		this.undoContext = editor.undoContext;
 		this.viewRegistry = editor.viewRegistry;
 
-		EventService.subscribe(editor.id, this);
+		EventService.subscribe(editorId, this);
 		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 	}
 
@@ -136,6 +138,6 @@ class CommonContextMenuContributor
 
 	@Override
 	public void onEditorPreClose() {
-		EventService.unsubscribe(editor.id, this);
+		EventService.unsubscribe(editorId, this);
 	}
 }

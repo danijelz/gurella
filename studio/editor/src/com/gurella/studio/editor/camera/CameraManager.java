@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -13,23 +13,24 @@ import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorCameraSwitch;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorResizeListener;
 
-public class SceneEditorCameraManager
-		implements EditorCameraSwitch, EditorPreCloseListener, EditorActiveCameraProvider, EditorInputUpdateListener {
+public class CameraManager implements EditorCameraSwitch, EditorPreCloseListener, EditorActiveCameraProvider,
+		EditorInputUpdateListener, EditorResizeListener {
 	private final InputEventQueue inputQueue = new InputEventQueue();
 
 	private final int editorId;
 
 	private PerspectiveCamera perspectiveCamera;
-	private SceneEditorCameraController perspectiveCameraController;
+	private CameraController perspectiveCameraController;
 
 	private OrthographicCamera orthographicCamera;
-	private SceneEditorCameraController orthographicCameraController;
+	private CameraController orthographicCameraController;
 
 	private Camera camera;
-	private SceneEditorCameraController inputController;
+	private CameraController inputController;
 
-	public SceneEditorCameraManager(int editorId) {
+	public CameraManager(int editorId) {
 		this.editorId = editorId;
 
 		Graphics graphics = Gdx.graphics;
@@ -39,12 +40,12 @@ public class SceneEditorCameraManager
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 10000;
 		perspectiveCamera.update();
-		perspectiveCameraController = new SceneEditorCameraController(perspectiveCamera, editorId);
+		perspectiveCameraController = new CameraController(perspectiveCamera, editorId);
 
 		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
 		orthographicCamera.far = 10000;
 		orthographicCamera.update();
-		orthographicCameraController = new SceneEditorCameraController(orthographicCamera, editorId);
+		orthographicCameraController = new CameraController(orthographicCamera, editorId);
 
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
@@ -101,12 +102,6 @@ public class SceneEditorCameraManager
 	}
 
 	@Override
-	public void onEditorPreClose() {
-		InputService.removeInputProcessor(inputQueue);
-		EventService.unsubscribe(editorId, this);
-	}
-
-	@Override
 	public Camera getActiveCamera() {
 		return camera;
 	}
@@ -117,7 +112,8 @@ public class SceneEditorCameraManager
 		inputController.update();
 	}
 
-	void resize(int width, int height) {
+	@Override
+	public void resize(int width, int height) {
 		perspectiveCamera.viewportWidth = width;
 		perspectiveCamera.viewportHeight = height;
 		perspectiveCamera.update();
@@ -125,5 +121,11 @@ public class SceneEditorCameraManager
 		orthographicCamera.viewportWidth = width;
 		orthographicCamera.viewportHeight = height;
 		orthographicCamera.update();
+	}
+
+	@Override
+	public void onEditorPreClose() {
+		InputService.removeInputProcessor(inputQueue);
+		EventService.unsubscribe(editorId, this);
 	}
 }

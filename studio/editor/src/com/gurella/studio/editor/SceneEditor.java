@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -136,9 +137,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		SceneEditorRegistry.put(this, dock, application, sceneContext);
 		viewRegistry = new ViewRegistry(this);
 
-		@SuppressWarnings("unused")
-		CommonContextMenuContributor menuContributor = new CommonContextMenuContributor(this);
-
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
 	}
 
@@ -231,7 +229,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		EventService.post(getCurrentEditorId(), type, l -> dispatcher.accept(l));
 	}
 
-	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
+	private final class LoadSceneCallback extends AsyncCallbackAdapter<@NonNull Scene> {
 		private Label progressLabel;
 
 		public LoadSceneCallback() {

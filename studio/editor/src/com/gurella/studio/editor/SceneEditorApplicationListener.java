@@ -15,28 +15,32 @@ import com.gurella.engine.scene.debug.DebugRenderable.DebugRenderContext;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.camera.CameraManager;
+import com.gurella.studio.editor.focus.FocusManager;
+import com.gurella.studio.editor.menu.ContextMenuManager;
 import com.gurella.studio.editor.render.Compass;
 import com.gurella.studio.editor.render.EditorInfoRenderer;
 import com.gurella.studio.editor.render.GridModelInstance;
 import com.gurella.studio.editor.render.SceneEditorRenderSystem;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
-import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
-import com.gurella.studio.editor.subscription.EditorMouseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements GurellaStateProvider, EditorMouseListener, SceneLoadedListener, EditorCameraChangedListener {
+		implements GurellaStateProvider, SceneLoadedListener, EditorCameraChangedListener {
 	private final int editorId;
 
 	private Thread renderThread;
 
 	@SuppressWarnings("unused")
-	private SceneEditorFocusManager focusManager;
-	private SceneEditorCameraManager cameraManager;
+	private FocusManager focusManager;
+	@SuppressWarnings("unused")
+	private CameraManager cameraManager;
+	@SuppressWarnings("unused")
+	private ContextMenuManager contextMenuManager;
 
 	private GenericBatch batch;
 	private DebugRenderContext renderContext = new DebugRenderContext();
@@ -59,8 +63,9 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@SuppressWarnings("deprecation")
 	public void create() {
 		renderThread = Thread.currentThread();
-		cameraManager = new SceneEditorCameraManager(editorId);
-		focusManager = new SceneEditorFocusManager(editorId);
+		cameraManager = new CameraManager(editorId);
+		focusManager = new FocusManager(editorId);
+		contextMenuManager = new ContextMenuManager(editorId);
 		renderSystem = new SceneEditorRenderSystem(editorId);
 
 		batch = new GenericBatch();
@@ -78,7 +83,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void resize(int width, int height) {
-		cameraManager.resize(width, height);
 		infoRenderer.resize(width, height);
 		EventService.post(editorId, EditorResizeListener.class, l -> l.resize(width, height));
 	}
@@ -126,17 +130,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public boolean isInRenderThread() {
 		return renderThread == Thread.currentThread();
-	}
-
-	@Override
-	public void onMouseMenu(float x, float y) {
-		ContextMenuActions actions = new ContextMenuActions();
-		EventService.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
-		actions.showMenu();
-	}
-
-	@Override
-	public void onMouseSelection(float x, float y) {
 	}
 
 	@Override

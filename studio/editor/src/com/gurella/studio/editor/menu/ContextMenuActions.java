@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.menu;
 
 import static org.eclipse.swt.SWT.CHECK;
 import static org.eclipse.swt.SWT.POP_UP;

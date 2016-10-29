@@ -23,13 +23,14 @@ import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 
 /**
  * Adapted from https://github.com/mbrlabs/Mundus
  * 
  * @author Marcus Brummer
  */
-public class Compass implements EditorPreCloseListener, EditorCameraChangedListener {
+public class Compass implements EditorPreCloseListener, EditorCameraChangedListener, EditorPreRenderUpdateListener {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;
@@ -83,7 +84,6 @@ public class Compass implements EditorPreCloseListener, EditorCameraChangedListe
 	}
 
 	public void render(ModelBatch batch) {
-		update();
 		Graphics graphics = Gdx.graphics;
 		int width = graphics.getWidth();
 		int height = graphics.getHeight();
@@ -94,7 +94,8 @@ public class Compass implements EditorPreCloseListener, EditorCameraChangedListe
 		Gdx.gl.glViewport(0, 0, width, height);
 	}
 
-	private void update() {
+	@Override
+	public void onPreRenderUpdate() {
 		worldCamera.view.getRotation(tempRotation);
 		tempRotation.conjugate();
 		compassInstance.transform.set(tempTranslation, tempRotation, tempScale);

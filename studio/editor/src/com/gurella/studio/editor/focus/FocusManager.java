@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.focus;
 
 import java.util.Optional;
 
@@ -30,7 +30,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
+public class FocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
 		EditorPreCloseListener, EditorPreRenderUpdateListener, EditorCameraChangedListener {
 	private final int editorId;
 
@@ -47,7 +47,7 @@ class SceneEditorFocusManager implements SceneLoadedListener, EditorMouseListene
 
 	private Camera camera;
 
-	public SceneEditorFocusManager(int editorId) {
+	public FocusManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
 		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());

@@ -1,4 +1,4 @@
-package com.gurella.studio.editor;
+package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
@@ -10,10 +10,10 @@ import com.gurella.studio.editor.subscription.EditorCameraSwitch;
 import com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
 
-class SceneEditorCameraController extends CameraInputController {
+class CameraController extends CameraInputController {
 	private final int editorId;
 
-	public SceneEditorCameraController(Camera camera, int editorId) {
+	public CameraController(Camera camera, int editorId) {
 		super(new SceneCameraGestureListener(editorId), camera);
 		this.editorId = editorId;
 	}
