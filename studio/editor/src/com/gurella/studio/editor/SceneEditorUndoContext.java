@@ -20,7 +20,7 @@ import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorUndoContext extends UndoContext
+class SceneEditorUndoContext extends UndoContext
 		implements EditorPreCloseListener, EditorContextMenuContributor {
 	private final int editorId;
 
@@ -29,7 +29,7 @@ public class SceneEditorUndoContext extends UndoContext
 	private final RedoActionHandler redoAction;
 	private final UndoRedoActionGroup historyActionGroup;
 
-	public SceneEditorUndoContext(SceneEditor editor) {
+	SceneEditorUndoContext(SceneEditor editor) {
 		editorId = editor.id;
 
 		IEditorSite site = (IEditorSite) editor.getSite();

@@ -1,12 +1,17 @@
 package com.gurella.studio.editor.render;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DirectionalLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.PointLightsAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.SpotLightsAttribute;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.event.EventService;
@@ -25,12 +30,16 @@ import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
+import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneEditorRenderSystem
-		implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener, EditorFocusListener {
+public class RenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener,
+		EditorFocusListener, EditorRenderUpdateListener, EditorCameraChangedListener {
 	private int editorId;
 
 	private Scene scene;
@@ -50,7 +59,17 @@ public class SceneEditorRenderSystem
 	private final LayerMask layerMask = new LayerMask();
 	private final Array<Spatial> tempSpatials = new Array<Spatial>(256);
 
-	public SceneEditorRenderSystem(int editorId) {
+	private GenericBatch batch;
+	private DebugRenderContext renderContext = new DebugRenderContext();
+	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
+
+	private GridModelInstance gridModelInstance;
+	private Compass compass;
+	private InfoRenderer infoRenderer;
+
+	private Camera camera;
+
+	public RenderSystem(int editorId) {
 		this.editorId = editorId;
 
 		environment.set(ambientLight);
@@ -62,7 +81,15 @@ public class SceneEditorRenderSystem
 		layerMask.allowed(Layer.DEFAULT);
 		layerMask.allowed(Layer.SKY);
 
+		batch = new GenericBatch();
+		gridModelInstance = new GridModelInstance(editorId);
+		compass = new Compass(editorId);
+		infoRenderer = new InfoRenderer(editorId);
+
+		DefaultShader.defaultCullFace = 0;
+
 		EventService.subscribe(editorId, this);
+		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 	}
 
 	@Override
@@ -126,7 +153,35 @@ public class SceneEditorRenderSystem
 		}
 	}
 
-	public void renderScene(DebugRenderContext context) {
+	@Override
+	public void onRenderUpdate() {
+		synchronized (GurellaStudioPlugin.glMutex) {
+			updateGlState();
+
+			batch.begin(camera);
+			gridModelInstance.render(batch.getModelBatch());
+			compass.render(batch.getModelBatch());
+			batch.end();
+
+			renderContext.batch = batch;
+			renderContext.camera = camera;
+			renderScene(renderContext);
+			infoRenderer.renderInfo(camera, batch);
+		}
+	}
+
+	protected void updateGlState() {
+		Color color = backgroundColor;
+		Gdx.gl.glClearColor(color.r, color.g, color.b, color.a);
+		Gdx.gl.glClearDepthf(1);
+		Gdx.gl.glClearStencil(0);
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | GL20.GL_STENCIL_BUFFER_BIT);
+		Graphics graphics = Gdx.graphics;
+		Gdx.gl.glViewport(0, 0, graphics.getWidth(), graphics.getHeight());
+	}
+
+	private void renderScene(DebugRenderContext context) {
 		if (scene == null) {
 			return;
 		}
@@ -181,8 +236,14 @@ public class SceneEditorRenderSystem
 	}
 
 	@Override
+	public void cameraChanged(Camera camera) {
+		this.camera = camera;
+	}
+
+	@Override
 	public void onEditorPreClose() {
 		EventService.unsubscribe(sceneId, this);
 		EventService.unsubscribe(editorId, this);
+		batch.dispose();
 	}
 }

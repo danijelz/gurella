@@ -12,14 +12,15 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorResizeListener;
 
-public class EditorInfoRenderer implements EditorPreCloseListener {
+class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
 	private final int editorId;
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
 	private final StringBuffer info = new StringBuffer();
 
-	public EditorInfoRenderer(int editorId) {
+	InfoRenderer(int editorId) {
 		this.editorId = editorId;
 		font = new BitmapFont();
 		font.setColor(Color.WHITE);
@@ -29,6 +30,7 @@ public class EditorInfoRenderer implements EditorPreCloseListener {
 		EventService.subscribe(editorId, this);
 	}
 
+	@Override
 	public void resize(int width, int height) {
 		infoProjection.setToOrtho2D(0, 0, width, height);
 	}
