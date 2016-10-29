@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -229,7 +228,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		EventService.post(getCurrentEditorId(), type, l -> dispatcher.accept(l));
 	}
 
-	private final class LoadSceneCallback extends AsyncCallbackAdapter<@NonNull Scene> {
+	private final class LoadSceneCallback extends AsyncCallbackAdapter<Scene> {
 		private Label progressLabel;
 
 		public LoadSceneCallback() {

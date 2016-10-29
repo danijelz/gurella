@@ -7,13 +7,10 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 public class ContextMenuManager implements EditorMouseListener, EditorPreCloseListener {
 	private final int editorId;
-	@SuppressWarnings("unused")
-	private final CommonContextMenuContributor menuContributor;
 
 	public ContextMenuManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
-		menuContributor = new CommonContextMenuContributor(editorId);
 	}
 
 	@Override

@@ -15,16 +15,19 @@ import org.eclipse.ui.operations.UndoActionHandler;
 import org.eclipse.ui.operations.UndoRedoActionGroup;
 
 import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.menu.ContextMenuActions;
+import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorUndoContext extends UndoContext implements EditorPreCloseListener {
-	private int editorId;
+public class SceneEditorUndoContext extends UndoContext
+		implements EditorPreCloseListener, EditorContextMenuContributor {
+	private final int editorId;
 
-	IOperationHistory operationHistory;
-	UndoActionHandler undoAction;
-	RedoActionHandler redoAction;
-	private UndoRedoActionGroup historyActionGroup;
+	private final IOperationHistory operationHistory;
+	private final UndoActionHandler undoAction;
+	private final RedoActionHandler redoAction;
+	private final UndoRedoActionGroup historyActionGroup;
 
 	public SceneEditorUndoContext(SceneEditor editor) {
 		editorId = editor.id;
@@ -77,5 +80,11 @@ public class SceneEditorUndoContext extends UndoContext implements EditorPreClos
 			String msg = "Error while executing redo.";
 			Try.ofFailable(() -> operationHistory.redo(this, monitor, null)).onFailure(e -> log(e, msg));
 		}
+	}
+
+	@Override
+	public void contribute(ContextMenuActions actions) {
+		actions.addAction("Undo", -1000, canUndo(), this::undo);
+		actions.addAction("Redo", -900, canRedo(), this::redo);
 	}
 }
