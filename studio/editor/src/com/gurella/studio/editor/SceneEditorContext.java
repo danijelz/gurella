@@ -78,7 +78,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 			Object asset = entry.getValue();
 			AssetPersister<Object> persister = AssetPersisters.get(asset);
 			if (persister == null) {
-				//TODO
+				//TODO exception?
 			} else {
 				persister.persist(fileName, asset);
 			}

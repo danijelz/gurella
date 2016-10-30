@@ -113,15 +113,15 @@ public class ScaleTool extends SelectionTool {
 	public static Model createArrowStub(Material mat, Vector3 from, Vector3 to) {
 		ModelBuilder modelBuilder = new ModelBuilder();
 		modelBuilder.begin();
-		MeshPartBuilder meshBuilder;
 		// line
-		meshBuilder = modelBuilder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
+		MeshPartBuilder meshBuilder = modelBuilder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
 		meshBuilder.line(from.x, from.y, from.z, to.x, to.y, to.z);
 		// stub
 		Node node = modelBuilder.node();
 		node.translation.set(to.x, to.y, to.z);
 		meshBuilder = modelBuilder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
 		BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
+		
 		return modelBuilder.end();
 	}
 }

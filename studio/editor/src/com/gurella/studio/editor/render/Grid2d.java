@@ -8,6 +8,7 @@ import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
+//TODO unused
 public class Grid2d implements EditorCameraChangedListener, EditorPreCloseListener {
 	private final int editorId;
 
