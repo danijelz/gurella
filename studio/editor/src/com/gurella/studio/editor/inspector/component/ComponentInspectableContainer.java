@@ -19,7 +19,7 @@ import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 
 public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent2> {
-	private BeanEditor<SceneNodeComponent2> modelEditor;
+	private BeanEditor<SceneNodeComponent2> editor;
 
 	public ComponentInspectableContainer(InspectorView parent, SceneNodeComponent2 target) {
 		super(parent, target);
@@ -36,10 +36,10 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		Composite body = getBody();
 		body.setLayout(new GridLayout(1, false));
 
-		modelEditor = BeanEditorFactory.createEditor(body, editorContext, target);
-		Signal1<PropertyValueChangedEvent> signal = modelEditor.getContext().propertyChangedSignal;
+		editor = BeanEditorFactory.createEditor(body, editorContext, target);
+		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertyChangedSignal;
 		signal.addListener(e -> EventService.post(editorContext.editorId, SceneChangedEvent.instance));
-		modelEditor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		layout(true, true);
 	}
 }
