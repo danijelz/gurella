@@ -82,6 +82,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	private MaterialDescriptor materialDescriptor;
+	private boolean dirty;
 
 	public MaterialInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
@@ -274,6 +275,9 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 
 	private void onDispose() {
 		synchronized (GurellaStudioPlugin.glMutex) {
+			if (!dirty) {
+				editorContext.unload(target.getLocation().toString());
+			}
 			wall.dispose();
 			model.dispose();
 			modelBatch.dispose();
