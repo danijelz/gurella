@@ -4,6 +4,7 @@ import static com.gurella.studio.GurellaStudioPlugin.log;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.eclipse.core.commands.operations.IUndoableOperation;
@@ -14,9 +15,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IPathEditorInput;
 
+import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.persister.AssetPersister;
+import com.gurella.engine.asset.persister.AssetPersisters;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -54,9 +59,30 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	@Override
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
+		unloadAssets();
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 		String msg = "Error closing java project";
 		Optional.ofNullable(javaProject).ifPresent(p -> Try.ofFailable(p, t -> t.close()).onFailure(e -> log(e, msg)));
+	}
+
+	private void unloadAssets() {
+		for (Entry<String, Object> entry : editedAssets.entrySet()) {
+			Object asset = entry.getValue();
+			AssetService.unload(asset);
+		}
+	}
+
+	void persistAssets() {
+		for (Entry<String, Object> entry : editedAssets.entrySet()) {
+			String fileName = entry.getKey();
+			Object asset = entry.getValue();
+			AssetPersister<Object> persister = AssetPersisters.get(asset);
+			if (persister == null) {
+				//TODO
+			} else {
+				persister.persist(fileName, asset);
+			}
+		}
 	}
 
 	public Scene getScene() {
@@ -70,5 +96,21 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 
 	public void executeOperation(IUndoableOperation operation, String errorMsg) {
 		historyManager.executeOperation(operation, errorMsg);
+	}
+
+	public <T> T load(String fileName) {
+		Object asset = editedAssets.get(fileName);
+		if (asset == null) {
+			asset = AssetService.load(fileName);
+			editedAssets.put(fileName, asset);
+		}
+		return Values.cast(asset);
+	}
+
+	public void unload(String fileName) {
+		Object asset = editedAssets.remove(fileName);
+		if (asset != null) {
+			AssetService.unload(fileName);
+		}
 	}
 }

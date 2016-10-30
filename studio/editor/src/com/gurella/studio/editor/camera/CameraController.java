@@ -26,7 +26,7 @@ class CameraController extends CameraInputController {
 			} else if (button == translateButton) {
 				camera.translate(-deltaX * 10, -deltaY * 10, 0);
 			} else if (button == forwardButton) {
-				zoom(-deltaY * translateUnits);
+				zoom(-deltaY * 0.01f);
 			}
 
 			if (autoUpdate) {
@@ -39,6 +39,15 @@ class CameraController extends CameraInputController {
 	}
 
 	@Override
+	public boolean scrolled(int amount) {
+		if (camera instanceof OrthographicCamera) {
+			return zoom(amount * 0.01f);
+		} else {
+			return super.scrolled(amount);
+		}
+	}
+
+	@Override
 	public boolean zoom(float amount) {
 		if (camera instanceof OrthographicCamera) {
 			if (!alwaysScroll && activateKey != 0 && !activatePressed) {
@@ -46,8 +55,8 @@ class CameraController extends CameraInputController {
 			}
 			OrthographicCamera orthographicCamera = (OrthographicCamera) camera;
 			orthographicCamera.zoom += amount;
-			if (orthographicCamera.zoom < 0.1f) {
-				orthographicCamera.zoom = 0.1f;
+			if (orthographicCamera.zoom < Float.MIN_VALUE) {
+				orthographicCamera.zoom = Float.MIN_VALUE;
 			}
 			if (autoUpdate) {
 				camera.update();

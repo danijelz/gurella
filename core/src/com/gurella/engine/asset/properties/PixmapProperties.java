@@ -9,4 +9,9 @@ public class PixmapProperties implements AssetProperties<Pixmap> {
 	public AssetLoaderParameters<Pixmap> createLoaderParameters() {
 		return new PixmapParameter();
 	}
+
+	@Override
+	public Class<Pixmap> getAssetType() {
+		return Pixmap.class;
+	}
 }

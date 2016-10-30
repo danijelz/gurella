@@ -28,4 +28,9 @@ public class TextureProperties implements AssetProperties<Texture> {
 		textureParameter.wrapV = wrapV == null ? TextureWrap.ClampToEdge : wrapV;
 		return textureParameter;
 	}
+
+	@Override
+	public Class<Texture> getAssetType() {
+		return Texture.class;
+	}
 }

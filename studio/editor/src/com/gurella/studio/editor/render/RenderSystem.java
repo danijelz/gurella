@@ -30,6 +30,7 @@ import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderSystem.LayerOrdinalComparator;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
+import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
@@ -63,12 +64,13 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	private DebugRenderContext renderContext = new DebugRenderContext();
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
-	private GridModelInstance gridModelInstance;
+	private Grid3d grid3d;
 	private Compass compass;
 	private InfoRenderer infoRenderer;
 
 	private Camera camera;
 
+	@SuppressWarnings("deprecation")
 	public RenderSystem(int editorId) {
 		this.editorId = editorId;
 
@@ -82,7 +84,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		layerMask.allowed(Layer.SKY);
 
 		batch = new GenericBatch();
-		gridModelInstance = new GridModelInstance(editorId);
+		grid3d = new Grid3d(editorId);
 		compass = new Compass(editorId);
 		infoRenderer = new InfoRenderer(editorId);
 
@@ -157,8 +159,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	public void onRenderUpdate() {
 		synchronized (GurellaStudioPlugin.glMutex) {
 			updateGlState();
-
-			gridModelInstance.render(batch);
+			grid3d.render(batch);
 			renderScene();
 			compass.render(batch);
 			infoRenderer.renderInfo(camera, batch);
@@ -181,7 +182,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 			return;
 		}
 
-		EventService.post(sceneId, PreRenderUpdateEvent.instance);
+		EventService.post(sceneId, PreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
 
 		batch.begin(camera);
 		batch.setEnvironment(environment);

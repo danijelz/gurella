@@ -17,7 +17,7 @@ import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-public class GridModelInstance implements EditorCameraChangedListener, EditorPreCloseListener {
+public class Grid3d implements EditorCameraChangedListener, EditorPreCloseListener {
 	private final int editorId;
 
 	private Model model;
@@ -27,7 +27,7 @@ public class GridModelInstance implements EditorCameraChangedListener, EditorPre
 
 	private Camera camera;
 
-	public GridModelInstance(int editorId) {
+	public Grid3d(int editorId) {
 		this.editorId = editorId;
 		init();
 		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
