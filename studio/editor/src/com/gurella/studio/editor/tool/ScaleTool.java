@@ -63,6 +63,7 @@ public class ScaleTool extends SelectionTool implements Disposable {
 	//@Override
 	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
 		//super.render(transform, camera, batch);
+		init(translation, camera);
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 		batch.begin(camera);
 		xHandle.render(batch);
