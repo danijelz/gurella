@@ -47,7 +47,6 @@ public class RotateTool extends TransformTool {
 			zHandle.render(batch);
 			batch.end();
 		} else {
-
 			temp0.set(translation);
 			Vector3 pivot = camera.project(temp0);
 
