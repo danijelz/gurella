@@ -20,8 +20,9 @@ public class ToolManager extends InputAdapter
 
 	private EditorFocusData focusData = new EditorFocusData(null, null);
 
-	ScaleTool scaleTool = new ScaleTool();
-	SelectionTool selected;
+	private ScaleTool scaleTool = new ScaleTool();
+	private TranslateTool translateTool = new TranslateTool();
+	TransformTool selected;
 
 	private Camera camera;
 
@@ -37,7 +38,6 @@ public class ToolManager extends InputAdapter
 	@Override
 	public void focusChanged(EditorFocusData focusData) {
 		this.focusData = focusData;
-		selected = null;
 	}
 
 	@Override
@@ -47,9 +47,11 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (keycode == Keys.S && focusData.focusedComponent instanceof RenderableComponent) {
-			initTranslation();
-			scaleTool.init(temp, camera);
+		if (keycode == Keys.S) {
+			selected = scaleTool;
+			return true;
+		} else if (keycode == Keys.T) {
+			selected = translateTool;
 			return true;
 		} else if (keycode == Keys.ESCAPE) {
 			selected = null;
@@ -61,7 +63,6 @@ public class ToolManager extends InputAdapter
 
 	private void initTranslation() {
 		RenderableComponent renderableComponent = (RenderableComponent) focusData.focusedComponent;
-		selected = scaleTool;
 		TransformComponent transform = renderableComponent.getTransformComponent();
 		if (transform == null) {
 			temp.set(0, 0, 0);
@@ -71,9 +72,9 @@ public class ToolManager extends InputAdapter
 	}
 
 	public void render(GenericBatch batch) {
-		if (selected != null) {
+		if (selected != null && focusData.focusedComponent instanceof RenderableComponent) {
 			initTranslation();
-			scaleTool.render(temp, camera, batch);
+			selected.render(temp, camera, batch);
 		}
 	}
 

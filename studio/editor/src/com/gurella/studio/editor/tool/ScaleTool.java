@@ -19,9 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 
-public class ScaleTool extends SelectionTool implements Disposable {
-	public static final String NAME = "Scale Tool";
-
+public class ScaleTool extends TransformTool implements Disposable {
 	private final ScaleHandle xHandle;
 	private final ScaleHandle yHandle;
 	private final ScaleHandle zHandle;
@@ -60,8 +58,8 @@ public class ScaleTool extends SelectionTool implements Disposable {
 		handles = new ScaleHandle[] { xHandle, yHandle, zHandle, xyzHandle };
 	}
 
-	//@Override
-	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
+	@Override
+	void render(Vector3 translation, Camera camera, GenericBatch batch) {
 		//super.render(transform, camera, batch);
 		init(translation, camera);
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
@@ -116,14 +114,15 @@ public class ScaleTool extends SelectionTool implements Disposable {
 		ModelBuilder modelBuilder = new ModelBuilder();
 		modelBuilder.begin();
 		// line
-		MeshPartBuilder meshBuilder = modelBuilder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
+		MeshPartBuilder meshBuilder = modelBuilder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked,
+				mat);
 		meshBuilder.line(from.x, from.y, from.z, to.x, to.y, to.z);
 		// stub
 		Node node = modelBuilder.node();
 		node.translation.set(to.x, to.y, to.z);
 		meshBuilder = modelBuilder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
 		BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
-		
+
 		return modelBuilder.end();
 	}
 
@@ -134,38 +133,38 @@ public class ScaleTool extends SelectionTool implements Disposable {
 		zHandle.dispose();
 		xyzHandle.dispose();
 	}
-	
+
 	void init(Vector3 selctionTranslation, Camera camera) {
 		translateHandles(selctionTranslation);
 		scaleHandles(selctionTranslation, camera);
 	}
-	
+
 	protected void translateHandles(Vector3 selctionTranslation) {
-        final Vector3 pos = selctionTranslation;
-        xHandle.position.set(pos);
-        xHandle.applyTransform();
-        yHandle.position.set(pos);
-        yHandle.applyTransform();
-        zHandle.position.set(pos);
-        zHandle.applyTransform();
-        xyzHandle.position.set(pos);
-        xyzHandle.applyTransform();
-    }
+		final Vector3 pos = selctionTranslation;
+		xHandle.position.set(pos);
+		xHandle.applyTransform();
+		yHandle.position.set(pos);
+		yHandle.applyTransform();
+		zHandle.position.set(pos);
+		zHandle.applyTransform();
+		xyzHandle.position.set(pos);
+		xyzHandle.applyTransform();
+	}
 
-    protected void scaleHandles(Vector3 selctionTranslation, Camera camera) {
-        Vector3 pos = selctionTranslation;
-        
-        float scaleFactor = camera.position.dst(pos) * 0.01f;
-        xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        xHandle.applyTransform();
+	protected void scaleHandles(Vector3 selctionTranslation, Camera camera) {
+		Vector3 pos = selctionTranslation;
 
-        yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        yHandle.applyTransform();
+		float scaleFactor = camera.position.dst(pos) * 0.01f;
+		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+		xHandle.applyTransform();
 
-        zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        zHandle.applyTransform();
+		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+		yHandle.applyTransform();
 
-        xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        xyzHandle.applyTransform();
-    }
+		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+		zHandle.applyTransform();
+
+		xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+		xyzHandle.applyTransform();
+	}
 }

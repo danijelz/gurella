@@ -6,11 +6,11 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.gurella.engine.graphics.render.GenericBatch;
 
-public class ScaleHandle extends ToolHandle {
+public class TranslateHandle extends ToolHandle {
 	private Model model;
 	private ModelInstance modelInstance;
 
-	public ScaleHandle(int id, Model model) {
+	public TranslateHandle(int id, Model model) {
 		super(id);
 		this.model = model;
 		this.modelInstance = new ModelInstance(model);
@@ -18,7 +18,7 @@ public class ScaleHandle extends ToolHandle {
 
 	@Override
 	void changeColor(Color color) {
-		ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.first().get(ColorAttribute.Diffuse);
+		ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.get(0).get(ColorAttribute.Diffuse);
 		diffuse.color.set(color);
 	}
 
@@ -29,11 +29,12 @@ public class ScaleHandle extends ToolHandle {
 
 	@Override
 	void applyTransform() {
+		rotation.setEulerAngles(rotationEuler.y, rotationEuler.x, rotationEuler.z);
 		modelInstance.transform.set(position, rotation, scale);
 	}
 
 	@Override
 	public void dispose() {
-		model.dispose();
+		this.model.dispose();
 	}
 }

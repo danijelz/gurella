@@ -1,8 +1,11 @@
 package com.gurella.studio.editor.tool;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.graphics.render.GenericBatch;
 
-public class SelectionTool extends EditorTool {
+public abstract class TransformTool {
 	protected static final int X_HANDLE_ID = 0;
 	protected static final int Y_HANDLE_ID = 1;
 	protected static final int Z_HANDLE_ID = 2;
@@ -16,25 +19,7 @@ public class SelectionTool extends EditorTool {
 	protected static Color COLOR_XYZ = Color.LIGHT_GRAY;
 	protected static Color COLOR_SELECTED = Color.YELLOW;
 
-//	private SceneNode2 focusNode;
-//
-//	public void render(TransformComponent transform, Camera camera, GenericBatch batch) {
-//		if (focusNode == null) {
-//			return;
-//		}
-//
-//		batch.begin(camera);
-//
-//		//		for (GameObject go : getProjectManager().current().currScene.currentSelection) {
-//		//			// model component
-//		//			ModelComponent mc = (ModelComponent) go.findComponentByType(Component.Type.MODEL);
-//		//			if (mc != null) {
-//		//				getBatch().render(mc.getModelInstance(), getShader());
-//		//			}
-//		//		}
-//
-//		batch.end();
-//	}
+	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
 
 	protected enum TransformState {
 		TRANSFORM_X, TRANSFORM_Y, TRANSFORM_Z, TRANSFORM_XZ, TRANSFORM_XYZ, IDLE
