@@ -18,7 +18,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.scene.transform.TransformComponent;
 
 public class ScaleTool extends SelectionTool implements Disposable {
 	public static final String NAME = "Scale Tool";
@@ -61,9 +60,9 @@ public class ScaleTool extends SelectionTool implements Disposable {
 		handles = new ScaleHandle[] { xHandle, yHandle, zHandle, xyzHandle };
 	}
 
-	@Override
-	public void render(TransformComponent transform, Camera camera, GenericBatch batch) {
-		super.render(transform, camera, batch);
+	//@Override
+	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
+		//super.render(transform, camera, batch);
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 		batch.begin(camera);
 		xHandle.render(batch);
@@ -73,7 +72,8 @@ public class ScaleTool extends SelectionTool implements Disposable {
 		batch.end();
 
 		Graphics graphics = Gdx.graphics;
-		transform.getTranslation(temp0);
+		//transform.getTranslation(temp0);
+		temp0.set(translation);
 		Vector3 pivot = camera.project(temp0, 0, 0, graphics.getWidth(), graphics.getHeight());
 		shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 
@@ -133,4 +133,38 @@ public class ScaleTool extends SelectionTool implements Disposable {
 		zHandle.dispose();
 		xyzHandle.dispose();
 	}
+	
+	void init(Vector3 selctionTranslation, Camera camera) {
+		translateHandles(selctionTranslation);
+		scaleHandles(selctionTranslation, camera);
+	}
+	
+	protected void translateHandles(Vector3 selctionTranslation) {
+        final Vector3 pos = selctionTranslation;
+        xHandle.position.set(pos);
+        xHandle.applyTransform();
+        yHandle.position.set(pos);
+        yHandle.applyTransform();
+        zHandle.position.set(pos);
+        zHandle.applyTransform();
+        xyzHandle.position.set(pos);
+        xyzHandle.applyTransform();
+    }
+
+    protected void scaleHandles(Vector3 selctionTranslation, Camera camera) {
+        Vector3 pos = selctionTranslation;
+        
+        float scaleFactor = camera.position.dst(pos) * 0.01f;
+        xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        xHandle.applyTransform();
+
+        yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        yHandle.applyTransform();
+
+        zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        zHandle.applyTransform();
+
+        xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        xyzHandle.applyTransform();
+    }
 }

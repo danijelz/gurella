@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
@@ -93,7 +93,7 @@ public class CameraManager extends InputAdapter
 	}
 
 	private void notifyCameraChange() {
-		EventService.post(editorId, EditorCameraChangedListener.class, l -> l.cameraChanged(camera));
+		EventService.post(editorId, EditorCameraSelectionListener.class, l -> l.cameraChanged(camera));
 	}
 
 	boolean is3d() {

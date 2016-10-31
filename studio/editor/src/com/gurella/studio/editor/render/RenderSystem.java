@@ -33,14 +33,15 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.tool.ToolManager;
 
 public class RenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener,
-		EditorFocusListener, EditorRenderUpdateListener, EditorCameraChangedListener {
+		EditorFocusListener, EditorRenderUpdateListener, EditorCameraSelectionListener {
 	private int editorId;
 
 	private Scene scene;
@@ -67,6 +68,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	private Grid3d grid3d;
 	private Compass compass;
 	private InfoRenderer infoRenderer;
+	private ToolManager toolManager;
 
 	private Camera camera;
 
@@ -87,6 +89,8 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		grid3d = new Grid3d(editorId);
 		compass = new Compass(editorId);
 		infoRenderer = new InfoRenderer(editorId);
+		
+		toolManager = new ToolManager(editorId);
 
 		DefaultShader.defaultCullFace = 0;
 
@@ -163,6 +167,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 			renderScene();
 			compass.render(batch);
 			infoRenderer.renderInfo(camera, batch);
+			toolManager.render(batch);
 		}
 	}
 

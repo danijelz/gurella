@@ -21,7 +21,7 @@ import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
@@ -31,7 +31,7 @@ import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class FocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
-		EditorPreCloseListener, EditorPreRenderUpdateListener, EditorCameraChangedListener {
+		EditorPreCloseListener, EditorPreRenderUpdateListener, EditorCameraSelectionListener {
 	private final int editorId;
 
 	private SceneNode2 focusedNode;

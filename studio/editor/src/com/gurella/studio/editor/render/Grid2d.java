@@ -5,11 +5,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 //TODO unused
-public class Grid2d implements EditorCameraChangedListener, EditorPreCloseListener {
+public class Grid2d implements EditorCameraSelectionListener, EditorPreCloseListener {
 	private final int editorId;
 
 	private Camera camera;

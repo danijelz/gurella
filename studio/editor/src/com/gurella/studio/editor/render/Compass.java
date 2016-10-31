@@ -21,7 +21,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
+import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 
@@ -30,7 +30,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
  * 
  * @author Marcus Brummer
  */
-public class Compass implements EditorPreCloseListener, EditorCameraChangedListener, EditorPreRenderUpdateListener {
+public class Compass implements EditorPreCloseListener, EditorCameraSelectionListener, EditorPreRenderUpdateListener {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;
