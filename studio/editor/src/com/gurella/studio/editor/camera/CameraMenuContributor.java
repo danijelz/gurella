@@ -1,13 +1,15 @@
 package com.gurella.studio.editor.camera;
 
-import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera2d;
-import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera3d;
+import static com.gurella.studio.editor.camera.CameraType.camera2d;
+import static com.gurella.studio.editor.camera.CameraType.camera3d;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.menu.ContextMenuActions;
@@ -17,10 +19,13 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class CameraMenuContributor implements EditorPreCloseListener, EditorContextMenuContributor {
 	private static final String cameraMenuGroupName = "Camera";
-	private static final String moveToMenuGroupName = "Move to";
+	private static final String moveToMenuGroupName = "Navigate";
 
 	private final int editorId;
 	private final CameraManager manager;
+
+	private final Matrix4 lookAt = new Matrix4();
+	private final Quaternion rotation = new Quaternion();
 
 	public CameraMenuContributor(int editorId, CameraManager manager) {
 		this.editorId = editorId;
@@ -41,6 +46,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 			actions.addAction(moveToMenuGroupName, "Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1));
 			actions.addAction(moveToMenuGroupName, "Restore rotation", 100, () -> setRotation(0));
 			actions.addAction(moveToMenuGroupName, "Rotation", 100, () -> selectRotation());
+			actions.addAction(moveToMenuGroupName, "Zoom", 100, () -> selectZoom());
 		} else {
 			actions.addAction(moveToMenuGroupName, "Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1));
 			actions.addAction(moveToMenuGroupName, "Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1));
@@ -62,21 +68,27 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 
 	private void selectRotation() {
 		Shell shell = UiUtils.getDisplay().getActiveShell();
-		String zoom = String.valueOf(((OrthographicCamera) manager.getActiveCamera()).zoom);
-		InputDialog dlg = new InputDialog(shell, "Zoom", "Zoom", zoom, s -> validateZoom(s));
+		Camera camera = manager.getActiveCamera();
+		lookAt.setToLookAt(camera.direction, camera.up);
+		lookAt.getRotation(rotation);
+		String rotationZ = String.valueOf(rotation.getRoll());
+		String message = "Please enter rotation in degrees";
+		InputDialog dlg = new InputDialog(shell, "Rotation", message, rotationZ, s -> validateRotation(s));
 		if (dlg.open() == InputDialog.OK) {
 			setRotation(Float.parseFloat(dlg.getValue()));
 		}
 	}
 
-	private static String validateZoom(String newText) {
+	private static String validateRotation(String newText) {
+		if (Values.isBlank(newText)) {
+			return "Value must not be empty.";
+		}
+
 		try {
-			if (Values.isNotBlank(newText)) {
-				Float.parseFloat(newText);
-			}
+			Float.parseFloat(newText);
 			return null;
 		} catch (Exception e) {
-			return "Zoom must be float value.";
+			return "Rotation must be float value.";
 		}
 	}
 
@@ -86,6 +98,31 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		camera.up.set(0, 1, 0);
 		camera.rotate(rotation);
 		camera.update(true);
+	}
+
+	private void selectZoom() {
+		Shell shell = UiUtils.getDisplay().getActiveShell();
+		String zoom = String.valueOf(((OrthographicCamera) manager.getActiveCamera()).zoom);
+		String message = "Please enter new zoom value";
+		InputDialog dlg = new InputDialog(shell, "Zoom", message, zoom, s -> validateZoom(s));
+		if (dlg.open() == InputDialog.OK) {
+			OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
+			camera.zoom = Float.parseFloat(dlg.getValue());
+			camera.update();
+		}
+	}
+
+	private static String validateZoom(String newText) {
+		if (Values.isBlank(newText)) {
+			return "Value must not be empty.";
+		}
+
+		try {
+			Float.parseFloat(newText);
+			return null;
+		} catch (Exception e) {
+			return "Zoom must be float value.";
+		}
 	}
 
 	@Override

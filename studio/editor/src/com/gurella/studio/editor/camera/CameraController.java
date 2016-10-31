@@ -1,21 +1,15 @@
 package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.gurella.engine.event.EventService;
-import com.gurella.studio.editor.subscription.EditorCameraSwitch;
-import com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType;
 import com.gurella.studio.editor.subscription.EditorMouseListener;
 
 class CameraController extends CameraInputController {
-	private final int editorId;
-
-	public CameraController(Camera camera, int editorId) {
+	public CameraController(int editorId, Camera camera) {
 		super(new SceneCameraGestureListener(editorId), camera);
-		this.editorId = editorId;
 	}
 
 	@Override
@@ -65,26 +59,6 @@ class CameraController extends CameraInputController {
 			return true;
 		} else {
 			return super.zoom(amount);
-		}
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		if (super.keyUp(keycode)) {
-			return true;
-		}
-
-		if (keycode == Keys.NUM_2 || keycode == Keys.NUMPAD_2) {
-			EventService.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera2d));
-			return true;
-		} else if (keycode == Keys.NUM_3 || keycode == Keys.NUMPAD_3) {
-			EventService.post(editorId, EditorCameraSwitch.class, l -> l.switchCamera(CameraType.camera3d));
-			return true;
-		} else if (keycode == Keys.ALT_LEFT || keycode == Keys.ALT_RIGHT) {
-			EventService.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(0, 0));
-			return true;
-		} else {
-			return false;
 		}
 	}
 

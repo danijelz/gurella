@@ -2,6 +2,8 @@ package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,13 +12,12 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraChangedListener;
-import com.gurella.studio.editor.subscription.EditorCameraSwitch;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 
-public class CameraManager implements EditorCameraSwitch, EditorPreCloseListener, EditorActiveCameraProvider,
-		EditorInputUpdateListener, EditorResizeListener {
+public class CameraManager extends InputAdapter
+		implements EditorPreCloseListener, EditorActiveCameraProvider, EditorInputUpdateListener, EditorResizeListener {
 
 	private final int editorId;
 
@@ -43,15 +44,17 @@ public class CameraManager implements EditorCameraSwitch, EditorPreCloseListener
 		perspectiveCamera.near = 0.1f;
 		perspectiveCamera.far = 10000;
 		perspectiveCamera.update();
-		perspectiveCameraController = new CameraController(perspectiveCamera, editorId);
+		perspectiveCameraController = new CameraController(editorId, perspectiveCamera);
 
 		orthographicCamera = new OrthographicCamera(graphics.getWidth(), graphics.getHeight());
 		orthographicCamera.far = 10000;
 		orthographicCamera.update();
-		orthographicCameraController = new CameraController(orthographicCamera, editorId);
+		orthographicCameraController = new CameraController(editorId, orthographicCamera);
 
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
+		InputService.addInputProcessor(this);
+
 		inputQueue = new InputEventQueue(inputController);
 		InputService.addInputProcessor(inputQueue);
 
@@ -61,8 +64,7 @@ public class CameraManager implements EditorCameraSwitch, EditorPreCloseListener
 		notifyCameraChange();
 	}
 
-	@Override
-	public void switchCamera(CameraType cameraType) {
+	void switchCamera(CameraType cameraType) {
 		switch (cameraType) {
 		case camera2d:
 			if (!is2d()) {
@@ -130,6 +132,20 @@ public class CameraManager implements EditorCameraSwitch, EditorPreCloseListener
 	@Override
 	public void onEditorPreClose() {
 		InputService.removeInputProcessor(inputQueue);
+		InputService.removeInputProcessor(this);
 		EventService.unsubscribe(editorId, this);
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		if (keycode == Keys.NUM_2 || keycode == Keys.NUMPAD_2) {
+			switchCamera(CameraType.camera2d);
+			return true;
+		} else if (keycode == Keys.NUM_3 || keycode == Keys.NUMPAD_3) {
+			switchCamera(CameraType.camera3d);
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
