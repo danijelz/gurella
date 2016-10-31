@@ -22,7 +22,8 @@ class CameraController extends CameraInputController {
 	protected boolean process(float deltaX, float deltaY, int button) {
 		if (camera instanceof OrthographicCamera) {
 			if (button == rotateButton) {
-				camera.translate(-deltaX * 100, -deltaY * 100, 0);
+				float zoom = ((OrthographicCamera) camera).zoom;
+				camera.translate(-deltaX * 620 * zoom, -deltaY * 620 * zoom, 0);
 			} else if (button == translateButton) {
 				((OrthographicCamera) camera).rotate(deltaY * 100);
 			} else if (button == forwardButton) {

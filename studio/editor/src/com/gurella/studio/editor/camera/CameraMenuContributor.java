@@ -3,12 +3,17 @@ package com.gurella.studio.editor.camera;
 import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera2d;
 import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera3d;
 
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.swt.widgets.Shell;
+
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class CameraMenuContributor implements EditorPreCloseListener, EditorContextMenuContributor {
 	private static final String cameraMenuGroupName = "Camera";
@@ -35,6 +40,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		if (is2d) {
 			actions.addAction(moveToMenuGroupName, "Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1));
 			actions.addAction(moveToMenuGroupName, "Restore rotation", 100, () -> setRotation(0));
+			actions.addAction(moveToMenuGroupName, "Rotation", 100, () -> selectRotation());
 		} else {
 			actions.addAction(moveToMenuGroupName, "Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1));
 			actions.addAction(moveToMenuGroupName, "Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1));
@@ -53,7 +59,27 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		camera.lookAt(0, 0, 0);
 		camera.update(true);
 	}
-	
+
+	private void selectRotation() {
+		Shell shell = UiUtils.getDisplay().getActiveShell();
+		String zoom = String.valueOf(((OrthographicCamera) manager.getActiveCamera()).zoom);
+		InputDialog dlg = new InputDialog(shell, "Zoom", "Zoom", zoom, s -> validateZoom(s));
+		if (dlg.open() == InputDialog.OK) {
+			setRotation(Float.parseFloat(dlg.getValue()));
+		}
+	}
+
+	private static String validateZoom(String newText) {
+		try {
+			if (Values.isNotBlank(newText)) {
+				Float.parseFloat(newText);
+			}
+			return null;
+		} catch (Exception e) {
+			return "Zoom must be float value.";
+		}
+	}
+
 	private void setRotation(float rotation) {
 		OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
 		camera.direction.set(0, 0, -1);
