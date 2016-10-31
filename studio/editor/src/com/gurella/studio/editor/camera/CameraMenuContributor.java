@@ -34,6 +34,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		actions.addGroup(moveToMenuGroupName, -700);
 		if (is2d) {
 			actions.addAction(moveToMenuGroupName, "Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1));
+			actions.addAction(moveToMenuGroupName, "Restore rotation", 100, () -> setRotation(0));
 		} else {
 			actions.addAction(moveToMenuGroupName, "Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1));
 			actions.addAction(moveToMenuGroupName, "Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1));
@@ -55,10 +56,9 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 	
 	private void setRotation(float rotation) {
 		OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
-//		camera.position.set(px, py, pz);
-//		camera.direction.set(lx, ly, lz);
+		camera.direction.set(0, 0, -1);
 		camera.up.set(0, 1, 0);
-		camera.lookAt(0, 0, 0);
+		camera.rotate(rotation);
 		camera.update(true);
 	}
 
