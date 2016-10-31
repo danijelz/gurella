@@ -5,15 +5,22 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-public class ToolManager extends InputAdapter {
+public class ToolManager extends InputAdapter implements EditorPreCloseListener {
 	private final int editorId;
-	private Camera toolCamera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 	ScaleTool scaleTool = new ScaleTool();
+	SelectionTool selected;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
+	}
+	
+	@Override
+	public void onEditorPreClose() {
+		EventService.unsubscribe(editorId, this);
+		scaleTool.dispose();
 	}
 }

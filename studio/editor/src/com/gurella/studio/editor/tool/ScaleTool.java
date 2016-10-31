@@ -16,10 +16,11 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.scene.transform.TransformComponent;
 
-public class ScaleTool extends SelectionTool {
+public class ScaleTool extends SelectionTool implements Disposable {
 	public static final String NAME = "Scale Tool";
 
 	private final ScaleHandle xHandle;
@@ -123,5 +124,13 @@ public class ScaleTool extends SelectionTool {
 		BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
 		
 		return modelBuilder.end();
+	}
+
+	@Override
+	public void dispose() {
+		xHandle.dispose();
+		yHandle.dispose();
+		zHandle.dispose();
+		xyzHandle.dispose();
 	}
 }

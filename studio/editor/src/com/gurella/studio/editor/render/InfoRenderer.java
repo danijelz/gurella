@@ -5,9 +5,11 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -19,6 +21,8 @@ class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
 	private final StringBuffer info = new StringBuffer();
+	private final Matrix4 lookAt = new Matrix4();
+	private final Quaternion rotation = new Quaternion();
 
 	InfoRenderer(int editorId) {
 		this.editorId = editorId;
@@ -46,22 +50,29 @@ class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
 		info.append(position.x);
 		info.append(" Y: ");
 		info.append(position.y);
-		info.append(" Z: ");
-		info.append(position.z);
+		if (camera instanceof PerspectiveCamera) {
+			info.append(" Z: ");
+			info.append(position.z);
+		}
 		font.draw(spriteBatch, info.toString(), 15, 40);
 		info.setLength(0);
 
 		Vector3 direction = camera.direction;
-		info.append("Direction   X: ");
-		info.append(direction.x);
-		info.append(" Y: ");
-		info.append(direction.y);
-		if (camera instanceof OrthographicCamera) {
-			info.append(" Zoom: ");
-			info.append(((OrthographicCamera) camera).zoom);
-		} else {
+		if (camera instanceof PerspectiveCamera) {
+			info.append("Direction   X: ");
+			info.append(direction.x);
+			info.append(" Y: ");
+			info.append(direction.y);
 			info.append(" Z: ");
 			info.append(direction.z);
+		} else {
+			OrthographicCamera orthographicCamera = (OrthographicCamera) camera;
+			lookAt.setToLookAt(orthographicCamera.direction, orthographicCamera.up);
+			lookAt.getRotation(rotation);
+			info.append("Rotation : ");
+			info.append(rotation.getRoll());
+			info.append(" Zoom: ");
+			info.append(orthographicCamera.zoom);
 		}
 
 		font.draw(spriteBatch, info.toString(), 15, 20);

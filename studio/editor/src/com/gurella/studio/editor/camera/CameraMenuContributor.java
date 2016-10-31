@@ -4,6 +4,7 @@ import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraTy
 import static com.gurella.studio.editor.subscription.EditorCameraSwitch.CameraType.camera3d;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
@@ -47,6 +48,15 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		Camera camera = manager.getActiveCamera();
 		camera.position.set(px, py, pz);
 		camera.direction.set(lx, ly, lz);
+		camera.up.set(0, 1, 0);
+		camera.lookAt(0, 0, 0);
+		camera.update(true);
+	}
+	
+	private void setRotation(float rotation) {
+		OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
+//		camera.position.set(px, py, pz);
+//		camera.direction.set(lx, ly, lz);
 		camera.up.set(0, 1, 0);
 		camera.lookAt(0, 0, 0);
 		camera.update(true);

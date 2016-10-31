@@ -24,7 +24,7 @@ class CameraController extends CameraInputController {
 			if (button == rotateButton) {
 				camera.translate(-deltaX * 100, -deltaY * 100, 0);
 			} else if (button == translateButton) {
-				camera.translate(-deltaX * 10, -deltaY * 10, 0);
+				((OrthographicCamera) camera).rotate(deltaY * 100);
 			} else if (button == forwardButton) {
 				zoom(-deltaY * 0.01f);
 			}
