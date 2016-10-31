@@ -16,10 +16,9 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 
-public class ScaleTool extends TransformTool implements Disposable {
+public class ScaleTool extends TransformTool {
 	private final ScaleHandle xHandle;
 	private final ScaleHandle yHandle;
 	private final ScaleHandle zHandle;

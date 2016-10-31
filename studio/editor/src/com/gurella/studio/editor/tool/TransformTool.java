@@ -3,9 +3,10 @@ package com.gurella.studio.editor.tool;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 
-public abstract class TransformTool {
+public abstract class TransformTool implements Disposable {
 	protected static final int X_HANDLE_ID = 0;
 	protected static final int Y_HANDLE_ID = 1;
 	protected static final int Z_HANDLE_ID = 2;

@@ -22,6 +22,8 @@ public class ToolManager extends InputAdapter
 
 	private ScaleTool scaleTool = new ScaleTool();
 	private TranslateTool translateTool = new TranslateTool();
+	private RotateTool rotateTool = new RotateTool();
+	
 	TransformTool selected;
 
 	private Camera camera;
@@ -53,6 +55,9 @@ public class ToolManager extends InputAdapter
 		} else if (keycode == Keys.T) {
 			selected = translateTool;
 			return true;
+		} else if (keycode == Keys.R) {
+			selected = rotateTool;
+			return true;
 		} else if (keycode == Keys.ESCAPE) {
 			selected = null;
 			return true;
@@ -83,5 +88,7 @@ public class ToolManager extends InputAdapter
 		InputService.removeInputProcessor(this);
 		EventService.unsubscribe(editorId, this);
 		scaleTool.dispose();
+		translateTool.dispose();
+		rotateTool.dispose();
 	}
 }
