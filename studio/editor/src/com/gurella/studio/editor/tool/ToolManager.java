@@ -102,6 +102,7 @@ public class ToolManager extends InputAdapter
 			return false;
 		}
 		
+		selected.update(translation, camera);
 		Vector3 cameraPosition = camera.position;
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		ToolHandle pick = selected.getIntersection(cameraPosition, pickRay, intersection);

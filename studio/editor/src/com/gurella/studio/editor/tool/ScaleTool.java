@@ -14,8 +14,10 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
@@ -156,6 +158,8 @@ public class ScaleTool extends TransformTool {
 		xyzHandle.applyTransform();
 	}
 
+	///////////////////////intersection
+
 	@Override
 	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
@@ -163,6 +167,8 @@ public class ScaleTool extends TransformTool {
 		ScaleHandle closestHandle = null;
 
 		for (ScaleHandle scaleHandle : handles) {
+			scaleHandle.modelInstance.calculateTransforms();
+
 			if (scaleHandle.getIntersection(cameraPosition, ray, intersection)) {
 				float distance = intersection.dst2(cameraPosition);
 				if (closestDistance > distance) {
@@ -172,9 +178,9 @@ public class ScaleTool extends TransformTool {
 				}
 			}
 		}
-		
-		if(closestHandle != null && closestHandle.id != 4) {
-			System.out.println("ddd");
+
+		if (closestHandle != null) {
+			System.out.println(closestHandle.id);
 		}
 
 		return closestHandle;

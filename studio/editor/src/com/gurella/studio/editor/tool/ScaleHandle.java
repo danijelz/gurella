@@ -22,8 +22,8 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class ScaleHandle extends ToolHandle {
-	private Model model;
-	private ModelInstance modelInstance;
+	Model model;
+	ModelInstance modelInstance;
 
 	public ScaleHandle(int id, Model model) {
 		super(id);
@@ -55,11 +55,9 @@ public class ScaleHandle extends ToolHandle {
 	///////////////////////intersection
 
 	private final BoundingBox temp = new BoundingBox();
+	private final Matrix4 transform = new Matrix4();
 
 	boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
-		applyTransform();
-		modelInstance.calculateTransforms();
-		
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;
 
@@ -84,12 +82,11 @@ public class ScaleHandle extends ToolHandle {
 
 		node.calculateWorldTransform();
 		node.extendBoundingBox(temp.inf(), true);
+		temp.mul(modelInstance.transform);
 		
 		if (Intersector.intersectRayBoundsFast(ray, temp)) {
-			if(1 == Integer.valueOf(1).intValue()) {
-				Intersector.intersectRayBounds(ray, temp, intersection);
-				return true;
-			}
+			transform.set(modelInstance.transform).mul(node.globalTransform);
+			
 			Array<NodePart> parts = node.parts;
 			for (int i = 0, n = parts.size; i < n; i++) {
 				NodePart nodePart = parts.get(i);
@@ -100,7 +97,7 @@ public class ScaleHandle extends ToolHandle {
 					int offset = meshPart.offset;
 					int count = meshPart.size;
 
-					if (getIntersection(cameraPosition, mesh, primitiveType, offset, count, null/*node.globalTransform*/, ray,
+					if (getIntersection(cameraPosition, mesh, primitiveType, offset, count, transform, ray,
 							intersection)) {
 						float distance = intersection.dst2(cameraPosition);
 						if (closestDistance > distance) {
