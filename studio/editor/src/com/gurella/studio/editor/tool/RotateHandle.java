@@ -2,6 +2,7 @@ package com.gurella.studio.editor.tool;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class RotateHandle extends ToolHandle {
@@ -25,6 +26,8 @@ public class RotateHandle extends ToolHandle {
 			this.scale.z = 1.1f;
 			break;
 		}
+		
+		modelInstance.calculateTransforms();
 	}
 
 	@Override
@@ -45,6 +48,7 @@ public class RotateHandle extends ToolHandle {
 
 	@Override
 	void changeColor(Color color) {
+		ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.first().get(ColorAttribute.Diffuse);
+		diffuse.color.set(color);
 	}
-
 }
