@@ -3,14 +3,12 @@ package com.gurella.studio.editor.tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class TranslateTool extends TransformTool {
@@ -25,7 +23,6 @@ public class TranslateTool extends TransformTool {
 	private TranslateHandle yHandle;
 	private TranslateHandle zHandle;
 	private TranslateHandle xzPlaneHandle;
-	private TranslateHandle[] handles;
 
 	private Vector3 lastPos = new Vector3();
 	private boolean globalSpace = true;
@@ -92,12 +89,6 @@ public class TranslateTool extends TransformTool {
 		zHandle.applyTransform();
 		xzPlaneHandle.position.set(translation);
 		xzPlaneHandle.applyTransform();
-	}
-
-	@Override
-	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

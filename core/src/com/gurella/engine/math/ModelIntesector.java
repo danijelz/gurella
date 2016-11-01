@@ -84,7 +84,7 @@ public class ModelIntesector {
 		closestDistance = Float.MAX_VALUE;
 	}
 
-	private void process(ModelInstance modelInstance) {
+	private boolean process(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 
 		Array<Node> nodes = modelInstance.nodes;
@@ -99,6 +99,8 @@ public class ModelIntesector {
 				}
 			}
 		}
+		
+		return closestModelInstance == modelInstance;
 	}
 
 	private boolean extractResult() {

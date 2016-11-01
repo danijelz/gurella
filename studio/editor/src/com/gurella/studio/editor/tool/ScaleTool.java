@@ -28,7 +28,6 @@ public class ScaleTool extends TransformTool {
 	private final ScaleHandle yHandle;
 	private final ScaleHandle zHandle;
 	private final ScaleHandle xyzHandle;
-	private final ScaleHandle[] handles;
 
 	private final Matrix4 shapeRenderMat = new Matrix4();
 
@@ -158,24 +157,23 @@ public class ScaleTool extends TransformTool {
 
 	///////////////////////intersection
 
-	@Override
 	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;
 		ScaleHandle closestHandle = null;
 
-		for (ScaleHandle scaleHandle : handles) {
-			scaleHandle.modelInstance.calculateTransforms();
-
-			if (scaleHandle.getIntersection(cameraPosition, ray, intersection)) {
-				float distance = intersection.dst2(cameraPosition);
-				if (closestDistance > distance) {
-					closestDistance = distance;
-					closestIntersection.set(intersection);
-					closestHandle = scaleHandle;
-				}
-			}
-		}
+//		for (ScaleHandle scaleHandle : handles) {
+//			scaleHandle.modelInstance.calculateTransforms();
+//
+//			if (scaleHandle.getIntersection(cameraPosition, ray, intersection)) {
+//				float distance = intersection.dst2(cameraPosition);
+//				if (closestDistance > distance) {
+//					closestDistance = distance;
+//					closestIntersection.set(intersection);
+//					closestHandle = scaleHandle;
+//				}
+//			}
+//		}
 
 		if (closestHandle != null) {
 			System.out.println(closestHandle.id);

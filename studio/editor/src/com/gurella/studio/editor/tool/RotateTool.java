@@ -10,21 +10,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class RotateTool extends TransformTool {
 	private RotateHandle xHandle;
 	private RotateHandle yHandle;
 	private RotateHandle zHandle;
-	private RotateHandle[] handles;
 
 	private Matrix4 shapeRenderMat = new Matrix4();
 
@@ -132,7 +129,7 @@ public class RotateTool extends TransformTool {
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		zHandle.applyTransform();
 	}
-	
+
 	private static Model torus(Material mat, float width, float height, int divisionsU, int divisionsV) {
 		MeshPartBuilder.VertexInfo v0 = new MeshPartBuilder.VertexInfo();
 		MeshPartBuilder.VertexInfo v1 = new MeshPartBuilder.VertexInfo();
@@ -185,12 +182,6 @@ public class RotateTool extends TransformTool {
 		}
 
 		return modelBuilder.end();
-	}
-	
-	@Override
-	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

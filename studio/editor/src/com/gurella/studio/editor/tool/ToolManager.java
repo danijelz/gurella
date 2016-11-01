@@ -14,11 +14,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.input.InputService;
+import com.gurella.engine.math.ModelIntesector;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.input.PickResult;
-import com.gurella.engine.scene.renderable.Layer;
-import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
@@ -41,6 +38,7 @@ public class ToolManager extends InputAdapter
 
 	private final Vector3 intersection = new Vector3();
 	private final Vector3 closestIntersection = new Vector3();
+	private final ModelIntesector intesector = new ModelIntesector();
 
 	private TransformComponent transformComponent;
 
@@ -107,7 +105,23 @@ public class ToolManager extends InputAdapter
 		selected.update(translation, camera);
 		Vector3 cameraPosition = camera.position;
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		ToolHandle pick = selected.getIntersection(cameraPosition, pickRay, intersection);
+		ToolHandle[] handles = selected.handles;
+		ToolHandle pick = null;
+		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
+		float closestDistance = Float.MAX_VALUE;
+
+		for (ToolHandle toolHandle : handles) {
+			ModelInstance instance = toolHandle.modelInstance;
+			if (intesector.getIntersection(cameraPosition, pickRay, cameraPosition, instance)) {
+				float distance = intersection.dst2(cameraPosition);
+				if (closestDistance > distance) {
+					closestDistance = distance;
+					closestIntersection.set(intersection);
+					pick = toolHandle;
+				}
+			}
+		}
+
 		if (lastPick != pick) {
 			if (lastPick != null) {
 				lastPick.restoreColor();
@@ -115,7 +129,7 @@ public class ToolManager extends InputAdapter
 			if (pick != null) {
 				pick.changeColor(Color.YELLOW);
 			}
-			
+
 			lastPick = pick;
 		}
 		return false;
