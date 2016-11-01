@@ -3,6 +3,7 @@ package com.gurella.studio.editor.tool;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 
@@ -20,7 +21,11 @@ public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_XYZ = Color.LIGHT_GRAY;
 	protected static Color COLOR_SELECTED = Color.YELLOW;
 
+	abstract void update(Vector3 translation, Camera camera);
+
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
+
+	abstract ToolHandle getIntersection(Ray ray, Vector3 intersection);
 
 	protected enum TransformState {
 		TRANSFORM_X, TRANSFORM_Y, TRANSFORM_Z, TRANSFORM_XZ, TRANSFORM_XYZ, IDLE

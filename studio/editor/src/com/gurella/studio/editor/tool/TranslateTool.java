@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class TranslateTool extends TransformTool {
@@ -52,7 +53,6 @@ public class TranslateTool extends TransformTool {
 
 	@Override
 	void render(Vector3 translation, Camera camera, GenericBatch batch) {
-		init(translation, camera);
 		batch.begin(camera);
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 		xHandle.render(batch);
@@ -62,14 +62,14 @@ public class TranslateTool extends TransformTool {
 		batch.end();
 	}
 
-	void init(Vector3 selctionTranslation, Camera camera) {
-		scaleHandles(selctionTranslation, camera);
-		translateHandles(selctionTranslation);
+	@Override
+	void update(Vector3 translation, Camera camera) {
+		scaleHandles(translation, camera);
+		translateHandles(translation);
 	}
 
-	protected void scaleHandles(Vector3 selctionTranslation, Camera camera) {
-		Vector3 pos = selctionTranslation;
-		float scaleFactor = camera.position.dst(pos) * 0.25f;
+	protected void scaleHandles(Vector3 translation, Camera camera) {
+		float scaleFactor = camera.position.dst(translation) * 0.25f;
 
 		xHandle.scale.set(scaleFactor * 0.7f, scaleFactor / 2, scaleFactor / 2);
 		xHandle.applyTransform();
@@ -84,17 +84,21 @@ public class TranslateTool extends TransformTool {
 		xzPlaneHandle.applyTransform();
 	}
 
-	protected void translateHandles(Vector3 selctionTranslation) {
-		final Vector3 pos = selctionTranslation;
-
-		xHandle.position.set(pos);
+	protected void translateHandles(Vector3 translation) {
+		xHandle.position.set(translation);
 		xHandle.applyTransform();
-		yHandle.position.set(pos);
+		yHandle.position.set(translation);
 		yHandle.applyTransform();
-		zHandle.position.set(pos);
+		zHandle.position.set(translation);
 		zHandle.applyTransform();
-		xzPlaneHandle.position.set(pos);
+		xzPlaneHandle.position.set(translation);
 		xzPlaneHandle.applyTransform();
+	}
+	
+	@Override
+	ToolHandle getIntersection(Ray ray, Vector3 intersection) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

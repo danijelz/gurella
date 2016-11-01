@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.tool;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class RotateTool extends TransformTool {
@@ -37,7 +39,6 @@ public class RotateTool extends TransformTool {
 
 	@Override
 	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
-		init(translation, camera);
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 
 		if (state == TransformState.IDLE) {
@@ -49,15 +50,15 @@ public class RotateTool extends TransformTool {
 		} else {
 			temp0.set(translation);
 			Vector3 pivot = camera.project(temp0);
+			Graphics graphics = Gdx.graphics;
 
-			shapeRenderMat.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 			switch (state) {
 			case TRANSFORM_X:
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
 				shapeRenderer.setProjectionMatrix(shapeRenderMat);
-				shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(),
-						2);
+				shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), graphics.getHeight() - Gdx.input.getY(), 2);
 				shapeRenderer.setColor(COLOR_X);
 				shapeRenderer.circle(pivot.x, pivot.y, 7);
 				shapeRenderer.end();
@@ -66,8 +67,7 @@ public class RotateTool extends TransformTool {
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
 				shapeRenderer.setProjectionMatrix(shapeRenderMat);
-				shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(),
-						2);
+				shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), graphics.getHeight() - Gdx.input.getY(), 2);
 				shapeRenderer.setColor(COLOR_Y);
 				shapeRenderer.circle(pivot.x, pivot.y, 7);
 				shapeRenderer.end();
@@ -76,8 +76,7 @@ public class RotateTool extends TransformTool {
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
 				shapeRenderer.setProjectionMatrix(shapeRenderMat);
-				shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(),
-						2);
+				shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), graphics.getHeight() - Gdx.input.getY(), 2);
 				shapeRenderer.setColor(COLOR_Z);
 				shapeRenderer.circle(pivot.x, pivot.y, 7);
 				shapeRenderer.end();
@@ -88,10 +87,11 @@ public class RotateTool extends TransformTool {
 		}
 	}
 
-	void init(Vector3 selctionTranslation, Camera camera) {
-		scaleHandles(selctionTranslation, camera);
+	@Override
+	void update(Vector3 translation, Camera camera) {
+		scaleHandles(translation, camera);
 		rotateHandles();
-		translateHandles(selctionTranslation);
+		translateHandles(translation);
 	}
 
 	protected void rotateHandles() {
@@ -103,19 +103,17 @@ public class RotateTool extends TransformTool {
 		zHandle.applyTransform();
 	}
 
-	protected void translateHandles(Vector3 selctionTranslation) {
-		final Vector3 pos = selctionTranslation;
-		xHandle.position.set(pos);
+	protected void translateHandles(Vector3 translation) {
+		xHandle.position.set(translation);
 		xHandle.applyTransform();
-		yHandle.position.set(pos);
+		yHandle.position.set(translation);
 		yHandle.applyTransform();
-		zHandle.position.set(pos);
+		zHandle.position.set(translation);
 		zHandle.applyTransform();
 	}
 
-	protected void scaleHandles(Vector3 selctionTranslation, Camera camera) {
-		Vector3 pos = selctionTranslation;
-		float scaleFactor = camera.position.dst(pos) * 0.005f;
+	protected void scaleHandles(Vector3 translation, Camera camera) {
+		float scaleFactor = camera.position.dst(translation) * 0.005f;
 
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xHandle.applyTransform();
@@ -125,6 +123,12 @@ public class RotateTool extends TransformTool {
 
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		zHandle.applyTransform();
+	}
+	
+	@Override
+	ToolHandle getIntersection(Ray ray, Vector3 intersection) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

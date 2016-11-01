@@ -265,8 +265,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private final Array<Spatial> spatials = new Array<Spatial>();
 	private final Vector3 intersection = new Vector3();
 	private final Vector3 closestIntersection = new Vector3();
-	private final Vector3 screenCoord = new Vector3();
-	private final Vector3 projectedCoord = new Vector3();
+	private final Vector3 projectedCoord = new Vector3();//TODO unused
 	private final PickResult pickResult = new PickResult();
 	private final LayerMask layerMask = new LayerMask();
 
@@ -276,6 +275,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		closestIntersection.set(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;
 
+		//TODO garbage
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		layerMask.reset();
 		spatialSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
@@ -304,8 +304,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	private void projectScreenCoordinates(float screenX, float screenY, Camera camera) {
-		screenCoord.set(screenX, screenY, 0);
-		projectedCoord.set(screenCoord);
+		projectedCoord.set(screenX, screenY, 0);
 		camera.unproject(projectedCoord);
 	}
 

@@ -61,7 +61,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 		Array<Node> nodes = instance.nodes;
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
-			if (getIntersection(ray, intersection, node)) {
+			if (getIntersection(node, ray, intersection)) {
 				return true;
 			}
 		}
@@ -69,12 +69,12 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 		return false;
 	}
 
-	private boolean getIntersection(Ray ray, Vector3 intersection, Node node) {
+	private boolean getIntersection(Node node, Ray ray, Vector3 intersection) {
 		int childCount = node.getChildCount();
 		if (childCount > 0) {
 			for (int i = 0; i < childCount; i++) {
 				Node childNode = node.getChild(i);
-				if (getIntersection(ray, intersection, childNode)) {
+				if (getIntersection(childNode, ray, intersection)) {
 					return true;
 				}
 			}
@@ -142,44 +142,5 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 		if (instance != null) {
 			context.batch.render(instance, WireframeShader.getInstance());
 		}
-	}
-
-	private void debugRender2(GenericBatch batch) {
-		ModelInstance instance = getModelInstance();
-		if (instance == null) {
-			return;
-		}
-		Matrix4 transform = instance.transform;
-
-		for (Node node : instance.nodes) {
-			debugRender2(batch, node, transform);
-		}
-		batch.render(instance, WireframeShader.getInstance());
-	}
-
-	private void debugRender2(GenericBatch batch, Node node, Matrix4 transform) {
-		if (node.parts.size > 0) {
-			for (NodePart nodePart : node.parts) {
-				if (nodePart.enabled) {
-					debugRender2(batch, node, nodePart, transform);
-				}
-			}
-		}
-
-		for (Node child : node.getChildren()) {
-			debugRender2(batch, child, transform);
-		}
-	}
-
-	private void debugRender2(GenericBatch batch, Node node, NodePart nodePart, Matrix4 transform) {
-		MeshPart meshPart = nodePart.meshPart;
-
-		// if (nodePart.bones == null && transform != null) {
-		// out.worldTransform.set(transform).mul(node.globalTransform);
-		// } else if (transform != null) {
-		// out.worldTransform.set(transform);
-		// } else {
-		// out.worldTransform.idt();
-		// }
 	}
 }

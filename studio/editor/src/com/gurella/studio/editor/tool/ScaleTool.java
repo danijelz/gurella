@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class ScaleTool extends TransformTool {
@@ -59,8 +60,6 @@ public class ScaleTool extends TransformTool {
 
 	@Override
 	void render(Vector3 translation, Camera camera, GenericBatch batch) {
-		//super.render(transform, camera, batch);
-		init(translation, camera);
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 		batch.begin(camera);
 		xHandle.render(batch);
@@ -110,50 +109,40 @@ public class ScaleTool extends TransformTool {
 	}
 
 	public static Model createArrowStub(Material mat, Vector3 from, Vector3 to) {
-		ModelBuilder modelBuilder = new ModelBuilder();
-		modelBuilder.begin();
+		ModelBuilder builder = new ModelBuilder();
+		builder.begin();
 		// line
-		MeshPartBuilder meshBuilder = modelBuilder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked,
-				mat);
+		MeshPartBuilder meshBuilder = builder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
 		meshBuilder.line(from.x, from.y, from.z, to.x, to.y, to.z);
 		// stub
-		Node node = modelBuilder.node();
+		Node node = builder.node();
 		node.translation.set(to.x, to.y, to.z);
-		meshBuilder = modelBuilder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
+		meshBuilder = builder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
 		BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
 
-		return modelBuilder.end();
+		return builder.end();
 	}
 
 	@Override
-	public void dispose() {
-		xHandle.dispose();
-		yHandle.dispose();
-		zHandle.dispose();
-		xyzHandle.dispose();
+	void update(Vector3 translation, Camera camera) {
+		translateHandles(translation);
+		scaleHandles(translation, camera);
 	}
 
-	void init(Vector3 selctionTranslation, Camera camera) {
-		translateHandles(selctionTranslation);
-		scaleHandles(selctionTranslation, camera);
-	}
-
-	protected void translateHandles(Vector3 selctionTranslation) {
-		final Vector3 pos = selctionTranslation;
-		xHandle.position.set(pos);
+	protected void translateHandles(Vector3 translation) {
+		xHandle.position.set(translation);
 		xHandle.applyTransform();
-		yHandle.position.set(pos);
+		yHandle.position.set(translation);
 		yHandle.applyTransform();
-		zHandle.position.set(pos);
+		zHandle.position.set(translation);
 		zHandle.applyTransform();
-		xyzHandle.position.set(pos);
+		xyzHandle.position.set(translation);
 		xyzHandle.applyTransform();
 	}
 
-	protected void scaleHandles(Vector3 selctionTranslation, Camera camera) {
-		Vector3 pos = selctionTranslation;
-
-		float scaleFactor = camera.position.dst(pos) * 0.01f;
+	protected void scaleHandles(Vector3 translation, Camera camera) {
+		float scaleFactor = camera.position.dst(translation) * 0.01f;
+		
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xHandle.applyTransform();
 
@@ -165,5 +154,19 @@ public class ScaleTool extends TransformTool {
 
 		xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xyzHandle.applyTransform();
+	}
+	
+	@Override
+	ToolHandle getIntersection(Ray ray, Vector3 intersection) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void dispose() {
+		xHandle.dispose();
+		yHandle.dispose();
+		zHandle.dispose();
+		xyzHandle.dispose();
 	}
 }

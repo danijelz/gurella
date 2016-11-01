@@ -7,8 +7,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class TranslateHandle extends ToolHandle {
-	private Model model;
-	private ModelInstance modelInstance;
+	Model model;
+	ModelInstance modelInstance;
 
 	public TranslateHandle(int id, Model model) {
 		super(id);
