@@ -110,7 +110,7 @@ public class ToolManager extends InputAdapter
 		ToolHandle pick = selected.getIntersection(cameraPosition, pickRay, intersection);
 		if (lastPick != pick) {
 			if (lastPick != null) {
-				pick.restoreColor();
+				lastPick.restoreColor();
 			}
 			if (pick != null) {
 				pick.changeColor(Color.YELLOW);
