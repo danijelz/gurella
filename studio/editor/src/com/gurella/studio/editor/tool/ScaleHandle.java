@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class ScaleHandle extends ToolHandle {
@@ -50,6 +51,7 @@ public class ScaleHandle extends ToolHandle {
 
 	private final BoundingBox temp = new BoundingBox();
 	private final Matrix4 transform = new Matrix4();
+	private final Ray tempRay = new Ray();
 
 	boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
@@ -80,6 +82,9 @@ public class ScaleHandle extends ToolHandle {
 
 		if (Intersector.intersectRayBoundsFast(ray, temp)) {
 			transform.set(modelInstance.transform).mul(node.globalTransform);
+			Matrix4.inv(transform.val);
+			tempRay.set(ray);
+			tempRay.mul(transform);
 
 			Array<NodePart> parts = node.parts;
 			for (int i = 0, n = parts.size; i < n; i++) {
@@ -91,8 +96,7 @@ public class ScaleHandle extends ToolHandle {
 					int offset = meshPart.offset;
 					int count = meshPart.size;
 
-					if (getIntersection(cameraPosition, mesh, primitiveType, offset, count, transform, ray,
-							intersection)) {
+					if (getIntersection(cameraPosition, mesh, primitiveType, offset, count, tempRay, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
 						if (closestDistance > distance) {
 							closestDistance = distance;
@@ -107,7 +111,7 @@ public class ScaleHandle extends ToolHandle {
 	}
 
 	private static boolean getIntersection(Vector3 cameraPosition, Mesh mesh, int primitiveType, int offset, int count,
-			final Matrix4 transform, Ray ray, Vector3 intersection) {
+			Ray ray, Vector3 intersection) {
 		final int numIndices = mesh.getNumIndices();
 		final int numVertices = mesh.getNumVertices();
 		final int max = numIndices == 0 ? numVertices : numIndices;
@@ -133,21 +137,12 @@ public class ScaleHandle extends ToolHandle {
 				for (int i = offset; i < end;) {
 					int idx = index.get(i++) * vertexSize + posoff;
 					t1.set(verts.get(idx), 0, 0);
-					if (transform != null) {
-						t1.mul(transform);
-					}
 
 					idx = index.get(i++) * vertexSize + posoff;
 					t2.set(verts.get(idx), 0, 0);
-					if (transform != null) {
-						t2.mul(transform);
-					}
 
 					idx = index.get(i++) * vertexSize + posoff;
 					t3.set(verts.get(idx), 0, 0);
-					if (transform != null) {
-						t3.mul(transform);
-					}
 
 					if (Intersector.intersectRayTriangle(ray, t1, t2, t3, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
@@ -161,21 +156,12 @@ public class ScaleHandle extends ToolHandle {
 				for (int i = offset; i < end;) {
 					int idx = i++ * vertexSize + posoff;
 					t1.set(verts.get(idx), 0, 0);
-					if (transform != null) {
-						t1.mul(transform);
-					}
 
 					idx = i++ * vertexSize + posoff;
 					t2.set(verts.get(idx), 0, 0);
-					if (transform != null) {
-						t2.mul(transform);
-					}
 
 					idx = i++ * vertexSize + posoff;
 					t3.set(verts.get(idx), 0, 0);
-					if (transform != null) {
-						t3.mul(transform);
-					}
 
 					if (Intersector.intersectRayTriangle(ray, t1, t2, t3, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
@@ -192,21 +178,12 @@ public class ScaleHandle extends ToolHandle {
 				for (int i = offset; i < end;) {
 					int idx = index.get(i++) * vertexSize + posoff;
 					t1.set(verts.get(idx), verts.get(idx + 1), 0);
-					if (transform != null) {
-						t1.mul(transform);
-					}
 
 					idx = index.get(i++) * vertexSize + posoff;
 					t2.set(verts.get(idx), verts.get(idx + 1), 0);
-					if (transform != null) {
-						t2.mul(transform);
-					}
 
 					idx = index.get(i++) * vertexSize + posoff;
 					t3.set(verts.get(idx), verts.get(idx + 1), 0);
-					if (transform != null) {
-						t3.mul(transform);
-					}
 
 					if (Intersector.intersectRayTriangle(ray, t1, t2, t3, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
@@ -220,21 +197,12 @@ public class ScaleHandle extends ToolHandle {
 				for (int i = offset; i < end;) {
 					int idx = i++ * vertexSize + posoff;
 					t1.set(verts.get(idx), verts.get(idx + 1), 0);
-					if (transform != null) {
-						t1.mul(transform);
-					}
 
 					idx = i++ * vertexSize + posoff;
 					t2.set(verts.get(idx), verts.get(idx + 1), 0);
-					if (transform != null) {
-						t2.mul(transform);
-					}
 
 					idx = i++ * vertexSize + posoff;
 					t3.set(verts.get(idx), verts.get(idx + 1), 0);
-					if (transform != null) {
-						t3.mul(transform);
-					}
 
 					if (Intersector.intersectRayTriangle(ray, t1, t2, t3, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
@@ -251,21 +219,12 @@ public class ScaleHandle extends ToolHandle {
 				for (int i = offset; i < end;) {
 					int idx = index.get(i++) * vertexSize + posoff;
 					t1.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
-					if (transform != null) {
-						t1.mul(transform);
-					}
 
 					idx = index.get(i++) * vertexSize + posoff;
 					t2.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
-					if (transform != null) {
-						t2.mul(transform);
-					}
 
 					idx = index.get(i++) * vertexSize + posoff;
 					t3.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
-					if (transform != null) {
-						t3.mul(transform);
-					}
 
 					if (Intersector.intersectRayTriangle(ray, t1, t2, t3, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
@@ -279,21 +238,12 @@ public class ScaleHandle extends ToolHandle {
 				for (int i = offset; i < end;) {
 					int idx = i++ * vertexSize + posoff;
 					t1.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
-					if (transform != null) {
-						t1.mul(transform);
-					}
 
 					idx = i++ * vertexSize + posoff;
 					t2.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
-					if (transform != null) {
-						t2.mul(transform);
-					}
 
 					idx = i++ * vertexSize + posoff;
 					t3.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
-					if (transform != null) {
-						t3.mul(transform);
-					}
 
 					if (Intersector.intersectRayTriangle(ray, t1, t2, t3, intersection)) {
 						float distance = intersection.dst2(cameraPosition);
@@ -305,6 +255,8 @@ public class ScaleHandle extends ToolHandle {
 				}
 			}
 			break;
+			default:
+				throw new GdxRuntimeException("Unsupported posAttrib.numComponents");
 		}
 
 		return closestDistance != Float.MAX_VALUE;
