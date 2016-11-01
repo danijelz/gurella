@@ -57,6 +57,9 @@ public class ScaleHandle extends ToolHandle {
 	private final BoundingBox temp = new BoundingBox();
 
 	boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
+		applyTransform();
+		modelInstance.calculateTransforms();
+		
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;
 
@@ -79,9 +82,14 @@ public class ScaleHandle extends ToolHandle {
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;
 
+		node.calculateWorldTransform();
 		node.extendBoundingBox(temp.inf(), true);
+		
 		if (Intersector.intersectRayBoundsFast(ray, temp)) {
-			node.calculateWorldTransform();
+			if(1 == Integer.valueOf(1).intValue()) {
+				Intersector.intersectRayBounds(ray, temp, intersection);
+				return true;
+			}
 			Array<NodePart> parts = node.parts;
 			for (int i = 0, n = parts.size; i < n; i++) {
 				NodePart nodePart = parts.get(i);
@@ -92,7 +100,7 @@ public class ScaleHandle extends ToolHandle {
 					int offset = meshPart.offset;
 					int count = meshPart.size;
 
-					if (getIntersection(cameraPosition, mesh, primitiveType, offset, count, node.globalTransform, ray,
+					if (getIntersection(cameraPosition, mesh, primitiveType, offset, count, null/*node.globalTransform*/, ray,
 							intersection)) {
 						float distance = intersection.dst2(cameraPosition);
 						if (closestDistance > distance) {

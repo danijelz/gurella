@@ -174,7 +174,7 @@ public class ScaleTool extends TransformTool {
 		}
 		
 		if(closestHandle != null && closestHandle.id != 4) {
-			System.out.println("");
+			System.out.println("ddd");
 		}
 
 		return closestHandle;

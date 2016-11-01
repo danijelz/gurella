@@ -101,6 +101,38 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 
 		return false;
 	}
+	
+//	public boolean intersect(Ray ray, Vector3 intersection) {
+//	    final BoundingBox bb = new BoundingBox();
+//	    for (int i = 0; i < modelInstances.size; i++) {
+//	        ModelInstance instance = modelInstances.get(i);
+//	        instance.calculateBoundingBox(bb).mul(instance.transform);
+//	        if (Intersector.intersectRayBoundsFast(ray, bb)) {
+//	            return intersect(ray, models.get(i), instance.transform, intersection);
+//	        }
+//	    }
+//	    return false;
+//	}
+//	
+//	private boolean intersect(Ray ray, Model model, Matrix4 transform, Vector3 intersection) {
+//	    final Matrix4 reverse = new Matrix4(transform).inv();
+//	    for (Mesh mesh : model.meshes) {
+//	        mesh.transform(transform);
+//	        float[] vertices = new float[mesh.getNumVertices() * 6];
+//	        short[] indices = new short[mesh.getNumIndices()];
+//	        mesh.getVertices(vertices);
+//	        mesh.getIndices(indices);
+//	        try {
+//	            if (Intersector.intersectRayTriangles(ray, vertices, indices, 4, intersection)) {
+//	                intersection.mul(transform);
+//	                return true;
+//	            }
+//	        } finally {
+//	            mesh.transform(reverse);
+//	        }
+//	    }
+//	    return false;
+//	}
 
 	private static boolean intersect(Ray ray, Model model, Matrix4 transform, Vector3 intersection) {
 		final Matrix4 reverse = new Matrix4(transform);
