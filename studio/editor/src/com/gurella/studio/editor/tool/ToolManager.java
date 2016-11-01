@@ -3,6 +3,7 @@ package com.gurella.studio.editor.tool;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -102,11 +103,11 @@ public class ToolManager extends InputAdapter
 		}
 		
 		Vector3 cameraPosition = camera.position;
-		Spatial closestSpatial = null;
-		closestIntersection.set(Float.NaN, Float.NaN, Float.NaN);
-		float closestDistance = Float.MAX_VALUE;
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		ToolHandle pick = selected.getIntersection(pickRay, intersection);
+		ToolHandle pick = selected.getIntersection(cameraPosition, pickRay, intersection);
+		if(pick != null) {
+			pick.changeColor(Color.YELLOW);
+		}
 		return false;
 	}
 

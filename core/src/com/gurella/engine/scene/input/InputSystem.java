@@ -67,7 +67,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private transient final DoubleTouchProcessor doubleTouchProcessor;
 	private transient final DragProcessor dragProcessor = new DragProcessor(tempListeners);
 
-	public byte inputActionsPerSecond;// TODO limit mouse moves;
+	public byte inputActionsFrequency = 10;// TODO limit mouse moves;
 	private transient long lastActionHandled;
 
 	public InputSystem(Scene scene) {

@@ -142,7 +142,7 @@ public class ScaleTool extends TransformTool {
 
 	protected void scaleHandles(Vector3 translation, Camera camera) {
 		float scaleFactor = camera.position.dst(translation) * 0.01f;
-		
+
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xHandle.applyTransform();
 
@@ -155,11 +155,29 @@ public class ScaleTool extends TransformTool {
 		xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xyzHandle.applyTransform();
 	}
-	
+
 	@Override
-	ToolHandle getIntersection(Ray ray, Vector3 intersection) {
-		// TODO Auto-generated method stub
-		return null;
+	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
+		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
+		float closestDistance = Float.MAX_VALUE;
+		ScaleHandle closestHandle = null;
+
+		for (ScaleHandle scaleHandle : handles) {
+			if (scaleHandle.getIntersection(cameraPosition, ray, intersection)) {
+				float distance = intersection.dst2(cameraPosition);
+				if (closestDistance > distance) {
+					closestDistance = distance;
+					closestIntersection.set(intersection);
+					closestHandle = scaleHandle;
+				}
+			}
+		}
+		
+		if(closestHandle != null && closestHandle.id != 4) {
+			System.out.println("");
+		}
+
+		return closestHandle;
 	}
 
 	@Override

@@ -25,7 +25,7 @@ public abstract class TransformTool implements Disposable {
 
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
 
-	abstract ToolHandle getIntersection(Ray ray, Vector3 intersection);
+	abstract ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection);
 
 	protected enum TransformState {
 		TRANSFORM_X, TRANSFORM_Y, TRANSFORM_Z, TRANSFORM_XZ, TRANSFORM_XYZ, IDLE

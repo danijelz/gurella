@@ -96,7 +96,7 @@ public class TranslateTool extends TransformTool {
 	}
 	
 	@Override
-	ToolHandle getIntersection(Ray ray, Vector3 intersection) {
+	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
 		// TODO Auto-generated method stub
 		return null;
 	}
