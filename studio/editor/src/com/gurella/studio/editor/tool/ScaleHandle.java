@@ -25,8 +25,8 @@ public class ScaleHandle extends ToolHandle {
 	Model model;
 	ModelInstance modelInstance;
 
-	public ScaleHandle(int id, Model model) {
-		super(id);
+	public ScaleHandle(int id, Color color, Model model) {
+		super(id, color);
 		this.model = model;
 		this.modelInstance = new ModelInstance(model);
 	}

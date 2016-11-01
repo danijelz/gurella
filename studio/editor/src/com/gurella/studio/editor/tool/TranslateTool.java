@@ -44,10 +44,10 @@ public class TranslateTool extends TransformTool {
 		Model xzPlaneHandleModel = modelBuilder.createSphere(1, 1, 1, 20, 20,
 				new Material(ColorAttribute.createDiffuse(COLOR_XZ)), VertexAttributes.Usage.Position);
 
-		xHandle = new TranslateHandle(X_HANDLE_ID, xHandleModel);
-		yHandle = new TranslateHandle(Y_HANDLE_ID, yHandleModel);
-		zHandle = new TranslateHandle(Z_HANDLE_ID, zHandleModel);
-		xzPlaneHandle = new TranslateHandle(XZ_HANDLE_ID, xzPlaneHandleModel);
+		xHandle = new TranslateHandle(X_HANDLE_ID, COLOR_X, xHandleModel);
+		yHandle = new TranslateHandle(Y_HANDLE_ID, COLOR_Y, yHandleModel);
+		zHandle = new TranslateHandle(Z_HANDLE_ID, COLOR_Z, zHandleModel);
+		xzPlaneHandle = new TranslateHandle(XZ_HANDLE_ID, COLOR_XZ, xzPlaneHandleModel);
 		handles = new TranslateHandle[] { xHandle, yHandle, zHandle, xzPlaneHandle };
 	}
 

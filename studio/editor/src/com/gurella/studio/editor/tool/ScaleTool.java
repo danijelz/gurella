@@ -52,10 +52,10 @@ public class ScaleTool extends TransformTool {
 				new Material(ColorAttribute.createDiffuse(COLOR_XYZ)),
 				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
-		xHandle = new ScaleHandle(X_HANDLE_ID, xPlaneHandleModel);
-		yHandle = new ScaleHandle(Y_HANDLE_ID, yPlaneHandleModel);
-		zHandle = new ScaleHandle(Z_HANDLE_ID, zPlaneHandleModel);
-		xyzHandle = new ScaleHandle(XYZ_HANDLE_ID, xyzPlaneHandleModel);
+		xHandle = new ScaleHandle(X_HANDLE_ID, COLOR_X, xPlaneHandleModel);
+		yHandle = new ScaleHandle(Y_HANDLE_ID, COLOR_Y, yPlaneHandleModel);
+		zHandle = new ScaleHandle(Z_HANDLE_ID, COLOR_Z, zPlaneHandleModel);
+		xyzHandle = new ScaleHandle(XYZ_HANDLE_ID, COLOR_XYZ, xyzPlaneHandleModel);
 
 		handles = new ScaleHandle[] { xHandle, yHandle, zHandle, xyzHandle };
 	}

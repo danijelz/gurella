@@ -8,13 +8,20 @@ import com.gurella.engine.graphics.render.GenericBatch;
 
 public abstract class ToolHandle implements Disposable {
 	int id;
+	Color color;
+	
 	Vector3 position = new Vector3();
 	Vector3 rotationEuler = new Vector3();
 	Quaternion rotation = new Quaternion();
 	Vector3 scale = new Vector3();
 
-	public ToolHandle(int id) {
+	public ToolHandle(int id, Color color) {
 		this.id = id;
+		this.color = color;
+	}
+	
+	void restoreColor() {
+		changeColor(color);
 	}
 
 	abstract void render(GenericBatch batch);

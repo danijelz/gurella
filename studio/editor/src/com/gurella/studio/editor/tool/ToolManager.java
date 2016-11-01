@@ -38,11 +38,13 @@ public class ToolManager extends InputAdapter
 
 	private Camera camera;
 	private final Vector3 translation = new Vector3();
-	
+
 	private final Vector3 intersection = new Vector3();
 	private final Vector3 closestIntersection = new Vector3();
 
 	private TransformComponent transformComponent;
+
+	private ToolHandle lastPick;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
@@ -98,16 +100,23 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		if(selected == null) {
+		if (selected == null) {
 			return false;
 		}
-		
+
 		selected.update(translation, camera);
 		Vector3 cameraPosition = camera.position;
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		ToolHandle pick = selected.getIntersection(cameraPosition, pickRay, intersection);
-		if(pick != null) {
-			pick.changeColor(Color.YELLOW);
+		if (lastPick != pick) {
+			if (lastPick != null) {
+				pick.restoreColor();
+			}
+			if (pick != null) {
+				pick.changeColor(Color.YELLOW);
+			}
+			
+			lastPick = pick;
 		}
 		return false;
 	}

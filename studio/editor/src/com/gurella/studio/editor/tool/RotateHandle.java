@@ -16,7 +16,7 @@ public class RotateHandle extends ToolHandle {
 	private ModelInstance modelInstance;
 
 	public RotateHandle(int id, Color color) {
-		super(id);
+		super(id, color);
 		model = torus(new Material(ColorAttribute.createDiffuse(color)), 20, 1f, 50, 50);
 		modelInstance = new ModelInstance(model);
 		switch (id) {
