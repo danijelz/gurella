@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -32,17 +33,15 @@ public class TranslateTool extends TransformTool {
 	public TranslateTool() {
 		ModelBuilder modelBuilder = new ModelBuilder();
 
+		int usage = Usage.Position | Usage.Normal;
 		Model xHandleModel = modelBuilder.createArrow(0, 0, 0, 1, 0, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_X)),
-				VertexAttributes.Usage.Position);
+				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_X)), usage);
 		Model yHandleModel = modelBuilder.createArrow(0, 0, 0, 0, 1, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Y)),
-				VertexAttributes.Usage.Position);
+				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Y)), usage);
 		Model zHandleModel = modelBuilder.createArrow(0, 0, 0, 0, 0, 1, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Z)),
-				VertexAttributes.Usage.Position);
+				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Z)), usage);
 		Model xzPlaneHandleModel = modelBuilder.createSphere(1, 1, 1, 20, 20,
-				new Material(ColorAttribute.createDiffuse(COLOR_XZ)), VertexAttributes.Usage.Position);
+				new Material(ColorAttribute.createDiffuse(COLOR_XZ)), usage);
 
 		xHandle = new TranslateHandle(X_HANDLE_ID, COLOR_X, xHandleModel);
 		yHandle = new TranslateHandle(Y_HANDLE_ID, COLOR_Y, yHandleModel);
@@ -94,7 +93,7 @@ public class TranslateTool extends TransformTool {
 		xzPlaneHandle.position.set(translation);
 		xzPlaneHandle.applyTransform();
 	}
-	
+
 	@Override
 	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
 		// TODO Auto-generated method stub

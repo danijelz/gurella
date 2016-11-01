@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
@@ -22,13 +21,8 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class ScaleHandle extends ToolHandle {
-	Model model;
-	ModelInstance modelInstance;
-
 	public ScaleHandle(int id, Color color, Model model) {
-		super(id, color);
-		this.model = model;
-		this.modelInstance = new ModelInstance(model);
+		super(id, color, model);
 	}
 
 	@Override
@@ -83,10 +77,10 @@ public class ScaleHandle extends ToolHandle {
 		node.calculateWorldTransform();
 		node.extendBoundingBox(temp.inf(), true);
 		temp.mul(modelInstance.transform);
-		
+
 		if (Intersector.intersectRayBoundsFast(ray, temp)) {
 			transform.set(modelInstance.transform).mul(node.globalTransform);
-			
+
 			Array<NodePart> parts = node.parts;
 			for (int i = 0, n = parts.size; i < n; i++) {
 				NodePart nodePart = parts.get(i);

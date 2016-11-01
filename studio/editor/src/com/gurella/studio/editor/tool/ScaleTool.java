@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.tool;
 
+import static com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute.createDiffuse;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
@@ -37,20 +39,16 @@ public class ScaleTool extends TransformTool {
 
 	private TransformState state = TransformState.IDLE;
 
-	private ShapeRenderer shapeRenderer;
+	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
 	public ScaleTool() {
 		ModelBuilder modelBuilder = new ModelBuilder();
 
-		Model xPlaneHandleModel = createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_X)), Vector3.Zero,
-				new Vector3(15, 0, 0));
-		Model yPlaneHandleModel = createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_Y)), Vector3.Zero,
-				new Vector3(0, 15, 0));
-		Model zPlaneHandleModel = createArrowStub(new Material(ColorAttribute.createDiffuse(COLOR_Z)), Vector3.Zero,
-				new Vector3(0, 0, 15));
-		Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3,
-				new Material(ColorAttribute.createDiffuse(COLOR_XYZ)),
-				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+		Model xPlaneHandleModel = createArrow(new Material(createDiffuse(COLOR_X)), new Vector3(15, 0, 0));
+		Model yPlaneHandleModel = createArrow(new Material(createDiffuse(COLOR_Y)), new Vector3(0, 15, 0));
+		Model zPlaneHandleModel = createArrow(new Material(createDiffuse(COLOR_Z)), new Vector3(0, 0, 15));
+		Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3, new Material(createDiffuse(COLOR_XYZ)),
+				Usage.Position | Usage.Normal);
 
 		xHandle = new ScaleHandle(X_HANDLE_ID, COLOR_X, xPlaneHandleModel);
 		yHandle = new ScaleHandle(Y_HANDLE_ID, COLOR_Y, yPlaneHandleModel);
@@ -110,12 +108,12 @@ public class ScaleTool extends TransformTool {
 		}
 	}
 
-	public static Model createArrowStub(Material mat, Vector3 from, Vector3 to) {
+	public static Model createArrow(Material mat, Vector3 to) {
 		ModelBuilder builder = new ModelBuilder();
 		builder.begin();
 		// line
 		MeshPartBuilder meshBuilder = builder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
-		meshBuilder.line(from.x, from.y, from.z, to.x, to.y, to.z);
+		meshBuilder.line(0, 0, 0, to.x, to.y, to.z);
 		// stub
 		Node node = builder.node();
 		node.translation.set(to.x, to.y, to.z);
