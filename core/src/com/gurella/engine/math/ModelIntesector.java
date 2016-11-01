@@ -22,15 +22,16 @@ public class ModelIntesector {
 	private final BoundingBox temp = new BoundingBox();
 	private final Matrix4 transform = new Matrix4();
 	private final Ray tempRay = new Ray();
+	private final Vector3 intersection = new Vector3();
 
 	private ModelInstance closestModelInstance;
-	private final Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
+	private final Vector3 closestIntersection = new Vector3();
 	private float closestDistance = Float.MAX_VALUE;
 
-	private final Vector3 closestNodeIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
+	private final Vector3 closestNodeIntersection = new Vector3();
 	private float closestNodeDistance = Float.MAX_VALUE;
 
-	private final Vector3 closestPartIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
+	private final Vector3 closestPartIntersection = new Vector3();
 	private float closestPartDistance = Float.MAX_VALUE;
 
 	private final Vector3 t1 = new Vector3();
@@ -38,7 +39,6 @@ public class ModelIntesector {
 	private final Vector3 t3 = new Vector3();
 
 	private final Vector3 cameraPosition = new Vector3();
-	private final Vector3 intersection = new Vector3();
 	private final Ray ray = new Ray();
 
 	private ModelInstance modelInstance;
@@ -49,7 +49,7 @@ public class ModelIntesector {
 		for (ModelInstance modelInstance : modelInstances) {
 			process(modelInstance);
 		}
-		return extractResult();
+		return extractResult(intersection);
 	}
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection,
@@ -58,7 +58,7 @@ public class ModelIntesector {
 		for (int i = 0, n = modelInstances.size; i < n; i++) {
 			process(modelInstances.get(i));
 		}
-		return extractResult();
+		return extractResult(intersection);
 	}
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection,
@@ -67,13 +67,13 @@ public class ModelIntesector {
 		for (int i = 0, n = modelInstances.length; i < n; i++) {
 			process(modelInstances[i]);
 		}
-		return extractResult();
+		return extractResult(intersection);
 	}
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection, ModelInstance modelInstance) {
 		init(cameraPosition, ray, intersection);
 		process(modelInstance);
-		return extractResult();
+		return extractResult(intersection);
 	}
 
 	private void init(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
@@ -92,10 +92,10 @@ public class ModelIntesector {
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
 			if (getIntersection(node)) {
-				float distance = intersection.dst2(cameraPosition);
+				float distance = closestNodeIntersection.dst2(cameraPosition);
 				if (closestDistance > distance) {
 					closestDistance = distance;
-					closestIntersection.set(intersection);
+					closestIntersection.set(closestNodeIntersection);
 					closestModelInstance = modelInstance;
 				}
 			}
@@ -104,7 +104,7 @@ public class ModelIntesector {
 		return closestModelInstance == modelInstance;
 	}
 
-	private boolean extractResult() {
+	private boolean extractResult(Vector3 intersection) {
 		if (closestModelInstance != null) {
 			intersection.set(closestIntersection);
 			return true;
@@ -138,10 +138,10 @@ public class ModelIntesector {
 					int count = meshPart.size;
 
 					if (getIntersection(mesh, primitiveType, offset, count)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = closestPartIntersection.dst2(cameraPosition);
 						if (closestNodeDistance > distance) {
 							closestNodeDistance = distance;
-							closestNodeIntersection.set(intersection);
+							closestNodeIntersection.set(closestPartIntersection);
 						}
 					}
 				}
