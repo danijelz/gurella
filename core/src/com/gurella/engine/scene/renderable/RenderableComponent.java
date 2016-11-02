@@ -25,11 +25,11 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, type = EditorType.simple)
 	Layer layer = Layer.DEFAULT;
 
-	@PropertyEditorDescriptor(index = 1001, group = "input")
-	public boolean preciseInput;
-	@PropertyEditorDescriptor(factory = InputSensitivityPropertyEditorFactory.class, index = 1000, group = "input")
+	@PropertyEditorDescriptor(index = 1000, group = "input", descriptiveName = "loose")
+	public boolean looseInput;
+	@PropertyEditorDescriptor(factory = InputSensitivityPropertyEditorFactory.class, index = 1001, group = "input", descriptiveName = "sensitivity")
 	public byte inputSensitivity;
-	
+
 	private transient int sceneId;
 
 	transient boolean visible;
