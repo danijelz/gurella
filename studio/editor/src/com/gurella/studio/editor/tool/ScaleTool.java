@@ -56,6 +56,11 @@ public class ScaleTool extends TransformTool {
 
 		handles = new ScaleHandle[] { xHandle, yHandle, zHandle, xyzHandle };
 	}
+	
+	@Override
+	ToolType getType() {
+		return ToolType.scale;
+	}
 
 	@Override
 	void render(Vector3 translation, Camera camera, GenericBatch batch) {

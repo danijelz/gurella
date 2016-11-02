@@ -41,6 +41,11 @@ public class RotateTool extends TransformTool {
 		zHandle = new RotateHandle(Z_HANDLE_ID, COLOR_Z, torus(new Material(createDiffuse(COLOR_Z)), 20, 1f, 50, 50));
 		handles = new RotateHandle[] { xHandle, yHandle, zHandle };
 	}
+	
+	@Override
+	ToolType getType() {
+		return ToolType.rotate;
+	}
 
 	@Override
 	public void render(Vector3 translation, Camera camera, GenericBatch batch) {

@@ -22,6 +22,7 @@ import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
 public class ToolManager extends InputAdapter
 		implements EditorPreCloseListener, EditorFocusListener, EditorCameraSelectionListener {
@@ -72,20 +73,26 @@ public class ToolManager extends InputAdapter
 	@Override
 	public boolean keyUp(int keycode) {
 		if (keycode == Keys.S) {
-			selected = scaleTool;
+			selectTool(scaleTool);
 			return true;
 		} else if (keycode == Keys.T) {
-			selected = translateTool;
+			selectTool(translateTool);
 			return true;
 		} else if (keycode == Keys.R) {
-			selected = rotateTool;
+			selectTool(rotateTool);
 			return true;
 		} else if (keycode == Keys.ESCAPE || keycode == Keys.M) {
-			selected = null;
+			selectTool(null);
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	private void selectTool(TransformTool newSelection) {
+		selected = newSelection;
+		ToolType type = selected == null ? ToolType.none : selected.getType();
+		EventService.post(editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
 	}
 
 	public void render(GenericBatch batch) {

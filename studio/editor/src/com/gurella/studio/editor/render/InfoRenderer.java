@@ -1,11 +1,16 @@
 package com.gurella.studio.editor.render;
 
+import static com.gurella.studio.GurellaStudioPlugin.locateFile;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
@@ -15,8 +20,10 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
+import com.gurella.studio.editor.subscription.ToolSelectionListener;
+import com.gurella.studio.editor.tool.ToolType;
 
-class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
+class InfoRenderer implements EditorPreCloseListener, EditorResizeListener, ToolSelectionListener {
 	private final int editorId;
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
@@ -24,12 +31,33 @@ class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
 	private final Matrix4 lookAt = new Matrix4();
 	private final Quaternion rotation = new Quaternion();
 
+	private final Texture handTexture;
+	private final Texture resizeTexture;
+	private final Texture rotateTexture;
+	private final Texture translateTexture;
+
+	private Texture toolTexture;
+
 	InfoRenderer(int editorId) {
 		this.editorId = editorId;
 		font = new BitmapFont();
 		font.setColor(Color.WHITE);
 		Graphics graphics = Gdx.graphics;
 		infoProjection = new Matrix4().setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
+
+		handTexture = new Texture(new FileHandle(locateFile("icons/tool/hand.png")));
+		handTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		resizeTexture = new Texture(new FileHandle(locateFile("icons/tool/resize.png")));
+		resizeTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		rotateTexture = new Texture(new FileHandle(locateFile("icons/tool/rotate.png")));
+		rotateTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		translateTexture = new Texture(new FileHandle(locateFile("icons/tool/translate.png")));
+		translateTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		toolTexture = handTexture;
 
 		EventService.subscribe(editorId, this);
 	}
@@ -81,6 +109,8 @@ class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
 		int height = Gdx.graphics.getHeight();
 		font.draw(spriteBatch, camera instanceof OrthographicCamera ? "2D" : "3D", 15, height - 20);
 
+		spriteBatch.draw(toolTexture, 42, height - 35, 20, 20);
+
 		batch.end();
 	}
 
@@ -88,5 +118,26 @@ class InfoRenderer implements EditorPreCloseListener, EditorResizeListener {
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
 		font.dispose();
+	}
+
+	@Override
+	public void toolSelected(ToolType selectedTool) {
+		switch (selectedTool) {
+		case none:
+			toolTexture = handTexture;
+			break;
+		case rotate:
+			toolTexture = rotateTexture;
+			break;
+		case translate:
+			toolTexture = translateTexture;
+			break;
+		case scale:
+			toolTexture = resizeTexture;
+			break;
+		default:
+			toolTexture = handTexture;
+			break;
+		}
 	}
 }

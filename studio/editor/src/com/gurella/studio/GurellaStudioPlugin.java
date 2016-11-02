@@ -1,11 +1,18 @@
 package com.gurella.studio;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ColorDescriptor;
@@ -25,10 +32,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import com.gurella.engine.editor.ui.EditorLogLevel;
 import com.gurella.studio.editor.utils.RGBAColorDescriptor;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class GurellaStudioPlugin extends AbstractUIPlugin {
@@ -61,6 +70,26 @@ public class GurellaStudioPlugin extends AbstractUIPlugin {
 		toolkit.disposePrivate();
 		resourceManager.dispose();
 		pluginResources.entrySet().forEach(e -> e.getKey().destroyResource(e.getValue()));
+	}
+
+	public static InputStream getFileInputStream(String filePath) {
+		return Try.ofFailable(() -> FileLocator.openStream(plugin.getBundle(), locatePath(filePath), false))
+				.orElse(null);
+	}
+
+	public static IPath locatePath(String filePath) {
+		return new Path("/plugin").append(PLUGIN_ID).append(filePath);
+	}
+
+	public static File locateFile(String filePath) {
+		Bundle bundle = Platform.getBundle(PLUGIN_ID);
+		URL fileURL = bundle.getEntry(filePath);
+		try {
+			return new File(FileLocator.resolve(fileURL).toURI());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**

@@ -21,6 +21,8 @@ public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_SELECTED = Color.YELLOW;
 
 	ToolHandle[] handles;
+	
+	abstract ToolType getType();
 
 	abstract void update(Vector3 translation, Camera camera);
 

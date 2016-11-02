@@ -46,6 +46,11 @@ public class TranslateTool extends TransformTool {
 		xzPlaneHandle = new TranslateHandle(XZ_HANDLE_ID, COLOR_XZ, xzPlaneHandleModel);
 		handles = new TranslateHandle[] { xHandle, yHandle, zHandle, xzPlaneHandle };
 	}
+	
+	@Override
+	ToolType getType() {
+		return ToolType.translate;
+	}
 
 	@Override
 	void render(Vector3 translation, Camera camera, GenericBatch batch) {
