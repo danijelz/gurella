@@ -28,26 +28,30 @@ public class ToolManager extends InputAdapter
 		implements EditorPreCloseListener, EditorFocusListener, EditorCameraSelectionListener {
 	private final int editorId;
 
+	@SuppressWarnings("unused")
+	private ToolMenuContributor menuContributor;
+
 	private final ScaleTool scaleTool = new ScaleTool();
 	private final TranslateTool translateTool = new TranslateTool();
 	private final RotateTool rotateTool = new RotateTool();
 	private final Environment environment;
 
-	private TransformTool selected;
-
 	private Camera camera;
-	private final Vector3 translation = new Vector3();
+	private TransformComponent transformComponent;
 
+	private final Vector3 translation = new Vector3();
+	private final Vector3 cameraPosition = new Vector3();
 	private final Vector3 intersection = new Vector3();
 	private final ModelIntesector intesector = new ModelIntesector();
 
-	private TransformComponent transformComponent;
-
+	private TransformTool selected;
 	private ToolHandle mouseOver;
 	private ToolHandle active;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
+
+		menuContributor = new ToolMenuContributor(editorId, this);
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.65f, 0.65f, 0.65f, 1f));
@@ -82,11 +86,35 @@ public class ToolManager extends InputAdapter
 			selectTool(rotateTool);
 			return true;
 		} else if (keycode == Keys.ESCAPE || keycode == Keys.M) {
-			selectTool(null);
+			selectTool((TransformTool) null);
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	void selectTool(ToolType type) {
+		switch (type) {
+		case none:
+			selectTool((TransformTool) null);
+			break;
+		case rotate:
+			selectTool(rotateTool);
+			break;
+		case translate:
+			selectTool(translateTool);
+			break;
+		case scale:
+			selectTool(scaleTool);
+			break;
+		default:
+			selectTool((TransformTool) null);
+			break;
+		}
+	}
+
+	ToolType getSelectedToolType() {
+		return selected == null ? ToolType.none : selected.getType();
 	}
 
 	private void selectTool(TransformTool newSelection) {
@@ -155,7 +183,7 @@ public class ToolManager extends InputAdapter
 
 	protected ToolHandle pickHandle(int screenX, int screenY) {
 		selected.update(translation, camera);
-		Vector3 cameraPosition = camera.position;
+		cameraPosition.set(camera.position);
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		ToolHandle[] handles = selected.handles;
 		ToolHandle pick = null;
