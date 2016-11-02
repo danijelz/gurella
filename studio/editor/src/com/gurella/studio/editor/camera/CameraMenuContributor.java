@@ -4,6 +4,7 @@ import static com.gurella.studio.editor.camera.CameraType.camera2d;
 import static com.gurella.studio.editor.camera.CameraType.camera3d;
 
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.graphics.Camera;
@@ -37,9 +38,9 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 	public void contribute(ContextMenuActions actions) {
 		actions.addGroup(cameraMenuGroupName, -800);
 		boolean is2d = manager.is2d();
-		actions.addCheckAction(cameraMenuGroupName, "2d", 100, !is2d, is2d, () -> manager.switchCamera(camera2d));
+		actions.addCheckAction(cameraMenuGroupName, "&2d\t2", 100, !is2d, is2d, () -> manager.switchCamera(camera2d));
 		boolean is3d = manager.is3d();
-		actions.addCheckAction(cameraMenuGroupName, "3d", 200, !is3d, is3d, () -> manager.switchCamera(camera3d));
+		actions.addCheckAction(cameraMenuGroupName, "&3d\t3", 200, !is3d, is3d, () -> manager.switchCamera(camera3d));
 
 		actions.addGroup(moveToMenuGroupName, -700);
 		if (is2d) {
@@ -74,7 +75,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		String rotationZ = String.valueOf(rotation.getRoll());
 		String message = "Please enter rotation in degrees";
 		InputDialog dlg = new InputDialog(shell, "Rotation", message, rotationZ, s -> validateRotation(s));
-		if (dlg.open() == InputDialog.OK) {
+		if (dlg.open() == Window.OK) {
 			setRotation(Float.parseFloat(dlg.getValue()));
 		}
 	}
@@ -105,7 +106,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		String zoom = String.valueOf(((OrthographicCamera) manager.getActiveCamera()).zoom);
 		String message = "Please enter new zoom value";
 		InputDialog dlg = new InputDialog(shell, "Zoom", message, zoom, s -> validateZoom(s));
-		if (dlg.open() == InputDialog.OK) {
+		if (dlg.open() == Window.OK) {
 			OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
 			camera.zoom = Float.parseFloat(dlg.getValue());
 			camera.update();

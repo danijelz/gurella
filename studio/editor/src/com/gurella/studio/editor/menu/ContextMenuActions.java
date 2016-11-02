@@ -126,11 +126,18 @@ public class ContextMenuActions {
 	protected void createMenuItem(Menu menu, MenuAction action) {
 		int style = action.style == ActionStyle.check ? CHECK : PUSH;
 		MenuItem item = new MenuItem(menu, style);
-		item.setText(action.name);
+		String name = action.name;
+		item.setText(name);
 		item.addListener(SWT.Selection, e -> action.action.run());
 		item.setEnabled(action.enabled);
 		if (action.style == ActionStyle.check) {
 			item.setSelection(action.checked);
+		}
+
+		int accIndex = name.indexOf('&');
+		if (accIndex >= 0 && accIndex < name.length()) {
+			char acc = name.charAt(accIndex + 1);
+			item.setAccelerator(SWT.MOD1 + acc);
 		}
 	}
 

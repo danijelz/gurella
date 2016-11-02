@@ -27,13 +27,13 @@ public class ToolMenuContributor implements EditorPreCloseListener, EditorContex
 		actions.addGroup(toolMenuGroupName, -500);
 		ToolType type = manager.getSelectedToolType();
 		boolean selected = type == translate;
-		actions.addCheckAction(toolMenuGroupName, "Translate", 100, !selected, selected, () -> select(translate));
+		actions.addCheckAction(toolMenuGroupName, "&Translate\tT", 100, !selected, selected, () -> select(translate));
 		selected = type == rotate;
-		actions.addCheckAction(toolMenuGroupName, "Rotate", 100, !selected, selected, () -> select(rotate));
+		actions.addCheckAction(toolMenuGroupName, "&Rotate\tR", 100, !selected, selected, () -> select(rotate));
 		selected = type == scale;
-		actions.addCheckAction(toolMenuGroupName, "Scale", 100, !selected, selected, () -> select(scale));
+		actions.addCheckAction(toolMenuGroupName, "&Scale\tS", 100, !selected, selected, () -> select(scale));
 		selected = type == none;
-		actions.addCheckAction(toolMenuGroupName, "None", 100, !selected, selected, () -> select(none));
+		actions.addCheckAction(toolMenuGroupName, "&None\tN", 100, !selected, selected, () -> select(none));
 	}
 
 	private void select(ToolType type) {

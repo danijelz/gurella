@@ -85,7 +85,7 @@ public class ToolManager extends InputAdapter
 		} else if (keycode == Keys.R) {
 			selectTool(rotateTool);
 			return true;
-		} else if (keycode == Keys.ESCAPE || keycode == Keys.M) {
+		} else if (keycode == Keys.ESCAPE || keycode == Keys.N) {
 			selectTool((TransformTool) null);
 			return true;
 		} else {
