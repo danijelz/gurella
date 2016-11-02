@@ -5,8 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gurella.engine.utils.priority.TypedPriorityComparator;
 
 public class InputService {
+	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
 	private static final ObjectMap<Application, ApplicationInput> applicationInputs = new ObjectMap<Application, ApplicationInput>();
 
 	private InputService() {
@@ -22,7 +24,9 @@ public class InputService {
 	}
 
 	public static void addInputProcessor(InputProcessor processor) {
-		getApplicationInput().multiplexer.addProcessor(processor);
+		InputMultiplexer multiplexer = getApplicationInput().multiplexer;
+		multiplexer.addProcessor(processor);
+		multiplexer.getProcessors().sort(comparator);
 	}
 
 	public static void removeInputProcessor(InputProcessor processor) {
