@@ -5,6 +5,7 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
@@ -66,6 +67,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	private Color backgroundColor = new Color(0.501960f, 0.501960f, 0.501960f, 1f);
 
 	private Grid3d grid3d;
+	private Grid2d grid2d;
 	private Compass compass;
 	private InfoRenderer infoRenderer;
 	private ToolManager toolManager;
@@ -87,9 +89,10 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 		batch = new GenericBatch();
 		grid3d = new Grid3d(editorId);
+		grid2d = new Grid2d(editorId);
 		compass = new Compass(editorId);
 		infoRenderer = new InfoRenderer(editorId);
-		
+
 		toolManager = new ToolManager(editorId);
 
 		DefaultShader.defaultCullFace = 0;
@@ -163,7 +166,11 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	public void onRenderUpdate() {
 		synchronized (GurellaStudioPlugin.glMutex) {
 			updateGlState();
-			grid3d.render(batch);
+			if (camera instanceof PerspectiveCamera) {
+				grid3d.render(batch);
+			} else {
+				grid2d.render(batch);
+			}
 			renderScene();
 			compass.render(batch);
 			infoRenderer.renderInfo(camera, batch);
