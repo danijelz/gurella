@@ -11,14 +11,14 @@ import com.badlogic.gdx.utils.Sort;
 import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gurella.engine.async.AsyncService;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.factory.Factories;
 import com.gurella.engine.factory.Factory;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.priority.TypePriorities;
+import com.gurella.engine.utils.priority.TypePriority;
 
 // TODO factory pools, 
 // TODO handle Disposables

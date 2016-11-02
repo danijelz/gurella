@@ -1,4 +1,4 @@
-package com.gurella.engine.event;
+package com.gurella.engine.utils.priority;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

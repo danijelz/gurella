@@ -3,6 +3,7 @@ package com.gurella.studio.editor.tool;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
@@ -13,7 +14,7 @@ public abstract class ToolHandle implements Disposable {
 	Color color;
 	Model model;
 	ModelInstance modelInstance;
-	
+
 	Vector3 position = new Vector3();
 	Vector3 rotationEuler = new Vector3();
 	Quaternion rotation = new Quaternion();
@@ -25,14 +26,24 @@ public abstract class ToolHandle implements Disposable {
 		this.model = model;
 		this.modelInstance = new ModelInstance(model);
 	}
-	
+
+	void render(GenericBatch batch) {
+		batch.render(modelInstance);
+	}
+
+	abstract void applyTransform();
+
+	void changeColor(Color color) {
+		ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.first().get(ColorAttribute.Diffuse);
+		diffuse.color.set(color);
+	}
+
 	void restoreColor() {
 		changeColor(color);
 	}
 
-	abstract void render(GenericBatch batch);
-
-	abstract void applyTransform();
-
-	abstract void changeColor(Color color);
+	@Override
+	public void dispose() {
+		model.dispose();
+	}
 }

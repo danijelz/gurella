@@ -1,11 +1,12 @@
 package com.gurella.studio.editor.inspector.material;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 
-public class ModelInputController extends InputAdapter {
+public class MaterialInputController extends InputAdapter {
 	protected int button = -1;
 	private float startX, startY;
 
@@ -43,8 +44,9 @@ public class ModelInputController extends InputAdapter {
 		if (result || this.button < 0) {
 			return result;
 		}
-		final float deltaX = (screenX - startX) / Gdx.graphics.getWidth();
-		final float deltaY = (startY - screenY) / Gdx.graphics.getHeight();
+		Graphics graphics = Gdx.graphics;
+		final float deltaX = (screenX - startX) / graphics.getWidth();
+		final float deltaY = (startY - screenY) / graphics.getHeight();
 		startX = screenX;
 		startY = screenY;
 		return process(deltaX, deltaY);

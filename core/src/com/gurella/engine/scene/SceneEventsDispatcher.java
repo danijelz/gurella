@@ -3,7 +3,6 @@ package com.gurella.engine.scene;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
@@ -20,6 +19,7 @@ import com.gurella.engine.subscriptions.scene.update.PostRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.RenderUpdateListener;
 import com.gurella.engine.subscriptions.scene.update.UpdateListener;
+import com.gurella.engine.utils.priority.TypePriority;
 
 @TypePriority(priority = CommonUpdatePriority.updatePriority, type = ApplicationUpdateListener.class)
 class SceneEventsDispatcher implements ApplicationUpdateListener, Poolable {

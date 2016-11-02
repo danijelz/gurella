@@ -3,9 +3,9 @@ package com.gurella.engine.state;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
 import com.gurella.engine.event.Signal;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.utils.priority.TypePriority;
 
 @TypePriority(priority = CommonUpdatePriority.logicPriority, type = ApplicationUpdateListener.class)
 public class StateMachine<STATE> implements ApplicationUpdateListener {

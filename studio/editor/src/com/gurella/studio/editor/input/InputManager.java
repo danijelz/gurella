@@ -1,54 +1,57 @@
 package com.gurella.studio.editor.input;
 
+import com.badlogic.gdx.InputEventQueue;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.input.InputService;
+import com.gurella.engine.utils.priority.TypedPriorityComparator;
+import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
+import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.InputProcessorActivationListener;
 
-//TODO unused
-public class InputManager implements InputProcessor {
-	@Override
-	public boolean keyDown(int arg0) {
-		// TODO Auto-generated method stub
-		return false;
+public class InputManager
+		implements EditorInputUpdateListener, InputProcessorActivationListener, EditorPreCloseListener {
+	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
+
+	private final int editorId;
+
+	private final InputMultiplexer multiplexer = new InputMultiplexer();
+	private final InputEventQueue inputQueue = new InputEventQueue(multiplexer);
+
+	public InputManager(int editorId) {
+		this.editorId = editorId;
+		InputService.addInputProcessor(inputQueue);
+		EventService.subscribe(editorId, this);
+	}
+
+	public void addInputProcessor(InputProcessor processor) {
+		multiplexer.addProcessor(processor);
+		multiplexer.getProcessors().sort(comparator);
+	}
+
+	public void removeInputProcessor(InputProcessor processor) {
+		multiplexer.removeProcessor(processor);
 	}
 
 	@Override
-	public boolean keyTyped(char arg0) {
-		// TODO Auto-generated method stub
-		return false;
+	public void onEditorPreClose() {
+		InputService.removeInputProcessor(inputQueue);
+		EventService.unsubscribe(editorId, this);
 	}
 
 	@Override
-	public boolean keyUp(int arg0) {
-		// TODO Auto-generated method stub
-		return false;
+	public void onInputUpdate() {
+		inputQueue.drain();
 	}
 
 	@Override
-	public boolean mouseMoved(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return false;
+	public void activate(InputProcessor processor) {
+		addInputProcessor(processor);
 	}
 
 	@Override
-	public boolean scrolled(int arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		return false;
+	public void deactivate(InputProcessor processor) {
+		removeInputProcessor(processor);
 	}
 }

@@ -4,8 +4,6 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.object.ObjectOperation.OperationType;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
@@ -18,6 +16,8 @@ import com.gurella.engine.subscriptions.base.object.ObjectsActivityListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsCompositionListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsDestroyedListener;
 import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
+import com.gurella.engine.utils.priority.TypePriorities;
+import com.gurella.engine.utils.priority.TypePriority;
 
 final class ManagedObjects {
 	private static final ObjectsActivatedEvent objectsActivatedEvent = new ObjectsActivatedEvent();

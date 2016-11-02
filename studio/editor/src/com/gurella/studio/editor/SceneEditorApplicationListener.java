@@ -8,6 +8,7 @@ import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListen
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.editor.camera.CameraManager;
 import com.gurella.studio.editor.focus.FocusManager;
+import com.gurella.studio.editor.input.InputManager;
 import com.gurella.studio.editor.menu.ContextMenuManager;
 import com.gurella.studio.editor.render.RenderSystem;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
@@ -22,6 +23,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	private Thread renderThread;
 
+	@SuppressWarnings("unused")
+	private InputManager inputManager;
 	@SuppressWarnings("unused")
 	private FocusManager focusManager;
 	@SuppressWarnings("unused")
@@ -39,6 +42,7 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 	@Override
 	public void create() {
 		renderThread = Thread.currentThread();
+		inputManager = new InputManager(editorId);
 		cameraManager = new CameraManager(editorId);
 		focusManager = new FocusManager(editorId);
 		contextMenuManager = new ContextMenuManager(editorId);

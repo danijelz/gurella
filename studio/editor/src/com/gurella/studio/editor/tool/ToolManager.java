@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.tool;
 
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
@@ -37,12 +38,12 @@ public class ToolManager extends InputAdapter
 	private final Vector3 translation = new Vector3();
 
 	private final Vector3 intersection = new Vector3();
-	private final Vector3 closestIntersection = new Vector3();
 	private final ModelIntesector intesector = new ModelIntesector();
 
 	private TransformComponent transformComponent;
 
-	private ToolHandle lastPick;
+	private ToolHandle mouseOver;
+	private ToolHandle active;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
@@ -97,11 +98,55 @@ public class ToolManager extends InputAdapter
 	}
 
 	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		if (pointer == 0 && button == Buttons.LEFT && selected != null) {
+			ToolHandle pick = pickHandle(screenX, screenY);
+			if (pick != null) {
+				active = pick;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		if (active != null) {
+			active = null;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		if (selected == null) {
 			return false;
 		}
 
+		if (active != null) {
+			return true;
+		}
+
+		ToolHandle pick = pickHandle(screenX, screenY);
+
+		if (mouseOver != pick) {
+			if (mouseOver != null) {
+				mouseOver.restoreColor();
+			}
+
+			if (pick != null) {
+				pick.changeColor(Color.YELLOW);
+			}
+
+			mouseOver = pick;
+		}
+		return false;
+	}
+
+	protected ToolHandle pickHandle(int screenX, int screenY) {
 		selected.update(translation, camera);
 		Vector3 cameraPosition = camera.position;
 		Ray pickRay = camera.getPickRay(screenX, screenY);
@@ -121,18 +166,7 @@ public class ToolManager extends InputAdapter
 				}
 			}
 		}
-
-		if (lastPick != pick) {
-			if (lastPick != null) {
-				lastPick.restoreColor();
-			}
-			if (pick != null) {
-				pick.changeColor(Color.YELLOW);
-			}
-
-			lastPick = pick;
-		}
-		return false;
+		return pick;
 	}
 
 	@Override

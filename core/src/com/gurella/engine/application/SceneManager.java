@@ -5,12 +5,12 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.state.FixedStateMachineContext;
 import com.gurella.engine.state.StateMachine;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
+import com.gurella.engine.utils.priority.TypePriority;
 
 public class SceneManager {
 	private static final String DEFAULT_TRANSITION_GROUP = "Default";

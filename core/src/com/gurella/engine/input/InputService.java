@@ -12,10 +12,6 @@ public class InputService {
 	private InputService() {
 	}
 
-	public static void addInputProcessor(InputProcessor processor) {
-		getApplicationInput().multiplexer.addProcessor(processor);
-	}
-
 	private static ApplicationInput getApplicationInput() {
 		ApplicationInput input = applicationInputs.get(Gdx.app);
 		if (input == null) {
@@ -23,6 +19,10 @@ public class InputService {
 			applicationInputs.put(Gdx.app, input);
 		}
 		return input;
+	}
+
+	public static void addInputProcessor(InputProcessor processor) {
+		getApplicationInput().multiplexer.addProcessor(processor);
 	}
 
 	public static void removeInputProcessor(InputProcessor processor) {

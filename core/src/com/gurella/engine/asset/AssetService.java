@@ -8,12 +8,12 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.TypePriorities;
-import com.gurella.engine.event.TypePriority;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 import com.gurella.engine.subscriptions.application.CommonUpdatePriority;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.priority.TypePriorities;
+import com.gurella.engine.utils.priority.TypePriority;
 
 public final class AssetService {
 	private static final ObjectMap<String, ConfigurableAssetDescriptor<?>> descriptors = new ObjectMap<String, ConfigurableAssetDescriptor<?>>();

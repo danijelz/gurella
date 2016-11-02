@@ -8,6 +8,9 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.engine.utils.priority.Priority;
+import com.gurella.engine.utils.priority.TypePriorities;
+import com.gurella.engine.utils.priority.TypePriority;
 
 //TODO unify priorities with EventBus
 public final class Subscriptions {

@@ -2,21 +2,19 @@ package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.input.InputService;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
+import com.gurella.studio.editor.subscription.InputProcessorActivationListener;
 
-public class CameraManager extends InputAdapter
+public class CameraManager
 		implements EditorPreCloseListener, EditorActiveCameraProvider, EditorInputUpdateListener, EditorResizeListener {
 
 	private final int editorId;
@@ -29,6 +27,8 @@ public class CameraManager extends InputAdapter
 
 	private Camera camera;
 	private CameraController inputController;
+
+	private KeyboardCameraTypeSelector cameraTypeSelector;
 	private final InputEventQueue inputQueue;
 
 	@SuppressWarnings("unused")
@@ -53,10 +53,11 @@ public class CameraManager extends InputAdapter
 
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
-		InputService.addInputProcessor(this);
 
+		cameraTypeSelector = new KeyboardCameraTypeSelector(this);
+		EventService.post(editorId, InputProcessorActivationListener.class, l -> l.activate(cameraTypeSelector));
 		inputQueue = new InputEventQueue(inputController);
-		InputService.addInputProcessor(inputQueue);
+		EventService.post(editorId, InputProcessorActivationListener.class, l -> l.activate(inputQueue));
 
 		cameraMenuContributor = new CameraMenuContributor(editorId, this);
 
@@ -131,21 +132,8 @@ public class CameraManager extends InputAdapter
 
 	@Override
 	public void onEditorPreClose() {
-		InputService.removeInputProcessor(inputQueue);
-		InputService.removeInputProcessor(this);
+		EventService.post(editorId, InputProcessorActivationListener.class, l -> l.deactivate(inputQueue));
+		EventService.post(editorId, InputProcessorActivationListener.class, l -> l.deactivate(cameraTypeSelector));
 		EventService.unsubscribe(editorId, this);
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		if (keycode == Keys.NUM_2 || keycode == Keys.NUMPAD_2) {
-			switchCamera(CameraType.camera2d);
-			return true;
-		} else if (keycode == Keys.NUM_3 || keycode == Keys.NUMPAD_3) {
-			switchCamera(CameraType.camera3d);
-			return true;
-		} else {
-			return false;
-		}
 	}
 }
