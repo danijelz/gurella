@@ -15,7 +15,7 @@ import com.gurella.engine.subscriptions.application.ApplicationResizeListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.engine.subscriptions.application.ApplicationUpdateListener;
 
-public final class Application implements ApplicationListener, GurellaStateProvider {
+public final class Application implements ApplicationListener {
 	private static final PauseEvent pauseEvent = new PauseEvent();
 	private static final ResumeEvent resumeEvent = new ResumeEvent();
 	private static final UpdateEvent updateEvent = new UpdateEvent();
@@ -28,8 +28,6 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 	private ApplicationConfig config;
 	private final SceneManager sceneManager = new SceneManager(null);
 
-	private Thread renderThread;
-
 	public Application(ApplicationConfig config) {
 		this.config = config;
 	}
@@ -40,8 +38,6 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 
 	@Override
 	public final void create() {
-		renderThread = Thread.currentThread();
-
 		// TODO create services by checking if this is studio
 		Gdx.app.setLogLevel(com.badlogic.gdx.Application.LOG_DEBUG);
 		// TODO add init scripts to initializer -> config.init(this);
@@ -98,11 +94,6 @@ public final class Application implements ApplicationListener, GurellaStateProvi
 		EventService.post(shutdownEvent);
 		// TODO sceneManager.stop();
 		DisposablesService.disposeAll();
-	}
-
-	@Override
-	public boolean isInRenderThread() {
-		return renderThread == Thread.currentThread();
 	}
 
 	private static class ShutdownEvent implements Event<ApplicationShutdownListener> {

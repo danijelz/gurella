@@ -11,7 +11,7 @@ import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 public class ToolMenuContributor implements EditorPreCloseListener, EditorContextMenuContributor {
-	private static final String toolMenuGroupName = "Tool";
+	private static final String toolMenuGroupName = "&Tool";
 
 	private final int editorId;
 	private final ToolManager manager;

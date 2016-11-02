@@ -18,7 +18,7 @@ import com.gurella.studio.editor.subscription.EditorViewsListener;
 import com.gurella.studio.editor.utils.Try;
 
 class ViewRegistry implements EditorViewsListener, EditorPreCloseListener, EditorContextMenuContributor {
-	private static final String viewMenuGroupName = "View";
+	private static final String viewMenuGroupName = "&View";
 
 	private final SceneEditor editor;
 	private final Dock dock;

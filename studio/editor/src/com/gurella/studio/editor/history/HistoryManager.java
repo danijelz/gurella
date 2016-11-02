@@ -84,7 +84,7 @@ public class HistoryManager extends UndoContext implements EditorPreCloseListene
 
 	@Override
 	public void contribute(ContextMenuActions actions) {
-		actions.addAction("Undo", -1000, canUndo(), this::undo);
-		actions.addAction("Redo", -900, canRedo(), this::redo);
+		actions.addAction("&Undo", -1000, canUndo(), this::undo);
+		actions.addAction("&Redo", -900, canRedo(), this::redo);
 	}
 }

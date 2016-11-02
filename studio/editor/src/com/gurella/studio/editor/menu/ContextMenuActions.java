@@ -114,7 +114,9 @@ public class ContextMenuActions {
 		} else {
 			MenuGroup group = (MenuGroup) descriptor;
 			MenuItem item = new MenuItem(menu, SWT.CASCADE);
-			item.setText(group.name);
+			String name = group.name;
+			item.setText(name);
+			addAccelerator(item, name);
 			Menu childMenu = new Menu(item);
 			item.setMenu(childMenu);
 			List<MenuAction> actions = group.actions;
@@ -128,16 +130,19 @@ public class ContextMenuActions {
 		MenuItem item = new MenuItem(menu, style);
 		String name = action.name;
 		item.setText(name);
+		addAccelerator(item, name);
 		item.addListener(SWT.Selection, e -> action.action.run());
 		item.setEnabled(action.enabled);
 		if (action.style == ActionStyle.check) {
 			item.setSelection(action.checked);
 		}
+	}
 
+	protected void addAccelerator(MenuItem item, String name) {
 		int accIndex = name.indexOf('&');
 		if (accIndex >= 0 && accIndex < name.length()) {
 			char acc = name.charAt(accIndex + 1);
-			item.setAccelerator(SWT.MOD1 + acc);
+			item.setAccelerator(acc);
 		}
 	}
 

@@ -19,8 +19,8 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class CameraMenuContributor implements EditorPreCloseListener, EditorContextMenuContributor {
-	private static final String cameraMenuGroupName = "Camera";
-	private static final String moveToMenuGroupName = "Navigate";
+	private static final String cameraMenuGroupName = "&Camera";
+	private static final String moveToMenuGroupName = "&Navigate";
 
 	private final int editorId;
 	private final CameraManager manager;

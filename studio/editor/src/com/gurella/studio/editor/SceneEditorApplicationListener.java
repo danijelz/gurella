@@ -1,9 +1,7 @@
 package com.gurella.studio.editor;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.gurella.engine.application.GurellaStateProvider;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 import com.gurella.studio.editor.camera.CameraManager;
@@ -15,13 +13,9 @@ import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-final class SceneEditorApplicationListener extends ApplicationAdapter
-		implements GurellaStateProvider, SceneLoadedListener {
+final class SceneEditorApplicationListener extends ApplicationAdapter {
 	private final int editorId;
-
-	private Thread renderThread;
 
 	@SuppressWarnings("unused")
 	private InputManager inputManager;
@@ -41,17 +35,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	@Override
 	public void create() {
-		renderThread = Thread.currentThread();
 		inputManager = new InputManager(editorId);
 		cameraManager = new CameraManager(editorId);
 		focusManager = new FocusManager(editorId);
 		contextMenuManager = new ContextMenuManager(editorId);
 		renderSystem = new RenderSystem(editorId);
-	}
-
-	@Override
-	public void sceneLoaded(Scene scene) {
-		debugUpdate();
 	}
 
 	@Override
@@ -69,11 +57,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter
 
 	static void debugUpdate() {
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-	}
-
-	@Override
-	public boolean isInRenderThread() {
-		return renderThread == Thread.currentThread();
 	}
 
 	@Override
