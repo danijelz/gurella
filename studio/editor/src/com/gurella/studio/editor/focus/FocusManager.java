@@ -6,11 +6,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.input.GestureDetector.GestureAdapter;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
@@ -24,15 +27,16 @@ import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
 import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
-import com.gurella.studio.editor.subscription.EditorMouseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.utils.GestureDetectorPlugin;
 
-public class FocusManager implements SceneLoadedListener, EditorMouseListener, EditorSelectionListener,
-		EditorPreCloseListener, EditorPreRenderUpdateListener, EditorCameraSelectionListener {
+public class FocusManager implements SceneLoadedListener, EditorSelectionListener, EditorPreCloseListener,
+		EditorPreRenderUpdateListener, EditorCameraSelectionListener {
 	private final int editorId;
+	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
 
 	private SceneNode2 focusedNode;
 	private SceneNodeComponent2 focusedComponent;
@@ -51,6 +55,7 @@ public class FocusManager implements SceneLoadedListener, EditorMouseListener, E
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
 		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
+		Workbench.activate(gestureDetector);
 	}
 
 	@Override
@@ -123,8 +128,7 @@ public class FocusManager implements SceneLoadedListener, EditorMouseListener, E
 		EventService.post(editorId, EditorFocusListener.class, l -> l.focusChanged(focusData));
 	}
 
-	@Override
-	public void onMouseSelection(float x, float y) {
+	private void updateSelection(float x, float y) {
 		if (scene == null || camera == null) {
 			return;
 		}
@@ -172,10 +176,6 @@ public class FocusManager implements SceneLoadedListener, EditorMouseListener, E
 	}
 
 	@Override
-	public void onMouseMenu(float x, float y) {
-	}
-
-	@Override
 	public void cameraChanged(Camera camera) {
 		this.camera = camera;
 	}
@@ -184,5 +184,18 @@ public class FocusManager implements SceneLoadedListener, EditorMouseListener, E
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
 		Optional.ofNullable(scene).ifPresent(s -> EventService.unsubscribe(s.getInstanceId(), this));
+		Workbench.deactivate(gestureDetector);
+	}
+
+	private class FocusTapListener extends GestureAdapter {
+		@Override
+		public boolean tap(float x, float y, int count, int button) {
+			if (count != 1 || button != Buttons.LEFT) {
+				return false;
+			}
+
+			updateSelection(x, y);
+			return true;
+		}
 	}
 }

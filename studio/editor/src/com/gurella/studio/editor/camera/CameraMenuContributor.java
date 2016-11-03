@@ -44,17 +44,18 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 
 		actions.addGroup(moveToMenuGroupName, -700);
 		if (is2d) {
-			actions.addAction(moveToMenuGroupName, "Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1));
-			actions.addAction(moveToMenuGroupName, "Restore rotation", 100, () -> setRotation(0));
-			actions.addAction(moveToMenuGroupName, "Rotation", 100, () -> selectRotation());
-			actions.addAction(moveToMenuGroupName, "Zoom", 100, () -> selectZoom());
+			actions.addAction(moveToMenuGroupName, "&Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1));
+			actions.addAction(moveToMenuGroupName, "Restore &rotation", 100, () -> setRotation(0));
+			actions.addAction(moveToMenuGroupName, "Restore &zoom", 100, () -> setZoom(1));
+			actions.addAction(moveToMenuGroupName, "Ro&tation", 100, () -> selectRotation());
+			actions.addAction(moveToMenuGroupName, "Zoo&m", 100, () -> selectZoom());
 		} else {
-			actions.addAction(moveToMenuGroupName, "Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1));
-			actions.addAction(moveToMenuGroupName, "Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1));
-			actions.addAction(moveToMenuGroupName, "Top", 300, () -> moveTo(0, 3, 0, 0, -1, 0));
-			actions.addAction(moveToMenuGroupName, "Bottom", 400, () -> moveTo(0, -3, 0, 0, -1, 0));
-			actions.addAction(moveToMenuGroupName, "Right", 500, () -> moveTo(3, 0, 0, -1, 0, 0));
-			actions.addAction(moveToMenuGroupName, "Left", 600, () -> moveTo(-3, 0, 0, 1, 0, 0));
+			actions.addAction(moveToMenuGroupName, "&Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1));
+			actions.addAction(moveToMenuGroupName, "&Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1));
+			actions.addAction(moveToMenuGroupName, "&Top", 300, () -> moveTo(0, 3, 0, 0, -1, 0));
+			actions.addAction(moveToMenuGroupName, "Bo&ttom", 400, () -> moveTo(0, -3, 0, 0, -1, 0));
+			actions.addAction(moveToMenuGroupName, "&Right", 500, () -> moveTo(3, 0, 0, -1, 0, 0));
+			actions.addAction(moveToMenuGroupName, "&Left", 600, () -> moveTo(-3, 0, 0, 1, 0, 0));
 		}
 	}
 
@@ -107,9 +108,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		String message = "Please enter new zoom value";
 		InputDialog dlg = new InputDialog(shell, "Zoom", message, zoom, s -> validateZoom(s));
 		if (dlg.open() == Window.OK) {
-			OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
-			camera.zoom = Float.parseFloat(dlg.getValue());
-			camera.update();
+			setZoom(Float.parseFloat(dlg.getValue()));
 		}
 	}
 
@@ -124,6 +123,12 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 		} catch (Exception e) {
 			return "Zoom must be float value.";
 		}
+	}
+	
+	private void setZoom(float zoom) {
+		OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
+		camera.zoom = zoom;
+		camera.update();
 	}
 
 	@Override

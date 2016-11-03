@@ -1,15 +1,13 @@
 package com.gurella.studio.editor.camera;
 
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.gurella.engine.event.EventService;
-import com.gurella.studio.editor.subscription.EditorMouseListener;
+import com.gurella.engine.plugin.Plugin;
 
-class CameraController extends CameraInputController {
-	public CameraController(int editorId, Camera camera) {
-		super(new SceneCameraGestureListener(editorId), camera);
+class CameraController extends CameraInputController implements Plugin {
+	public CameraController(Camera camera) {
+		super(camera);
 	}
 
 	@Override
@@ -62,29 +60,11 @@ class CameraController extends CameraInputController {
 		}
 	}
 
-	private static class SceneCameraGestureListener extends CameraGestureListener {
-		private final int editorId;
+	@Override
+	public void activate() {
+	}
 
-		public SceneCameraGestureListener(int editorId) {
-			this.editorId = editorId;
-		}
-
-		@Override
-		public boolean tap(float x, float y, int count, int button) {
-			if (count != 1) {
-				return false;
-			}
-
-			switch (button) {
-			case Buttons.RIGHT:
-				EventService.post(editorId, EditorMouseListener.class, l -> l.onMouseMenu(x, y));
-				return false;
-			case Buttons.LEFT:
-				EventService.post(editorId, EditorMouseListener.class, l -> l.onMouseSelection(x, y));
-				return false;
-			default:
-				return false;
-			}
-		}
+	@Override
+	public void deactivate() {
 	}
 }

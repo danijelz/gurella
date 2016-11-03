@@ -9,39 +9,39 @@ import com.gurella.engine.utils.priority.TypedPriorityComparator;
 
 public class InputService {
 	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
-	private static final ObjectMap<Application, ApplicationInput> applicationInputs = new ObjectMap<Application, ApplicationInput>();
+	private static final ObjectMap<Application, ApplicationInput> instances = new ObjectMap<Application, ApplicationInput>();
 
 	private InputService() {
 	}
 
-	private static ApplicationInput getApplicationInput() {
-		ApplicationInput input = applicationInputs.get(Gdx.app);
+	private static ApplicationInput getInstance() {
+		ApplicationInput input = instances.get(Gdx.app);
 		if (input == null) {
 			input = new ApplicationInput();
-			applicationInputs.put(Gdx.app, input);
+			instances.put(Gdx.app, input);
 		}
 		return input;
 	}
 
 	public static void addInputProcessor(InputProcessor processor) {
-		InputMultiplexer multiplexer = getApplicationInput().multiplexer;
+		InputMultiplexer multiplexer = getInstance().multiplexer;
 		multiplexer.addProcessor(processor);
 		multiplexer.getProcessors().sort(comparator);
 	}
 
 	public static void removeInputProcessor(InputProcessor processor) {
-		ApplicationInput input = applicationInputs.get(Gdx.app);
+		ApplicationInput input = instances.get(Gdx.app);
 		if (input != null) {
 			input.multiplexer.removeProcessor(processor);
 		}
 	}
 
 	public static void addInputContext(InputContext inputContext) {
-		getApplicationInput().mapper.addInputContext(inputContext);
+		getInstance().mapper.addInputContext(inputContext);
 	}
 
 	public static void removeInputContext(InputContext inputContext) {
-		ApplicationInput input = applicationInputs.get(Gdx.app);
+		ApplicationInput input = instances.get(Gdx.app);
 		if (input != null) {
 			input.mapper.removeInputContext(inputContext);
 		}

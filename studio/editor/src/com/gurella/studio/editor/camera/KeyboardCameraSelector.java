@@ -2,11 +2,12 @@ package com.gurella.studio.editor.camera;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.gurella.engine.plugin.Plugin;
 
-class KeyboardCameraTypeSelector extends InputAdapter {
+class KeyboardCameraSelector extends InputAdapter implements Plugin {
 	private CameraManager cameraManager;
 
-	KeyboardCameraTypeSelector(CameraManager cameraManager) {
+	KeyboardCameraSelector(CameraManager cameraManager) {
 		this.cameraManager = cameraManager;
 	}
 
@@ -21,5 +22,13 @@ class KeyboardCameraTypeSelector extends InputAdapter {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public void activate() {
+	}
+
+	@Override
+	public void deactivate() {
 	}
 }

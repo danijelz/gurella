@@ -14,8 +14,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.input.InputService;
 import com.gurella.engine.math.ModelIntesector;
+import com.gurella.engine.plugin.Plugin;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
@@ -25,7 +26,7 @@ import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
 public class ToolManager extends InputAdapter
-		implements EditorPreCloseListener, EditorFocusListener, EditorCameraSelectionListener {
+		implements EditorPreCloseListener, EditorFocusListener, EditorCameraSelectionListener, Plugin {
 	private final int editorId;
 
 	@SuppressWarnings("unused")
@@ -59,7 +60,7 @@ public class ToolManager extends InputAdapter
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		EventService.subscribe(editorId, this);
-		InputService.addInputProcessor(this);
+		Workbench.activate(this);
 		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 	}
 
@@ -206,10 +207,18 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public void onEditorPreClose() {
-		InputService.removeInputProcessor(this);
+		Workbench.deactivate(this);
 		EventService.unsubscribe(editorId, this);
 		scaleTool.dispose();
 		translateTool.dispose();
 		rotateTool.dispose();
+	}
+
+	@Override
+	public void activate() {
+	}
+
+	@Override
+	public void deactivate() {
 	}
 }
