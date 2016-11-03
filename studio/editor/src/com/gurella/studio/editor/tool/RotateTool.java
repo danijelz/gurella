@@ -1,6 +1,9 @@
 package com.gurella.studio.editor.tool;
 
 import static com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute.createDiffuse;
+import static com.gurella.studio.editor.tool.HandleType.x;
+import static com.gurella.studio.editor.tool.HandleType.y;
+import static com.gurella.studio.editor.tool.HandleType.z;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -31,14 +34,13 @@ public class RotateTool extends TransformTool {
 
 	private ShapeRenderer shapeRenderer;
 
-	private TransformState state = TransformState.IDLE;
 	private float lastRot = 0;
 
 	public RotateTool() {
 		this.shapeRenderer = new ShapeRenderer();
-		xHandle = new RotateHandle(X_HANDLE_ID, COLOR_X, torus(new Material(createDiffuse(COLOR_X)), 20, 1f, 50, 50));
-		yHandle = new RotateHandle(Y_HANDLE_ID, COLOR_Y, torus(new Material(createDiffuse(COLOR_Y)), 20, 1f, 50, 50));
-		zHandle = new RotateHandle(Z_HANDLE_ID, COLOR_Z, torus(new Material(createDiffuse(COLOR_Z)), 20, 1f, 50, 50));
+		xHandle = new RotateHandle(x, COLOR_X, torus(new Material(createDiffuse(COLOR_X)), 20, 1f, 50, 50));
+		yHandle = new RotateHandle(y, COLOR_Y, torus(new Material(createDiffuse(COLOR_Y)), 20, 1f, 50, 50));
+		zHandle = new RotateHandle(z, COLOR_Z, torus(new Material(createDiffuse(COLOR_Z)), 20, 1f, 50, 50));
 		handles = new RotateHandle[] { xHandle, yHandle, zHandle };
 	}
 	
@@ -51,7 +53,7 @@ public class RotateTool extends TransformTool {
 	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 
-		if (state == TransformState.IDLE) {
+		if (state == HandleType.idle) {
 			batch.begin(camera);
 			xHandle.render(batch);
 			yHandle.render(batch);
@@ -64,7 +66,7 @@ public class RotateTool extends TransformTool {
 
 			shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 			switch (state) {
-			case TRANSFORM_X:
+			case x:
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
 				shapeRenderer.setProjectionMatrix(shapeRenderMat);
@@ -73,7 +75,7 @@ public class RotateTool extends TransformTool {
 				shapeRenderer.circle(pivot.x, pivot.y, 7);
 				shapeRenderer.end();
 				break;
-			case TRANSFORM_Y:
+			case y:
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
 				shapeRenderer.setProjectionMatrix(shapeRenderMat);
@@ -82,7 +84,7 @@ public class RotateTool extends TransformTool {
 				shapeRenderer.circle(pivot.x, pivot.y, 7);
 				shapeRenderer.end();
 				break;
-			case TRANSFORM_Z:
+			case z:
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
 				shapeRenderer.setProjectionMatrix(shapeRenderMat);
@@ -176,7 +178,6 @@ public class RotateTool extends TransformTool {
 							(float) ((width + height * Math.cos(s * twopi / divisionsV))
 									* Math.sin(t * twopi / divisionsU)),
 							(float) (height * Math.sin(s * twopi / divisionsV)));
-					// curr2.uv.set((float) s, 0);
 					i1 = builder.vertex(curr1);
 					i2 = builder.vertex(curr2);
 					builder.rect(i4, i2, i1, i3);

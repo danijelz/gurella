@@ -16,14 +16,13 @@ public class TranslateTool extends TransformTool {
 	private final float ARROW_CAP_SIZE = 0.15f;
 	private final int ARROW_DIVISIONS = 12;
 
-	private TransformState state = TransformState.IDLE;
-	private boolean initTranslate = true;
 
 	private TranslateHandle xHandle;
 	private TranslateHandle yHandle;
 	private TranslateHandle zHandle;
 	private TranslateHandle xzPlaneHandle;
 
+	private boolean initTranslate = true;
 	private Vector3 lastPos = new Vector3();
 	private boolean globalSpace = true;
 
@@ -40,13 +39,13 @@ public class TranslateTool extends TransformTool {
 		Model xzPlaneHandleModel = modelBuilder.createSphere(1, 1, 1, 20, 20,
 				new Material(ColorAttribute.createDiffuse(COLOR_XZ)), usage);
 
-		xHandle = new TranslateHandle(X_HANDLE_ID, COLOR_X, xHandleModel);
-		yHandle = new TranslateHandle(Y_HANDLE_ID, COLOR_Y, yHandleModel);
-		zHandle = new TranslateHandle(Z_HANDLE_ID, COLOR_Z, zHandleModel);
-		xzPlaneHandle = new TranslateHandle(XZ_HANDLE_ID, COLOR_XZ, xzPlaneHandleModel);
+		xHandle = new TranslateHandle(HandleType.x, COLOR_X, xHandleModel);
+		yHandle = new TranslateHandle(HandleType.y, COLOR_Y, yHandleModel);
+		zHandle = new TranslateHandle(HandleType.z, COLOR_Z, zHandleModel);
+		xzPlaneHandle = new TranslateHandle(HandleType.xz, COLOR_XZ, xzPlaneHandleModel);
 		handles = new TranslateHandle[] { xHandle, yHandle, zHandle, xzPlaneHandle };
 	}
-	
+
 	@Override
 	ToolType getType() {
 		return ToolType.translate;

@@ -14,10 +14,10 @@ import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
-import com.gurella.studio.editor.subscription.EditorViewsListener;
+import com.gurella.studio.editor.subscription.EditorViewActivityListener;
 import com.gurella.studio.editor.utils.Try;
 
-class ViewRegistry implements EditorViewsListener, EditorPreCloseListener, EditorContextMenuContributor {
+class ViewRegistry implements EditorViewActivityListener, EditorPreCloseListener, EditorContextMenuContributor {
 	private static final String viewMenuGroupName = "&View";
 
 	private final SceneEditor editor;
@@ -49,7 +49,7 @@ class ViewRegistry implements EditorViewsListener, EditorPreCloseListener, Edito
 
 		Try.ofFailable(() -> type.getConstructor(SceneEditor.class, int.class))
 				.map(c -> c.newInstance(editor, Integer.valueOf(position))).onSuccess(v -> dock.setSelection(v))
-				.onSuccess(v -> EventService.post(editor.id, EditorViewsListener.class, l -> l.viewOpened(v)));
+				.onSuccess(v -> EventService.post(editor.id, EditorViewActivityListener.class, l -> l.viewOpened(v)));
 	}
 
 	@Override

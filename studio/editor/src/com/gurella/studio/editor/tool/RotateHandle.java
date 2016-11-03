@@ -4,20 +4,20 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
 
 public class RotateHandle extends ToolHandle {
-	public RotateHandle(int id, Color color, Model model) {
-		super(id, color, model);
+	public RotateHandle(HandleType type, Color color, Model model) {
+		super(type, color, model);
 
-		switch (id) {
-		case TransformTool.X_HANDLE_ID:
+		switch (type) {
+		case x:
 			this.rotationEuler.y = 90;
 			this.scale.x = 0.9f;
 			this.scale.y = 0.9f;
 			this.scale.z = 0.9f;
 			break;
-		case TransformTool.Y_HANDLE_ID:
+		case y:
 			this.rotationEuler.x = 90;
 			break;
-		case TransformTool.Z_HANDLE_ID:
+		case z:
 			this.rotationEuler.z = 90;
 			this.scale.x = 1.1f;
 			this.scale.y = 1.1f;

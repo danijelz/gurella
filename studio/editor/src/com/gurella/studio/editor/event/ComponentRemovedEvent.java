@@ -3,9 +3,9 @@ package com.gurella.studio.editor.event;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.studio.editor.subscription.EditorSceneListener;
+import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
-public class ComponentRemovedEvent implements Event<EditorSceneListener> {
+public class ComponentRemovedEvent implements Event<EditorSceneActivityListener> {
 	final SceneNode2 node;
 	final SceneNodeComponent2 component;
 
@@ -15,12 +15,12 @@ public class ComponentRemovedEvent implements Event<EditorSceneListener> {
 	}
 
 	@Override
-	public Class<EditorSceneListener> getSubscriptionType() {
-		return EditorSceneListener.class;
+	public Class<EditorSceneActivityListener> getSubscriptionType() {
+		return EditorSceneActivityListener.class;
 	}
 
 	@Override
-	public void dispatch(EditorSceneListener subscriber) {
+	public void dispatch(EditorSceneActivityListener subscriber) {
 		subscriber.componentRemoved(node, component);
 	}
 }

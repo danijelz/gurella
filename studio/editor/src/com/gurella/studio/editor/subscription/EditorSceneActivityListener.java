@@ -5,7 +5,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
-public interface EditorSceneListener extends EventSubscription {
+public interface EditorSceneActivityListener extends EventSubscription {
 	void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node);
 
 	void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node);

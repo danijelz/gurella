@@ -7,12 +7,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public abstract class TransformTool implements Disposable {
-	protected static final int X_HANDLE_ID = 0;
-	protected static final int Y_HANDLE_ID = 1;
-	protected static final int Z_HANDLE_ID = 2;
-	protected static final int XZ_HANDLE_ID = 3;
-	protected static final int XYZ_HANDLE_ID = 4;
-
 	protected static Color COLOR_X = Color.RED;
 	protected static Color COLOR_Y = Color.GREEN;
 	protected static Color COLOR_Z = Color.BLUE;
@@ -20,15 +14,13 @@ public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_XYZ = Color.LIGHT_GRAY;
 	protected static Color COLOR_SELECTED = Color.YELLOW;
 
+	HandleType state = HandleType.idle;
+
 	ToolHandle[] handles;
-	
+
 	abstract ToolType getType();
 
 	abstract void update(Vector3 translation, Camera camera);
 
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
-
-	protected enum TransformState {
-		TRANSFORM_X, TRANSFORM_Y, TRANSFORM_Z, TRANSFORM_XZ, TRANSFORM_XYZ, IDLE
-	}
 }

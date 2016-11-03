@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
 
 public class ScaleHandle extends ToolHandle {
-	public ScaleHandle(int id, Color color, Model model) {
-		super(id, color, model);
+	public ScaleHandle(HandleType type, Color color, Model model) {
+		super(type, color, model);
 	}
 
 	@Override

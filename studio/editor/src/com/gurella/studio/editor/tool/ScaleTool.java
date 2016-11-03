@@ -5,22 +5,18 @@ import static com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute.createDiff
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class ScaleTool extends TransformTool {
@@ -36,27 +32,27 @@ public class ScaleTool extends TransformTool {
 	private final Vector3 tempScale = new Vector3();
 	private final Vector3 tempScaleDst = new Vector3();
 
-	private TransformState state = TransformState.IDLE;
-
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
 	public ScaleTool() {
 		ModelBuilder modelBuilder = new ModelBuilder();
 
-		Model xPlaneHandleModel = createArrow(new Material(createDiffuse(COLOR_X)), new Vector3(15, 0, 0));
-		Model yPlaneHandleModel = createArrow(new Material(createDiffuse(COLOR_Y)), new Vector3(0, 15, 0));
-		Model zPlaneHandleModel = createArrow(new Material(createDiffuse(COLOR_Z)), new Vector3(0, 0, 15));
-		Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3, new Material(createDiffuse(COLOR_XYZ)),
-				Usage.Position | Usage.Normal);
+		Model xPlaneHandleModel = box(COLOR_X, new Vector3(15, 0, 0));
+		Model yPlaneHandleModel = box(COLOR_Y, new Vector3(0, 15, 0));
+		Model zPlaneHandleModel = box(COLOR_Z, new Vector3(0, 0, 15));
+		
+		int usage = Usage.Position | Usage.Normal;
+		Material material = new Material(createDiffuse(COLOR_XYZ));
+		Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3, material, usage);
 
-		xHandle = new ScaleHandle(X_HANDLE_ID, COLOR_X, xPlaneHandleModel);
-		yHandle = new ScaleHandle(Y_HANDLE_ID, COLOR_Y, yPlaneHandleModel);
-		zHandle = new ScaleHandle(Z_HANDLE_ID, COLOR_Z, zPlaneHandleModel);
-		xyzHandle = new ScaleHandle(XYZ_HANDLE_ID, COLOR_XYZ, xyzPlaneHandleModel);
+		xHandle = new ScaleHandle(HandleType.x, COLOR_X, xPlaneHandleModel);
+		yHandle = new ScaleHandle(HandleType.y, COLOR_Y, yPlaneHandleModel);
+		zHandle = new ScaleHandle(HandleType.z, COLOR_Z, zPlaneHandleModel);
+		xyzHandle = new ScaleHandle(HandleType.xyz, COLOR_XYZ, xyzPlaneHandleModel);
 
 		handles = new ScaleHandle[] { xHandle, yHandle, zHandle, xyzHandle };
 	}
-	
+
 	@Override
 	ToolType getType() {
 		return ToolType.scale;
@@ -73,34 +69,33 @@ public class ScaleTool extends TransformTool {
 		batch.end();
 
 		Graphics graphics = Gdx.graphics;
-		//transform.getTranslation(temp0);
 		temp0.set(translation);
 		Vector3 pivot = camera.project(temp0, 0, 0, graphics.getWidth(), graphics.getHeight());
 		shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 
 		switch (state) {
-		case TRANSFORM_X:
+		case x:
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 			shapeRenderer.setColor(COLOR_X);
 			shapeRenderer.setProjectionMatrix(shapeRenderMat);
 			shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), graphics.getHeight() - Gdx.input.getY(), 2);
 			shapeRenderer.end();
 			break;
-		case TRANSFORM_Y:
+		case y:
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 			shapeRenderer.setColor(COLOR_Y);
 			shapeRenderer.setProjectionMatrix(shapeRenderMat);
 			shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), graphics.getHeight() - Gdx.input.getY(), 2);
 			shapeRenderer.end();
 			break;
-		case TRANSFORM_Z:
+		case z:
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 			shapeRenderer.setColor(COLOR_Z);
 			shapeRenderer.setProjectionMatrix(shapeRenderMat);
 			shapeRenderer.rectLine(pivot.x, pivot.y, Gdx.input.getX(), graphics.getHeight() - Gdx.input.getY(), 2);
 			shapeRenderer.end();
 			break;
-		case TRANSFORM_XYZ:
+		case xyz:
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 			shapeRenderer.setColor(COLOR_XYZ);
 			shapeRenderer.setProjectionMatrix(shapeRenderMat);
@@ -112,18 +107,16 @@ public class ScaleTool extends TransformTool {
 		}
 	}
 
-	public static Model createArrow(Material mat, Vector3 to) {
+	public static Model box(Color color, Vector3 to) {
+		Material mat = new Material(createDiffuse(color));
 		ModelBuilder builder = new ModelBuilder();
 		builder.begin();
-		// line
 		MeshPartBuilder meshBuilder = builder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
 		meshBuilder.line(0, 0, 0, to.x, to.y, to.z);
-		// stub
 		Node node = builder.node();
 		node.translation.set(to.x, to.y, to.z);
 		meshBuilder = builder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
 		BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
-
 		return builder.end();
 	}
 
@@ -158,33 +151,6 @@ public class ScaleTool extends TransformTool {
 
 		xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xyzHandle.applyTransform();
-	}
-
-	///////////////////////intersection
-
-	ToolHandle getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
-		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
-		float closestDistance = Float.MAX_VALUE;
-		ScaleHandle closestHandle = null;
-
-//		for (ScaleHandle scaleHandle : handles) {
-//			scaleHandle.modelInstance.calculateTransforms();
-//
-//			if (scaleHandle.getIntersection(cameraPosition, ray, intersection)) {
-//				float distance = intersection.dst2(cameraPosition);
-//				if (closestDistance > distance) {
-//					closestDistance = distance;
-//					closestIntersection.set(intersection);
-//					closestHandle = scaleHandle;
-//				}
-//			}
-//		}
-
-		if (closestHandle != null) {
-			System.out.println(closestHandle.id);
-		}
-
-		return closestHandle;
 	}
 
 	@Override

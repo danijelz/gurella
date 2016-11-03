@@ -84,7 +84,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(path, LocationKind.IFILE);
 		buffer.getDocument().set(new JsonReader().parse(string).prettyPrint(OutputType.minimal, 120));
 		buffer.commit(monitor, true);
-		sceneContext.persistAssets();
+		sceneContext.persistAssets(monitor);
 		manager.disconnect(path, LocationKind.IFILE, monitor);
 		dirty = false;
 		firePropertyChange(PROP_DIRTY);

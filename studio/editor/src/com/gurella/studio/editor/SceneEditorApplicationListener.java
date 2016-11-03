@@ -22,11 +22,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	@SuppressWarnings("unused")
 	private FocusManager focusManager;
 	@SuppressWarnings("unused")
-	private CameraManager cameraManager;
-	@SuppressWarnings("unused")
 	private ContextMenuManager contextMenuManager;
 	@SuppressWarnings("unused")
 	private RenderSystem renderSystem;
+	@SuppressWarnings("unused")
+	private CameraManager cameraManager;
 
 	public SceneEditorApplicationListener(int editorId) {
 		this.editorId = editorId;
@@ -36,10 +36,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	@Override
 	public void create() {
 		inputManager = new InputManager(editorId);
-		cameraManager = new CameraManager(editorId);
 		focusManager = new FocusManager(editorId);
 		contextMenuManager = new ContextMenuManager(editorId);
 		renderSystem = new RenderSystem(editorId);
+		cameraManager = new CameraManager(editorId);
 	}
 
 	@Override

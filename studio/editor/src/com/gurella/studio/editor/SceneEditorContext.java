@@ -11,6 +11,7 @@ import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IPathEditorInput;
@@ -72,7 +73,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		}
 	}
 
-	void persistAssets() {
+	void persistAssets(IProgressMonitor monitor) {
 		for (Entry<String, Object> entry : editedAssets.entrySet()) {
 			String fileName = entry.getKey();
 			Object asset = entry.getValue();

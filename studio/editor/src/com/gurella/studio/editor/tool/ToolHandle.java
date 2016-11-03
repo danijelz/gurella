@@ -10,18 +10,20 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public abstract class ToolHandle implements Disposable {
-	int id;
+	final HandleType type;
+
+	final Model model;
+	final ModelInstance modelInstance;
+
+	final Vector3 position = new Vector3();
+	final Vector3 rotationEuler = new Vector3();
+	final Quaternion rotation = new Quaternion();
+	final Vector3 scale = new Vector3();
+
 	Color color;
-	Model model;
-	ModelInstance modelInstance;
 
-	Vector3 position = new Vector3();
-	Vector3 rotationEuler = new Vector3();
-	Quaternion rotation = new Quaternion();
-	Vector3 scale = new Vector3();
-
-	public ToolHandle(int id, Color color, Model model) {
-		this.id = id;
+	public ToolHandle(HandleType type, Color color, Model model) {
+		this.type = type;
 		this.color = color;
 		this.model = model;
 		this.modelInstance = new ModelInstance(model);

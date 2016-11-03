@@ -86,13 +86,13 @@ import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
-import com.gurella.studio.editor.subscription.EditorSceneListener;
+import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeEnabledChangedListener;
 import com.gurella.studio.editor.subscription.NodeNameChangedListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
-		implements EditorSceneListener, NodeNameChangedListener, NodeEnabledChangedListener {
+		implements EditorSceneActivityListener, NodeNameChangedListener, NodeEnabledChangedListener {
 	private Text nameText;
 	private Listener nameChangedlLstener;
 
