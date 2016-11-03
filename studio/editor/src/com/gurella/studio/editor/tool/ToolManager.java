@@ -85,23 +85,25 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (active != null) {
+		if (active != null && keycode != Keys.ESCAPE && keycode != Keys.N) {
 			return false;
 		}
 
-		if (keycode == Keys.S) {
+		switch (keycode) {
+		case Keys.S:
 			selectTool(scaleTool);
 			return true;
-		} else if (keycode == Keys.T) {
+		case Keys.T:
 			selectTool(translateTool);
 			return true;
-		} else if (keycode == Keys.R) {
+		case Keys.R:
 			selectTool(rotateTool);
 			return true;
-		} else if (keycode == Keys.ESCAPE || keycode == Keys.N) {
+		case Keys.ESCAPE:
+		case Keys.N:
 			selectTool((TransformTool) null);
 			return true;
-		} else {
+		default:
 			return false;
 		}
 	}
@@ -164,7 +166,7 @@ public class ToolManager extends InputAdapter
 			selected.deactivated();
 			active = null;
 		}
-		
+
 		Camera camera = getCamera();
 		if (camera == null || pointer != 0 || button != Buttons.LEFT || selected == null) {
 			return false;

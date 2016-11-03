@@ -20,7 +20,7 @@ public class ComponentAddedEvent implements Event<EditorSceneActivityListener> {
 	}
 
 	@Override
-	public void dispatch(EditorSceneActivityListener subscriber) {
-		subscriber.componentAdded(node, component);
+	public void dispatch(EditorSceneActivityListener listener) {
+		listener.componentAdded(node, component);
 	}
 }

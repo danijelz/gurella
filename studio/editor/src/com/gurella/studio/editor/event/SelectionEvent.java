@@ -16,7 +16,7 @@ public class SelectionEvent implements Event<EditorSelectionListener> {
 	}
 
 	@Override
-	public void dispatch(EditorSelectionListener subscriber) {
-		subscriber.selectionChanged(selection);
+	public void dispatch(EditorSelectionListener listener) {
+		listener.selectionChanged(selection);
 	}
 }

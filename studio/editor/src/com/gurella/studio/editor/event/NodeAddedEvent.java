@@ -23,7 +23,7 @@ public class NodeAddedEvent implements Event<EditorSceneActivityListener> {
 	}
 
 	@Override
-	public void dispatch(EditorSceneActivityListener subscriber) {
-		subscriber.nodeAdded(scene, parentNode, node);
+	public void dispatch(EditorSceneActivityListener listener) {
+		listener.nodeAdded(scene, parentNode, node);
 	}
 }

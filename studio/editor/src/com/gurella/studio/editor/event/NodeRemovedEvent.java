@@ -23,7 +23,7 @@ public class NodeRemovedEvent implements Event<EditorSceneActivityListener> {
 	}
 
 	@Override
-	public void dispatch(EditorSceneActivityListener subscriber) {
-		subscriber.nodeRemoved(scene, parentNode, node);
+	public void dispatch(EditorSceneActivityListener listener) {
+		listener.nodeRemoved(scene, parentNode, node);
 	}
 }

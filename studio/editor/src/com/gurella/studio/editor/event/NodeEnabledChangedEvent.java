@@ -17,7 +17,7 @@ public class NodeEnabledChangedEvent implements Event<NodeEnabledChangedListener
 	}
 
 	@Override
-	public void dispatch(NodeEnabledChangedListener subscriber) {
-		subscriber.nodeEnabledChanged(node);
+	public void dispatch(NodeEnabledChangedListener listener) {
+		listener.nodeEnabledChanged(node);
 	}
 }

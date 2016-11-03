@@ -17,7 +17,7 @@ public class NodeNameChangedEvent implements Event<NodeNameChangedListener> {
 	}
 
 	@Override
-	public void dispatch(NodeNameChangedListener subscriber) {
-		subscriber.nodeNameChanged(node);
+	public void dispatch(NodeNameChangedListener listener) {
+		listener.nodeNameChanged(node);
 	}
 }

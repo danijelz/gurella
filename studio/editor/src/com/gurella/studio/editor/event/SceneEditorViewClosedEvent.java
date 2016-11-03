@@ -17,7 +17,7 @@ public class SceneEditorViewClosedEvent implements Event<EditorViewActivityListe
 	}
 
 	@Override
-	public void dispatch(EditorViewActivityListener subscriber) {
-		subscriber.viewClosed(view);
+	public void dispatch(EditorViewActivityListener listener) {
+		listener.viewClosed(view);
 	}
 }

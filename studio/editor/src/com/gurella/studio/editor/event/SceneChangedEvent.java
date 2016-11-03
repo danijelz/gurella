@@ -15,7 +15,7 @@ public class SceneChangedEvent implements Event<SceneChangedListener> {
 	}
 
 	@Override
-	public void dispatch(SceneChangedListener subscriber) {
-		subscriber.sceneChanged();
+	public void dispatch(SceneChangedListener listener) {
+		listener.sceneChanged();
 	}
 }

@@ -20,7 +20,7 @@ public class ComponentRemovedEvent implements Event<EditorSceneActivityListener>
 	}
 
 	@Override
-	public void dispatch(EditorSceneActivityListener subscriber) {
-		subscriber.componentRemoved(node, component);
+	public void dispatch(EditorSceneActivityListener listener) {
+		listener.componentRemoved(node, component);
 	}
 }
