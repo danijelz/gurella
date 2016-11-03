@@ -12,44 +12,44 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.event.SceneChangedEvent;
 
-public class TranslateOperation extends TransformOperation {
+public class ScaleOperation extends TransformOperation {
 	private Vector3 initial = new Vector3();
 	private Vector3 action = new Vector3();
 
-	public TranslateOperation(int editorId, TransformComponent component) {
-		super("Translate", editorId, component);
-		component.getTranslation(initial);
+	public ScaleOperation(int editorId, TransformComponent component) {
+		super("Scale", editorId, component);
+		component.getScale(initial);
 	}
 
 	@Override
 	void rollback() {
-		component.setTranslation(initial);
+		component.setScale(initial);
 	}
 
 	@Override
 	void commit() {
-		component.getTranslation(action);
-		component.setTranslation(initial);
-		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying translation.");
+		component.getScale(action);
+		component.setScale(initial);
+		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying scale.");
 	}
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setTranslation(action);
+		component.setScale(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setTranslation(action);
+		component.setScale(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setTranslation(initial);
+		component.setScale(initial);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

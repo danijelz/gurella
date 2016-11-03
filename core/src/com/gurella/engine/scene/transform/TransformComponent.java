@@ -434,7 +434,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 		return this;
 	}
 
-	public TransformComponent setRotation(Vector3 eulerDegrees) {
+	public TransformComponent setEulerRotation(Vector3 eulerDegrees) {
 		return setEulerRotation(eulerDegrees.x, eulerDegrees.y, eulerDegrees.z);
 	}
 
