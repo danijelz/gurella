@@ -157,11 +157,11 @@ public class ScaleTool extends TransformTool {
 	@Override
 	void activated(TransformComponent component, Camera camera, HandleType state) {
 		super.activated(component, camera, state);
-
 		component.getScale(tempScale);
-		tempScaleDst.x = getCurrentDst(camera) / tempScale.x;
-		tempScaleDst.y = getCurrentDst(camera) / tempScale.y;
-		tempScaleDst.z = getCurrentDst(camera) / tempScale.z;
+		float currentDst = getCurrentDst(camera);
+		tempScaleDst.x = currentDst / tempScale.x;
+		tempScaleDst.y = currentDst / tempScale.y;
+		tempScaleDst.z = currentDst / tempScale.z;
 
 	}
 
@@ -174,25 +174,25 @@ public class ScaleTool extends TransformTool {
 		boolean modified = false;
 		switch (state) {
 		case x:
-			tempScale.x = (100 / tempScaleDst.x * dst) / 1000;
-			component.setScale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.x = (1 / tempScaleDst.x * dst) / 100000;
+			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		case y:
-			tempScale.y = (100 / tempScaleDst.y * dst) / 1000;
-			component.setScale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.y = (1 / tempScaleDst.y * dst) / 100000;
+			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		case z:
-			tempScale.z = (100 / tempScaleDst.z * dst) / 1000;
+			tempScale.z = (1 / tempScaleDst.z * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		case xyz:
-			tempScale.x = (100 / tempScaleDst.x * dst) / 1000;
-			tempScale.y = (100 / tempScaleDst.y * dst) / 1000;
-			tempScale.z = (100 / tempScaleDst.z * dst) / 1000;
-			component.setScale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.x = (1 / tempScaleDst.x * dst) / 100000;
+			tempScale.y = (1 / tempScaleDst.y * dst) / 100000;
+			tempScale.z = (1 / tempScaleDst.z * dst) / 100000;
+			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		default:
