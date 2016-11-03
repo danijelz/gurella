@@ -11,10 +11,10 @@ import com.gurella.engine.utils.priority.Priority;
 class CameraController extends CameraInputController implements Plugin {
 	public CameraController(Camera camera) {
 		super(camera);
-//		forwardKey = Keys.UP;
-//		backwardKey = Keys.DOWN;
-//		rotateRightKey = Keys.RIGHT;
-//		rotateLeftKey = Keys.LEFT;
+		forwardKey = Keys.UP;
+		backwardKey = Keys.DOWN;
+		rotateRightKey = Keys.RIGHT;
+		rotateLeftKey = Keys.LEFT;
 	}
 
 	@Override
