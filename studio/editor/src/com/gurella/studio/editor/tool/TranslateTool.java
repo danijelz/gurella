@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
 
 public class TranslateTool extends TransformTool {
@@ -16,12 +17,13 @@ public class TranslateTool extends TransformTool {
 	private final float ARROW_CAP_SIZE = 0.15f;
 	private final int ARROW_DIVISIONS = 12;
 
-
 	private TranslateHandle xHandle;
 	private TranslateHandle yHandle;
 	private TranslateHandle zHandle;
 	private TranslateHandle xzPlaneHandle;
 
+	private final Vector3 temp0 = new Vector3();
+	private final Vector3 temp1 = new Vector3();
 	private boolean initTranslate = true;
 	private Vector3 lastPos = new Vector3();
 	private boolean globalSpace = true;
@@ -93,6 +95,59 @@ public class TranslateTool extends TransformTool {
 		zHandle.applyTransform();
 		xzPlaneHandle.position.set(translation);
 		xzPlaneHandle.applyTransform();
+	}
+	
+	@Override
+	void activated(HandleType state) {
+		super.activated(state);
+		initTranslate = true;
+	}
+
+	@Override
+	void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY) {
+		translateHandles(translation);
+
+		Ray ray = camera.getPickRay(screenX, screenY);
+		Vector3 rayEnd = temp0.set(translation);
+		float dst = camera.position.dst(rayEnd);
+		rayEnd = ray.getEndPoint(rayEnd, dst);
+
+		if (initTranslate) {
+			initTranslate = false;
+			lastPos.set(rayEnd);
+		}
+
+		boolean modified = false;
+		switch (state) {
+		case xz:
+			temp1.set(rayEnd.x - lastPos.x, 0, rayEnd.z - lastPos.z);
+			modified = true;
+			break;
+		case x:
+			temp1.set(rayEnd.x - lastPos.x, 0, 0);
+			modified = true;
+			break;
+		case y:
+			temp1.set(0, rayEnd.y - lastPos.y, 0);
+			modified = true;
+			break;
+		case z:
+			temp1.set(0, 0, rayEnd.z - lastPos.z);
+			modified = true;
+			break;
+
+		default:
+			break;
+		}
+
+		// node.translate(vec);
+
+		if (modified) {
+			// gameObjectModifiedEvent.setGameObject(getProjectManager().current().currScene.currentSelection);
+			// Mundus.INSTANCE.postEvent(gameObjectModifiedEvent);
+		}
+
+		lastPos.set(rayEnd);
 	}
 
 	@Override

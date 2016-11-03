@@ -40,7 +40,7 @@ public class ScaleTool extends TransformTool {
 		Model xPlaneHandleModel = box(COLOR_X, new Vector3(15, 0, 0));
 		Model yPlaneHandleModel = box(COLOR_Y, new Vector3(0, 15, 0));
 		Model zPlaneHandleModel = box(COLOR_Z, new Vector3(0, 0, 15));
-		
+
 		int usage = Usage.Position | Usage.Normal;
 		Material material = new Material(createDiffuse(COLOR_XYZ));
 		Model xyzPlaneHandleModel = modelBuilder.createBox(3, 3, 3, material, usage);
@@ -151,6 +151,52 @@ public class ScaleTool extends TransformTool {
 
 		xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		xyzHandle.applyTransform();
+	}
+
+	@Override
+	void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY) {
+		translateHandles(translation);
+		float dst = getCurrentDst(camera);
+
+		boolean modified = false;
+		if (null != state) {
+			switch (state) {
+			case x:
+				tempScale.x = (100 / tempScaleDst.x * dst) / 100;
+				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
+				modified = true;
+				break;
+			case y:
+				tempScale.y = (100 / tempScaleDst.y * dst) / 100;
+				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
+				modified = true;
+				break;
+			case z:
+				tempScale.z = (100 / tempScaleDst.z * dst) / 100;
+				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
+				modified = true;
+				break;
+			case xyz:
+				tempScale.x = (100 / tempScaleDst.x * dst) / 100;
+				tempScale.y = (100 / tempScaleDst.y * dst) / 100;
+				tempScale.z = (100 / tempScaleDst.z * dst) / 100;
+				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
+				modified = true;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	private float getCurrentDst(Camera camera) {
+		Vector3 pivot = camera.project(temp0, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Vector3 mouse = temp1.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 0);
+		return dst(pivot.x, pivot.y, mouse.x, mouse.y);
+	}
+
+	private static float dst(float x1, float y1, float x2, float y2) {
+		return (float) Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 	}
 
 	@Override

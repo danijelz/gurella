@@ -189,6 +189,10 @@ public class RotateTool extends TransformTool {
 
 		return modelBuilder.end();
 	}
+	
+	@Override
+	void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY) {
+	}
 
 	@Override
 	public void dispose() {

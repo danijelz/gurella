@@ -18,9 +18,19 @@ public abstract class TransformTool implements Disposable {
 
 	ToolHandle[] handles;
 
+	void activated(HandleType state) {
+		this.state = state;
+	}
+	
+	void deactivated() {
+		this.state = HandleType.idle;
+	}
+
 	abstract ToolType getType();
 
 	abstract void update(Vector3 translation, Camera camera);
 
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
+
+	abstract void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY);
 }

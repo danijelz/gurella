@@ -39,7 +39,7 @@ public class Priorities {
 		}
 
 		ObjectIntMap<Class<?>> priorities = interfacePriorities.get(type);
-		return priorities == null ? 0 : priorities.get(interfaceType, 0);
+		return priorities == null ? globalPriorities.get(type, 0) : priorities.get(interfaceType, 0);
 	}
 
 	private static void initPriorities(Class<?> type) {

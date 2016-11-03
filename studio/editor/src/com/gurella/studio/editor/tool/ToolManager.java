@@ -136,9 +136,10 @@ public class ToolManager extends InputAdapter
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if (pointer == 0 && button == Buttons.LEFT && selected != null) {
-			ToolHandle pick = pickHandle(screenX, screenY);
+			ToolHandle pick = pick(screenX, screenY);
 			if (pick != null) {
 				active = pick;
+				selected.activated(active.type);
 				return true;
 			}
 		}
@@ -148,11 +149,23 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (active != null) {
+		if (active == null) {
+			return false;
+		} else {
+			selected.deactivated();
 			active = null;
 			return true;
-		} else {
+		}
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		if (active == null) {
 			return false;
+		} else {
+			transformComponent.getWorldTranslation(translation);
+			selected.mouseMoved(translation, camera, active, screenX, screenY);
+			return true;
 		}
 	}
 
@@ -162,11 +175,7 @@ public class ToolManager extends InputAdapter
 			return false;
 		}
 
-		if (active != null) {
-			return true;
-		}
-
-		ToolHandle pick = pickHandle(screenX, screenY);
+		ToolHandle pick = pick(screenX, screenY);
 
 		if (mouseOver != pick) {
 			if (mouseOver != null) {
@@ -182,7 +191,7 @@ public class ToolManager extends InputAdapter
 		return false;
 	}
 
-	protected ToolHandle pickHandle(int screenX, int screenY) {
+	protected ToolHandle pick(int screenX, int screenY) {
 		selected.update(translation, camera);
 		cameraPosition.set(camera.position);
 		Ray pickRay = camera.getPickRay(screenX, screenY);
