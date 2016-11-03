@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_X = Color.RED;
@@ -18,10 +19,10 @@ public abstract class TransformTool implements Disposable {
 
 	ToolHandle[] handles;
 
-	void activated(HandleType state) {
+	void activated(TransformComponent component, Camera camera, HandleType state) {
 		this.state = state;
 	}
-	
+
 	void deactivated() {
 		this.state = HandleType.idle;
 	}
@@ -32,5 +33,6 @@ public abstract class TransformTool implements Disposable {
 
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
 
-	abstract void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY);
+	abstract void mouseMoved(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active,
+			int screenX, int screenY);
 }

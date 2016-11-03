@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class RotateTool extends TransformTool {
 	private RotateHandle xHandle;
@@ -43,7 +44,7 @@ public class RotateTool extends TransformTool {
 		zHandle = new RotateHandle(z, COLOR_Z, torus(new Material(createDiffuse(COLOR_Z)), 20, 1f, 50, 50));
 		handles = new RotateHandle[] { xHandle, yHandle, zHandle };
 	}
-	
+
 	@Override
 	ToolType getType() {
 		return ToolType.rotate;
@@ -189,9 +190,53 @@ public class RotateTool extends TransformTool {
 
 		return modelBuilder.end();
 	}
-	
+
 	@Override
-	void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY) {
+	void mouseMoved(TransformComponent component, Vector3 translation, Camera camera, ToolHandle active, int screenX,
+			int screenY) {
+		translateHandles(translation);
+
+		float angle = getCurrentAngle(translation, camera);
+		float rot = angle - lastRot;
+
+		boolean modified = false;
+		switch (state) {
+		case x:
+			tempQuat.setEulerAngles(0, -rot, 0);
+			component.rotate(tempQuat);
+			modified = true;
+			break;
+		case y:
+			tempQuat.setEulerAngles(-rot, 0, 0);
+			component.rotate(tempQuat);
+			modified = true;
+			break;
+		case z:
+			tempQuat.setEulerAngles(0, 0, -rot);
+			component.rotate(tempQuat);
+			modified = true;
+			break;
+		default:
+			break;
+		}
+
+		if (modified) {
+			// gameObjectModifiedEvent.setGameObject(projectContext.currScene.currentSelection);
+			// Mundus.INSTANCE.postEvent(gameObjectModifiedEvent);
+		}
+
+		lastRot = angle;
+	}
+
+	private float getCurrentAngle(Vector3 translation, Camera camera) {
+		temp0.set(translation);
+		Vector3 pivot = camera.project(temp0);
+		Vector3 mouse = temp1.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 0);
+		return angle(pivot.x, pivot.y, mouse.x, mouse.y);
+	}
+
+	private static float angle(float x1, float y1, float x2, float y2) {
+		return (float) Math.toDegrees(Math.atan2(x2 - x1, y2 - y1));
 	}
 
 	@Override

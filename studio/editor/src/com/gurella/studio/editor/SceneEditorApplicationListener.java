@@ -18,6 +18,8 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	private final int editorId;
 
 	@SuppressWarnings("unused")
+	private CameraManager cameraManager;
+	@SuppressWarnings("unused")
 	private InputManager inputManager;
 	@SuppressWarnings("unused")
 	private FocusManager focusManager;
@@ -25,8 +27,6 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	private ContextMenuManager contextMenuManager;
 	@SuppressWarnings("unused")
 	private RenderSystem renderSystem;
-	@SuppressWarnings("unused")
-	private CameraManager cameraManager;
 
 	public SceneEditorApplicationListener(int editorId) {
 		this.editorId = editorId;
@@ -35,11 +35,11 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 
 	@Override
 	public void create() {
+		cameraManager = new CameraManager(editorId);
 		inputManager = new InputManager(editorId);
 		focusManager = new FocusManager(editorId);
 		contextMenuManager = new ContextMenuManager(editorId);
 		renderSystem = new RenderSystem(editorId);
-		cameraManager = new CameraManager(editorId);
 	}
 
 	@Override
@@ -57,6 +57,16 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 
 	static void debugUpdate() {
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+	}
+	
+	@Override
+	public void pause() {
+		System.out.println("pause");
+	}
+	
+	@Override
+	public void resume() {
+		System.out.println("resume");
 	}
 
 	@Override

@@ -146,7 +146,7 @@ public class SwtLwjglApplication implements Application {
 		boolean isActive = updateActivity();
 
 		boolean shouldRender = graphics.shouldRender();
-		shouldRender |= updateVievport();
+		shouldRender |= updateViewport();
 		shouldRender |= executeRunnables();
 
 		input.update();
@@ -163,7 +163,7 @@ public class SwtLwjglApplication implements Application {
 		}
 	}
 
-	private boolean updateVievport() {
+	private boolean updateViewport() {
 		int width = graphics.getWidth();
 		int height = graphics.getHeight();
 		if (lastWidth != width || lastHeight != height) {

@@ -77,6 +77,10 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean keyUp(int keycode) {
+		if (active != null) {
+			return false;
+		}
+
 		if (keycode == Keys.S) {
 			selectTool(scaleTool);
 			return true;
@@ -119,7 +123,17 @@ public class ToolManager extends InputAdapter
 	}
 
 	private void selectTool(TransformTool newSelection) {
+		if (selected == newSelection) {
+			return;
+		}
+
+		if (selected != null) {
+			selected.deactivated();
+			active = null;
+		}
+
 		selected = newSelection;
+		active = selected == null ? null : active;
 		ToolType type = selected == null ? ToolType.none : selected.getType();
 		EventService.post(editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
 	}
@@ -139,7 +153,7 @@ public class ToolManager extends InputAdapter
 			ToolHandle pick = pick(screenX, screenY);
 			if (pick != null) {
 				active = pick;
-				selected.activated(active.type);
+				selected.activated(transformComponent, camera, active.type);
 				return true;
 			}
 		}
@@ -164,7 +178,7 @@ public class ToolManager extends InputAdapter
 			return false;
 		} else {
 			transformComponent.getWorldTranslation(translation);
-			selected.mouseMoved(translation, camera, active, screenX, screenY);
+			selected.mouseMoved(transformComponent, translation, camera, active, screenX, screenY);
 			return true;
 		}
 	}

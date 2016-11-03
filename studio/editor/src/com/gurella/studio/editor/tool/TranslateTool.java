@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class TranslateTool extends TransformTool {
 	private final float ARROW_THIKNESS = 0.4f;
@@ -96,15 +97,16 @@ public class TranslateTool extends TransformTool {
 		xzPlaneHandle.position.set(translation);
 		xzPlaneHandle.applyTransform();
 	}
-	
+
 	@Override
-	void activated(HandleType state) {
-		super.activated(state);
+	void activated(TransformComponent component, Camera camera, HandleType state) {
+		super.activated(component, camera, state);
 		initTranslate = true;
 	}
 
 	@Override
-	void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY) {
+	void mouseMoved(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active, int screenX,
+			int screenY) {
 		translateHandles(translation);
 
 		Ray ray = camera.getPickRay(screenX, screenY);
@@ -140,7 +142,7 @@ public class TranslateTool extends TransformTool {
 			break;
 		}
 
-		// node.translate(vec);
+		transform.translate(temp1);
 
 		if (modified) {
 			// gameObjectModifiedEvent.setGameObject(getProjectManager().current().currScene.currentSelection);

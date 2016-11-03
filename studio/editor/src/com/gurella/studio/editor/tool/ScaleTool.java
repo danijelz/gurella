@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.scene.transform.TransformComponent;
 
 public class ScaleTool extends TransformTool {
 	private final ScaleHandle xHandle;
@@ -154,38 +155,48 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void mouseMoved(Vector3 translation, Camera camera, ToolHandle active, int screenX, int screenY) {
+	void activated(TransformComponent component, Camera camera, HandleType state) {
+		super.activated(component, camera, state);
+
+		component.getScale(tempScale);
+		tempScaleDst.x = getCurrentDst(camera) / tempScale.x;
+		tempScaleDst.y = getCurrentDst(camera) / tempScale.y;
+		tempScaleDst.z = getCurrentDst(camera) / tempScale.z;
+
+	}
+
+	@Override
+	void mouseMoved(TransformComponent component, Vector3 translation, Camera camera, ToolHandle active, int screenX,
+			int screenY) {
 		translateHandles(translation);
 		float dst = getCurrentDst(camera);
 
 		boolean modified = false;
-		if (null != state) {
-			switch (state) {
-			case x:
-				tempScale.x = (100 / tempScaleDst.x * dst) / 100;
-				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
-				modified = true;
-				break;
-			case y:
-				tempScale.y = (100 / tempScaleDst.y * dst) / 100;
-				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
-				modified = true;
-				break;
-			case z:
-				tempScale.z = (100 / tempScaleDst.z * dst) / 100;
-				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
-				modified = true;
-				break;
-			case xyz:
-				tempScale.x = (100 / tempScaleDst.x * dst) / 100;
-				tempScale.y = (100 / tempScaleDst.y * dst) / 100;
-				tempScale.z = (100 / tempScaleDst.z * dst) / 100;
-				//node.setLocalScale(tempScale.x, tempScale.y, tempScale.z);
-				modified = true;
-				break;
-			default:
-				break;
-			}
+		switch (state) {
+		case x:
+			tempScale.x = (100 / tempScaleDst.x * dst) / 1000;
+			component.setScale(tempScale.x, tempScale.y, tempScale.z);
+			modified = true;
+			break;
+		case y:
+			tempScale.y = (100 / tempScaleDst.y * dst) / 1000;
+			component.setScale(tempScale.x, tempScale.y, tempScale.z);
+			modified = true;
+			break;
+		case z:
+			tempScale.z = (100 / tempScaleDst.z * dst) / 1000;
+			component.scale(tempScale.x, tempScale.y, tempScale.z);
+			modified = true;
+			break;
+		case xyz:
+			tempScale.x = (100 / tempScaleDst.x * dst) / 1000;
+			tempScale.y = (100 / tempScaleDst.y * dst) / 1000;
+			tempScale.z = (100 / tempScaleDst.z * dst) / 1000;
+			component.setScale(tempScale.x, tempScale.y, tempScale.z);
+			modified = true;
+			break;
+		default:
+			break;
 		}
 	}
 
