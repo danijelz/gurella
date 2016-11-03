@@ -2,43 +2,50 @@ package com.gurella.studio.editor.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
+import com.gurella.engine.plugin.Workbench;
+import com.gurella.studio.editor.camera.CameraProvider;
+import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
-//TODO unused
-public class Grid2d implements EditorCameraSelectionListener, EditorPreCloseListener {
+public class Grid2d implements Grid, CameraProviderExtension, EditorPreCloseListener {
 	private final int editorId;
-
-	private Camera camera;
+	private CameraProvider cameraProvider;
 
 	public Grid2d(int editorId) {
 		this.editorId = editorId;
-		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
+		Workbench.activate(this);
 		EventService.subscribe(editorId, this);
 	}
 
 	@Override
-	public void cameraChanged(Camera camera) {
-		this.camera = camera;
+	public void setCameraProvider(CameraProvider cameraProvider) {
+		this.cameraProvider = cameraProvider;
+	}
+
+	private Camera getCamera() {
+		return cameraProvider == null ? null : cameraProvider.getCamera();
 	}
 
 	public void render(GenericBatch batch) {
+		Camera camera = getCamera();
+		if (camera == null) {
+			return;
+		}
+
 		int width = Gdx.graphics.getWidth();
 		int height = Gdx.graphics.getHeight();
 		int x = (int) camera.position.x;
 		int m = x % 50;
 		x -= m;
-		
+
 		int y = (int) camera.position.y;
 		m = y % 50;
 		y -= m;
 
 		batch.begin(camera);
-		batch.setShapeRendererColor(Color.WHITE);
+		batch.setShapeRendererColor(color);
 
 		int temp1 = x - 50;
 		int temp2 = x + 50;
@@ -49,7 +56,7 @@ public class Grid2d implements EditorCameraSelectionListener, EditorPreCloseList
 			temp1 -= 50;
 			temp2 += 50;
 		}
-		
+
 		temp1 = y - 50;
 		temp2 = y + 50;
 		batch.line(0 - width, y, x + width, y);
@@ -66,5 +73,6 @@ public class Grid2d implements EditorCameraSelectionListener, EditorPreCloseList
 	@Override
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
+		Workbench.deactivate(this);
 	}
 }

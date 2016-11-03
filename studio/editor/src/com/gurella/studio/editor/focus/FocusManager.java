@@ -19,12 +19,12 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
+import com.gurella.studio.editor.camera.CameraProvider;
+import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
-import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -34,27 +34,26 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
 
 public class FocusManager implements SceneLoadedListener, EditorSelectionListener, EditorPreCloseListener,
-		EditorPreRenderUpdateListener, EditorCameraSelectionListener {
+		EditorPreRenderUpdateListener, CameraProviderExtension {
 	private final int editorId;
 	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
+
+	private Scene scene;
+	private CameraProvider cameraProvider;
 
 	private SceneNode2 focusedNode;
 	private SceneNodeComponent2 focusedComponent;
 	private Control lastFocusControl;
 	private boolean focusDataFromSelection;
 
-	private Scene scene;
-
 	private final Ray pickRay = new Ray();
 	private final Vector3 intersection = new Vector3();
 	private final Array<Spatial> spatials = new Array<>(64);
 
-	private Camera camera;
-
 	public FocusManager(int editorId) {
 		this.editorId = editorId;
 		EventService.subscribe(editorId, this);
-		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
+		Workbench.activate(this);
 		Workbench.activate(gestureDetector);
 	}
 
@@ -129,6 +128,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	}
 
 	private void updateSelection(float x, float y) {
+		Camera camera = getCamera();
 		if (scene == null || camera == null) {
 			return;
 		}
@@ -176,14 +176,19 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	}
 
 	@Override
-	public void cameraChanged(Camera camera) {
-		this.camera = camera;
+	public void setCameraProvider(CameraProvider cameraProvider) {
+		this.cameraProvider = cameraProvider;
+	}
+
+	private Camera getCamera() {
+		return cameraProvider == null ? null : cameraProvider.getCamera();
 	}
 
 	@Override
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
 		Optional.ofNullable(scene).ifPresent(s -> EventService.unsubscribe(s.getInstanceId(), this));
+		Workbench.activate(this);
 		Workbench.deactivate(gestureDetector);
 	}
 

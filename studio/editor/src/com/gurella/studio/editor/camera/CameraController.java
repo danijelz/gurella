@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.camera;
 
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -10,6 +11,10 @@ import com.gurella.engine.utils.priority.Priority;
 class CameraController extends CameraInputController implements Plugin {
 	public CameraController(Camera camera) {
 		super(camera);
+//		forwardKey = Keys.UP;
+//		backwardKey = Keys.DOWN;
+//		rotateRightKey = Keys.RIGHT;
+//		rotateLeftKey = Keys.LEFT;
 	}
 
 	@Override
@@ -60,13 +65,5 @@ class CameraController extends CameraInputController implements Plugin {
 		} else {
 			return super.zoom(amount);
 		}
-	}
-
-	@Override
-	public void activate() {
-	}
-
-	@Override
-	public void deactivate() {
 	}
 }

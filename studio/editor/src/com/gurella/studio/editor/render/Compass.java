@@ -16,12 +16,15 @@ import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ArrowShapeBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
+import com.gurella.engine.plugin.Workbench;
+import com.gurella.studio.editor.camera.CameraProvider;
+import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 
@@ -30,7 +33,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
  * 
  * @author Marcus Brummer
  */
-public class Compass implements EditorPreCloseListener, EditorCameraSelectionListener, EditorPreRenderUpdateListener {
+public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateListener, CameraProviderExtension {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;
@@ -38,7 +41,7 @@ public class Compass implements EditorPreCloseListener, EditorCameraSelectionLis
 
 	private final int editorId;
 
-	private Camera worldCamera;
+	private CameraProvider cameraProvider;
 
 	private PerspectiveCamera compassCamera;
 	private Model compassModel;
@@ -59,13 +62,13 @@ public class Compass implements EditorPreCloseListener, EditorCameraSelectionLis
 		int usages = Usage.Position | Usage.ColorUnpacked | Usage.Normal;
 		MeshPartBuilder builder = modelBuilder.part("compass", GL20.GL_TRIANGLES, usages, new Material());
 		builder.setColor(Color.RED);
-		builder.arrow(0, 0, 0, ARROW_LENGTH, 0, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
+		ArrowShapeBuilder.build(builder, 0, 0, 0, ARROW_LENGTH, 0, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
 		builder.setColor(Color.GREEN);
-		builder.arrow(0, 0, 0, 0, ARROW_LENGTH, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
+		ArrowShapeBuilder.build(builder, 0, 0, 0, 0, ARROW_LENGTH, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
 		builder.setColor(Color.BLUE);
-		builder.arrow(0, 0, 0, 0, 0, -ARROW_LENGTH, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
+		ArrowShapeBuilder.build(builder, 0, 0, 0, 0, 0, -ARROW_LENGTH, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS);
 		builder.setColor(Color.YELLOW);
-		builder.box(0.02f, 0.02f, 0.02f);
+		BoxShapeBuilder.build(builder, 0.02f, 0.02f, 0.02f);
 		compassModel = modelBuilder.end();
 		compassInstance = new ModelInstance(compassModel);
 
@@ -75,12 +78,16 @@ public class Compass implements EditorPreCloseListener, EditorCameraSelectionLis
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		EventService.subscribe(editorId, this);
-		EventService.post(editorId, EditorActiveCameraProvider.class, l -> worldCamera = l.getActiveCamera());
+		Workbench.activate(this);
 	}
 
 	@Override
-	public void cameraChanged(Camera camera) {
-		this.worldCamera = camera;
+	public void setCameraProvider(CameraProvider cameraProvider) {
+		this.cameraProvider = cameraProvider;
+	}
+
+	private Camera getWorldCamera() {
+		return cameraProvider == null ? null : cameraProvider.getCamera();
 	}
 
 	public void render(GenericBatch batch) {
@@ -96,6 +103,11 @@ public class Compass implements EditorPreCloseListener, EditorCameraSelectionLis
 
 	@Override
 	public void onPreRenderUpdate() {
+		Camera worldCamera = getWorldCamera();
+		if (worldCamera == null) {
+			return;
+		}
+
 		worldCamera.view.getRotation(tempRotation);
 		tempRotation.conjugate();
 		compassInstance.transform.set(tempTranslation, tempRotation, tempScale);
@@ -104,6 +116,7 @@ public class Compass implements EditorPreCloseListener, EditorCameraSelectionLis
 	@Override
 	public void onEditorPreClose() {
 		EventService.unsubscribe(editorId, this);
+		Workbench.deactivate(this);
 		compassModel.dispose();
 	}
 }

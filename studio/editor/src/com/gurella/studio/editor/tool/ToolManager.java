@@ -15,18 +15,17 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.math.ModelIntesector;
-import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
+import com.gurella.studio.editor.camera.CameraProvider;
+import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
 public class ToolManager extends InputAdapter
-		implements EditorPreCloseListener, EditorFocusListener, EditorCameraSelectionListener, Plugin {
+		implements EditorPreCloseListener, EditorFocusListener, CameraProviderExtension {
 	private final int editorId;
 
 	@SuppressWarnings("unused")
@@ -37,7 +36,7 @@ public class ToolManager extends InputAdapter
 	private final RotateTool rotateTool = new RotateTool();
 	private final Environment environment;
 
-	private Camera camera;
+	private CameraProvider cameraProvider;
 	private TransformComponent transformComponent;
 
 	private final Vector3 translation = new Vector3();
@@ -61,7 +60,6 @@ public class ToolManager extends InputAdapter
 
 		EventService.subscribe(editorId, this);
 		Workbench.activate(this);
-		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
 	}
 
 	@Override
@@ -71,8 +69,18 @@ public class ToolManager extends InputAdapter
 	}
 
 	@Override
-	public void cameraChanged(Camera camera) {
-		this.camera = camera;
+	public void setCameraProvider(CameraProvider cameraProvider) {
+		this.cameraProvider = cameraProvider;
+	}
+
+	private Camera getCamera() {
+		return cameraProvider == null ? null : cameraProvider.getCamera();
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		return keycode == Keys.S || keycode == Keys.T || keycode == Keys.R || keycode == Keys.ESCAPE
+				|| keycode == Keys.N;
 	}
 
 	@Override
@@ -139,26 +147,32 @@ public class ToolManager extends InputAdapter
 	}
 
 	public void render(GenericBatch batch) {
-		if (selected != null && transformComponent != null) {
-			transformComponent.getWorldTranslation(translation);
-			batch.setEnvironment(environment);
-			selected.update(translation, camera);
-			selected.render(translation, camera, batch);
+		Camera camera = getCamera();
+		if (camera == null || selected == null || transformComponent == null) {
+			return;
 		}
+
+		transformComponent.getWorldTranslation(translation);
+		batch.setEnvironment(environment);
+		selected.update(translation, camera);
+		selected.render(translation, camera, batch);
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (pointer == 0 && button == Buttons.LEFT && selected != null) {
-			ToolHandle pick = pick(screenX, screenY);
-			if (pick != null) {
-				active = pick;
-				selected.activated(transformComponent, camera, active.type);
-				return true;
-			}
+		Camera camera = getCamera();
+		if (camera == null || pointer != 0 || button != Buttons.LEFT || selected == null) {
+			return false;
 		}
 
-		return false;
+		ToolHandle pick = pick(screenX, screenY);
+		if (pick == null) {
+			return false;
+		}
+
+		active = pick;
+		selected.activated(transformComponent, camera, active.type);
+		return true;
 	}
 
 	@Override
@@ -174,7 +188,8 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		if (active == null) {
+		Camera camera = getCamera();
+		if (camera == null || active == null) {
 			return false;
 		} else {
 			transformComponent.getWorldTranslation(translation);
@@ -206,6 +221,11 @@ public class ToolManager extends InputAdapter
 	}
 
 	protected ToolHandle pick(int screenX, int screenY) {
+		Camera camera = getCamera();
+		if (camera == null) {
+			return null;
+		}
+
 		selected.update(translation, camera);
 		cameraPosition.set(camera.position);
 		Ray pickRay = camera.getPickRay(screenX, screenY);
@@ -235,13 +255,5 @@ public class ToolManager extends InputAdapter
 		scaleTool.dispose();
 		translateTool.dispose();
 		rotateTool.dispose();
-	}
-
-	@Override
-	public void activate() {
-	}
-
-	@Override
-	public void deactivate() {
 	}
 }

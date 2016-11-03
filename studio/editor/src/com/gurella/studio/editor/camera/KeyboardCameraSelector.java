@@ -23,12 +23,4 @@ class KeyboardCameraSelector extends InputAdapter implements Plugin {
 			return false;
 		}
 	}
-
-	@Override
-	public void activate() {
-	}
-
-	@Override
-	public void deactivate() {
-	}
 }

@@ -44,7 +44,9 @@ public class Workbench {
 			return false;
 		}
 
-		plugin.activate();
+		if (plugin instanceof LifecyclePlugin) {
+			((LifecyclePlugin) plugin).activate();
+		}
 
 		for (PluginListener listener : listeners) {
 			listener.activated(plugin);
@@ -78,7 +80,10 @@ public class Workbench {
 			listener.deactivated(plugin);
 		}
 
-		plugin.deactivate();
+		if (plugin instanceof LifecyclePlugin) {
+			((LifecyclePlugin) plugin).deactivate();
+		}
+
 		return true;
 	}
 

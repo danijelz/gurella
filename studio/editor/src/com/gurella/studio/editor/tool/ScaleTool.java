@@ -159,10 +159,10 @@ public class ScaleTool extends TransformTool {
 		super.activated(component, camera, state);
 		component.getScale(tempScale);
 		float currentDst = getCurrentDst(camera);
+		System.out.println(currentDst);
 		tempScaleDst.x = currentDst / tempScale.x;
 		tempScaleDst.y = currentDst / tempScale.y;
 		tempScaleDst.z = currentDst / tempScale.z;
-
 	}
 
 	@Override
@@ -170,34 +170,37 @@ public class ScaleTool extends TransformTool {
 			int screenY) {
 		translateHandles(translation);
 		float dst = getCurrentDst(camera);
+		System.out.println(dst);
 
 		boolean modified = false;
 		switch (state) {
 		case x:
-			tempScale.x = (1 / tempScaleDst.x * dst) / 100000;
+			tempScale.x = (tempScaleDst.x * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		case y:
-			tempScale.y = (1 / tempScaleDst.y * dst) / 100000;
+			tempScale.y = (tempScaleDst.y * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		case z:
-			tempScale.z = (1 / tempScaleDst.z * dst) / 100000;
+			tempScale.z = (tempScaleDst.z * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		case xyz:
-			tempScale.x = (1 / tempScaleDst.x * dst) / 100000;
-			tempScale.y = (1 / tempScaleDst.y * dst) / 100000;
-			tempScale.z = (1 / tempScaleDst.z * dst) / 100000;
+			tempScale.x = (tempScaleDst.x * dst) / 100000;
+			tempScale.y = (tempScaleDst.y * dst) / 100000;
+			tempScale.z = (tempScaleDst.z * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
 			modified = true;
 			break;
 		default:
 			break;
 		}
+		
+		System.out.println(tempScale);
 	}
 
 	private float getCurrentDst(Camera camera) {

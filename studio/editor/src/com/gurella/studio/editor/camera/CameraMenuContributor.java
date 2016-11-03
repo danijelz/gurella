@@ -60,7 +60,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 	}
 
 	private void moveTo(float px, float py, float pz, float lx, float ly, float lz) {
-		Camera camera = manager.getActiveCamera();
+		Camera camera = manager.getCamera();
 		camera.position.set(px, py, pz);
 		camera.direction.set(lx, ly, lz);
 		camera.up.set(0, 1, 0);
@@ -70,7 +70,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 
 	private void selectRotation() {
 		Shell shell = UiUtils.getDisplay().getActiveShell();
-		Camera camera = manager.getActiveCamera();
+		Camera camera = manager.getCamera();
 		lookAt.setToLookAt(camera.direction, camera.up);
 		lookAt.getRotation(rotation);
 		String rotationZ = String.valueOf(rotation.getRoll());
@@ -95,7 +95,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 	}
 
 	private void setRotation(float rotation) {
-		OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
+		OrthographicCamera camera = (OrthographicCamera) manager.getCamera();
 		camera.direction.set(0, 0, -1);
 		camera.up.set(0, 1, 0);
 		camera.rotate(rotation);
@@ -104,7 +104,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 
 	private void selectZoom() {
 		Shell shell = UiUtils.getDisplay().getActiveShell();
-		String zoom = String.valueOf(((OrthographicCamera) manager.getActiveCamera()).zoom);
+		String zoom = String.valueOf(((OrthographicCamera) manager.getCamera()).zoom);
 		String message = "Please enter new zoom value";
 		InputDialog dlg = new InputDialog(shell, "Zoom", message, zoom, s -> validateZoom(s));
 		if (dlg.open() == Window.OK) {
@@ -124,9 +124,9 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 			return "Zoom must be float value.";
 		}
 	}
-	
+
 	private void setZoom(float zoom) {
-		OrthographicCamera camera = (OrthographicCamera) manager.getActiveCamera();
+		OrthographicCamera camera = (OrthographicCamera) manager.getCamera();
 		camera.zoom = zoom;
 		camera.update();
 	}

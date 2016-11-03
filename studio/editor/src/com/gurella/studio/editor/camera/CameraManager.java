@@ -7,16 +7,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 
-public class CameraManager implements EditorPreCloseListener, EditorActiveCameraProvider, EditorPreRenderUpdateListener,
-		EditorResizeListener {
+public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpdateListener, EditorResizeListener {
 
 	private final int editorId;
+	private final CameraProviderExtensionRegistry extensionRegistry;
 
 	private final PerspectiveCamera perspectiveCamera;
 	private final CameraController perspectiveCameraController;
@@ -27,13 +25,14 @@ public class CameraManager implements EditorPreCloseListener, EditorActiveCamera
 	private Camera camera;
 	private CameraController inputController;
 
-	private KeyboardCameraSelector cameraTypeSelector;
-
 	@SuppressWarnings("unused")
-	private CameraMenuContributor cameraMenuContributor;
+	private final CameraMenuContributor cameraMenuContributor;
+	private final KeyboardCameraSelector cameraTypeSelector;
 
 	public CameraManager(int editorId) {
 		this.editorId = editorId;
+		extensionRegistry = new CameraProviderExtensionRegistry(this);
+		Workbench.addListener(extensionRegistry);
 
 		Graphics graphics = Gdx.graphics;
 		perspectiveCamera = new PerspectiveCamera(67, graphics.getWidth(), graphics.getHeight());
@@ -53,13 +52,11 @@ public class CameraManager implements EditorPreCloseListener, EditorActiveCamera
 		inputController = perspectiveCameraController;
 		Workbench.activate(inputController);
 
+		cameraMenuContributor = new CameraMenuContributor(editorId, this);
 		cameraTypeSelector = new KeyboardCameraSelector(this);
 		Workbench.activate(cameraTypeSelector);
 
-		cameraMenuContributor = new CameraMenuContributor(editorId, this);
-
 		EventService.subscribe(editorId, this);
-		notifyCameraChange();
 	}
 
 	void switchCamera(CameraType cameraType) {
@@ -87,12 +84,7 @@ public class CameraManager implements EditorPreCloseListener, EditorActiveCamera
 		Workbench.deactivate(inputController);
 		camera = orthographicCamera;
 		inputController = orthographicCameraController;
-		notifyCameraChange();
 		Workbench.activate(inputController);
-	}
-
-	private void notifyCameraChange() {
-		EventService.post(editorId, EditorCameraSelectionListener.class, l -> l.cameraChanged(camera));
 	}
 
 	boolean is3d() {
@@ -103,12 +95,10 @@ public class CameraManager implements EditorPreCloseListener, EditorActiveCamera
 		Workbench.deactivate(inputController);
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
-		notifyCameraChange();
 		Workbench.activate(inputController);
 	}
 
-	@Override
-	public Camera getActiveCamera() {
+	Camera getCamera() {
 		return camera;
 	}
 
@@ -130,6 +120,7 @@ public class CameraManager implements EditorPreCloseListener, EditorActiveCamera
 
 	@Override
 	public void onEditorPreClose() {
+		Workbench.removeListener(extensionRegistry);
 		Workbench.deactivate(cameraTypeSelector);
 		Workbench.deactivate(inputController);
 		EventService.unsubscribe(editorId, this);

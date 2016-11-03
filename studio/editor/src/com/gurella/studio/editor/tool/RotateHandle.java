@@ -23,6 +23,8 @@ public class RotateHandle extends ToolHandle {
 			this.scale.y = 1.1f;
 			this.scale.z = 1.1f;
 			break;
+		default:
+			break;
 		}
 
 		modelInstance.calculateTransforms();

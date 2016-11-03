@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.camera.CameraComponent;
@@ -33,8 +34,8 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.subscription.EditorActiveCameraProvider;
-import com.gurella.studio.editor.subscription.EditorCameraSelectionListener;
+import com.gurella.studio.editor.camera.CameraProvider;
+import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
@@ -42,7 +43,7 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.tool.ToolManager;
 
 public class RenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener,
-		EditorFocusListener, EditorRenderUpdateListener, EditorCameraSelectionListener {
+		EditorFocusListener, EditorRenderUpdateListener, CameraProviderExtension {
 	private int editorId;
 
 	private Scene scene;
@@ -72,7 +73,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	private InfoRenderer infoRenderer;
 	private ToolManager toolManager;
 
-	private Camera camera;
+	private CameraProvider cameraProvider;
 
 	@SuppressWarnings("deprecation")
 	public RenderSystem(int editorId) {
@@ -98,7 +99,16 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 		DefaultShader.defaultCullFace = 0;
 
 		EventService.subscribe(editorId, this);
-		EventService.post(editorId, EditorActiveCameraProvider.class, l -> camera = l.getActiveCamera());
+		Workbench.activate(this);
+	}
+
+	@Override
+	public void setCameraProvider(CameraProvider cameraProvider) {
+		this.cameraProvider = cameraProvider;
+	}
+
+	private Camera getCamera() {
+		return cameraProvider == null ? null : cameraProvider.getCamera();
 	}
 
 	@Override
@@ -164,6 +174,11 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 	@Override
 	public void onRenderUpdate() {
+		Camera camera = getCamera();
+		if(camera == null) {
+			return;
+		}
+		
 		synchronized (GurellaStudioPlugin.glMutex) {
 			updateGlState();
 			if (camera instanceof PerspectiveCamera) {
@@ -196,6 +211,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 		EventService.post(sceneId, PreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
 
+		Camera camera = getCamera();
 		batch.begin(camera);
 		batch.setEnvironment(environment);
 
@@ -244,12 +260,8 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	}
 
 	@Override
-	public void cameraChanged(Camera camera) {
-		this.camera = camera;
-	}
-
-	@Override
 	public void onEditorPreClose() {
+		Workbench.deactivate(this);
 		EventService.unsubscribe(sceneId, this);
 		EventService.unsubscribe(editorId, this);
 		batch.dispose();
