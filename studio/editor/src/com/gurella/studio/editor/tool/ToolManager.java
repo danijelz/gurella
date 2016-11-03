@@ -160,6 +160,11 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		if (active != null) {
+			selected.deactivated();
+			active = null;
+		}
+		
 		Camera camera = getCamera();
 		if (camera == null || pointer != 0 || button != Buttons.LEFT || selected == null) {
 			return false;

@@ -164,6 +164,7 @@ public class GdxArrayModelFactory implements ModelFactory {
 			context.pushObject(array);
 			array.ordered = original.ordered;
 			array.size = original.size;
+			@SuppressWarnings("unchecked")
 			Array<Object> casted = (Array<Object>) array;
 			casted.items = (Object[]) context.copy(original.items);
 			context.popObject();
