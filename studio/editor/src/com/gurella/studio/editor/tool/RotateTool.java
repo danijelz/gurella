@@ -41,9 +41,9 @@ public class RotateTool extends TransformTool {
 
 	public RotateTool() {
 		this.shapeRenderer = new ShapeRenderer();
-		xHandle = new RotateHandle(x, COLOR_X, torus(COLOR_X, 20, 1f, 50, 50));
-		yHandle = new RotateHandle(y, COLOR_Y, torus(COLOR_Y, 20, 1f, 50, 50));
-		zHandle = new RotateHandle(z, COLOR_Z, torus(COLOR_Z, 20, 1f, 50, 50));
+		xHandle = new RotateHandle(x, COLOR_X, torus(COLOR_X, 20, 1, 50, 50));
+		yHandle = new RotateHandle(y, COLOR_Y, torus(COLOR_Y, 20, 1, 50, 50));
+		zHandle = new RotateHandle(z, COLOR_Z, torus(COLOR_Z, 20, 1, 50, 50));
 		handles = new RotateHandle[] { xHandle, yHandle, zHandle };
 	}
 
