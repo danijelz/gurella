@@ -11,11 +11,13 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -39,9 +41,9 @@ public class RotateTool extends TransformTool {
 
 	public RotateTool() {
 		this.shapeRenderer = new ShapeRenderer();
-		xHandle = new RotateHandle(x, COLOR_X, torus(new Material(createDiffuse(COLOR_X)), 20, 1f, 50, 50));
-		yHandle = new RotateHandle(y, COLOR_Y, torus(new Material(createDiffuse(COLOR_Y)), 20, 1f, 50, 50));
-		zHandle = new RotateHandle(z, COLOR_Z, torus(new Material(createDiffuse(COLOR_Z)), 20, 1f, 50, 50));
+		xHandle = new RotateHandle(x, COLOR_X, torus(COLOR_X, 20, 1f, 50, 50));
+		yHandle = new RotateHandle(y, COLOR_Y, torus(COLOR_Y, 20, 1f, 50, 50));
+		zHandle = new RotateHandle(z, COLOR_Z, torus(COLOR_Z, 20, 1f, 50, 50));
 		handles = new RotateHandle[] { xHandle, yHandle, zHandle };
 	}
 
@@ -138,20 +140,23 @@ public class RotateTool extends TransformTool {
 		zHandle.applyTransform();
 	}
 
-	private static Model torus(Material mat, float width, float height, int divisionsU, int divisionsV) {
+	private static Model torus(Color color, float width, float height, int divisionsU, int divisionsV) {
+		Material mat = new Material(createDiffuse(color));
 		MeshPartBuilder.VertexInfo v0 = new MeshPartBuilder.VertexInfo();
 		MeshPartBuilder.VertexInfo v1 = new MeshPartBuilder.VertexInfo();
 
 		ModelBuilder modelBuilder = new ModelBuilder();
 		modelBuilder.begin();
-		MeshPartBuilder builder = modelBuilder.part("torus", GL20.GL_TRIANGLES, VertexAttributes.Usage.Position, mat);
+		MeshPartBuilder builder = modelBuilder.part("torus", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
 
 		MeshPartBuilder.VertexInfo curr1 = v0.set(null, null, null, null);
-		curr1.hasUV = curr1.hasNormal = false;
+		curr1.hasUV = false;
+		curr1.hasNormal = true;
 		curr1.hasPosition = true;
 
 		MeshPartBuilder.VertexInfo curr2 = v1.set(null, null, null, null);
-		curr2.hasUV = curr2.hasNormal = false;
+		curr2.hasUV = false;
+		curr2.hasNormal = true;
 		curr2.hasPosition = true;
 		short i1, i2, i3 = 0, i4 = 0;
 
@@ -165,12 +170,24 @@ public class RotateTool extends TransformTool {
 					s = (i + k) % divisionsV + 0.5;
 					t = j % divisionsU;
 
+					float u = j / (divisionsU - 1.0f);
+					float v = i / (divisionsV - 1.0f);
+					float theta = u * 2.0f * MathUtils.PI;
+					float rho = v * 2.0f * MathUtils.PI;
+
 					curr1.position.set(
 							(float) ((width + height * Math.cos(s * twopi / divisionsV))
 									* Math.cos(t * twopi / divisionsU)),
 							(float) ((width + height * Math.cos(s * twopi / divisionsV))
 									* Math.sin(t * twopi / divisionsU)),
 							(float) (height * Math.sin(s * twopi / divisionsV)));
+
+					float nx = MathUtils.cos(theta)*MathUtils.cos(rho);
+					float ny = MathUtils.sin(theta)*MathUtils.cos(rho);
+					float nz = MathUtils.sin(rho);
+					curr1.normal.set(nx, ny, nz);
+					
+
 					k--;
 					s = (i + k) % divisionsV + 0.5;
 					curr2.position.set(
@@ -179,6 +196,8 @@ public class RotateTool extends TransformTool {
 							(float) ((width + height * Math.cos(s * twopi / divisionsV))
 									* Math.sin(t * twopi / divisionsU)),
 							(float) (height * Math.sin(s * twopi / divisionsV)));
+					curr2.normal.set(nx, ny, nz);
+					
 					i1 = builder.vertex(curr1);
 					i2 = builder.vertex(curr2);
 					builder.rect(i4, i2, i1, i3);
