@@ -196,11 +196,11 @@ public class ToolManager extends InputAdapter
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		Camera camera = getCamera();
-		if (camera == null || active == null) {
+		if (camera == null || active == null || pointer != 0) {
 			return false;
 		} else {
 			transformComponent.getWorldTranslation(translation);
-			selected.mouseMoved(transformComponent, translation, camera, active, screenX, screenY);
+			selected.touchDragged(transformComponent, translation, camera, active, screenX, screenY);
 			return true;
 		}
 	}

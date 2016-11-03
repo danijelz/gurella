@@ -192,7 +192,7 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	void mouseMoved(TransformComponent component, Vector3 translation, Camera camera, ToolHandle active, int screenX,
+	void touchDragged(TransformComponent component, Vector3 translation, Camera camera, ToolHandle active, int screenX,
 			int screenY) {
 		translateHandles(translation);
 

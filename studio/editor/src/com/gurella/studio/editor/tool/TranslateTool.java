@@ -105,7 +105,7 @@ public class TranslateTool extends TransformTool {
 	}
 
 	@Override
-	void mouseMoved(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active, int screenX,
+	void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active, int screenX,
 			int screenY) {
 		translateHandles(translation);
 

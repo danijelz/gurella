@@ -33,6 +33,6 @@ public abstract class TransformTool implements Disposable {
 
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
 
-	abstract void mouseMoved(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active,
+	abstract void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active,
 			int screenX, int screenY);
 }
