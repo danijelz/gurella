@@ -178,9 +178,10 @@ public class ScaleTool extends TransformTool {
 			transform.setScale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case xyz:
-			tempScale.x = (100 / tempScaleDst.x * (distance * 0.2f)) / 100;
-			tempScale.y = (100 / tempScaleDst.y * (distance * 0.2f)) / 100;
-			tempScale.z = (100 / tempScaleDst.z * (distance * 0.2f)) / 100;
+			distance *= 0.1f;
+			tempScale.x = (100 / tempScaleDst.x * distance) / 100;
+			tempScale.y = (100 / tempScaleDst.y * distance) / 100;
+			tempScale.z = (100 / tempScaleDst.z * distance) / 100;
 			transform.setScale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		default:
