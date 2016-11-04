@@ -44,13 +44,13 @@ import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
-import com.gurella.studio.editor.subscription.SceneChangedListener;
+import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.swtgl.SwtLwjglApplication;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class SceneEditor extends EditorPart implements SceneLoadedListener, SceneChangedListener {
+public class SceneEditor extends EditorPart implements SceneLoadedListener, SceneDirtyListener {
 	public final int id = Sequence.next();
 
 	private Composite content;
@@ -180,7 +180,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	}
 
 	@Override
-	public void sceneChanged() {
+	public void sceneDirty() {
 		dirty = true;
 		firePropertyChange(PROP_DIRTY);
 	}

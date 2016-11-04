@@ -18,6 +18,7 @@ import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedL
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 
 //TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
+//TODO input data should be on InputResponsiveRenderableComponent
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2 implements NodeComponentActivityListener,
 		NodeTransformChangedListener, Event<SceneRenderableChangedListener>, Poolable {
@@ -92,7 +93,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 		setDirty();
 	}
 
-	protected void update() {
+	private void update() {
 		if (dirty) {
 			updateGeometry();
 			dirty = false;

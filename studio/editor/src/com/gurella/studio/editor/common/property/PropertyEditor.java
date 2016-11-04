@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.common.property;
 
+import static com.gurella.engine.event.EventService.post;
 import static org.eclipse.swt.SWT.NONE;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
@@ -27,10 +28,13 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.event.EventService;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.subscription.PropertyChangedListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public abstract class PropertyEditor<P> {
+public abstract class PropertyEditor<P> implements PropertyChangedListener {
 	private Composite body;
 	protected Composite content;
 	private Label menuButton;
@@ -59,6 +63,10 @@ public abstract class PropertyEditor<P> {
 		UiUtils.adapt(content);
 
 		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
+
+		int editorId = context.sceneEditorContext.editorId;
+		body.addDisposeListener(e -> EventService.unsubscribe(editorId, this));
+		EventService.subscribe(editorId, this);
 	}
 
 	public Composite getBody() {
@@ -94,8 +102,16 @@ public abstract class PropertyEditor<P> {
 	}
 
 	public void setValue(P value) {
-		SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(this, getValue(), value);
+		SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(context, getValue(), value);
 		context.sceneEditorContext.executeOperation(operation, "Error updating property.");
+	}
+
+	@Override
+	public void propertyChanged(Object instance, Property<?> property, Object newValue) {
+		if (context.modelInstance != instance || context.property != property || body.isDisposed()) {
+			return;
+		}
+		updateValue(Values.cast(newValue));
 	}
 
 	public void setMenuVisible(boolean visible) {
@@ -165,38 +181,40 @@ public abstract class PropertyEditor<P> {
 	protected abstract void updateValue(P value);
 
 	private static class SetPropertyValueOperation<P> extends AbstractOperation {
-		final PropertyEditor<P> editor;
+		final PropertyEditorContext<?, P> context;
 		final P oldValue;
 		final P newValue;
 
-		public SetPropertyValueOperation(PropertyEditor<P> editor, P oldValue, P newValue) {
+		public SetPropertyValueOperation(PropertyEditorContext<?, P> context, P oldValue, P newValue) {
 			super("Property");
-			this.editor = editor;
+			this.context = context;
 			this.oldValue = new CopyContext().copy(oldValue);
 			this.newValue = newValue;
 		}
 
 		@Override
 		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			editor.context.setValue(newValue);
+			context.setValue(newValue);
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			editor.context.setValue(oldValue);
-			if (!editor.body.isDisposed()) {
-				editor.updateValue(oldValue);
-			}
+			context.setValue(oldValue);
+			int editorId = context.sceneEditorContext.editorId;
+			Object instance = context.modelInstance;
+			Property<?> property = context.property;
+			post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(instance, property, oldValue));
 			return Status.OK_STATUS;
 		}
 
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			editor.context.setValue(newValue);
-			if (!editor.body.isDisposed()) {
-				editor.updateValue(newValue);
-			}
+			context.setValue(newValue);
+			int editorId = context.sceneEditorContext.editorId;
+			Object instance = context.modelInstance;
+			Property<?> property = context.property;
+			post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(instance, property, newValue));
 			return Status.OK_STATUS;
 		}
 	}
