@@ -23,36 +23,36 @@ public class RotateOperation extends TransformOperation {
 
 	@Override
 	void rollback() {
-		component.setEulerRotation(initial);
+		transform.setEulerRotation(initial);
 	}
 
 	@Override
 	void commit() {
-		component.getEulerRotation(action);
+		transform.getEulerRotation(action);
 		if(initial.equals(action)) {
 			return;
 		}
-		component.setEulerRotation(initial);
+		transform.setEulerRotation(initial);
 		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying scale.");
 	}
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setEulerRotation(action);
+		transform.setEulerRotation(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setEulerRotation(action);
+		transform.setEulerRotation(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setEulerRotation(initial);
+		transform.setEulerRotation(initial);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

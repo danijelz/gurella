@@ -23,36 +23,36 @@ public class ScaleOperation extends TransformOperation {
 
 	@Override
 	void rollback() {
-		component.setScale(initial);
+		transform.setScale(initial);
 	}
 
 	@Override
 	void commit() {
-		component.getScale(action);
+		transform.getScale(action);
 		if(initial.equals(action)) {
 			return;
 		}
-		component.setScale(initial);
+		transform.setScale(initial);
 		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying scale.");
 	}
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setScale(action);
+		transform.setScale(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setScale(action);
+		transform.setScale(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-		component.setScale(initial);
+		transform.setScale(initial);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

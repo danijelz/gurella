@@ -6,12 +6,12 @@ import com.gurella.engine.scene.transform.TransformComponent;
 
 abstract class TransformOperation extends AbstractOperation {
 	final int editorId;
-	final TransformComponent component;
+	final TransformComponent transform;
 
-	public TransformOperation(String label, int editorId, TransformComponent component) {
+	public TransformOperation(String label, int editorId, TransformComponent transform) {
 		super(label);
 		this.editorId = editorId;
-		this.component = component;
+		this.transform = transform;
 	}
 
 	abstract void rollback();
