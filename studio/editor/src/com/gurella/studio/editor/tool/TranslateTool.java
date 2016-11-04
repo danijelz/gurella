@@ -2,6 +2,7 @@ package com.gurella.studio.editor.tool;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -32,22 +33,25 @@ public class TranslateTool extends TransformTool {
 		super(manager);
 
 		ModelBuilder modelBuilder = new ModelBuilder();
-
-		int usage = Usage.Position | Usage.Normal;
-		Model xHandleModel = modelBuilder.createArrow(0, 0, 0, 1, 0, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_X)), usage);
-		Model yHandleModel = modelBuilder.createArrow(0, 0, 0, 0, 1, 0, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Y)), usage);
-		Model zHandleModel = modelBuilder.createArrow(0, 0, 0, 0, 0, 1, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
-				GL20.GL_TRIANGLES, new Material(ColorAttribute.createDiffuse(COLOR_Z)), usage);
+		Model xHandleModel = createArrow(modelBuilder, COLOR_X, 0, 0, 0, 1, 0, 0);
+		Model yHandleModel = createArrow(modelBuilder, COLOR_Y, 0, 0, 0, 0, 1, 0);
+		Model zHandleModel = createArrow(modelBuilder, COLOR_Z, 0, 0, 0, 0, 0, 1);
 		Model xzPlaneHandleModel = modelBuilder.createSphere(1, 1, 1, 20, 20,
-				new Material(ColorAttribute.createDiffuse(COLOR_XZ)), usage);
+				new Material(ColorAttribute.createDiffuse(COLOR_XZ)), Usage.Position | Usage.Normal);
 
 		xHandle = new TranslateHandle(HandleType.x, COLOR_X, xHandleModel);
 		yHandle = new TranslateHandle(HandleType.y, COLOR_Y, yHandleModel);
 		zHandle = new TranslateHandle(HandleType.z, COLOR_Z, zHandleModel);
 		xzHandle = new TranslateHandle(HandleType.xz, COLOR_XZ, xzPlaneHandleModel);
 		handles = new TranslateHandle[] { xHandle, yHandle, zHandle, xzHandle };
+	}
+
+	private Model createArrow(ModelBuilder builder, Color color, float x1, float y1, float z1, float x2, float y2,
+			float z2) {
+		int usage = Usage.Position | Usage.Normal;
+		Material material = new Material(ColorAttribute.createDiffuse(color));
+		return builder.createArrow(x1, y1, z1, x2, y2, z2, ARROW_CAP_SIZE, ARROW_THIKNESS, ARROW_DIVISIONS,
+				GL20.GL_TRIANGLES, material, usage);
 	}
 
 	@Override
@@ -92,13 +96,13 @@ public class TranslateTool extends TransformTool {
 	}
 
 	@Override
-	void activate(ToolHandle handle, TransformComponent component, Camera camera) {
-		super.activate(handle, component, camera);
+	void activate(ToolHandle handle, TransformComponent transform, Camera camera) {
+		super.activate(handle, transform, camera);
 		initTranslate = true;
 	}
 
 	@Override
-	void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+	void dragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
 		translateHandles(transform.getTranslation(temp0));
 
 		Ray ray = camera.getPickRay(screenX, screenY);

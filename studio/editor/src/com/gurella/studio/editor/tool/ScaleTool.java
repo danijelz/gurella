@@ -149,45 +149,46 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void activate(ToolHandle handle, TransformComponent component, Camera camera) {
-		super.activate(handle, component, camera);
-		component.getScale(tempScale);
-		float currentDst = getCurrentDst(camera);
-		tempScaleDst.x = currentDst / tempScale.x;
-		tempScaleDst.y = currentDst / tempScale.y;
-		tempScaleDst.z = currentDst / tempScale.z;
+	void activate(ToolHandle handle, TransformComponent transform, Camera camera) {
+		super.activate(handle, transform, camera);
+		transform.getScale(tempScale);
+		transform.getTranslation(temp0);
+		float distance = getDistance(camera);
+		tempScaleDst.x = distance / tempScale.x;
+		tempScaleDst.y = distance / tempScale.y;
+		tempScaleDst.z = distance / tempScale.z;
 	}
 
 	@Override
-	void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+	void dragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
 		translateHandles(transform.getTranslation(temp0));
-		float dst = getCurrentDst(camera);
+		float distance = getDistance(camera);
 
 		switch (activeHandleType) {
 		case x:
-			tempScale.x = (tempScaleDst.x * dst) / 100000;
-			transform.scale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.x = (100 / tempScaleDst.x * distance) / 100;
+			transform.setScale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case y:
-			tempScale.y = (tempScaleDst.y * dst) / 100000;
-			transform.scale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.y = (100 / tempScaleDst.y * distance) / 100;
+			transform.setScale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case z:
-			tempScale.z = (tempScaleDst.z * dst) / 100000;
-			transform.scale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.z = (100 / tempScaleDst.z * distance) / 100;
+			transform.setScale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case xyz:
-			tempScale.x = (tempScaleDst.x * dst) / 100000;
-			tempScale.y = (tempScaleDst.y * dst) / 100000;
-			tempScale.z = (tempScaleDst.z * dst) / 100000;
-			transform.scale(tempScale.x, tempScale.y, tempScale.z);
+			tempScale.x = (100 / tempScaleDst.x * (distance * 0.2f)) / 100;
+			tempScale.y = (100 / tempScaleDst.y * (distance * 0.2f)) / 100;
+			tempScale.z = (100 / tempScaleDst.z * (distance * 0.2f)) / 100;
+			transform.setScale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		default:
 			break;
 		}
 	}
 
-	private float getCurrentDst(Camera camera) {
+	private float getDistance(Camera camera) {
 		Vector3 pivot = camera.project(temp0, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Vector3 mouse = temp1.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 0);
 		return dst(pivot.x, pivot.y, mouse.x, mouse.y);

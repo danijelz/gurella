@@ -208,7 +208,7 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+	void dragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
 		translateHandles(transform.getTranslation(temp0));
 
 		float angle = getCurrentAngle(temp0, camera);

@@ -198,14 +198,14 @@ public class ToolManager extends InputAdapter
 		if (camera == null || !isActive() || pointer != 0) {
 			return false;
 		} else {
-			selectedTool.touchDragged(transform, camera, screenX, screenY);
+			selectedTool.dragged(transform, camera, screenX, screenY);
 			return true;
 		}
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		if (selectedTool == null) {
+		if (selectedTool == null || transform == null) {
 			return false;
 		}
 
