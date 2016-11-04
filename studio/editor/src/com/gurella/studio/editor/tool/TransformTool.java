@@ -33,7 +33,7 @@ public abstract class TransformTool implements Disposable {
 
 	void activate(ToolHandle handle, TransformComponent component, Camera camera) {
 		this.activeHandleType = handle.type;
-		operation = initOperation(handle, component, camera);
+		operation = createOperation(handle, component, camera);
 	}
 
 	void deactivate() {
@@ -53,12 +53,11 @@ public abstract class TransformTool implements Disposable {
 
 	abstract ToolType getType();
 
-	abstract void update(Vector3 translation, Camera camera);
+	abstract void update(Vector3 nodePosition, Vector3 cameraPosition);
 
-	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
+	abstract void render(Vector3 nodePosition, Camera camera, GenericBatch batch);
 
-	abstract void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, int screenX,
-			int screenY);
+	abstract void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY);
 
-	abstract TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera);
+	abstract TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera);
 }

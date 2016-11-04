@@ -124,36 +124,28 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void update(Vector3 translation, Camera camera) {
-		translateHandles(translation);
-		scaleHandles(translation, camera);
-	}
-
-	protected void translateHandles(Vector3 translation) {
-		xHandle.position.set(translation);
+	void update(Vector3 nodePosition, Vector3 cameraPosition) {
+		translateHandles(nodePosition);
+		scaleHandles(nodePosition, cameraPosition);
 		xHandle.applyTransform();
-		yHandle.position.set(translation);
 		yHandle.applyTransform();
-		zHandle.position.set(translation);
 		zHandle.applyTransform();
-		xyzHandle.position.set(translation);
 		xyzHandle.applyTransform();
 	}
 
-	protected void scaleHandles(Vector3 translation, Camera camera) {
-		float scaleFactor = camera.position.dst(translation) * 0.01f;
+	protected void translateHandles(Vector3 nodePosition) {
+		xHandle.position.set(nodePosition);
+		yHandle.position.set(nodePosition);
+		zHandle.position.set(nodePosition);
+		xyzHandle.position.set(nodePosition);
+	}
 
+	protected void scaleHandles(Vector3 nodePosition, Vector3 cameraPosition) {
+		float scaleFactor = cameraPosition.dst(nodePosition) * 0.01f;
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		xHandle.applyTransform();
-
 		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		yHandle.applyTransform();
-
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		zHandle.applyTransform();
-
 		xyzHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		xyzHandle.applyTransform();
 	}
 
 	@Override
@@ -167,28 +159,28 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void touchDragged(TransformComponent component, Vector3 translation, Camera camera, int screenX, int screenY) {
-		translateHandles(translation);
+	void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+		translateHandles(transform.getTranslation(temp0));
 		float dst = getCurrentDst(camera);
 
 		switch (activeHandleType) {
 		case x:
 			tempScale.x = (tempScaleDst.x * dst) / 100000;
-			component.scale(tempScale.x, tempScale.y, tempScale.z);
+			transform.scale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case y:
 			tempScale.y = (tempScaleDst.y * dst) / 100000;
-			component.scale(tempScale.x, tempScale.y, tempScale.z);
+			transform.scale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case z:
 			tempScale.z = (tempScaleDst.z * dst) / 100000;
-			component.scale(tempScale.x, tempScale.y, tempScale.z);
+			transform.scale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		case xyz:
 			tempScale.x = (tempScaleDst.x * dst) / 100000;
 			tempScale.y = (tempScaleDst.y * dst) / 100000;
 			tempScale.z = (tempScaleDst.z * dst) / 100000;
-			component.scale(tempScale.x, tempScale.y, tempScale.z);
+			transform.scale(tempScale.x, tempScale.y, tempScale.z);
 			break;
 		default:
 			break;
@@ -206,7 +198,7 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera) {
+	TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera) {
 		return new ScaleOperation(manager.editorId, component);
 	}
 

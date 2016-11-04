@@ -37,25 +37,23 @@ public class ToolManager extends InputAdapter
 	private final TranslateTool translateTool = new TranslateTool(this);
 	private final RotateTool rotateTool = new RotateTool(this);
 
-	private final Environment environment;
+	private final Environment environment = new Environment();
 
-	private CameraProvider cameraProvider;
-	private TransformComponent transformComponent;
-
-	private final Vector3 translation = new Vector3();
-	private final Vector3 cameraPosition = new Vector3();
+	private final Vector3 nodePosition = new Vector3();
 	private final Vector3 intersection = new Vector3();
 	private final ModelIntesector intesector = new ModelIntesector();
 
+	private CameraProvider cameraProvider;
+	private TransformComponent transform;
+
 	private TransformTool selectedTool;
-	private ToolHandle mouseOver;
+	private ToolHandle focusedHandle;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
 
 		menuContributor = new ToolMenuContributor(editorId, this);
 
-		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.65f, 0.65f, 0.65f, 1f));
 		environment.set(new DepthTestAttribute());
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
@@ -67,7 +65,7 @@ public class ToolManager extends InputAdapter
 	@Override
 	public void focusChanged(EditorFocusData focusData) {
 		SceneNode2 node = focusData.focusedNode;
-		transformComponent = node == null ? null : node.getComponent(TransformComponent.class);
+		transform = node == null ? null : node.getComponent(TransformComponent.class);
 	}
 
 	@Override
@@ -154,14 +152,14 @@ public class ToolManager extends InputAdapter
 
 	public void render(GenericBatch batch) {
 		Camera camera = getCamera();
-		if (camera == null || selectedTool == null || transformComponent == null) {
+		if (camera == null || selectedTool == null || transform == null) {
 			return;
 		}
 
-		transformComponent.getWorldTranslation(translation);
+		transform.getWorldTranslation(nodePosition);
 		batch.setEnvironment(environment);
-		selectedTool.update(translation, camera);
-		selectedTool.render(translation, camera, batch);
+		selectedTool.update(nodePosition, camera.position);
+		selectedTool.render(nodePosition, camera, batch);
 	}
 
 	@Override
@@ -171,7 +169,7 @@ public class ToolManager extends InputAdapter
 		}
 
 		Camera camera = getCamera();
-		if (transformComponent == null || camera == null || pointer != 0 || button != LEFT || selectedTool == null) {
+		if (transform == null || camera == null || pointer != 0 || button != LEFT || selectedTool == null) {
 			return false;
 		}
 
@@ -180,7 +178,7 @@ public class ToolManager extends InputAdapter
 			return false;
 		}
 
-		selectedTool.activate(handle, transformComponent, camera);
+		selectedTool.activate(handle, transform, camera);
 		return true;
 	}
 
@@ -200,8 +198,7 @@ public class ToolManager extends InputAdapter
 		if (camera == null || !isActive() || pointer != 0) {
 			return false;
 		} else {
-			transformComponent.getWorldTranslation(translation);
-			selectedTool.touchDragged(transformComponent, translation, camera, screenX, screenY);
+			selectedTool.touchDragged(transform, camera, screenX, screenY);
 			return true;
 		}
 	}
@@ -213,16 +210,17 @@ public class ToolManager extends InputAdapter
 		}
 
 		ToolHandle handle = pickHandle(screenX, screenY);
-		if (mouseOver != handle) {
-			if (mouseOver != null) {
-				mouseOver.focusLost();
+		if (focusedHandle != handle) {
+			if (focusedHandle != null) {
+				focusedHandle.focusLost();
 			}
 
-			mouseOver = handle;
+			focusedHandle = handle;
 			if (handle != null) {
 				handle.focusGained();
 			}
 		}
+
 		return false;
 	}
 
@@ -232,13 +230,15 @@ public class ToolManager extends InputAdapter
 			return null;
 		}
 
-		selectedTool.update(translation, camera);
-		cameraPosition.set(camera.position);
+		transform.getWorldTranslation(nodePosition);
+		Vector3 cameraPosition = camera.position;
+		selectedTool.update(nodePosition, cameraPosition);
+
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		ToolHandle[] handles = selectedTool.handles;
-		ToolHandle pick = null;
-		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
+
 		float closestDistance = Float.MAX_VALUE;
+		ToolHandle pick = null;
 
 		for (ToolHandle toolHandle : handles) {
 			ModelInstance instance = toolHandle.modelInstance;
@@ -246,11 +246,11 @@ public class ToolManager extends InputAdapter
 				float distance = intersection.dst2(cameraPosition);
 				if (closestDistance > distance) {
 					closestDistance = distance;
-					closestIntersection.set(intersection);
 					pick = toolHandle;
 				}
 			}
 		}
+
 		return pick;
 	}
 

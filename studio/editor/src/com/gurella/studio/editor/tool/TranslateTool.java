@@ -21,17 +21,16 @@ public class TranslateTool extends TransformTool {
 	private TranslateHandle xHandle;
 	private TranslateHandle yHandle;
 	private TranslateHandle zHandle;
-	private TranslateHandle xzPlaneHandle;
+	private TranslateHandle xzHandle;
 
 	private final Vector3 temp0 = new Vector3();
 	private final Vector3 temp1 = new Vector3();
 	private boolean initTranslate = true;
 	private Vector3 lastPos = new Vector3();
-	private boolean globalSpace = true;
 
 	public TranslateTool(ToolManager manager) {
 		super(manager);
-		
+
 		ModelBuilder modelBuilder = new ModelBuilder();
 
 		int usage = Usage.Position | Usage.Normal;
@@ -47,8 +46,8 @@ public class TranslateTool extends TransformTool {
 		xHandle = new TranslateHandle(HandleType.x, COLOR_X, xHandleModel);
 		yHandle = new TranslateHandle(HandleType.y, COLOR_Y, yHandleModel);
 		zHandle = new TranslateHandle(HandleType.z, COLOR_Z, zHandleModel);
-		xzPlaneHandle = new TranslateHandle(HandleType.xz, COLOR_XZ, xzPlaneHandleModel);
-		handles = new TranslateHandle[] { xHandle, yHandle, zHandle, xzPlaneHandle };
+		xzHandle = new TranslateHandle(HandleType.xz, COLOR_XZ, xzPlaneHandleModel);
+		handles = new TranslateHandle[] { xHandle, yHandle, zHandle, xzHandle };
 	}
 
 	@Override
@@ -63,41 +62,33 @@ public class TranslateTool extends TransformTool {
 		xHandle.render(batch);
 		yHandle.render(batch);
 		zHandle.render(batch);
-		xzPlaneHandle.render(batch);
+		xzHandle.render(batch);
 		batch.end();
 	}
 
 	@Override
-	void update(Vector3 translation, Camera camera) {
-		scaleHandles(translation, camera);
-		translateHandles(translation);
+	void update(Vector3 nodePosition, Vector3 cameraPosition) {
+		scaleHandles(nodePosition, cameraPosition);
+		translateHandles(nodePosition);
+		xHandle.applyTransform();
+		yHandle.applyTransform();
+		zHandle.applyTransform();
+		xzHandle.applyTransform();
 	}
 
-	protected void scaleHandles(Vector3 translation, Camera camera) {
-		float scaleFactor = camera.position.dst(translation) * 0.25f;
-
+	protected void scaleHandles(Vector3 nodePosition, Vector3 cameraPosition) {
+		float scaleFactor = cameraPosition.dst(nodePosition) * 0.25f;
 		xHandle.scale.set(scaleFactor * 0.7f, scaleFactor / 2, scaleFactor / 2);
-		xHandle.applyTransform();
-
 		yHandle.scale.set(scaleFactor / 2, scaleFactor * 0.7f, scaleFactor / 2);
-		yHandle.applyTransform();
-
 		zHandle.scale.set(scaleFactor / 2, scaleFactor / 2, scaleFactor * 0.7f);
-		zHandle.applyTransform();
-
-		xzPlaneHandle.scale.set(scaleFactor * 0.13f, scaleFactor * 0.13f, scaleFactor * 0.13f);
-		xzPlaneHandle.applyTransform();
+		xzHandle.scale.set(scaleFactor * 0.13f, scaleFactor * 0.13f, scaleFactor * 0.13f);
 	}
 
-	protected void translateHandles(Vector3 translation) {
-		xHandle.position.set(translation);
-		xHandle.applyTransform();
-		yHandle.position.set(translation);
-		yHandle.applyTransform();
-		zHandle.position.set(translation);
-		zHandle.applyTransform();
-		xzPlaneHandle.position.set(translation);
-		xzPlaneHandle.applyTransform();
+	protected void translateHandles(Vector3 nodePosition) {
+		xHandle.position.set(nodePosition);
+		yHandle.position.set(nodePosition);
+		zHandle.position.set(nodePosition);
+		xzHandle.position.set(nodePosition);
 	}
 
 	@Override
@@ -107,11 +98,11 @@ public class TranslateTool extends TransformTool {
 	}
 
 	@Override
-	void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, int screenX, int screenY) {
-		translateHandles(translation);
+	void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+		translateHandles(transform.getTranslation(temp0));
 
 		Ray ray = camera.getPickRay(screenX, screenY);
-		Vector3 rayEnd = temp0.set(translation);
+		Vector3 rayEnd = temp0;
 		float dst = camera.position.dst(rayEnd);
 		rayEnd = ray.getEndPoint(rayEnd, dst);
 
@@ -142,7 +133,7 @@ public class TranslateTool extends TransformTool {
 	}
 
 	@Override
-	TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera) {
+	TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera) {
 		return new TranslateOperation(manager.editorId, component);
 	}
 
@@ -151,6 +142,6 @@ public class TranslateTool extends TransformTool {
 		xHandle.dispose();
 		yHandle.dispose();
 		zHandle.dispose();
-		xzPlaneHandle.dispose();
+		xzHandle.dispose();
 	}
 }

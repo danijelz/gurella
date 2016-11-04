@@ -45,8 +45,17 @@ public class RotateTool extends TransformTool {
 		super(manager);
 
 		xHandle = new RotateHandle(x, COLOR_X, torus(COLOR_X, 20, 1, 50, 50));
+		xHandle.rotationEuler.set(0, 90, 0);
+		xHandle.applyTransform();
+
 		yHandle = new RotateHandle(y, COLOR_Y, torus(COLOR_Y, 20, 1, 50, 50));
+		yHandle.rotationEuler.set(90, 0, 0);
+		yHandle.applyTransform();
+
 		zHandle = new RotateHandle(z, COLOR_Z, torus(COLOR_Z, 20, 1, 50, 50));
+		zHandle.rotationEuler.set(0, 0, 0);
+		zHandle.applyTransform();
+
 		handles = new RotateHandle[] { xHandle, yHandle, zHandle };
 	}
 
@@ -106,41 +115,25 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	void update(Vector3 translation, Camera camera) {
-		scaleHandles(translation, camera);
-		rotateHandles();
-		translateHandles(translation);
-	}
-
-	protected void rotateHandles() {
-		xHandle.rotationEuler.set(0, 90, 0);
+	void update(Vector3 nodePosition, Vector3 cameraPosition) {
+		scaleHandles(nodePosition, cameraPosition);
+		translateHandles(nodePosition);
 		xHandle.applyTransform();
-		yHandle.rotationEuler.set(90, 0, 0);
 		yHandle.applyTransform();
-		zHandle.rotationEuler.set(0, 0, 0);
 		zHandle.applyTransform();
 	}
 
-	protected void translateHandles(Vector3 translation) {
-		xHandle.position.set(translation);
-		xHandle.applyTransform();
-		yHandle.position.set(translation);
-		yHandle.applyTransform();
-		zHandle.position.set(translation);
-		zHandle.applyTransform();
+	protected void translateHandles(Vector3 nodePosition) {
+		xHandle.position.set(nodePosition);
+		yHandle.position.set(nodePosition);
+		zHandle.position.set(nodePosition);
 	}
 
-	protected void scaleHandles(Vector3 translation, Camera camera) {
-		float scaleFactor = camera.position.dst(translation) * 0.005f;
-
+	protected void scaleHandles(Vector3 nodePosition, Vector3 cameraPosition) {
+		float scaleFactor = cameraPosition.dst(nodePosition) * 0.005f;
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		xHandle.applyTransform();
-
 		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		yHandle.applyTransform();
-
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-		zHandle.applyTransform();
 	}
 
 	private static Model torus(Color color, float width, float height, int divisionsU, int divisionsV) {
@@ -215,24 +208,24 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	void touchDragged(TransformComponent component, Vector3 translation, Camera camera, int screenX, int screenY) {
-		translateHandles(translation);
+	void touchDragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+		translateHandles(transform.getTranslation(temp0));
 
-		float angle = getCurrentAngle(translation, camera);
+		float angle = getCurrentAngle(temp0, camera);
 		float rot = angle - lastRot;
 
 		switch (activeHandleType) {
 		case x:
 			tempQuat.setEulerAngles(0, -rot, 0);
-			component.rotate(tempQuat);
+			transform.rotate(tempQuat);
 			break;
 		case y:
 			tempQuat.setEulerAngles(-rot, 0, 0);
-			component.rotate(tempQuat);
+			transform.rotate(tempQuat);
 			break;
 		case z:
 			tempQuat.setEulerAngles(0, 0, -rot);
-			component.rotate(tempQuat);
+			transform.rotate(tempQuat);
 			break;
 		default:
 			break;
@@ -253,7 +246,7 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera) {
+	TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera) {
 		return new RotateOperation(manager.editorId, component);
 	}
 
