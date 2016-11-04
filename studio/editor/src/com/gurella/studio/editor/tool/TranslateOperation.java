@@ -28,6 +28,9 @@ public class TranslateOperation extends TransformOperation {
 
 	@Override
 	void commit() {
+		if(initial.equals(action)) {
+			return;
+		}
 		component.getTranslation(action);
 		component.setTranslation(initial);
 		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying translation.");

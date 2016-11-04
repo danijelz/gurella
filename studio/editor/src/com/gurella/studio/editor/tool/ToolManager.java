@@ -1,10 +1,11 @@
 package com.gurella.studio.editor.tool;
 
-import com.badlogic.gdx.Input.Buttons;
+import static com.badlogic.gdx.Input.Buttons.LEFT;
+import static com.gurella.studio.editor.tool.TransformTool.COLOR_SELECTED;
+
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -18,12 +19,14 @@ import com.gurella.engine.math.ModelIntesector;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.utils.priority.Priority;
 import com.gurella.studio.editor.camera.CameraProvider;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
+@Priority(Integer.MIN_VALUE)
 public class ToolManager extends InputAdapter
 		implements EditorPreCloseListener, EditorFocusListener, CameraProviderExtension {
 	private final int editorId;
@@ -31,9 +34,10 @@ public class ToolManager extends InputAdapter
 	@SuppressWarnings("unused")
 	private ToolMenuContributor menuContributor;
 
-	private final ScaleTool scaleTool = new ScaleTool();
-	private final TranslateTool translateTool = new TranslateTool();
-	private final RotateTool rotateTool = new RotateTool();
+	private final ScaleTool scaleTool = new ScaleTool(this);
+	private final TranslateTool translateTool = new TranslateTool(this);
+	private final RotateTool rotateTool = new RotateTool(this);
+
 	private final Environment environment;
 
 	private CameraProvider cameraProvider;
@@ -44,9 +48,9 @@ public class ToolManager extends InputAdapter
 	private final Vector3 intersection = new Vector3();
 	private final ModelIntesector intesector = new ModelIntesector();
 
-	private TransformTool selected;
+	private TransformTool selectedTool;
 	private ToolHandle mouseOver;
-	private ToolHandle active;
+	private ToolHandle activeHandle;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
@@ -76,6 +80,10 @@ public class ToolManager extends InputAdapter
 	private Camera getCamera() {
 		return cameraProvider == null ? null : cameraProvider.getCamera();
 	}
+	
+	private boolean isActive() {
+		return selectedTool != null && selectedTool.isActive();
+	}
 
 	@Override
 	public boolean keyDown(int keycode) {
@@ -85,7 +93,7 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (active != null && keycode != Keys.ESCAPE && keycode != Keys.N) {
+		if (isActive() && keycode != Keys.ESCAPE && keycode != Keys.N) {
 			return false;
 		}
 
@@ -129,114 +137,111 @@ public class ToolManager extends InputAdapter
 	}
 
 	ToolType getSelectedToolType() {
-		return selected == null ? ToolType.none : selected.getType();
+		return selectedTool == null ? ToolType.none : selectedTool.getType();
 	}
 
 	private void selectTool(TransformTool newSelection) {
-		if (selected == newSelection) {
+		if (selectedTool == newSelection) {
 			return;
 		}
 
-		if (selected != null) {
-			selected.deactivated();
-			active = null;
+		if (selectedTool != null) {
+			selectedTool.deactivate();
 		}
 
-		selected = newSelection;
-		active = selected == null ? null : active;
-		ToolType type = selected == null ? ToolType.none : selected.getType();
+		selectedTool = newSelection;
+		activeHandle = null;
+		ToolType type = selectedTool == null ? ToolType.none : selectedTool.getType();
 		EventService.post(editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
 	}
 
 	public void render(GenericBatch batch) {
 		Camera camera = getCamera();
-		if (camera == null || selected == null || transformComponent == null) {
+		if (camera == null || selectedTool == null || transformComponent == null) {
 			return;
 		}
 
 		transformComponent.getWorldTranslation(translation);
 		batch.setEnvironment(environment);
-		selected.update(translation, camera);
-		selected.render(translation, camera, batch);
+		selectedTool.update(translation, camera);
+		selectedTool.render(translation, camera, batch);
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (active != null) {
-			selected.deactivated();
-			active = null;
+		if (isActive()) {
+			selectedTool.deactivate();
+			activeHandle = null;
 		}
 
 		Camera camera = getCamera();
-		if (camera == null || pointer != 0 || button != Buttons.LEFT || selected == null) {
+		if (camera == null || pointer != 0 || button != LEFT || selectedTool == null) {
 			return false;
 		}
 
-		ToolHandle pick = pick(screenX, screenY);
-		if (pick == null) {
+		ToolHandle handle = pickHandle(screenX, screenY);
+		if (handle == null) {
 			return false;
 		}
 
-		active = pick;
-		selected.activated(transformComponent, camera, active.type);
+		activeHandle = handle;
+		selectedTool.activate(transformComponent, camera, activeHandle.type);
 		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (active == null) {
-			return false;
-		} else {
-			selected.deactivated();
-			active = null;
+		if (isActive()) {
+			selectedTool.deactivate();
+			activeHandle = null;
 			return true;
+		} else {
+			return false;
 		}
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		Camera camera = getCamera();
-		if (camera == null || active == null || pointer != 0) {
+		if (camera == null || !isActive() || pointer != 0) {
 			return false;
 		} else {
 			transformComponent.getWorldTranslation(translation);
-			selected.touchDragged(transformComponent, translation, camera, active, screenX, screenY);
+			selectedTool.touchDragged(transformComponent, translation, camera, screenX, screenY);
 			return true;
 		}
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		if (selected == null) {
+		if (selectedTool == null) {
 			return false;
 		}
 
-		ToolHandle pick = pick(screenX, screenY);
-
-		if (mouseOver != pick) {
+		ToolHandle handle = pickHandle(screenX, screenY);
+		if (mouseOver != handle) {
 			if (mouseOver != null) {
 				mouseOver.restoreColor();
 			}
 
-			if (pick != null) {
-				pick.changeColor(Color.YELLOW);
+			mouseOver = handle;
+			if (handle != null) {
+				handle.changeColor(COLOR_SELECTED);
 			}
-
-			mouseOver = pick;
 		}
 		return false;
 	}
 
-	protected ToolHandle pick(int screenX, int screenY) {
+	protected ToolHandle pickHandle(int screenX, int screenY) {
 		Camera camera = getCamera();
 		if (camera == null) {
 			return null;
 		}
 
-		selected.update(translation, camera);
+		selectedTool.update(translation, camera);
 		cameraPosition.set(camera.position);
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		ToolHandle[] handles = selected.handles;
+		ToolHandle[] handles = selectedTool.handles;
 		ToolHandle pick = null;
 		Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;

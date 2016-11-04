@@ -53,23 +53,27 @@ class CameraController extends CameraInputController implements Plugin {
 			if (!alwaysScroll && activateKey != 0 && !activatePressed) {
 				return false;
 			}
+			float temp = amount;
 			OrthographicCamera orthographicCamera = (OrthographicCamera) camera;
-			if(orthographicCamera.zoom < 0.0001f) {
-				amount *= 0.0001f;
-			} else if(orthographicCamera.zoom < 0.001f) {
-				amount *= 0.001f;
-			} else if(orthographicCamera.zoom < 0.01f) {
-				amount *= 0.01f;
-			} else if(orthographicCamera.zoom < 0.1f) {
-				amount *= 0.1f;
+			if (orthographicCamera.zoom < 0.0001f) {
+				temp *= 0.0001f;
+			} else if (orthographicCamera.zoom < 0.001f) {
+				temp *= 0.001f;
+			} else if (orthographicCamera.zoom < 0.01f) {
+				temp *= 0.01f;
+			} else if (orthographicCamera.zoom < 0.1f) {
+				temp *= 0.1f;
 			}
-			orthographicCamera.zoom += amount;
+
+			orthographicCamera.zoom += temp;
 			if (orthographicCamera.zoom < Float.MIN_VALUE) {
 				orthographicCamera.zoom = Float.MIN_VALUE;
 			}
+
 			if (autoUpdate) {
 				camera.update();
 			}
+
 			return true;
 		} else {
 			return super.zoom(amount);

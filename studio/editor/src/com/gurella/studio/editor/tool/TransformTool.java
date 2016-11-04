@@ -15,16 +15,31 @@ public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_XYZ = Color.LIGHT_GRAY;
 	protected static Color COLOR_SELECTED = Color.YELLOW;
 
-	HandleType state = HandleType.idle;
+	final ToolManager manager;
 
 	ToolHandle[] handles;
+	HandleType activeHandle = HandleType.none;
 
-	void activated(TransformComponent component, Camera camera, HandleType state) {
-		this.state = state;
+	TransformOperation operation;
+
+	public TransformTool(ToolManager manager) {
+		this.manager = manager;
 	}
 
-	void deactivated() {
-		this.state = HandleType.idle;
+	boolean isActive() {
+		return activeHandle != HandleType.none;
+	}
+
+	void activate(TransformComponent component, Camera camera, HandleType state) {
+		this.activeHandle = state;
+	}
+
+	void deactivate() {
+		this.activeHandle = HandleType.none;
+	}
+
+	void commit() {
+		this.activeHandle = HandleType.none;
 	}
 
 	abstract ToolType getType();
@@ -33,6 +48,6 @@ public abstract class TransformTool implements Disposable {
 
 	abstract void render(Vector3 translation, Camera camera, GenericBatch batch);
 
-	abstract void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active,
-			int screenX, int screenY);
+	abstract void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, int screenX,
+			int screenY);
 }

@@ -76,11 +76,9 @@ public class SceneTransition {
 	}
 	
 	public void onTransitionException(Throwable exception) {
-		System.out.println("Error");
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		exception.printStackTrace(pw);
-		System.out.println(sw.toString());
 	}
 
 //	private void fillRectangle() {

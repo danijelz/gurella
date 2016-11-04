@@ -35,7 +35,9 @@ public class ScaleTool extends TransformTool {
 
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-	public ScaleTool() {
+	public ScaleTool(ToolManager manager) {
+		super(manager);
+
 		ModelBuilder modelBuilder = new ModelBuilder();
 
 		Model xPlaneHandleModel = box(COLOR_X, new Vector3(15, 0, 0));
@@ -74,7 +76,7 @@ public class ScaleTool extends TransformTool {
 		Vector3 pivot = camera.project(temp0, 0, 0, graphics.getWidth(), graphics.getHeight());
 		shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 
-		switch (state) {
+		switch (activeHandle) {
 		case x:
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 			shapeRenderer.setColor(COLOR_X);
@@ -155,25 +157,22 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void activated(TransformComponent component, Camera camera, HandleType state) {
-		super.activated(component, camera, state);
+	void activate(TransformComponent component, Camera camera, HandleType state) {
+		super.activate(component, camera, state);
 		component.getScale(tempScale);
 		float currentDst = getCurrentDst(camera);
-		System.out.println(currentDst);
 		tempScaleDst.x = currentDst / tempScale.x;
 		tempScaleDst.y = currentDst / tempScale.y;
 		tempScaleDst.z = currentDst / tempScale.z;
 	}
 
 	@Override
-	void touchDragged(TransformComponent component, Vector3 translation, Camera camera, ToolHandle active, int screenX,
-			int screenY) {
+	void touchDragged(TransformComponent component, Vector3 translation, Camera camera, int screenX, int screenY) {
 		translateHandles(translation);
 		float dst = getCurrentDst(camera);
-		System.out.println(dst);
 
 		boolean modified = false;
-		switch (state) {
+		switch (activeHandle) {
 		case x:
 			tempScale.x = (tempScaleDst.x * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
@@ -199,8 +198,6 @@ public class ScaleTool extends TransformTool {
 		default:
 			break;
 		}
-		
-		System.out.println(tempScale);
 	}
 
 	private float getCurrentDst(Camera camera) {

@@ -8,7 +8,6 @@ import com.gurella.engine.graphics.vector.sfnt.MaxpTable;
 import com.gurella.engine.graphics.vector.sfnt.RandomAccessFile;
 import com.gurella.engine.graphics.vector.sfnt.SfntTable;
 import com.gurella.engine.graphics.vector.sfnt.SfntTableTag;
-import com.gurella.engine.graphics.vector.sfnt.SfntTagUtils;
 import com.gurella.engine.graphics.vector.sfnt.TableDirectory;
 import com.gurella.engine.graphics.vector.sfnt.VheaTable;
 import com.gurella.engine.graphics.vector.sfnt.VmtxTable;
@@ -34,7 +33,7 @@ public class WoffTableDirectory extends TableDirectory {
 	public WoffTableDirectory(RandomAccessFile raf, int offset) {
 		super(raf, offset);
 	}
-	
+
 	@Override
 	protected SfntTable readTable(int index) {
 		int sfntTableOffset = WoffHeaderOffsets.tables.offset + TableHeaderOffsets.tableHeaderLength * index;
@@ -43,19 +42,17 @@ public class WoffTableDirectory extends TableDirectory {
 		int offset = readUnsignedIntAsInt(sfntTableOffset + TableHeaderOffsets.tableOffset.offset);
 		int length = readUnsignedIntAsInt(sfntTableOffset + TableHeaderOffsets.origLength.offset);
 
-		System.out.println(SfntTagUtils.stringValue(tag));
-
 		SfntTableTag tableType = SfntTableTag.getTypeById(tag);
 		if (SfntTableTag.unknown == tableType) {
 			return new SfntTable(this, offset, tag, checkSum, length);
 		} else {
-			int compLength = readUnsignedIntAsInt(sfntTableOffset+ TableHeaderOffsets.compLength.offset);
-			if(compLength == length) {
+			int compLength = readUnsignedIntAsInt(sfntTableOffset + TableHeaderOffsets.compLength.offset);
+			if (compLength == length) {
 				return createTable(raf, tag, checkSum, offset, length);
 			}
-			
-			///byte[] uncompressedData2 = new Inflate().inflate(readBytes(offset + 2, compLength));
-			//new Unzip(compressedData).deflate(uncompressedData);
+
+			/// byte[] uncompressedData2 = new Inflate().inflate(readBytes(offset + 2, compLength));
+			// new Unzip(compressedData).deflate(uncompressedData);
 			byte[] compressedData = readBytes(offset, compLength);
 			byte[] uncompressedData = new byte[length];
 
@@ -70,23 +67,23 @@ public class WoffTableDirectory extends TableDirectory {
 				if (err == Inflater.Z_STREAM_END)
 					break;
 				if (err != Inflater.Z_OK) {
-					 throw new IllegalStateException();
+					throw new IllegalStateException();
 				}
 			}
 
 			err = inflater.end();
 			if (err != Inflater.Z_OK) {
-				 throw new IllegalStateException();
+				throw new IllegalStateException();
 			}
-			
+
 			return createTable(new RandomAccessFile(uncompressedData), tag, checkSum, 0, length);
 		}
 	}
-	
-	private SfntTable createTable(RandomAccessFile raf, int tag, long checkSum, int offset, int length)  {
+
+	private SfntTable createTable(RandomAccessFile raf, int tag, long checkSum, int offset, int length) {
 		SfntTableTag tableType = SfntTableTag.getTypeById(tag);
-		
-		switch (tableType) {//TODO add factory to SfntTableType
+
+		switch (tableType) {// TODO add factory to SfntTableType
 		case CFF:
 			return new CffTable(raf, this, tag, checkSum, offset, length);
 		case cmap:
@@ -129,46 +126,46 @@ public class WoffTableDirectory extends TableDirectory {
 			return new SfntTable(raf, this, offset, tag, checkSum, length);
 		}
 	}
-	
+
 	public int getSignature() {
 		return readUnsignedIntAsInt(WoffHeaderOffsets.signature);
 	}
-	
+
 	public int getFlavor() {
 		return readUnsignedIntAsInt(WoffHeaderOffsets.flavor);
 	}
-	
+
 	public int getLength() {
 		return readUnsignedIntAsInt(WoffHeaderOffsets.length);
 	}
-	
+
 	@Override
 	public int getNumTables() {
 		return readUnsignedShort(WoffHeaderOffsets.numTables);
 	}
-	
+
 	public int getMajorVersion() {
 		return readUnsignedShort(WoffHeaderOffsets.majorVersion);
 	}
-	
+
 	public int getMinorVersion() {
 		return readUnsignedShort(WoffHeaderOffsets.minorVersion);
 	}
-	
+
 	@Override
 	public <T extends SfntTable> T getTable(SfntTableTag sfntTableType) {
 		@SuppressWarnings("unchecked")
 		T casted = (T) tables.get(sfntTableType.id);
 		return casted;
 	}
-	
+
 	@Override
 	public <T extends SfntTable> T getTable(int tableId) {
 		@SuppressWarnings("unchecked")
 		T casted = (T) tables.get(tableId);
 		return casted;
 	}
-	
+
 	private enum WoffHeaderOffsets implements Offset {
 		signature(0),
 		flavor(4),
@@ -190,20 +187,16 @@ public class WoffTableDirectory extends TableDirectory {
 		private WoffHeaderOffsets(int offset) {
 			this.offset = offset;
 		}
-		
+
 		@Override
 		public int getOffset() {
 			return offset;
 		}
 	}
-	
+
 	private enum TableHeaderOffsets implements Offset {
-		tag(0),
-		tableOffset(4),
-		compLength(8),
-		origLength(12),
-		origChecksum(16);
-		
+		tag(0), tableOffset(4), compLength(8), origLength(12), origChecksum(16);
+
 		public static final int tableHeaderLength = 20;
 
 		private final int offset;
@@ -211,7 +204,7 @@ public class WoffTableDirectory extends TableDirectory {
 		private TableHeaderOffsets(int offset) {
 			this.offset = offset;
 		}
-		
+
 		@Override
 		public int getOffset() {
 			return offset;

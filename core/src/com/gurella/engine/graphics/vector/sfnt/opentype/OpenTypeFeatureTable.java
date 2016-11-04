@@ -1,13 +1,10 @@
 package com.gurella.engine.graphics.vector.sfnt.opentype;
 
-import java.util.Arrays;
-
 public class OpenTypeFeatureTable extends OpenTypeTaggedSubTable {
 	private int[] lookupListIndex;
 
 	OpenTypeFeatureTable(OpenTypeLayoutTable openTypeTable, int offset, int tag) {
 		super(openTypeTable, offset, tag);
-		System.out.println("    " + Arrays.toString(getLookupListIndex()));
 	}
 
 	private int getLookupCount() {

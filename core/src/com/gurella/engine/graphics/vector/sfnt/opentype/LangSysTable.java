@@ -12,8 +12,6 @@ public class LangSysTable extends Table {
 	public LangSysTable(RandomAccessFile raf, int offset, int tag) {
 		super(raf, offset);
 		this.tag = tag;
-		System.out.println("    " + getReqFeatureIndex());
-		System.out.println("    " + Arrays.toString(getFeatureIndex()));
 	}
 	
 	public int getTag() {

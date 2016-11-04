@@ -8,9 +8,6 @@ public class OpenTypeLookupTable extends OpenTypeLayoutSubTable {
 
 	OpenTypeLookupTable(OpenTypeLayoutTable openTypeTable, int offset, OpenTypeLookupSubTableFactory lookupSubTableFactory) {
 		super(openTypeTable, offset);
-		System.out.println("   Type: " + getLookupType());
-		System.out.println("   Flag: " + getLookupFlag());
-		System.out.println("   Count: " + getSubTableCount());
 		
 		int lookupType = getLookupType();
 		for(int i = 0; i < getSubTableCount(); i++) {

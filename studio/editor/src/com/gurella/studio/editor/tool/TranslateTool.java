@@ -29,7 +29,9 @@ public class TranslateTool extends TransformTool {
 	private Vector3 lastPos = new Vector3();
 	private boolean globalSpace = true;
 
-	public TranslateTool() {
+	public TranslateTool(ToolManager manager) {
+		super(manager);
+		
 		ModelBuilder modelBuilder = new ModelBuilder();
 
 		int usage = Usage.Position | Usage.Normal;
@@ -99,14 +101,13 @@ public class TranslateTool extends TransformTool {
 	}
 
 	@Override
-	void activated(TransformComponent component, Camera camera, HandleType state) {
-		super.activated(component, camera, state);
+	void activate(TransformComponent component, Camera camera, HandleType state) {
+		super.activate(component, camera, state);
 		initTranslate = true;
 	}
 
 	@Override
-	void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, ToolHandle active, int screenX,
-			int screenY) {
+	void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, int screenX, int screenY) {
 		translateHandles(translation);
 
 		Ray ray = camera.getPickRay(screenX, screenY);
@@ -120,7 +121,7 @@ public class TranslateTool extends TransformTool {
 		}
 
 		boolean modified = false;
-		switch (state) {
+		switch (activeHandle) {
 		case xz:
 			temp1.set(rayEnd.x - lastPos.x, 0, rayEnd.z - lastPos.z);
 			modified = true;

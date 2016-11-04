@@ -40,7 +40,6 @@ public abstract class OpenTypeLayoutTable extends SfntTable {
 		for(int i = 0; i < count; i++) {
 			raf.setPosition(listsOffset + 2 + (i * 6));
 			int tag = raf.readUnsignedIntAsInt();
-			System.out.println("Script: " + SfntTagUtils.stringValue(tag));
 			int subTableOffset = raf.readUnsignedShort();
 			OpenTypeScriptTable subTable = new OpenTypeScriptTable(this, listsOffset + subTableOffset, tag);
 			scriptTables.put(tag, subTable);	
@@ -53,7 +52,6 @@ public abstract class OpenTypeLayoutTable extends SfntTable {
 		for(int i = 0; i < count; i++) {
 			raf.setPosition(listOffset + 2 + (i * 6));
 			int tag = raf.readUnsignedIntAsInt();
-			System.out.println("Feature: " + SfntTagUtils.stringValue(tag));
 			int subTableOffset = raf.readUnsignedShort();
 			OpenTypeFeatureTable subTable = new OpenTypeFeatureTable(this, listOffset + subTableOffset, tag);
 			featureTables.add(subTable);
@@ -71,7 +69,6 @@ public abstract class OpenTypeLayoutTable extends SfntTable {
 			raf.setPosition(lastPosition);
 			int subTableOffset = raf.readUnsignedShort();
 			lastPosition = raf.getPosition();
-			System.out.println("Lookup: ");
 			OpenTypeLookupTable subTable = new OpenTypeLookupTable(this, listOffset + subTableOffset, lookupSubTableFactory);
 			lookupTables.add(subTable);
 		}

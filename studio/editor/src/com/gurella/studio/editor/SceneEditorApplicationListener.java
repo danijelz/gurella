@@ -61,12 +61,10 @@ final class SceneEditorApplicationListener extends ApplicationAdapter {
 	
 	@Override
 	public void pause() {
-		System.out.println("pause");
 	}
 	
 	@Override
 	public void resume() {
-		System.out.println("resume");
 	}
 
 	@Override
