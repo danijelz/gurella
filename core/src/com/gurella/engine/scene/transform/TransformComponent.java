@@ -119,7 +119,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setTranslation(Vector3 translation) {
-		translation.set(translation);
+		this.translation.set(translation);
 		notifyChanged();
 		return this;
 	}
@@ -262,7 +262,7 @@ public class TransformComponent extends SceneNodeComponent2 implements PropertyC
 	}
 
 	public TransformComponent setScale(Vector3 scale) {
-		scale.set(scale);
+		this.scale.set(scale);
 		notifyChanged();
 		return this;
 	}

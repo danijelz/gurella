@@ -19,11 +19,14 @@ public class TranslateOperation extends TransformOperation {
 	public TranslateOperation(int editorId, TransformComponent component) {
 		super("Translate", editorId, component);
 		component.getTranslation(initial);
+		System.out.println("initial: " + initial);
 	}
 
 	@Override
 	void rollback() {
+		System.out.println("rollback: " + initial);
 		component.setTranslation(initial);
+		System.out.println("rollback: " + component.getTranslation(initial));
 	}
 
 	@Override
