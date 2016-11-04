@@ -1,7 +1,6 @@
 package com.gurella.studio.editor.tool;
 
 import static com.badlogic.gdx.Input.Buttons.LEFT;
-import static com.gurella.studio.editor.tool.TransformTool.COLOR_SELECTED;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
@@ -29,7 +28,7 @@ import com.gurella.studio.editor.subscription.ToolSelectionListener;
 @Priority(Integer.MIN_VALUE)
 public class ToolManager extends InputAdapter
 		implements EditorPreCloseListener, EditorFocusListener, CameraProviderExtension {
-	private final int editorId;
+	final int editorId;
 
 	@SuppressWarnings("unused")
 	private ToolMenuContributor menuContributor;
@@ -50,7 +49,6 @@ public class ToolManager extends InputAdapter
 
 	private TransformTool selectedTool;
 	private ToolHandle mouseOver;
-	private ToolHandle activeHandle;
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
@@ -80,7 +78,7 @@ public class ToolManager extends InputAdapter
 	private Camera getCamera() {
 		return cameraProvider == null ? null : cameraProvider.getCamera();
 	}
-	
+
 	private boolean isActive() {
 		return selectedTool != null && selectedTool.isActive();
 	}
@@ -145,12 +143,11 @@ public class ToolManager extends InputAdapter
 			return;
 		}
 
-		if (selectedTool != null) {
+		if (isActive()) {
 			selectedTool.deactivate();
 		}
 
 		selectedTool = newSelection;
-		activeHandle = null;
 		ToolType type = selectedTool == null ? ToolType.none : selectedTool.getType();
 		EventService.post(editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
 	}
@@ -171,11 +168,10 @@ public class ToolManager extends InputAdapter
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if (isActive()) {
 			selectedTool.deactivate();
-			activeHandle = null;
 		}
 
 		Camera camera = getCamera();
-		if (camera == null || pointer != 0 || button != LEFT || selectedTool == null) {
+		if (transformComponent == null || camera == null || pointer != 0 || button != LEFT || selectedTool == null) {
 			return false;
 		}
 
@@ -184,16 +180,14 @@ public class ToolManager extends InputAdapter
 			return false;
 		}
 
-		activeHandle = handle;
-		selectedTool.activate(transformComponent, camera, activeHandle.type);
+		selectedTool.activate(handle, transformComponent, camera);
 		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if (isActive()) {
-			selectedTool.deactivate();
-			activeHandle = null;
+			selectedTool.commit();
 			return true;
 		} else {
 			return false;
@@ -221,12 +215,12 @@ public class ToolManager extends InputAdapter
 		ToolHandle handle = pickHandle(screenX, screenY);
 		if (mouseOver != handle) {
 			if (mouseOver != null) {
-				mouseOver.restoreColor();
+				mouseOver.focusLost();
 			}
 
 			mouseOver = handle;
 			if (handle != null) {
-				handle.changeColor(COLOR_SELECTED);
+				handle.focusGained();
 			}
 		}
 		return false;

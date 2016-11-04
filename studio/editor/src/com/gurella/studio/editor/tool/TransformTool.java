@@ -18,28 +18,37 @@ public abstract class TransformTool implements Disposable {
 	final ToolManager manager;
 
 	ToolHandle[] handles;
-	HandleType activeHandle = HandleType.none;
+	ToolHandle activeHandle;
+	HandleType activeHandleType = HandleType.none;
 
-	TransformOperation operation;
+	private TransformOperation operation;
 
 	public TransformTool(ToolManager manager) {
 		this.manager = manager;
 	}
 
 	boolean isActive() {
-		return activeHandle != HandleType.none;
+		return activeHandleType != HandleType.none;
 	}
 
-	void activate(TransformComponent component, Camera camera, HandleType state) {
-		this.activeHandle = state;
+	void activate(ToolHandle handle, TransformComponent component, Camera camera) {
+		this.activeHandleType = handle.type;
+		operation = initOperation(handle, component, camera);
 	}
 
 	void deactivate() {
-		this.activeHandle = HandleType.none;
+		if (operation != null) {
+			operation.rollback();
+		}
+		activeHandle = null;
+		this.activeHandleType = HandleType.none;
 	}
 
 	void commit() {
-		this.activeHandle = HandleType.none;
+		operation.commit();
+		operation = null;
+		activeHandle = null;
+		this.activeHandleType = HandleType.none;
 	}
 
 	abstract ToolType getType();
@@ -50,4 +59,6 @@ public abstract class TransformTool implements Disposable {
 
 	abstract void touchDragged(TransformComponent transform, Vector3 translation, Camera camera, int screenX,
 			int screenY);
+
+	abstract TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera);
 }

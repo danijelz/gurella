@@ -28,10 +28,10 @@ public class ScaleOperation extends TransformOperation {
 
 	@Override
 	void commit() {
+		component.getScale(action);
 		if(initial.equals(action)) {
 			return;
 		}
-		component.getScale(action);
 		component.setScale(initial);
 		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying scale.");
 	}

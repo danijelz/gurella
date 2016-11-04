@@ -76,7 +76,7 @@ public class ScaleTool extends TransformTool {
 		Vector3 pivot = camera.project(temp0, 0, 0, graphics.getWidth(), graphics.getHeight());
 		shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 
-		switch (activeHandle) {
+		switch (activeHandleType) {
 		case x:
 			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 			shapeRenderer.setColor(COLOR_X);
@@ -157,8 +157,8 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void activate(TransformComponent component, Camera camera, HandleType state) {
-		super.activate(component, camera, state);
+	void activate(ToolHandle handle, TransformComponent component, Camera camera) {
+		super.activate(handle, component, camera);
 		component.getScale(tempScale);
 		float currentDst = getCurrentDst(camera);
 		tempScaleDst.x = currentDst / tempScale.x;
@@ -171,29 +171,24 @@ public class ScaleTool extends TransformTool {
 		translateHandles(translation);
 		float dst = getCurrentDst(camera);
 
-		boolean modified = false;
-		switch (activeHandle) {
+		switch (activeHandleType) {
 		case x:
 			tempScale.x = (tempScaleDst.x * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
-			modified = true;
 			break;
 		case y:
 			tempScale.y = (tempScaleDst.y * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
-			modified = true;
 			break;
 		case z:
 			tempScale.z = (tempScaleDst.z * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
-			modified = true;
 			break;
 		case xyz:
 			tempScale.x = (tempScaleDst.x * dst) / 100000;
 			tempScale.y = (tempScaleDst.y * dst) / 100000;
 			tempScale.z = (tempScaleDst.z * dst) / 100000;
 			component.scale(tempScale.x, tempScale.y, tempScale.z);
-			modified = true;
 			break;
 		default:
 			break;
@@ -208,6 +203,11 @@ public class ScaleTool extends TransformTool {
 
 	private static float dst(float x1, float y1, float x2, float y2) {
 		return (float) Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+	}
+
+	@Override
+	TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera) {
+		return new ScaleOperation(manager.editorId, component);
 	}
 
 	@Override

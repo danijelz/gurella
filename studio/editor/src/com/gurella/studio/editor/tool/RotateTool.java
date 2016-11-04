@@ -59,7 +59,7 @@ public class RotateTool extends TransformTool {
 	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 
-		if (activeHandle == HandleType.none) {
+		if (activeHandleType == HandleType.none) {
 			batch.begin(camera);
 			xHandle.render(batch);
 			yHandle.render(batch);
@@ -71,7 +71,7 @@ public class RotateTool extends TransformTool {
 			Graphics graphics = Gdx.graphics;
 			shapeRenderMat.setToOrtho2D(0, 0, graphics.getWidth(), graphics.getHeight());
 
-			switch (activeHandle) {
+			switch (activeHandleType) {
 			case x:
 				shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 				shapeRenderer.setColor(Color.BLACK);
@@ -221,30 +221,21 @@ public class RotateTool extends TransformTool {
 		float angle = getCurrentAngle(translation, camera);
 		float rot = angle - lastRot;
 
-		boolean modified = false;
-		switch (activeHandle) {
+		switch (activeHandleType) {
 		case x:
 			tempQuat.setEulerAngles(0, -rot, 0);
 			component.rotate(tempQuat);
-			modified = true;
 			break;
 		case y:
 			tempQuat.setEulerAngles(-rot, 0, 0);
 			component.rotate(tempQuat);
-			modified = true;
 			break;
 		case z:
 			tempQuat.setEulerAngles(0, 0, -rot);
 			component.rotate(tempQuat);
-			modified = true;
 			break;
 		default:
 			break;
-		}
-
-		if (modified) {
-			// gameObjectModifiedEvent.setGameObject(projectContext.currScene.currentSelection);
-			// Mundus.INSTANCE.postEvent(gameObjectModifiedEvent);
 		}
 
 		lastRot = angle;
@@ -259,6 +250,11 @@ public class RotateTool extends TransformTool {
 
 	private static float angle(float x1, float y1, float x2, float y2) {
 		return (float) Math.toDegrees(Math.atan2(x2 - x1, y2 - y1));
+	}
+
+	@Override
+	TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera) {
+		return new RotateOperation(manager.editorId, component);
 	}
 
 	@Override

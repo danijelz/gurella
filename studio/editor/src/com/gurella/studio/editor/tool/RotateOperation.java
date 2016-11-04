@@ -28,10 +28,10 @@ public class RotateOperation extends TransformOperation {
 
 	@Override
 	void commit() {
+		component.getEulerRotation(action);
 		if(initial.equals(action)) {
 			return;
 		}
-		component.getEulerRotation(action);
 		component.setEulerRotation(initial);
 		SceneEditorRegistry.getContext(editorId).executeOperation(this, "Error while applying scale.");
 	}

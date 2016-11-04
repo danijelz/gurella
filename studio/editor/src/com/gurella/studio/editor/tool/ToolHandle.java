@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.tool;
 
+import static com.gurella.studio.editor.tool.TransformTool.COLOR_SELECTED;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -34,14 +36,18 @@ public abstract class ToolHandle implements Disposable {
 	}
 
 	abstract void applyTransform();
-
-	void changeColor(Color color) {
-		ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.first().get(ColorAttribute.Diffuse);
-		diffuse.color.set(color);
+	
+	void focusGained() {
+		changeColor(COLOR_SELECTED);
+	}
+	
+	void focusLost() {
+		changeColor(color);
 	}
 
-	void restoreColor() {
-		changeColor(color);
+	private void changeColor(Color newColor) {
+		ColorAttribute diffuse = (ColorAttribute) modelInstance.materials.first().get(ColorAttribute.Diffuse);
+		diffuse.color.set(newColor);
 	}
 
 	@Override

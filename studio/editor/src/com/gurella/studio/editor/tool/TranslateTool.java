@@ -101,8 +101,8 @@ public class TranslateTool extends TransformTool {
 	}
 
 	@Override
-	void activate(TransformComponent component, Camera camera, HandleType state) {
-		super.activate(component, camera, state);
+	void activate(ToolHandle handle, TransformComponent component, Camera camera) {
+		super.activate(handle, component, camera);
 		initTranslate = true;
 	}
 
@@ -120,37 +120,30 @@ public class TranslateTool extends TransformTool {
 			lastPos.set(rayEnd);
 		}
 
-		boolean modified = false;
-		switch (activeHandle) {
+		switch (activeHandleType) {
 		case xz:
 			temp1.set(rayEnd.x - lastPos.x, 0, rayEnd.z - lastPos.z);
-			modified = true;
 			break;
 		case x:
 			temp1.set(rayEnd.x - lastPos.x, 0, 0);
-			modified = true;
 			break;
 		case y:
 			temp1.set(0, rayEnd.y - lastPos.y, 0);
-			modified = true;
 			break;
 		case z:
 			temp1.set(0, 0, rayEnd.z - lastPos.z);
-			modified = true;
 			break;
-
 		default:
 			break;
 		}
 
 		transform.translate(temp1);
-
-		if (modified) {
-			// gameObjectModifiedEvent.setGameObject(getProjectManager().current().currScene.currentSelection);
-			// Mundus.INSTANCE.postEvent(gameObjectModifiedEvent);
-		}
-
 		lastPos.set(rayEnd);
+	}
+
+	@Override
+	TransformOperation initOperation(ToolHandle handle, TransformComponent component, Camera camera) {
+		return new TranslateOperation(manager.editorId, component);
 	}
 
 	@Override
