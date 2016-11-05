@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObjectArray;
 import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
@@ -26,6 +28,7 @@ import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.bullet.BulletSimulationTickListener;
 import com.gurella.engine.subscriptions.scene.update.PhysicsUpdateListener;
 
+//TODO add joints, force fields
 public class BulletPhysicsSystem extends SceneService2
 		implements ComponentActivityListener, PhysicsUpdateListener, ApplicationActivityListener {
 	static {
@@ -93,7 +96,12 @@ public class BulletPhysicsSystem extends SceneService2
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof BulletRigidBodyComponent) {
 			BulletRigidBodyComponent rigidBodyComponent = (BulletRigidBodyComponent) component;
-			dynamicsWorld.addRigidBody(rigidBodyComponent.rigidBody);
+			btCollisionObject collisionObject = rigidBodyComponent.collisionObject;
+			if (collisionObject instanceof btRigidBody) {
+				dynamicsWorld.addRigidBody((btRigidBody) collisionObject);
+			} else {
+				dynamicsWorld.addCollisionObject(collisionObject);
+			}
 		}
 	}
 
@@ -101,7 +109,12 @@ public class BulletPhysicsSystem extends SceneService2
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof BulletRigidBodyComponent) {
 			BulletRigidBodyComponent rigidBodyComponent = (BulletRigidBodyComponent) component;
-			dynamicsWorld.removeRigidBody(rigidBodyComponent.rigidBody);
+			btCollisionObject collisionObject = rigidBodyComponent.collisionObject;
+			if (collisionObject instanceof btRigidBody) {
+				dynamicsWorld.removeRigidBody((btRigidBody) collisionObject);
+			} else {
+				dynamicsWorld.removeCollisionObject(collisionObject);
+			}
 		}
 	}
 

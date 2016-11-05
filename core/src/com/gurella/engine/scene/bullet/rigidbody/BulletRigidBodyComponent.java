@@ -4,8 +4,11 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.CollisionConstants;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btEmptyShape;
+import com.badlogic.gdx.physics.bullet.collision.btGhostObject;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
@@ -83,7 +86,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public Vector3 initialAngularVelocity;
 
 	private final transient MotionState motionState = new MotionState();
-	public transient btRigidBody rigidBody;
+	public transient btCollisionObject collisionObject;
 
 	private transient TransformComponent transformComponent;
 
@@ -96,8 +99,8 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@Override
 	protected void componentDeactivated() {
 		transformComponent = null;
-		if (rigidBody.isActive()) {
-			rigidBody.activate(false);
+		if (collisionObject.isActive()) {
+			collisionObject.activate(false);
 		}
 	}
 
@@ -112,42 +115,64 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof TransformComponent) {
 			transformComponent = null;
-			if (rigidBody != null && rigidBody.isActive()) {
-				rigidBody.activate(false);
+			if (collisionObject != null && collisionObject.isActive()) {
+				collisionObject.activate(false);
 			}
 		}
 	}
 
 	private void createCollisionObject() {
-		if (rigidBody == null) {
+		if (collisionObject == null) {
 			btRigidBodyConstructionInfo info = createConstructionInfo();
-			rigidBody = new btRigidBody(info);
-			rigidBody.userData = this;
-			rigidBody.setLinearFactor(linearFactor);
-			rigidBody.setAngularFactor(angularFactor);
-			rigidBody.setGravity(gravity);
+			collisionObject = ghost ? new btGhostObject() : new btRigidBody(info);
+			collisionObject.userData = this;
+			collisionObject.setCollisionFlags(collisionObject.getCollisionFlags() | getCollisionFlags());
 
-			if (initialLinearVelocity != null) {
-				rigidBody.setLinearVelocity(initialLinearVelocity);
+			if (!ghost) {
+				btRigidBody rigidBody = (btRigidBody) collisionObject;
+				rigidBody.setLinearFactor(linearFactor);
+				rigidBody.setAngularFactor(angularFactor);
+				rigidBody.setGravity(gravity);
+
+				if (initialLinearVelocity != null) {
+					rigidBody.setLinearVelocity(initialLinearVelocity);
+				}
+
+				if (initialAngularVelocity != null) {
+					rigidBody.setAngularVelocity(initialAngularVelocity);
+				}
 			}
 
-			if (initialAngularVelocity != null) {
-				rigidBody.setAngularVelocity(initialAngularVelocity);
-			}
-			
 			if (allwaysActive) {
-				rigidBody.setActivationState(CollisionConstants.DISABLE_DEACTIVATION);
+				collisionObject.setActivationState(CollisionConstants.DISABLE_DEACTIVATION);
 			} else if (initialySleeping) {
-				rigidBody.setActivationState(0);
+				collisionObject.setActivationState(0);
 			}
-			
+
 			info.dispose();// TODO remove when pooled
 		}
 
 		if (transformComponent != null) {
-			transformComponent.getWorldTransform(rigidBody.getWorldTransform());
-			rigidBody.activate(true);
+			transformComponent.getWorldTransform(collisionObject.getWorldTransform());
+			collisionObject.activate(true);
 		}
+	}
+
+	// TODO other CollisionFlags
+	private int getCollisionFlags() {
+		int collisionFlags = unresponsive ? CollisionFlags.CF_NO_CONTACT_RESPONSE
+				: CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK;
+		switch (type) {
+		case KINEMATIC:
+			collisionFlags |= CollisionFlags.CF_KINEMATIC_OBJECT;
+			break;
+		case STATIC:
+			collisionFlags |= CollisionFlags.CF_STATIC_OBJECT;
+			break;
+		default:
+			break;
+		}
+		return collisionFlags;
 	}
 
 	private btRigidBodyConstructionInfo createConstructionInfo() {
@@ -187,13 +212,13 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@Override
 	public void reset() {
 		transformComponent = null;
-		if (rigidBody != null) {
-			btCollisionShape collisionShape = rigidBody.getCollisionShape();
+		if (collisionObject != null) {
+			btCollisionShape collisionShape = collisionObject.getCollisionShape();
 			if (collisionShape != null) {
 				collisionShape.dispose();
 			}
-			rigidBody.dispose();
-			rigidBody = null;
+			collisionObject.dispose();
+			collisionObject = null;
 		}
 	}
 
