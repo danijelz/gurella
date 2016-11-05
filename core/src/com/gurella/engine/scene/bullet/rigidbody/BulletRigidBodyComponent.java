@@ -3,6 +3,7 @@ package com.gurella.engine.scene.bullet.rigidbody;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btEmptyShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
@@ -27,7 +28,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	}
 
 	public boolean ghost;
-	public boolean neverSleeps;
+	public boolean allwaysActive;
 	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
 
 	public int group;
@@ -74,7 +75,6 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	@PropertyEditorDescriptor(group = "Additional damping factor", descriptiveName = "angular")
 	public float additionalAngularDampingFactor;
 
-	// TODO handle properties
 	@PropertyEditorDescriptor(group = "Initial state", descriptiveName = "sleeping")
 	public boolean initialySleeping;
 	@PropertyEditorDescriptor(group = "Initial state", descriptiveName = "linear")
@@ -134,6 +134,13 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 			if (initialAngularVelocity != null) {
 				rigidBody.setAngularVelocity(initialAngularVelocity);
 			}
+			
+			if (allwaysActive) {
+				rigidBody.setActivationState(CollisionConstants.DISABLE_DEACTIVATION);
+			} else if (initialySleeping) {
+				rigidBody.setActivationState(0);
+			}
+			
 			info.dispose();// TODO remove when pooled
 		}
 

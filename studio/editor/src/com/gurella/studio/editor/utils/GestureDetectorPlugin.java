@@ -5,6 +5,6 @@ import com.gurella.engine.plugin.Plugin;
 
 public class GestureDetectorPlugin extends GestureDetector implements Plugin {
 	public GestureDetectorPlugin(GestureListener listener) {
-		super(listener);
+		super(5, 0.4f, 1.1f, 0.15f, listener);
 	}
 }

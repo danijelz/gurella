@@ -37,7 +37,6 @@ import com.gurella.engine.scene.tag.Tag;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.ImmutableArray;
 
-//TODO move methods to parent classes
 @SuppressWarnings("unused")
 public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
@@ -268,8 +267,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	//	protected void disposed() {
 	//	}
 
-	// TODO OWNING NODE EVENTS 
-
 	public void nodeComponentAdded(SceneNodeComponent2 component) {
 	}
 
@@ -281,8 +278,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	public void nodeComponentDeactivated(SceneNodeComponent2 component) {
 	}
-
-	// TODO triggers
 
 	public void nodeParentChanged(SceneNode2 newParent) {
 	}
@@ -304,8 +299,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	public void componentDeactivated(SceneNode2 node, SceneNodeComponent2 component) {
 	}
-
-	// TODO triggers
 
 	public void parentChanged(SceneNode2 node, SceneNode2 newParent) {
 	}
@@ -334,26 +327,15 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 		return false;
 	}
 
-	// TODO
-
 	public void onResize(int width, int height) {
 	}
 
-	// TODO transform events
 	public void onTransformChanged(TransformComponent transformComponent) {
 	}
 
 	// TODO box2d physics events
 
 	// TODO animation events
-
-	// TODO tag events
-
-	public void onNodeTagged(SceneNode2 node, Tag tag) {
-	}
-
-	public void onNodeUntagged(SceneNode2 node, Tag tag) {
-	}
 
 	// TODO layer events
 
@@ -379,7 +361,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public void removeInputProcessor(InputProcessor inputProcessor) {
 	}
 
-	// TODO getActiveComponent getComponentSafely
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> componnetType) {
 		return getNode().getComponent(componnetType);
 	}
@@ -501,8 +482,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	public void unregisterListener(Object listener) {
 	}
-
-	// TODO Gdx.input methods
 
 	public interface AsyncRequest<T> extends Callable<T> {
 		void onSuccess(T value);

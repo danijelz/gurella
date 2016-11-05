@@ -12,7 +12,6 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 
 public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpdateListener, EditorResizeListener {
-
 	private final int editorId;
 	private final CameraProviderExtensionRegistry extensionRegistry;
 
@@ -62,14 +61,10 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 	void switchCamera(CameraType cameraType) {
 		switch (cameraType) {
 		case camera2d:
-			if (!is2d()) {
-				set2d();
-			}
+			set2d();
 			return;
 		case camera3d:
-			if (!is3d()) {
-				set3d();
-			}
+			set3d();
 			return;
 		default:
 			return;
@@ -81,10 +76,15 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 	}
 
 	private void set2d() {
+		if (is2d()) {
+			return;
+		}
+
 		Workbench.deactivate(inputController);
 		camera = orthographicCamera;
 		inputController = orthographicCameraController;
 		Workbench.activate(inputController);
+		extensionRegistry.updateCamera(camera);
 	}
 
 	boolean is3d() {
@@ -92,10 +92,15 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 	}
 
 	private void set3d() {
+		if (is3d()) {
+			return;
+		}
+
 		Workbench.deactivate(inputController);
 		camera = perspectiveCamera;
 		inputController = perspectiveCameraController;
 		Workbench.activate(inputController);
+		extensionRegistry.updateCamera(camera);
 	}
 
 	Camera getCamera() {
@@ -120,9 +125,9 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 
 	@Override
 	public void onEditorPreClose() {
-		Workbench.removeListener(extensionRegistry);
 		Workbench.deactivate(cameraTypeSelector);
 		Workbench.deactivate(inputController);
+		Workbench.removeListener(extensionRegistry);
 		EventService.unsubscribe(editorId, this);
 	}
 }

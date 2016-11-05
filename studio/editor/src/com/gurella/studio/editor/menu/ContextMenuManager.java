@@ -27,14 +27,12 @@ public class ContextMenuManager implements EditorPreCloseListener {
 	private class MenuTapListener extends GestureAdapter {
 		@Override
 		public boolean tap(float x, float y, int count, int button) {
-			if (count != 1 || button != Buttons.RIGHT) {
-				return false;
+			if (count == 1 && button == Buttons.RIGHT) {
+				ContextMenuActions actions = new ContextMenuActions();
+				EventService.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
+				actions.showMenu();
 			}
-
-			ContextMenuActions actions = new ContextMenuActions();
-			EventService.post(editorId, EditorContextMenuContributor.class, c -> c.contribute(actions));
-			actions.showMenu();
-			return true;
+			return false;
 		}
 	}
 }

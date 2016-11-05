@@ -76,7 +76,7 @@ public class ModelIntesector {
 		return extractResult(intersection);
 	}
 
-	private void init(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
+	void init(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
 		this.cameraPosition.set(cameraPosition);
 		this.ray.set(ray);
 		this.intersection.set(intersection);
@@ -85,7 +85,7 @@ public class ModelIntesector {
 		closestDistance = Float.MAX_VALUE;
 	}
 
-	private boolean process(ModelInstance modelInstance) {
+	boolean process(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 
 		Array<Node> nodes = modelInstance.nodes;
@@ -104,7 +104,7 @@ public class ModelIntesector {
 		return closestModelInstance == modelInstance;
 	}
 
-	private boolean extractResult(Vector3 intersection) {
+	boolean extractResult(Vector3 intersection) {
 		if (closestModelInstance != null) {
 			intersection.set(closestIntersection);
 			return true;

@@ -18,13 +18,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.scene.transform.TransformComponent;
 
 public class ScaleTool extends TransformTool {
 	private final ScaleHandle xHandle;
 	private final ScaleHandle yHandle;
 	private final ScaleHandle zHandle;
 	private final ScaleHandle xyzHandle;
+	private ToolHandle[] handles;
 
 	private final Matrix4 shapeRenderMat = new Matrix4();
 
@@ -35,8 +35,8 @@ public class ScaleTool extends TransformTool {
 
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-	public ScaleTool(ToolManager manager) {
-		super(manager);
+	public ScaleTool(int editorId) {
+		super(editorId);
 
 		ModelBuilder modelBuilder = new ModelBuilder();
 
@@ -60,10 +60,19 @@ public class ScaleTool extends TransformTool {
 	ToolType getType() {
 		return ToolType.scale;
 	}
+	
+	@Override
+	ToolHandle[] getHandles() {
+		return handles;
+	}
 
 	@Override
-	void render(Vector3 translation, Camera camera, GenericBatch batch) {
+	void render(GenericBatch batch) {
+		Vector3 translation = getPosition();
+		update(translation);
+		
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
+		
 		batch.begin(camera);
 		xHandle.render(batch);
 		yHandle.render(batch);
@@ -124,24 +133,28 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void update(Vector3 nodePosition, Vector3 cameraPosition) {
-		translateHandles(nodePosition);
-		scaleHandles(nodePosition, cameraPosition);
+	void update() {
+		update(getPosition());
+	}
+
+	private void update(Vector3 position) {
+		translateHandles(position);
+		scaleHandles(position);
 		xHandle.applyTransform();
 		yHandle.applyTransform();
 		zHandle.applyTransform();
 		xyzHandle.applyTransform();
 	}
 
-	protected void translateHandles(Vector3 nodePosition) {
-		xHandle.position.set(nodePosition);
-		yHandle.position.set(nodePosition);
-		zHandle.position.set(nodePosition);
-		xyzHandle.position.set(nodePosition);
+	protected void translateHandles(Vector3 position) {
+		xHandle.position.set(position);
+		yHandle.position.set(position);
+		zHandle.position.set(position);
+		xyzHandle.position.set(position);
 	}
 
-	protected void scaleHandles(Vector3 nodePosition, Vector3 cameraPosition) {
-		float scaleFactor = cameraPosition.dst(nodePosition) * 0.01f;
+	protected void scaleHandles(Vector3 position) {
+		float scaleFactor = camera.position.dst(position) * 0.01f;
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
@@ -149,8 +162,8 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void activate(ToolHandle handle, TransformComponent transform, Camera camera) {
-		super.activate(handle, transform, camera);
+	void activate(ToolHandle handle) {
+		super.activate(handle);
 		transform.getScale(tempScale);
 		transform.getTranslation(temp0);
 		float distance = getDistance(camera);
@@ -160,7 +173,7 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	void dragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+	void dragged(int screenX, int screenY) {
 		translateHandles(transform.getTranslation(temp0));
 		float distance = getDistance(camera);
 
@@ -200,8 +213,8 @@ public class ScaleTool extends TransformTool {
 	}
 
 	@Override
-	TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera) {
-		return new ScaleOperation(manager.editorId, component);
+	TransformOperation createOperation(ToolHandle handle) {
+		return new ScaleOperation(editorId, transform);
 	}
 
 	@Override

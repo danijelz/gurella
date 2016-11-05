@@ -68,6 +68,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
 import com.gurella.engine.utils.Values;
 
+//TODO exceptions are not handled correctly
 public class AssetRegistry extends AssetManager {
 	private static final String clearRequestedMessage = "Clear requested on AssetManager.";
 	private static final String assetUnloadedMessage = "Asset unloaded.";

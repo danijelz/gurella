@@ -25,12 +25,12 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.scene.transform.TransformComponent;
 
 public class RotateTool extends TransformTool {
 	private RotateHandle xHandle;
 	private RotateHandle yHandle;
 	private RotateHandle zHandle;
+	private ToolHandle[] handles;
 
 	private Vector3 temp0 = new Vector3();
 	private Vector3 temp1 = new Vector3();
@@ -41,8 +41,8 @@ public class RotateTool extends TransformTool {
 
 	private float lastRot = 0;
 
-	public RotateTool(ToolManager manager) {
-		super(manager);
+	public RotateTool(int editorId) {
+		super(editorId);
 
 		xHandle = new RotateHandle(x, COLOR_X, torus(COLOR_X, 20, 1, 50, 50));
 		xHandle.rotationEuler.set(0, 90, 0);
@@ -65,7 +65,15 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	public void render(Vector3 translation, Camera camera, GenericBatch batch) {
+	ToolHandle[] getHandles() {
+		return handles;
+	}
+
+	@Override
+	public void render(GenericBatch batch) {
+		Vector3 translation = getPosition();
+		update(translation);
+
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 
 		if (activeHandleType == HandleType.none) {
@@ -115,22 +123,26 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	void update(Vector3 nodePosition, Vector3 cameraPosition) {
-		scaleHandles(nodePosition, cameraPosition);
-		translateHandles(nodePosition);
+	void update() {
+		update(getPosition());
+	}
+
+	private void update(Vector3 position) {
+		scaleHandles(position);
+		translateHandles(position);
 		xHandle.applyTransform();
 		yHandle.applyTransform();
 		zHandle.applyTransform();
 	}
 
-	protected void translateHandles(Vector3 nodePosition) {
-		xHandle.position.set(nodePosition);
-		yHandle.position.set(nodePosition);
-		zHandle.position.set(nodePosition);
+	protected void translateHandles(Vector3 position) {
+		xHandle.position.set(position);
+		yHandle.position.set(position);
+		zHandle.position.set(position);
 	}
 
-	protected void scaleHandles(Vector3 nodePosition, Vector3 cameraPosition) {
-		float scaleFactor = cameraPosition.dst(nodePosition) * 0.005f;
+	protected void scaleHandles(Vector3 position) {
+		float scaleFactor = camera.position.dst(position) * 0.005f;
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
@@ -161,6 +173,7 @@ public class RotateTool extends TransformTool {
 		float theta, rho;
 		float x, y, z;
 		float nx, ny, nz;
+		float whcos, tucos, tusin;
 		short i1, i2, i3 = 0, i4 = 0;
 
 		for (i = 0; i < divisionsV; i++) {
@@ -174,8 +187,12 @@ public class RotateTool extends TransformTool {
 					theta = u * 2.0f * PI;
 					rho = v * 2.0f * PI;
 
-					x = (width + height * cos(s * PI2 / divisionsV)) * cos(t * PI2 / divisionsU);
-					y = (width + height * cos(s * PI2 / divisionsV)) * sin(t * PI2 / divisionsU);
+					whcos = width + height * cos(s * PI2 / divisionsV);
+					tucos = cos(t * PI2 / divisionsU);
+					tusin = sin(t * PI2 / divisionsU);
+
+					x = whcos * tucos;
+					y = whcos * tusin;
 					z = height * sin(s * PI2 / divisionsV);
 
 					nx = cos(theta) * cos(rho);
@@ -187,9 +204,10 @@ public class RotateTool extends TransformTool {
 
 					k--;
 					s = (i + k) % divisionsV + 0.5f;
+					whcos = width + height * cos(s * PI2 / divisionsV);
 
-					x = (width + height * cos(s * PI2 / divisionsV)) * cos(t * PI2 / divisionsU);
-					y = (width + height * cos(s * PI2 / divisionsV)) * sin(t * PI2 / divisionsU);
+					x = whcos * tucos;
+					y = whcos * tusin;
 					z = height * sin(s * PI2 / divisionsV);
 
 					vert2.position.set(x, y, z);
@@ -208,7 +226,7 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	void dragged(TransformComponent transform, Camera camera, int screenX, int screenY) {
+	void dragged(int screenX, int screenY) {
 		translateHandles(transform.getTranslation(temp0));
 
 		float angle = getCurrentAngle(temp0, camera);
@@ -246,8 +264,8 @@ public class RotateTool extends TransformTool {
 	}
 
 	@Override
-	TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera) {
-		return new RotateOperation(manager.editorId, component);
+	TransformOperation createOperation(ToolHandle handle) {
+		return new RotateOperation(editorId, transform);
 	}
 
 	@Override

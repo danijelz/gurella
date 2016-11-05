@@ -5,13 +5,12 @@ import com.badlogic.gdx.graphics.Camera;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.studio.editor.camera.CameraProvider;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 
 public class Grid2d implements Grid, CameraProviderExtension, EditorPreCloseListener {
 	private final int editorId;
-	private CameraProvider cameraProvider;
+	private Camera camera;
 
 	public Grid2d(int editorId) {
 		this.editorId = editorId;
@@ -20,16 +19,11 @@ public class Grid2d implements Grid, CameraProviderExtension, EditorPreCloseList
 	}
 
 	@Override
-	public void setCameraProvider(CameraProvider cameraProvider) {
-		this.cameraProvider = cameraProvider;
-	}
-
-	private Camera getCamera() {
-		return cameraProvider == null ? null : cameraProvider.getCamera();
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 
 	public void render(GenericBatch batch) {
-		Camera camera = getCamera();
 		if (camera == null) {
 			return;
 		}

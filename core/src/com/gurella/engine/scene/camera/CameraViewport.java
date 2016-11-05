@@ -65,6 +65,9 @@ public class CameraViewport {
 	private transient int viewportScreenHeight;
 	private transient final Vector3 tmp = new Vector3();
 
+	public CameraViewport() {
+	}
+
 	public CameraViewport(Camera camera) {
 		this.camera = camera;
 	}

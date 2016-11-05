@@ -130,8 +130,6 @@ public class Bvh {
 			for (int i = 0; i < sweepNodes.size; i++) {
 				BvhNode node = sweepNodes.get(i);
 				node.tryRotate();
-				if (!node.isLeaf()) {
-				}
 			}
 
 			sweepNodes.clear();

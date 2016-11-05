@@ -19,7 +19,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
-import com.gurella.studio.editor.camera.CameraProvider;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
@@ -39,7 +38,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
 
 	private Scene scene;
-	private CameraProvider cameraProvider;
+	private Camera camera;
 
 	private SceneNode2 focusedNode;
 	private SceneNodeComponent2 focusedComponent;
@@ -128,7 +127,6 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	}
 
 	private void updateSelection(float x, float y) {
-		Camera camera = getCamera();
 		if (scene == null || camera == null) {
 			return;
 		}
@@ -176,12 +174,8 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	}
 
 	@Override
-	public void setCameraProvider(CameraProvider cameraProvider) {
-		this.cameraProvider = cameraProvider;
-	}
-
-	private Camera getCamera() {
-		return cameraProvider == null ? null : cameraProvider.getCamera();
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 
 	@Override
@@ -195,12 +189,10 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	private class FocusTapListener extends GestureAdapter {
 		@Override
 		public boolean tap(float x, float y, int count, int button) {
-			if (count != 1 || button != Buttons.LEFT) {
-				return false;
+			if (count == 1 && button == Buttons.LEFT) {
+				updateSelection(x, y);
 			}
-
-			updateSelection(x, y);
-			return true;
+			return false;
 		}
 	}
 }

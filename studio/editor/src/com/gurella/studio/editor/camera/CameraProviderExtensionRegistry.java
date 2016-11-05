@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.gurella.engine.plugin.Plugin;
 import com.gurella.engine.plugin.PluginListener;
 
-public class CameraProviderExtensionRegistry implements PluginListener, CameraProvider {
+public class CameraProviderExtensionRegistry implements PluginListener {
 	private final CameraManager cameraManager;
 	private final Set<CameraProviderExtension> extensions = new HashSet<>();
 
@@ -20,7 +20,7 @@ public class CameraProviderExtensionRegistry implements PluginListener, CameraPr
 		if (plugin instanceof CameraProviderExtension) {
 			CameraProviderExtension exstension = (CameraProviderExtension) plugin;
 			if (extensions.add(exstension)) {
-				exstension.setCameraProvider(this);
+				exstension.setCamera(cameraManager.getCamera());
 			}
 		}
 	}
@@ -30,13 +30,12 @@ public class CameraProviderExtensionRegistry implements PluginListener, CameraPr
 		if (plugin instanceof CameraProviderExtension) {
 			CameraProviderExtension exstension = (CameraProviderExtension) plugin;
 			if (extensions.remove(exstension)) {
-				exstension.setCameraProvider(null);
+				exstension.setCamera(null);
 			}
 		}
 	}
 
-	@Override
-	public Camera getCamera() {
-		return cameraManager.getCamera();
+	void updateCamera(Camera camera) {
+		extensions.forEach(e -> e.setCamera(camera));
 	}
 }

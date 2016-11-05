@@ -34,7 +34,6 @@ import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.camera.CameraProvider;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -73,7 +72,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	private InfoRenderer infoRenderer;
 	private ToolManager toolManager;
 
-	private CameraProvider cameraProvider;
+	private Camera camera;
 
 	@SuppressWarnings("deprecation")
 	public RenderSystem(int editorId) {
@@ -103,12 +102,8 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	}
 
 	@Override
-	public void setCameraProvider(CameraProvider cameraProvider) {
-		this.cameraProvider = cameraProvider;
-	}
-
-	private Camera getCamera() {
-		return cameraProvider == null ? null : cameraProvider.getCamera();
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 
 	@Override
@@ -174,11 +169,10 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 	@Override
 	public void onRenderUpdate() {
-		Camera camera = getCamera();
-		if(camera == null) {
+		if (camera == null) {
 			return;
 		}
-		
+
 		synchronized (GurellaStudioPlugin.glMutex) {
 			updateGlState();
 			if (camera instanceof PerspectiveCamera) {
@@ -211,7 +205,6 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 		EventService.post(sceneId, PreRenderUpdateListener.class, l -> l.onPreRenderUpdate());
 
-		Camera camera = getCamera();
 		batch.begin(camera);
 		batch.setEnvironment(environment);
 

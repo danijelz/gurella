@@ -23,7 +23,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.studio.editor.camera.CameraProvider;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
@@ -41,8 +40,6 @@ public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateLis
 
 	private final int editorId;
 
-	private CameraProvider cameraProvider;
-
 	private PerspectiveCamera compassCamera;
 	private Model compassModel;
 	private ModelInstance compassInstance;
@@ -51,6 +48,8 @@ public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateLis
 	private Vector3 tempTranslation = new Vector3();
 	private Vector3 tempScale = new Vector3(12, 12, 12);
 	private Quaternion tempRotation = new Quaternion();
+
+	private Camera worldCamera;
 
 	public Compass(int editorId) {
 		this.editorId = editorId;
@@ -82,12 +81,8 @@ public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateLis
 	}
 
 	@Override
-	public void setCameraProvider(CameraProvider cameraProvider) {
-		this.cameraProvider = cameraProvider;
-	}
-
-	private Camera getWorldCamera() {
-		return cameraProvider == null ? null : cameraProvider.getCamera();
+	public void setCamera(Camera camera) {
+		this.worldCamera = camera;
 	}
 
 	public void render(GenericBatch batch) {
@@ -103,7 +98,6 @@ public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateLis
 
 	@Override
 	public void onPreRenderUpdate() {
-		Camera worldCamera = getWorldCamera();
 		if (worldCamera == null) {
 			return;
 		}

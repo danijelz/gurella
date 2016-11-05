@@ -2,6 +2,8 @@ package com.gurella.studio.editor.tool;
 
 import static com.badlogic.gdx.Input.Buttons.LEFT;
 
+import java.util.Optional;
+
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
@@ -19,7 +21,6 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.priority.Priority;
-import com.gurella.studio.editor.camera.CameraProvider;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -30,20 +31,19 @@ public class ToolManager extends InputAdapter
 		implements EditorPreCloseListener, EditorFocusListener, CameraProviderExtension {
 	final int editorId;
 
+	private final TranslateTool translateTool;
+	private final RotateTool rotateTool;
+	private final ScaleTool scaleTool;
+
 	@SuppressWarnings("unused")
 	private ToolMenuContributor menuContributor;
 
-	private final ScaleTool scaleTool = new ScaleTool(this);
-	private final TranslateTool translateTool = new TranslateTool(this);
-	private final RotateTool rotateTool = new RotateTool(this);
-
 	private final Environment environment = new Environment();
 
-	private final Vector3 nodePosition = new Vector3();
 	private final Vector3 intersection = new Vector3();
 	private final ModelIntesector intesector = new ModelIntesector();
 
-	private CameraProvider cameraProvider;
+	private Camera camera;
 	private TransformComponent transform;
 
 	private TransformTool selectedTool;
@@ -51,6 +51,10 @@ public class ToolManager extends InputAdapter
 
 	public ToolManager(int editorId) {
 		this.editorId = editorId;
+
+		translateTool = new TranslateTool(editorId);
+		rotateTool = new RotateTool(editorId);
+		scaleTool = new ScaleTool(editorId);
 
 		menuContributor = new ToolMenuContributor(editorId, this);
 
@@ -66,19 +70,26 @@ public class ToolManager extends InputAdapter
 	public void focusChanged(EditorFocusData focusData) {
 		SceneNode2 node = focusData.focusedNode;
 		transform = node == null ? null : node.getComponent(TransformComponent.class);
+		translateTool.transform = transform;
+		rotateTool.transform = transform;
+		scaleTool.transform = transform;
 	}
 
 	@Override
-	public void setCameraProvider(CameraProvider cameraProvider) {
-		this.cameraProvider = cameraProvider;
-	}
-
-	private Camera getCamera() {
-		return cameraProvider == null ? null : cameraProvider.getCamera();
+	public void setCamera(Camera camera) {
+		this.camera = camera;
+		deactivate();
+		translateTool.camera = camera;
+		rotateTool.camera = camera;
+		scaleTool.camera = camera;
 	}
 
 	private boolean isActive() {
 		return selectedTool != null && selectedTool.isActive();
+	}
+
+	private void deactivate() {
+		Optional.ofNullable(selectedTool).ifPresent(t -> t.deactivate());
 	}
 
 	@Override
@@ -89,8 +100,9 @@ public class ToolManager extends InputAdapter
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (isActive() && keycode != Keys.ESCAPE && keycode != Keys.N) {
-			return false;
+		if (isActive() && (keycode == Keys.ESCAPE || keycode == Keys.N)) {
+			deactivate();
+			return true;
 		}
 
 		switch (keycode) {
@@ -141,64 +153,63 @@ public class ToolManager extends InputAdapter
 			return;
 		}
 
-		if (isActive()) {
-			selectedTool.deactivate();
-		}
-
+		deactivate();
 		selectedTool = newSelection;
 		ToolType type = selectedTool == null ? ToolType.none : selectedTool.getType();
 		EventService.post(editorId, ToolSelectionListener.class, l -> l.toolSelected(type));
 	}
 
 	public void render(GenericBatch batch) {
-		Camera camera = getCamera();
 		if (camera == null || selectedTool == null || transform == null) {
 			return;
 		}
 
-		transform.getWorldTranslation(nodePosition);
 		batch.setEnvironment(environment);
-		selectedTool.update(nodePosition, camera.position);
-		selectedTool.render(nodePosition, camera, batch);
+		selectedTool.render(batch);
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (isActive()) {
-			selectedTool.deactivate();
-		}
+		deactivate();
 
-		Camera camera = getCamera();
-		if (transform == null || camera == null || pointer != 0 || button != LEFT || selectedTool == null) {
+		if (pointer != 0 || button != LEFT || selectedTool == null || transform == null || camera == null) {
 			return false;
 		}
 
-		ToolHandle handle = pickHandle(screenX, screenY);
-		if (handle == null) {
-			return false;
-		}
+		return Optional.ofNullable(pickHandle(screenX, screenY)).map(h -> activate(h)).isPresent();
+	}
 
-		selectedTool.activate(handle, transform, camera);
-		return true;
+	private ToolHandle activate(ToolHandle handle) {
+		selectedTool.activate(handle);
+		return handle;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if (isActive()) {
+		if (camera == null || !isActive()) {
+			return false;
+		}
+
+		if (pointer != 0) {
+			deactivate();
+			return false;
+		} else {
 			selectedTool.commit();
 			return true;
-		} else {
-			return false;
 		}
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		Camera camera = getCamera();
-		if (camera == null || !isActive() || pointer != 0) {
+		if (camera == null || !isActive()) {
+			return false;
+		}
+
+		if (pointer != 0) {
+			deactivate();
 			return false;
 		} else {
-			selectedTool.dragged(transform, camera, screenX, screenY);
+			selectedTool.dragged(screenX, screenY);
 			return true;
 		}
 	}
@@ -225,22 +236,18 @@ public class ToolManager extends InputAdapter
 	}
 
 	protected ToolHandle pickHandle(int screenX, int screenY) {
-		Camera camera = getCamera();
 		if (camera == null) {
 			return null;
 		}
 
-		transform.getWorldTranslation(nodePosition);
+		selectedTool.update();
+
 		Vector3 cameraPosition = camera.position;
-		selectedTool.update(nodePosition, cameraPosition);
-
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		ToolHandle[] handles = selectedTool.handles;
-
 		float closestDistance = Float.MAX_VALUE;
 		ToolHandle pick = null;
 
-		for (ToolHandle toolHandle : handles) {
+		for (ToolHandle toolHandle : selectedTool.getHandles()) {
 			ModelInstance instance = toolHandle.modelInstance;
 			if (intesector.getIntersection(cameraPosition, pickRay, intersection, instance)) {
 				float distance = intersection.dst2(cameraPosition);

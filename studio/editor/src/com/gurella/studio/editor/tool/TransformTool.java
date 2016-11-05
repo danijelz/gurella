@@ -15,30 +15,40 @@ public abstract class TransformTool implements Disposable {
 	protected static Color COLOR_XYZ = Color.LIGHT_GRAY;
 	protected static Color COLOR_SELECTED = Color.YELLOW;
 
-	final ToolManager manager;
+	final int editorId;
 
-	ToolHandle[] handles;
+	private final Vector3 nodePosition = new Vector3();
+
+	TransformComponent transform;
+	Camera camera;
+
 	ToolHandle activeHandle;
 	HandleType activeHandleType = HandleType.none;
 
 	private TransformOperation operation;
 
-	public TransformTool(ToolManager manager) {
-		this.manager = manager;
+	public TransformTool(int editorId) {
+		this.editorId = editorId;
 	}
 
 	boolean isActive() {
 		return activeHandleType != HandleType.none;
 	}
 
-	void activate(ToolHandle handle, TransformComponent transform, Camera camera) {
+	Vector3 getPosition() {
+		return transform.getWorldTranslation(nodePosition);
+	}
+
+	void activate(ToolHandle handle) {
+		activeHandle = handle;
 		this.activeHandleType = handle.type;
-		operation = createOperation(handle, transform, camera);
+		operation = createOperation(handle);
 	}
 
 	void deactivate() {
 		if (operation != null) {
 			operation.rollback();
+			operation = null;
 		}
 		activeHandle = null;
 		this.activeHandleType = HandleType.none;
@@ -53,11 +63,13 @@ public abstract class TransformTool implements Disposable {
 
 	abstract ToolType getType();
 
-	abstract void update(Vector3 nodePosition, Vector3 cameraPosition);
+	abstract ToolHandle[] getHandles();
 
-	abstract void render(Vector3 nodePosition, Camera camera, GenericBatch batch);
+	abstract void update();
 
-	abstract void dragged(TransformComponent transform, Camera camera, int screenX, int screenY);
+	abstract void render(GenericBatch batch);
 
-	abstract TransformOperation createOperation(ToolHandle handle, TransformComponent component, Camera camera);
+	abstract void dragged(int screenX, int screenY);
+
+	abstract TransformOperation createOperation(ToolHandle handle);
 }
