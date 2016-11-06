@@ -1,13 +1,12 @@
 package com.gurella.engine.subscriptions.scene.input;
 
-import com.gurella.engine.scene.input.IntersectionTouchEvent;
-import com.gurella.engine.scene.input.TouchEvent;
+import com.gurella.engine.scene.input.DragInfo;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 
 public interface NodeDragOverListener extends NodeEventSubscription {
-	void onDragOverStart(IntersectionTouchEvent touchEvent);
+	void onDragOverStart(DragInfo dragInfo);
 
-	void onDragOverMove(IntersectionTouchEvent touchEvent);
+	void onDragOverMove(DragInfo dragInfo);
 
-	void onDragOverEnd(TouchEvent touchEvent);
+	void onDragOverEnd(DragInfo dragInfo);
 }

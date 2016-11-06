@@ -24,9 +24,8 @@ import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
 import com.gurella.engine.scene.input.DragSource;
 import com.gurella.engine.scene.input.DragStartCondition;
 import com.gurella.engine.scene.input.DropTarget;
-import com.gurella.engine.scene.input.IntersectionTouchEvent;
 import com.gurella.engine.scene.input.PointerActivityListener;
-import com.gurella.engine.scene.input.TouchEvent;
+import com.gurella.engine.scene.input.TouchInfo;
 import com.gurella.engine.scene.manager.ComponentManager.ComponentFamily;
 import com.gurella.engine.scene.manager.NodeManager.SceneNodeFamily;
 import com.gurella.engine.scene.renderable.Layer;
@@ -62,52 +61,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 	public void onCleanup() {
 	}
 
-	// INPUT EVENTS
-
-	public void onTouchDown(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onTouchUp(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onTap(IntersectionTouchEvent touchEvent, int count) {
-	}
-
-	public void onDragOverStart(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDragOverMove(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDragOverEnd(TouchEvent touchEvent) {
-	}
-
-	public void onDragStart(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDragMove(TouchEvent touchEvent) {
-	}
-
-	public void onDragEnd(TouchEvent touchEvent) {
-	}
-
-	public void onLongPress(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDoubleTouch(IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onScrolled(int screenX, int screenY, int amount, Vector3 intersection) {
-	}
-
-	public void onMouseOverStart(int screenX, int screenY, Vector3 intersection) {
-	}
-
-	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection) {
-	}
-
-	public void onMouseOverEnd(int screenX, int screenY) {
-	}
 
 	// NODE DRAG AND DROP
 
@@ -117,91 +70,6 @@ public abstract class BehaviourComponent extends SceneNodeComponent2 {
 
 	public DropTarget getDropTarget(Array<DragSource> dragSources) {
 		return null;
-	}
-
-	// RESOLVED GLOBAL INPUT
-
-	public void onTouchDown(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onTouchUp(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onTap(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent, int count) {
-	}
-
-	public void onDragOverStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDragOverMove(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDragOverEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
-	}
-
-	public void onDragStart(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDragMove(RenderableComponent renderableComponent, TouchEvent touchEvent) {
-	}
-
-	public void onDragEnd(RenderableComponent renderableComponent, TouchEvent touchEvent) {
-	}
-
-	public void onLongPress(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onDoubleTouch(RenderableComponent renderableComponent, IntersectionTouchEvent touchEvent) {
-	}
-
-	public void onScrolled(RenderableComponent renderableComponent, int screenX, int screenY, int amount,
-			Vector3 intersection) {
-	}
-
-	public void onMouseOverStart(RenderableComponent renderableComponent, int screenX, int screenY,
-			Vector3 intersection) {
-	}
-
-	public void onMouseOverMove(RenderableComponent renderableComponent, int screenX, int screenY,
-			Vector3 intersection) {
-	}
-
-	public void onMouseOverEnd(RenderableComponent renderableComponent, int screenX, int screenY) {
-	}
-
-	// //GLOBAL INPUT
-
-	public void keyDown(int keycode) {
-	}
-
-	public void keyUp(int keycode) {
-	}
-
-	public void keyTyped(char character) {
-	}
-
-	public void touchDown(TouchEvent touchEvent) {
-	}
-
-	public void doubleTouchDown(TouchEvent touchEvent) {
-	}
-
-	public void touchUp(TouchEvent touchEvent) {
-	}
-
-	public void touchDragged(TouchEvent touchEvent) {
-	}
-
-	public void mouseMoved(int screenX, int screenY) {
-	}
-
-	public void scrolled(int screenX, int screenY, int amount) {
-	}
-
-	public void tap(TouchEvent touchEvent, int count) {
-	}
-
-	public void longPress(TouchEvent touchEvent) {
 	}
 
 	// BULLET PHYSICS EVENTS

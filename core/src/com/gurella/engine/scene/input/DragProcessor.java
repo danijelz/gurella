@@ -1,28 +1,31 @@
 package com.gurella.engine.scene.input;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.IntersectionDragListener;
-import com.gurella.engine.subscriptions.scene.input.IntersectionDragOverListener;
-import com.gurella.engine.subscriptions.scene.input.NodeDragListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDragOverListener;
 import com.gurella.engine.subscriptions.scene.input.SceneDragListener;
-import com.gurella.engine.utils.Values;
 
 public class DragProcessor implements PointerActivityListener {
-	private final IntMap<SceneNode2> dragStartNodes = new IntMap<SceneNode2>(10);
+	private final Scene scene;
+
 	private final IntMap<SceneNode2> dragOverNodes = new IntMap<SceneNode2>(10);
 
-	private final TouchEvent touchEvent = new TouchEvent();
-	private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
+	private final DragInfo dragInfo = new DragInfo();
 
-	private Array<Object> tempListeners;
+	private final SceneDragStartEvent sceneDragStartEvent = new SceneDragStartEvent();
+	private final SceneDragedEvent sceneDragedEvent = new SceneDragedEvent();
+	private final SceneDragEndEvent sceneDragEndEvent = new SceneDragEndEvent();
 
-	public DragProcessor(Array<Object> tempListeners) {
-		this.tempListeners = tempListeners;
+	private final DragOverStartEvent dragOverStartEvent = new DragOverStartEvent();
+	private final DragOverMoveEvent dragOverMoveEvent = new DragOverMoveEvent();
+	private final DragOverEndEvent dragOverEndEvent = new DragOverEndEvent();
+
+	public DragProcessor(Scene scene) {
+		this.scene = scene;
 	}
 
 	@Override
@@ -44,171 +47,154 @@ public class DragProcessor implements PointerActivityListener {
 	}
 
 	private void begin(int key, int pointer, int button, PointerTrack pointerTrack) {
-		int screenX = pointerTrack.getScreenX(0);
-		int screenY = pointerTrack.getScreenY(0);
-		touchEvent.set(pointer, button, screenX, screenY);
-		Array<SceneDragListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneDragListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).touchDragged(touchEvent);
-		}
-
+		dragInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0));
 		SceneNode2 node = pointerTrack.getNode(0);
 		if (node != null) {
-			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
-			dragStartNodes.put(key, node);
-			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			Array<IntersectionDragListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDragListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onDragStart(renderableComponent, intersectionTouchEvent);
-			}
-
-			Array<NodeDragListener> objectListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragListener.class, objectListeners);
-			for (int i = 0; i < objectListeners.size; i++) {
-				objectListeners.get(i).onDragStart(intersectionTouchEvent);
-			}
-
-			dragOverNodes.put(key, node);
-			renderableComponent = node.getComponent(RenderableComponent.class);
-			Array<IntersectionDragOverListener> intersectionOverListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDragOverListener.class, intersectionOverListeners);
-			for (int i = 0; i < intersectionOverListeners.size; i++) {
-				intersectionOverListeners.get(i).onDragOverStart(renderableComponent, intersectionTouchEvent);
-			}
-
-			Array<NodeDragOverListener> objectOverListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragOverListener.class,
-					objectOverListeners);
-			for (int i = 0; i < objectOverListeners.size; i++) {
-				objectOverListeners.get(i).onDragOverStart(intersectionTouchEvent);
-			}
+			dragInfo.renderable = node.getComponent(RenderableComponent.class);
+			pointerTrack.getIntersection(0, dragInfo.intersection);
 		}
+
+		EventService.post(scene.getInstanceId(), sceneDragStartEvent);
+
+		if (node != null) {
+			dragOverNodes.put(key, node);
+			EventService.post(node.getInstanceId(), dragOverStartEvent);
+		}
+
+		dragInfo.reset();
 	}
 
 	private void move(int key, int pointer, int button, PointerTrack pointerTrack) {
 		int last = pointerTrack.getSize() - 1;
-		int screenX = pointerTrack.getScreenX(last);
-		int screenY = pointerTrack.getScreenY(last);
-		touchEvent.set(pointer, button, screenX, screenY);
-		Array<SceneDragListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneDragListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).touchDragged(touchEvent);
+		dragInfo.set(pointer, button, pointerTrack.getScreenX(last), pointerTrack.getScreenY(last));
+		SceneNode2 currentNode = pointerTrack.getNode(last);
+		if (currentNode != null) {
+			dragInfo.renderable = currentNode.getComponent(RenderableComponent.class);
+			pointerTrack.getIntersection(last, dragInfo.intersection);
 		}
 
-		SceneNode2 dragStartNode = dragStartNodes.get(key);
-		if (dragStartNode != null) {
-			RenderableComponent renderableComponent = dragStartNode.getComponent(RenderableComponent.class);
-			Array<IntersectionDragListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDragListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onDragMove(renderableComponent, touchEvent);
-			}
+		EventService.post(scene.getInstanceId(), sceneDragedEvent);
 
-			Array<NodeDragListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onDragMove(touchEvent);
-			}
-		}
-
-		SceneNode2 pointerNode = pointerTrack.getNode(last);
 		SceneNode2 dragOverNode = dragOverNodes.get(key);
-		intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, last);
 		if (dragOverNode != null) {
-			RenderableComponent renderableComponent = dragOverNode.getComponent(RenderableComponent.class);
-			if (pointerNode == dragOverNode) {
-				Array<IntersectionDragOverListener> intersectionListeners = Values.cast(tempListeners);
-				EventService.getSubscribers(IntersectionDragOverListener.class, intersectionListeners);
-				for (int i = 0; i < intersectionListeners.size; i++) {
-					intersectionListeners.get(i).onDragOverMove(renderableComponent, intersectionTouchEvent);
-				}
-
-				Array<NodeDragOverListener> objectListeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragOverListener.class,
-						objectListeners);
-				for (int i = 0; i < objectListeners.size; i++) {
-					objectListeners.get(i).onDragOverMove(intersectionTouchEvent);
-				}
+			if (currentNode == dragOverNode) {
+				EventService.post(dragOverNode.getInstanceId(), dragOverMoveEvent);
 			} else {
-				Array<IntersectionDragOverListener> intersectionListeners = Values.cast(tempListeners);
-				EventService.getSubscribers(IntersectionDragOverListener.class, intersectionListeners);
-				for (int i = 0; i < intersectionListeners.size; i++) {
-					intersectionListeners.get(i).onDragOverEnd(renderableComponent, touchEvent);
-				}
-
-				Array<NodeDragOverListener> objectListeners = Values.cast(tempListeners);
-				EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragOverListener.class,
-						objectListeners);
-				for (int i = 0; i < objectListeners.size; i++) {
-					objectListeners.get(i).onDragOverEnd(touchEvent);
-				}
-
+				dragInfo.intersection.setZero();
+				dragInfo.renderable = dragOverNode.getComponent(RenderableComponent.class);
+				EventService.post(dragOverNode.getInstanceId(), dragOverEndEvent);
 				dragOverNodes.remove(key);
 			}
 		}
 
-		if (pointerNode != null && pointerNode != dragOverNode) {
-			dragOverNodes.put(key, pointerNode);
-			RenderableComponent renderableComponent = pointerNode.getComponent(RenderableComponent.class);
-			Array<IntersectionDragOverListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDragOverListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onDragOverStart(renderableComponent, intersectionTouchEvent);
-			}
-
-			Array<NodeDragOverListener> objectListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragOverListener.class, objectListeners);
-			for (int i = 0; i < objectListeners.size; i++) {
-				objectListeners.get(i).onDragOverStart(intersectionTouchEvent);
-			}
+		if (currentNode != null && currentNode != dragOverNode) {
+			dragOverNodes.put(key, currentNode);
+			dragInfo.renderable = currentNode.getComponent(RenderableComponent.class);
+			pointerTrack.getIntersection(last, dragInfo.intersection);
+			EventService.post(currentNode.getInstanceId(), dragOverStartEvent);
 		}
+
+		dragInfo.reset();
 	}
 
 	private void end(int key, int pointer, int button, PointerTrack pointerTrack) {
 		int last = pointerTrack.getSize() - 1;
-		int screenX = pointerTrack.getScreenX(last);
-		int screenY = pointerTrack.getScreenY(last);
-		touchEvent.set(pointer, button, screenX, screenY);
-
-		SceneNode2 dragStartNode = dragStartNodes.remove(key);
-		if (dragStartNode != null) {
-			RenderableComponent renderableComponent = dragStartNode.getComponent(RenderableComponent.class);
-			Array<IntersectionDragListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDragListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onDragEnd(renderableComponent, touchEvent);
-			}
-
-			Array<NodeDragListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onDragEnd(touchEvent);
-			}
+		dragInfo.set(pointer, button, pointerTrack.getScreenX(last), pointerTrack.getScreenY(last));
+		SceneNode2 node = pointerTrack.getNode(last);
+		if (node != null) {
+			dragInfo.renderable = node.getComponent(RenderableComponent.class);
+			pointerTrack.getIntersection(last, dragInfo.intersection);
 		}
+
+		EventService.post(scene.getInstanceId(), sceneDragEndEvent);
 
 		SceneNode2 dragOverNode = dragOverNodes.remove(key);
 		if (dragOverNode != null) {
-			RenderableComponent renderableComponent = dragOverNode.getComponent(RenderableComponent.class);
-			Array<IntersectionDragOverListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionDragOverListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onDragOverEnd(renderableComponent, touchEvent);
+			if (dragOverNode != node) {
+				dragInfo.renderable = dragOverNode.getComponent(RenderableComponent.class);
+				dragInfo.intersection.setZero();
 			}
-
-			Array<NodeDragOverListener> objectListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeDragOverListener.class, objectListeners);
-			for (int i = 0; i < objectListeners.size; i++) {
-				objectListeners.get(i).onDragOverEnd(touchEvent);
-			}
+			EventService.post(dragOverNode.getInstanceId(), dragOverEndEvent);
 		}
+
+		dragInfo.reset();
 	}
 
 	@Override
 	public void reset() {
-		dragStartNodes.clear();
 		dragOverNodes.clear();
+	}
+
+	private class SceneDragStartEvent implements Event<SceneDragListener> {
+		@Override
+		public Class<SceneDragListener> getSubscriptionType() {
+			return SceneDragListener.class;
+		}
+
+		@Override
+		public void dispatch(SceneDragListener subscriber) {
+			subscriber.onDragStart(dragInfo);
+		}
+	}
+
+	private class SceneDragedEvent implements Event<SceneDragListener> {
+		@Override
+		public Class<SceneDragListener> getSubscriptionType() {
+			return SceneDragListener.class;
+		}
+
+		@Override
+		public void dispatch(SceneDragListener subscriber) {
+			subscriber.onDragged(dragInfo);
+		}
+	}
+
+	private class SceneDragEndEvent implements Event<SceneDragListener> {
+		@Override
+		public Class<SceneDragListener> getSubscriptionType() {
+			return SceneDragListener.class;
+		}
+
+		@Override
+		public void dispatch(SceneDragListener subscriber) {
+			subscriber.onDragEnd(dragInfo);
+		}
+	}
+
+	private class DragOverStartEvent implements Event<NodeDragOverListener> {
+		@Override
+		public Class<NodeDragOverListener> getSubscriptionType() {
+			return NodeDragOverListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeDragOverListener subscriber) {
+			subscriber.onDragOverStart(dragInfo);
+		}
+	}
+
+	private class DragOverMoveEvent implements Event<NodeDragOverListener> {
+
+		@Override
+		public Class<NodeDragOverListener> getSubscriptionType() {
+			return NodeDragOverListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeDragOverListener subscriber) {
+			subscriber.onDragOverMove(dragInfo);
+		}
+	}
+
+	private class DragOverEndEvent implements Event<NodeDragOverListener> {
+		@Override
+		public Class<NodeDragOverListener> getSubscriptionType() {
+			return NodeDragOverListener.class;
+		}
+
+		@Override
+		public void dispatch(NodeDragOverListener subscriber) {
+			subscriber.onDragOverEnd(dragInfo);
+		}
 	}
 }

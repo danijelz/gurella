@@ -150,15 +150,4 @@ public class EventService {
 
 		PoolService.free(listenersByType);
 	}
-
-	public static <L extends EventSubscription> Array<? super L> getSubscribers(int channel, Class<L> subscriptionType,
-			Array<? super L> out) {
-		synchronized (channels) {
-			EventBus eventBus = channels.get(channel);
-			if (eventBus != null) {
-				eventBus.getSubscribers(subscriptionType, out);
-			}
-		}
-		return out;
-	}
 }

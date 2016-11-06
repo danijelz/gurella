@@ -3,21 +3,22 @@ package com.gurella.engine.scene.input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.scene.input.NodeDragSourceListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDropTargetListener;
 import com.gurella.engine.utils.Values;
 
 public class DragAndDropProcessor implements PointerActivityListener {
+	private final Scene scene;
+	
 	private SceneNode2 sourceNode;
 	private SceneNode2 targetNode;
 	private Array<DragSource> dragSources = new Array<DragSource>(10);
 	private Array<DropTarget> dropTargets = new Array<DropTarget>(10);
 
-	private Array<Object> tempListeners;
-
-	public DragAndDropProcessor(Array<Object> tempListeners) {
-		this.tempListeners = tempListeners;
+	public DragAndDropProcessor(Scene scene) {
+		this.scene = scene;
 	}
 
 	@Override

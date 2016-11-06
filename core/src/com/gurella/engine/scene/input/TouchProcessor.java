@@ -1,28 +1,29 @@
 package com.gurella.engine.scene.input;
 
 import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.pool.PoolService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.subscriptions.scene.input.IntersectionLongPressListener;
-import com.gurella.engine.subscriptions.scene.input.IntersectionTapListener;
 import com.gurella.engine.subscriptions.scene.input.NodeLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.NodeTapListener;
 import com.gurella.engine.subscriptions.scene.input.SceneLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTapListener;
 import com.gurella.engine.utils.IntLongMap;
-import com.gurella.engine.utils.Values;
 
 public class TouchProcessor implements PointerActivityListener {
+	private final Scene scene;
+	private final DragAndDropProcessor dragAndDropProcessor;
+
 	private float tapSquareSize = 20;
 	private long tapCountInterval = (long) (0.4f * 1000000000l);
 	private float longPressSeconds = 0.8f;
@@ -33,14 +34,16 @@ public class TouchProcessor implements PointerActivityListener {
 	private final IntIntMap tapCounters = new IntIntMap(10);
 	private final IntLongMap lastTapTimes = new IntLongMap(10);
 
-	private final TouchEvent touchEvent = new TouchEvent();
-	private final IntersectionTouchEvent intersectionTouchEvent = new IntersectionTouchEvent();
+	private final TapInfo tapInfo = new TapInfo();
+	private final TapEvent tapEvent = new TapEvent();
+	private final NodeTapEvent nodeTapEvent = new NodeTapEvent();
 
-	private Array<Object> tempListeners;
-	private DragAndDropProcessor dragAndDropProcessor;
+	private final LongPressInfo longPressInfo = new LongPressInfo();
+	private final LongPressEvent longPressEvent = new LongPressEvent();
+	private final NodeLongPressEvent nodeLongPressEvent = new NodeLongPressEvent();
 
-	public TouchProcessor(Array<Object> tempListeners, DragAndDropProcessor dragAndDropProcessor) {
-		this.tempListeners = tempListeners;
+	public TouchProcessor(Scene scene, DragAndDropProcessor dragAndDropProcessor) {
+		this.scene = scene;
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}
 
@@ -144,62 +147,42 @@ public class TouchProcessor implements PointerActivityListener {
 	}
 
 	private void dispatchTap(int key, int pointer, int button, PointerTrack pointerTrack) {
-		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
-		int tapCount = tapCounters.get(key, 1);
-		touchEvent.set(pointer, button, screenX, screenY);
-		Array<SceneTapListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneTapListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).tap(touchEvent, tapCount);
-		}
-
+		tapInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0));
+		tapInfo.count = tapCounters.get(key, 1);
 		SceneNode2 node = pointerTrack.getCommonNode();
 		if (node != null) {
-			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
-			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			Array<IntersectionTapListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionTapListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onTap(renderableComponent, intersectionTouchEvent, tapCount);
-			}
-
-			Array<NodeTapListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeTapListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onTap(intersectionTouchEvent, tapCount);
-			}
+			tapInfo.renderable = node.getComponent(RenderableComponent.class);
+			pointerTrack.getIntersection(0, tapInfo.intersection);
 		}
+
+		EventService.post(scene.getInstanceId(), tapEvent);
+
+		if (node != null) {
+			EventService.post(node.getInstanceId(), nodeTapEvent);
+		}
+
+		tapInfo.reset();
 	}
 
 	private void dispatchLongPress(int pointer, int button, PointerTrack pointerTrack) {
-		int screenX = pointerTrack.getScreenX(0), screenY = pointerTrack.getScreenY(0);
-		touchEvent.set(pointer, button, screenX, screenY);
-		Array<SceneLongPressListener> globalListeners = Values.cast(tempListeners);
-		EventService.getSubscribers(SceneLongPressListener.class, globalListeners);
-		for (int i = 0; i < globalListeners.size; i++) {
-			globalListeners.get(i).longPress(touchEvent);
-		}
-
+		longPressInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0));
 		SceneNode2 node = pointerTrack.getCommonNode();
 		if (node != null) {
-			intersectionTouchEvent.set(pointer, button, screenX, screenY, pointerTrack, 0);
-			RenderableComponent renderableComponent = node.getComponent(RenderableComponent.class);
-			Array<IntersectionLongPressListener> intersectionListeners = Values.cast(tempListeners);
-			EventService.getSubscribers(IntersectionLongPressListener.class, intersectionListeners);
-			for (int i = 0; i < intersectionListeners.size; i++) {
-				intersectionListeners.get(i).onLongPress(renderableComponent, intersectionTouchEvent);
-			}
+			longPressInfo.renderable = node.getComponent(RenderableComponent.class);
+			pointerTrack.getIntersection(0, longPressInfo.intersection);
+		}
 
-			Array<NodeLongPressListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(renderableComponent.getNodeId(), NodeLongPressListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).onLongPress(intersectionTouchEvent);
-			}
+		EventService.post(scene.getInstanceId(), longPressEvent);
+
+		if (node != null) {
+			EventService.post(node.getInstanceId(), nodeLongPressEvent);
 
 			if (pointer == 0 && button == Buttons.LEFT && pointerTrack.getPhase() != PointerTrackerPhase.end) {
 				dragAndDropProcessor.longPress(pointerTrack);
 			}
 		}
+
+		longPressInfo.reset();
 	}
 
 	@Override
@@ -207,6 +190,7 @@ public class TouchProcessor implements PointerActivityListener {
 		for (LongPressTask longPressTask : tasks.values()) {
 			pool.free(longPressTask);
 		}
+
 		tasks.clear();
 		validKeys.clear();
 		tapCounters.clear();
@@ -242,6 +226,54 @@ public class TouchProcessor implements PointerActivityListener {
 		@Override
 		protected LongPressTask newObject() {
 			return new LongPressTask();
+		}
+	}
+
+	private class TapEvent implements Event<SceneTapListener> {
+		@Override
+		public void dispatch(SceneTapListener listener) {
+			listener.onTap(tapInfo);
+		}
+
+		@Override
+		public Class<SceneTapListener> getSubscriptionType() {
+			return SceneTapListener.class;
+		}
+	}
+
+	private class NodeTapEvent implements Event<NodeTapListener> {
+		@Override
+		public void dispatch(NodeTapListener listener) {
+			listener.onTap(tapInfo);
+		}
+
+		@Override
+		public Class<NodeTapListener> getSubscriptionType() {
+			return NodeTapListener.class;
+		}
+	}
+
+	private class LongPressEvent implements Event<SceneLongPressListener> {
+		@Override
+		public void dispatch(SceneLongPressListener listener) {
+			listener.onLongPress(longPressInfo);
+		}
+
+		@Override
+		public Class<SceneLongPressListener> getSubscriptionType() {
+			return SceneLongPressListener.class;
+		}
+	}
+
+	private class NodeLongPressEvent implements Event<NodeLongPressListener> {
+		@Override
+		public void dispatch(NodeLongPressListener listener) {
+			listener.onLongPress(longPressInfo);
+		}
+
+		@Override
+		public Class<NodeLongPressListener> getSubscriptionType() {
+			return NodeLongPressListener.class;
 		}
 	}
 }

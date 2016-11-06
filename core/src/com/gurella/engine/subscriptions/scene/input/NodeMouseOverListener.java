@@ -1,12 +1,12 @@
 package com.gurella.engine.subscriptions.scene.input;
 
-import com.badlogic.gdx.math.Vector3;
+import com.gurella.engine.scene.input.MouseMoveInfo;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 
 public interface NodeMouseOverListener extends NodeEventSubscription {
-	void onMouseOverStart(int screenX, int screenY, Vector3 intersection);
+	void onMouseOverStart(MouseMoveInfo mouseMoveInfo);
 
-	public void onMouseOverMove(int screenX, int screenY, Vector3 intersection);
+	void onMouseOverMove(MouseMoveInfo mouseMoveInfo);
 
-	public void onMouseOverEnd(int screenX, int screenY);
+	void onMouseOverEnd(MouseMoveInfo mouseMoveInfo);
 }

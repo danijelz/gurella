@@ -72,6 +72,10 @@ public class PointerTrack implements Poolable {
 		return intersectionZ.get(index);
 	}
 
+	public Vector3 getIntersection(int index, Vector3 out) {
+		return out.set(intersectionX.get(index), intersectionY.get(index), intersectionZ.get(index));
+	}
+
 	public SceneNode2 getNode(int index) {
 		return nodes.get(index);
 	}

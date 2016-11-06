@@ -1,8 +1,8 @@
 package com.gurella.engine.subscriptions.scene.input;
 
-import com.gurella.engine.scene.input.TouchEvent;
+import com.gurella.engine.scene.input.TapInfo;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public interface SceneTapListener extends SceneEventSubscription {
-	void tap(TouchEvent touchEvent, int count);
+	void onTap(TapInfo tapInfo);
 }
