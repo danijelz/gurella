@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
@@ -28,7 +27,7 @@ public class TouchProcessor extends PointerProcessor {
 	private long tapCountInterval = (long) (0.4f * 1000000000l);
 	private float longPressSeconds = 0.8f;
 
-	private final LongPressTaskPool pool = new LongPressTaskPool();
+	private final LongPressTaskPool pool = new LongPressTaskPool();//TODO remove map and init array of 10 tasks
 	private final IntMap<LongPressTask> tasks = new IntMap<LongPressTask>(10);
 	private final IntIntMap validKeys = new IntIntMap(10);
 	private final IntIntMap tapCounters = new IntIntMap(10);
@@ -97,7 +96,7 @@ public class TouchProcessor extends PointerProcessor {
 		LongPressTask task = tasks.remove(key);
 		if (task != null) {
 			task.cancel();
-			PoolService.free(task);
+			pool.free(task);
 		}
 	}
 
