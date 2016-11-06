@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.input;
+package com.gurella.engine.scene.input.dnd;
 
 import com.badlogic.gdx.utils.Array;
 

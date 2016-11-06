@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.input;
+package com.gurella.engine.scene.input.dnd;
 
 public interface DragSource {
 	void dragStarted(float screenX, float screenY);

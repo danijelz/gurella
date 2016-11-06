@@ -1,31 +1,32 @@
-package com.gurella.engine.scene.input;
+package com.gurella.engine.scene.input.dnd;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.input.PointerActivityListener;
+import com.gurella.engine.scene.input.PointerTrack;
 import com.gurella.engine.subscriptions.scene.input.NodeDragSourceListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDropTargetListener;
-import com.gurella.engine.utils.Values;
 
 public class DragAndDropProcessor implements PointerActivityListener {
-	private final Scene scene;
-	
 	private SceneNode2 sourceNode;
 	private SceneNode2 targetNode;
-	private Array<DragSource> dragSources = new Array<DragSource>(10);
+
+	private DragStartCondition condition;
+	private final Array<DragSource> dragSources = new Array<DragSource>(10);
 	private Array<DropTarget> dropTargets = new Array<DropTarget>(10);
 
-	public DragAndDropProcessor(Scene scene) {
-		this.scene = scene;
-	}
+	private final NodeDragSourceEvent dragSourceEvent = new NodeDragSourceEvent();
+	private final NodeDropTargetEvent dropTargetEvent = new NodeDropTargetEvent();
 
 	@Override
 	public void onPointerActivity(int pointer, int button, PointerTrack pointerTrack) {
 		if (pointer != 0 || button != Buttons.LEFT) {
 			return;
 		}
+
 		switch (pointerTrack.getPhase()) {
 		case begin:
 			begin(pointerTrack, DragStartCondition.none);
@@ -47,7 +48,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 			return;
 		}
 
-		initDragSources(node, condition);
+		this.condition = condition;
+		EventService.post(node.getInstanceId(), dragSourceEvent);
 		if (dragSources.size < 1) {
 			return;
 		}
@@ -55,25 +57,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		sourceNode = node;
 		int screenX = pointerTrack.getScreenX(0);
 		int screenY = pointerTrack.getScreenY(0);
-
 		for (int i = 0; i < dragSources.size; i++) {
 			dragSources.get(i).dragStarted(screenX, screenY);
-		}
-	}
-
-	private void initDragSources(SceneNode2 node, DragStartCondition condition) {
-		dragSources.clear();
-		Array<NodeDragSourceListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(node.getInstanceId(), NodeDragSourceListener.class, listeners);
-		if (listeners.size < 1) {
-			return;
-		}
-
-		for (int i = 0; i < listeners.size; i++) {
-			DragSource dragSource = listeners.get(i).getDragSource(condition);
-			if (dragSource != null) {
-				dragSources.add(dragSource);
-			}
 		}
 	}
 
@@ -105,7 +90,7 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		}
 
 		if (node != null && node != targetNode && node != sourceNode) {
-			initDropTargets(node);
+			EventService.post(node.getInstanceId(), dropTargetEvent);
 			if (dropTargets.size < 1) {
 				return;
 			}
@@ -113,21 +98,6 @@ public class DragAndDropProcessor implements PointerActivityListener {
 			targetNode = node;
 			for (int i = 0; i < dropTargets.size; i++) {
 				dropTargets.get(i).dragIn(screenX, screenY, dragSources);
-			}
-		}
-	}
-
-	private void initDropTargets(SceneNode2 node) {
-		Array<NodeDropTargetListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(node.getInstanceId(), NodeDropTargetListener.class, listeners);
-		if (listeners.size < 1) {
-			return;
-		}
-
-		for (int i = 0; i < listeners.size; i++) {
-			DropTarget dropTarget = listeners.get(i).getDropTarget(dragSources);
-			if (dropTarget != null) {
-				dropTargets.add(dropTarget);
 			}
 		}
 	}
@@ -160,13 +130,13 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		dragSources.clear();
 	}
 
-	void longPress(PointerTrack pointerTrack) {
+	public void longPress(PointerTrack pointerTrack) {
 		if (sourceNode == null) {
 			begin(pointerTrack, DragStartCondition.longPress);
 		}
 	}
 
-	void doubleTouch(PointerTrack pointerTrack) {
+	public void doubleTouch(PointerTrack pointerTrack) {
 		if (sourceNode == null) {
 			begin(pointerTrack, DragStartCondition.doubleTouch);
 		}
@@ -178,5 +148,35 @@ public class DragAndDropProcessor implements PointerActivityListener {
 		targetNode = null;
 		dragSources.clear();
 		dropTargets.clear();
+	}
+
+	private class NodeDragSourceEvent implements Event<NodeDragSourceListener> {
+		@Override
+		public void dispatch(NodeDragSourceListener listener) {
+			DragSource dragSource = listener.getDragSource(condition);
+			if (dragSource != null) {
+				dragSources.add(dragSource);
+			}
+		}
+
+		@Override
+		public Class<NodeDragSourceListener> getSubscriptionType() {
+			return NodeDragSourceListener.class;
+		}
+	}
+
+	private class NodeDropTargetEvent implements Event<NodeDropTargetListener> {
+		@Override
+		public void dispatch(NodeDropTargetListener listener) {
+			DropTarget dropTarget = listener.getDropTarget(dragSources);
+			if (dropTarget != null) {
+				dropTargets.add(dropTarget);
+			}
+		}
+
+		@Override
+		public Class<NodeDropTargetListener> getSubscriptionType() {
+			return NodeDropTargetListener.class;
+		}
 	}
 }

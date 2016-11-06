@@ -28,6 +28,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
@@ -61,10 +62,10 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private transient final Array<Object> tempListeners = new Array<Object>(64);
 
 	private transient final MouseMoveProcessor mouseMoveProcessor;
+	private transient final DragProcessor dragProcessor;
 	private transient final DragAndDropProcessor dragAndDropProcessor;
 	private transient final TouchProcessor touchProcessor;
 	private transient final DoubleTouchProcessor doubleTouchProcessor;
-	private transient final DragProcessor dragProcessor;
 
 	public byte inputActionsFrequency = 10;// TODO limit mouse moves;
 	private transient long lastActionHandled;
@@ -72,8 +73,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	public InputSystem(Scene scene) {
 		super(scene);
 		mouseMoveProcessor = new MouseMoveProcessor(scene);
-		dragAndDropProcessor = new DragAndDropProcessor(scene);
 		dragProcessor = new DragProcessor(scene);
+		dragAndDropProcessor = new DragAndDropProcessor();
 		touchProcessor = new TouchProcessor(scene, dragAndDropProcessor);
 		doubleTouchProcessor = new DoubleTouchProcessor(scene, dragAndDropProcessor);
 
