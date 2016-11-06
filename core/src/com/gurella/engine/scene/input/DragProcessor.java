@@ -9,9 +9,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.NodeDragOverListener;
 import com.gurella.engine.subscriptions.scene.input.SceneDragListener;
 
-public class DragProcessor implements PointerActivityListener {
-	private final Scene scene;
-
+public class DragProcessor extends PointerProcessor {
 	private final IntMap<SceneNode2> dragOverNodes = new IntMap<SceneNode2>(10);
 
 	private final DragInfo dragInfo = new DragInfo();
@@ -25,7 +23,7 @@ public class DragProcessor implements PointerActivityListener {
 	private final DragOverEndEvent dragOverEndEvent = new DragOverEndEvent();
 
 	public DragProcessor(Scene scene) {
-		this.scene = scene;
+		super(scene);
 	}
 
 	@Override
@@ -54,7 +52,7 @@ public class DragProcessor implements PointerActivityListener {
 			pointerTrack.getIntersection(0, dragInfo.intersection);
 		}
 
-		EventService.post(scene.getInstanceId(), sceneDragStartEvent);
+		EventService.post(sceneId, sceneDragStartEvent);
 
 		if (node != null) {
 			dragOverNodes.put(key, node);
@@ -73,7 +71,7 @@ public class DragProcessor implements PointerActivityListener {
 			pointerTrack.getIntersection(last, dragInfo.intersection);
 		}
 
-		EventService.post(scene.getInstanceId(), sceneDragedEvent);
+		EventService.post(sceneId, sceneDragedEvent);
 
 		SceneNode2 dragOverNode = dragOverNodes.get(key);
 		if (dragOverNode != null) {
@@ -106,7 +104,7 @@ public class DragProcessor implements PointerActivityListener {
 			pointerTrack.getIntersection(last, dragInfo.intersection);
 		}
 
-		EventService.post(scene.getInstanceId(), sceneDragEndEvent);
+		EventService.post(sceneId, sceneDragEndEvent);
 
 		SceneNode2 dragOverNode = dragOverNodes.remove(key);
 		if (dragOverNode != null) {
@@ -121,7 +119,8 @@ public class DragProcessor implements PointerActivityListener {
 	}
 
 	@Override
-	public void reset() {
+	public void sceneDeactivated() {
+		super.sceneDeactivated();
 		dragOverNodes.clear();
 	}
 

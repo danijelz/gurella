@@ -4,13 +4,14 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.input.PointerActivityListener;
+import com.gurella.engine.scene.input.PointerProcessor;
 import com.gurella.engine.scene.input.PointerTrack;
 import com.gurella.engine.subscriptions.scene.input.NodeDragSourceListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDropTargetListener;
 
-public class DragAndDropProcessor implements PointerActivityListener {
+public class DragAndDropProcessor extends PointerProcessor {
 	private SceneNode2 sourceNode;
 	private SceneNode2 targetNode;
 
@@ -20,6 +21,10 @@ public class DragAndDropProcessor implements PointerActivityListener {
 
 	private final NodeDragSourceEvent dragSourceEvent = new NodeDragSourceEvent();
 	private final NodeDropTargetEvent dropTargetEvent = new NodeDropTargetEvent();
+
+	public DragAndDropProcessor(Scene scene) {
+		super(scene);
+	}
 
 	@Override
 	public void onPointerActivity(int pointer, int button, PointerTrack pointerTrack) {
@@ -143,7 +148,8 @@ public class DragAndDropProcessor implements PointerActivityListener {
 	}
 
 	@Override
-	public void reset() {
+	public void sceneDeactivated() {
+		super.sceneDeactivated();
 		sourceNode = null;
 		targetNode = null;
 		dragSources.clear();

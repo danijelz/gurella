@@ -55,7 +55,7 @@ class MouseMoveProcessor {
 		mouseMoveInfo.reset();
 	}
 
-	void reset() {
+	void sceneDeactivated() {
 		mouseOverNode = null;
 	}
 

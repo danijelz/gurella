@@ -12,8 +12,7 @@ import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchListener;
 import com.gurella.engine.subscriptions.scene.input.SceneDoubleTouchListener;
 import com.gurella.engine.utils.IntLongMap;
 
-public class DoubleTouchProcessor implements PointerActivityListener {
-	private final Scene scene;
+public class DoubleTouchProcessor extends PointerProcessor {
 	private DragAndDropProcessor dragAndDropProcessor;
 
 	private float tapSquareSize = 20;
@@ -29,7 +28,7 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 	private final NodeDoubleTouchDownEvent nodeDoubleTouchDownEvent = new NodeDoubleTouchDownEvent();
 
 	public DoubleTouchProcessor(Scene scene, DragAndDropProcessor dragAndDropProcessor) {
-		this.scene = scene;
+		super(scene);
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}
 
@@ -113,7 +112,8 @@ public class DoubleTouchProcessor implements PointerActivityListener {
 	}
 
 	@Override
-	public void reset() {
+	public void sceneDeactivated() {
+		super.sceneDeactivated();
 		startTimes.clear();
 		startScreenX.clear();
 		startScreenY.clear();

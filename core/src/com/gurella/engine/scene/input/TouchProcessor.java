@@ -21,8 +21,7 @@ import com.gurella.engine.subscriptions.scene.input.SceneLongPressListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTapListener;
 import com.gurella.engine.utils.IntLongMap;
 
-public class TouchProcessor implements PointerActivityListener {
-	private final Scene scene;
+public class TouchProcessor extends PointerProcessor {
 	private final DragAndDropProcessor dragAndDropProcessor;
 
 	private float tapSquareSize = 20;
@@ -44,7 +43,7 @@ public class TouchProcessor implements PointerActivityListener {
 	private final NodeLongPressEvent nodeLongPressEvent = new NodeLongPressEvent();
 
 	public TouchProcessor(Scene scene, DragAndDropProcessor dragAndDropProcessor) {
-		this.scene = scene;
+		super(scene);
 		this.dragAndDropProcessor = dragAndDropProcessor;
 	}
 
@@ -187,7 +186,8 @@ public class TouchProcessor implements PointerActivityListener {
 	}
 
 	@Override
-	public void reset() {
+	public void sceneDeactivated() {
+		super.sceneDeactivated();
 		for (LongPressTask longPressTask : tasks.values()) {
 			pool.free(longPressTask);
 		}

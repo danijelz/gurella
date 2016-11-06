@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.event.Signal;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
@@ -36,29 +35,21 @@ import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.input.NodeScrollListener;
 import com.gurella.engine.subscriptions.scene.input.NodeTouchListener;
-import com.gurella.engine.subscriptions.scene.input.SceneKeyListener;
-import com.gurella.engine.subscriptions.scene.input.SceneKeyTypedListener;
 import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
-import com.gurella.engine.subscriptions.scene.input.SceneTouchDraggedListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
-import com.gurella.engine.utils.Values;
 
 public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
 	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
 
 	private SpatialSystem<?> spatialSystem;
 
-	private transient final InputProcessorDelegate delegate = new InputProcessorDelegate();
-	private transient final InputAdapter dummyDelegate = new InputAdapter();
-	private transient final InputEventQueue inputQueue = new InputEventQueue(delegate);
+	private transient final InputProcessorDelegate delegate;
+	private transient final InputAdapter dummyDelegate;
+	private transient final InputEventQueue inputQueue;
 
 	private transient final IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
-	private transient final PointerActivitySignal pointerActivitySignal = new PointerActivitySignal();
 
-	private transient final Array<Object> tempListeners = new Array<Object>(64);
-
-	private transient final MouseMoveProcessor mouseMoveProcessor;
 	private transient final DragProcessor dragProcessor;
 	private transient final DragAndDropProcessor dragAndDropProcessor;
 	private transient final TouchProcessor touchProcessor;
@@ -69,35 +60,41 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 	public InputSystem(Scene scene) {
 		super(scene);
-		mouseMoveProcessor = new MouseMoveProcessor(scene);
+
+		delegate = new InputProcessorDelegate(scene);
+		dummyDelegate = new InputAdapter();
+		inputQueue = new InputEventQueue(delegate);
+
 		dragProcessor = new DragProcessor(scene);
-		dragAndDropProcessor = new DragAndDropProcessor();
+		dragAndDropProcessor = new DragAndDropProcessor(scene);
 		touchProcessor = new TouchProcessor(scene, dragAndDropProcessor);
 		doubleTouchProcessor = new DoubleTouchProcessor(scene, dragAndDropProcessor);
-
-		pointerActivitySignal.addListener(dragAndDropProcessor);
-		pointerActivitySignal.addListener(touchProcessor);
-		pointerActivitySignal.addListener(doubleTouchProcessor);
-		pointerActivitySignal.addListener(dragProcessor);
 	}
 
 	@Override
 	protected void serviceActivated() {
 		spatialSystem = scene.spatialSystem;
 		InputService.addInputProcessor(inputQueue);
+
+		dragProcessor.sceneActivated();
+		dragAndDropProcessor.sceneActivated();
+		touchProcessor.sceneActivated();
+		doubleTouchProcessor.sceneActivated();
 	}
 
 	@Override
 	protected void serviceDeactivated() {
 		InputService.removeInputProcessor(inputQueue);
-		// TODO update listeners and finish actions
 		inputQueue.setProcessor(dummyDelegate);
 		inputQueue.drain();
 		inputQueue.setProcessor(delegate);
 
-		delegate.reset();
-		pointerActivitySignal.reset();
-		mouseMoveProcessor.reset();
+		// TODO update listeners and finish actions
+		delegate.sceneDeactivated();
+		dragProcessor.sceneDeactivated();
+		dragAndDropProcessor.sceneDeactivated();
+		touchProcessor.sceneDeactivated();
+		doubleTouchProcessor.sceneDeactivated();
 
 		spatialSystem = null;
 	}
@@ -105,7 +102,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	@Override
 	public void onInputUpdate() {
 		inputQueue.drain();
-		delegate.clean();
+		delegate.finshUpdate();
 	}
 
 	@Override
@@ -245,6 +242,14 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	private class InputProcessorDelegate implements InputProcessor {
+		private final Scene scene;
+
+		private final PointerActivityEvent pointerActivityEvent;
+
+		private final KeyDownEvent keyDownEvent;
+		private final KeyUpEvent keyUpEvent;
+		private final KeyTypedEvent keyTypedEvent;
+
 		private final TouchInfo touchInfo = new TouchInfo();
 		private final SceneTouchDownEvent sceneTouchDownEvent = new SceneTouchDownEvent();
 		private final SceneTouchUpEvent sceneTouchUpEvent = new SceneTouchUpEvent();
@@ -255,33 +260,34 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		private final SceneScrollEvent sceneScrollEvent = new SceneScrollEvent();
 		private final NodeScrollEvent nodeScrollEvent = new NodeScrollEvent();
 
+		private transient final MouseMoveProcessor mouseMoveProcessor;
+
+		public InputProcessorDelegate(Scene scene) {
+			this.scene = scene;
+
+			keyDownEvent = new KeyDownEvent(scene);
+			keyUpEvent = new KeyUpEvent(scene);
+			keyTypedEvent = new KeyTypedEvent(scene);
+			pointerActivityEvent = new PointerActivityEvent(scene);
+
+			mouseMoveProcessor = new MouseMoveProcessor(scene);
+		}
+
 		@Override
 		public boolean keyDown(int keycode) {
-			Array<SceneKeyListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(SceneKeyListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).keyDown(keycode);
-			}
+			keyDownEvent.post(keycode);
 			return false;
 		}
 
 		@Override
 		public boolean keyUp(int keycode) {
-			Array<SceneKeyListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(SceneKeyListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).keyUp(keycode);
-			}
+			keyUpEvent.post(keycode);
 			return false;
 		}
 
 		@Override
 		public boolean keyTyped(char character) {
-			Array<SceneKeyTypedListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(SceneKeyTypedListener.class, listeners);
-			for (int i = 0; i < listeners.size; i++) {
-				listeners.get(i).keyTyped(character);
-			}
+			keyTypedEvent.post(character);
 			return false;
 		}
 
@@ -333,7 +339,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 				EventService.post(node.getInstanceId(), nodeTouchDownEvent);
 			}
 
-			pointerActivitySignal.onPointerActivity(pointer, button, tracker);
+			pointerActivityEvent.post(pointer, button, tracker);
 			touchInfo.reset();
 
 			return false;
@@ -358,7 +364,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			if (tracker != null) {
 				long eventTime = inputQueue.getCurrentEventTime();
 				tracker.add(eventTime, screenX, screenY, closestIntersection, node, end);
-				pointerActivitySignal.onPointerActivity(pointer, button, tracker);
+				pointerActivityEvent.post(pointer, button, tracker);
 			}
 
 			return false;
@@ -371,18 +377,11 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
-					touchInfo.set(pointer, button, screenX, screenY);
-					Array<SceneTouchDraggedListener> listeners = Values.cast(tempListeners);
-					EventService.getSubscribers(SceneTouchDraggedListener.class, listeners);
-					for (int i = 0; i < listeners.size; i++) {
-						listeners.get(i).touchDragged(touchInfo);
-					}
-
 					PointerTrack tracker = getTracker(pointer, button);
 					if (tracker != null) {
 						long eventTime = inputQueue.getCurrentEventTime();
 						tracker.add(eventTime, screenX, screenY, closestIntersection, node, move);
-						pointerActivitySignal.onPointerActivity(pointer, button, tracker);
+						pointerActivityEvent.post(pointer, button, tracker);
 					}
 				}
 			}
@@ -390,14 +389,15 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			return false;
 		}
 
-		private void reset() {
+		private void sceneDeactivated() {
+			mouseMoveProcessor.sceneDeactivated();
 			for (PointerTrack pointerTrack : trackers.values()) {
 				PoolService.free(pointerTrack);
 			}
 			trackers.clear();
 		}
 
-		private void clean() {
+		private void finshUpdate() {
 			Entries<PointerTrack> entries = trackers.entries();
 			while (entries.hasNext()) {
 				Entry<PointerTrack> entry = entries.next();
@@ -479,24 +479,6 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			public void dispatch(NodeScrollListener subscriber) {
 				subscriber.onScrolled(scrollInfo);
 			}
-		}
-	}
-
-	public static class PointerActivitySignal extends Signal<PointerActivityListener> {
-		public void onPointerActivity(int pointer, int button, PointerTrack pointerTrack) {
-			Object[] items = listeners.begin();
-			for (int i = 0, n = listeners.size; i < n; i++) {
-				((PointerActivityListener) items[i]).onPointerActivity(pointer, button, pointerTrack);
-			}
-			listeners.end();
-		}
-
-		private void reset() {
-			Object[] items = listeners.begin();
-			for (int i = 0, n = listeners.size; i < n; i++) {
-				((PointerActivityListener) items[i]).reset();
-			}
-			listeners.end();
 		}
 	}
 }

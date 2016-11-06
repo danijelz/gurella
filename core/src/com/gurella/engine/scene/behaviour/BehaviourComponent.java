@@ -21,7 +21,6 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.Collision;
 import com.gurella.engine.scene.bullet.CollisionPair;
 import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
-import com.gurella.engine.scene.input.PointerActivityListener;
 import com.gurella.engine.scene.input.TouchInfo;
 import com.gurella.engine.scene.input.dnd.DragSource;
 import com.gurella.engine.scene.input.dnd.DragStartCondition;
@@ -34,6 +33,7 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.tag.Tag;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.subscriptions.scene.input.PointerActivityListener;
 import com.gurella.engine.utils.ImmutableArray;
 
 @SuppressWarnings("unused")
