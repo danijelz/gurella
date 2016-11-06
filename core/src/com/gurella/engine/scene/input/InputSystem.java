@@ -148,8 +148,9 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		Spatial closestSpatial = null;
 		for (int i = 0, n = spatials.size; i < n; i++) {
 			Spatial spatial = spatials.get(i);
-			//TODO closestSpatial.renderable.looseInput
-			if (intersector.append(spatial.renderable)) {
+			RenderableComponent renderable = spatial.renderable;
+			//TODO renderable.looseInput, renderable.inputSensitivity
+			if (renderable.inputSensitivity != 0 && intersector.append(renderable)) {
 				closestSpatial = spatial;
 			}
 		}

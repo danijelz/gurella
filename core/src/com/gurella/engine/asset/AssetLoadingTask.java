@@ -102,6 +102,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 				break;
 			case readyForAsyncLoading:
 				loadAsync();
+				break;
 			default:
 				throw new IllegalStateException();
 			}

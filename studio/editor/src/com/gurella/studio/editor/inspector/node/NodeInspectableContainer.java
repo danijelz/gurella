@@ -73,6 +73,7 @@ import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.test.TestEditorComponent;
+import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
@@ -190,6 +191,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		new MenuItem(menu, SEPARATOR);
 		addMenuItem(menu, TestPropertyEditorsComponent.class);
 		addMenuItem(menu, TestEditorComponent.class);
+		addMenuItem(menu, TestInputComponent.class);
 		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 
