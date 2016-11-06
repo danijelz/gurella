@@ -43,6 +43,14 @@ public class ModelIntesector {
 
 	private ModelInstance modelInstance;
 
+	public boolean getIntersection(Vector3 cameraPosition, Ray ray, ModelInstance modelInstance,
+			Intersection intersection) {
+		init(cameraPosition, ray);
+		process(modelInstance);
+		intersection.distance = closestDistance;
+		return extractResult(intersection.location);
+	}
+
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, ModelInstance modelInstance, Vector3 intersection) {
 		init(cameraPosition, ray);
 		process(modelInstance);
