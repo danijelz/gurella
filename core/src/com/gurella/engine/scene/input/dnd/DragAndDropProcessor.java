@@ -17,6 +17,7 @@ public class DragAndDropProcessor extends PointerProcessor {
 
 	private DragStartCondition condition;
 	private final Array<DragSource> dragSources = new Array<DragSource>(10);
+	private final Array<Object> transferData = new Array<Object>(10);
 	private Array<DropTarget> dropTargets = new Array<DropTarget>(10);
 
 	private final NodeDragSourceEvent dragSourceEvent = new NodeDragSourceEvent();
@@ -83,11 +84,11 @@ public class DragAndDropProcessor extends PointerProcessor {
 		if (targetNode != null) {
 			if (targetNode == node) {
 				for (int i = 0; i < dropTargets.size; i++) {
-					dropTargets.get(i).dragMove(screenX, screenY, dragSources);
+					dropTargets.get(i).dragMove(screenX, screenY, transferData);
 				}
 			} else {
 				for (int i = 0; i < dropTargets.size; i++) {
-					dropTargets.get(i).dragOut(screenX, screenY, dragSources);
+					dropTargets.get(i).dragOut(screenX, screenY, transferData);
 				}
 				targetNode = null;
 				dropTargets.clear();
@@ -102,7 +103,7 @@ public class DragAndDropProcessor extends PointerProcessor {
 
 			targetNode = node;
 			for (int i = 0; i < dropTargets.size; i++) {
-				dropTargets.get(i).dragIn(screenX, screenY, dragSources);
+				dropTargets.get(i).dragIn(screenX, screenY, transferData);
 			}
 		}
 	}
@@ -120,7 +121,7 @@ public class DragAndDropProcessor extends PointerProcessor {
 		if (targetNode != null && node == targetNode) {
 			if (dropTargets.size > 0) {
 				for (int i = 0; i < dropTargets.size; i++) {
-					dropTargets.get(i).drop(screenX, screenY, dragSources);
+					dropTargets.get(i).drop(screenX, screenY, transferData);
 				}
 				targetNode = null;
 				dropTargets.clear();
@@ -153,6 +154,7 @@ public class DragAndDropProcessor extends PointerProcessor {
 		sourceNode = null;
 		targetNode = null;
 		dragSources.clear();
+		transferData.clear();
 		dropTargets.clear();
 	}
 
@@ -160,8 +162,10 @@ public class DragAndDropProcessor extends PointerProcessor {
 		@Override
 		public void dispatch(NodeDragSourceListener listener) {
 			DragSource dragSource = listener.getDragSource(condition);
-			if (dragSource != null) {
+			Object sourceTransferData = dragSource == null ? null : dragSource.getTransferData();
+			if (sourceTransferData != null) {
 				dragSources.add(dragSource);
+				transferData.add(sourceTransferData);
 			}
 		}
 
