@@ -111,7 +111,7 @@ public class TouchProcessor extends PointerProcessor {
 	}
 
 	private void end(int key, int pointer, int button, PointerTrack pointerTrack) {
-		synchronized (pointerTrack) { //TODO remove sync
+		synchronized (pointerTrack) { // TODO remove sync
 			int validKey = validKeys.remove(key, -1);
 			if (validKey == 1) {
 				removeEntry(key);
@@ -204,8 +204,10 @@ public class TouchProcessor extends PointerProcessor {
 		private PointerTrack pointerTrack;
 
 		@Override
-		public void run() {
-			endLongPress(pointer + button * 100, pointer, button, pointerTrack);
+		public synchronized void run() {
+			if (isScheduled()) {
+				endLongPress(pointer + button * 100, pointer, button, pointerTrack);
+			}
 			reset();
 		}
 
