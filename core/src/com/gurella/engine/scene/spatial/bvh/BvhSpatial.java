@@ -19,13 +19,13 @@ public class BvhSpatial extends Spatial {
 	}
 
 	Vector3 getPosition() {
-		TransformComponent transformComponent = renderableComponent.getTransformComponent();
+		TransformComponent transformComponent = renderable.getTransformComponent();
 		return transformComponent == null ? translate.setZero() : transformComponent.getWorldTranslation(translate);
 	}
 
 	public BoundingBox getBounds() {
-		renderableComponent.getBounds(bounds.inf());
-		TransformComponent transformComponent = renderableComponent.getTransformComponent();
+		renderable.getBounds(bounds.inf());
+		TransformComponent transformComponent = renderable.getTransformComponent();
 		if (transformComponent != null) {
 			transformComponent.transformBoundsToWorld(bounds);
 		}

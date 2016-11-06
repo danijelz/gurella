@@ -198,7 +198,7 @@ public class RenderSystem extends SceneService2
 
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
-			RenderableComponent renderable = spatial.renderableComponent;
+			RenderableComponent renderable = spatial.renderable;
 			int nodeId = renderable.getNodeId();
 
 			if (!lastVisibleRenderables.contains(nodeId) && !currentVisibleRenderables.add(nodeId)) {
@@ -262,8 +262,8 @@ public class RenderSystem extends SceneService2
 
 		@Override
 		public int compare(Spatial spatial1, Spatial spatial2) {
-			return Values.compare(spatial1.renderableComponent.layer.ordinal,
-					spatial2.renderableComponent.layer.ordinal);
+			return Values.compare(spatial1.renderable.layer.ordinal,
+					spatial2.renderable.layer.ordinal);
 		}
 	}
 }

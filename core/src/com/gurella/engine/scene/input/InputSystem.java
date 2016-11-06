@@ -29,6 +29,7 @@ import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
+import com.gurella.engine.scene.renderable.RenderableComponent2d;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
@@ -146,23 +147,30 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		spatialSystem.getSpatials(pickRay, spatials, predicate);
 
-		for (int i = 0; i < spatials.size; i++) {
+		for (int i = 0, n = spatials.size; i < n; i++) {
 			Spatial spatial = spatials.get(i);
-			RenderableComponent renderableComponent = spatial.renderableComponent;
-			if (renderableComponent.getIntersection(pickRay, intersection)) {
+			RenderableComponent renderable = spatial.renderable;
+			if (renderable.getIntersection(pickRay, intersection)) {
 				float distance = intersection.dst2(cameraPosition);
 				if (closestDistance > distance) {
 					closestDistance = distance;
 					closestSpatial = spatial;
 					closestIntersection.set(intersection);
-					// TODO Z order of sprites
+				} else if (closestDistance == distance && renderable instanceof RenderableComponent2d
+						&& closestSpatial.renderable instanceof RenderableComponent2d) {
+					RenderableComponent2d closest = (RenderableComponent2d) closestSpatial.renderable;
+					RenderableComponent2d current = (RenderableComponent2d) renderable;
+					if (closest.zOrder < current.zOrder) {
+						closestSpatial = spatial;
+						closestIntersection.set(intersection);
+					}
 				}
 			}
 		}
 
 		spatials.clear();
 		if (closestSpatial != null) {
-			out.node = closestSpatial.renderableComponent.getNode();
+			out.node = closestSpatial.renderable.getNode();
 			out.intersection.set(closestIntersection);
 		}
 

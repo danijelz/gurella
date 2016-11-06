@@ -106,7 +106,7 @@ public class Bvh {
 			if (node.spatials != null) {
 				for (int i = 0; i < node.spatials.size; i++) {
 					BvhSpatial spatial = node.spatials.get(i);
-					if (predicate == null || predicate.evaluate(spatial.renderableComponent)) {
+					if (predicate == null || predicate.evaluate(spatial.renderable)) {
 						result.add(spatial);
 					}
 				}

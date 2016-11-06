@@ -44,7 +44,7 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService2
 		synchronized (mutex) {
 			addedSpatials.put(spatial.nodeId, spatial);
 			allSpatials.put(spatial.nodeId, spatial);
-			spatialsByRenderableComponent.put(spatial.renderableComponent.getInstanceId(), spatial);
+			spatialsByRenderableComponent.put(spatial.renderable.getInstanceId(), spatial);
 		}
 	}
 
@@ -57,7 +57,7 @@ public abstract class SpatialSystem<T extends Spatial> extends SceneService2
 	}
 
 	private void removeSpatial(T spatial) {
-		spatialsByRenderableComponent.remove(spatial.renderableComponent.getInstanceId());
+		spatialsByRenderableComponent.remove(spatial.renderable.getInstanceId());
 		removedSpatials.put(spatial.nodeId, spatial);
 		addedSpatials.remove(spatial.nodeId);
 		dirtySpatials.remove(spatial.nodeId);

@@ -16,6 +16,7 @@ import com.gurella.engine.scene.debug.DebugRenderable;
 public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
 	private static final Color DEBUG_OUTLINE_COLOR = new Color(1f, 0.451f, 0f, 1.0f);
 
+	public int zOrder;
 	float width;
 	float height;
 	boolean dimensionsFromTexture = true;
@@ -92,14 +93,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 
 	@Override
 	protected void updateGeometry() {
-		/*
-		 * if (transformComponent == null) { sprite.setScale(1, 1); sprite.setRotation(0); sprite.setCenter(0, 0); }
-		 * else { float y = transformComponent.getWorldTranslationY(); if (_25d) { y +=
-		 * transformComponent.getWorldTranslationZ(); } sprite.setScale(transformComponent.getWorldScaleX(),
-		 * transformComponent.getWorldScaleY()); sprite.setRotation(transformComponent.getWorldEulerRotationZ());
-		 * sprite.setCenter(transformComponent.getWorldTranslationX(), y); sprite.setOriginCenter(); }
-		 */
-
 		sprite.setCenter(0, 0);
 	}
 

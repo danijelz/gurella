@@ -220,7 +220,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 
 		for (int i = 0; i < tempSpatials.size; i++) {
 			Spatial spatial = tempSpatials.get(i);
-			spatial.renderableComponent.render(batch);
+			spatial.renderable.render(batch);
 			debugRender(renderContext, spatial, focusedComponent);
 			focusedComponnentRendered |= spatial.nodeId == focusedComponentNodeId;
 		}
