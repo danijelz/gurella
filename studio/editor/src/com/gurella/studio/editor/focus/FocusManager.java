@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.Display;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.input.GestureDetector.GestureAdapter;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.EventService;
@@ -17,8 +16,6 @@ import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.scene.renderable.RenderableComponent2d;
 import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
@@ -47,8 +44,6 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	private Control lastFocusControl;
 	private boolean focusDataFromSelection;
 
-	private final Vector3 intersection = new Vector3();
-	
 	private final RenderableIntersector intersector = new RenderableIntersector();
 	private final Array<Spatial> spatials = new Array<>(64);
 
@@ -145,10 +140,10 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 			}
 			return;
 		}
-		
+
 		intersector.reset();
 		intersector.set(camera, pickRay);
-		
+
 		Spatial closestSpatial = null;
 		for (int i = 0, n = spatials.size; i < n; i++) {
 			Spatial spatial = spatials.get(i);
@@ -156,29 +151,6 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 				closestSpatial = spatial;
 			}
 		}
-
-//		Vector3 cameraPosition = camera.position;
-//		Spatial closestSpatial = null;
-//		float closestDistance = Float.MAX_VALUE;
-//
-//		for (int i = 0; i < spatials.size; i++) {
-//			Spatial spatial = spatials.get(i);
-//			RenderableComponent renderable = spatial.renderable;
-//			if (renderable.getIntersection(pickRay, intersection)) {
-//				float distance = intersection.dst2(cameraPosition);
-//				if (closestDistance > distance) {
-//					closestDistance = distance;
-//					closestSpatial = spatial;
-//				} else if (closestDistance == distance && renderable instanceof RenderableComponent2d
-//						&& closestSpatial.renderable instanceof RenderableComponent2d) {
-//					RenderableComponent2d closest = (RenderableComponent2d) closestSpatial.renderable;
-//					RenderableComponent2d current = (RenderableComponent2d) renderable;
-//					if (closest.zOrder < current.zOrder) {
-//						closestSpatial = spatial;
-//					}
-//				}
-//			}
-//		}
 
 		spatials.clear();
 		if (closestSpatial != null) {

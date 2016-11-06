@@ -9,7 +9,6 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputEventQueue;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
@@ -29,7 +28,6 @@ import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
-import com.gurella.engine.scene.renderable.RenderableComponent2d;
 import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
@@ -52,8 +50,6 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 	private final RenderableIntersector intersector = new RenderableIntersector();
 	private final Array<Spatial> spatials = new Array<Spatial>(128);
-
-	private final LayerMask layerMask = new LayerMask();
 
 	public byte inputActionsFrequency = 10;// TODO limit mouse moves;
 	private transient long lastActionHandled;
@@ -120,13 +116,6 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 	}
 
-	private boolean pickNodeExcludeDnd(PickResult out, float screenX, float screenY) {
-		layerMask.reset();
-		layerMask.ignored(Layer.DnD);
-		out.reset();
-		return pickNode(out, screenX, screenY, layerMask);
-	}
-
 	public boolean pickNode(PickResult out, float screenX, float screenY, Predicate<RenderableComponent> predicate) {
 		intersector.reset();
 		for (int i = 0, n = cameras.size; i < n; i++) {
@@ -138,10 +127,16 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		return false;
 	}
 
-	public boolean pickNode(PickResult out, float screenX, float screenY, Predicate<RenderableComponent> predicate,
-			CameraComponent<?> camera) {
+	public boolean pickNode(PickResult out, float screenX, float screenY, CameraComponent<?> camera,
+			Predicate<RenderableComponent> predicate) {
 		intersector.reset();
 		return doPickNode(out, screenX, screenY, camera.camera, predicate);
+	}
+
+	public boolean pickNode(PickResult out, float screenX, float screenY, Camera camera,
+			Predicate<RenderableComponent> predicate) {
+		intersector.reset();
+		return doPickNode(out, screenX, screenY, camera, predicate);
 	}
 
 	private boolean doPickNode(PickResult out, float screenX, float screenY, Camera camera,
@@ -170,54 +165,6 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 	}
 
-	private final Vector3 intersection = new Vector3();
-	private final Vector3 closestIntersection = new Vector3();
-
-	public boolean pickNode(PickResult out, float screenX, float screenY, Camera camera,
-			Predicate<RenderableComponent> predicate) {
-		if (1 == 1) {
-			intersector.reset();
-			return doPickNode(out, screenX, screenY, camera, predicate);
-		}
-
-		Vector3 cameraPosition = camera.position;
-		Spatial closestSpatial = null;
-		closestIntersection.set(Float.NaN, Float.NaN, Float.NaN);
-		float closestDistance = Float.MAX_VALUE;
-
-		Ray pickRay = camera.getPickRay(screenX, screenY);
-		spatialSystem.getSpatials(pickRay, spatials, predicate);
-
-		for (int i = 0, n = spatials.size; i < n; i++) {
-			Spatial spatial = spatials.get(i);
-			RenderableComponent renderable = spatial.renderable;
-			if (renderable.getIntersection(pickRay, intersection)) {
-				float distance = intersection.dst2(cameraPosition);
-				if (closestDistance > distance) {
-					closestDistance = distance;
-					closestSpatial = spatial;
-					closestIntersection.set(intersection);
-				} else if (closestDistance == distance && renderable instanceof RenderableComponent2d
-						&& closestSpatial.renderable instanceof RenderableComponent2d) {
-					RenderableComponent2d closest = (RenderableComponent2d) closestSpatial.renderable;
-					RenderableComponent2d current = (RenderableComponent2d) renderable;
-					if (closest.zOrder < current.zOrder) {
-						closestSpatial = spatial;
-						closestIntersection.set(intersection);
-					}
-				}
-			}
-		}
-
-		spatials.clear();
-		if (closestSpatial != null) {
-			out.node = closestSpatial.renderable.getNode();
-			out.location.set(closestIntersection);
-		}
-
-		return closestSpatial != null;
-	}
-
 	private static class InputProcessorDelegate implements InputProcessor {
 		private final InputSystem inputSystem;
 		private final Scene scene;
@@ -243,6 +190,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		private transient final IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
 
 		private final PickResult pickResult = new PickResult();
+		private final LayerMask layerMask = new LayerMask().ignored(Layer.DnD);
 
 		public InputProcessorDelegate(InputSystem inputSystem) {
 			this.inputSystem = inputSystem;
@@ -294,8 +242,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean mouseMoved(int screenX, int screenY) {
-			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
-			mouseMoveProcessor.mouseMoved(screenX, screenY, pickResult.node, inputSystem.closestIntersection);
+			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
+			mouseMoveProcessor.mouseMoved(screenX, screenY, pickResult.node, pickResult.location);
 			return false;
 		}
 
@@ -305,12 +253,12 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			int screenY = Gdx.input.getY();
 			scrollInfo.set(screenX, screenY);
 			scrollInfo.amount = amount;
-			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
 
 			SceneNode2 node = pickResult.node;
 			if (node != null) {
 				scrollInfo.renderable = node.getComponent(RenderableComponent.class);
-				scrollInfo.intersection.set(inputSystem.closestIntersection);
+				scrollInfo.intersection.set(pickResult.location);
 			}
 
 			EventService.post(scene.getInstanceId(), sceneScrollEvent);
@@ -327,14 +275,14 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			PointerTrack tracker = createTracker(pointer, button);
 			long eventTime = inputSystem.inputQueue.getCurrentEventTime();
-			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
 			SceneNode2 node = pickResult.node;
-			tracker.add(eventTime, screenX, screenY, inputSystem.closestIntersection, node, begin);
+			tracker.add(eventTime, screenX, screenY, pickResult.location, node, begin);
 
 			touchInfo.set(pointer, button, screenX, screenY);
 			if (node != null) {
 				touchInfo.renderable = node.getComponent(RenderableComponent.class);
-				touchInfo.intersection.set(inputSystem.closestIntersection);
+				touchInfo.intersection.set(pickResult.location);
 			}
 
 			EventService.post(scene.getInstanceId(), sceneTouchDownEvent);
@@ -352,11 +300,11 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchInfo.set(pointer, button, screenX, screenY);
-			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
 			SceneNode2 node = pickResult.node;
 			if (node != null) {
 				touchInfo.renderable = node.getComponent(RenderableComponent.class);
-				touchInfo.intersection.set(inputSystem.closestIntersection);
+				touchInfo.intersection.set(pickResult.location);
 			}
 
 			EventService.post(scene.getInstanceId(), sceneTouchUpEvent);
@@ -368,7 +316,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			PointerTrack tracker = getTracker(pointer, button);
 			if (tracker != null) {
 				long eventTime = inputSystem.inputQueue.getCurrentEventTime();
-				tracker.add(eventTime, screenX, screenY, inputSystem.closestIntersection, node, end);
+				tracker.add(eventTime, screenX, screenY, pickResult.location, node, end);
 				pointerActivityEvent.post(pointer, button, tracker);
 			}
 
@@ -377,7 +325,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
 			SceneNode2 node = pickResult.node;
 			touchInfo.set(pointer, -1, screenX, screenY);
 
@@ -386,7 +334,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 					PointerTrack tracker = getTracker(pointer, button);
 					if (tracker != null) {
 						long eventTime = inputSystem.inputQueue.getCurrentEventTime();
-						tracker.add(eventTime, screenX, screenY, inputSystem.closestIntersection, node, move);
+						tracker.add(eventTime, screenX, screenY, pickResult.location, node, move);
 						pointerActivityEvent.post(pointer, button, tracker);
 					}
 				}
