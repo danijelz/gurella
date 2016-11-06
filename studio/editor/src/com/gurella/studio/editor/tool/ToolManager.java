@@ -41,7 +41,7 @@ public class ToolManager extends InputAdapter
 	private final Environment environment = new Environment();
 
 	private final Vector3 intersection = new Vector3();
-	private final ModelIntesector intesector = new ModelIntesector();
+	private final ModelIntesector modelIntesector = new ModelIntesector();
 
 	private Camera camera;
 	private TransformComponent transform;
@@ -249,7 +249,7 @@ public class ToolManager extends InputAdapter
 
 		for (ToolHandle toolHandle : selectedTool.getHandles()) {
 			ModelInstance instance = toolHandle.modelInstance;
-			if (intesector.getIntersection(cameraPosition, pickRay, instance, intersection)) {
+			if (modelIntesector.getIntersection(cameraPosition, pickRay, instance, intersection)) {
 				float distance = intersection.dst2(cameraPosition);
 				if (closestDistance > distance) {
 					closestDistance = distance;
