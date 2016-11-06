@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
 import com.badlogic.gdx.utils.Predicate;
-import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.input.InputService;
 import com.gurella.engine.pool.PoolService;
@@ -33,10 +32,6 @@ import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
-import com.gurella.engine.subscriptions.scene.input.NodeScrollListener;
-import com.gurella.engine.subscriptions.scene.input.NodeTouchListener;
-import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
-import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
 
 public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
@@ -48,12 +43,12 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private transient final InputAdapter dummyDelegate;
 	private transient final InputEventQueue inputQueue;
 
-	private transient final IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
-
 	private transient final DragProcessor dragProcessor;
 	private transient final DragAndDropProcessor dragAndDropProcessor;
 	private transient final TouchProcessor touchProcessor;
 	private transient final DoubleTouchProcessor doubleTouchProcessor;
+
+	private final LayerMask layerMask = new LayerMask();
 
 	public byte inputActionsFrequency = 10;// TODO limit mouse moves;
 	private transient long lastActionHandled;
@@ -61,7 +56,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	public InputSystem(Scene scene) {
 		super(scene);
 
-		delegate = new InputProcessorDelegate(scene);
+		delegate = new InputProcessorDelegate(this);
 		dummyDelegate = new InputAdapter();
 		inputQueue = new InputEventQueue(delegate);
 
@@ -120,76 +115,28 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 	}
 
-	public PickResult pickNode(PickResult out, float screenX, float screenY) {
-		out.reset();
-		for (int i = 0, n = cameras.size; i < n; i++) {
-			pickNode(out, screenX, screenY, cameras.get(i).camera, null);
-			if (out.node != null) {
-				return out;
-			}
-		}
-
-		out.reset();
-		return out;
-	}
-
-	public PickResult pickNodeExcludeLayers(PickResult out, float screenX, float screenY, Layer... excludedLayers) {
-		out.reset();
+	private boolean pickNodeExcludeDnd(PickResult out, float screenX, float screenY) {
 		layerMask.reset();
+		layerMask.ignored(Layer.DnD);
+		out.reset();
+		return pickNode(out, screenX, screenY, layerMask);
+	}
 
-		for (int i = 0, n = excludedLayers.length; i < n; i++) {
-			layerMask.ignored(excludedLayers[i]);
-		}
-
+	public boolean pickNode(PickResult out, float screenX, float screenY, Predicate<RenderableComponent> predicate) {
 		for (int i = 0, n = cameras.size; i < n; i++) {
-			pickNode(out, screenX, screenY, cameras.get(i).camera, layerMask);
-			if (out.node != null) {
-				return out;
+			if (pickNode(out, screenX, screenY, cameras.get(i).camera, predicate)) {
+				return true;
 			}
 		}
 
-		out.reset();
-		return out;
-	}
-
-	public PickResult pickNodeIncludeLayers(float screenX, float screenY, Layer... includedLayers) {
-		return pickNodeIncludeLayers(new PickResult(), screenX, screenY, includedLayers);
-	}
-
-	public PickResult pickNodeIncludeLayers(PickResult out, float screenX, float screenY, Layer... includedLayers) {
-		out.reset();
-		layerMask.reset();
-
-		for (int i = 0, n = includedLayers.length; i < n; i++) {
-			layerMask.allowed(includedLayers[i]);
-		}
-
-		for (int i = 0, n = cameras.size; i < n; i++) {
-			pickNode(out, screenX, screenY, cameras.get(i).camera, layerMask);
-			if (out.node != null) {
-				return out;
-			}
-		}
-
-		out.reset();
-		return out;
-	}
-
-	public PickResult pickNode(PickResult out, float screenX, float screenY, CameraComponent<?> cameraComponent) {
-		pickNode(out, screenX, screenY, cameraComponent.camera, null);
-		if (out.node == null) {
-			out.reset();
-		}
-		return out;
+		return false;
 	}
 
 	private final Array<Spatial> spatials = new Array<Spatial>();
 	private final Vector3 intersection = new Vector3();
 	private final Vector3 closestIntersection = new Vector3();
-	private final PickResult pickResult = new PickResult();
-	private final LayerMask layerMask = new LayerMask();
 
-	public PickResult pickNode(PickResult out, float screenX, float screenY, Camera camera,
+	public boolean pickNode(PickResult out, float screenX, float screenY, Camera camera,
 			Predicate<RenderableComponent> predicate) {
 		Vector3 cameraPosition = camera.position;
 		Spatial closestSpatial = null;
@@ -197,7 +144,6 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		float closestDistance = Float.MAX_VALUE;
 
 		Ray pickRay = camera.getPickRay(screenX, screenY);
-		layerMask.reset();
 		spatialSystem.getSpatials(pickRay, spatials, predicate);
 
 		for (int i = 0; i < spatials.size; i++) {
@@ -220,28 +166,11 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			out.intersection.set(closestIntersection);
 		}
 
-		return out;
+		return closestSpatial != null;
 	}
 
-	private PointerTrack createTracker(int pointer, int button) {
-		int key = pointer + button * 100;
-		PointerTrack pointerTrack = trackers.get(key);
-		if (pointerTrack == null) {
-			pointerTrack = PoolService.obtain(PointerTrack.class);
-			trackers.put(key, pointerTrack);
-		} else {
-			pointerTrack.reset();
-		}
-
-		return pointerTrack;
-	}
-
-	public PointerTrack getTracker(int pointer, int button) {
-		int key = pointer + button * 100;
-		return trackers.get(key);
-	}
-
-	private class InputProcessorDelegate implements InputProcessor {
+	private static class InputProcessorDelegate implements InputProcessor {
+		private final InputSystem inputSystem;
 		private final Scene scene;
 
 		private final PointerActivityEvent pointerActivityEvent;
@@ -251,19 +180,24 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		private final KeyTypedEvent keyTypedEvent;
 
 		private final TouchInfo touchInfo = new TouchInfo();
-		private final SceneTouchDownEvent sceneTouchDownEvent = new SceneTouchDownEvent();
-		private final SceneTouchUpEvent sceneTouchUpEvent = new SceneTouchUpEvent();
-		private final NodeTouchDownEvent nodeTouchDownEvent = new NodeTouchDownEvent();
-		private final NodeTouchUpEvent nodeTouchUpEvent = new NodeTouchUpEvent();
+		private final SceneTouchDownEvent sceneTouchDownEvent = new SceneTouchDownEvent(touchInfo);
+		private final SceneTouchUpEvent sceneTouchUpEvent = new SceneTouchUpEvent(touchInfo);
+		private final NodeTouchDownEvent nodeTouchDownEvent = new NodeTouchDownEvent(touchInfo);
+		private final NodeTouchUpEvent nodeTouchUpEvent = new NodeTouchUpEvent(touchInfo);
 
 		private final ScrollInfo scrollInfo = new ScrollInfo();
-		private final SceneScrollEvent sceneScrollEvent = new SceneScrollEvent();
-		private final NodeScrollEvent nodeScrollEvent = new NodeScrollEvent();
+		private final SceneScrollEvent sceneScrollEvent = new SceneScrollEvent(scrollInfo);
+		private final NodeScrollEvent nodeScrollEvent = new NodeScrollEvent(scrollInfo);
 
 		private transient final MouseMoveProcessor mouseMoveProcessor;
 
-		public InputProcessorDelegate(Scene scene) {
-			this.scene = scene;
+		private transient final IntMap<PointerTrack> trackers = new IntMap<PointerTrack>();
+
+		private final PickResult pickResult = new PickResult();
+
+		public InputProcessorDelegate(InputSystem inputSystem) {
+			this.inputSystem = inputSystem;
+			this.scene = inputSystem.scene;
 
 			keyDownEvent = new KeyDownEvent(scene);
 			keyUpEvent = new KeyUpEvent(scene);
@@ -271,6 +205,24 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			pointerActivityEvent = new PointerActivityEvent(scene);
 
 			mouseMoveProcessor = new MouseMoveProcessor(scene);
+		}
+
+		private PointerTrack createTracker(int pointer, int button) {
+			int key = pointer + button * 100;
+			PointerTrack pointerTrack = trackers.get(key);
+			if (pointerTrack == null) {
+				pointerTrack = PoolService.obtain(PointerTrack.class);
+				trackers.put(key, pointerTrack);
+			} else {
+				pointerTrack.reset();
+			}
+
+			return pointerTrack;
+		}
+
+		private PointerTrack getTracker(int pointer, int button) {
+			int key = pointer + button * 100;
+			return trackers.get(key);
 		}
 
 		@Override
@@ -293,8 +245,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean mouseMoved(int screenX, int screenY) {
-			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
-			mouseMoveProcessor.mouseMoved(screenX, screenY, node, closestIntersection);
+			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			mouseMoveProcessor.mouseMoved(screenX, screenY, pickResult.node, inputSystem.closestIntersection);
 			return false;
 		}
 
@@ -304,10 +256,12 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			int screenY = Gdx.input.getY();
 			scrollInfo.set(screenX, screenY);
 			scrollInfo.amount = amount;
-			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+
+			SceneNode2 node = pickResult.node;
 			if (node != null) {
 				scrollInfo.renderable = node.getComponent(RenderableComponent.class);
-				scrollInfo.intersection.set(closestIntersection);
+				scrollInfo.intersection.set(inputSystem.closestIntersection);
 			}
 
 			EventService.post(scene.getInstanceId(), sceneScrollEvent);
@@ -323,14 +277,15 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			PointerTrack tracker = createTracker(pointer, button);
-			long eventTime = inputQueue.getCurrentEventTime();
-			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
-			tracker.add(eventTime, screenX, screenY, closestIntersection, node, begin);
+			long eventTime = inputSystem.inputQueue.getCurrentEventTime();
+			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			SceneNode2 node = pickResult.node;
+			tracker.add(eventTime, screenX, screenY, inputSystem.closestIntersection, node, begin);
 
 			touchInfo.set(pointer, button, screenX, screenY);
 			if (node != null) {
 				touchInfo.renderable = node.getComponent(RenderableComponent.class);
-				touchInfo.intersection.set(closestIntersection);
+				touchInfo.intersection.set(inputSystem.closestIntersection);
 			}
 
 			EventService.post(scene.getInstanceId(), sceneTouchDownEvent);
@@ -348,10 +303,11 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 			touchInfo.set(pointer, button, screenX, screenY);
-			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			SceneNode2 node = pickResult.node;
 			if (node != null) {
 				touchInfo.renderable = node.getComponent(RenderableComponent.class);
-				touchInfo.intersection.set(closestIntersection);
+				touchInfo.intersection.set(inputSystem.closestIntersection);
 			}
 
 			EventService.post(scene.getInstanceId(), sceneTouchUpEvent);
@@ -362,8 +318,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 			PointerTrack tracker = getTracker(pointer, button);
 			if (tracker != null) {
-				long eventTime = inputQueue.getCurrentEventTime();
-				tracker.add(eventTime, screenX, screenY, closestIntersection, node, end);
+				long eventTime = inputSystem.inputQueue.getCurrentEventTime();
+				tracker.add(eventTime, screenX, screenY, inputSystem.closestIntersection, node, end);
 				pointerActivityEvent.post(pointer, button, tracker);
 			}
 
@@ -372,15 +328,16 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			SceneNode2 node = pickNodeExcludeLayers(pickResult, screenX, screenY, Layer.DnD).node;
+			inputSystem.pickNodeExcludeDnd(pickResult, screenX, screenY);
+			SceneNode2 node = pickResult.node;
 			touchInfo.set(pointer, -1, screenX, screenY);
 
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					PointerTrack tracker = getTracker(pointer, button);
 					if (tracker != null) {
-						long eventTime = inputQueue.getCurrentEventTime();
-						tracker.add(eventTime, screenX, screenY, closestIntersection, node, move);
+						long eventTime = inputSystem.inputQueue.getCurrentEventTime();
+						tracker.add(eventTime, screenX, screenY, inputSystem.closestIntersection, node, move);
 						pointerActivityEvent.post(pointer, button, tracker);
 					}
 				}
@@ -406,78 +363,6 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 					PoolService.free(pointerTrack);
 					entries.remove();
 				}
-			}
-		}
-
-		private class SceneTouchDownEvent implements Event<SceneTouchListener> {
-			@Override
-			public Class<SceneTouchListener> getSubscriptionType() {
-				return SceneTouchListener.class;
-			}
-
-			@Override
-			public void dispatch(SceneTouchListener subscriber) {
-				subscriber.onTouchDown(touchInfo);
-			}
-		}
-
-		private class SceneTouchUpEvent implements Event<SceneTouchListener> {
-			@Override
-			public Class<SceneTouchListener> getSubscriptionType() {
-				return SceneTouchListener.class;
-			}
-
-			@Override
-			public void dispatch(SceneTouchListener subscriber) {
-				subscriber.onTouchUp(touchInfo);
-			}
-		}
-
-		private class NodeTouchDownEvent implements Event<NodeTouchListener> {
-			@Override
-			public Class<NodeTouchListener> getSubscriptionType() {
-				return NodeTouchListener.class;
-			}
-
-			@Override
-			public void dispatch(NodeTouchListener subscriber) {
-				subscriber.onTouchDown(touchInfo);
-			}
-		}
-
-		private class NodeTouchUpEvent implements Event<NodeTouchListener> {
-			@Override
-			public Class<NodeTouchListener> getSubscriptionType() {
-				return NodeTouchListener.class;
-			}
-
-			@Override
-			public void dispatch(NodeTouchListener subscriber) {
-				subscriber.onTouchUp(touchInfo);
-			}
-		}
-
-		private class SceneScrollEvent implements Event<SceneScrollListener> {
-			@Override
-			public Class<SceneScrollListener> getSubscriptionType() {
-				return SceneScrollListener.class;
-			}
-
-			@Override
-			public void dispatch(SceneScrollListener subscriber) {
-				subscriber.onScrolled(scrollInfo);
-			}
-		}
-
-		private class NodeScrollEvent implements Event<NodeScrollListener> {
-			@Override
-			public Class<NodeScrollListener> getSubscriptionType() {
-				return NodeScrollListener.class;
-			}
-
-			@Override
-			public void dispatch(NodeScrollListener subscriber) {
-				subscriber.onScrolled(scrollInfo);
 			}
 		}
 	}
