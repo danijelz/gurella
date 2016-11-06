@@ -128,6 +128,18 @@ public class ModelIntesector {
 					}
 				}
 			}
+			
+			for (int i = 0, n = node.getChildCount(); i < n; i++) {
+				Node child = node.getChild(i);
+				if (getIntersection(child)) {
+					float distance = closestNodeIntersection.dst2(cameraPosition);
+					if (closestDistance > distance) {
+						closestDistance = distance;
+						closestIntersection.set(closestNodeIntersection);
+						closestModelInstance = modelInstance;
+					}
+				}
+			}
 		}
 
 		return closestNodeDistance != Float.MAX_VALUE;

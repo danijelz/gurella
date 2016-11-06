@@ -83,6 +83,7 @@ public class RenderableIntersector implements Poolable {
 
 	@Override
 	public void reset() {
+		closestDistance = Float.MAX_VALUE;
 		intersection.reset();
 		closestRenderable = null;
 	}

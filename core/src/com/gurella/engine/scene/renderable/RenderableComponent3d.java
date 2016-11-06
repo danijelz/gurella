@@ -32,6 +32,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 			instance.transform.idt();
 		} else {
 			transformComponent.getWorldTransform(instance.transform);
+			instance.calculateTransforms();
 		}
 	}
 

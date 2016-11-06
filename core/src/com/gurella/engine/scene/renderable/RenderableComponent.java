@@ -93,7 +93,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 		setDirty();
 	}
 
-	private void update() {
+	public void update() {
 		if (dirty) {
 			updateGeometry();
 			dirty = false;
