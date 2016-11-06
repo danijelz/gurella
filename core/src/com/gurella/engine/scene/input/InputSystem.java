@@ -4,8 +4,6 @@ import static com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase.be
 import static com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase.end;
 import static com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase.move;
 
-import java.util.Arrays;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputEventQueue;
@@ -17,7 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.IntMap.Entries;
 import com.badlogic.gdx.utils.IntMap.Entry;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Predicate;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal;
@@ -28,6 +26,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.SceneService2;
 import com.gurella.engine.scene.camera.CameraComponent;
+import com.gurella.engine.scene.camera.CameraComponent.ReverseOrdinalComparator;
 import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
 import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
@@ -43,12 +42,10 @@ import com.gurella.engine.subscriptions.scene.input.SceneScrollListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchDraggedListener;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 import com.gurella.engine.subscriptions.scene.update.InputUpdateListener;
-import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Values;
 
 public class InputSystem extends SceneService2 implements ComponentActivityListener, InputUpdateListener {
-	private transient final Array<Layer> orderedLayers = new Array<Layer>();
-	private transient final ObjectMap<Layer, Array<CameraComponent<?>>> camerasByLayer = new ObjectMap<Layer, Array<CameraComponent<?>>>();
+	private final Array<CameraComponent<?>> cameras = new Array<CameraComponent<?>>();
 
 	private SpatialSystem<?> spatialSystem;
 
@@ -114,89 +111,22 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			addCameraComponent((CameraComponent<?>) component);
-		}
-	}
-
-	private void addCameraComponent(CameraComponent<?> cameraComponent) {
-		boolean layersUpdated = false;
-		ImmutableArray<Layer> renderingLayers = cameraComponent.renderingLayers;
-		int layersSize = renderingLayers.size();
-
-		if (layersSize == 0) {
-			layersUpdated |= addCameraComponent(Layer.DEFAULT, cameraComponent);
-		} else {
-			for (int i = 0; i < layersSize; i++) {
-				layersUpdated |= addCameraComponent(renderingLayers.get(i), cameraComponent);
-			}
-		}
-
-		if (layersUpdated) {
-			orderedLayers.sort(Layer.descendingOdinalComparator);
-		}
-	}
-
-	private boolean addCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
-		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layer);
-		if (layerCameras == null) {
-			layerCameras = new Array<CameraComponent<?>>();
-			camerasByLayer.put(layer, layerCameras);
-		}
-
-		layerCameras.add(cameraComponent);
-		layerCameras.sort();
-		return addLayer(layer);
-	}
-
-	private boolean addLayer(Layer layer) {
-		if (camerasByLayer.containsKey(layer) && !orderedLayers.contains(layer, true)) {
-			orderedLayers.add(layer);
-			return true;
-		} else {
-			return false;
+			cameras.add((CameraComponent<?>) component);
+			cameras.sort(ReverseOrdinalComparator.instance);
 		}
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
 		if (component instanceof CameraComponent) {
-			removeCameraComponent((CameraComponent<?>) component);
+			cameras.removeValue((CameraComponent<?>) component, true);
 		}
-	}
-
-	private void removeCameraComponent(CameraComponent<?> cameraComponent) {
-		boolean layersUpdated = false;
-		for (Layer layer : cameraComponent.renderingLayers) {
-			layersUpdated |= removeCameraComponent(layer, cameraComponent);
-		}
-
-		if (layersUpdated) {
-			orderedLayers.sort(Layer.descendingOdinalComparator);
-		}
-	}
-
-	private boolean removeCameraComponent(Layer layer, CameraComponent<?> cameraComponent) {
-		Array<CameraComponent<?>> layerCameras = camerasByLayer.get(layer);
-		layerCameras.removeValue(cameraComponent, true);
-
-		if (layerCameras.size < 1) {
-			camerasByLayer.remove(layer);
-			orderedLayers.removeValue(layer, true);
-			return true;
-		} else {
-			layerCameras.sort();
-			return false;
-		}
-	}
-
-	public PickResult pickNode(float screenX, float screenY) {
-		return pickNode(new PickResult(), screenX, screenY);
 	}
 
 	public PickResult pickNode(PickResult out, float screenX, float screenY) {
 		out.reset();
-		for (Layer layer : orderedLayers) {
-			pickNode(out, screenX, screenY, layer);
+		for (int i = 0, n = cameras.size; i < n; i++) {
+			pickNode(out, screenX, screenY, cameras.get(i).camera, null);
 			if (out.node != null) {
 				return out;
 			}
@@ -206,19 +136,18 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		return out;
 	}
 
-	public PickResult pickNodeExcludeLayers(float screenX, float screenY, Layer... excludedLayers) {
-		return pickNodeExcludeLayers(new PickResult(), screenX, screenY, excludedLayers);
-	}
-
 	public PickResult pickNodeExcludeLayers(PickResult out, float screenX, float screenY, Layer... excludedLayers) {
 		out.reset();
-		Arrays.sort(excludedLayers);
-		for (Layer layer : orderedLayers) {
-			if (Arrays.binarySearch(excludedLayers, layer) < 0) {
-				pickNode(out, screenX, screenY, layer);
-				if (out.node != null) {
-					return out;
-				}
+		layerMask.reset();
+
+		for (int i = 0, n = excludedLayers.length; i < n; i++) {
+			layerMask.ignored(excludedLayers[i]);
+		}
+
+		for (int i = 0, n = cameras.size; i < n; i++) {
+			pickNode(out, screenX, screenY, cameras.get(i).camera, layerMask);
+			if (out.node != null) {
+				return out;
 			}
 		}
 
@@ -231,23 +160,15 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	public PickResult pickNodeIncludeLayers(PickResult out, float screenX, float screenY, Layer... includedLayers) {
-		Arrays.sort(includedLayers);
-		for (Layer layer : orderedLayers) {
-			if (Arrays.binarySearch(includedLayers, layer) >= 0) {
-				pickNode(out, screenX, screenY, layer);
-				if (out.node != null) {
-					return out;
-				}
-			}
+		out.reset();
+		layerMask.reset();
+
+		for (int i = 0, n = includedLayers.length; i < n; i++) {
+			layerMask.allowed(includedLayers[i]);
 		}
 
-		out.reset();
-		return out;
-	}
-
-	public PickResult pickNode(PickResult out, float screenX, float screenY, Layer layer) {
-		for (CameraComponent<?> cameraComponent : camerasByLayer.get(layer)) {
-			pickNode(out, screenX, screenY, layer, cameraComponent.camera);
+		for (int i = 0, n = cameras.size; i < n; i++) {
+			pickNode(out, screenX, screenY, cameras.get(i).camera, layerMask);
 			if (out.node != null) {
 				return out;
 			}
@@ -257,9 +178,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		return out;
 	}
 
-	public PickResult pickNode(PickResult out, float screenX, float screenY, Layer layer,
-			CameraComponent<?> cameraComponent) {
-		pickNode(out, screenX, screenY, layer, cameraComponent.camera);
+	public PickResult pickNode(PickResult out, float screenX, float screenY, CameraComponent<?> cameraComponent) {
+		pickNode(out, screenX, screenY, cameraComponent.camera, null);
 		if (out.node == null) {
 			out.reset();
 		}
@@ -272,16 +192,16 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private final PickResult pickResult = new PickResult();
 	private final LayerMask layerMask = new LayerMask();
 
-	private PickResult pickNode(PickResult out, float screenX, float screenY, Layer layer, Camera camera) {
+	public PickResult pickNode(PickResult out, float screenX, float screenY, Camera camera,
+			Predicate<RenderableComponent> predicate) {
 		Vector3 cameraPosition = camera.position;
 		Spatial closestSpatial = null;
 		closestIntersection.set(Float.NaN, Float.NaN, Float.NaN);
 		float closestDistance = Float.MAX_VALUE;
 
-		//TODO garbage
 		Ray pickRay = camera.getPickRay(screenX, screenY);
 		layerMask.reset();
-		spatialSystem.getSpatials(pickRay, spatials, layerMask.allowed(layer));
+		spatialSystem.getSpatials(pickRay, spatials, predicate);
 
 		for (int i = 0; i < spatials.size; i++) {
 			Spatial spatial = spatials.get(i);
@@ -302,6 +222,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			out.node = closestSpatial.renderableComponent.getNode();
 			out.intersection.set(closestIntersection);
 		}
+
 		return out;
 	}
 

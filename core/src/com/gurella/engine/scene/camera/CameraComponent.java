@@ -226,4 +226,16 @@ public abstract class CameraComponent<T extends Camera> extends SceneNodeCompone
 			return Values.compare(o1.ordinal, o2.ordinal);
 		}
 	}
+
+	public static final class ReverseOrdinalComparator implements Comparator<CameraComponent<?>> {
+		public static final ReverseOrdinalComparator instance = new ReverseOrdinalComparator();
+
+		public ReverseOrdinalComparator() {
+		}
+
+		@Override
+		public int compare(CameraComponent<?> o1, CameraComponent<?> o2) {
+			return Values.compare(o2.ordinal, o1.ordinal);
+		}
+	}
 }

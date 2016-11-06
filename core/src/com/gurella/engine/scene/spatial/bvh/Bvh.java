@@ -96,7 +96,8 @@ public class Bvh {
 		traverse(rootNode, new BoundingBoxHitTest(volume), result, predicate);
 	}
 
-	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
+	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result,
+			Predicate<RenderableComponent> predicate) {
 		if (node == null) {
 			return;
 		}
