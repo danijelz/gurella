@@ -245,6 +245,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		public boolean mouseMoved(int screenX, int screenY) {
 			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
 			mouseMoveProcessor.mouseMoved(screenX, screenY, pickResult.node, pickResult.location);
+			pickResult.reset();
 			return false;
 		}
 
@@ -269,6 +270,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			}
 
 			scrollInfo.reset();
+			pickResult.reset();
 			return false;
 		}
 
@@ -293,8 +295,9 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 			}
 
 			pointerActivityEvent.post(pointer, button, tracker);
+			
 			touchInfo.reset();
-
+			pickResult.reset();
 			return false;
 		}
 
@@ -321,6 +324,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 				pointerActivityEvent.post(pointer, button, tracker);
 			}
 
+			touchInfo.reset();
+			pickResult.reset();
 			return false;
 		}
 
@@ -341,6 +346,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 				}
 			}
 
+			touchInfo.reset();
+			pickResult.reset();
 			return false;
 		}
 
