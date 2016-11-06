@@ -19,6 +19,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent2d;
+import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.common.bean.BeanEditor;
@@ -46,8 +47,9 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	private Control lastFocusControl;
 	private boolean focusDataFromSelection;
 
-	private final Ray pickRay = new Ray();
 	private final Vector3 intersection = new Vector3();
+	
+	private final RenderableIntersector intersector = new RenderableIntersector();
 	private final Array<Spatial> spatials = new Array<>(64);
 
 	public FocusManager(int editorId) {
@@ -133,7 +135,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 		}
 
 		camera.update(true);
-		pickRay.set(camera.getPickRay(x, y));
+		Ray pickRay = camera.getPickRay(x, y);
 		scene.spatialSystem.getSpatials(pickRay, spatials, null);
 		if (spatials.size == 0) {
 			if (!focusDataFromSelection) {
@@ -143,29 +145,40 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 			}
 			return;
 		}
-
-		Vector3 cameraPosition = camera.position;
+		
+		intersector.reset();
+		intersector.set(camera, pickRay);
+		
 		Spatial closestSpatial = null;
-		float closestDistance = Float.MAX_VALUE;
-
-		for (int i = 0; i < spatials.size; i++) {
+		for (int i = 0, n = spatials.size; i < n; i++) {
 			Spatial spatial = spatials.get(i);
-			RenderableComponent renderable = spatial.renderable;
-			if (renderable.getIntersection(pickRay, intersection)) {
-				float distance = intersection.dst2(cameraPosition);
-				if (closestDistance > distance) {
-					closestDistance = distance;
-					closestSpatial = spatial;
-				} else if (closestDistance == distance && renderable instanceof RenderableComponent2d
-						&& closestSpatial.renderable instanceof RenderableComponent2d) {
-					RenderableComponent2d closest = (RenderableComponent2d) closestSpatial.renderable;
-					RenderableComponent2d current = (RenderableComponent2d) renderable;
-					if (closest.zOrder < current.zOrder) {
-						closestSpatial = spatial;
-					}
-				}
+			if (intersector.append(spatial.renderable)) {
+				closestSpatial = spatial;
 			}
 		}
+
+//		Vector3 cameraPosition = camera.position;
+//		Spatial closestSpatial = null;
+//		float closestDistance = Float.MAX_VALUE;
+//
+//		for (int i = 0; i < spatials.size; i++) {
+//			Spatial spatial = spatials.get(i);
+//			RenderableComponent renderable = spatial.renderable;
+//			if (renderable.getIntersection(pickRay, intersection)) {
+//				float distance = intersection.dst2(cameraPosition);
+//				if (closestDistance > distance) {
+//					closestDistance = distance;
+//					closestSpatial = spatial;
+//				} else if (closestDistance == distance && renderable instanceof RenderableComponent2d
+//						&& closestSpatial.renderable instanceof RenderableComponent2d) {
+//					RenderableComponent2d closest = (RenderableComponent2d) closestSpatial.renderable;
+//					RenderableComponent2d current = (RenderableComponent2d) renderable;
+//					if (closest.zOrder < current.zOrder) {
+//						closestSpatial = spatial;
+//					}
+//				}
+//			}
+//		}
 
 		spatials.clear();
 		if (closestSpatial != null) {

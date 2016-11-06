@@ -51,6 +51,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private transient final DoubleTouchProcessor doubleTouchProcessor;
 
 	private final RenderableIntersector intersector = new RenderableIntersector();
+	private final Array<Spatial> spatials = new Array<Spatial>(128);
 
 	private final LayerMask layerMask = new LayerMask();
 
@@ -127,8 +128,9 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	}
 
 	public boolean pickNode(PickResult out, float screenX, float screenY, Predicate<RenderableComponent> predicate) {
+		intersector.reset();
 		for (int i = 0, n = cameras.size; i < n; i++) {
-			if (pickNode(out, screenX, screenY, cameras.get(i).camera, predicate)) {
+			if (doPickNode(out, screenX, screenY, cameras.get(i).camera, predicate)) {
 				return true;
 			}
 		}
@@ -136,12 +138,48 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		return false;
 	}
 
-	private final Array<Spatial> spatials = new Array<Spatial>();
+	public boolean pickNode(PickResult out, float screenX, float screenY, Predicate<RenderableComponent> predicate,
+			CameraComponent<?> camera) {
+		intersector.reset();
+		return doPickNode(out, screenX, screenY, camera.camera, predicate);
+	}
+
+	private boolean doPickNode(PickResult out, float screenX, float screenY, Camera camera,
+			Predicate<RenderableComponent> predicate) {
+		Ray pickRay = camera.getPickRay(screenX, screenY);
+		intersector.set(camera, pickRay);
+
+		spatialSystem.getSpatials(pickRay, spatials, predicate);
+		Spatial closestSpatial = null;
+		for (int i = 0, n = spatials.size; i < n; i++) {
+			Spatial spatial = spatials.get(i);
+			//TODO closestSpatial.renderable.looseInput
+			if (intersector.append(spatial.renderable)) {
+				closestSpatial = spatial;
+			}
+		}
+		spatials.clear();
+
+		if (closestSpatial != null) {
+			out.node = closestSpatial.renderable.getNode();
+			out.location.set(intersector.getClosestIntersection());
+			out.distance = intersector.getClosestDistance();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	private final Vector3 intersection = new Vector3();
 	private final Vector3 closestIntersection = new Vector3();
 
 	public boolean pickNode(PickResult out, float screenX, float screenY, Camera camera,
 			Predicate<RenderableComponent> predicate) {
+		if (1 == 1) {
+			intersector.reset();
+			return doPickNode(out, screenX, screenY, camera, predicate);
+		}
+
 		Vector3 cameraPosition = camera.position;
 		Spatial closestSpatial = null;
 		closestIntersection.set(Float.NaN, Float.NaN, Float.NaN);
@@ -174,7 +212,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		spatials.clear();
 		if (closestSpatial != null) {
 			out.node = closestSpatial.renderable.getNode();
-			out.intersection.set(closestIntersection);
+			out.location.set(closestIntersection);
 		}
 
 		return closestSpatial != null;
