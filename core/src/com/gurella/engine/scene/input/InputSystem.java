@@ -30,6 +30,7 @@ import com.gurella.engine.scene.renderable.Layer;
 import com.gurella.engine.scene.renderable.LayerMask;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.renderable.RenderableComponent2d;
+import com.gurella.engine.scene.renderable.RenderableIntersector;
 import com.gurella.engine.scene.spatial.Spatial;
 import com.gurella.engine.scene.spatial.SpatialSystem;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
@@ -48,6 +49,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	private transient final DragAndDropProcessor dragAndDropProcessor;
 	private transient final TouchProcessor touchProcessor;
 	private transient final DoubleTouchProcessor doubleTouchProcessor;
+
+	private final RenderableIntersector intersector = new RenderableIntersector();
 
 	private final LayerMask layerMask = new LayerMask();
 

@@ -127,9 +127,9 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 			transformComponent.transformRayFromWorld(inv);
 		}
 
-		Vector3 v1 = PoolService.obtain(Vector3.class).setZero();
-		Vector3 v2 = PoolService.obtain(Vector3.class).setZero();
-		Vector3 v3 = PoolService.obtain(Vector3.class).setZero();
+		Vector3 v1 = PoolService.obtain(Vector3.class);
+		Vector3 v2 = PoolService.obtain(Vector3.class);
+		Vector3 v3 = PoolService.obtain(Vector3.class);
 
 		float[] vertices = sprite.getVertices();
 

@@ -249,7 +249,7 @@ public class ToolManager extends InputAdapter
 
 		for (ToolHandle toolHandle : selectedTool.getHandles()) {
 			ModelInstance instance = toolHandle.modelInstance;
-			if (intesector.getIntersection(cameraPosition, pickRay, intersection, instance)) {
+			if (intesector.getIntersection(cameraPosition, pickRay, instance, intersection)) {
 				float distance = intersection.dst2(cameraPosition);
 				if (closestDistance > distance) {
 					closestDistance = distance;
