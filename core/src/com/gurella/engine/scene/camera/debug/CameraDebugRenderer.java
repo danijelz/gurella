@@ -61,19 +61,20 @@ public class CameraDebugRenderer implements ApplicationShutdownListener {
 	private CameraDebugRenderer() {
 		fbo = new FrameBuffer(Format.RGBA8888, debugWidth, debugHeight, true);
 		fboSprite = new Sprite(fbo.getColorBufferTexture());
+		fboSprite.flip(false, true);
 		fboSprite.setOriginCenter();
 
 		camera2dTexture = new Texture(Gdx.files.classpath(camera2dTextureLocation));
 		camera2dSprite = new Sprite(camera2dTexture);
 		camera2dSprite.setSize(0.2f, 0.2f);
-		camera2dSprite.flip(true, false);
+		camera2dSprite.flip(true, true);
 		camera2dSprite.setOriginCenter();
 
 		camera3dTexture = new Texture(Gdx.files.classpath(camera3dTextureLocation));
 		camera3dTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		camera3dSprite = new Sprite(camera3dTexture);
 		camera3dSprite.setSize(0.2f, 0.2f);
-		camera3dSprite.flip(true, false);
+		camera3dSprite.flip(true, true);
 		camera3dSprite.setOriginCenter();
 		
 		EventService.subscribe(this);

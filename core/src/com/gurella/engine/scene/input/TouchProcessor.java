@@ -207,8 +207,8 @@ public class TouchProcessor extends PointerProcessor {
 		public synchronized void run() {
 			if (isScheduled()) {
 				endLongPress(pointer + button * 100, pointer, button, pointerTrack);
+				reset();
 			}
-			reset();
 		}
 
 		@Override
