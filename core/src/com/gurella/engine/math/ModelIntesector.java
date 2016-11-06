@@ -45,7 +45,7 @@ public class ModelIntesector {
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection,
 			Iterable<ModelInstance> modelInstances) {
-		init(cameraPosition, ray, intersection);
+		init(cameraPosition, ray);
 		for (ModelInstance modelInstance : modelInstances) {
 			process(modelInstance);
 		}
@@ -54,7 +54,7 @@ public class ModelIntesector {
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection,
 			Array<ModelInstance> modelInstances) {
-		init(cameraPosition, ray, intersection);
+		init(cameraPosition, ray);
 		for (int i = 0, n = modelInstances.size; i < n; i++) {
 			process(modelInstances.get(i));
 		}
@@ -63,7 +63,7 @@ public class ModelIntesector {
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection,
 			ModelInstance... modelInstances) {
-		init(cameraPosition, ray, intersection);
+		init(cameraPosition, ray);
 		for (int i = 0, n = modelInstances.length; i < n; i++) {
 			process(modelInstances[i]);
 		}
@@ -71,16 +71,14 @@ public class ModelIntesector {
 	}
 
 	public boolean getIntersection(Vector3 cameraPosition, Ray ray, Vector3 intersection, ModelInstance modelInstance) {
-		init(cameraPosition, ray, intersection);
+		init(cameraPosition, ray);
 		process(modelInstance);
 		return extractResult(intersection);
 	}
 
-	void init(Vector3 cameraPosition, Ray ray, Vector3 intersection) {
+	void init(Vector3 cameraPosition, Ray ray) {
 		this.cameraPosition.set(cameraPosition);
 		this.ray.set(ray);
-		this.intersection.set(intersection);
-
 		closestIntersection.set(Float.NaN, Float.NaN, Float.NaN);
 		closestDistance = Float.MAX_VALUE;
 	}
