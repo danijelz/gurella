@@ -111,7 +111,7 @@ public class TouchProcessor extends PointerProcessor {
 	}
 
 	private void end(int key, int pointer, int button, PointerTrack pointerTrack) {
-		synchronized (pointerTrack) {
+		synchronized (pointerTrack) { //TODO remove sync
 			int validKey = validKeys.remove(key, -1);
 			if (validKey == 1) {
 				removeEntry(key);

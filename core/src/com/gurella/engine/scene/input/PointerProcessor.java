@@ -14,11 +14,11 @@ public abstract class PointerProcessor implements PointerActivityListener {
 
 	public void sceneActivated() {
 		sceneId = scene.getInstanceId();
-		EventService.subscribe(this);
+		EventService.subscribe(sceneId, this);
 	}
 
 	public void sceneDeactivated() {
-		EventService.unsubscribe(this);
+		EventService.unsubscribe(sceneId, this);
 		sceneId = -1;
 	}
 }

@@ -21,14 +21,14 @@ class PointerActivityEvent implements Event<PointerActivityListener> {
 		this.button = button;
 		this.pointerTrack = pointerTrack;
 		EventService.post(scene.getInstanceId(), this);
+		pointer = -1;
+		button = -1;
+		pointerTrack = null;
 	}
 
 	@Override
 	public void dispatch(PointerActivityListener listener) {
 		listener.onPointerActivity(pointer, button, pointerTrack);
-		pointer = -1;
-		button = -1;
-		pointerTrack = null;
 	}
 
 	@Override
