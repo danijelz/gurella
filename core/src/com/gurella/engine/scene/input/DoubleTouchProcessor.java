@@ -109,6 +109,8 @@ public class DoubleTouchProcessor extends PointerProcessor {
 				dragAndDropProcessor.doubleTouch(pointerTrack);
 			}
 		}
+		
+		doubleTouchInfo.reset();
 	}
 
 	@Override
