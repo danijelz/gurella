@@ -12,9 +12,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.CubemapAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Disposable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.graphics.render.GenericBatch;
@@ -119,11 +117,6 @@ public class SkyboxComponent extends RenderableComponent implements Disposable {
 	protected void doGetBounds(BoundingBox bounds) {
 		bounds.ext(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
 		bounds.ext(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-	}
-
-	@Override
-	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
-		return false;
 	}
 
 	@Override

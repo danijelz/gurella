@@ -1,8 +1,10 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.math.Intersection;
@@ -16,6 +18,7 @@ public class RenderableIntersector implements Poolable {
 	private final ModelIntesector modelIntesector = new ModelIntesector();
 	private final SpiteIntersector spiteIntersector = new SpiteIntersector();
 
+	private final BoundingBox bounds = new BoundingBox();
 	private final Matrix4 transform = new Matrix4();
 	private final Vector3 closestIntersection = new Vector3(Float.NaN, Float.NaN, Float.NaN);
 	private float closestDistance = Float.MAX_VALUE;
@@ -27,6 +30,20 @@ public class RenderableIntersector implements Poolable {
 	public void set(Camera camera, Ray ray) {
 		this.camera = camera;
 		this.ray = ray;
+	}
+
+	public boolean append(RenderableComponent renderable, boolean considerLooseInput) {
+		if (renderable.looseInput && considerLooseInput) {
+			intersection.reset();
+			renderable.getBounds(bounds);
+			Vector3 location = intersection.location;
+			if (Intersector.intersectRayBounds(ray, bounds, location)) {
+				intersection.distance = location.dst2(camera.position);
+			}
+			return evaluateIntersection(renderable);
+		} else {
+			return append(renderable);
+		}
 	}
 
 	public boolean append(RenderableComponent renderable) {
@@ -41,17 +58,24 @@ public class RenderableIntersector implements Poolable {
 				temp = transformComponent.getWorldTransform(transform);
 			}
 			spiteIntersector.getIntersection(cameraPosition, ray, renderable2d.sprite, temp, intersection);
-		} else {
+		} else if (renderable instanceof RenderableComponent3d) {
 			RenderableComponent3d renderable3d = (RenderableComponent3d) renderable;
 			modelIntesector.getIntersection(cameraPosition, ray, renderable3d.getModelInstance(), intersection);
+		} else {
+			return false;
 		}
 
-		if (intersection.distance < closestDistance) {
-			closestDistance = intersection.distance;
+		return evaluateIntersection(renderable);
+	}
+
+	protected boolean evaluateIntersection(RenderableComponent renderable) {
+		float distance = intersection.distance;
+		if (distance < closestDistance) {
+			closestDistance = distance;
 			closestIntersection.set(intersection.location);
 			closestRenderable = renderable;
 			return true;
-		} else if (closestDistance != Float.MAX_VALUE && intersection.distance == closestDistance
+		} else if (closestDistance != Float.MAX_VALUE && distance == closestDistance
 				&& renderable instanceof RenderableComponent2d && closestRenderable instanceof RenderableComponent2d) {
 			RenderableComponent2d closest = (RenderableComponent2d) closestRenderable;
 			RenderableComponent2d current = (RenderableComponent2d) renderable;

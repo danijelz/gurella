@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class ModelIntesector {
-	private final BoundingBox temp = new BoundingBox();
+	private final BoundingBox bounds = new BoundingBox();
 	private final Matrix4 transform = new Matrix4();
 	private final Ray invRay = new Ray();
 	private final Vector3 intersection = new Vector3();
@@ -99,10 +99,10 @@ public class ModelIntesector {
 		closestNodeDistance = Float.MAX_VALUE;
 
 		node.calculateWorldTransform();
-		node.extendBoundingBox(temp.inf(), true);
-		temp.mul(modelInstance.transform);
+		node.extendBoundingBox(bounds.inf(), true);
+		bounds.mul(modelInstance.transform);
 
-		if (Intersector.intersectRayBoundsFast(ray, temp)) {
+		if (Intersector.intersectRayBoundsFast(ray, bounds)) {
 			transform.set(modelInstance.transform).mul(node.globalTransform);
 			if (Matrix4.inv(transform.val)) {
 				invRay.set(ray);

@@ -1,8 +1,6 @@
 package com.gurella.engine.scene.renderable;
 
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
@@ -42,8 +40,6 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	protected abstract void doRender(GenericBatch batch);
 
 	protected abstract void doGetBounds(BoundingBox bounds);
-
-	protected abstract boolean doGetIntersection(Ray ray, Vector3 intersection);
 
 	@Override
 	protected void componentActivated() {
@@ -93,10 +89,13 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 		setDirty();
 	}
 
-	public void update() {
+	protected boolean update() {
 		if (dirty) {
 			updateGeometry();
 			dirty = false;
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -106,13 +105,9 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	}
 
 	public final void getBounds(BoundingBox bounds) {
+		//TODO cache last result -> return update() ? doGetBounds(bounds) ? cachedBounds;
 		update();
 		doGetBounds(bounds);
-	}
-
-	public final boolean getIntersection(Ray ray, Vector3 intersection) {
-		update();
-		return doGetIntersection(ray, intersection);
 	}
 
 	public boolean isVisible() {

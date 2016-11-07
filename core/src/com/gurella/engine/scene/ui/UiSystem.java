@@ -8,34 +8,57 @@ import com.gurella.engine.subscriptions.base.object.ObjectsParentListener;
 import com.gurella.engine.subscriptions.scene.ComponentActivityListener;
 
 public class UiSystem extends SceneService2 implements ComponentActivityListener, ObjectsParentListener {
-	private FocusManager focusManager = new FocusManager();
+	UiFocusManager uiFocusManager;
 
 	public UiSystem(Scene scene) {
 		super(scene);
+		uiFocusManager = new UiFocusManager(scene);
+	}
+
+	@Override
+	protected void serviceActivated() {
+		uiFocusManager.activate();
+	}
+
+	@Override
+	protected void serviceDeactivated() {
+		uiFocusManager.deactivate();
 	}
 
 	@Override
 	public void componentActivated(SceneNodeComponent2 component) {
 		if (component instanceof UiComponent) {
-
+			UiComponent uiComponent = (UiComponent) component;
+			uiComponent.uiSystem = this;
+			uiComponent.parent = findParentComposite(uiComponent.getParent());
+			uiComponent.parent._components.add(uiComponent);
 		}
 	}
 
 	@Override
 	public void componentDeactivated(SceneNodeComponent2 component) {
-		// TODO Auto-generated method stub
-
+		if (component instanceof UiComponent) {
+			UiComponent uiComponent = (UiComponent) component;
+			uiComponent.uiSystem = null;
+			if (uiComponent.parent != null) {
+				uiComponent.parent._components.remove(uiComponent);
+			}
+			uiComponent.parent = null;
+		}
 	}
 
 	@Override
 	public void parentChanged(ManagedObject object, ManagedObject oldParent, ManagedObject newParent) {
 		if (object instanceof UiComponent) {
-			UiComponent component = (UiComponent) object;
-			component.parent = findNewParentComposite(newParent);
+			UiComponent uiComponent = (UiComponent) object;
+			if (uiComponent.parent != null) {
+				uiComponent.parent._components.remove(uiComponent);
+			}
+			uiComponent.parent = findParentComposite(newParent);
 		}
 	}
 
-	private Composite findNewParentComposite(ManagedObject newParent) {
+	private Composite findParentComposite(ManagedObject newParent) {
 		// TODO Auto-generated method stub
 		return null;
 	}

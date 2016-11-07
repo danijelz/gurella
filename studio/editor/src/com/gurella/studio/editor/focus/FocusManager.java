@@ -2,7 +2,6 @@ package com.gurella.studio.editor.focus;
 
 import java.util.Optional;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
@@ -67,26 +66,25 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 			return;
 		}
 
-		Control focusControl = current.getFocusControl();
-		if (focusControl == lastFocusControl && focusDataFromSelection) {
+		Control control = current.getFocusControl();
+		if (control == lastFocusControl && focusDataFromSelection) {
 			return;
 		}
 
-		lastFocusControl = focusControl;
+		lastFocusControl = control;
 		focusDataFromSelection = false;
 
-		if (focusControl == null) {
+		if (control == null) {
 			return;
 		}
 
-		Composite temp = focusControl instanceof Composite ? (Composite) focusControl : focusControl.getParent();
-		while (temp != null) {
-			if (temp instanceof BeanEditor) {
-				BeanEditorContext<?> context = ((BeanEditor<?>) temp).getContext();
+		while (control != null) {
+			if (control instanceof BeanEditor) {
+				BeanEditorContext<?> context = ((BeanEditor<?>) control).getContext();
 				Object modelInstance = context.modelInstance;
 				if (modelInstance instanceof SceneNodeComponent2) {
 					focusedComponent = (SceneNodeComponent2) modelInstance;
-					focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+					focusedNode = focusedComponent.getNode();
 					focusChanged();
 					return;
 				} else if (modelInstance instanceof SceneNode2) {
@@ -96,7 +94,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 					return;
 				}
 			}
-			temp = temp.getParent();
+			control = control.getParent();
 		}
 	}
 
@@ -108,7 +106,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 			focusDataFromSelection = true;
 		} else if (selection instanceof ComponentInspectable) {
 			focusedComponent = ((ComponentInspectable) selection).target;
-			focusedNode = focusedComponent == null ? null : focusedComponent.getNode();
+			focusedNode = focusedComponent.getNode();
 			focusDataFromSelection = true;
 		} else {
 			focusedComponent = null;
@@ -141,9 +139,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 			return;
 		}
 
-		intersector.reset();
 		intersector.set(camera, pickRay);
-
 		Spatial closestSpatial = null;
 		for (int i = 0, n = spatials.size; i < n; i++) {
 			Spatial spatial = spatials.get(i);
@@ -152,7 +148,9 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 			}
 		}
 
+		intersector.reset();
 		spatials.clear();
+
 		if (closestSpatial != null) {
 			focusDataFromSelection = false;
 			focusedComponent = closestSpatial.renderable;

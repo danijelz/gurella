@@ -12,9 +12,10 @@ public class ScrollInfo implements Poolable {
 	public RenderableComponent renderable;
 	public final Vector3 intersection = new Vector3();
 
-	void set(int screenX, int screenY) {
+	void set(int screenX, int screenY, int amount) {
 		this.screenX = screenX;
 		this.screenY = screenY;
+		this.amount = amount;
 	}
 
 	@Override

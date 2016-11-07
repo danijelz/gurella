@@ -44,26 +44,26 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 
 		actions.addGroup(moveToMenuGroupName, -700);
 		if (is2d) {
-			actions.addAction(moveToMenuGroupName, "&Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1));
+			actions.addAction(moveToMenuGroupName, "&Origin", 100, () -> moveTo(0, 0, 0, 0, 0, -1, 0, 1, 0));
 			actions.addAction(moveToMenuGroupName, "Restore &rotation", 100, () -> setRotation(0));
 			actions.addAction(moveToMenuGroupName, "Restore &zoom", 100, () -> setZoom(1));
 			actions.addAction(moveToMenuGroupName, "Ro&tation", 100, () -> selectRotation());
 			actions.addAction(moveToMenuGroupName, "Zoo&m", 100, () -> selectZoom());
 		} else {
-			actions.addAction(moveToMenuGroupName, "&Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1));
-			actions.addAction(moveToMenuGroupName, "&Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1));
-			actions.addAction(moveToMenuGroupName, "&Top", 300, () -> moveTo(0, 3, 0, 0, -1, 0));
-			actions.addAction(moveToMenuGroupName, "Bo&ttom", 400, () -> moveTo(0, -3, 0, 0, -1, 0));
-			actions.addAction(moveToMenuGroupName, "&Right", 500, () -> moveTo(3, 0, 0, -1, 0, 0));
-			actions.addAction(moveToMenuGroupName, "&Left", 600, () -> moveTo(-3, 0, 0, 1, 0, 0));
+			actions.addAction(moveToMenuGroupName, "&Front", 100, () -> moveTo(0, 0, 3, 0, 0, -1, 0, 1, 0));
+			actions.addAction(moveToMenuGroupName, "&Back", 200, () -> moveTo(0, 0, -3, 0, 0, 1, 0, 1, 0));
+			actions.addAction(moveToMenuGroupName, "&Top", 300, () -> moveTo(0, 3, 0, 0, -1, 0, 0, 0, -1));
+			actions.addAction(moveToMenuGroupName, "Bo&ttom", 400, () -> moveTo(0, -3, 0, 0, -1, 0, 0, 0, 1));
+			actions.addAction(moveToMenuGroupName, "&Right", 500, () -> moveTo(3, 0, 0, -1, 0, 0, 0, 1, 0));
+			actions.addAction(moveToMenuGroupName, "&Left", 600, () -> moveTo(-3, 0, 0, 1, 0, 0, 0, 1, 0));
 		}
 	}
 
-	private void moveTo(float px, float py, float pz, float lx, float ly, float lz) {
+	private void moveTo(float px, float py, float pz, float lx, float ly, float lz, float ux, float uy, float uz) {
 		Camera camera = manager.getCamera();
 		camera.position.set(px, py, pz);
 		camera.direction.set(lx, ly, lz);
-		camera.up.set(0, 1, 0);
+		camera.up.set(ux, uy, uz);
 		camera.lookAt(0, 0, 0);
 		camera.update(true);
 	}

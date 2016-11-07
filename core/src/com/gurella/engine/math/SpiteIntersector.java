@@ -12,6 +12,7 @@ public class SpiteIntersector {
 	private final Vector3 cameraPosition = new Vector3();
 	private final Ray ray = new Ray();
 	private final Ray invRay = new Ray();
+	private final Matrix4 transform = new Matrix4();
 
 	private Sprite closestSprite;
 	private final Vector3 closestIntersection = new Vector3();
@@ -37,6 +38,7 @@ public class SpiteIntersector {
 
 	boolean extractResult(Intersection intersection) {
 		if (closestSprite != null) {
+			intersection.distance = closestDistance;
 			intersection.location.set(closestIntersection);
 			return true;
 		} else {
@@ -44,10 +46,9 @@ public class SpiteIntersector {
 		}
 	}
 
-	private void process(Sprite sprite, Matrix4 transform) {
+	private void process(Sprite sprite, Matrix4 spriteTransform) {
 		invRay.set(ray);
-		if (transform != null && Matrix4.inv(transform.val)) {
-			invRay.set(ray);
+		if (spriteTransform != null && Matrix4.inv(transform.set(spriteTransform.val).val)) {
 			invRay.mul(transform);
 		}
 
@@ -57,16 +58,28 @@ public class SpiteIntersector {
 		v3.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
 
 		if (Intersector.intersectRayTriangle(invRay, v1, v2, v3, intersection)) {
-			closestSprite = sprite;
-			return;
+			if (spriteTransform != null) {
+				intersection.mul(spriteTransform);
+			}
+			float distance = intersection.dst2(cameraPosition);
+			if (closestDistance > distance) {
+				closestDistance = distance;
+				closestIntersection.set(intersection);
+				closestSprite = sprite;
+				return;
+			}
 		}
 
 		v1.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
 		v2.set(vertices[Batch.X4], vertices[Batch.Y4], 0);
 		v3.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
 		if (Intersector.intersectRayTriangle(invRay, v1, v2, v3, intersection)) {
-			closestSprite = sprite;
-			return;
+			float distance = intersection.dst2(cameraPosition);
+			if (closestDistance > distance) {
+				closestDistance = distance;
+				closestIntersection.set(intersection);
+				closestSprite = sprite;
+			}
 		}
 	}
 }

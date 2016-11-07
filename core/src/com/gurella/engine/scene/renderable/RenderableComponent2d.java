@@ -2,15 +2,10 @@ package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.debug.DebugRenderable;
 
 public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
@@ -19,17 +14,18 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	public int zOrder;
 	float width;
 	float height;
-	boolean dimensionsFromTexture = true;
+	boolean flipX;
+	boolean flipY;
+	boolean dimensionsFromTexture = true; // TODO remove
 	int pixelsPerUnit = -1;
 	final Color tint = new Color(1, 1, 1, 1);
 
-	// TODO flipX, flipY, zOrder, origin (center, leftBottom)
+	// TODO origin (center, leftBottom), pivot
 
 	transient final Sprite sprite = new Sprite();
 
 	public RenderableComponent2d() {
 		sprite.setColor(tint);
-		sprite.flip(false, true);
 		sprite.setOriginCenter();
 	}
 
@@ -59,6 +55,24 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 			}
 			setDirty();
 		}
+	}
+
+	public boolean isFlipX() {
+		return flipX;
+	}
+
+	public void setFlipX(boolean flipX) {
+		this.flipX = flipX;
+		sprite.setFlip(flipX, flipY);
+	}
+
+	public boolean isFlipY() {
+		return flipY;
+	}
+
+	public void setFlipY(boolean flipY) {
+		this.flipY = flipY;
+		sprite.setFlip(flipX, flipY);
 	}
 
 	public Color getTint() {
@@ -121,42 +135,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	}
 
 	@Override
-	protected boolean doGetIntersection(Ray ray, Vector3 intersection) {
-		Ray inv = new Ray().set(ray);
-		if (transformComponent != null) {
-			transformComponent.transformRayFromWorld(inv);
-		}
-
-		Vector3 v1 = PoolService.obtain(Vector3.class);
-		Vector3 v2 = PoolService.obtain(Vector3.class);
-		Vector3 v3 = PoolService.obtain(Vector3.class);
-
-		float[] vertices = sprite.getVertices();
-
-		v1.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
-		v2.set(vertices[Batch.X2], vertices[Batch.Y2], 0);
-		v3.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
-
-		if (Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection)) {
-			PoolService.free(v1);
-			PoolService.free(v2);
-			PoolService.free(v3);
-			return true;
-		}
-
-		v1.set(vertices[Batch.X3], vertices[Batch.Y3], 0);
-		v2.set(vertices[Batch.X4], vertices[Batch.Y4], 0);
-		v3.set(vertices[Batch.X1], vertices[Batch.Y1], 0);
-		boolean result = Intersector.intersectRayTriangle(inv, v1, v2, v3, intersection);
-
-		PoolService.free(v1);
-		PoolService.free(v2);
-		PoolService.free(v3);
-
-		return result;
-	}
-
-	@Override
 	public void debugRender(DebugRenderContext context) {
 		if (sprite.getTexture() != null) {
 			GenericBatch batch = context.batch;
@@ -186,5 +164,10 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		dimensionsFromTexture = true;
 		pixelsPerUnit = -1;
 		tint.set(1, 1, 1, 1);
+		sprite.setFlip(false, false);
+		sprite.setOriginCenter();
+		flipX = false;
+		flipY = false;
+		zOrder = 0;
 	}
 }

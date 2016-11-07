@@ -13,13 +13,21 @@ public class UiComponent extends SceneNodeComponent2 {
 	public boolean blocked;
 	
 	Composite parent;
+	UiSystem uiSystem;
 
 	// TODO
 	public void requestFocus() {
+		if(isFocusable()) {
+			uiSystem.uiFocusManager.requestFocus(this);
+		}
 	}
 
 	public boolean hasFocus() {
-		return false;
+		if(isFocusable()) {
+			return uiSystem.uiFocusManager.hasFocus(this);
+		} else {
+			return false;
+		}
 	}
 
 	public boolean isFocusable() {

@@ -39,8 +39,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 	private SpatialSystem<?> spatialSystem;
 
-	private transient final InputProcessorDelegate delegate;
-	private transient final InputAdapter dummyDelegate;
+	private transient final InputEventsDispatcher dispatcher;
+	private transient final InputAdapter dummyDispatcher;
 	private transient final InputEventQueue inputQueue;
 
 	private transient final DragProcessor dragProcessor;
@@ -57,9 +57,9 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	public InputSystem(Scene scene) {
 		super(scene);
 
-		delegate = new InputProcessorDelegate(this);
-		dummyDelegate = new InputAdapter();
-		inputQueue = new InputEventQueue(delegate);
+		dispatcher = new InputEventsDispatcher(this);
+		dummyDispatcher = new InputAdapter();
+		inputQueue = new InputEventQueue(dispatcher);
 
 		dragProcessor = new DragProcessor(scene);
 		dragAndDropProcessor = new DragAndDropProcessor(scene);
@@ -81,12 +81,12 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	@Override
 	protected void serviceDeactivated() {
 		InputService.removeInputProcessor(inputQueue);
-		inputQueue.setProcessor(dummyDelegate);
+		inputQueue.setProcessor(dummyDispatcher);
 		inputQueue.drain();
-		inputQueue.setProcessor(delegate);
+		inputQueue.setProcessor(dispatcher);
 
 		// TODO update listeners and finish actions
-		delegate.sceneDeactivated();
+		dispatcher.sceneDeactivated();
 		dragProcessor.sceneDeactivated();
 		dragAndDropProcessor.sceneDeactivated();
 		touchProcessor.sceneDeactivated();
@@ -98,7 +98,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	@Override
 	public void onInputUpdate() {
 		inputQueue.drain();
-		delegate.finshUpdate();
+		dispatcher.finshUpdate();
 	}
 
 	@Override
@@ -149,8 +149,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		for (int i = 0, n = spatials.size; i < n; i++) {
 			Spatial spatial = spatials.get(i);
 			RenderableComponent renderable = spatial.renderable;
-			//TODO renderable.looseInput, renderable.inputSensitivity
-			if (renderable.inputSensitivity != 0 && intersector.append(renderable)) {
+			//TODO renderable.inputSensitivity in processors
+			if (renderable.inputSensitivity != 0 && intersector.append(renderable, true)) {
 				closestSpatial = spatial;
 			}
 		}
@@ -166,7 +166,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 	}
 
-	private static class InputProcessorDelegate implements InputProcessor {
+	private static class InputEventsDispatcher implements InputProcessor {
 		private final InputSystem inputSystem;
 		private final Scene scene;
 
@@ -193,7 +193,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		private final PickResult pickResult = new PickResult();
 		private final LayerMask layerMask = new LayerMask().ignored(Layer.DnD);
 
-		public InputProcessorDelegate(InputSystem inputSystem) {
+		public InputEventsDispatcher(InputSystem inputSystem) {
 			this.inputSystem = inputSystem;
 			this.scene = inputSystem.scene;
 
@@ -253,8 +253,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		public boolean scrolled(int amount) {
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
-			scrollInfo.set(screenX, screenY);
-			scrollInfo.amount = amount;
+			scrollInfo.set(screenX, screenY, amount);
 			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
 
 			SceneNode2 node = pickResult.node;

@@ -102,8 +102,11 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 	}
 
 	public void setValue(P value) {
-		SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(context, getValue(), value);
-		context.sceneEditorContext.executeOperation(operation, "Error updating property.");
+		P oldValue = getValue();
+		if(Values.isNotEqual(oldValue, value, true)) {
+			SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(context, oldValue, value);
+			context.sceneEditorContext.executeOperation(operation, "Error updating property.");
+		}
 	}
 
 	@Override

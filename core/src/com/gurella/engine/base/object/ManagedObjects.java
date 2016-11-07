@@ -157,7 +157,7 @@ final class ManagedObjects {
 
 		parentChangedEvent.oldParent = oldParent;
 		parentChangedEvent.newParent = newParent;
-		EventService.post(parentChangedEvent);
+		EventService.post(object.instanceId, parentChangedEvent);
 		parentChangedEvent.oldParent = null;
 		parentChangedEvent.newParent = null;
 	}
