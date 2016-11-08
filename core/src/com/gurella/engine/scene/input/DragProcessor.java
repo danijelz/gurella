@@ -4,15 +4,14 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.NodeDragOverListener;
 import com.gurella.engine.subscriptions.scene.input.SceneDragListener;
 
 public class DragProcessor extends PointerProcessor {
-	private final IntMap<SceneNode2> dragOverNodes = new IntMap<SceneNode2>(10);
+	private final IntMap<RenderableComponent> dragOverRenderables = new IntMap<RenderableComponent>(10);
 
-	private final DragInfo dragInfo = new DragInfo();
+	private final PointerInfo pointerInfo = new PointerInfo();
 
 	private final SceneDragStartEvent sceneDragStartEvent = new SceneDragStartEvent();
 	private final SceneDragedEvent sceneDragedEvent = new SceneDragedEvent();
@@ -45,83 +44,71 @@ public class DragProcessor extends PointerProcessor {
 	}
 
 	private void begin(int key, int pointer, int button, PointerTrack pointerTrack) {
-		dragInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0));
-		SceneNode2 node = pointerTrack.getNode(0);
-		if (node != null) {
-			dragInfo.renderable = node.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(0, dragInfo.intersection);
-		}
-
+		RenderableComponent renderable = pointerTrack.getRenderable(0);
+		pointerInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0), renderable,
+				pointerTrack.getIntersection(0));
 		EventService.post(sceneId, sceneDragStartEvent);
 
-		if (node != null) {
-			dragOverNodes.put(key, node);
-			EventService.post(node.getInstanceId(), dragOverStartEvent);
+		if (renderable != null) {
+			dragOverRenderables.put(key, renderable);
+			EventService.post(renderable.getNodeId(), dragOverStartEvent);
 		}
 
-		dragInfo.reset();
+		pointerInfo.reset();
 	}
 
 	private void move(int key, int pointer, int button, PointerTrack pointerTrack) {
 		int last = pointerTrack.getSize() - 1;
-		dragInfo.set(pointer, button, pointerTrack.getScreenX(last), pointerTrack.getScreenY(last));
-		SceneNode2 currentNode = pointerTrack.getNode(last);
-		if (currentNode != null) {
-			dragInfo.renderable = currentNode.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(last, dragInfo.intersection);
-		}
-
+		RenderableComponent currentRenderable = pointerTrack.getRenderable(last);
+		pointerInfo.set(pointer, button, pointerTrack.getScreenX(last), pointerTrack.getScreenY(last), currentRenderable,
+				pointerTrack.getIntersection(last));
 		EventService.post(sceneId, sceneDragedEvent);
 
-		SceneNode2 dragOverNode = dragOverNodes.get(key);
-		if (dragOverNode != null) {
-			if (currentNode == dragOverNode) {
-				EventService.post(dragOverNode.getInstanceId(), dragOverMoveEvent);
+		RenderableComponent dragOverRenderable = dragOverRenderables.get(key);
+		if (dragOverRenderable != null) {
+			if (currentRenderable == dragOverRenderable) {
+				EventService.post(dragOverRenderable.getInstanceId(), dragOverMoveEvent);
 			} else {
-				dragInfo.intersection.setZero();
-				dragInfo.renderable = dragOverNode.getComponent(RenderableComponent.class);
-				EventService.post(dragOverNode.getInstanceId(), dragOverEndEvent);
-				dragOverNodes.remove(key);
+				pointerInfo.intersection.set(Float.NaN, Float.NaN, Float.NaN);
+				pointerInfo.renderable = dragOverRenderable;
+				EventService.post(dragOverRenderable.getNodeId(), dragOverEndEvent);
+				dragOverRenderables.remove(key);
 			}
 		}
 
-		if (currentNode != null && currentNode != dragOverNode) {
-			dragOverNodes.put(key, currentNode);
-			dragInfo.renderable = currentNode.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(last, dragInfo.intersection);
-			EventService.post(currentNode.getInstanceId(), dragOverStartEvent);
+		if (currentRenderable != null && currentRenderable != dragOverRenderable) {
+			dragOverRenderables.put(key, currentRenderable);
+			pointerInfo.renderable = currentRenderable;
+			pointerInfo.intersection.set(pointerTrack.getIntersection(last));
+			EventService.post(currentRenderable.getNodeId(), dragOverStartEvent);
 		}
 
-		dragInfo.reset();
+		pointerInfo.reset();
 	}
 
 	private void end(int key, int pointer, int button, PointerTrack pointerTrack) {
 		int last = pointerTrack.getSize() - 1;
-		dragInfo.set(pointer, button, pointerTrack.getScreenX(last), pointerTrack.getScreenY(last));
-		SceneNode2 node = pointerTrack.getNode(last);
-		if (node != null) {
-			dragInfo.renderable = node.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(last, dragInfo.intersection);
-		}
-
+		RenderableComponent renderable = pointerTrack.getRenderable(last);
+		pointerInfo.set(pointer, button, pointerTrack.getScreenX(last), pointerTrack.getScreenY(last), renderable,
+				pointerTrack.getIntersection(last));
 		EventService.post(sceneId, sceneDragEndEvent);
 
-		SceneNode2 dragOverNode = dragOverNodes.remove(key);
-		if (dragOverNode != null) {
-			if (dragOverNode != node) {
-				dragInfo.renderable = dragOverNode.getComponent(RenderableComponent.class);
-				dragInfo.intersection.setZero();
+		RenderableComponent dragOverRenderable = dragOverRenderables.remove(key);
+		if (dragOverRenderable != null) {
+			if (dragOverRenderable != renderable) {
+				pointerInfo.renderable = dragOverRenderable;
+				pointerInfo.intersection.set(Float.NaN, Float.NaN, Float.NaN);
 			}
-			EventService.post(dragOverNode.getInstanceId(), dragOverEndEvent);
+			EventService.post(dragOverRenderable.getNodeId(), dragOverEndEvent);
 		}
 
-		dragInfo.reset();
+		pointerInfo.reset();
 	}
 
 	@Override
 	public void sceneDeactivated() {
 		super.sceneDeactivated();
-		dragOverNodes.clear();
+		dragOverRenderables.clear();
 	}
 
 	private class SceneDragStartEvent implements Event<SceneDragListener> {
@@ -132,7 +119,7 @@ public class DragProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(SceneDragListener subscriber) {
-			subscriber.onDragStart(dragInfo);
+			subscriber.onDragStart(pointerInfo);
 		}
 	}
 
@@ -144,7 +131,7 @@ public class DragProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(SceneDragListener subscriber) {
-			subscriber.onDragged(dragInfo);
+			subscriber.onDragged(pointerInfo);
 		}
 	}
 
@@ -156,7 +143,7 @@ public class DragProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(SceneDragListener subscriber) {
-			subscriber.onDragEnd(dragInfo);
+			subscriber.onDragEnd(pointerInfo);
 		}
 	}
 
@@ -168,7 +155,7 @@ public class DragProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(NodeDragOverListener subscriber) {
-			subscriber.onDragOverStart(dragInfo);
+			subscriber.onDragOverStart(pointerInfo);
 		}
 	}
 
@@ -181,7 +168,7 @@ public class DragProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(NodeDragOverListener subscriber) {
-			subscriber.onDragOverMove(dragInfo);
+			subscriber.onDragOverMove(pointerInfo);
 		}
 	}
 
@@ -193,7 +180,7 @@ public class DragProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(NodeDragOverListener subscriber) {
-			subscriber.onDragOverEnd(dragInfo);
+			subscriber.onDragOverEnd(pointerInfo);
 		}
 	}
 }

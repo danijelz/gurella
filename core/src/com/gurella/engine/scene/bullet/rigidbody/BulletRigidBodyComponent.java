@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.ModelDescriptor;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
+import com.gurella.engine.scene.RequiresComponent;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.bullet.rigidbody.shape.CollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
@@ -23,6 +24,7 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 
 @ModelDescriptor(descriptiveName = "Collision Object 3D")
+@RequiresComponent(TransformComponent.class)
 public class BulletRigidBodyComponent extends SceneNodeComponent2
 		implements NodeComponentActivityListener, Poolable, DebugRenderable {
 
@@ -32,7 +34,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 
 	public boolean ghost;
 	public boolean allwaysActive;
-	public boolean unresponsive;// CF_NO_CONTACT_RESPONSE
+	public boolean unresponsive;
 
 	public int group;
 	public int mask;

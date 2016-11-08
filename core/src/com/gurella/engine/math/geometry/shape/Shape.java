@@ -15,16 +15,14 @@ public abstract class Shape {
 	protected final Matrix4 globalTransform = new Matrix4();
 	protected boolean transformDirty = true;
 
-	protected boolean graphicsDirty = true;
-
 	public CompositeShape getParent() {
 		return parent;
 	}
 
 	public BoundingBox getBounds() {
 		if (boundsDirty) {
-			bounds.clr();
-			updateBounds();
+			bounds.inf();
+			updateBounds(bounds);
 			bounds.mul(getGlobalTransform());
 		}
 		return bounds;
@@ -46,8 +44,7 @@ public abstract class Shape {
 		transformDirty = true;
 	}
 
-	protected void updateBounds() {
-	}
+	protected abstract void updateBounds(BoundingBox bounds);
 
 	public boolean contains(Vector2 point) {
 		return contains(point.x, point.y, 0f);

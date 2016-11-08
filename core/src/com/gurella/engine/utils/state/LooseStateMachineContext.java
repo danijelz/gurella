@@ -1,4 +1,4 @@
-package com.gurella.engine.state;
+package com.gurella.engine.utils.state;
 
 public class LooseStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
 	private StateTransition<STATE> defaultTransition;

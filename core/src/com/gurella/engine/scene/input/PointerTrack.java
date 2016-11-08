@@ -7,20 +7,23 @@ import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.gurella.engine.scene.SceneNode2;
+import com.gurella.engine.scene.renderable.RenderableComponent;
 
 public class PointerTrack implements Poolable {
 	private PointerTrackerPhase phase;
 	private int size;
-	private LongArray time = new LongArray();
-	private IntArray screenX = new IntArray();
-	private IntArray screenY = new IntArray();
-	private FloatArray intersectionX = new FloatArray();
-	private FloatArray intersectionY = new FloatArray();
-	private FloatArray intersectionZ = new FloatArray();
-	private Array<SceneNode2> nodes = new Array<SceneNode2>();
+	private final LongArray time = new LongArray();
+	private final IntArray screenX = new IntArray();
+	private final IntArray screenY = new IntArray();
+	private final FloatArray intersectionX = new FloatArray();
+	private final FloatArray intersectionY = new FloatArray();
+	private final FloatArray intersectionZ = new FloatArray();
+	private final Array<RenderableComponent> renderables = new Array<RenderableComponent>();
 
-	void add(long eventTime, int sx, int sy, Vector3 intersection, SceneNode2 node, PointerTrackerPhase newPhase) {
+	private final Vector3 temp = new Vector3();
+
+	void add(long eventTime, int sx, int sy, Vector3 intersection, RenderableComponent renderable,
+			PointerTrackerPhase newPhase) {
 		size++;
 		time.add(eventTime);
 		screenX.add(sx);
@@ -28,16 +31,12 @@ public class PointerTrack implements Poolable {
 		intersectionX.add(intersection.x);
 		intersectionY.add(intersection.y);
 		intersectionZ.add(intersection.z);
-		nodes.add(node);
+		renderables.add(renderable);
 		phase = newPhase;
 	}
 
 	public PointerTrackerPhase getPhase() {
 		return phase;
-	}
-
-	void end() {
-
 	}
 
 	public int getSize() {
@@ -72,31 +71,31 @@ public class PointerTrack implements Poolable {
 		return intersectionZ.get(index);
 	}
 
-	public Vector3 getIntersection(int index, Vector3 out) {
-		return out.set(intersectionX.get(index), intersectionY.get(index), intersectionZ.get(index));
+	public Vector3 getIntersection(int index) {
+		return temp.set(intersectionX.get(index), intersectionY.get(index), intersectionZ.get(index));
 	}
 
-	public SceneNode2 getNode(int index) {
-		return nodes.get(index);
+	public RenderableComponent getRenderable(int index) {
+		return renderables.get(index);
 	}
 
 	public long getTimeSpan() {
 		return time.peek() - time.first();
 	}
 
-	public SceneNode2 getCommonNode() {
-		SceneNode2 node = nodes.get(0);
-		if (node == null) {
+	public RenderableComponent getCommonRenderable() {
+		RenderableComponent renderable = renderables.get(0);
+		if (renderable == null) {
 			return null;
 		}
 
 		for (int i = 1; i < size; i++) {
-			if (!node.equals(getNode(i))) {
+			if (!renderable.equals(getRenderable(i))) {
 				return null;
 			}
 		}
 
-		return node;
+		return renderable;
 	}
 
 	@Override
@@ -109,7 +108,7 @@ public class PointerTrack implements Poolable {
 		intersectionY.clear();
 		intersectionZ.clear();
 		time.clear();
-		nodes.clear();
+		renderables.clear();
 	}
 
 	public enum PointerTrackerPhase {

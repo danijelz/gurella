@@ -1,4 +1,4 @@
-package com.gurella.engine.state;
+package com.gurella.engine.utils.state;
 
 public interface StateMachineContext<STATE> {
 	STATE getInitialState();

@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.IntIntMap;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.NodeDoubleTouchListener;
@@ -22,8 +21,7 @@ public class DoubleTouchProcessor extends PointerProcessor {
 	private final IntIntMap startScreenX = new IntIntMap(10);
 	private final IntIntMap startScreenY = new IntIntMap(10);
 
-	private final DoubleTouchInfo doubleTouchInfo = new DoubleTouchInfo();
-
+	private final PointerInfo pointerInfo = new PointerInfo();
 	private final SceneDoubleTouchDownEvent sceneDoubleTouchDownEvent = new SceneDoubleTouchDownEvent();
 	private final NodeDoubleTouchDownEvent nodeDoubleTouchDownEvent = new NodeDoubleTouchDownEvent();
 
@@ -93,24 +91,19 @@ public class DoubleTouchProcessor extends PointerProcessor {
 	}
 
 	private void dispatchDoubleTap(int pointer, int button, int screenX, int screenY, PointerTrack pointerTrack) {
-		doubleTouchInfo.set(pointer, button, screenX, screenY);
-		SceneNode2 node = pointerTrack.getCommonNode();
-		if (node != null) {
-			doubleTouchInfo.renderable = node.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(0, doubleTouchInfo.intersection);
-		}
+		RenderableComponent renderable = pointerTrack.getCommonRenderable();
+		pointerInfo.set(pointer, button, screenX, screenY, renderable, pointerTrack.getIntersection(0));
 
 		EventService.post(scene.getInstanceId(), sceneDoubleTouchDownEvent);
 
-		if (node != null) {
-			EventService.post(node.getInstanceId(), nodeDoubleTouchDownEvent);
-
+		if (renderable != null) {
+			EventService.post(renderable.getNodeId(), nodeDoubleTouchDownEvent);
 			if (pointer == 0 && button == Buttons.LEFT) {
 				dragAndDropProcessor.doubleTouch(pointerTrack);
 			}
 		}
-		
-		doubleTouchInfo.reset();
+
+		pointerInfo.reset();
 	}
 
 	@Override
@@ -129,7 +122,7 @@ public class DoubleTouchProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(SceneDoubleTouchListener subscriber) {
-			subscriber.doubleTouchDown(doubleTouchInfo);
+			subscriber.onDoubleTouch(pointerInfo);
 		}
 	}
 
@@ -141,7 +134,7 @@ public class DoubleTouchProcessor extends PointerProcessor {
 
 		@Override
 		public void dispatch(NodeDoubleTouchListener subscriber) {
-			subscriber.onDoubleTouch(doubleTouchInfo);
+			subscriber.onDoubleTouch(pointerInfo);
 		}
 	}
 }

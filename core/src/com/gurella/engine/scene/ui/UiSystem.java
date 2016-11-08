@@ -58,7 +58,7 @@ public class UiSystem extends SceneService2 implements ComponentActivityListener
 		}
 	}
 
-	private Composite findParentComposite(ManagedObject newParent) {
+	private CompositeComponent findParentComposite(ManagedObject newParent) {
 		// TODO Auto-generated method stub
 		return null;
 	}

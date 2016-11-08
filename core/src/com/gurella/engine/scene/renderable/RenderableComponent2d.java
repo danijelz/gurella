@@ -18,14 +18,12 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	boolean flipY;
 	boolean dimensionsFromTexture = true; // TODO remove
 	int pixelsPerUnit = -1;
-	final Color tint = new Color(1, 1, 1, 1);
 
-	// TODO origin (center, leftBottom), pivot
+	// TODO origin (center, leftBottom)
 
 	transient final Sprite sprite = new Sprite();
 
 	public RenderableComponent2d() {
-		sprite.setColor(tint);
 		sprite.setOriginCenter();
 	}
 
@@ -76,15 +74,15 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	}
 
 	public Color getTint() {
-		return tint;
+		return sprite.getColor();
 	}
 
 	public void setTint(Color tint) {
-		sprite.setColor(this.tint.set(tint));
+		sprite.setColor(tint);
 	}
 
 	public void setTint(float r, float g, float b, float a) {
-		sprite.setColor(this.tint.set(r, g, b, a));
+		sprite.setColor(r, g, b, a);
 	}
 
 	public boolean isDimensionsFromTexture() {
@@ -119,7 +117,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	}
 
 	@Override
-	protected void doGetBounds(BoundingBox bounds) {
+	protected void calculateBounds(BoundingBox bounds) {
 		if (sprite.getTexture() == null) {
 			return;
 		}
@@ -163,7 +161,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		height = 0;
 		dimensionsFromTexture = true;
 		pixelsPerUnit = -1;
-		tint.set(1, 1, 1, 1);
+		sprite.setColor(1, 1, 1, 1);
 		sprite.setFlip(false, false);
 		sprite.setOriginCenter();
 		flipX = false;

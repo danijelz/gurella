@@ -1,4 +1,4 @@
-package com.gurella.engine.state;
+package com.gurella.engine.utils.state;
 
 public interface StateTransition<STATE> {
 	boolean process();

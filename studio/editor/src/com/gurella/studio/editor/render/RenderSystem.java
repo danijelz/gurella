@@ -224,7 +224,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 			debugRender(renderContext, spatial, focusedComponent);
 			focusedComponnentRendered |= spatial.nodeId == focusedComponentNodeId;
 		}
-
+		
 		if (!focusedComponnentRendered && focusedComponent instanceof DebugRenderable && focusedComponent.isActive()) {
 			((DebugRenderable) focusedComponent).debugRender(renderContext);
 		}

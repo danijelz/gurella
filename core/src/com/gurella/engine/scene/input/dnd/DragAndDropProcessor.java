@@ -5,15 +5,15 @@ import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.PointerProcessor;
 import com.gurella.engine.scene.input.PointerTrack;
+import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.subscriptions.scene.input.NodeDragSourceListener;
 import com.gurella.engine.subscriptions.scene.input.NodeDropTargetListener;
 
 public class DragAndDropProcessor extends PointerProcessor {
-	private SceneNode2 sourceNode;
-	private SceneNode2 targetNode;
+	private RenderableComponent sourceRenderable;
+	private RenderableComponent targetRenderable;
 
 	private DragStartCondition condition;
 	private final Array<DragSource> dragSources = new Array<DragSource>(10);
@@ -49,18 +49,18 @@ public class DragAndDropProcessor extends PointerProcessor {
 	}
 
 	private void begin(PointerTrack pointerTrack, DragStartCondition condition) {
-		SceneNode2 node = pointerTrack.getNode(0);
-		if (node == null) {
+		RenderableComponent renderable = pointerTrack.getRenderable(0);
+		if (renderable == null) {
 			return;
 		}
 
 		this.condition = condition;
-		EventService.post(node.getInstanceId(), dragSourceEvent);
+		EventService.post(renderable.getInstanceId(), dragSourceEvent);
 		if (dragSources.size < 1) {
 			return;
 		}
 
-		sourceNode = node;
+		sourceRenderable = renderable;
 		int screenX = pointerTrack.getScreenX(0);
 		int screenY = pointerTrack.getScreenY(0);
 		for (int i = 0; i < dragSources.size; i++) {
@@ -80,9 +80,9 @@ public class DragAndDropProcessor extends PointerProcessor {
 			dragSources.get(i).dragMove(screenX, screenY);
 		}
 
-		SceneNode2 node = pointerTrack.getNode(last);
-		if (targetNode != null) {
-			if (targetNode == node) {
+		RenderableComponent renderable = pointerTrack.getRenderable(last);
+		if (targetRenderable != null) {
+			if (targetRenderable == renderable) {
 				for (int i = 0; i < dropTargets.size; i++) {
 					dropTargets.get(i).dragMove(screenX, screenY, transferData);
 				}
@@ -90,18 +90,18 @@ public class DragAndDropProcessor extends PointerProcessor {
 				for (int i = 0; i < dropTargets.size; i++) {
 					dropTargets.get(i).dragOut(screenX, screenY, transferData);
 				}
-				targetNode = null;
+				targetRenderable = null;
 				dropTargets.clear();
 			}
 		}
 
-		if (node != null && node != targetNode && node != sourceNode) {
-			EventService.post(node.getInstanceId(), dropTargetEvent);
+		if (renderable != null && renderable != targetRenderable && renderable != sourceRenderable) {
+			EventService.post(renderable.getInstanceId(), dropTargetEvent);
 			if (dropTargets.size < 1) {
 				return;
 			}
 
-			targetNode = node;
+			targetRenderable = renderable;
 			for (int i = 0; i < dropTargets.size; i++) {
 				dropTargets.get(i).dragIn(screenX, screenY, transferData);
 			}
@@ -116,14 +116,14 @@ public class DragAndDropProcessor extends PointerProcessor {
 		int last = pointerTrack.getSize() - 1;
 		int screenX = pointerTrack.getScreenX(last);
 		int screenY = pointerTrack.getScreenY(last);
-		SceneNode2 node = pointerTrack.getNode(last);
+		RenderableComponent renderable = pointerTrack.getRenderable(last);
 
-		if (targetNode != null && node == targetNode) {
+		if (targetRenderable != null && renderable == targetRenderable) {
 			if (dropTargets.size > 0) {
 				for (int i = 0; i < dropTargets.size; i++) {
 					dropTargets.get(i).drop(screenX, screenY, transferData);
 				}
-				targetNode = null;
+				targetRenderable = null;
 				dropTargets.clear();
 			}
 		}
@@ -132,18 +132,18 @@ public class DragAndDropProcessor extends PointerProcessor {
 			dragSources.get(i).dragEnd(screenX, screenY);
 		}
 
-		sourceNode = null;
+		sourceRenderable = null;
 		dragSources.clear();
 	}
 
 	public void longPress(PointerTrack pointerTrack) {
-		if (sourceNode == null) {
+		if (sourceRenderable == null) {
 			begin(pointerTrack, DragStartCondition.longPress);
 		}
 	}
 
 	public void doubleTouch(PointerTrack pointerTrack) {
-		if (sourceNode == null) {
+		if (sourceRenderable == null) {
 			begin(pointerTrack, DragStartCondition.doubleTouch);
 		}
 	}
@@ -151,8 +151,8 @@ public class DragAndDropProcessor extends PointerProcessor {
 	@Override
 	public void sceneDeactivated() {
 		super.sceneDeactivated();
-		sourceNode = null;
-		targetNode = null;
+		sourceRenderable = null;
+		targetRenderable = null;
 		dragSources.clear();
 		transferData.clear();
 		dropTargets.clear();

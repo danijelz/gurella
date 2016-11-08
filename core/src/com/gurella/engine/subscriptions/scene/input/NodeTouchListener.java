@@ -1,10 +1,10 @@
 package com.gurella.engine.subscriptions.scene.input;
 
-import com.gurella.engine.scene.input.TouchInfo;
+import com.gurella.engine.scene.input.PointerInfo;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 
 public interface NodeTouchListener extends NodeEventSubscription {
-	void onTouchDown(TouchInfo touchInfo);
+	void onTouchDown(PointerInfo pointerInfo);
 
-	void onTouchUp(TouchInfo touchInfo);
+	void onTouchUp(PointerInfo pointerInfo);
 }

@@ -1,12 +1,12 @@
 package com.gurella.engine.subscriptions.scene.input;
 
-import com.gurella.engine.scene.input.DragInfo;
+import com.gurella.engine.scene.input.PointerInfo;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
 
 public interface SceneDragListener extends SceneEventSubscription {
-	void onDragStart(DragInfo dragInfo);//TODO handle in processor
+	void onDragStart(PointerInfo pointerInfo);
 
-	void onDragged(DragInfo dragInfo);
+	void onDragged(PointerInfo pointerInfo);
 
-	void onDragEnd(DragInfo dragInfo);//TODO handle in processor
+	void onDragEnd(PointerInfo pointerInfo);
 }

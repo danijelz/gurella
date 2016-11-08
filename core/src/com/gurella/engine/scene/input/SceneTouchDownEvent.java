@@ -4,10 +4,10 @@ import com.gurella.engine.event.Event;
 import com.gurella.engine.subscriptions.scene.input.SceneTouchListener;
 
 class SceneTouchDownEvent implements Event<SceneTouchListener> {
-	private final TouchInfo touchInfo;
+	private final PointerInfo pointerInfo;
 
-	SceneTouchDownEvent(TouchInfo touchInfo) {
-		this.touchInfo = touchInfo;
+	SceneTouchDownEvent(PointerInfo pointerInfo) {
+		this.pointerInfo = pointerInfo;
 	}
 
 	@Override
@@ -17,6 +17,6 @@ class SceneTouchDownEvent implements Event<SceneTouchListener> {
 
 	@Override
 	public void dispatch(SceneTouchListener subscriber) {
-		subscriber.onTouchDown(touchInfo);
+		subscriber.onTouchDown(pointerInfo);
 	}
 }

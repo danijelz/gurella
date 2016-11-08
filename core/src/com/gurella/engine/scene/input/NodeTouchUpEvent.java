@@ -4,10 +4,10 @@ import com.gurella.engine.event.Event;
 import com.gurella.engine.subscriptions.scene.input.NodeTouchListener;
 
 class NodeTouchUpEvent implements Event<NodeTouchListener> {
-	private final TouchInfo touchInfo;
+	private final PointerInfo pointerInfo;
 
-	NodeTouchUpEvent(TouchInfo touchInfo) {
-		this.touchInfo = touchInfo;
+	NodeTouchUpEvent(PointerInfo pointerInfo) {
+		this.pointerInfo = pointerInfo;
 	}
 
 	@Override
@@ -17,6 +17,6 @@ class NodeTouchUpEvent implements Event<NodeTouchListener> {
 
 	@Override
 	public void dispatch(NodeTouchListener subscriber) {
-		subscriber.onTouchUp(touchInfo);
+		subscriber.onTouchUp(pointerInfo);
 	}
 }

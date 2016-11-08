@@ -33,7 +33,7 @@ public abstract class RenderableComponent3d extends RenderableComponent implemen
 	}
 
 	@Override
-	protected void doGetBounds(BoundingBox bounds) {
+	protected void calculateBounds(BoundingBox bounds) {
 		ModelInstance instance = getModelInstance();
 		if (instance != null) {
 			instance.extendBoundingBox(bounds);

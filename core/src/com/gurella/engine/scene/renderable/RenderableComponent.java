@@ -1,5 +1,6 @@
 package com.gurella.engine.scene.renderable;
 
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
@@ -15,7 +16,7 @@ import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;
 import com.gurella.engine.subscriptions.scene.renderable.SceneRenderableChangedListener;
 import com.gurella.engine.subscriptions.scene.transform.NodeTransformChangedListener;
 
-//TODO PolygonSpriteComponent, DecalComponent, ImmediateModeComponent, SvgComponent
+//TODO PolygonSpriteComponent, ImmediateModeComponent, SvgComponent
 //TODO input data should be moved to InputResponsiveRenderableComponent
 @BaseSceneElement
 public abstract class RenderableComponent extends SceneNodeComponent2 implements NodeComponentActivityListener,
@@ -34,12 +35,14 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	transient boolean visible;
 	transient TransformComponent transformComponent;
 	private transient boolean dirty = true;
+	private transient boolean boundsDirty = true;
+	private transient float minx, miny, minz, maxx, maxy, maxz;
 
 	protected abstract void updateGeometry();
 
 	protected abstract void doRender(GenericBatch batch);
 
-	protected abstract void doGetBounds(BoundingBox bounds);
+	protected abstract void calculateBounds(BoundingBox bounds);
 
 	@Override
 	protected void componentActivated() {
@@ -62,6 +65,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	void setDirty() {
 		if (!dirty) {
 			dirty = true;
+			boundsDirty = true;
 			EventService.post(sceneId, this);
 		}
 	}
@@ -105,9 +109,21 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	}
 
 	public final void getBounds(BoundingBox bounds) {
-		//TODO cache last result -> return update() ? doGetBounds(bounds) ? cachedBounds;
-		update();
-		doGetBounds(bounds);
+		if (boundsDirty) {
+			update();
+			calculateBounds(bounds);
+			Vector3 min = bounds.min;
+			minx = min.x;
+			miny = min.y;
+			minz = min.z;
+			Vector3 max = bounds.max;
+			maxx = max.x;
+			maxy = max.y;
+			maxz = max.z;
+		} else {
+			bounds.set(bounds.min.set(minx, miny, minz), bounds.max.set(maxx, maxy, maxz));
+			boundsDirty = false;
+		}
 	}
 
 	public boolean isVisible() {
@@ -138,6 +154,7 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 		layer = Layer.DEFAULT;
 		transformComponent = null;
 		dirty = true;
+		boundsDirty = true;
 		visible = false;
 		looseInput = false;
 		inputSensitivity = 0;

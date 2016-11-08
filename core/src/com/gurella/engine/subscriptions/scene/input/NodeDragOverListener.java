@@ -1,12 +1,12 @@
 package com.gurella.engine.subscriptions.scene.input;
 
-import com.gurella.engine.scene.input.DragInfo;
+import com.gurella.engine.scene.input.PointerInfo;
 import com.gurella.engine.subscriptions.scene.NodeEventSubscription;
 
 public interface NodeDragOverListener extends NodeEventSubscription {
-	void onDragOverStart(DragInfo dragInfo);
+	void onDragOverStart(PointerInfo pointerInfo);
 
-	void onDragOverMove(DragInfo dragInfo);
+	void onDragOverMove(PointerInfo pointerInfo);
 
-	void onDragOverEnd(DragInfo dragInfo);
+	void onDragOverEnd(PointerInfo pointerInfo);
 }

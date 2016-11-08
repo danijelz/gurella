@@ -1,7 +1,7 @@
-package com.gurella.engine.state;
+package com.gurella.engine.utils.state;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gurella.engine.state.StateTransition.SimpleStateTransition;
+import com.gurella.engine.utils.state.StateTransition.SimpleStateTransition;
 
 public class FixedStateMachineContext<STATE> extends BaseStateMachineContext<STATE> {
 	private ObjectMap<STATE, ObjectMap<STATE, StateTransition<STATE>>> validTransitions = new ObjectMap<STATE, ObjectMap<STATE, StateTransition<STATE>>>();

@@ -1,4 +1,4 @@
-package com.gurella.engine.state;
+package com.gurella.engine.utils.state;
 
 public abstract class BaseStateMachineContext<STATE> implements StateMachineContext<STATE> {
 	private STATE initialState;

@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.Timer.Task;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.PointerTrack.PointerTrackerPhase;
 import com.gurella.engine.scene.input.dnd.DragAndDropProcessor;
 import com.gurella.engine.scene.renderable.RenderableComponent;
@@ -27,7 +26,7 @@ public class TouchProcessor extends PointerProcessor {
 	private long tapCountInterval = (long) (0.4f * 1000000000l);
 	private float longPressSeconds = 0.8f;
 
-	private final LongPressTaskPool pool = new LongPressTaskPool();//TODO remove map and init array of 10 tasks
+	private final LongPressTaskPool pool = new LongPressTaskPool();
 	private final IntMap<LongPressTask> tasks = new IntMap<LongPressTask>(10);
 	private final IntIntMap validKeys = new IntIntMap(10);
 	private final IntIntMap tapCounters = new IntIntMap(10);
@@ -37,7 +36,7 @@ public class TouchProcessor extends PointerProcessor {
 	private final TapEvent tapEvent = new TapEvent();
 	private final NodeTapEvent nodeTapEvent = new NodeTapEvent();
 
-	private final LongPressInfo longPressInfo = new LongPressInfo();
+	private final PointerInfo longPressInfo = new PointerInfo();
 	private final LongPressEvent longPressEvent = new LongPressEvent();
 	private final NodeLongPressEvent nodeLongPressEvent = new NodeLongPressEvent();
 
@@ -110,7 +109,7 @@ public class TouchProcessor extends PointerProcessor {
 	}
 
 	private void end(int key, int pointer, int button, PointerTrack pointerTrack) {
-		synchronized (pointerTrack) { // TODO remove sync
+		synchronized (pointerTrack) {
 			int validKey = validKeys.remove(key, -1);
 			if (validKey == 1) {
 				removeEntry(key);
@@ -146,36 +145,27 @@ public class TouchProcessor extends PointerProcessor {
 	}
 
 	private void dispatchTap(int key, int pointer, int button, PointerTrack pointerTrack) {
-		tapInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0));
+		RenderableComponent renderable = pointerTrack.getCommonRenderable();
+		tapInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0), renderable,
+				pointerTrack.getIntersection(0));
 		tapInfo.count = tapCounters.get(key, 1);
-		SceneNode2 node = pointerTrack.getCommonNode();
-		if (node != null) {
-			tapInfo.renderable = node.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(0, tapInfo.intersection);
-		}
-
 		EventService.post(scene.getInstanceId(), tapEvent);
 
-		if (node != null) {
-			EventService.post(node.getInstanceId(), nodeTapEvent);
+		if (renderable != null) {
+			EventService.post(renderable.getNodeId(), nodeTapEvent);
 		}
 
 		tapInfo.reset();
 	}
 
 	private void dispatchLongPress(int pointer, int button, PointerTrack pointerTrack) {
-		longPressInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0));
-		SceneNode2 node = pointerTrack.getCommonNode();
-		if (node != null) {
-			longPressInfo.renderable = node.getComponent(RenderableComponent.class);
-			pointerTrack.getIntersection(0, longPressInfo.intersection);
-		}
-
+		RenderableComponent renderable = pointerTrack.getCommonRenderable();
+		longPressInfo.set(pointer, button, pointerTrack.getScreenX(0), pointerTrack.getScreenY(0), renderable,
+				pointerTrack.getIntersection(0));
 		EventService.post(scene.getInstanceId(), longPressEvent);
 
-		if (node != null) {
-			EventService.post(node.getInstanceId(), nodeLongPressEvent);
-
+		if (renderable != null) {
+			EventService.post(renderable.getNodeId(), nodeLongPressEvent);
 			if (pointer == 0 && button == Buttons.LEFT && pointerTrack.getPhase() != PointerTrackerPhase.end) {
 				dragAndDropProcessor.longPress(pointerTrack);
 			}
@@ -188,6 +178,7 @@ public class TouchProcessor extends PointerProcessor {
 	public void sceneDeactivated() {
 		super.sceneDeactivated();
 		for (LongPressTask longPressTask : tasks.values()) {
+			longPressTask.cancel();
 			pool.free(longPressTask);
 		}
 
@@ -204,20 +195,20 @@ public class TouchProcessor extends PointerProcessor {
 
 		@Override
 		public synchronized void run() {
-			if (isScheduled()) {
+			if (pointerTrack != null) {
 				endLongPress(pointer + button * 100, pointer, button, pointerTrack);
-				reset();
+				pointerTrack = null;
 			}
 		}
 
 		@Override
 		public synchronized void cancel() {
 			super.cancel();
-			reset();
+			pointerTrack = null;
 		}
 
 		@Override
-		public void reset() {
+		public synchronized void reset() {
 			pointer = -1;
 			button = -1;
 			pointerTrack = null;

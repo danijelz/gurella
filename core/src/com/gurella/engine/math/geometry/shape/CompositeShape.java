@@ -1,14 +1,15 @@
 package com.gurella.engine.math.geometry.shape;
 
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.OrderedSet;
 
 public class CompositeShape extends Shape {
-	private OrderedSet<Shape> shapes = new OrderedSet<Shape>();
+	private Array<Shape> shapes = new Array<Shape>();
 
 	public void add(Shape shape) {
 		shapes.add(shape);
+		boundsDirty = true;
 		shape.parent = this;
 		shape.boundsDirty = true;
 		shape.transformDirty = true;
@@ -16,7 +17,7 @@ public class CompositeShape extends Shape {
 	}
 
 	public boolean remove(Shape shape) {
-		if (shapes.remove(shape)) {
+		if (shapes.removeValue(shape, true)) {
 			boundsDirty = true;
 			shape.boundsDirty = true;
 			shape.transformDirty = true;
@@ -33,9 +34,8 @@ public class CompositeShape extends Shape {
 	}
 
 	private void markTransformDirty() {
-		Array<Shape> items = shapes.orderedItems();
-		for (int i = 0, n = items.size; i < n; i++) {
-			Shape shape = items.get(i);
+		for (int i = 0, n = shapes.size; i < n; i++) {
+			Shape shape = shapes.get(i);
 			shape.boundsDirty = true;
 			shape.transformDirty = true;
 			if (shape instanceof CompositeShape) {
@@ -45,10 +45,9 @@ public class CompositeShape extends Shape {
 	}
 
 	@Override
-	protected void updateBounds() {
-		Array<Shape> items = shapes.orderedItems();
-		for (int i = 0, n = items.size; i < n; i++) {
-			bounds.ext(items.get(i).getBounds());
+	protected void updateBounds(BoundingBox bounds) {
+		for (int i = 0, n = shapes.size; i < n; i++) {
+			bounds.ext(shapes.get(i).getBounds());
 		}
 	}
 }

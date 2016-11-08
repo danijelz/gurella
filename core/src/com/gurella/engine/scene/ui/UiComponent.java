@@ -12,7 +12,7 @@ public class UiComponent extends SceneNodeComponent2 {
 	public boolean visible;
 	public boolean blocked;
 	
-	Composite parent;
+	CompositeComponent parent;
 	UiSystem uiSystem;
 
 	// TODO

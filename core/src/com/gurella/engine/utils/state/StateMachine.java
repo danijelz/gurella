@@ -1,4 +1,4 @@
-package com.gurella.engine.state;
+package com.gurella.engine.utils.state;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.EventSubscription;
