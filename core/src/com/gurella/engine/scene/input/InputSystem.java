@@ -54,7 +54,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 	public InputSystem(Scene scene) {
 		super(scene);
 
-		dispatcher = new InputEventsDispatcher(this);
+		dispatcher = new InputEventsDispatcher();
 		dummyDispatcher = new InputAdapter();
 		inputQueue = new InputEventQueue(dispatcher);
 
@@ -169,10 +169,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 	}
 
-	private static class InputEventsDispatcher implements InputProcessor {
-		private final InputSystem inputSystem;
-		private final Scene scene;
-
+	private class InputEventsDispatcher implements InputProcessor {
 		private final PointerActivityEvent pointerActivityEvent;
 
 		private final KeyDownEvent keyDownEvent;
@@ -196,10 +193,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		private final PickResult pickResult = new PickResult();
 		private final LayerMask layerMask = new LayerMask().ignored(Layer.DnD);
 
-		public InputEventsDispatcher(InputSystem inputSystem) {
-			this.inputSystem = inputSystem;
-			this.scene = inputSystem.scene;
-
+		public InputEventsDispatcher() {
 			keyDownEvent = new KeyDownEvent(scene);
 			keyUpEvent = new KeyUpEvent(scene);
 			keyTypedEvent = new KeyTypedEvent(scene);
@@ -246,7 +240,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean mouseMoved(int screenX, int screenY) {
-			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
+			pickNode(pickResult, screenX, screenY, layerMask);
 			mouseMoveProcessor.mouseMoved(screenX, screenY, pickResult.node, pickResult.location);
 			pickResult.reset();
 			return false;
@@ -256,7 +250,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		public boolean scrolled(int amount) {
 			int screenX = Gdx.input.getX();
 			int screenY = Gdx.input.getY();
-			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
+			pickNode(pickResult, screenX, screenY, layerMask);
 			scrollInfo.set(screenX, screenY, amount, pickResult.renderable, pickResult.location);
 			EventService.post(scene.getInstanceId(), sceneScrollEvent);
 
@@ -273,8 +267,8 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 			PointerTrack tracker = createTracker(pointer, button);
-			long eventTime = inputSystem.inputQueue.getCurrentEventTime();
-			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
+			long eventTime = inputQueue.getCurrentEventTime();
+			pickNode(pickResult, screenX, screenY, layerMask);
 			tracker.add(eventTime, screenX, screenY, pickResult.location, pickResult.renderable, begin);
 
 			pointerInfo.set(pointer, button, screenX, screenY, pickResult.renderable, pickResult.location);
@@ -293,7 +287,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
+			pickNode(pickResult, screenX, screenY, layerMask);
 			pointerInfo.set(pointer, button, screenX, screenY, pickResult.renderable, pickResult.location);
 			EventService.post(scene.getInstanceId(), sceneTouchUpEvent);
 
@@ -304,7 +298,7 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 			PointerTrack tracker = getTracker(pointer, button);
 			if (tracker != null) {
-				long eventTime = inputSystem.inputQueue.getCurrentEventTime();
+				long eventTime = inputQueue.getCurrentEventTime();
 				tracker.add(eventTime, screenX, screenY, pickResult.location, pickResult.renderable, end);
 				pointerActivityEvent.post(pointer, button, tracker);
 			}
@@ -316,14 +310,14 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			inputSystem.pickNode(pickResult, screenX, screenY, layerMask);
+			pickNode(pickResult, screenX, screenY, layerMask);
 			pointerInfo.set(pointer, -1, screenX, screenY, pickResult.renderable, pickResult.location);
 
 			for (int button = 0; button < 3; button++) {
 				if (Gdx.input.isButtonPressed(button)) {
 					PointerTrack tracker = getTracker(pointer, button);
 					if (tracker != null) {
-						long eventTime = inputSystem.inputQueue.getCurrentEventTime();
+						long eventTime = inputQueue.getCurrentEventTime();
 						tracker.add(eventTime, screenX, screenY, pickResult.location, pickResult.renderable, move);
 						pointerActivityEvent.post(pointer, button, tracker);
 					}
