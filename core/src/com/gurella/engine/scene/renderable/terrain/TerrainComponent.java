@@ -61,7 +61,7 @@ public class TerrainComponent extends RenderableComponent3d {
 		this.terrainTexture = new TerrainTexture();
 		this.terrainTexture.setTerrain(this);
 		material = new Material();
-		// TODO material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
+		material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
 	}
 
 	private void initModelInstance() {
@@ -284,14 +284,14 @@ public class TerrainComponent extends RenderableComponent3d {
 	}
 
 	public void setTerrainTexture(TerrainTexture terrainTexture) {
-		if (terrainTexture == null)
+		if (terrainTexture == null) {
 			return;
+		}
 
 		terrainTexture.setTerrain(this);
 		this.terrainTexture = terrainTexture;
 
-		// TODO material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0,
-		// this.terrainTexture));
+		material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
 	}
 
 	public static float barryCentric(Vector3 p1, Vector3 p2, Vector3 p3, Vector2 pos) {
@@ -302,9 +302,19 @@ public class TerrainComponent extends RenderableComponent3d {
 		return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 	}
 
-	@Override
-	public void updateGeometry() {
+	private void updateVertices() {
 		buildVertices();
 		mesh.setVertices(vertices);
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		if (mesh != null) {
+			mesh.dispose();
+			mesh = null;
+			model.dispose();
+			model = null;
+		}
 	}
 }
