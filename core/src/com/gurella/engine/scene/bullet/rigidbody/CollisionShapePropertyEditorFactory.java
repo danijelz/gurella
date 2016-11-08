@@ -15,17 +15,17 @@ import com.gurella.engine.editor.ui.layout.EditorLayout;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.HorizontalAlignment;
 import com.gurella.engine.editor.ui.layout.EditorLayoutData.VerticalAlignment;
-import com.gurella.engine.scene.bullet.rigidbody.shape.Box2dCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.BoxCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.CollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.CapsuleCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.ConeCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.CylinderCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.EmptyCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.PlaneCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.SphereCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.TetrahedronCollisionShape;
-import com.gurella.engine.scene.bullet.rigidbody.shape.TriangleCollisionShape;
+import com.gurella.engine.scene.bullet.shape.Box2dCollisionShape;
+import com.gurella.engine.scene.bullet.shape.BoxCollisionShape;
+import com.gurella.engine.scene.bullet.shape.CapsuleCollisionShape;
+import com.gurella.engine.scene.bullet.shape.CollisionShape;
+import com.gurella.engine.scene.bullet.shape.ConeCollisionShape;
+import com.gurella.engine.scene.bullet.shape.CylinderCollisionShape;
+import com.gurella.engine.scene.bullet.shape.EmptyCollisionShape;
+import com.gurella.engine.scene.bullet.shape.PlaneCollisionShape;
+import com.gurella.engine.scene.bullet.shape.SphereCollisionShape;
+import com.gurella.engine.scene.bullet.shape.TetrahedronCollisionShape;
+import com.gurella.engine.scene.bullet.shape.TriangleCollisionShape;
 import com.gurella.engine.utils.Reflection;
 
 public class CollisionShapePropertyEditorFactory implements PropertyEditorFactory<CollisionShape> {

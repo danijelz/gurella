@@ -1,4 +1,4 @@
-package com.gurella.engine.scene.bullet.rigidbody.shape;
+package com.gurella.engine.scene.bullet.shape;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;

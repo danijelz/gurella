@@ -18,7 +18,7 @@ import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.scene.RequiresComponent;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.bullet.rigidbody.shape.CollisionShape;
+import com.gurella.engine.scene.bullet.shape.CollisionShape;
 import com.gurella.engine.scene.debug.DebugRenderable;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.subscriptions.scene.NodeComponentActivityListener;

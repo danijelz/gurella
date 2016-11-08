@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.gurella.engine.application.Application;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.Event;
 import com.gurella.engine.event.EventService;
@@ -64,9 +65,11 @@ public class BulletPhysicsSystem extends SceneService2
 		tickCallback.attach(dynamicsWorld, false);
 	}
 
-	/*
-	 * @Override protected void serviceActivated() { // TODO paused = Application.isPaused(); }
-	 */
+	@Override
+	protected void serviceActivated() {
+		paused = ((Application) Gdx.app.getApplicationListener()).isPaused();
+		// TODO paused = Application.isPaused(); 
+	}
 
 	@Override
 	protected void serviceDeactivated() {
