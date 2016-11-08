@@ -1,8 +1,6 @@
 package com.gurella.engine.scene.renderable.terrain;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.engine.scene.renderable.terrain.SplatTexture.Channel;
 
 /**
@@ -12,12 +10,12 @@ import com.gurella.engine.scene.renderable.terrain.SplatTexture.Channel;
  * @author Marcus Brummer
  */
 public class TerrainTexture {
-	private Map<Channel, SplatTexture> textures;
+	private ObjectMap<Channel, SplatTexture> textures;
 	private SplatMap splatmap;
 	private TerrainComponent terrain;
 
 	public TerrainTexture() {
-		textures = new HashMap<Channel, SplatTexture>(5, 1);
+		textures = new ObjectMap<Channel, SplatTexture>(5, 1);
 	}
 
 	public SplatTexture getTexture(Channel channel) {
@@ -66,7 +64,7 @@ public class TerrainTexture {
 	}
 
 	public int countTextures() {
-		return textures.size();
+		return textures.size;
 	}
 
 	public SplatMap getSplatmap() {

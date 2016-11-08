@@ -5,14 +5,13 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
- * Copied from https://github.com/mbrlabs/Mundus/blob/master/commons/src/main/com/mbrlabs/mundus/commons/terrain/SplatMap.java
+ * Copied from
+ * https://github.com/mbrlabs/Mundus/blob/master/commons/src/main/com/mbrlabs/mundus/commons/terrain/SplatMap.java
+ * 
  * @author Marcus Brummer
  */
 public class SplatMap {
 	public static final int DEFAULT_SIZE = 512;
-
-	private int width;
-	private int height;
 
 	private Pixmap pixmap;
 	private Texture texture;
@@ -23,8 +22,6 @@ public class SplatMap {
 		Pixmap.setBlending(Pixmap.Blending.None);
 		this.pixmap = pixmap;
 		texture = new Texture(pixmap);
-		this.width = pixmap.getWidth();
-		this.height = pixmap.getHeight();
 	}
 
 	public Texture getTexture() {
@@ -64,11 +61,11 @@ public class SplatMap {
 	}
 
 	public int getHeight() {
-		return height;
+		return pixmap.getHeight();
 	}
 
 	public int getWidth() {
-		return width;
+		return pixmap.getWidth();
 	}
 
 	public int additiveBlend(int pixelColor, SplatTexture.Channel channel, float strength) {
