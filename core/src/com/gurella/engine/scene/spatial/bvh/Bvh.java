@@ -7,8 +7,9 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.badlogic.gdx.utils.Predicate;
 import com.badlogic.gdx.utils.ObjectSet.ObjectSetIterator;
+import com.badlogic.gdx.utils.Predicate;
+import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.renderable.RenderableComponent;
 import com.gurella.engine.scene.spatial.Spatial;
 
@@ -44,33 +45,44 @@ public class Bvh {
 			rootNode = new BvhNode(this, objects);
 		} else {
 			rootNode = new BvhNode(this);
-			// it's a leaf, so give it an empty object list
 			rootNode.spatials = new Array<BvhSpatial>(BvhSpatial.class);// TODO garbage
 		}
 	}
 
-	public void traverse(Ray ray, Array<Spatial> result) {
-		traverse(rootNode, new RayHitTest(ray), result);
+	public Array<Spatial> traverse(Ray ray, Array<Spatial> result) {
+		RayIntersectionTest intersectionTest = PoolService.obtain(RayIntersectionTest.class);
+		intersectionTest.ray.set(ray);
+		traverse(rootNode, intersectionTest, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(Ray ray, float maxDistance, Array<Spatial> result) {
-		traverse(rootNode, new RayDistanceHitTest(ray, maxDistance), result);
+	public Array<Spatial> traverse(Ray ray, float maxDistance, Array<Spatial> result) {
+		RayDistanceIntersectionTest intersectionTest = PoolService.obtain(RayDistanceIntersectionTest.class);
+		intersectionTest.set(ray, maxDistance);
+		traverse(rootNode, intersectionTest, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(Frustum frustum, Array<Spatial> result) {
-		traverse(rootNode, new FrustumHitTest(frustum), result);
+	public Array<Spatial> traverse(Frustum frustum, Array<Spatial> result) {
+		FrustumIntersectionTest intersectionTest = PoolService.obtain(FrustumIntersectionTest.class);
+		intersectionTest.setFrustum(frustum);
+		traverse(rootNode, intersectionTest, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(BoundingBox volume, Array<Spatial> result) {
-		traverse(rootNode, new BoundingBoxHitTest(volume), result);
+	public Array<Spatial> traverse(BoundingBox volume, Array<Spatial> result) {
+		BoundingBoxIntersectionTest intersectionTest = PoolService.obtain(BoundingBoxIntersectionTest.class);
+		intersectionTest.volume.set(volume);
+		traverse(rootNode, intersectionTest, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	private void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result) {
-		if (node == null) {
-			return;
-		}
-
-		if (hitTest.intersects(node.box)) {
+	private Array<Spatial> traverse(BvhNode node, NodeIntersectionTest hitTest, Array<Spatial> result) {
+		if (node != null && hitTest.intersects(node.box)) {
 			if (node.spatials != null) {
 				result.addAll(node.spatials);
 			}
@@ -78,31 +90,47 @@ public class Bvh {
 			traverse(node.left, hitTest, result);
 			traverse(node.right, hitTest, result);
 		}
+
+		return result;
 	}
 
-	public void traverse(Ray ray, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
-		traverse(rootNode, new RayHitTest(ray), result, predicate);
+	public Array<Spatial> traverse(Ray ray, Predicate<RenderableComponent> predicate, Array<Spatial> result) {
+		RayIntersectionTest intersectionTest = PoolService.obtain(RayIntersectionTest.class);
+		intersectionTest.ray.set(ray);
+		traverse(rootNode, intersectionTest, predicate, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(Ray ray, float maxDistance, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
-		traverse(rootNode, new RayDistanceHitTest(ray, maxDistance), result, predicate);
+	public Array<Spatial> traverse(Ray ray, float maxDistance, Predicate<RenderableComponent> predicate,
+			Array<Spatial> result) {
+		RayDistanceIntersectionTest intersectionTest = PoolService.obtain(RayDistanceIntersectionTest.class);
+		intersectionTest.set(ray, maxDistance);
+		traverse(rootNode, intersectionTest, predicate, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(Frustum frustum, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
-		traverse(rootNode, new FrustumHitTest(frustum), result, predicate);
+	public Array<Spatial> traverse(Frustum frustum, Predicate<RenderableComponent> predicate, Array<Spatial> result) {
+		FrustumIntersectionTest intersectionTest = PoolService.obtain(FrustumIntersectionTest.class);
+		intersectionTest.setFrustum(frustum);
+		traverse(rootNode, intersectionTest, predicate, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(BoundingBox volume, Array<Spatial> result, Predicate<RenderableComponent> predicate) {
-		traverse(rootNode, new BoundingBoxHitTest(volume), result, predicate);
+	public Array<Spatial> traverse(BoundingBox volume, Predicate<RenderableComponent> predicate,
+			Array<Spatial> result) {
+		BoundingBoxIntersectionTest intersectionTest = PoolService.obtain(BoundingBoxIntersectionTest.class);
+		intersectionTest.volume.set(volume);
+		traverse(rootNode, intersectionTest, predicate, result);
+		PoolService.free(intersectionTest);
+		return result;
 	}
 
-	public void traverse(BvhNode node, NodeTest hitTest, Array<Spatial> result,
-			Predicate<RenderableComponent> predicate) {
-		if (node == null) {
-			return;
-		}
-
-		if (hitTest.intersects(node.box)) {
+	public Array<Spatial> traverse(BvhNode node, NodeIntersectionTest hitTest, Predicate<RenderableComponent> predicate,
+			Array<Spatial> result) {
+		if (node != null && hitTest.intersects(node.box)) {
 			if (node.spatials != null) {
 				for (int i = 0; i < node.spatials.size; i++) {
 					BvhSpatial spatial = node.spatials.get(i);
@@ -112,14 +140,13 @@ public class Bvh {
 				}
 			}
 
-			traverse(node.left, hitTest, result, predicate);
-			traverse(node.right, hitTest, result, predicate);
+			traverse(node.left, hitTest, predicate, result);
+			traverse(node.right, hitTest, predicate, result);
 		}
+
+		return result;
 	}
 
-	// Call this to batch-optimize any object-changes notified through
-	// ssBVHNode.refit_ObjectChanged(..). For example, in a game-loop,
-	// call this once per frame.
 	public synchronized void optimize() {
 		if (maxLeafSpatials != 1) {
 			throw new IllegalStateException("In order to use optimize, you must set LEAF_OBJ_MAX=1");
@@ -127,12 +154,10 @@ public class Bvh {
 
 		while (refitNodes.size > 0) {
 			initSweepNodes();
-
 			for (int i = 0; i < sweepNodes.size; i++) {
 				BvhNode node = sweepNodes.get(i);
-				node.tryRotate();
+				node.optimize();
 			}
-
 			sweepNodes.clear();
 		}
 	}
@@ -156,31 +181,29 @@ public class Bvh {
 	}
 
 	public void addObject(BvhSpatial newSpatial) {
-		rootNode.addObject(newSpatial);
+		rootNode.addSpatial(newSpatial);
 	}
 
 	public void removeObject(BvhSpatial newSpatial) {
 		newSpatial.node.removeObject(newSpatial);
 	}
 
-	public int countBVHNodes() {
-		return rootNode.countBvhNodes();
-	}
-
 	public void clear() {
 		rootNode = null;// TODO add to pool
 	}
 
-	// TODO poolable
-	private interface NodeTest {
+	private interface NodeIntersectionTest {
 		boolean intersects(BoundingBox box);
 	}
 
-	private static class BoundingBoxHitTest implements NodeTest {
-		BoundingBox volume;
+	public static class BoundingBoxIntersectionTest implements NodeIntersectionTest {
+		public final BoundingBox volume = new BoundingBox();
 
-		public BoundingBoxHitTest(BoundingBox volume) {
-			this.volume = volume;
+		public BoundingBoxIntersectionTest() {
+		}
+
+		public BoundingBoxIntersectionTest(BoundingBox volume) {
+			this.volume.set(volume);
 		}
 
 		@Override
@@ -189,14 +212,20 @@ public class Bvh {
 		}
 	}
 
-	// TODO poolable
-	private static class RayHitTest implements NodeTest {
-		Ray ray;
-		final Vector3 center = new Vector3();
-		final Vector3 dimensions = new Vector3();
+	public static class RayIntersectionTest implements NodeIntersectionTest {
+		public final Ray ray = new Ray();
+		private final Vector3 center = new Vector3();
+		private final Vector3 dimensions = new Vector3();
 
-		public RayHitTest(Ray ray) {
-			this.ray = ray;
+		public RayIntersectionTest() {
+		}
+
+		public RayIntersectionTest(Ray ray) {
+			this.ray.set(ray);
+		}
+
+		public void setRay(Ray ray) {
+			this.ray.set(ray);
 		}
 
 		@Override
@@ -207,16 +236,31 @@ public class Bvh {
 		}
 	}
 
-	// TODO poolable
-	private static class RayDistanceHitTest implements NodeTest {
-		Ray ray;
-		final Vector3 center = new Vector3();
-		final Vector3 dimensions = new Vector3();
-		final Vector3 intersection = new Vector3();
-		float maxDistance2;
+	public static class RayDistanceIntersectionTest implements NodeIntersectionTest {
+		public final Ray ray = new Ray();
+		private final Vector3 center = new Vector3();
+		private final Vector3 dimensions = new Vector3();
+		private final Vector3 intersection = new Vector3();
+		private float maxDistance2;
 
-		public RayDistanceHitTest(Ray ray, float maxDistance) {
-			this.ray = ray;
+		public RayDistanceIntersectionTest() {
+		}
+
+		public RayDistanceIntersectionTest(Ray ray, float maxDistance) {
+			this.ray.set(ray);
+			this.maxDistance2 = maxDistance * maxDistance;
+		}
+
+		public void setRay(Ray ray) {
+			this.ray.set(ray);
+		}
+
+		public void setMaxDistance(float maxDistance) {
+			this.maxDistance2 = maxDistance * maxDistance;
+		}
+
+		public void set(Ray ray, float maxDistance) {
+			this.ray.set(ray);
 			this.maxDistance2 = maxDistance * maxDistance;
 		}
 
@@ -229,14 +273,26 @@ public class Bvh {
 		}
 	}
 
-	// TODO poolable
-	private static class FrustumHitTest implements NodeTest {
-		Frustum frustum;
-		final Vector3 center = new Vector3();
-		final Vector3 dimensions = new Vector3();
+	public static class FrustumIntersectionTest implements NodeIntersectionTest {
+		public final Frustum frustum = new Frustum();
+		private final Vector3 center = new Vector3();
+		private final Vector3 dimensions = new Vector3();
 
-		public FrustumHitTest(Frustum frustum) {
-			this.frustum = frustum;
+		public FrustumIntersectionTest() {
+		}
+
+		public FrustumIntersectionTest(Frustum frustum) {
+			setFrustum(frustum);
+		}
+
+		public void setFrustum(Frustum frustum) {
+			for (int i = 0; i < 6; i++) {
+				this.frustum.planes[i].set(frustum.planes[i]);
+			}
+
+			for (int i = 0; i < 8; i++) {
+				this.frustum.planePoints[i].set(frustum.planePoints[i]);
+			}
 		}
 
 		@Override

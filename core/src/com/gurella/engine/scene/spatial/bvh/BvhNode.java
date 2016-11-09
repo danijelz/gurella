@@ -73,27 +73,6 @@ public class BvhNode implements Poolable {
 		}
 	}
 
-	private BvhAxis pickSplitAxis() {
-		float axis_x = box.max.x - box.min.x;
-		float axis_y = box.max.y - box.min.y;
-		float axis_z = box.max.z - box.min.z;
-
-		// return the biggest axis
-		if (axis_x > axis_y) {
-			if (axis_x > axis_z) {
-				return BvhAxis.X;
-			} else {
-				return BvhAxis.Z;
-			}
-		} else {
-			if (axis_y > axis_z) {
-				return BvhAxis.Y;
-			} else {
-				return BvhAxis.Z;
-			}
-		}
-	}
-
 	public boolean isLeaf() {
 		boolean isLeaf = (this.spatials.size > 0);
 		// if we're a leaf, then both left and right should be null..
@@ -110,12 +89,7 @@ public class BvhNode implements Poolable {
 		}
 
 		if (refitVolume() && parent != null) {
-			// add our parent to the optimize list...
 			bvh.refitNodes.add(parent);
-			// you can force an optimize every time something moves, but
-			// it's not very efficient
-			// instead we do this per-frame after a bunch of updates.
-			// nAda.BVH.optimize();
 		}
 	}
 
@@ -165,19 +139,14 @@ public class BvhNode implements Poolable {
 		}
 	}
 
-	float SAH(BoundingBox bounds) {
+	private static float SAH(BvhNode node) {
+		return SAH(node.box);
+	}
+
+	private static float SAH(BoundingBox bounds) {
 		float x_size = bounds.max.x - bounds.min.x;
 		float y_size = bounds.max.y - bounds.min.y;
 		float z_size = bounds.max.z - bounds.min.z;
-
-		return 2.0f * ((x_size * y_size) + (x_size * z_size) + (y_size * z_size));
-	}
-
-	private static float SAH(BvhNode node) {
-		float x_size = node.box.max.x - node.box.min.x;
-		float y_size = node.box.max.y - node.box.min.y;
-		float z_size = node.box.max.z - node.box.min.z;
-
 		return 2.0f * ((x_size * y_size) + (x_size * z_size) + (y_size * z_size));
 	}
 
@@ -187,23 +156,19 @@ public class BvhNode implements Poolable {
 		return pairbox;
 	}
 
-	// tryRotate looks at all candidate rotations, and executes the rotation
-	// with the best resulting SAH (if any)
-	void tryRotate() {
+	void optimize() {
 		// if we are not a grandparent, then we can't rotate, so queue our
 		// parent and bail out
-		if (left.isLeaf() && right.isLeaf()) {
-			if (parent != null) {
-				bvh.refitNodes.add(parent);
-				return;
-			}
+		if (left.isLeaf() && right.isLeaf() && parent != null) {
+			bvh.refitNodes.add(parent);
+			return;
 		}
 
 		// for each rotation, check that there are grandchildren as necessary
 		// (aka not a leaf)
 		// then compute total SAH cost of our branches after the rotation.
 		float branchesSAH = SAH(left) + SAH(right);
-		RotationOption bestRot = bestRot(branchesSAH);
+		RotationOption bestRot = bestRotation(branchesSAH);
 
 		// perform the best rotation...
 		if (bestRot.rot != Rotation.NONE) {
@@ -302,7 +267,7 @@ public class BvhNode implements Poolable {
 		}
 	}
 
-	private RotationOption bestRot(float SAH) {
+	private RotationOption bestRotation(float SAH) {
 		RotationOption bestRotationOption = null;
 		Rotation[] values = Rotation.values();
 		for (int i = 0; i < values.length; i++) {
@@ -323,38 +288,44 @@ public class BvhNode implements Poolable {
 			return new RotationOption(SAH, Rotation.NONE);
 		// child to grandchild rotations
 		case L_RL:
-			if (right.isLeaf())
+			if (right.isLeaf()) {
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
-			else
+			} else {
 				return new RotationOption(SAH(right.left) + SAH(boundsOfPair(left, right.right)), rot);
+			}
 		case L_RR:
-			if (right.isLeaf())
+			if (right.isLeaf()) {
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
-			else
+			} else {
 				return new RotationOption(SAH(right.right) + SAH(boundsOfPair(left, right.left)), rot);
+			}
 		case R_LL:
-			if (left.isLeaf())
+			if (left.isLeaf()) {
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
-			else
+			} else {
 				return new RotationOption(SAH(boundsOfPair(right, left.right)) + SAH(left.left), rot);
+			}
 		case R_LR:
-			if (left.isLeaf())
+			if (left.isLeaf()) {
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
-			else
+			} else {
 				return new RotationOption(SAH(boundsOfPair(right, left.left)) + SAH(left.right), rot);
+			}
 			// grandchild to grandchild rotations
 		case LL_RR:
-			if (left.isLeaf() || right.isLeaf())
+			if (left.isLeaf() || right.isLeaf()) {
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
-			else
+			} else {
 				return new RotationOption(
 						SAH(boundsOfPair(right.right, left.right)) + SAH(boundsOfPair(right.left, left.left)), rot);
+			}
 		case LL_RL:
-			if (left.isLeaf() || right.isLeaf())
+			if (left.isLeaf() || right.isLeaf()) {
 				return new RotationOption(Float.MAX_VALUE, Rotation.NONE);
-			else
+			} else {
 				return new RotationOption(
 						SAH(boundsOfPair(right.left, left.right)) + SAH(boundsOfPair(left.left, right.right)), rot);
+			}
 			// unknown...
 		default:
 			throw new IllegalArgumentException(
@@ -362,7 +333,7 @@ public class BvhNode implements Poolable {
 		}
 	}
 
-	void splitNode() {
+	private void splitNode() {
 		// second, decide which axis to split on, and sort..
 		Array<BvhSpatial> splitlist = new Array<BvhSpatial>(BvhSpatial.class);
 		splitlist.addAll(spatials);
@@ -389,13 +360,34 @@ public class BvhNode implements Poolable {
 				this.depth + 1);
 	}
 
-	void splitIfNecessary() {
+	private BvhAxis pickSplitAxis() {
+		float axis_x = box.max.x - box.min.x;
+		float axis_y = box.max.y - box.min.y;
+		float axis_z = box.max.z - box.min.z;
+
+		// return the biggest axis
+		if (axis_x > axis_y) {
+			if (axis_x > axis_z) {
+				return BvhAxis.X;
+			} else {
+				return BvhAxis.Z;
+			}
+		} else {
+			if (axis_y > axis_z) {
+				return BvhAxis.Y;
+			} else {
+				return BvhAxis.Z;
+			}
+		}
+	}
+
+	private void splitIfNecessary() {
 		if (spatials.size > bvh.maxLeafSpatials) {
 			splitNode();
 		}
 	}
 
-	void addObject(BvhSpatial newSpatial) {
+	void addSpatial(BvhSpatial newSpatial) {
 		BoundingBox newSpatialBox = newSpatial.getBounds();
 		float newSpatialSAH = SAH(newSpatialBox);
 		addObject(newSpatial, newSpatialBox, newSpatialSAH);
@@ -448,25 +440,15 @@ public class BvhNode implements Poolable {
 				// propagate new depths to our children
 				setDepth(this.depth);
 				childRefit(true);
+			} else if (sendLeftSAH < sendRightSAH) {
+				// send left
+				left.addObject(newSpatial, newSpatialBox, newSpatialSAH);
 			} else {
-				if (sendLeftSAH < sendRightSAH) {
-					// send left
-					left.addObject(newSpatial, newSpatialBox, newSpatialSAH);
-				} else {
-					// send right
-					right.addObject(newSpatial, newSpatialBox, newSpatialSAH);
-				}
+				// send right
+				right.addObject(newSpatial, newSpatialBox, newSpatialSAH);
 			}
 		}
 
-	}
-
-	int countBvhNodes() {
-		if (spatials != null) {
-			return 1;
-		} else {
-			return left.countBvhNodes() + right.countBvhNodes();
-		}
 	}
 
 	void removeObject(BvhSpatial newOb) {
@@ -474,18 +456,14 @@ public class BvhNode implements Poolable {
 			throw new IllegalStateException("removeObject() called on nonLeaf!");
 		}
 
-		// TODO check if contains object
 		newOb.node = null;
 		spatials.removeValue(newOb, true);
 		if (spatials.size > 0) {
 			refitVolume();
-		} else {
-			// our leaf is empty, so collapse it if we are not the root...
-			if (parent != null) {
-				spatials = null;
-				parent.removeLeaf(this);
-				parent = null;
-			}
+		} else if (parent != null) {
+			spatials = null;
+			parent.removeLeaf(this);
+			parent = null;
 		}
 	}
 
@@ -501,8 +479,8 @@ public class BvhNode implements Poolable {
 		if (left == null || right == null) {
 			throw new IllegalStateException("bad intermediate node");
 		}
-		BvhNode keepLeaf;
 
+		BvhNode keepLeaf;
 		if (removeLeaf == left) {
 			keepLeaf = right;
 		} else if (removeLeaf == right) {
@@ -530,24 +508,14 @@ public class BvhNode implements Poolable {
 			right.parent = this; // reassign child parents..
 			this.setDepth(this.depth); // this reassigns depth for our children
 		} else {
-			// map the objects we adopted to us...
 			for (int i = 0; i < spatials.size; i++) {
 				spatials.get(i).node = this;
 			}
 		}
 
-		// propagate our new volume..
 		if (parent != null) {
 			parent.childRefit(true);
 		}
-	}
-
-	BvhNode rootNode() {
-		BvhNode cur = this;
-		while (cur.parent != null) {
-			cur = cur.parent;
-		}
-		return cur;
 	}
 
 	void childExpanded(BvhNode child) {
@@ -560,7 +528,6 @@ public class BvhNode implements Poolable {
 	}
 
 	void childRefit(boolean recurse) {
-		// box.set(left.box).ext(right.box);
 		refitBox();
 
 		if (recurse && parent != null) {
@@ -603,7 +570,6 @@ public class BvhNode implements Poolable {
 		PoolService.free(this);
 	}
 
-	// rotation option
 	private static class RotationOption implements Comparable<RotationOption> {
 		public float SAH;
 		public Rotation rot;
@@ -619,9 +585,7 @@ public class BvhNode implements Poolable {
 		}
 	}
 
-	// The list of all candidate rotations, from
-	// "Fast, Effective BVH Updates for Animated Scenes", Figure 1.
-	enum Rotation {
+	private enum Rotation {
 		NONE, L_RL, L_RR, R_LL, R_LR, LL_RR, LL_RL,
 	}
 }

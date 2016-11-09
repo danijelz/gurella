@@ -44,23 +44,23 @@ public class BvhSpatialSystem extends SpatialSystem<BvhSpatial> implements Clean
 
 	@Override
 	protected void doGetSpatials(BoundingBox bounds, Array<Spatial> out, Predicate<RenderableComponent> predicate) {
-		bvh.traverse(bounds, out, predicate);
+		bvh.traverse(bounds, predicate, out);
 	}
 
 	@Override
 	protected void doGetSpatials(Frustum frustum, Array<Spatial> out, Predicate<RenderableComponent> predicate) {
-		bvh.traverse(frustum, out, predicate);
+		bvh.traverse(frustum, predicate, out);
 	}
 
 	@Override
 	protected void doGetSpatials(Ray ray, Array<Spatial> out, Predicate<RenderableComponent> predicate) {
-		bvh.traverse(ray, out, predicate);
+		bvh.traverse(ray, predicate, out);
 	}
 
 	@Override
 	protected void doGetSpatials(Ray ray, float maxDistance, Array<Spatial> out,
 			Predicate<RenderableComponent> predicate) {
-		bvh.traverse(ray, maxDistance, out, predicate);
+		bvh.traverse(ray, maxDistance, predicate, out);
 	}
 
 	@Override

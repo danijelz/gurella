@@ -16,7 +16,7 @@ enum BvhAxis {
 
 		@Override
 		public int compare(BvhSpatial o1, BvhSpatial o2) {
-			return Float.compare(o1.getPosition().x, o2.getPosition().x);
+			return Float.compare(o1.getPositionX(), o2.getPositionX());
 		}
 	}
 
@@ -25,7 +25,7 @@ enum BvhAxis {
 
 		@Override
 		public int compare(BvhSpatial o1, BvhSpatial o2) {
-			return Float.compare(o1.getPosition().y, o2.getPosition().y);
+			return Float.compare(o1.getPositionY(), o2.getPositionY());
 		}
 	}
 
@@ -34,7 +34,7 @@ enum BvhAxis {
 
 		@Override
 		public int compare(BvhSpatial o1, BvhSpatial o2) {
-			return Float.compare(o1.getPosition().z, o2.getPosition().z);
+			return Float.compare(o1.getPositionZ(), o2.getPositionZ());
 		}
 	}
 }
