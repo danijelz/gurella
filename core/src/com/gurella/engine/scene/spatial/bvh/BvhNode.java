@@ -74,12 +74,10 @@ public class BvhNode implements Poolable {
 	}
 
 	public boolean isLeaf() {
-		boolean isLeaf = (this.spatials.size > 0);
-		// if we're a leaf, then both left and right should be null..
-		if (isLeaf && ((right != null) || (left != null))) {
+		boolean isLeaf = spatials.size > 0;
+		if (isLeaf && (right != null || left != null)) {
 			throw new IllegalStateException("ssBVH Leaf has objects and left/right pointers!");
 		}
-
 		return isLeaf;
 	}
 
