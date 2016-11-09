@@ -67,7 +67,7 @@ public class BulletPhysicsSystem extends SceneService2
 
 	@Override
 	protected void serviceActivated() {
-		paused = ((Application) Gdx.app.getApplicationListener()).isPaused();
+		//paused = ((Application) Gdx.app.getApplicationListener()).isPaused();
 		// TODO paused = Application.isPaused(); 
 	}
 

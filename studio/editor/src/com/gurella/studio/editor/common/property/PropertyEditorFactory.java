@@ -130,7 +130,7 @@ public class PropertyEditorFactory {
 			return cast(new SimpleObjectPropertyEditor<>(parent, context));
 		}
 
-		///// custom models for collections...
+		///// custom editors for collections...
 
 		else if (Array.class.isAssignableFrom(propertyType)) {
 			return cast(new GdxArrayPropertyEditor<>(parent, cast(context)));

@@ -64,6 +64,14 @@ public class TerrainComponent extends RenderableComponent3d {
 		material.set(new TerrainTextureAttribute(TerrainTextureAttribute.ATTRIBUTE_SPLAT0, terrainTexture));
 	}
 
+	@Override
+	protected ModelInstance getModelInstance() {
+		if (modelInstance == null) {
+			initModelInstance();
+		}
+		return modelInstance;
+	}
+
 	private void initModelInstance() {
 		final int numVertices = this.vertexResolution * vertexResolution;
 		final int numIndices = (this.vertexResolution - 1) * (vertexResolution - 1) * 6;
@@ -81,14 +89,6 @@ public class TerrainComponent extends RenderableComponent3d {
 		mb.part(meshPart, material);
 		model = mb.end();
 		modelInstance = new ModelInstance(model);
-	}
-
-	@Override
-	protected ModelInstance getModelInstance() {
-		if (modelInstance == null) {
-			initModelInstance();
-		}
-		return modelInstance;
 	}
 
 	public Vector3 getVertexPosition(Vector3 out, int x, int z) {
