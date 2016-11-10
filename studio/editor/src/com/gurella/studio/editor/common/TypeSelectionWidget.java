@@ -8,15 +8,9 @@ import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -33,45 +27,44 @@ public class TypeSelectionWidget<T> extends Composite {
 	private final Class<T> baseType;
 	private final List<Class<? extends T>> knownTypes = new ArrayList<>();
 
-	private Combo typesCombo;
-	private ComboViewer viewer;
-	private Label menuButton;
+	private Label infoLabel;
 	private Image menuImage;
+	private Label menuButton;
 
 	private Signal1<Class<? extends T>> typeSelectionListener = new Signal1<>();
 
 	private Class<? extends T> selectedType;
 
-	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType) {
-		this(parent, context, baseType, Collections.emptyList());
+	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType,
+			Class<? extends T> selected) {
+		this(parent, context, baseType, selected, Collections.emptyList());
 	}
 
 	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType,
-			List<Class<? extends T>> knownTypes) {
+			Class<? extends T> selected, List<Class<? extends T>> knownTypes) {
 		super(parent, SWT.NONE);
+
 		this.context = context;
 		this.baseType = baseType;
 		this.knownTypes.addAll(knownTypes);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(2).margins(0, 0).spacing(0, 2).applyTo(this);
 		addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		addListener(SWT.MouseExit, e -> showMenuImage(false));
 
-		typesCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-		typesCombo.addListener(SWT.MouseEnter, e -> showMenuImage(true));
-		typesCombo.addListener(SWT.MouseExit, e -> showMenuImage(false));
-		GridDataFactory.defaultsFor(typesCombo).align(SWT.BEGINNING, SWT.CENTER).hint(100, 20).applyTo(typesCombo);
-		UiUtils.adapt(typesCombo);
+		infoLabel = UiUtils.createLabel(this, "");
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(100, 18).applyTo(infoLabel);
+		infoLabel.addListener(SWT.MouseEnter, e -> showMenuImage(true));
+		infoLabel.addListener(SWT.MouseExit, e -> showMenuImage(false));
+		infoLabel.setText(selected == null ? "null" : selected.getSimpleName());
 
-		viewer = new ComboViewer(typesCombo);
-		viewer.setContentProvider(new ArrayContentProvider());
-		viewer.setLabelProvider(new TypeLabelProvider());
-		viewer.addSelectionChangedListener(e -> updateType(e.getSelection()));
+		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
 
 		menuButton = GurellaStudioPlugin.getToolkit().createLabel(this, "     ", NONE);
-		menuButton.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
+		menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		menuButton.addListener(SWT.MouseUp, e -> selectType());
-		GridDataFactory.defaultsFor(menuButton).align(SWT.BEGINNING, SWT.BEGINNING).hint(100, 14).applyTo(menuButton);
-		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
+		GridDataFactory.defaultsFor(menuButton).align(SWT.BEGINNING, SWT.BEGINNING).hint(25, 14).applyTo(menuButton);
+		menuButton.addListener(SWT.MouseEnter, e -> showMenuImage(true));
+		menuButton.addListener(SWT.MouseExit, e -> showMenuImage(false));
 
 		UiUtils.paintBordersFor(this);
 		UiUtils.adapt(this);
@@ -84,22 +77,16 @@ public class TypeSelectionWidget<T> extends Composite {
 		}
 	}
 
-	private void updateType(ISelection selection) {
-		StructuredSelection structuredSelection = (StructuredSelection) selection;
-		@SuppressWarnings("unchecked")
-		Class<? extends T> selected = (Class<? extends T>) structuredSelection.getFirstElement();
-		updateType(selected);
-	}
-
 	private void updateType(Class<? extends T> selected) {
 		selectedType = selected;
+		infoLabel.setText(selected == null ? "null" : selected.getSimpleName());
 		typeSelectionListener.dispatch(selectedType);
 	}
-	
+
 	public void addTypeSelectionListener(Listener1<Class<? extends T>> listener) {
 		typeSelectionListener.addListener(listener);
 	}
-	
+
 	public void removeTypeSelectionListener(Listener1<Class<? extends T>> listener) {
 		typeSelectionListener.removeListener(listener);
 	}
@@ -109,13 +96,6 @@ public class TypeSelectionWidget<T> extends Composite {
 			menuButton.setImage(menuImage);
 		} else {
 			menuButton.setImage(null);
-		}
-	}
-
-	private static class TypeLabelProvider extends LabelProvider {
-		@Override
-		public String getText(Object element) {
-			return element == null ? "" : ((Class<?>) element).getSimpleName();
 		}
 	}
 }

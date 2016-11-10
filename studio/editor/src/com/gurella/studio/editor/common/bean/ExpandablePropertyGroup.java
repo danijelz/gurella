@@ -37,8 +37,7 @@ class ExpandablePropertyGroup extends Composite {
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
-
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(0, 0).spacing(4, 0).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).margins(0, 0).spacing(0, 0).applyTo(this);
 
 		expandTwistie = new Twistie(this, SWT.NONE);
 		expandTwistie.setExpanded(expanded);
@@ -91,14 +90,10 @@ class ExpandablePropertyGroup extends Composite {
 		}
 		layoutData.exclude = !visible;
 
-		if (controls.size() == 0) {
-			control.moveBelow(this);
-		} else {
-			control.moveBelow(controls.get(controls.size() - 1));
-		}
+		control.moveBelow(controls.size() == 0 ? this : controls.get(controls.size() - 1));
 		controls.add(control);
 	}
-	
+
 	void clear() {
 		controls.stream().forEach(c -> c.dispose());
 		controls.clear();

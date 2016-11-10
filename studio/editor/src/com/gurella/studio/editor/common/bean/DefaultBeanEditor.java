@@ -125,11 +125,11 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			boolean longName = name.length() > 20;
 
 			Label label = toolkit.createLabel(this, name + ":");
-			label.setAlignment(SWT.RIGHT);
+			label.setAlignment(SWT.LEFT);
 			Font font = createFont(label, SWT.BOLD);
 			label.addDisposeListener(e -> destroyFont(font));
 			label.setFont(font);
-			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
+			GridData labelLayoutData = new GridData(SWT.FILL, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(editorBody);
 			label.addListener(SWT.MouseUp, e -> editor.showMenu());
@@ -166,16 +166,18 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	private <V> void createGroupedRefelectionProperty(Property<V> property) {
 		String name = PropertyEditorData.getDescriptiveName(context, property);
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, name + ":", true, false);
-		group.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
-
-		SceneEditorContext sceneContext = context.sceneEditorContext;
-		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType());
-		selector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(0, 0).applyTo(group);
 
 		PropertyEditorContext<T, V> parent = new PropertyEditorContext<>(context, property);
+		V value = parent.getValue();
+		Class<V> selected = value == null ? null : cast(value.getClass());
+
+		SceneEditorContext sceneContext = context.sceneEditorContext;
+		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).hint(150, 18).indent(0, 0).applyTo(selector);
 		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, parent));
 
-		Optional.ofNullable(parent.getValue()).ifPresent(v -> createRefelectionEditors(group, selector, parent, v));
+		Optional.ofNullable(value).ifPresent(v -> createRefelectionEditors(group, selector, parent, v));
 	}
 
 	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandablePropertyGroup group,
@@ -222,12 +224,12 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		if (editor instanceof SimplePropertyEditor) {
 			boolean longName = name.length() > 20;
 
-			Label label = toolkit.createLabel(this, name + ":");
-			label.setAlignment(SWT.RIGHT);
+			Label label = toolkit.createLabel(this, "\t" + name + ":");
+			label.setAlignment(SWT.LEFT);
 			Font font = createFont(label, SWT.BOLD);
 			label.addDisposeListener(e -> destroyFont(font));
 			label.setFont(font);
-			GridData labelLayoutData = new GridData(SWT.END, SWT.CENTER, false, false);
+			GridData labelLayoutData = new GridData(SWT.FILL, SWT.CENTER, false, false);
 			label.setLayoutData(labelLayoutData);
 			label.moveAbove(editorBody);
 			label.addListener(SWT.MouseUp, e -> editor.showMenu());
