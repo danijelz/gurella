@@ -62,7 +62,7 @@ public class TypeSelectionWidget<T> extends Composite {
 		menuButton = GurellaStudioPlugin.getToolkit().createLabel(this, "     ", NONE);
 		menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		menuButton.addListener(SWT.MouseUp, e -> selectType());
-		GridDataFactory.defaultsFor(menuButton).align(SWT.BEGINNING, SWT.BEGINNING).hint(25, 14).applyTo(menuButton);
+		GridDataFactory.defaultsFor(menuButton).align(SWT.BEGINNING, SWT.BEGINNING).indent(10, 0).hint(25, 14).applyTo(menuButton);
 		menuButton.addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		menuButton.addListener(SWT.MouseExit, e -> showMenuImage(false));
 

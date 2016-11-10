@@ -18,7 +18,7 @@ import com.gurella.engine.subscriptions.application.ApplicationShutdownListener;
 
 public class AudioDebugRenderer implements ApplicationShutdownListener {
 	private static final String listenerTextureLocation = "com/gurella/engine/scene/audio/debug/listener.png";
-	private static final String speakerTextureLocation = "com/gurella/engine/scene/light/debug/speaker.png";
+	private static final String speakerTextureLocation = "com/gurella/engine/scene/audio/debug/speaker.png";
 
 	private static final Vector3 up = new Vector3(0, 1, 0);
 	private static final ObjectMap<Application, AudioDebugRenderer> instances = new ObjectMap<Application, AudioDebugRenderer>();

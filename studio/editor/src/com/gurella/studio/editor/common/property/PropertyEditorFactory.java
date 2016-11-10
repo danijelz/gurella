@@ -35,6 +35,14 @@ import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 
 public class PropertyEditorFactory {
 	public static boolean hasReflectionEditor(PropertyEditorContext<?, ?> context) {
+		IJavaProject javaProject = context.sceneEditorContext.javaProject;
+		Class<?> modelClass = context.modelInstance.getClass();
+		Property<?> property = context.property;
+		PropertyEditorData data = PropertyEditorData.get(javaProject, modelClass, property);
+		if (data != null && data.isValidFactoryClass()) {
+			return false;
+		}
+		
 		Class<?> propertyType = context.property.getType();
 		return getEditorType(context, propertyType) == ReflectionPropertyEditor.class;
 	}

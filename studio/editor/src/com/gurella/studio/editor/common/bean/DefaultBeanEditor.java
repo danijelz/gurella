@@ -31,7 +31,6 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.test.TestTypeSelectionComponnent;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -40,6 +39,7 @@ import com.gurella.studio.editor.common.property.CompositePropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.PropertyEditorData;
+import com.gurella.studio.editor.common.property.PropertyEditorFactory;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -104,13 +104,13 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private <V> void addEditor(Property<V> property) {
-		if (context.modelInstance instanceof TestTypeSelectionComponnent && property.getName().equals("shape")) {
-			createGroupedRefelectionProperty(property);
+		PropertyEditorContext<T, V> propertyContext = new PropertyEditorContext<>(context, property);
+		if (PropertyEditorFactory.hasReflectionEditor(propertyContext)) {
+			createGroupedRefelectionProperty(property, propertyContext);
 			return;
 		}
 
-		FormToolkit toolkit = getToolkit();
-		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
+		PropertyEditor<V> editor = createEditor(this, propertyContext);
 		GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite editorBody = editor.getBody();
 		editorBody.setLayoutData(editorBodyLayoutData);
@@ -120,6 +120,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		boolean required = propertyType.isPrimitive() ? false
 				: (!editorContext.isNullable() && !editorContext.isFixedValue());
 		String name = editor.getDescriptiveName() + (required ? "*" : "");
+		FormToolkit toolkit = getToolkit();
 
 		if (editor instanceof SimplePropertyEditor) {
 			boolean longName = name.length() > 20;
@@ -163,21 +164,22 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		}
 	}
 
-	private <V> void createGroupedRefelectionProperty(Property<V> property) {
+	private <V> void createGroupedRefelectionProperty(Property<V> property,
+			PropertyEditorContext<T, V> propertyContext) {
 		String name = PropertyEditorData.getDescriptiveName(context, property);
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, name + ":", true, false);
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(0, 0).applyTo(group);
 
-		PropertyEditorContext<T, V> parent = new PropertyEditorContext<>(context, property);
-		V value = parent.getValue();
+		V value = propertyContext.getValue();
 		Class<V> selected = value == null ? null : cast(value.getClass());
 
 		SceneEditorContext sceneContext = context.sceneEditorContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).hint(150, 18).indent(0, 0).applyTo(selector);
-		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, parent));
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).hint(150, 18).indent(0, 0)
+				.applyTo(selector);
+		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 
-		Optional.ofNullable(value).ifPresent(v -> createRefelectionEditors(group, selector, parent, v));
+		Optional.ofNullable(value).ifPresent(v -> createRefelectionEditors(group, selector, propertyContext, v));
 	}
 
 	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandablePropertyGroup group,

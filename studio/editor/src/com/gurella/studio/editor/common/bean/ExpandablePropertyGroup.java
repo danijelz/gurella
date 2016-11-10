@@ -46,7 +46,7 @@ class ExpandablePropertyGroup extends Composite {
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(expandTwistie);
 
 		Label nameLabel = toolkit.createLabel(this, name);
-		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(nameLabel);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(4, 0).applyTo(nameLabel);
 		Font font = createFont(nameLabel, SWT.BOLD);
 		nameLabel.addDisposeListener(e -> destroyFont(font));
 		nameLabel.setFont(font);
