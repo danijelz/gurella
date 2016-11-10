@@ -43,7 +43,7 @@ public class BulletRigidBodyComponent extends SceneNodeComponent2
 	public BulletRigidBodyType type = BulletRigidBodyType.DYNAMIC;
 
 	@PropertyDescriptor(nullable = false)
-	@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
+	//@PropertyEditorDescriptor(factory = CollisionShapePropertyEditorFactory.class)
 	public CollisionShape shape;
 
 	@PropertyEditorDescriptor(descriptiveName = "Calc. inertia")

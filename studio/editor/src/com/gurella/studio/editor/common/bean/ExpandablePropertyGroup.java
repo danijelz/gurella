@@ -29,10 +29,6 @@ class ExpandablePropertyGroup extends Composite {
 	private List<Control> controls = new ArrayList<>();
 
 	public ExpandablePropertyGroup(Composite parent, String name, boolean expanded) {
-		this(parent, name, expanded, false);
-	}
-
-	public ExpandablePropertyGroup(Composite parent, String name, boolean expanded, boolean addSeparator) {
 		super(parent, SWT.NONE);
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
@@ -58,11 +54,6 @@ class ExpandablePropertyGroup extends Composite {
 		Cursor cursor = new Cursor(getDisplay(), SWT.CURSOR_HAND);
 		nameLabel.setCursor(cursor);
 		nameLabel.addDisposeListener(e -> cursor.dispose());
-
-		if (addSeparator) {
-			Label separator = toolkit.createSeparator(this, SWT.HORIZONTAL);
-			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).span(2, 1).grab(true, false).applyTo(separator);
-		}
 	}
 
 	private void revertTwistie() {

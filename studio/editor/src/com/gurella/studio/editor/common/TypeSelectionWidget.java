@@ -21,7 +21,6 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
 
-//TODO unused
 public class TypeSelectionWidget<T> extends Composite {
 	private final SceneEditorContext context;
 	private final Class<T> baseType;

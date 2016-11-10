@@ -167,7 +167,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	private <V> void createGroupedRefelectionProperty(Property<V> property,
 			PropertyEditorContext<T, V> propertyContext) {
 		String name = PropertyEditorData.getDescriptiveName(context, property);
-		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, name + ":", true, false);
+		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, name + ":", true);
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(0, 0).applyTo(group);
 
 		V value = propertyContext.getValue();

@@ -19,7 +19,6 @@ public class BvhNode implements Poolable {
 	BvhNode right;
 
 	int depth;
-	int nodeNumber; // for debugging
 	final BoundingBox box = new BoundingBox().inf();
 
 	// only populated in leaf nodes
@@ -27,7 +26,6 @@ public class BvhNode implements Poolable {
 
 	public BvhNode(Bvh bvh) {
 		this.bvh = bvh;
-		this.nodeNumber = bvh.nodeCount++;
 	}
 
 	public BvhNode(Bvh bvh, Array<BvhSpatial> spatials) {
@@ -36,7 +34,6 @@ public class BvhNode implements Poolable {
 
 	private BvhNode(Bvh bvh, BvhNode parent, Array<BvhSpatial> spatials, int depth) {
 		this.bvh = bvh;
-		nodeNumber = bvh.nodeCount++;
 		this.parent = parent;
 		this.depth = depth;
 
@@ -94,7 +91,7 @@ public class BvhNode implements Poolable {
 	private boolean refitVolume() {
 		if (spatials.size == 0) {
 			throw new UnsupportedOperationException();
-		} // TODO: fix this... we should never get called in this case...
+		}
 
 		BoundingBox oldbox = isValid(box) ? new BoundingBox() : new BoundingBox(box);// TODO garbage
 		computeVolume();
@@ -171,7 +168,6 @@ public class BvhNode implements Poolable {
 		// perform the best rotation...
 		if (bestRot.rot != Rotation.NONE) {
 			// if the best rotation is no-rotation... we check our parents
-			// anyhow..
 			// but only do it some random percentage of the time.
 			if (parent != null && (System.nanoTime() % 100) < 2) {
 				bvh.refitNodes.add(parent);
@@ -270,7 +266,7 @@ public class BvhNode implements Poolable {
 		Rotation[] values = Rotation.values();
 		for (int i = 0; i < values.length; i++) {
 			Rotation rot = values[i];
-			RotationOption opt = switchRotation(rot, SAH);
+			RotationOption opt = getRotationOption(rot, SAH);
 			if (bestRotationOption == null || bestRotationOption.compareTo(opt) > 0) {
 				bestRotationOption = opt;
 			}
@@ -280,7 +276,7 @@ public class BvhNode implements Poolable {
 	}
 
 	// TODO garbage
-	private RotationOption switchRotation(Rotation rot, float SAH) {
+	private RotationOption getRotationOption(Rotation rot, float SAH) {
 		switch (rot) {
 		case NONE:
 			return new RotationOption(SAH, Rotation.NONE);
@@ -324,10 +320,9 @@ public class BvhNode implements Poolable {
 				return new RotationOption(
 						SAH(boundsOfPair(right.left, left.right)) + SAH(boundsOfPair(left.left, right.right)), rot);
 			}
-			// unknown...
 		default:
 			throw new IllegalArgumentException(
-					"missing implementation for BVH Rotation SAH Computation .. " + rot.toString());
+					"Missing implementation for BVH Rotation SAH computation: " + rot.toString());
 		}
 	}
 
@@ -559,7 +554,6 @@ public class BvhNode implements Poolable {
 		}
 
 		depth = 0;
-		nodeNumber = 0;
 		box.inf();
 	}
 
@@ -568,7 +562,7 @@ public class BvhNode implements Poolable {
 		PoolService.free(this);
 	}
 
-	private static class RotationOption implements Comparable<RotationOption> {
+	static class RotationOption implements Comparable<RotationOption> {
 		public float SAH;
 		public Rotation rot;
 

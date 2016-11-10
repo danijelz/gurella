@@ -8,7 +8,6 @@ import com.gurella.engine.scene.transform.TransformComponent;
 
 public class BvhSpatial extends Spatial {
 	BvhNode node;
-	private final BoundingBox bounds = new BoundingBox().inf();
 
 	public static BvhSpatial obtain(RenderableComponent renderableComponent) {
 		BvhSpatial spatial = PoolService.obtain(BvhSpatial.class);
@@ -32,21 +31,15 @@ public class BvhSpatial extends Spatial {
 	}
 
 	public BoundingBox getBounds() {
-		renderable.getBounds(bounds.inf());
+		renderable.getBounds(node.box.inf());
 		TransformComponent transformComponent = renderable.getTransformComponent();
 		if (transformComponent != null) {
-			transformComponent.transformBoundsToWorld(bounds);
+			transformComponent.transformBoundsToWorld(node.box);
 		}
-		return bounds;
+		return node.box;
 	}
 
 	public void free() {
 		PoolService.free(this);
-	}
-
-	@Override
-	public void reset() {
-		super.reset();
-		bounds.inf(); // TODO remove
 	}
 }

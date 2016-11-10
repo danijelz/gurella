@@ -3,6 +3,8 @@ package com.gurella.studio.editor.utils;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
+import java.lang.reflect.Modifier;
+
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -23,11 +25,7 @@ public class TypeSelectionUtils {
 	public static <T> Class<? extends T> selectType(SceneEditorContext context, Class<T> baseType) {
 		try {
 			IType selectedType = findType(context, baseType);
-			if (selectedType != null) {
-				return loadType(context, selectedType);
-			} else {
-				return null;
-			}
+			return selectedType == null ? null : loadType(context, selectedType);
 		} catch (Exception e) {
 			showError(e, "Error occurred while loading class");
 			return null;
@@ -58,7 +56,9 @@ public class TypeSelectionUtils {
 		if (baseType == Object.class) {
 			return SearchEngine.createWorkspaceScope();
 		} else {
-			return SearchEngine.createHierarchyScope(javaProject.findType(baseType.getName()));
+			IType type = javaProject.findType(baseType.getName());
+			boolean excludeBaseType = Modifier.isAbstract(baseType.getModifiers()) || baseType.isInterface();
+			return SearchEngine.createStrictHierarchyScope(javaProject, type, true, excludeBaseType, null);
 		}
 	}
 

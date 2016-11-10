@@ -15,14 +15,12 @@ import com.gurella.engine.scene.spatial.Spatial;
 
 public class Bvh {
 	public BvhNode rootNode;
-	public int nodeCount = 0;
 
 	int maxLeafSpatials;
 	final ObjectSet<BvhNode> refitNodes = new ObjectSet<BvhNode>();
 	private Array<BvhNode> sweepNodes = new Array<BvhNode>(BvhNode.class);
 
 	/**
-	 * 
 	 * @param objects
 	 * @param maxLeafSpatials
 	 *            WARNING! currently this must be 1 to use dynamic BVH update
