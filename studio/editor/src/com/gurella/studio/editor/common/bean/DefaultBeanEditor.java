@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -97,6 +98,17 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		if (Values.isBlank(groupName)) {
 			properties.stream().sequential().forEach(p -> addEditor(p));
 		} else {
+			// int indent = -1;
+			// int index = 0;
+			// while(index >= 0) {
+			// index = groupName.indexOf('.', index);
+			// indent++;
+			// }
+			//
+			// StringBuilder builder = new StringBuilder();
+			// IntStream.range(0, indent).forEach(i -> builder.append('\t'));
+			// builder.append(groupName);
+
 			ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, groupName, false);
 			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
 			properties.stream().sequential().forEach(p -> addEditor(group, p));
