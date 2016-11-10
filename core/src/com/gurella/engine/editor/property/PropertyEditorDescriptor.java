@@ -19,13 +19,17 @@ public @interface PropertyEditorDescriptor {
 
 	boolean nullable() default false; // TODO unused
 
-	String group() default "";
-
 	int index() default 0;
 
 	String descriptiveName() default "";
 
 	String description() default "";
+
+	String group() default "";
+
+	boolean expandGroup() default false; //TODO unused
+
+	int groupIndex() default 0; //TODO unused
 
 	public enum EditorType {
 		simple, composite, custom

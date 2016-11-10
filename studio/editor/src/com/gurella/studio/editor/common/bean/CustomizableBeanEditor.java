@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.common.bean;
 
+import static com.gurella.engine.utils.Values.isNotBlank;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
@@ -8,6 +9,8 @@ import static com.gurella.studio.editor.common.property.PropertyEditorFactory.cr
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
+
+import java.util.Arrays;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -57,10 +60,23 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
 		ExpandablePropertyGroup group = groups.get(groupName);
 		if (group == null) {
-			group = new ExpandablePropertyGroup(this, groupName, false);
-			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
-			groups.put(groupName, group);
+			String[] groupNames = groupName.split("\\.");
+			if (groupNames.length == 1) {
+				createGroup(groupName, groupName);
+			} else {
+				StringBuilder builder = new StringBuilder();
+				Arrays.stream(groupNames).sequential().filter(s -> isNotBlank(s))
+						.forEach(p -> createGroup(builder.append(builder.length() == 0 ? p : '.' + p).toString(), p));
+			}
 		}
+		return group;
+	}
+
+	private ExpandablePropertyGroup createGroup(String groupPath, String part) {
+		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
+		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, part, false);
+		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
+		groups.put(groupPath, group);
 		return group;
 	}
 

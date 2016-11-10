@@ -204,7 +204,6 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		String message = "Error occurred while creating value";
 		V value = Try.ofFailable(() -> type.newInstance()).onFailure(e -> showError(e, message)).orElse(null);
 		parent.setValue(value);
-
 		createRefelectionEditors(group, selector, parent, value);
 		UiUtils.reflow(this);
 	}
