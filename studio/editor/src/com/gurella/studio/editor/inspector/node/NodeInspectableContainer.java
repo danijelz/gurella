@@ -75,6 +75,7 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.test.TestEditorComponent;
 import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponent;
+import com.gurella.engine.test.TestTypeSelectionComponnent;
 import com.gurella.engine.utils.ImmutableArray;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
@@ -192,6 +193,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		addMenuItem(menu, TestPropertyEditorsComponent.class);
 		addMenuItem(menu, TestEditorComponent.class);
 		addMenuItem(menu, TestInputComponent.class);
+		addMenuItem(menu, TestTypeSelectionComponnent.class);
 		new MenuItem(menu, SEPARATOR);
 		addScriptMenuItem(menu);
 

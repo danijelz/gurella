@@ -34,6 +34,76 @@ import com.gurella.studio.editor.engine.property.CustomPropertyEditor;
 import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 
 public class PropertyEditorFactory {
+	public static boolean hasReflectionEditor(PropertyEditorContext<?, ?> context) {
+		Class<?> propertyType = context.property.getType();
+		return getEditorType(context, propertyType) == ReflectionPropertyEditor.class;
+	}
+
+	public static Class<? extends PropertyEditor<?>> getEditorType(PropertyEditorContext<?, ?> context,
+			Class<?> propertyType) {
+		if (propertyType == Boolean.class || propertyType == boolean.class) {
+			return BooleanPropertyEditor.class;
+		} else if (propertyType == Integer.class || propertyType == int.class) {
+			return IntegerPropertyEditor.class;
+		} else if (propertyType == Long.class || propertyType == long.class) {
+			return LongPropertyEditor.class;
+		} else if (propertyType == Float.class || propertyType == float.class) {
+			return FloatPropertyEditor.class;
+		} else if (propertyType == Byte.class || propertyType == byte.class) {
+			return BytePropertyEditor.class;
+		} else if (propertyType == Short.class || propertyType == short.class) {
+			return ShortPropertyEditor.class;
+		} else if (propertyType == Character.class || propertyType == char.class) {
+			return CharacterPropertyEditor.class;
+		} else if (propertyType == Double.class || propertyType == double.class) {
+			return DoublePropertyEditor.class;
+		} else if (propertyType == String.class) {
+			return StringPropertyEditor.class;
+		} else if (propertyType == Date.class) {
+			return DatePropertyEditor.class;
+		} else if (propertyType == Vector3.class) {
+			return Vector3PropertyEditor.class;
+		} else if (propertyType == Vector2.class) {
+			return Vector2PropertyEditor.class;
+		} else if (propertyType == Quaternion.class) {
+			return QuaternionPropertyEditor.class;
+		} else if (propertyType == GridPoint2.class) {
+			return GridPoint2PropertyEditor.class;
+		} else if (propertyType == GridPoint3.class) {
+			return GridPoint3PropertyEditor.class;
+		} else if (propertyType == Matrix3.class) {
+			return Matrix3PropertyEditor.class;
+		} else if (propertyType == Matrix4.class) {
+			return Matrix4PropertyEditor.class;
+		} else if (propertyType == Color.class) {
+			return ColorPropertyEditor.class;
+		} else if (propertyType == Bits.class || propertyType == BitsExt.class) {
+			return BitsPropertyEditor.class;
+		} else if (propertyType == BigInteger.class) {
+			return BigIntegerPropertyEditor.class;
+		} else if (propertyType == BigDecimal.class) {
+			return BigDecimalPropertyEditor.class;
+		} else if (propertyType.isArray()) {
+			return cast(ArrayPropertyEditor.class);
+		} else if (propertyType.isEnum()) {
+			return cast(EnumPropertyEditor.class);
+		} else if (Assets.isAssetType(propertyType)) {
+			return cast(AssetPropertyEditor.class);
+		} else if (context.property.isFinal() && context.modelInstance != null && isSimpleProperty(propertyType)) {
+			return cast(SimpleObjectPropertyEditor.class);
+		}
+
+		///// custom editors for maps...
+
+		else if (Array.class.isAssignableFrom(propertyType)) {
+			return cast(GdxArrayPropertyEditor.class);
+		} else if (Collection.class.isAssignableFrom(propertyType)) {
+			return cast(CollectionPropertyEditor.class);
+		} else {
+			return cast(ReflectionPropertyEditor.class);
+		}
+	}
+
 	public static <T> PropertyEditor<T> createEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		PropertyEditor<T> customEditor = createCustomEditor(parent, context);
 		if (customEditor == null) {
@@ -55,7 +125,7 @@ public class PropertyEditorFactory {
 			}
 
 			ClassLoader classLoader = context.sceneEditorContext.classLoader;
-			Class<?> factoryClass = classLoader.loadClass(data.factoryClass);
+			Class<?> factoryClass = classLoader.loadClass(data.customFactoryClass);
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
 			Object factory = constructor.newInstance(new Object[0]);
@@ -130,7 +200,7 @@ public class PropertyEditorFactory {
 			return cast(new SimpleObjectPropertyEditor<>(parent, context));
 		}
 
-		///// custom editors for collections...
+		///// TODO custom editors for maps...
 
 		else if (Array.class.isAssignableFrom(propertyType)) {
 			return cast(new GdxArrayPropertyEditor<>(parent, cast(context)));
@@ -141,7 +211,7 @@ public class PropertyEditorFactory {
 		}
 	}
 
-	public static boolean isSimpleProperty(Class<?> propertyType) {
+	private static boolean isSimpleProperty(Class<?> propertyType) {
 		ImmutableArray<Property<?>> properties = Models.getModel(propertyType).getProperties();
 		Property<?> editableProperty = null;
 		for (Property<?> property : properties) {

@@ -1,8 +1,10 @@
 package com.gurella.studio.editor.common.bean;
 
+import static com.gurella.engine.utils.Values.cast;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getGroup;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
@@ -14,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -26,14 +29,20 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
+import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.test.TestTypeSelectionComponnent;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.common.TypeSelectionWidget;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
-import com.gurella.studio.editor.common.property.PropertyEditorData;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
+import com.gurella.studio.editor.common.property.PropertyEditorData;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
+import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	private static final RGB separatorRgb = new RGB(88, 158, 255);
@@ -85,7 +94,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private void addGroup(String groupName, List<Property<?>> properties) {
-		if (groupName.length() == 0) {
+		if (Values.isBlank(groupName)) {
 			properties.stream().sequential().forEach(p -> addEditor(p));
 		} else {
 			ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, groupName, false);
@@ -95,6 +104,11 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private <V> void addEditor(Property<V> property) {
+		if (context.modelInstance instanceof TestTypeSelectionComponnent && property.getName().equals("shape")) {
+			createGroupedRefelectionProperty(property);
+			return;
+		}
+
 		FormToolkit toolkit = getToolkit();
 		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
 		GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
@@ -149,9 +163,52 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		}
 	}
 
+	private <V> void createGroupedRefelectionProperty(Property<V> property) {
+		String name = PropertyEditorData.getDescriptiveName(context, property);
+		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, name + ":", true, false);
+		group.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+
+		SceneEditorContext sceneContext = context.sceneEditorContext;
+		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType());
+		selector.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+
+		PropertyEditorContext<T, V> parent = new PropertyEditorContext<>(context, property);
+		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, parent));
+
+		Optional.ofNullable(parent.getValue()).ifPresent(v -> createRefelectionEditors(group, selector, parent, v));
+	}
+
+	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandablePropertyGroup group,
+			TypeSelectionWidget<V> selector, PropertyEditorContext<T, V> parent) {
+		group.clear();
+		if (type == null) {
+			return;
+		}
+
+		String message = "Error occurred while creating value";
+		V value = Try.ofFailable(() -> type.newInstance()).onFailure(e -> showError(e, message)).orElse(null);
+		parent.setValue(value);
+
+		createRefelectionEditors(group, selector, parent, value);
+		UiUtils.reflow(this);
+	}
+
+	protected <V> void createRefelectionEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
+			PropertyEditorContext<T, V> parent, V value) {
+		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
+		Arrays.stream(properties).sequential()
+				.forEach(p -> addEditor(group, new PropertyEditorContext<>(parent, cast(value), p)));
+		selector.moveBelow(group);
+	}
+
 	private <V> void addEditor(ExpandablePropertyGroup group, Property<V> property) {
+		PropertyEditorContext<T, V> propartyContext = new PropertyEditorContext<>(context, property);
+		addEditor(group, propartyContext);
+	}
+
+	protected <V> void addEditor(ExpandablePropertyGroup group, PropertyEditorContext<T, V> propartyContext) {
 		FormToolkit toolkit = getToolkit();
-		PropertyEditor<V> editor = createEditor(this, new PropertyEditorContext<>(context, property));
+		PropertyEditor<V> editor = createEditor(this, propartyContext);
 		GridData editorBodyLayoutData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		Composite editorBody = editor.getBody();
 		editorBody.setLayoutData(editorBodyLayoutData);

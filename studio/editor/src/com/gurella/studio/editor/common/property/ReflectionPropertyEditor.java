@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.common.property;
 
+import static com.gurella.engine.utils.Values.cast;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
 
 import java.lang.reflect.Constructor;
@@ -71,10 +72,9 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 			label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 			label.addListener(SWT.MouseUp, (e) -> showMenu());
 		} else if (Models.getModel(value.getClass()) instanceof SimpleModel) {
-			PropertyEditorContext<Object, P> casted = Values.cast(context);
+			PropertyEditorContext<Object, P> casted = cast(context);
 			PropertyEditorContext<Object, P> child = new PropertyEditorContext<>(casted, casted.property);
-			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(content, child,
-					Values.cast(value.getClass()));
+			PropertyEditor<P> editor = PropertyEditorFactory.createEditor(content, child, cast(value.getClass()));
 			GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			editor.getBody().setLayoutData(layoutData);
 		} else {

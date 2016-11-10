@@ -14,6 +14,7 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor.EditorType;
+import com.gurella.engine.editor.property.PropertyEditorFactory;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.common.bean.BeanEditorContext;
 
@@ -21,16 +22,16 @@ public class PropertyEditorData {
 	private static final Map<EditorPropertyKey, PropertyEditorData> editorProperties = new HashMap<>();
 
 	public final EditorType type;
-	public final String factoryClass;
+	public final String customFactoryClass;
 	public final int index;
 	public final String group;
 	public final String descriptiveName;
 	public final String description;
 
-	private PropertyEditorData(EditorType type, String factoryClass, int index, String group, String descriptiveName,
-			String description) {
+	private PropertyEditorData(EditorType type, String customFactoryClass, int index, String group,
+			String descriptiveName, String description) {
 		this.type = type;
-		this.factoryClass = factoryClass;
+		this.customFactoryClass = customFactoryClass;
 		this.index = index;
 		this.group = group;
 		this.descriptiveName = descriptiveName;
@@ -255,6 +256,6 @@ public class PropertyEditorData {
 	}
 
 	public boolean isValidFactoryClass() {
-		return factoryClass != null && !PropertyEditorFactory.class.getName().equals(factoryClass);
+		return customFactoryClass != null && !PropertyEditorFactory.class.getName().equals(customFactoryClass);
 	}
 }

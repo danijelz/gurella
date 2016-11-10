@@ -6,14 +6,14 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 public abstract class Shape {
-	protected CompositeShape parent;
+	protected transient CompositeShape parent;
 
-	protected final BoundingBox bounds = new BoundingBox();
-	protected boolean boundsDirty = true;
+	protected transient final BoundingBox bounds = new BoundingBox();
+	protected transient boolean boundsDirty = true;
 
-	protected final Matrix4 localTransform = new Matrix4();
-	protected final Matrix4 globalTransform = new Matrix4();
-	protected boolean transformDirty = true;
+	protected transient final Matrix4 localTransform = new Matrix4();
+	protected transient final Matrix4 globalTransform = new Matrix4();
+	protected transient boolean transformDirty = true;
 
 	public CompositeShape getParent() {
 		return parent;

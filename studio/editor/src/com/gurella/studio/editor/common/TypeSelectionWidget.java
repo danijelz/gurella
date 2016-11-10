@@ -3,6 +3,7 @@ package com.gurella.studio.editor.common;
 import static org.eclipse.swt.SWT.NONE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -19,6 +20,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.gurella.engine.event.Listener1;
 import com.gurella.engine.event.Signal1;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
@@ -40,6 +42,10 @@ public class TypeSelectionWidget<T> extends Composite {
 
 	private Class<? extends T> selectedType;
 
+	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType) {
+		this(parent, context, baseType, Collections.emptyList());
+	}
+
 	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType,
 			List<Class<? extends T>> knownTypes) {
 		super(parent, SWT.NONE);
@@ -50,10 +56,10 @@ public class TypeSelectionWidget<T> extends Composite {
 		addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		addListener(SWT.MouseExit, e -> showMenuImage(false));
 
-		typesCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+		typesCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
 		typesCombo.addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		typesCombo.addListener(SWT.MouseExit, e -> showMenuImage(false));
-		GridDataFactory.defaultsFor(typesCombo).align(SWT.BEGINNING, SWT.CENTER).hint(100, 14).applyTo(typesCombo);
+		GridDataFactory.defaultsFor(typesCombo).align(SWT.BEGINNING, SWT.CENTER).hint(100, 20).applyTo(typesCombo);
 		UiUtils.adapt(typesCombo);
 
 		viewer = new ComboViewer(typesCombo);
@@ -88,6 +94,14 @@ public class TypeSelectionWidget<T> extends Composite {
 	private void updateType(Class<? extends T> selected) {
 		selectedType = selected;
 		typeSelectionListener.dispatch(selectedType);
+	}
+	
+	public void addTypeSelectionListener(Listener1<Class<? extends T>> listener) {
+		typeSelectionListener.addListener(listener);
+	}
+	
+	public void removeTypeSelectionListener(Listener1<Class<? extends T>> listener) {
+		typeSelectionListener.removeListener(listener);
 	}
 
 	public void showMenuImage(boolean show) {

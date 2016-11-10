@@ -98,7 +98,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 	}
 
 	public String isValid(String newText) {
-		Try<Integer> failable = Try.ofFailable(() -> Integer.parseInt(newText));
+		Try<Integer> failable = Try.ofFailable(() -> Integer.getInteger(newText));
 		return failable.isSuccess() ? null : "invalid length";
 	}
 
