@@ -4,7 +4,9 @@ import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -41,7 +43,7 @@ class ExpandablePropertyGroup extends Composite {
 			boolean expanded) {
 		super(parent, SWT.NONE);
 		this.name = name;
-		this.qualifiedName = parentGroup == null ? name : parentGroup.qualifiedName + name;
+		this.qualifiedName = parentGroup == null ? name : parentGroup.qualifiedName + "." + name;
 		this.level = parentGroup == null ? 0 : parentGroup.level + 1;
 		this.parentGroup = parentGroup;
 
@@ -109,14 +111,31 @@ class ExpandablePropertyGroup extends Composite {
 		layoutData.exclude = !visible;
 
 		int size = controls.size();
-		control.moveBelow(size == 0 ? this : controls.get(size - 1));
+		if (control instanceof ExpandablePropertyGroup) {
+			control.moveBelow(size == 0 ? this : controls.get(size - 1));
+		} else {
+			Optional<Control> childGroup = controls.stream().sequential()
+					.filter(c -> (c instanceof ExpandablePropertyGroup)).findFirst();
+			if (childGroup.isPresent()) {
+				control.moveAbove(childGroup.get());
+			} else {
+				control.moveBelow(size == 0 ? this : controls.get(size - 1));
+			}
+		}
 		controls.add(control);
+
+		System.out.println(Arrays.toString(getParent().getChildren()));
 	}
 
 	public void clear() {
 		controls.stream().forEach(c -> c.dispose());
 		controls.clear();
 		UiUtils.reflow(this);
+	}
+
+	@Override
+	public String toString() {
+		return "ExpandablePropertyGroup" + " {" + qualifiedName + "}";
 	}
 
 	private final class ExpandListener extends HyperlinkAdapter {

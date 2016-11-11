@@ -69,11 +69,13 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
 		flushPreferences();
 		String msg = "Error closing java project";
-		Optional.ofNullable(javaProject).ifPresent(p -> Try.ofFailable(p, t -> t.close()).onFailure(e -> log(e, msg)));
+		Try.successful(Optional.ofNullable(javaProject)).filter(o -> o.isPresent()).map(o -> o.get())
+				.peek(t -> t.close()).onFailure(e -> log(e, msg));
 	}
 
 	private void flushPreferences() {
-		Try.ofFailable(projectPreferences, pp -> pp.flush()).onFailure(e -> log(e, "Error while flushing preferences"));
+		Try.successful(projectPreferences).peek(pp -> pp.flush())
+				.onFailure(e -> log(e, "Error while flushing preferences"));
 	}
 
 	private void unloadAssets() {

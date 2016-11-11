@@ -20,7 +20,7 @@ public class TestCustomizableBeanEditor extends CustomizableBeanEditor<TestEdito
 		//createPropertyControls("testInt");
 		//createPropertyControls("group", "intGroup");
 		createPropertyControls("testObj");
-		createPropertyControls("testObj2");
+		//createPropertyControls("testObj2");
 
 //		createLabel("label");
 //		addControl(new Button(this, SWT.CHECK));

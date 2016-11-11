@@ -112,7 +112,9 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void addControl(String groupName, Control control) {
-		getOrCreateGroup(groupName).add(control);
+		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		group.add(control);
+		indent(control, group.level + 1);
 	}
 
 	protected void addControlRow(String labelText, Control control) {
@@ -129,21 +131,21 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		createPropertyControls(propertyName, true);
 	}
 
-	protected <P> void createPropertyControls(Property<P> property) {
+	protected void createPropertyControls(Property<?> property) {
 		createPropertyControls(property, true);
 	}
 
 	protected void createPropertyControls(String propertyName, boolean considerPropertyGroup) {
-		Property<Object> property = getProperty(propertyName);
+		Property<?> property = getProperty(propertyName);
 		createPropertyControls(property, considerPropertyGroup);
 	}
 
-	protected <P> void createPropertyControls(Property<P> property, boolean considerPropertyGroup) {
+	protected void createPropertyControls(Property<?> property, boolean considerPropertyGroup) {
 		ExpandablePropertyGroup group = considerPropertyGroup ? getOrCreateGroup(getGroup(context, property)) : null;
 		createEditorControls(group, property);
 	}
 
-	private Property<Object> getProperty(String propertyName) {
+	private Property<?> getProperty(String propertyName) {
 		return context.model.getProperty(propertyName);
 	}
 
@@ -151,8 +153,16 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		createPropertyControls(groupName, propertyName, true);
 	}
 
+	protected void createPropertyControls(String groupName, Property<?> property) {
+		createPropertyControls(groupName, property, true);
+	}
+
 	protected void createPropertyControls(String groupName, String propertyName, boolean considerPropertyGroup) {
-		Property<Object> property = getProperty(propertyName);
+		Property<?> property = getProperty(propertyName);
+		createPropertyControls(groupName, property, considerPropertyGroup);
+	}
+
+	protected void createPropertyControls(String groupName, Property<?> property, boolean considerPropertyGroup) {
 		String resolvedGroupName = considerPropertyGroup ? groupName + "." + getGroup(context, property) : groupName;
 		createEditorControls(getOrCreateGroup(resolvedGroupName), property);
 	}
@@ -202,7 +212,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void createPropertyEditor(Composite parent, String propertyName) {
-		Property<Object> property = getProperty(propertyName);
+		Property<?> property = getProperty(propertyName);
 		createEditor(parent, new PropertyEditorContext<>(context, property));
 	}
 

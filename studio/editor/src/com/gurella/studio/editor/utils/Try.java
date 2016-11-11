@@ -31,18 +31,6 @@ public abstract class Try<T> {
 		}
 	}
 
-	public static <U, E extends Throwable> Try<U> ofFailable(U value, TryConsumer<U, E> c) {
-		Objects.requireNonNull(value);
-		Objects.requireNonNull(c);
-
-		try {
-			c.accept(value);
-			return Try.successful(value);
-		} catch (Throwable t) {
-			return Try.failure(t);
-		}
-	}
-
 	/**
 	 * Transform success or pass on failure. Takes an optional type parameter of the new type. You need to be specific
 	 * about the new type if changing type
@@ -55,7 +43,6 @@ public abstract class Try<T> {
 	 *            new type (optional)
 	 * @return Success&lt;U&gt; or Failure&lt;U&gt;
 	 */
-
 	public abstract <U> Try<U> map(TryMapFunction<? super T, ? extends U> f);
 
 	/**
@@ -172,6 +159,8 @@ public abstract class Try<T> {
 	 * @return For Success, the same success if predicate holds true, otherwise Failure
 	 */
 	public abstract Try<T> filter(Predicate<T> pred);
+
+	public abstract <E extends Throwable> Try<T> peek(TryConsumer<T, E> action);
 
 	/**
 	 * Try contents wrapped in Optional.
@@ -316,6 +305,16 @@ class Success<T> extends Try<T> {
 	public <E extends Throwable> Try<T> onFailure(TryConsumer<Throwable, E> action) {
 		return this;
 	}
+
+	@Override
+	public <E extends Throwable> Try<T> peek(TryConsumer<T, E> action) {
+		try {
+			action.accept(value);
+			return this;
+		} catch (Throwable t) {
+			return Try.failure(t);
+		}
+	}
 }
 
 class Failure<T> extends Try<T> {
@@ -402,6 +401,11 @@ class Failure<T> extends Try<T> {
 	@Override
 	public <E extends Throwable> Try<T> onFailure(TryConsumer<Throwable, E> action) throws E {
 		action.accept(e);
+		return this;
+	}
+
+	@Override
+	public <E extends Throwable> Try<T> peek(TryConsumer<T, E> action) {
 		return this;
 	}
 }

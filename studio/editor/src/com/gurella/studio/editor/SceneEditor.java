@@ -67,8 +67,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		Try.ofFailable(monitor, m -> save(m)).onFailure(e -> showError(e, "Error saving scene"));
-		monitor.done();
+		String msg = "Error saving scene";
+		Try.successful(monitor).peek(this::save).onSuccess(m -> m.done()).onFailure(e -> showError(e, msg));
 	}
 
 	private void save(IProgressMonitor monitor) throws CoreException {

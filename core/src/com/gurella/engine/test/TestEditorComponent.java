@@ -9,11 +9,11 @@ public class TestEditorComponent extends SceneNodeComponent2 {
 	public int intGroup;
 	
 	public TestObj testObj = new TestObj();
-	public TestObj testObj2 = new TestObj();
 	
 	public static class TestObj {
-		public int int1;
 		@PropertyEditorDescriptor(group = "TestObjGroup")
 		public int int2;
+		@PropertyEditorDescriptor(group = "TestObjGroup3")
+		public int int3;
 	}
 }
