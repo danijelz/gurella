@@ -1,10 +1,11 @@
-package com.gurella.studio.editor.common;
+package com.gurella.studio.editor.common.bean;
 
 import static org.eclipse.swt.SWT.NONE;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -20,7 +21,7 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class TypeSelectionWidget<T> extends Composite {
+class TypeSelectionWidget<T> extends Composite {
 	private final SceneEditorContext context;
 	private final Class<T> baseType;
 	private final List<Class<? extends T>> knownTypes = new ArrayList<>();
@@ -33,13 +34,12 @@ public class TypeSelectionWidget<T> extends Composite {
 
 	private Class<? extends T> selectedType;
 
-	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType,
-			Class<? extends T> selected) {
+	TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType, Class<? extends T> selected) {
 		this(parent, context, baseType, selected, Collections.emptyList());
 	}
 
-	public TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType,
-			Class<? extends T> selected, List<Class<? extends T>> knownTypes) {
+	TypeSelectionWidget(Composite parent, SceneEditorContext context, Class<T> baseType, Class<? extends T> selected,
+			List<Class<? extends T>> knownTypes) {
 		super(parent, SWT.NONE);
 
 		this.context = context;
@@ -51,7 +51,7 @@ public class TypeSelectionWidget<T> extends Composite {
 
 		infoLabel = UiUtils.createLabel(this, "");
 		infoLabel.setAlignment(SWT.LEFT);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(100, 18).applyTo(infoLabel);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).hint(100, 18).applyTo(infoLabel);
 		infoLabel.addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		infoLabel.addListener(SWT.MouseExit, e -> showMenuImage(false));
 		infoLabel.setText(selected == null ? "null" : selected.getSimpleName());
@@ -59,8 +59,7 @@ public class TypeSelectionWidget<T> extends Composite {
 		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
 
 		menuButton = GurellaStudioPlugin.getToolkit().createLabel(this, "     ", NONE);
-		GridDataFactory.defaultsFor(menuButton).align(SWT.END, SWT.CENTER).indent(10, 0).hint(25, 14)
-				.applyTo(menuButton);
+		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).indent(10, 0).hint(25, 14).applyTo(menuButton);
 		menuButton.addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		menuButton.addListener(SWT.MouseUp, e -> selectType());
 		menuButton.addListener(SWT.MouseExit, e -> showMenuImage(false));
@@ -70,10 +69,7 @@ public class TypeSelectionWidget<T> extends Composite {
 	}
 
 	private void selectType() {
-		Class<? extends T> selected = TypeSelectionUtils.selectType(context, baseType);
-		if (selected != null) {
-			updateType(selected);
-		}
+		Optional.ofNullable(TypeSelectionUtils.<T> selectType(context, baseType)).ifPresent(t -> updateType(t));
 	}
 
 	private void updateType(Class<? extends T> selected) {

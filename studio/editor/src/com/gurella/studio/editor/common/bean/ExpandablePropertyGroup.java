@@ -108,7 +108,8 @@ class ExpandablePropertyGroup extends Composite {
 		}
 		layoutData.exclude = !visible;
 
-		control.moveBelow(controls.size() == 0 ? this : controls.get(controls.size() - 1));
+		int size = controls.size();
+		control.moveBelow(size == 0 ? this : controls.get(size - 1));
 		controls.add(control);
 	}
 

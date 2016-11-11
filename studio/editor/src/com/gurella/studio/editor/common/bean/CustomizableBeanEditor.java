@@ -10,6 +10,10 @@ import static com.gurella.studio.editor.common.property.PropertyEditorData.getDe
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getGroup;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
 import static java.lang.Integer.compare;
+import static org.eclipse.swt.SWT.BEGINNING;
+import static org.eclipse.swt.SWT.CENTER;
+import static org.eclipse.swt.SWT.DEFAULT;
+import static org.eclipse.swt.SWT.FILL;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
@@ -33,7 +37,6 @@ import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.common.TypeSelectionWidget;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
@@ -105,10 +108,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void addControl(Control control) {
-		ExpandablePropertyGroup group = getFirstGroup();
-		if (group != null) {
-			control.moveAbove(group);
-		}
+		Optional.ofNullable(getFirstGroup()).ifPresent(g -> control.moveAbove(g));
 	}
 
 	protected void addControl(String groupName, Control control) {
@@ -197,7 +197,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		Font font = createFont(label, SWT.BOLD);
 		label.addDisposeListener(e -> destroyFont(font));
 		label.setFont(font);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).span(expand ? 2 : 1, 1).applyTo(label);
+		GridDataFactory.swtDefaults().align(FILL, CENTER).span(expand ? 2 : 1, 1).applyTo(label);
 		return label;
 	}
 
@@ -213,7 +213,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		section.setText(name);
 		section.setSize(100, 100);
 		section.setExpanded(true);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(2, 1).hint(100, SWT.DEFAULT)
+		GridDataFactory.swtDefaults().align(FILL, BEGINNING).grab(true, false).span(2, 1).hint(100, DEFAULT)
 				.applyTo(section);
 
 		Composite client = toolkit.createComposite(section);
@@ -259,10 +259,8 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 			Label label = newLabel(this, name, longName);
 			label.moveAbove(editorBody);
 			label.addListener(SWT.MouseUp, e -> editor.showMenu());
-
 			int hSpan = longName ? 2 : 1;
-			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(hSpan, 1)
-					.applyTo(editorBody);
+			GridDataFactory.swtDefaults().align(FILL, BEGINNING).grab(true, false).span(hSpan, 1).applyTo(editorBody);
 
 			if (group != null) {
 				indent(label, group.level + 1);
@@ -280,8 +278,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 				group.add(section);
 			}
 		} else {
-			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(2, 1)
-					.applyTo(editorBody);
+			GridDataFactory.swtDefaults().align(FILL, BEGINNING).grab(true, false).span(2, 1).applyTo(editorBody);
 			if (group != null) {
 				indent(editorBody, group.level + 1);
 				group.add(editorBody);
@@ -295,14 +292,14 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		String name = PropertyEditorData.getDescriptiveName(context, property);
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parentGroup, name + ":", true);
 		getGroups().put(group.qualifiedName, group);
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(0, 0).applyTo(group);
+		GridDataFactory.fillDefaults().align(BEGINNING, CENTER).indent(0, 0).applyTo(group);
 
 		V value = propertyContext.getValue();
 		Class<V> selected = value == null ? null : cast(value.getClass());
 
 		SceneEditorContext sceneContext = context.sceneEditorContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0).applyTo(selector);
+		GridDataFactory.fillDefaults().align(FILL, BEGINNING).grab(true, false).indent(0, 0).applyTo(selector);
 		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 
 		Optional.ofNullable(value).ifPresent(v -> createCompositeEditors(group, selector, propertyContext, v));
