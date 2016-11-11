@@ -92,8 +92,8 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	private ExpandablePropertyGroup createGroup(ExpandablePropertyGroup parent, String groupPath, String name) {
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parent, name, false);
-		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING)
-				.indent(15 * group.level, 0).applyTo(group);
+		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(FILL, BEGINNING).indent(15 * group.level, 0)
+				.applyTo(group);
 		getGroups().put(groupPath, group);
 		return group;
 	}
@@ -270,7 +270,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		} else if (editor instanceof CompositePropertyEditor) {
 			Section section = createSection(name);
 			editorBody.setParent((Composite) section.getClient());
-			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).indent(0, 0).applyTo(editorBody);
+			GridDataFactory.swtDefaults().align(FILL, FILL).grab(true, true).indent(0, 0).applyTo(editorBody);
 			section.layout(true, true);
 
 			if (group != null) {

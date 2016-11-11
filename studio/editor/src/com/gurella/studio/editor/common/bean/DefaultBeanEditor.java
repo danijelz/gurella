@@ -21,8 +21,8 @@ public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
 
 	@Override
 	protected void createContent() {
-		Property<?>[] array = context.model.getProperties().toArray(Property.class);
-		Arrays.stream(array).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
+		Property<?>[] properties = context.model.getProperties().toArray(Property.class);
+		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
 				.forEach(p -> createPropertyControls(p, true));
 		layout(true, true);
 	}
