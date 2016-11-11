@@ -4,7 +4,9 @@ import static com.gurella.engine.utils.Values.cast;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getDescriptiveName;
+import static com.gurella.studio.editor.common.property.PropertyEditorData.getGroup;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
@@ -36,6 +38,8 @@ import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.PropertyEditorData;
 import com.gurella.studio.editor.common.property.PropertyEditorFactory;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
+import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	private OrderedMap<String, ExpandablePropertyGroup> groups;
@@ -121,8 +125,13 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void createPropertyControls(String propertyName) {
+		createPropertyControls(propertyName, true);
+	}
+
+	protected void createPropertyControls(String propertyName, boolean considerEditorGroup) {
 		Property<Object> property = getProperty(propertyName);
-		createEditorControls(null, property);
+		ExpandablePropertyGroup group = considerEditorGroup ? getOrCreateGroup(getGroup(context, property)) : null;
+		createEditorControls(group, property);
 	}
 
 	private Property<Object> getProperty(String propertyName) {
@@ -130,7 +139,13 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void createPropertyControls(String groupName, String propertyName) {
-		createEditorControls(getOrCreateGroup(groupName), getProperty(propertyName));
+		createPropertyControls(groupName, propertyName, true);
+	}
+
+	protected void createPropertyControls(String groupName, String propertyName, boolean considerEditorGroup) {
+		Property<Object> property = getProperty(propertyName);
+		String resolvedGroupName = considerEditorGroup ? groupName + "." + getGroup(context, property) : groupName;
+		createEditorControls(getOrCreateGroup(resolvedGroupName), property);
 	}
 
 	protected void createPropertyLabel(String propertyName) {
@@ -211,11 +226,19 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private <V> void createEditorControls(ExpandablePropertyGroup group, Property<V> property) {
-		PropertyEditorContext<T, V> propertyContext = new PropertyEditorContext<>(context, property);
-		if (PropertyEditorFactory.hasReflectionEditor(propertyContext)) {
-			createCompositeEditors(group, property, propertyContext);
-		}
+		createEditorControls(group, new PropertyEditorContext<>(context, property));
+	}
 
+	protected <V> void createEditorControls(ExpandablePropertyGroup group,
+			PropertyEditorContext<T, V> propertyContext) {
+		if (PropertyEditorFactory.hasReflectionEditor(propertyContext)) {
+			createCompositeEditors(group, propertyContext);
+		} else {
+			createSimpleEditor(group, propertyContext);
+		}
+	}
+
+	protected <V> void createSimpleEditor(ExpandablePropertyGroup group, PropertyEditorContext<T, V> propertyContext) {
 		PropertyEditor<V> editor = createEditor(this, propertyContext);
 		Composite editorBody = editor.getBody();
 
@@ -235,7 +258,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 					.applyTo(editorBody);
 
 			if (group != null) {
-				indent(label, group.getLevel());
+				indent(label, group.level);
 				group.add(label);
 				group.add(editorBody);
 			}
@@ -246,23 +269,25 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 			section.layout(true, true);
 
 			if (group != null) {
-				indent(section, group.getLevel());
+				indent(section, group.level);
 				group.add(section);
 			}
 		} else {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(2, 1)
 					.applyTo(editorBody);
 			if (group != null) {
-				indent(editorBody, group.getLevel());
+				indent(editorBody, group.level);
 				group.add(editorBody);
 			}
 		}
 	}
 
-	private <V> void createCompositeEditors(ExpandablePropertyGroup parentGroup, Property<V> property,
+	private <V> void createCompositeEditors(ExpandablePropertyGroup parentGroup,
 			PropertyEditorContext<T, V> propertyContext) {
+		Property<V> property = propertyContext.property;
 		String name = PropertyEditorData.getDescriptiveName(context, property);
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parentGroup, name + ":", true);
+		groups.put(group.qualifiedName, group);
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(0, 0).applyTo(group);
 
 		V value = propertyContext.getValue();
@@ -271,16 +296,35 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		SceneEditorContext sceneContext = context.sceneEditorContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0).applyTo(selector);
-		// selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
+		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 
 		Optional.ofNullable(value).ifPresent(v -> createCompositeEditors(group, selector, propertyContext, v));
+	}
+
+	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandablePropertyGroup group,
+			TypeSelectionWidget<V> selector, PropertyEditorContext<T, V> parent) {
+		group.clear();
+		if (type == null) {
+			return;
+		}
+
+		String message = "Error occurred while creating value";
+		V value = Try.ofFailable(() -> type.newInstance()).onFailure(e -> showError(e, message)).orElse(null);
+		parent.setValue(value);
+		createCompositeEditors(group, selector, parent, value);
+		UiUtils.reflow(this);
 	}
 
 	private <V> void createCompositeEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
 			PropertyEditorContext<T, V> parent, V value) {
 		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
-		// Arrays.stream(properties).sequential()
-		// .forEach(p -> addEditor(group, new PropertyEditorContext<>(parent, cast(value), p)));
+		Arrays.stream(properties).sequential().forEach(p -> createEditorControls(getPropertyGroup(group, p),
+				new PropertyEditorContext<>(parent, cast(value), p)));
 		selector.moveBelow(group);
+	}
+
+	private ExpandablePropertyGroup getPropertyGroup(ExpandablePropertyGroup group, Property<?> property) {
+		String propertyGroup = getGroup(context, property);
+		return Values.isBlank(propertyGroup) ? group : getOrCreateGroup(group.qualifiedName + propertyGroup);
 	}
 }

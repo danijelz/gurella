@@ -17,20 +17,21 @@ public class TestCustomizableBeanEditor extends CustomizableBeanEditor<TestEdito
 
 	@Override
 	protected void createContent() {
-		createPropertyControls("testInt");
-		createPropertyControls("group", "intGroup");
+		//createPropertyControls("testInt");
+		//createPropertyControls("group", "intGroup");
+		createPropertyControls("testObj");
 
-		createLabel("label");
-		addControl(new Button(this, SWT.CHECK));
-
-		createLabel("group", "label");
-		addControl("group", new Button(this, SWT.CHECK));
-
-		createLabel("group.nested", "nested");
-		addControl("group.nested", new Button(this, SWT.CHECK));
-		
-		Section section = createSection("section");
-		Label label = new Label((Composite) section.getClient(), SWT.NONE);
-		label.setText("sectionLabel");
+//		createLabel("label");
+//		addControl(new Button(this, SWT.CHECK));
+//
+//		createLabel("group", "label");
+//		addControl("group", new Button(this, SWT.CHECK));
+//
+//		createLabel("group.nested", "nested");
+//		addControl("group.nested", new Button(this, SWT.CHECK));
+//		
+//		Section section = createSection("section");
+//		Label label = new Label((Composite) section.getClient(), SWT.NONE);
+//		label.setText("sectionLabel");
 	}
 }

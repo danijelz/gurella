@@ -26,6 +26,8 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 class ExpandablePropertyGroup extends Composite {
 	public final String name;
+	public final String qualifiedName;
+	public final int level;
 	public final ExpandablePropertyGroup parentGroup;
 
 	private Twistie expandTwistie;
@@ -39,6 +41,8 @@ class ExpandablePropertyGroup extends Composite {
 			boolean expanded) {
 		super(parent, SWT.NONE);
 		this.name = name;
+		this.qualifiedName = parentGroup == null ? name : parentGroup.qualifiedName + name;
+		this.level = parentGroup == null ? 0 : parentGroup.level + 1;
 		this.parentGroup = parentGroup;
 
 		addListener(SWT.Hide, e -> updateControls(false));
@@ -112,16 +116,6 @@ class ExpandablePropertyGroup extends Composite {
 		controls.stream().forEach(c -> c.dispose());
 		controls.clear();
 		UiUtils.reflow(this);
-	}
-
-	public int getLevel() {
-		int level = 1;
-		ExpandablePropertyGroup temp = parentGroup;
-		while (temp != null) {
-			level++;
-			temp = temp.parentGroup;
-		}
-		return level;
 	}
 
 	private final class ExpandListener extends HyperlinkAdapter {
