@@ -112,7 +112,21 @@ class ExpandablePropertyGroup extends Composite {
 
 		int size = controls.size();
 		if (control instanceof ExpandablePropertyGroup) {
-			control.moveBelow(size == 0 ? this : controls.get(size - 1));
+			if (size == 0) {
+				control.moveBelow(this);
+			} else {
+				Control last = controls.get(size - 1);
+				boolean empty = false;
+				while (!empty && last instanceof ExpandablePropertyGroup) {
+					List<Control> lastControls = ((ExpandablePropertyGroup) last).controls;
+					if (lastControls.size() == 0) {
+						empty = true;
+					} else {
+						last = lastControls.get(lastControls.size() - 1);
+					}
+				}
+				control.moveBelow(last);
+			}
 		} else {
 			Optional<Control> childGroup = controls.stream().sequential()
 					.filter(c -> (c instanceof ExpandablePropertyGroup)).findFirst();
