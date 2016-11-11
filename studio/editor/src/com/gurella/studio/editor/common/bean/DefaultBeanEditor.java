@@ -158,14 +158,10 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			sectionLayoutData.widthHint = 100;
 			section.setLayoutData(sectionLayoutData);
 			section.setText(name);
-			Composite client = toolkit.createComposite(section);
-			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
-			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
-			separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
-			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
-			editorBody.setParent(client);
+			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(editorBody);
+			editorBody.setParent(section);
 			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			section.setClient(client);
+			section.setClient(editorBody);
 			section.setExpanded(true);
 			section.layout(true, true);
 			editorBodyLayoutData.horizontalIndent = 0;
@@ -186,7 +182,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 
 		SceneEditorContext sceneContext = context.sceneEditorContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).hint(150, 18).indent(0, 0)
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0)
 				.applyTo(selector);
 		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 
@@ -261,14 +257,10 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 			sectionLayoutData.widthHint = 100;
 			section.setLayoutData(sectionLayoutData);
 			section.setText(name);
-			Composite client = toolkit.createComposite(section);
-			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
-			Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
-			separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
-			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
-			editorBody.setParent(client);
+			GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(editorBody);
+			editorBody.setParent(section);
 			editorBody.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-			section.setClient(client);
+			section.setClient(editorBody);
 			section.setExpanded(true);
 			section.layout(true, true);
 			editorBodyLayoutData.horizontalIndent = 0;

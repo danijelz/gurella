@@ -9,11 +9,13 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -22,15 +24,13 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.OrderedMap;
 import com.gurella.engine.base.model.Property;
-import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditor;
 import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
 
 public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
-	private static final RGB separatorRgb = new RGB(88, 158, 255);
-
 	private OrderedMap<String, ExpandablePropertyGroup> groups;
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
@@ -57,31 +57,34 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
 		ExpandablePropertyGroup group = groups.get(groupName);
 		if (group == null) {
-			int last = 0;
-			int index = groupName.indexOf('.');
+			StringBuilder path = new StringBuilder();
 			ExpandablePropertyGroup parent = null;
-			while (index >= 0) {
-				group = createGroup(groupName.substring(0, index), groupName.substring(last, index));
-				if (parent != null) {
-					parent.add(group);
-				}
-				last = index;
-				index = groupName.indexOf('.', last);
-				parent = group;
-			}
+			int level = -1;
 
-			createGroup(groupName.substring(0, groupName.length() - 1), groupName.substring(last, index));
-			if (parent != null) {
-				parent.add(group);
+			for (String part : groupName.split("\\.")) {
+				level++;
+				if (Values.isNotBlank(part)) {
+					path.append(path.length() == 0 ? "" : ".").append(part);
+					String groupPath = path.toString();
+					group = groups.get(groupPath);
+					if (group == null) {
+						group = createGroup(groupPath, part, level);
+					}
+					if (parent != null) {
+						parent.add(group);
+					}
+					parent = group;
+				}
 			}
 		}
 		return group;
 	}
 
-	private ExpandablePropertyGroup createGroup(String groupPath, String name) {
+	private ExpandablePropertyGroup createGroup(String groupPath, String name, int level) {
 		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, name, false);
-		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
+		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).indent(15 * level, 0)
+				.applyTo(group);
 		groups.put(groupPath, group);
 		return group;
 	}
@@ -119,6 +122,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	protected void createPropertyLabel(String groupName, String propertyName) {
 		Label label = newLabel(this, getDescriptiveName(context, getProperty(propertyName)), false);
 		getOrCreateGroup(groupName).add(label);
+		indent(groupName, label);
 	}
 
 	protected void createLabel(String text) {
@@ -128,6 +132,12 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	protected void createLabel(String groupName, String text) {
 		Label label = newLabel(this, text, false);
 		getOrCreateGroup(groupName).add(label);
+		indent(groupName, label);
+	}
+
+	protected void indent(String groupName, Control control) {
+		int level = (int) Arrays.stream(groupName.split("\\.")).filter(s -> Values.isNotBlank(s)).count();
+		((GridData) control.getLayoutData()).horizontalIndent = 15 * level;
 	}
 
 	protected void createPropertyLabel(Composite parent, String propertyName) {
@@ -140,13 +150,11 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	private static Label newLabel(Composite parent, String text, boolean expand) {
 		Label label = getToolkit().createLabel(parent, text + ":");
-		label.setAlignment(SWT.RIGHT);
+		label.setAlignment(SWT.LEFT);
 		Font font = createFont(label, SWT.BOLD);
 		label.addDisposeListener(e -> destroyFont(font));
 		label.setFont(font);
-		int hAlign = expand ? SWT.BEGINNING : SWT.END;
-		int hSpan = expand ? 2 : 1;
-		GridDataFactory.swtDefaults().align(hAlign, SWT.CENTER).span(hSpan, 1).applyTo(label);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).span(expand ? 2 : 1, 1).applyTo(label);
 		return label;
 	}
 
@@ -155,7 +163,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		createEditor(parent, new PropertyEditorContext<>(context, property));
 	}
 
-	protected Section createSection(String name) {
+	public Section createSection(String name) {
 		FormToolkit toolkit = getToolkit();
 
 		Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
@@ -169,10 +177,13 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(4, 0).margins(0, 0).applyTo(client);
 		section.setClient(client);
 
-		Label separator = toolkit.createSeparator(client, SWT.VERTICAL | SWT.SHADOW_ETCHED_IN);
-		separator.setForeground(GurellaStudioPlugin.getColor(separatorRgb));
-		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.FILL).hint(1, 2).applyTo(separator);
+		return section;
+	}
 
+	public Section createSection(String groupName, String name) {
+		Section section = createSection(name);
+		getOrCreateGroup(groupName).add(section);
+		indent(groupName, section);
 		return section;
 	}
 
@@ -196,6 +207,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 					.applyTo(editorBody);
 
 			if (group != null) {
+				indent(group.name, label);
 				group.add(label);
 				group.add(editorBody);
 			}
@@ -203,16 +215,17 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 			Section section = createSection(name);
 			editorBody.setParent((Composite) section.getClient());
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).indent(0, 0).applyTo(editorBody);
-
 			section.layout(true, true);
 
 			if (group != null) {
+				indent(group.name, section);
 				group.add(section);
 			}
 		} else {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(2, 1)
 					.applyTo(editorBody);
 			if (group != null) {
+				indent(group.name, editorBody);
 				group.add(editorBody);
 			}
 		}

@@ -10,7 +10,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -51,7 +50,8 @@ public class TypeSelectionWidget<T> extends Composite {
 		addListener(SWT.MouseExit, e -> showMenuImage(false));
 
 		infoLabel = UiUtils.createLabel(this, "");
-		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(100, 18).applyTo(infoLabel);
+		infoLabel.setAlignment(SWT.LEFT);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(100, 18).applyTo(infoLabel);
 		infoLabel.addListener(SWT.MouseEnter, e -> showMenuImage(true));
 		infoLabel.addListener(SWT.MouseExit, e -> showMenuImage(false));
 		infoLabel.setText(selected == null ? "null" : selected.getSimpleName());
@@ -59,10 +59,10 @@ public class TypeSelectionWidget<T> extends Composite {
 		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
 
 		menuButton = GurellaStudioPlugin.getToolkit().createLabel(this, "     ", NONE);
-		menuButton.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
-		menuButton.addListener(SWT.MouseUp, e -> selectType());
-		GridDataFactory.defaultsFor(menuButton).align(SWT.BEGINNING, SWT.BEGINNING).indent(10, 0).hint(25, 14).applyTo(menuButton);
+		GridDataFactory.defaultsFor(menuButton).align(SWT.END, SWT.CENTER).indent(10, 0).hint(25, 14)
+				.applyTo(menuButton);
 		menuButton.addListener(SWT.MouseEnter, e -> showMenuImage(true));
+		menuButton.addListener(SWT.MouseUp, e -> selectType());
 		menuButton.addListener(SWT.MouseExit, e -> showMenuImage(false));
 
 		UiUtils.paintBordersFor(this);

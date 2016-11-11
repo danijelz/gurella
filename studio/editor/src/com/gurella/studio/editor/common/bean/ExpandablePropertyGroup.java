@@ -25,11 +25,16 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
 class ExpandablePropertyGroup extends Composite {
+	public final String name;
 	private Twistie expandTwistie;
 	private List<Control> controls = new ArrayList<>();
 
 	public ExpandablePropertyGroup(Composite parent, String name, boolean expanded) {
 		super(parent, SWT.NONE);
+		this.name = name;
+		addListener(SWT.Hide, e -> updateControls(false));
+		addListener(SWT.Show, e -> updateControls(isExpanded()));
+		addListener(SWT.Dispose, e -> controls.stream().forEach(c -> c.dispose()));
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -42,7 +47,8 @@ class ExpandablePropertyGroup extends Composite {
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(expandTwistie);
 
 		Label nameLabel = toolkit.createLabel(this, name);
-		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(4, 0).applyTo(nameLabel);
+		nameLabel.setAlignment(SWT.LEFT);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).indent(4, 0).applyTo(nameLabel);
 		Font font = createFont(nameLabel, SWT.BOLD);
 		nameLabel.addDisposeListener(e -> destroyFont(font));
 		nameLabel.setFont(font);
@@ -50,28 +56,30 @@ class ExpandablePropertyGroup extends Composite {
 		nameLabel.addListener(SWT.MouseEnter, e -> nameLabel.setForeground(blue));
 		Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 		nameLabel.addListener(SWT.MouseExit, e -> nameLabel.setForeground(black));
-		nameLabel.addListener(SWT.MouseUp, e -> revertTwistie());
+		nameLabel.addListener(SWT.MouseUp, e -> flipTwistie());
 		Cursor cursor = new Cursor(getDisplay(), SWT.CURSOR_HAND);
 		nameLabel.setCursor(cursor);
 		nameLabel.addDisposeListener(e -> cursor.dispose());
 	}
 
-	private void revertTwistie() {
-		expandTwistie.setExpanded(!expandTwistie.isExpanded());
-		expand();
+	private void flipTwistie() {
+		boolean expanded = !isExpanded();
+		expandTwistie.setExpanded(expanded);
+		updateControls(expanded);
 	}
 
-	private void expand() {
-		boolean visible = expandTwistie.isExpanded();
+	protected boolean isExpanded() {
+		return expandTwistie.isExpanded();
+	}
+
+	private void updateControls(boolean visible) {
 		controls.stream().forEach(c -> c.setVisible(visible));
 		controls.stream().forEach(c -> ((GridData) c.getLayoutData()).exclude = !visible);
-		getParent().layout(true, true);
-		getParent().redraw();
 		UiUtils.reflow(this);
 	}
 
 	void add(Control control) {
-		boolean visible = expandTwistie.isExpanded();
+		boolean visible = isExpanded();
 		control.setVisible(visible);
 
 		GridData layoutData = (GridData) control.getLayoutData();
@@ -88,15 +96,13 @@ class ExpandablePropertyGroup extends Composite {
 	void clear() {
 		controls.stream().forEach(c -> c.dispose());
 		controls.clear();
-		getParent().layout(true, true);
-		getParent().redraw();
 		UiUtils.reflow(this);
 	}
 
 	private final class ExpandListener extends HyperlinkAdapter {
 		@Override
 		public void linkActivated(HyperlinkEvent e) {
-			expand();
+			updateControls(expandTwistie.isExpanded());
 		}
 	}
 }

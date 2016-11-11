@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -50,12 +51,7 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 
 		FormToolkit toolkit = getToolkit();
 		body = toolkit.createComposite(parent);
-		GridLayout layout = new GridLayout(1, false);
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
-		body.setLayout(layout);
+		GridLayoutFactory.swtDefaults().spacing(0, 0).margins(0, 0).applyTo(body);
 		body.setData(PropertyEditor.class.getName(), this);
 
 		content = new Composite(body, SWT.NULL);
