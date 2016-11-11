@@ -92,8 +92,8 @@ class ExpandablePropertyGroup extends Composite {
 	}
 
 	private void updateControls(boolean visible) {
-		controls.stream().forEach(c -> c.setVisible(visible));
-		controls.stream().forEach(c -> ((GridData) c.getLayoutData()).exclude = !visible);
+		controls.stream().peek(c -> c.setVisible(visible))
+				.forEach(c -> ((GridData) c.getLayoutData()).exclude = !visible);
 		UiUtils.reflow(this);
 	}
 

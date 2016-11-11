@@ -1,6 +1,6 @@
 package com.gurella.studio.editor.common.bean;
 
-import static java.lang.Integer.compare;
+import static com.gurella.studio.editor.common.property.PropertyEditorData.compare;
 
 import java.util.Arrays;
 
@@ -22,7 +22,7 @@ public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
 	@Override
 	protected void createContent() {
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
-		Arrays.stream(array).filter(p -> p.isEditable()).sorted((p0, p1) -> compare(getIndex(p0), getIndex(p1)))
+		Arrays.stream(array).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
 				.forEach(p -> createPropertyControls(p, true));
 		layout(true, true);
 	}

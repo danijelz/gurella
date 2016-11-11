@@ -38,6 +38,10 @@ public class PropertyEditorData {
 		this.description = description;
 	}
 
+	public static int compare(BeanEditorContext<?> context, Property<?> p1, Property<?> p2) {
+		return Integer.compare(getIndex(context, p1), getIndex(context, p2));
+	}
+
 	public static int getIndex(PropertyEditorContext<?, ?> context) {
 		IJavaProject javaProject = context.sceneEditorContext.javaProject;
 		Class<?> modelClass = context.modelInstance.getClass();

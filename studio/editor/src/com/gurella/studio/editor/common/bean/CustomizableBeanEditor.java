@@ -6,10 +6,10 @@ import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
 import static com.gurella.studio.GurellaStudioPlugin.showError;
+import static com.gurella.studio.editor.common.property.PropertyEditorData.compare;
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getDescriptiveName;
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getGroup;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
-import static java.lang.Integer.compare;
 import static org.eclipse.swt.SWT.BEGINNING;
 import static org.eclipse.swt.SWT.CENTER;
 import static org.eclipse.swt.SWT.DEFAULT;
@@ -318,14 +318,10 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	private <V> void createCompositeEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
 			PropertyEditorContext<T, V> parent, V value) {
 		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
-		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p0, p1) -> compare(getIndex(p0), getIndex(p1)))
+		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
 				.forEach(p -> createEditorControls(getPropertyGroup(group, p),
 						new PropertyEditorContext<>(parent, cast(value), p)));
 		selector.moveBelow(group);
-	}
-
-	protected int getIndex(Property<?> property) {
-		return PropertyEditorData.getIndex(context, property);
 	}
 
 	private ExpandablePropertyGroup getPropertyGroup(ExpandablePropertyGroup group, Property<?> property) {
