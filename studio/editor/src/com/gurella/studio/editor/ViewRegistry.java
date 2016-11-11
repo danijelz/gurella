@@ -29,7 +29,7 @@ class ViewRegistry implements EditorViewActivityListener, EditorPreCloseListener
 		this.editor = editor;
 		dock = editor.getDock();
 
-		SceneGraphView sceneGraphView = new SceneGraphView(editor, SWT.LEFT);
+		SceneGraphView sceneGraphView = new SceneGraphView(editor);
 		registeredViews.add(sceneGraphView);
 		registeredViews.add(new AssetsView(editor, SWT.LEFT));
 		registeredViews.add(new InspectorView(editor, SWT.RIGHT));

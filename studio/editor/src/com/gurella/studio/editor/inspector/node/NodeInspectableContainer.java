@@ -46,6 +46,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
@@ -218,13 +220,14 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		Section section = toolkit.createSection(componentsComposite, TWISTIE | SHORT_TITLE_BAR | NO_TITLE_FOCUS_BOX);
 		section.setText(Models.getModel(component).getName());
 		section.setLayoutData(new GridData(FILL, FILL, true, false, 1, 1));
+		section.addExpansionListener(new ExpansionListener(component));
 
 		BeanEditor<SceneNodeComponent2> editor = createEditor(section, editorContext, component);
 		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertyChangedSignal;
 		signal.addListener(e -> notifySceneChanged());
 
 		section.setClient(editor);
-		section.setExpanded(true);
+		section.setExpanded(editorContext.getSceneBooleanPreference(null, component.ensureUuid(), true));
 		editors.put(component, section);
 
 		return section;
@@ -409,6 +412,24 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		private void notifyNodeEnabledChanged() {
 			EventService.post(editorId, new NodeEnabledChangedEvent(node));
 			EventService.post(editorId, SceneChangedEvent.instance);
+		}
+	}
+
+	private class ExpansionListener implements IExpansionListener {
+		final SceneNodeComponent2 component;
+
+		ExpansionListener(SceneNodeComponent2 component) {
+			this.component = component;
+		}
+
+		@Override
+		public void expansionStateChanged(ExpansionEvent e) {
+			editorContext.setSceneBooleanPreference(null, component.ensureUuid(), e.getState());
+
+		}
+
+		@Override
+		public void expansionStateChanging(ExpansionEvent e) {
 		}
 	}
 }

@@ -22,7 +22,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -31,8 +30,8 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.common.TypeSelectionWidget;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
@@ -45,8 +44,6 @@ import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class DefaultBeanEditor<T> extends BeanEditor<T> {
-	private static final RGB separatorRgb = new RGB(88, 158, 255);
-
 	public DefaultBeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
 		this(parent, new BeanEditorContext<>(sceneEditorContext, modelInstance));
 	}
@@ -60,14 +57,14 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
 		if (array.length > 0) {
-			Arrays.sort(array, (p0, p1) -> Integer.compare(getPrpertyIndex(p0), getPrpertyIndex(p1)));
+			Arrays.sort(array, (p0, p1) -> Integer.compare(getPropertyIndex(p0), getPropertyIndex(p1)));
 			Map<String, List<Property<?>>> groups = createGroupsMap(array);
 			groups.entrySet().stream().sequential().forEach(e -> addGroup(e.getKey(), e.getValue()));
 			layout(true, true);
 		}
 	}
 
-	private int getPrpertyIndex(Property<?> property) {
+	private int getPropertyIndex(Property<?> property) {
 		return PropertyEditorData.getIndex(context, property);
 	}
 
@@ -97,20 +94,21 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		if (Values.isBlank(groupName)) {
 			properties.stream().sequential().forEach(p -> addEditor(p));
 		} else {
-			// int indent = -1;
-			// int index = 0;
-			// while(index >= 0) {
-			// index = groupName.indexOf('.', index);
-			// indent++;
-			// }
-			//
-			// StringBuilder builder = new StringBuilder();
-			// IntStream.range(0, indent).forEach(i -> builder.append('\t'));
-			// builder.append(groupName);
-
 			ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, groupName, false);
 			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).applyTo(group);
 			properties.stream().sequential().forEach(p -> addEditor(group, p));
+			group.setExpanded(isGroupExpanded(groupName));
+		}
+	}
+
+	private boolean isGroupExpanded(String groupName) {
+		T modelInstance = context.modelInstance;
+		if (modelInstance instanceof ManagedObject) {
+			ManagedObject managedObject = (ManagedObject) modelInstance;
+			return context.sceneEditorContext.getSceneBooleanPreference(groupName, managedObject.ensureUuid(), true);
+		} else {
+			// TODO Auto-generated method stub
+			return false;
 		}
 	}
 
@@ -182,8 +180,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 
 		SceneEditorContext sceneContext = context.sceneEditorContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0)
-				.applyTo(selector);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0).applyTo(selector);
 		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 
 		Optional.ofNullable(value).ifPresent(v -> createRefelectionEditors(group, selector, propertyContext, v));
@@ -203,7 +200,7 @@ public class DefaultBeanEditor<T> extends BeanEditor<T> {
 		UiUtils.reflow(this);
 	}
 
-	protected <V> void createRefelectionEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
+	private <V> void createRefelectionEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
 			PropertyEditorContext<T, V> parent, V value) {
 		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
 		Arrays.stream(properties).sequential()

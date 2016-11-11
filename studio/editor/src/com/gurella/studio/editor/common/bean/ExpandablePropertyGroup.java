@@ -26,12 +26,21 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 class ExpandablePropertyGroup extends Composite {
 	public final String name;
+	public final ExpandablePropertyGroup parentGroup;
+
 	private Twistie expandTwistie;
 	private List<Control> controls = new ArrayList<>();
 
 	public ExpandablePropertyGroup(Composite parent, String name, boolean expanded) {
+		this(parent, null, name, expanded);
+	}
+
+	public ExpandablePropertyGroup(Composite parent, ExpandablePropertyGroup parentGroup, String name,
+			boolean expanded) {
 		super(parent, SWT.NONE);
 		this.name = name;
+		this.parentGroup = parentGroup;
+
 		addListener(SWT.Hide, e -> updateControls(false));
 		addListener(SWT.Show, e -> updateControls(isExpanded()));
 		addListener(SWT.Dispose, e -> controls.stream().forEach(c -> c.dispose()));
@@ -56,20 +65,26 @@ class ExpandablePropertyGroup extends Composite {
 		nameLabel.addListener(SWT.MouseEnter, e -> nameLabel.setForeground(blue));
 		Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 		nameLabel.addListener(SWT.MouseExit, e -> nameLabel.setForeground(black));
-		nameLabel.addListener(SWT.MouseUp, e -> flipTwistie());
+		nameLabel.addListener(SWT.MouseUp, e -> flipExpanded());
 		Cursor cursor = new Cursor(getDisplay(), SWT.CURSOR_HAND);
 		nameLabel.setCursor(cursor);
 		nameLabel.addDisposeListener(e -> cursor.dispose());
 	}
 
-	private void flipTwistie() {
+	private void flipExpanded() {
 		boolean expanded = !isExpanded();
 		expandTwistie.setExpanded(expanded);
 		updateControls(expanded);
 	}
 
-	protected boolean isExpanded() {
+	public boolean isExpanded() {
 		return expandTwistie.isExpanded();
+	}
+
+	public void setExpanded(boolean expanded) {
+		if (expanded != isEnabled()) {
+			flipExpanded();
+		}
 	}
 
 	private void updateControls(boolean visible) {
@@ -78,8 +93,8 @@ class ExpandablePropertyGroup extends Composite {
 		UiUtils.reflow(this);
 	}
 
-	void add(Control control) {
-		boolean visible = isExpanded();
+	public void add(Control control) {
+		boolean visible = isExpanded() && isVisible();
 		control.setVisible(visible);
 
 		GridData layoutData = (GridData) control.getLayoutData();
@@ -93,10 +108,20 @@ class ExpandablePropertyGroup extends Composite {
 		controls.add(control);
 	}
 
-	void clear() {
+	public void clear() {
 		controls.stream().forEach(c -> c.dispose());
 		controls.clear();
 		UiUtils.reflow(this);
+	}
+
+	public int getLevel() {
+		int level = 1;
+		ExpandablePropertyGroup temp = parentGroup;
+		while (temp != null) {
+			level++;
+			temp = temp.parentGroup;
+		}
+		return level;
 	}
 
 	private final class ExpandListener extends HyperlinkAdapter {

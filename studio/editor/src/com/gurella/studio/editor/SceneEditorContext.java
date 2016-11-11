@@ -11,10 +11,14 @@ import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.IPathEditorInput;
+import org.osgi.service.prefs.Preferences;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.persister.AssetPersister;
@@ -23,6 +27,8 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
+import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.history.HistoryManager;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -40,8 +46,8 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	public final ClassLoader classLoader;
 
 	private Scene scene;
-
-	Map<String, Object> editedAssets = new HashMap<>();
+	private ProjectScope projectScope;
+	private Map<String, Object> editedAssets = new HashMap<>();
 
 	public SceneEditorContext(SceneEditor editor) {
 		editorId = editor.id;
@@ -79,7 +85,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 			Object asset = entry.getValue();
 			AssetPersister<Object> persister = AssetPersisters.get(asset);
 			if (persister == null) {
-				//TODO exception?
+				// TODO exception?
 			} else {
 				persister.persist(fileName, asset);
 			}
@@ -113,5 +119,83 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		if (asset != null) {
 			AssetService.unload(fileName);
 		}
+	}
+
+	public String getProjectStringPreference(String path, String name, String defaultValue) {
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID);
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+
+		return preferences.get(name, defaultValue);
+	}
+
+	public int getProjectIntPreference(String path, String name, int defaultValue) {
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID);
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+
+		return preferences.getInt(name, defaultValue);
+	}
+
+	public String getSceneStringPreference(String path, String name, String defaultValue) {
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID);
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+
+		return preferences.get(name, defaultValue);
+	}
+
+	public int getSceneIntPreference(String path, String name, int defaultValue) {
+		IResource resource = editorInput.getAdapter(IResource.class);
+		IPath resourcePath = resource.getProjectRelativePath();
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID).node(resourcePath.toString());
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+		
+		return preferences.getInt(name, defaultValue);
+	}
+
+	public boolean getSceneBooleanPreference(String path, String name, boolean defaultValue) {
+		IResource resource = editorInput.getAdapter(IResource.class);
+		IPath resourcePath = resource.getProjectRelativePath();
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID).node(resourcePath.toString());
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+		
+		return preferences.getBoolean(name, defaultValue);
+	}
+	
+	public void setSceneIntPreference(String path, String name, int value) {
+		IResource resource = editorInput.getAdapter(IResource.class);
+		IPath resourcePath = resource.getProjectRelativePath();
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID).node(resourcePath.toString());
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+		
+		preferences.putInt(name, value);
+	}
+	
+	public void setSceneBooleanPreference(String path, String name, boolean value) {
+		IResource resource = editorInput.getAdapter(IResource.class);
+		IPath resourcePath = resource.getProjectRelativePath();
+		Preferences preferences = getProjectScope().getNode(GurellaStudioPlugin.PLUGIN_ID).node(resourcePath.toString());
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+		
+		preferences.putBoolean(name, value);
+	}
+
+	public ProjectScope getProjectScope() {
+		if (projectScope == null) {
+			projectScope = new ProjectScope(project);
+		}
+		return projectScope;
 	}
 }
