@@ -4,13 +4,11 @@ import static java.lang.Integer.compare;
 
 import java.util.Arrays;
 
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.common.property.PropertyEditorData;
 
 public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
 	public DefaultBeanEditor(Composite parent, SceneEditorContext sceneEditorContext, T modelInstance) {
@@ -23,20 +21,10 @@ public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
 
 	@Override
 	protected void createContent() {
-		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 		Property<?>[] array = context.model.getProperties().toArray(Property.class);
-		if (array.length == 0) {
-			return;
-		}
-
-		Arrays.stream(array).filter(p -> p.isEditable())
-				.sorted((p0, p1) -> compare(getPropertyIndex(p0), getPropertyIndex(p1)))
+		Arrays.stream(array).filter(p -> p.isEditable()).sorted((p0, p1) -> compare(getIndex(p0), getIndex(p1)))
 				.forEach(p -> createPropertyControls(p, true));
 		layout(true, true);
-	}
-
-	private int getPropertyIndex(Property<?> property) {
-		return PropertyEditorData.getIndex(context, property);
 	}
 
 	private boolean isGroupExpanded(String groupName) {

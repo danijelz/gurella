@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.common.bean;
 
 import static com.gurella.engine.utils.Values.cast;
+import static com.gurella.engine.utils.Values.isNotBlank;
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 import static com.gurella.studio.GurellaStudioPlugin.getToolkit;
@@ -8,6 +9,7 @@ import static com.gurella.studio.GurellaStudioPlugin.showError;
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getDescriptiveName;
 import static com.gurella.studio.editor.common.property.PropertyEditorData.getGroup;
 import static com.gurella.studio.editor.common.property.PropertyEditorFactory.createEditor;
+import static java.lang.Integer.compare;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.CLIENT_INDENT;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
@@ -58,25 +60,15 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private ExpandablePropertyGroup getOrCreateGroup(String groupName) {
-		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
-		ExpandablePropertyGroup group = groups.get(groupName);
+		ExpandablePropertyGroup group = getGroups().get(groupName);
 		if (group == null) {
 			StringBuilder path = new StringBuilder();
 			ExpandablePropertyGroup parent = null;
-			int level = -1;
 
 			for (String part : groupName.split("\\.")) {
-				level++;
-				if (Values.isNotBlank(part)) {
+				if (isNotBlank(part)) {
 					path.append(path.length() == 0 ? "" : ".").append(part);
-					String groupPath = path.toString();
-					group = groups.get(groupPath);
-					if (group == null) {
-						group = createGroup(parent, groupPath, part, level);
-					}
-					if (parent != null) {
-						parent.add(group);
-					}
+					group = getOrCreateGroup(parent, path.toString(), part);
 					parent = group;
 				}
 			}
@@ -84,13 +76,22 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		return group;
 	}
 
-	private ExpandablePropertyGroup createGroup(ExpandablePropertyGroup parent, String groupPath, String name,
-			int level) {
-		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
+	private ExpandablePropertyGroup getOrCreateGroup(ExpandablePropertyGroup parent, String path, String name) {
+		ExpandablePropertyGroup group = getGroups().get(path);
+		if (group == null) {
+			group = createGroup(parent, path, name);
+			if (parent != null) {
+				parent.add(group);
+			}
+		}
+		return group;
+	}
+
+	private ExpandablePropertyGroup createGroup(ExpandablePropertyGroup parent, String groupPath, String name) {
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parent, name, false);
-		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING).indent(15 * level, 0)
-				.applyTo(group);
-		groups.put(groupPath, group);
+		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.BEGINNING)
+				.indent(15 * group.level, 0).applyTo(group);
+		getGroups().put(groupPath, group);
 		return group;
 	}
 
@@ -310,23 +311,24 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandablePropertyGroup group,
 			TypeSelectionWidget<V> selector, PropertyEditorContext<T, V> parent) {
 		group.clear();
-		if (type == null) {
-			return;
-		}
-
 		String message = "Error occurred while creating value";
 		V value = Try.ofFailable(() -> type.newInstance()).onFailure(e -> showError(e, message)).orElse(null);
 		parent.setValue(value);
-		createCompositeEditors(group, selector, parent, value);
+		Optional.ofNullable(value).ifPresent(v -> createCompositeEditors(group, selector, parent, v));
 		UiUtils.reflow(this);
 	}
 
 	private <V> void createCompositeEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
 			PropertyEditorContext<T, V> parent, V value) {
 		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
-		Arrays.stream(properties).sequential().forEach(p -> createEditorControls(getPropertyGroup(group, p),
-				new PropertyEditorContext<>(parent, cast(value), p)));
+		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p0, p1) -> compare(getIndex(p0), getIndex(p1)))
+				.forEach(p -> createEditorControls(getPropertyGroup(group, p),
+						new PropertyEditorContext<>(parent, cast(value), p)));
 		selector.moveBelow(group);
+	}
+
+	protected int getIndex(Property<?> property) {
+		return PropertyEditorData.getIndex(context, property);
 	}
 
 	private ExpandablePropertyGroup getPropertyGroup(ExpandablePropertyGroup group, Property<?> property) {
