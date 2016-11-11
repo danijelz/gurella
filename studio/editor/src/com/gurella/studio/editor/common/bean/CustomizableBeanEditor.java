@@ -128,9 +128,17 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		createPropertyControls(propertyName, true);
 	}
 
-	protected void createPropertyControls(String propertyName, boolean considerEditorGroup) {
+	protected <P> void createPropertyControls(Property<P> property) {
+		createPropertyControls(property, true);
+	}
+
+	protected void createPropertyControls(String propertyName, boolean considerPropertyGroup) {
 		Property<Object> property = getProperty(propertyName);
-		ExpandablePropertyGroup group = considerEditorGroup ? getOrCreateGroup(getGroup(context, property)) : null;
+		createPropertyControls(property, considerPropertyGroup);
+	}
+
+	protected <P> void createPropertyControls(Property<P> property, boolean considerPropertyGroup) {
+		ExpandablePropertyGroup group = considerPropertyGroup ? getOrCreateGroup(getGroup(context, property)) : null;
 		createEditorControls(group, property);
 	}
 
@@ -142,9 +150,9 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		createPropertyControls(groupName, propertyName, true);
 	}
 
-	protected void createPropertyControls(String groupName, String propertyName, boolean considerEditorGroup) {
+	protected void createPropertyControls(String groupName, String propertyName, boolean considerPropertyGroup) {
 		Property<Object> property = getProperty(propertyName);
-		String resolvedGroupName = considerEditorGroup ? groupName + "." + getGroup(context, property) : groupName;
+		String resolvedGroupName = considerPropertyGroup ? groupName + "." + getGroup(context, property) : groupName;
 		createEditorControls(getOrCreateGroup(resolvedGroupName), property);
 	}
 
@@ -154,8 +162,9 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	protected void createPropertyLabel(String groupName, String propertyName) {
 		Label label = newLabel(this, getDescriptiveName(context, getProperty(propertyName)), false);
-		getOrCreateGroup(groupName).add(label);
-		indent(label, groupName);
+		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		group.add(label);
+		indent(label, group.level + 1);
 	}
 
 	protected void createLabel(String text) {
@@ -164,17 +173,13 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	protected void createLabel(String groupName, String text) {
 		Label label = newLabel(this, text, false);
-		getOrCreateGroup(groupName).add(label);
-		indent(label, groupName);
-	}
-
-	protected void indent(Control control, String groupName) {
-		int level = (int) Arrays.stream(groupName.split("\\.")).filter(Values::isNotBlank).count();
-		indent(control, level);
+		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		group.add(label);
+		indent(label, group.level + 1);
 	}
 
 	protected void indent(Control control, int level) {
-		((GridData) control.getLayoutData()).horizontalIndent = 15 * level;
+		((GridData) control.getLayoutData()).horizontalIndent = 17 * level;
 	}
 
 	protected void createPropertyLabel(Composite parent, String propertyName) {
@@ -220,8 +225,9 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	protected Section createSection(String groupName, String name) {
 		Section section = createSection(name);
-		getOrCreateGroup(groupName).add(section);
-		indent(section, groupName);
+		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		group.add(section);
+		indent(section, group.level + 1);
 		return section;
 	}
 
@@ -258,7 +264,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 					.applyTo(editorBody);
 
 			if (group != null) {
-				indent(label, group.level);
+				indent(label, group.level + 1);
 				group.add(label);
 				group.add(editorBody);
 			}
@@ -269,14 +275,14 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 			section.layout(true, true);
 
 			if (group != null) {
-				indent(section, group.level);
+				indent(section, group.level + 1);
 				group.add(section);
 			}
 		} else {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).span(2, 1)
 					.applyTo(editorBody);
 			if (group != null) {
-				indent(editorBody, group.level);
+				indent(editorBody, group.level + 1);
 				group.add(editorBody);
 			}
 		}

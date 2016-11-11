@@ -29,8 +29,6 @@ public @interface PropertyEditorDescriptor {
 
 	boolean expandGroup() default false; //TODO unused
 
-	int groupIndex() default 0; //TODO unused
-
 	public enum EditorType {
 		simple, composite, custom
 	}
