@@ -287,7 +287,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		Property<V> property = propertyContext.property;
 		String name = PropertyEditorData.getDescriptiveName(context, property);
 		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parentGroup, name + ":", true);
-		groups.put(group.qualifiedName, group);
+		getGroups().put(group.qualifiedName, group);
 		GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).indent(0, 0).applyTo(group);
 
 		V value = propertyContext.getValue();
@@ -325,6 +325,6 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	private ExpandablePropertyGroup getPropertyGroup(ExpandablePropertyGroup group, Property<?> property) {
 		String propertyGroup = getGroup(context, property);
-		return Values.isBlank(propertyGroup) ? group : getOrCreateGroup(group.qualifiedName + propertyGroup);
+		return Values.isBlank(propertyGroup) ? group : getOrCreateGroup(group.qualifiedName + "." + propertyGroup);
 	}
 }
