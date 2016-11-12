@@ -90,8 +90,12 @@ public class CameraManager
 		inputController = orthographicCameraController;
 		Workbench.activate(inputController);
 		extensionRegistry.updateCamera(camera);
+		updateCameraPreference(CameraType.camera2d);
+	}
+
+	private void updateCameraPreference(CameraType cameraType) {
 		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		context.setSceneIntPreference(CameraManager.class.getName(), "cameraType", CameraType.camera2d.ordinal());
+		context.setSceneIntPreference(CameraManager.class.getName(), "cameraType", cameraType.ordinal());
 	}
 
 	boolean is3d() {
@@ -108,8 +112,7 @@ public class CameraManager
 		inputController = perspectiveCameraController;
 		Workbench.activate(inputController);
 		extensionRegistry.updateCamera(camera);
-		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		context.setSceneIntPreference(CameraManager.class.getName(), "cameraType", CameraType.camera3d.ordinal());
+		updateCameraPreference(CameraType.camera3d);
 	}
 
 	Camera getCamera() {
@@ -134,10 +137,13 @@ public class CameraManager
 
 	@Override
 	public void sceneLoaded(Scene scene) {
+		//TODO handle cases when scene is not set to context -> ScenePreferencesAvailableListener?
 		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
 		int defaultCamera = CameraType.camera3d.ordinal();
 		int cameraType = context.getSceneIntPreference(CameraManager.class.getName(), "cameraType", defaultCamera);
-		switchCamera(CameraType.values()[cameraType]);
+		CameraType[] values = CameraType.values();
+		CameraType selected = values.length > cameraType ? values[cameraType] : CameraType.camera3d;
+		switchCamera(selected);
 	}
 
 	@Override
