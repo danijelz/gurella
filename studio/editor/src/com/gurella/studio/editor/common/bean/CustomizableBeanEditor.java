@@ -333,7 +333,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		GridDataFactory.fillDefaults().align(BEGINNING, CENTER).indent(0, 0).applyTo(group);
 
 		V value = propertyContext.getValue();
-		Class<V> selected = value == null ? null : cast(value.getClass());
+		Class<V> selected = Optional.ofNullable(value).map(v -> Values.<Class<V>> cast(v.getClass())).orElse(null);
 
 		SceneEditorContext sceneContext = context.sceneContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);

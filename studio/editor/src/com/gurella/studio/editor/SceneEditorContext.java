@@ -138,51 +138,61 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		return preferences.getInt(name, defaultValue);
 	}
 
+	public String getResourceStringPreference(String path, String name, String defaultValue) {
+		return getResourcePreferences(path).get(name, defaultValue);
+	}
+
+	private Preferences getResourcePreferences(String path) {
+		IResource resource = editorInput.getAdapter(IResource.class);
+		IPath resourcePath = resource.getProjectRelativePath();
+		Preferences preferences = projectPreferences.node(resourcePath.toString());
+		if (Values.isNotBlank(path)) {
+			preferences = preferences.node(path);
+		}
+		return preferences;
+	}
+
+	public int getResourceIntPreference(String path, String name, int defaultValue) {
+		return getResourcePreferences(path).getInt(name, defaultValue);
+	}
+
+	public boolean getResourceBooleanPreference(String path, String name, boolean defaultValue) {
+		return getResourcePreferences(path).getBoolean(name, defaultValue);
+	}
+
+	public void setResourceIntPreference(String path, String name, int value) {
+		getResourcePreferences(path).putInt(name, value);
+	}
+
+	public void setResourceBooleanPreference(String path, String name, boolean value) {
+		getResourcePreferences(path).putBoolean(name, value);
+	}
+
 	public String getSceneStringPreference(String path, String name, String defaultValue) {
 		Preferences preferences = Values.isBlank(path) ? projectPreferences : projectPreferences.node(path);
 		return preferences.get(name, defaultValue);
 	}
 
 	public int getSceneIntPreference(String path, String name, int defaultValue) {
-		IResource resource = editorInput.getAdapter(IResource.class);
-		IPath resourcePath = resource.getProjectRelativePath();
-		Preferences preferences = projectPreferences.node(resourcePath.toString());
-		if (Values.isNotBlank(path)) {
-			preferences = preferences.node(path);
-		}
+		Preferences preferences = getResourcePreferences(path);
 
 		return preferences.getInt(name, defaultValue);
 	}
 
 	public boolean getSceneBooleanPreference(String path, String name, boolean defaultValue) {
-		IResource resource = editorInput.getAdapter(IResource.class);
-		IPath resourcePath = resource.getProjectRelativePath();
-		Preferences preferences = projectPreferences.node(resourcePath.toString());
-		if (Values.isNotBlank(path)) {
-			preferences = preferences.node(path);
-		}
+		Preferences preferences = getResourcePreferences(path);
 
 		return preferences.getBoolean(name, defaultValue);
 	}
 
 	public void setSceneIntPreference(String path, String name, int value) {
-		IResource resource = editorInput.getAdapter(IResource.class);
-		IPath resourcePath = resource.getProjectRelativePath();
-		Preferences preferences = projectPreferences.node(resourcePath.toString());
-		if (Values.isNotBlank(path)) {
-			preferences = preferences.node(path);
-		}
+		Preferences preferences = getResourcePreferences(path);
 
 		preferences.putInt(name, value);
 	}
 
 	public void setSceneBooleanPreference(String path, String name, boolean value) {
-		IResource resource = editorInput.getAdapter(IResource.class);
-		IPath resourcePath = resource.getProjectRelativePath();
-		Preferences preferences = projectPreferences.node(resourcePath.toString());
-		if (Values.isNotBlank(path)) {
-			preferences = preferences.node(path);
-		}
+		Preferences preferences = getResourcePreferences(path);
 
 		preferences.putBoolean(name, value);
 	}
