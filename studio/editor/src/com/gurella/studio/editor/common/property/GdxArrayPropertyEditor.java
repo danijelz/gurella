@@ -5,6 +5,7 @@ import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.eclipse.jdt.core.IField;
@@ -16,8 +17,10 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -54,6 +57,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		buildUi();
 
 		addMenuItem("Add item", () -> addItem());
+		addMenuItem("Resize", () -> resize());
 
 		if (!isFinalValue()) {
 			addMenuItem("Select type", () -> selectType());
@@ -117,15 +121,15 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		Property<?> property = context.property;
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		ClassLoader classLoader = context.sceneContext.classLoader;
-		
+
 		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
-		if(genericTypes.size() > 0) {
+		if (genericTypes.size() > 0) {
 			try {
-				return  Values.cast(classLoader.loadClass(genericTypes.get(0)));
+				return Values.cast(classLoader.loadClass(genericTypes.get(0)));
 			} catch (Exception e) {
 			}
 		}
-		
+
 		String typeName = context.bean.getClass().getName();
 		IType type = javaProject.findType(typeName);
 		final String propertyName = property.getName();
@@ -169,10 +173,32 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private void addItem() {
 		Array<T> oldValue = getValue();
-		Array<T> newValue = new CopyContext().copy(oldValue);
+		Array<T> newValue = Optional.ofNullable(oldValue).map(v -> new CopyContext().copy(v)).orElse(new Array<T>());
 		newValue.add(null);
 		setValue(newValue);
 		rebuildUi();
+	}
+
+	private void resize() {
+		Array<T> oldValue = getValue();
+		int size = oldValue == null ? 0 : oldValue.size;
+		String sizeStr = Integer.toString(size);
+		String message = "Enter new array length";
+		InputDialog dlg = new InputDialog(content.getShell(), "Resize", message, sizeStr, this::isValid);
+		if (dlg.open() == Window.OK) {
+			int newSize = Integer.parseInt(dlg.getValue());
+			Array<T> newValue = Optional.ofNullable(oldValue).map(v -> new CopyContext().copy(v))
+					.orElse(new Array<T>());
+			newValue.ensureCapacity(newSize - size);
+			newValue.size = newSize;
+			setValue(newValue);
+			rebuildUi();
+		}
+	}
+
+	public String isValid(String newText) {
+		Try<Integer> failable = Try.ofFailable(() -> Integer.getInteger(newText));
+		return failable.filter(i -> i.intValue() > 0).isSuccess() ? null : "invalid length";
 	}
 
 	private void rebuildUi() {
