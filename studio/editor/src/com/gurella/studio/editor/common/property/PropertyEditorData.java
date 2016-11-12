@@ -1,6 +1,9 @@
 package com.gurella.studio.editor.common.property;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IAnnotation;
@@ -27,15 +30,17 @@ public class PropertyEditorData {
 	public final String group;
 	public final String descriptiveName;
 	public final String description;
+	public final List<String> genericTypes;
 
 	private PropertyEditorData(EditorType type, String customFactoryClass, int index, String group,
-			String descriptiveName, String description) {
+			String descriptiveName, String description, List<String> genericTypes) {
 		this.type = type;
 		this.customFactoryClass = customFactoryClass;
 		this.index = index;
 		this.group = group;
 		this.descriptiveName = descriptiveName;
 		this.description = description;
+		this.genericTypes = Collections.unmodifiableList(genericTypes);
 	}
 
 	public static int compare(BeanEditorContext<?> context, Property<?> p1, Property<?> p2) {
@@ -46,13 +51,13 @@ public class PropertyEditorData {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
-		return PropertyEditorData.getIndex(javaProject, modelClass, property);
+		return getIndex(javaProject, modelClass, property);
 	}
 
 	public static int getIndex(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
-		return PropertyEditorData.getIndex(javaProject, modelClass, property);
+		return getIndex(javaProject, modelClass, property);
 	}
 
 	public static int getIndex(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
@@ -64,13 +69,13 @@ public class PropertyEditorData {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
-		return PropertyEditorData.getGroup(javaProject, modelClass, property);
+		return getGroup(javaProject, modelClass, property);
 	}
 
 	public static String getGroup(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
-		return PropertyEditorData.getGroup(javaProject, modelClass, property);
+		return getGroup(javaProject, modelClass, property);
 	}
 
 	public static String getGroup(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
@@ -82,13 +87,13 @@ public class PropertyEditorData {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
-		return PropertyEditorData.getDescription(javaProject, modelClass, property);
+		return getDescription(javaProject, modelClass, property);
 	}
 
 	public static String getDescription(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
-		return PropertyEditorData.getDescription(javaProject, modelClass, property);
+		return getDescription(javaProject, modelClass, property);
 	}
 
 	public static String getDescription(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
@@ -100,19 +105,37 @@ public class PropertyEditorData {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
-		return PropertyEditorData.getDescriptiveName(javaProject, modelClass, property);
+		return getDescriptiveName(javaProject, modelClass, property);
 	}
 
 	public static String getDescriptiveName(BeanEditorContext<?> context, Property<?> property) {
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<?> modelClass = context.bean.getClass();
-		return PropertyEditorData.getDescriptiveName(javaProject, modelClass, property);
+		return getDescriptiveName(javaProject, modelClass, property);
 	}
 
 	public static String getDescriptiveName(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
 		PropertyEditorData propertyEditorData = get(javaProject, modelClass, property);
 		String descriptiveName = propertyEditorData == null ? null : propertyEditorData.descriptiveName;
 		return Values.isBlank(descriptiveName) ? property.getName() : propertyEditorData.descriptiveName;
+	}
+
+	public static List<String> getGenericTypes(PropertyEditorContext<?, ?> context) {
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
+		Property<?> property = context.property;
+		return getGenericTypes(javaProject, modelClass, property);
+	}
+
+	public static List<String> getGenericTypes(BeanEditorContext<?> context, Property<?> property) {
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
+		return getGenericTypes(javaProject, modelClass, property);
+	}
+
+	public static List<String> getGenericTypes(IJavaProject javaProject, Class<?> modelClass, Property<?> property) {
+		PropertyEditorData propertyEditorData = get(javaProject, modelClass, property);
+		return propertyEditorData == null ? Collections.emptyList() : propertyEditorData.genericTypes;
 	}
 
 	public static PropertyEditorData get(PropertyEditorContext<?, ?> context) {
@@ -190,23 +213,11 @@ public class PropertyEditorData {
 		String group = null;
 		String description = null;
 		String descriptiveName = null;
+		List<String> generics = new ArrayList<>();
 
 		for (IMemberValuePair memberValuePair : memberValuePairs) {
 			if ("factory".equals(memberValuePair.getMemberName())) {
-				String[][] resolveType = type.resolveType((String) memberValuePair.getValue());
-				if (resolveType.length == 1) {
-					String[] path = resolveType[0];
-					int last = path.length - 1;
-					path[last] = path[last].replaceAll("\\.", "\\$");
-					StringBuilder builder = new StringBuilder();
-					for (String part : path) {
-						if (builder.length() > 0) {
-							builder.append(".");
-						}
-						builder.append(part);
-					}
-					factoryName = builder.toString();
-				}
+				factoryName = extractTypeName(type, (String) memberValuePair.getValue());
 			} else if ("type".equals(memberValuePair.getMemberName())) {
 				String editorTypeStr = memberValuePair.getValue().toString();
 				if (editorTypeStr.contains(EditorType.simple.name())) {
@@ -222,10 +233,37 @@ public class PropertyEditorData {
 				description = memberValuePair.getValue().toString();
 			} else if ("descriptiveName".equals(memberValuePair.getMemberName())) {
 				descriptiveName = memberValuePair.getValue().toString();
+			} else if ("genericTypes".equals(memberValuePair.getMemberName())) {
+				Object[] values = (Object[]) memberValuePair.getValue();
+				for (Object value : values) {
+					try {
+						generics.add(extractTypeName(type, value.toString()));
+					} catch (Exception e) {
+						break;
+					}
+				}
 			}
 		}
 
-		return new PropertyEditorData(editorType, factoryName, index, group, descriptiveName, description);
+		return new PropertyEditorData(editorType, factoryName, index, group, descriptiveName, description, generics);
+	}
+
+	private static String extractTypeName(IType type, String typeName) throws JavaModelException {
+		String[][] resolveType = type.resolveType(typeName);
+		if (resolveType.length == 1) {
+			String[] path = resolveType[0];
+			int last = path.length - 1;
+			path[last] = path[last].replaceAll("\\.", "\\$");
+			StringBuilder builder = new StringBuilder();
+			for (String part : path) {
+				if (builder.length() > 0) {
+					builder.append(".");
+				}
+				builder.append(part);
+			}
+			return builder.toString();
+		}
+		return null;
 	}
 
 	private static class EditorPropertyKey {

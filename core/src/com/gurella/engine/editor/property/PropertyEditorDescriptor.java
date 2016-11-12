@@ -27,7 +27,7 @@ public @interface PropertyEditorDescriptor {
 
 	String group() default "";
 
-	boolean expandGroup() default false; //TODO unused
+	Class<?>[] genericTypes() default {};
 
 	public enum EditorType {
 		simple, composite, custom

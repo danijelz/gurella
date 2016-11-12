@@ -116,6 +116,16 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
 		Property<?> property = context.property;
 		IJavaProject javaProject = context.sceneContext.javaProject;
+		ClassLoader classLoader = context.sceneContext.classLoader;
+		
+		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
+		if(genericTypes.size() > 0) {
+			try {
+				return  Values.cast(classLoader.loadClass(genericTypes.get(0)));
+			} catch (Exception e) {
+			}
+		}
+		
 		String typeName = context.bean.getClass().getName();
 		IType type = javaProject.findType(typeName);
 		final String propertyName = property.getName();
@@ -126,7 +136,6 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			return Object.class;
 		}
 
-		ClassLoader classLoader = context.sceneContext.classLoader;
 		String typeArgument = typeArguments[0];
 
 		switch (Signature.getTypeSignatureKind(typeArgument)) {
@@ -169,8 +178,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	private void rebuildUi() {
 		UiUtils.disposeChildren(content);
 		buildUi();
-		content.layout(true, true);
-		content.redraw();
+		UiUtils.reflow(getContent());
 	}
 
 	private void newTypeInstance() {
