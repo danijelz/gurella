@@ -97,7 +97,8 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 		Property<Object> property = Values.cast(getProperty());
 		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemModel, item, property, index);
-		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, itemModel.getType());
+		Class<Object> type = item == null ? itemModel.getType() : Values.cast(item.getClass());
+		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, type);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		editor.getBody().setLayoutData(layoutData);
 

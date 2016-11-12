@@ -67,7 +67,8 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 				Object item = Array.get(values, i);
 				ItemContext<Object, Object> itemContext = new ItemContext<>(context, model, item, property, i);
-				PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, componentType);
+				Class<Object> type = item == null ? componentType : Values.cast(item.getClass());
+				PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, type);
 				GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 				editor.getBody().setLayoutData(layoutData);
 
