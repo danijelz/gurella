@@ -50,7 +50,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private void newTypeInstance() {
 		try {
-			ClassLoader classLoader = context.sceneEditorContext.classLoader;
+			ClassLoader classLoader = context.sceneContext.classLoader;
 			Class<?> valueClass = classLoader.loadClass(context.getPropertyType().getName());
 			Constructor<?> constructor = valueClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
@@ -105,7 +105,7 @@ public class ReflectionPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
 		Class<P> propertyType = context.getPropertyType();
-		Class<? extends P> selected = TypeSelectionUtils.selectType(context.sceneEditorContext, propertyType);
+		Class<? extends P> selected = TypeSelectionUtils.selectType(context.sceneContext, propertyType);
 		if (selected != null) {
 			P value = selected.newInstance();
 			setValue(value);

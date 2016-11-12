@@ -60,7 +60,7 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 
 		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
 
-		int editorId = context.sceneEditorContext.editorId;
+		int editorId = context.sceneContext.editorId;
 		body.addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 	}
@@ -90,7 +90,7 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 	}
 
 	protected Object getModelInstance() {
-		return context.modelInstance;
+		return context.bean;
 	}
 
 	protected P getValue() {
@@ -101,13 +101,13 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 		P oldValue = getValue();
 		if(Values.isNotEqual(oldValue, value, true)) {
 			SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(context, oldValue, value);
-			context.sceneEditorContext.executeOperation(operation, "Error updating property.");
+			context.sceneContext.executeOperation(operation, "Error updating property.");
 		}
 	}
 
 	@Override
 	public void propertyChanged(Object instance, Property<?> property, Object newValue) {
-		if (context.modelInstance != instance || context.property != property || body.isDisposed()) {
+		if (context.bean != instance || context.property != property || body.isDisposed()) {
 			return;
 		}
 		updateValue(Values.cast(newValue));
@@ -200,8 +200,8 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 		@Override
 		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			context.setValue(oldValue);
-			int editorId = context.sceneEditorContext.editorId;
-			Object instance = context.modelInstance;
+			int editorId = context.sceneContext.editorId;
+			Object instance = context.bean;
 			Property<?> property = context.property;
 			post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(instance, property, oldValue));
 			return Status.OK_STATUS;
@@ -210,8 +210,8 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 			context.setValue(newValue);
-			int editorId = context.sceneEditorContext.editorId;
-			Object instance = context.modelInstance;
+			int editorId = context.sceneContext.editorId;
+			Object instance = context.bean;
 			Property<?> property = context.property;
 			post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(instance, property, newValue));
 			return Status.OK_STATUS;

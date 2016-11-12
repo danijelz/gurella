@@ -15,7 +15,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	public Consumer<P> valueSetter;
 
 	public PropertyEditorContext(BeanEditorContext<M> parent, Property<P> property) {
-		super(parent.sceneEditorContext, parent, parent.model, parent.modelInstance);
+		super(parent.sceneContext, parent, parent.model, parent.bean);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;
@@ -29,7 +29,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	}
 
 	public PropertyEditorContext(BeanEditorContext<?> parent, Model<M> model, M modelInstance, Property<P> property) {
-		super(parent.sceneEditorContext, parent, model, modelInstance);
+		super(parent.sceneContext, parent, model, modelInstance);
 		this.property = property;
 		valueGetter = this::defaultValueGetter;
 		valueSetter = this::defaultValueSetter;
@@ -40,7 +40,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	}
 
 	private P defaultValueGetter() {
-		return property.getValue(modelInstance);
+		return property.getValue(bean);
 	}
 
 	public void setValue(P newValue) {
@@ -50,7 +50,7 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	private void defaultValueSetter(P newValue) {
 		P oldValue = getValue();
 		if (!Values.isEqual(oldValue, newValue)) {
-			property.setValue(modelInstance, newValue);
+			property.setValue(bean, newValue);
 			propertyValueChanged(oldValue, newValue);
 		}
 	}
@@ -60,15 +60,14 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 	}
 
 	public void propertyValueChanged(Object oldValue, Object newValue) {
-		propertyChangedSignal
-				.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
+		propertiesSignal.dispatch(new PropertyValueChangedEvent(model, property, bean, oldValue, newValue));
 
 		BeanEditorContext<?> temp = this;
 		while (temp != null) {
 			if (temp instanceof PropertyEditorContext) {
 				PropertyEditorContext<?, ?> propertyEditorContext = (PropertyEditorContext<?, ?>) temp;
-				if (temp.modelInstance instanceof PropertyChangeListener) {
-					PropertyChangeListener listener = (PropertyChangeListener) temp.modelInstance;
+				if (temp.bean instanceof PropertyChangeListener) {
+					PropertyChangeListener listener = (PropertyChangeListener) temp.bean;
 					listener.propertyChanged(propertyEditorContext.property.getName(), oldValue, newValue);
 				}
 			}
@@ -86,5 +85,10 @@ public class PropertyEditorContext<M, P> extends BeanEditorContext<M> {
 
 	public Class<P> getPropertyType() {
 		return property.getType();
+	}
+
+	@Override
+	public String getQualifiedName() {
+		return parent.getQualifiedName() + "." + property.getName();
 	}
 }

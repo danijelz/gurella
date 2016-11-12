@@ -51,7 +51,7 @@ public class CustomBeanEditorContextAdapter<T> extends BeanEditorContext<T>
 
 	@Override
 	public T getModelInstance() {
-		return this.modelInstance;
+		return this.bean;
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class BeanEditorFactory {
 	}
 
 	public static <T> BeanEditor<T> createEditor(Composite parent, BeanEditorContext<?> parentContext, T instance) {
-		SceneEditorContext sceneContext = parentContext.sceneEditorContext;
+		SceneEditorContext sceneContext = parentContext.sceneContext;
 		Class<CustomBeanEditor<T>> beanEditorType = Values.cast(defaultFactories.get(instance.getClass()));
 		if (beanEditorType != null) {
 			BeanEditorContext<T> editorContext = new BeanEditorContext<>(parentContext, instance);

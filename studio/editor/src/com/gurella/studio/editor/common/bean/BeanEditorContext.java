@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.common.bean;
 
+import java.util.Optional;
+
 import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
@@ -7,34 +9,34 @@ import com.gurella.engine.event.Signal1;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public class BeanEditorContext<T> {
-	public final SceneEditorContext sceneEditorContext;
+	public final SceneEditorContext sceneContext;
 	public final BeanEditorContext<?> parent;
 	public final Model<T> model;
-	public final T modelInstance;
-	public final Signal1<PropertyValueChangedEvent> propertyChangedSignal = new Signal1<>();
+	public final T bean;
+	public final Signal1<PropertyValueChangedEvent> propertiesSignal = new Signal1<>();
 
-	public BeanEditorContext(SceneEditorContext sceneEditorContext, T modelInstance) {
-		this(sceneEditorContext, null, Models.getModel(modelInstance), modelInstance);
+	public BeanEditorContext(SceneEditorContext sceneContext, T bean) {
+		this(sceneContext, null, Models.getModel(bean), bean);
 	}
 
-	public BeanEditorContext(BeanEditorContext<?> parent, T modelInstance) {
-		this(parent.sceneEditorContext, parent, Models.getModel(modelInstance), modelInstance);
+	public BeanEditorContext(BeanEditorContext<?> parent, T bean) {
+		this(parent.sceneContext, parent, Models.getModel(bean), bean);
 	}
 
-	public BeanEditorContext(SceneEditorContext sceneEditorContext, BeanEditorContext<?> parent, Model<T> model,
-			T modelInstance) {
-		this.sceneEditorContext = sceneEditorContext;
+	public BeanEditorContext(SceneEditorContext sceneContext, BeanEditorContext<?> parent, Model<T> model, T bean) {
+		this.sceneContext = sceneContext;
 		this.parent = parent;
 		this.model = model;
-		this.modelInstance = modelInstance;
-
-		if (parent != null) {
-			propertyChangedSignal.addListener(parent.propertyChangedSignal::dispatch);
-		}
+		this.bean = bean;
+		Optional.ofNullable(parent).ifPresent(p -> propertiesSignal.addListener(p.propertiesSignal::dispatch));
 	}
 
 	public void propertyValueChanged(Property<?> property, Object oldValue, Object newValue) {
-		propertyChangedSignal.dispatch(new PropertyValueChangedEvent(model, property, modelInstance, oldValue, newValue));
+		propertiesSignal.dispatch(new PropertyValueChangedEvent(model, property, bean, oldValue, newValue));
+	}
+	
+	public String getQualifiedName() {
+		return model.getType().getName();
 	}
 
 	public static final class PropertyValueChangedEvent {

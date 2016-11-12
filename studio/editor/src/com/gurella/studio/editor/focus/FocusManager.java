@@ -81,7 +81,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 		while (control != null) {
 			if (control instanceof BeanEditor) {
 				BeanEditorContext<?> context = ((BeanEditor<?>) control).getContext();
-				Object modelInstance = context.modelInstance;
+				Object modelInstance = context.bean;
 				if (modelInstance instanceof SceneNodeComponent2) {
 					focusedComponent = (SceneNodeComponent2) modelInstance;
 					focusedNode = focusedComponent.getNode();

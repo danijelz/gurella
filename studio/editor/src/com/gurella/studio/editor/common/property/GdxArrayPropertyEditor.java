@@ -115,8 +115,8 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
 		Property<?> property = context.property;
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		String typeName = context.modelInstance.getClass().getName();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		String typeName = context.bean.getClass().getName();
 		IType type = javaProject.findType(typeName);
 		final String propertyName = property.getName();
 		IField field = type.getField(propertyName);
@@ -126,7 +126,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			return Object.class;
 		}
 
-		ClassLoader classLoader = context.sceneEditorContext.classLoader;
+		ClassLoader classLoader = context.sceneContext.classLoader;
 		String typeArgument = typeArguments[0];
 
 		switch (Signature.getTypeSignatureKind(typeArgument)) {
@@ -175,7 +175,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private void newTypeInstance() {
 		try {
-			ClassLoader classLoader = context.sceneEditorContext.classLoader;
+			ClassLoader classLoader = context.sceneContext.classLoader;
 			Array<T> value = Values.cast(classLoader.loadClass(context.getPropertyType().getName()).newInstance());
 			setValue(value);
 			rebuildUi();
@@ -198,7 +198,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private void createType(IType selectedType) throws Exception {
-		ClassLoader classLoader = context.sceneEditorContext.classLoader;
+		ClassLoader classLoader = context.sceneContext.classLoader;
 		Array<T> value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
 		setValue(value);
 		rebuildUi();
@@ -222,7 +222,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private IJavaSearchScope getSearchScope() throws JavaModelException {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
+		IJavaProject javaProject = context.sceneContext.javaProject;
 		Class<Array<T>> type = context.getPropertyType();
 		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}

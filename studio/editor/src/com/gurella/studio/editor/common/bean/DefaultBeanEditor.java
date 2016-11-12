@@ -7,7 +7,6 @@ import java.util.Arrays;
 import org.eclipse.swt.widgets.Composite;
 
 import com.gurella.engine.base.model.Property;
-import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
@@ -25,16 +24,5 @@ public class DefaultBeanEditor<T> extends CustomizableBeanEditor<T> {
 		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
 				.forEach(p -> createPropertyControls(p, true));
 		layout(true, true);
-	}
-
-	private boolean isGroupExpanded(String groupName) {
-		T modelInstance = context.modelInstance;
-		if (modelInstance instanceof ManagedObject) {
-			ManagedObject managedObject = (ManagedObject) modelInstance;
-			return context.sceneEditorContext.getSceneBooleanPreference(groupName, managedObject.ensureUuid(), true);
-		} else {
-			// TODO Auto-generated method stub
-			return false;
-		}
 	}
 }

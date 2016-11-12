@@ -35,8 +35,8 @@ import com.gurella.studio.editor.engine.property.CustomSimplePropertyEditor;
 
 public class PropertyEditorFactory {
 	public static boolean hasReflectionEditor(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
 		PropertyEditorData data = PropertyEditorData.get(javaProject, modelClass, property);
 		if (data != null && data.isValidFactoryClass()) {
@@ -97,7 +97,7 @@ public class PropertyEditorFactory {
 			return cast(EnumPropertyEditor.class);
 		} else if (Assets.isAssetType(propertyType)) {
 			return cast(AssetPropertyEditor.class);
-		} else if (context.property.isFinal() && context.modelInstance != null && isSimpleProperty(propertyType)) {
+		} else if (context.property.isFinal() && context.bean != null && isSimpleProperty(propertyType)) {
 			return cast(SimpleObjectPropertyEditor.class);
 		}
 
@@ -124,15 +124,15 @@ public class PropertyEditorFactory {
 
 	private static <T> PropertyEditor<T> createCustomEditor(Composite parent, PropertyEditorContext<?, T> context) {
 		try {
-			IJavaProject javaProject = context.sceneEditorContext.javaProject;
-			Class<?> modelClass = context.modelInstance.getClass();
+			IJavaProject javaProject = context.sceneContext.javaProject;
+			Class<?> modelClass = context.bean.getClass();
 			Property<?> property = context.property;
 			PropertyEditorData data = PropertyEditorData.get(javaProject, modelClass, property);
 			if (data == null || !data.isValidFactoryClass()) {
 				return null;
 			}
 
-			ClassLoader classLoader = context.sceneEditorContext.classLoader;
+			ClassLoader classLoader = context.sceneContext.classLoader;
 			Class<?> factoryClass = classLoader.loadClass(data.customFactoryClass);
 			Constructor<?> constructor = factoryClass.getDeclaredConstructor(new Class[0]);
 			constructor.setAccessible(true);
@@ -203,7 +203,7 @@ public class PropertyEditorFactory {
 			return cast(new EnumPropertyEditor<>(parent, cast(context)));
 		} else if (Assets.isAssetType(propertyType)) {
 			return cast(new AssetPropertyEditor<>(parent, context, propertyType));
-		} else if (context.property.isFinal() && context.modelInstance != null && isSimpleProperty(propertyType)) {
+		} else if (context.property.isFinal() && context.bean != null && isSimpleProperty(propertyType)) {
 			// TODO handle in ReflectionPropertyEditor
 			return cast(new SimpleObjectPropertyEditor<>(parent, context));
 		}

@@ -4,9 +4,9 @@ import static com.gurella.studio.GurellaStudioPlugin.createFont;
 import static com.gurella.studio.GurellaStudioPlugin.destroyFont;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -23,24 +23,27 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Twistie;
 
+import com.gurella.engine.event.Listener1;
+import com.gurella.engine.event.Signal1;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.UiUtils;
 
-class ExpandablePropertyGroup extends Composite {
+class ExpandableGroup extends Composite {
 	public final String name;
 	public final String qualifiedName;
 	public final int level;
-	public final ExpandablePropertyGroup parentGroup;
+	public final ExpandableGroup parentGroup;
 
 	private Twistie expandTwistie;
 	private List<Control> controls = new ArrayList<>();
 
-	public ExpandablePropertyGroup(Composite parent, String name, boolean expanded) {
+	private Signal1<Boolean> expandSignal = new Signal1<>();
+
+	public ExpandableGroup(Composite parent, String name, boolean expanded) {
 		this(parent, null, name, expanded);
 	}
 
-	public ExpandablePropertyGroup(Composite parent, ExpandablePropertyGroup parentGroup, String name,
-			boolean expanded) {
+	public ExpandableGroup(Composite parent, ExpandableGroup parentGroup, String name, boolean expanded) {
 		super(parent, SWT.NONE);
 		this.name = name;
 		this.qualifiedName = parentGroup == null ? name : parentGroup.qualifiedName + "." + name;
@@ -64,14 +67,18 @@ class ExpandablePropertyGroup extends Composite {
 		Label nameLabel = toolkit.createLabel(this, name);
 		nameLabel.setAlignment(SWT.LEFT);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).indent(4, 0).applyTo(nameLabel);
+
 		Font font = createFont(nameLabel, SWT.BOLD);
 		nameLabel.addDisposeListener(e -> destroyFont(font));
 		nameLabel.setFont(font);
+
 		Color blue = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 		nameLabel.addListener(SWT.MouseEnter, e -> nameLabel.setForeground(blue));
+
 		Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 		nameLabel.addListener(SWT.MouseExit, e -> nameLabel.setForeground(black));
 		nameLabel.addListener(SWT.MouseUp, e -> flipExpanded());
+
 		Cursor cursor = new Cursor(getDisplay(), SWT.CURSOR_HAND);
 		nameLabel.setCursor(cursor);
 		nameLabel.addDisposeListener(e -> cursor.dispose());
@@ -81,6 +88,7 @@ class ExpandablePropertyGroup extends Composite {
 		boolean expanded = !isExpanded();
 		expandTwistie.setExpanded(expanded);
 		updateControls(expanded);
+		expandSignal.dispatch(Boolean.valueOf(expanded));
 	}
 
 	public boolean isExpanded() {
@@ -88,57 +96,62 @@ class ExpandablePropertyGroup extends Composite {
 	}
 
 	public void setExpanded(boolean expanded) {
-		if (expanded != isEnabled()) {
+		if (expanded != isExpanded()) {
 			flipExpanded();
 		}
 	}
 
 	private void updateControls(boolean visible) {
-		controls.stream().peek(c -> c.setVisible(visible))
-				.forEach(c -> ((GridData) c.getLayoutData()).exclude = !visible);
+		controls.stream().forEach(c -> updateControlVisibility(c, visible));
 		UiUtils.reflow(this);
 	}
 
 	public void add(Control control) {
 		boolean visible = isExpanded() && isVisible();
+		updateControlVisibility(control, visible);
+		positionNewControl(control);
+		controls.add(control);
+	}
+
+	private static void updateControlVisibility(Control control, boolean visible) {
 		control.setVisible(visible);
+		ensureGridData(control).exclude = !visible;
+	}
 
-		GridData layoutData = (GridData) control.getLayoutData();
-		if (layoutData == null) {
-			layoutData = new GridData();
-			control.setLayoutData(layoutData);
-		}
-		layoutData.exclude = !visible;
-
-		int size = controls.size();
-		if (control instanceof ExpandablePropertyGroup) {
-			if (size == 0) {
-				control.moveBelow(this);
-			} else {
-				Control last = controls.get(size - 1);
-				boolean empty = false;
-				while (!empty && last instanceof ExpandablePropertyGroup) {
-					List<Control> lastControls = ((ExpandablePropertyGroup) last).controls;
-					if (lastControls.size() == 0) {
-						empty = true;
-					} else {
-						last = lastControls.get(lastControls.size() - 1);
-					}
-				}
-				control.moveBelow(last);
-			}
+	private static GridData ensureGridData(Control control) {
+		Object layoutData = control.getLayoutData();
+		if (layoutData instanceof GridData) {
+			return (GridData) layoutData;
 		} else {
-			Optional<Control> childGroup = controls.stream().sequential()
-					.filter(c -> (c instanceof ExpandablePropertyGroup)).findFirst();
+			GridData gridData = new GridData();
+			control.setLayoutData(gridData);
+			return gridData;
+		}
+	}
+
+	private void positionNewControl(Control control) {
+		if (control instanceof ExpandableGroup) {
+			control.moveBelow(findLastControlInGroup(this));
+		} else {
+			Predicate<Control> groupsFilter = c -> (c instanceof ExpandableGroup);
+			Optional<Control> childGroup = controls.stream().sequential().filter(groupsFilter).findFirst();
 			if (childGroup.isPresent()) {
 				control.moveAbove(childGroup.get());
 			} else {
+				int size = controls.size();
 				control.moveBelow(size == 0 ? this : controls.get(size - 1));
 			}
 		}
-		controls.add(control);
+	}
 
-		System.out.println(Arrays.toString(getParent().getChildren()));
+	private static Control findLastControlInGroup(ExpandableGroup group) {
+		int size = group.controls.size();
+		if (size == 0) {
+			return group;
+		}
+
+		Control last = group.controls.get(size - 1);
+		return last instanceof ExpandableGroup ? findLastControlInGroup((ExpandableGroup) last) : last;
 	}
 
 	public void clear() {
@@ -146,16 +159,26 @@ class ExpandablePropertyGroup extends Composite {
 		controls.clear();
 		UiUtils.reflow(this);
 	}
+	
+	public void addExpandListener(Listener1<Boolean> listener) {
+		expandSignal.addListener(listener);
+	}
+
+	public void removeExpandListener(Listener1<Boolean> listener) {
+		expandSignal.removeListener(listener);
+	}
 
 	@Override
 	public String toString() {
-		return "ExpandablePropertyGroup" + " {" + qualifiedName + "}";
+		return "ExpandableGroup" + " {" + qualifiedName + "}";
 	}
 
 	private final class ExpandListener extends HyperlinkAdapter {
 		@Override
 		public void linkActivated(HyperlinkEvent e) {
-			updateControls(expandTwistie.isExpanded());
+			boolean expanded = expandTwistie.isExpanded();
+			updateControls(expanded);
+			expandSignal.dispatch(Boolean.valueOf(expanded));
 		}
 	}
 }

@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  * @param <T>
  */
 public abstract class Try<T> {
-	protected Try() {
+	Try() {
 	}
 
 	public static <U> Try<U> ofFailable(TrySupplier<U> f) {
@@ -37,10 +37,8 @@ public abstract class Try<T> {
 	 *
 	 * Try.ofFailable(() -&gt; "1").&lt;Integer&gt;map((x) -&gt; Integer.valueOf(x))
 	 *
-	 * @param f
-	 *            function to apply to successful value.
-	 * @param <U>
-	 *            new type (optional)
+	 * @param f function to apply to successful value.
+	 * @param <U> new type (optional)
 	 * @return Success&lt;U&gt; or Failure&lt;U&gt;
 	 */
 	public abstract <U> Try<U> map(TryMapFunction<? super T, ? extends U> f);
@@ -52,10 +50,8 @@ public abstract class Try<T> {
 	 * Try.ofFailable(() -&gt; "1").&lt;Integer&gt;flatMap((x) -&gt; Try.ofFailable(() -&gt; Integer.valueOf(x)))
 	 * returns Integer(1)
 	 *
-	 * @param f
-	 *            function to apply to successful value.
-	 * @param <U>
-	 *            new type (optional)
+	 * @param f function to apply to successful value.
+	 * @param <U> new type (optional)
 	 * @return new composed Try
 	 */
 	public abstract <U> Try<U> flatMap(TryMapFunction<? super T, Try<U>> f);
@@ -66,8 +62,7 @@ public abstract class Try<T> {
 	 * Try.ofFailable(() -&gt; "not a number") .&lt;Integer&gt;flatMap((x) -&gt; Try.ofFailable(()
 	 * -&gt;Integer.valueOf(x))) .recover((t) -&gt; 1) returns Integer(1)
 	 *
-	 * @param f
-	 *            function to execute on successful result.
+	 * @param f function to execute on successful result.
 	 * @return new composed Try
 	 */
 
@@ -76,8 +71,7 @@ public abstract class Try<T> {
 	/**
 	 * Try applying f(t) on the case of failure.
 	 * 
-	 * @param f
-	 *            function that takes throwable and returns result
+	 * @param f function that takes throwable and returns result
 	 * @return a new Try in the case of failure, or the current Success.
 	 */
 	public abstract Try<T> recoverWith(TryMapFunction<? super Throwable, Try<T>> f);
@@ -85,8 +79,7 @@ public abstract class Try<T> {
 	/**
 	 * Return a value in the case of a failure. This is similar to recover but does not expose the exception type.
 	 *
-	 * @param value
-	 *            return the try's value or else the value specified.
+	 * @param value return the try's value or else the value specified.
 	 * @return new composed Try
 	 */
 	public abstract T orElse(T value);
@@ -94,8 +87,7 @@ public abstract class Try<T> {
 	/**
 	 * Return another try in the case of failure. Like recoverWith but without exposing the exception.
 	 *
-	 * @param f
-	 *            return the value or the value from the new try.
+	 * @param f return the value or the value from the new try.
 	 * @return new composed Try
 	 */
 	public abstract Try<T> orElseTry(TrySupplier<T> f);
@@ -104,8 +96,7 @@ public abstract class Try<T> {
 	 * Gets the value T on Success or throws the cause of the failure.
 	 *
 	 * @return T
-	 * @throws Throwable
-	 *             produced by the supplier function argument
+	 * @throws Throwable produced by the supplier function argument
 	 */
 
 	public abstract <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X;
@@ -131,22 +122,18 @@ public abstract class Try<T> {
 	/**
 	 * Performs the provided action, when successful
 	 * 
-	 * @param action
-	 *            action to run
+	 * @param action action to run
 	 * @return new composed Try
-	 * @throws E
-	 *             if the action throws an exception
+	 * @throws E if the action throws an exception
 	 */
 	public abstract <E extends Throwable> Try<T> onSuccess(TryConsumer<T, E> action) throws E;
 
 	/**
 	 * Performs the provided action, when failed
 	 * 
-	 * @param action
-	 *            action to run
+	 * @param action action to run
 	 * @return new composed Try
-	 * @throws E
-	 *             if the action throws an exception
+	 * @throws E if the action throws an exception
 	 */
 	public abstract <E extends Throwable> Try<T> onFailure(TryConsumer<Throwable, E> action) throws E;
 
@@ -154,8 +141,7 @@ public abstract class Try<T> {
 	 * If a Try is a Success and the predicate holds true, the Success is passed further. Otherwise (Failure or
 	 * predicate doesn't hold), pass Failure.
 	 * 
-	 * @param pred
-	 *            predicate applied to the value held by Try
+	 * @param pred predicate applied to the value held by Try
 	 * @return For Success, the same success if predicate holds true, otherwise Failure
 	 */
 	public abstract Try<T> filter(Predicate<T> pred);
@@ -172,10 +158,8 @@ public abstract class Try<T> {
 	/**
 	 * Factory method for failure.
 	 *
-	 * @param e
-	 *            throwable to create the failed Try with
-	 * @param <U>
-	 *            Type
+	 * @param e throwable to create the failed Try with
+	 * @param <U> Type
 	 * @return a new Failure
 	 */
 
@@ -186,10 +170,8 @@ public abstract class Try<T> {
 	/**
 	 * Factory method for success.
 	 *
-	 * @param x
-	 *            value to create the successful Try with
-	 * @param <U>
-	 *            Type
+	 * @param x value to create the successful Try with
+	 * @param <U> Type
 	 * @return a new Success
 	 */
 	public static <U> Try<U> successful(U x) {

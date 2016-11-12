@@ -37,7 +37,7 @@ public class ComponentInspectableContainer extends InspectableContainer<SceneNod
 		body.setLayout(new GridLayout(1, false));
 
 		editor = BeanEditorFactory.createEditor(body, editorContext, target);
-		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertyChangedSignal;
+		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
 		signal.addListener(e -> EventService.post(editorContext.editorId, SceneChangedEvent.instance));
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		layout(true, true);

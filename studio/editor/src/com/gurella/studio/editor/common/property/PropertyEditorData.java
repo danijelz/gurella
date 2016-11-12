@@ -43,15 +43,15 @@ public class PropertyEditorData {
 	}
 
 	public static int getIndex(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
 		return PropertyEditorData.getIndex(javaProject, modelClass, property);
 	}
 
 	public static int getIndex(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		return PropertyEditorData.getIndex(javaProject, modelClass, property);
 	}
 
@@ -61,15 +61,15 @@ public class PropertyEditorData {
 	}
 
 	public static String getGroup(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
 		return PropertyEditorData.getGroup(javaProject, modelClass, property);
 	}
 
 	public static String getGroup(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		return PropertyEditorData.getGroup(javaProject, modelClass, property);
 	}
 
@@ -79,15 +79,15 @@ public class PropertyEditorData {
 	}
 
 	public static String getDescription(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
 		return PropertyEditorData.getDescription(javaProject, modelClass, property);
 	}
 
 	public static String getDescription(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		return PropertyEditorData.getDescription(javaProject, modelClass, property);
 	}
 
@@ -97,15 +97,15 @@ public class PropertyEditorData {
 	}
 
 	public static String getDescriptiveName(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
 		return PropertyEditorData.getDescriptiveName(javaProject, modelClass, property);
 	}
 
 	public static String getDescriptiveName(BeanEditorContext<?> context, Property<?> property) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		return PropertyEditorData.getDescriptiveName(javaProject, modelClass, property);
 	}
 
@@ -116,8 +116,8 @@ public class PropertyEditorData {
 	}
 
 	public static PropertyEditorData get(PropertyEditorContext<?, ?> context) {
-		IJavaProject javaProject = context.sceneEditorContext.javaProject;
-		Class<?> modelClass = context.modelInstance.getClass();
+		IJavaProject javaProject = context.sceneContext.javaProject;
+		Class<?> modelClass = context.bean.getClass();
 		Property<?> property = context.property;
 		return PropertyEditorData.get(javaProject, modelClass, property);
 	}

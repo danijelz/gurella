@@ -29,12 +29,15 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.badlogic.gdx.utils.OrderedMap;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
@@ -47,14 +50,16 @@ import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
-	private OrderedMap<String, ExpandablePropertyGroup> groups;
+	private static final String groupPreferencePrefix = "_generic_groups_";
+
+	private OrderedMap<String, ExpandableGroup> groups;
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 	}
 
-	private OrderedMap<String, ExpandablePropertyGroup> getGroups() {
+	private OrderedMap<String, ExpandableGroup> getGroups() {
 		if (groups == null) {
 			groups = new OrderedMap<>();
 		}
@@ -62,25 +67,28 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		return groups;
 	}
 
-	private ExpandablePropertyGroup getOrCreateGroup(String groupName) {
-		ExpandablePropertyGroup group = getGroups().get(groupName);
-		if (group == null) {
-			StringBuilder path = new StringBuilder();
-			ExpandablePropertyGroup parent = null;
+	private ExpandableGroup getOrCreateGroup(String groupName) {
+		ExpandableGroup group = getGroups().get(groupName);
+		if (group != null) {
+			return group;
+		}
 
-			for (String part : groupName.split("\\.")) {
-				if (isNotBlank(part)) {
-					path.append(path.length() == 0 ? "" : ".").append(part);
-					group = getOrCreateGroup(parent, path.toString(), part);
-					parent = group;
-				}
+		StringBuilder path = new StringBuilder();
+		ExpandableGroup parent = null;
+
+		for (String part : groupName.split("\\.")) {
+			if (isNotBlank(part)) {
+				path.append(path.length() == 0 ? "" : ".").append(part);
+				group = getOrCreateGroup(parent, path.toString(), part);
+				parent = group;
 			}
 		}
+
 		return group;
 	}
 
-	private ExpandablePropertyGroup getOrCreateGroup(ExpandablePropertyGroup parent, String path, String name) {
-		ExpandablePropertyGroup group = getGroups().get(path);
+	private ExpandableGroup getOrCreateGroup(ExpandableGroup parent, String path, String name) {
+		ExpandableGroup group = getGroups().get(path);
 		if (group == null) {
 			group = createGroup(parent, path, name);
 			if (parent != null) {
@@ -90,16 +98,33 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		return group;
 	}
 
-	private ExpandablePropertyGroup createGroup(ExpandablePropertyGroup parent, String groupPath, String name) {
-		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parent, name, false);
-		GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(FILL, BEGINNING).indent(15 * group.level, 0)
-				.applyTo(group);
+	private ExpandableGroup createGroup(ExpandableGroup parent, String groupPath, String name) {
+		ExpandableGroup group = new ExpandableGroup(this, parent, name, false);
+		group.setExpanded(getExpansionPreferenceValue(groupPath, false));
+		group.addExpandListener(b -> persistGroupExpansion(groupPath, b.booleanValue()));
+		int h = 15 * group.level;
+		GridDataFactory.swtDefaults().align(FILL, BEGINNING).span(2, 1).grab(true, false).indent(h, 0).applyTo(group);
 		getGroups().put(groupPath, group);
 		return group;
 	}
 
-	private ExpandablePropertyGroup getFirstGroup() {
-		OrderedMap<String, ExpandablePropertyGroup> groups = getGroups();
+	private boolean getExpansionPreferenceValue(String groupPath, boolean defaultValue) {
+		return context.sceneContext.getSceneBooleanPreference(getExpansionPreferencePrefix(), groupPath, defaultValue);
+	}
+
+	private String getExpansionPreferencePrefix() {
+		T bean = context.bean;
+		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid()
+				: bean.getClass().getName() + groupPreferencePrefix;
+		return CustomizableBeanEditor.class.getName() + "." + id;
+	}
+
+	private void persistGroupExpansion(String groupPath, boolean expanded) {
+		context.sceneContext.setSceneBooleanPreference(getExpansionPreferencePrefix(), groupPath, expanded);
+	}
+
+	private ExpandableGroup getFirstGroup() {
+		OrderedMap<String, ExpandableGroup> groups = getGroups();
 		return groups.size == 0 ? null : groups.get(groups.orderedKeys().get(0));
 	}
 
@@ -112,7 +137,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void addControl(String groupName, Control control) {
-		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		ExpandableGroup group = getOrCreateGroup(groupName);
 		group.add(control);
 		indent(control, group.level + 1);
 	}
@@ -141,7 +166,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	protected void createPropertyControls(Property<?> property, boolean considerPropertyGroup) {
-		ExpandablePropertyGroup group = considerPropertyGroup ? getOrCreateGroup(getGroup(context, property)) : null;
+		ExpandableGroup group = considerPropertyGroup ? getOrCreateGroup(getGroup(context, property)) : null;
 		createEditorControls(group, property);
 	}
 
@@ -173,7 +198,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	protected void createPropertyLabel(String groupName, String propertyName) {
 		Label label = newLabel(this, getDescriptiveName(context, getProperty(propertyName)), false);
-		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		ExpandableGroup group = getOrCreateGroup(groupName);
 		group.add(label);
 		indent(label, group.level + 1);
 	}
@@ -184,7 +209,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	protected void createLabel(String groupName, String text) {
 		Label label = newLabel(this, text, false);
-		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		ExpandableGroup group = getOrCreateGroup(groupName);
 		group.add(label);
 		indent(label, group.level + 1);
 	}
@@ -222,7 +247,6 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		Section section = toolkit.createSection(this, TWISTIE | NO_TITLE_FOCUS_BOX | CLIENT_INDENT);
 		section.setText(name);
 		section.setSize(100, 100);
-		section.setExpanded(true);
 		GridDataFactory.swtDefaults().align(FILL, BEGINNING).grab(true, false).span(2, 1).hint(100, DEFAULT)
 				.applyTo(section);
 
@@ -236,18 +260,17 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	protected Section createSection(String groupName, String name) {
 		Section section = createSection(name);
-		ExpandablePropertyGroup group = getOrCreateGroup(groupName);
+		ExpandableGroup group = getOrCreateGroup(groupName);
 		group.add(section);
 		indent(section, group.level + 1);
 		return section;
 	}
 
-	private <V> void createEditorControls(ExpandablePropertyGroup group, Property<V> property) {
+	private <V> void createEditorControls(ExpandableGroup group, Property<V> property) {
 		createEditorControls(group, new PropertyEditorContext<>(context, property));
 	}
 
-	protected <V> void createEditorControls(ExpandablePropertyGroup group,
-			PropertyEditorContext<T, V> propertyContext) {
+	protected <V> void createEditorControls(ExpandableGroup group, PropertyEditorContext<T, V> propertyContext) {
 		if (PropertyEditorFactory.hasReflectionEditor(propertyContext)) {
 			createCompositeEditors(group, propertyContext);
 		} else {
@@ -255,14 +278,10 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		}
 	}
 
-	protected <V> void createSimpleEditor(ExpandablePropertyGroup group, PropertyEditorContext<T, V> propertyContext) {
+	protected <V> void createSimpleEditor(ExpandableGroup group, PropertyEditorContext<T, V> propertyContext) {
 		PropertyEditor<V> editor = createEditor(this, propertyContext);
 		Composite editorBody = editor.getBody();
-
-		PropertyEditorContext<?, V> context = editor.getContext();
-		Class<V> propertyType = context.getPropertyType();
-		boolean required = propertyType.isPrimitive() ? false : (!context.isNullable() && !context.isFixedValue());
-		String name = editor.getDescriptiveName() + (required ? "*" : "");
+		String name = editor.getDescriptiveName() + (isPropertyRequired(propertyContext) ? "*" : "");
 
 		if (editor instanceof SimplePropertyEditor) {
 			boolean longName = name.length() > 20;
@@ -280,7 +299,10 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		} else if (editor instanceof CompositePropertyEditor) {
 			Section section = createSection(name);
 			editorBody.setParent((Composite) section.getClient());
-			GridDataFactory.swtDefaults().align(FILL, FILL).grab(true, true).indent(0, 0).applyTo(editorBody);
+			GridDataFactory.swtDefaults().align(FILL, FILL).grab(true, true).applyTo(editorBody);
+			String qualifiedName = propertyContext.getQualifiedName();
+			section.setExpanded(getExpansionPreferenceValue(qualifiedName, true));
+			section.addExpansionListener(new ExpansionListener(qualifiedName));
 			section.layout(true, true);
 
 			if (group != null) {
@@ -296,26 +318,32 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		}
 	}
 
-	private <V> void createCompositeEditors(ExpandablePropertyGroup parentGroup,
-			PropertyEditorContext<T, V> propertyContext) {
+	private <V> boolean isPropertyRequired(PropertyEditorContext<T, V> propertyContext) {
+		Class<V> propertyType = propertyContext.getPropertyType();
+		return propertyType.isPrimitive() ? false : (!propertyContext.isNullable() && !propertyContext.isFixedValue());
+	}
+
+	private <V> void createCompositeEditors(ExpandableGroup parentGroup, PropertyEditorContext<T, V> propertyContext) {
 		Property<V> property = propertyContext.property;
 		String name = PropertyEditorData.getDescriptiveName(context, property);
-		ExpandablePropertyGroup group = new ExpandablePropertyGroup(this, parentGroup, name + ":", true);
+		ExpandableGroup group = new ExpandableGroup(this, parentGroup, name + ":", true);
+		group.setExpanded(getExpansionPreferenceValue(group.qualifiedName, false));
+		group.addExpandListener(b -> persistGroupExpansion(group.qualifiedName, b.booleanValue()));
 		getGroups().put(group.qualifiedName, group);
 		GridDataFactory.fillDefaults().align(BEGINNING, CENTER).indent(0, 0).applyTo(group);
 
 		V value = propertyContext.getValue();
 		Class<V> selected = value == null ? null : cast(value.getClass());
 
-		SceneEditorContext sceneContext = context.sceneEditorContext;
+		SceneEditorContext sceneContext = context.sceneContext;
 		TypeSelectionWidget<V> selector = new TypeSelectionWidget<>(this, sceneContext, property.getType(), selected);
 		GridDataFactory.fillDefaults().align(FILL, BEGINNING).grab(true, false).indent(0, 0).applyTo(selector);
-		selector.addTypeSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
+		selector.addSelectionListener(t -> typeSelectionChanged(t, group, selector, propertyContext));
 
 		Optional.ofNullable(value).ifPresent(v -> createCompositeEditors(group, selector, propertyContext, v));
 	}
 
-	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandablePropertyGroup group,
+	private <V> void typeSelectionChanged(Class<? extends V> type, ExpandableGroup group,
 			TypeSelectionWidget<V> selector, PropertyEditorContext<T, V> parent) {
 		group.clear();
 		String message = "Error occurred while creating value";
@@ -325,7 +353,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		UiUtils.reflow(this);
 	}
 
-	private <V> void createCompositeEditors(ExpandablePropertyGroup group, TypeSelectionWidget<V> selector,
+	private <V> void createCompositeEditors(ExpandableGroup group, TypeSelectionWidget<V> selector,
 			PropertyEditorContext<T, V> parent, V value) {
 		Property<?>[] properties = Models.getModel(value.getClass()).getProperties().toArray(Property.class);
 		Arrays.stream(properties).filter(p -> p.isEditable()).sorted((p1, p2) -> compare(context, p1, p2))
@@ -334,8 +362,21 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 		selector.moveBelow(group);
 	}
 
-	private ExpandablePropertyGroup getPropertyGroup(ExpandablePropertyGroup group, Property<?> property) {
+	private ExpandableGroup getPropertyGroup(ExpandableGroup group, Property<?> property) {
 		String propertyGroup = getGroup(context, property);
 		return Values.isBlank(propertyGroup) ? group : getOrCreateGroup(group.qualifiedName + "." + propertyGroup);
+	}
+
+	private class ExpansionListener extends ExpansionAdapter {
+		final String qualifiedName;
+
+		ExpansionListener(String qualifiedName) {
+			this.qualifiedName = qualifiedName;
+		}
+
+		@Override
+		public void expansionStateChanged(ExpansionEvent e) {
+			persistGroupExpansion(qualifiedName, e.getState());
+		}
 	}
 }

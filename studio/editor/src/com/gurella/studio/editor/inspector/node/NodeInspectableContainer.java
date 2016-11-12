@@ -46,8 +46,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
-import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
@@ -97,6 +97,9 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		implements EditorSceneActivityListener, NodeNameChangedListener, NodeEnabledChangedListener {
+	private static final String expansionPreferencePath = NodeInspectableContainer.class.getName()
+			+ "_component_expansion_";
+
 	private Text nameText;
 	private Listener nameChangedlLstener;
 
@@ -223,11 +226,12 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		section.addExpansionListener(new ExpansionListener(component));
 
 		BeanEditor<SceneNodeComponent2> editor = createEditor(section, editorContext, component);
-		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertyChangedSignal;
+		Signal1<PropertyValueChangedEvent> signal = editor.getContext().propertiesSignal;
 		signal.addListener(e -> notifySceneChanged());
 
 		section.setClient(editor);
-		section.setExpanded(editorContext.getSceneBooleanPreference(null, component.ensureUuid(), true));
+		section.setExpanded(
+				editorContext.getSceneBooleanPreference(expansionPreferencePath, component.ensureUuid(), true));
 		editors.put(component, section);
 
 		return section;
@@ -415,7 +419,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		}
 	}
 
-	private class ExpansionListener implements IExpansionListener {
+	private class ExpansionListener extends ExpansionAdapter {
 		final SceneNodeComponent2 component;
 
 		ExpansionListener(SceneNodeComponent2 component) {
@@ -424,12 +428,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 
 		@Override
 		public void expansionStateChanged(ExpansionEvent e) {
-			editorContext.setSceneBooleanPreference(null, component.ensureUuid(), e.getState());
-
-		}
-
-		@Override
-		public void expansionStateChanging(ExpansionEvent e) {
+			editorContext.setSceneBooleanPreference(expansionPreferencePath, component.ensureUuid(), e.getState());
 		}
 	}
 }

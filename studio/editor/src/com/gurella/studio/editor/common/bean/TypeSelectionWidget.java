@@ -30,7 +30,7 @@ class TypeSelectionWidget<T> extends Composite {
 	private Image menuImage;
 	private Label menuButton;
 
-	private Signal1<Class<? extends T>> typeSelectionListener = new Signal1<>();
+	private Signal1<Class<? extends T>> selectionSignal = new Signal1<>();
 
 	private Class<? extends T> selectedType;
 
@@ -75,15 +75,15 @@ class TypeSelectionWidget<T> extends Composite {
 	private void updateType(Class<? extends T> selected) {
 		selectedType = selected;
 		infoLabel.setText(selected == null ? "null" : selected.getSimpleName());
-		typeSelectionListener.dispatch(selectedType);
+		selectionSignal.dispatch(selectedType);
 	}
 
-	public void addTypeSelectionListener(Listener1<Class<? extends T>> listener) {
-		typeSelectionListener.addListener(listener);
+	public void addSelectionListener(Listener1<Class<? extends T>> listener) {
+		selectionSignal.addListener(listener);
 	}
 
-	public void removeTypeSelectionListener(Listener1<Class<? extends T>> listener) {
-		typeSelectionListener.removeListener(listener);
+	public void removeSelectionListener(Listener1<Class<? extends T>> listener) {
+		selectionSignal.removeListener(listener);
 	}
 
 	public void showMenuImage(boolean show) {
