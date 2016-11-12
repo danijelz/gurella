@@ -153,20 +153,20 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 		}
 		spatials.clear();
 
+		if (closestSpatial == null) {
+			return false;
+		} 
+		
 		// TODO renderable.inputSensitivity in processors
-		if (closestSpatial != null) {
-			RenderableComponent renderable = closestSpatial.renderable;
-			if (renderable.inputSensitivity == 0) {
-				return false;
-			}
-			out.renderable = renderable;
-			out.node = renderable.getNode();
-			out.location.set(intersector.getClosestIntersection());
-			out.distance = intersector.getClosestDistance();
-			return true;
-		} else {
+		RenderableComponent renderable = closestSpatial.renderable;
+		if (renderable.inputSensitivity == 0) {
 			return false;
 		}
+		out.renderable = renderable;
+		out.node = renderable.getNode();
+		out.location.set(intersector.getClosestIntersection());
+		out.distance = intersector.getClosestDistance();
+		return true;
 	}
 
 	private class InputEventsDispatcher implements InputProcessor {
