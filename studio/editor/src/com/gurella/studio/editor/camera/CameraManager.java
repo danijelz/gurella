@@ -7,11 +7,16 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
+import com.gurella.engine.scene.Scene;
+import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
+import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpdateListener, EditorResizeListener {
+public class CameraManager
+		implements EditorPreCloseListener, EditorPreRenderUpdateListener, EditorResizeListener, SceneLoadedListener {
 	private final int editorId;
 	private final CameraProviderExtensionRegistry extensionRegistry;
 
@@ -85,6 +90,8 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 		inputController = orthographicCameraController;
 		Workbench.activate(inputController);
 		extensionRegistry.updateCamera(camera);
+		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
+		context.setSceneIntPreference(CameraManager.class.getName(), "cameraType", CameraType.camera2d.ordinal());
 	}
 
 	boolean is3d() {
@@ -101,6 +108,8 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 		inputController = perspectiveCameraController;
 		Workbench.activate(inputController);
 		extensionRegistry.updateCamera(camera);
+		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
+		context.setSceneIntPreference(CameraManager.class.getName(), "cameraType", CameraType.camera3d.ordinal());
 	}
 
 	Camera getCamera() {
@@ -121,6 +130,14 @@ public class CameraManager implements EditorPreCloseListener, EditorPreRenderUpd
 		orthographicCamera.viewportWidth = width;
 		orthographicCamera.viewportHeight = height;
 		orthographicCamera.update();
+	}
+
+	@Override
+	public void sceneLoaded(Scene scene) {
+		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
+		int defaultCamera = CameraType.camera3d.ordinal();
+		int cameraType = context.getSceneIntPreference(CameraManager.class.getName(), "cameraType", defaultCamera);
+		switchCamera(CameraType.values()[cameraType]);
 	}
 
 	@Override
