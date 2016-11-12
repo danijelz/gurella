@@ -50,8 +50,6 @@ import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
-	private static final String groupPreferencePrefix = "_generic_groups_";
-
 	private OrderedMap<String, ExpandableGroup> groups;
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
@@ -114,8 +112,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	private String getExpansionPreferencePrefix() {
 		T bean = context.bean;
-		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid()
-				: bean.getClass().getName() + groupPreferencePrefix;
+		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid() : bean.getClass().getName();
 		return CustomizableBeanEditor.class.getName() + "." + id;
 	}
 
