@@ -74,6 +74,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	}
 
 	private void flushPreferences() {
+		//TODO notify about preferences flushing so others can persit values e.g. camera.position
 		Try.successful(projectPreferences).peek(pp -> pp.flush())
 				.onFailure(e -> log(e, "Error while flushing preferences"));
 	}
