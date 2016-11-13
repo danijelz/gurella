@@ -3,7 +3,6 @@ package com.gurella.studio.editor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.EditorActionBarContributor;
@@ -105,7 +104,7 @@ public class SceneEditorActionBarContributor extends EditorActionBarContributor 
 
 		@Override
 		public void run() {
-			views.openView(type, SWT.LEFT);
+			views.openView(type);
 			setChecked(true);
 			setEnabled(false);
 		}
