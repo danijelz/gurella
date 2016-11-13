@@ -57,6 +57,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 	private OrderedMap<String, ExpandableGroup> groups;
 
 	private PreferencesStore preferencesStore;
+	private PreferencesNode preferences;
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
@@ -66,9 +67,19 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 	}
 
 	private PreferencesNode getPreferences() {
+		if (preferences != null) {
+			return preferences;
+		}
+
 		T bean = context.bean;
-		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid() : bean.getClass().getName();
-		return preferencesStore.sceneNode().map(n -> n.node(CustomizableBeanEditor.class).node(id)).get();
+		PreferencesNode node = preferencesStore.sceneNode().node(CustomizableBeanEditor.class);
+		if (bean instanceof ManagedObject) {
+			preferences = node.node(((ManagedObject) bean).ensureUuid());
+		} else {
+			preferences = node.node(bean.getClass());
+		}
+
+		return preferences;
 	}
 
 	@Override

@@ -245,7 +245,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	private PreferencesNode getPreferences() {
-		return preferencesStore.sceneNode().map(p -> p.node(NodeInspectableContainer.class)).get();
+		return preferencesStore.sceneNode().node(NodeInspectableContainer.class);
 	}
 
 	private void notifySceneChanged() {

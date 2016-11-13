@@ -11,16 +11,16 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
+import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
+import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
-import com.gurella.studio.editor.subscription.ScenePreferencesLoadedListener;
 
 public class CameraManager implements EditorPreCloseListener, EditorCloseListener, EditorPreRenderUpdateListener,
-		EditorResizeListener, ScenePreferencesLoadedListener {
-	private static final String preferencesPath = CameraManager.class.getName();
+		EditorResizeListener, PreferencesExtension {
 
 	private final int editorId;
 	private final CameraProviderExtensionRegistry extensionRegistry;
@@ -42,6 +42,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	public CameraManager(int editorId) {
 		this.editorId = editorId;
 		extensionRegistry = new CameraProviderExtensionRegistry(this);
+		Workbench.activate(this);
 		Workbench.addListener(extensionRegistry);
 
 		Graphics graphics = Gdx.graphics;
@@ -143,8 +144,9 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	}
 
 	@Override
-	public void scenePreferencesLoaded(PreferencesNode scenePreferences) {
-		this.rootPreferences = scenePreferences.node(preferencesPath);
+	public void setPreferencesStore(PreferencesStore preferencesStore) {
+		this.rootPreferences = preferencesStore.sceneNode().node(CameraManager.class);
+
 		rootPreferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
 
 		PreferencesNode node2d = rootPreferences.node("camera2d");
@@ -161,7 +163,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		up.y = node2d.getFloat("up.y", 1);
 		up.z = node2d.getFloat("up.z", 0);
 		orthographicCamera.update();
-		
+
 		PreferencesNode node3d = rootPreferences.node("camera3d");
 		position = perspectiveCamera.position;
 		position.x = node3d.getFloat("position.x", 0);
@@ -211,5 +213,6 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		Workbench.deactivate(inputController);
 		Workbench.removeListener(extensionRegistry);
 		EventService.unsubscribe(editorId, this);
+		Workbench.deactivate(this);
 	}
 }
