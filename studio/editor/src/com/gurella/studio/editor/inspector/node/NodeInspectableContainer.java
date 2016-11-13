@@ -122,6 +122,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 
+		addDisposeListener(e -> Workbench.deactivate(this));
+		Workbench.activate(this);
+
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
@@ -158,9 +161,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		UiUtils.paintBordersFor(body);
 		initComponentContainers();
 		layout(true, true);
-
-		addDisposeListener(e -> Workbench.deactivate(this));
-		Workbench.activate(this);
 	}
 
 	private void nodeNameChanged() {

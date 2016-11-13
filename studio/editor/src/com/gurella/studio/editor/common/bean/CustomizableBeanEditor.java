@@ -61,17 +61,23 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
-		addDisposeListener(e -> Workbench.deactivate(this));
-		Workbench.activate(this);
 	}
 
 	private PreferencesNode getPreferences() {
-		return preferencesStore.sceneNode().map(n -> n.node(getPreferencesPath())).get();
+		T bean = context.bean;
+		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid() : bean.getClass().getName();
+		return preferencesStore.sceneNode().map(n -> n.node(CustomizableBeanEditor.class).node(id)).get();
 	}
 
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
 		this.preferencesStore = preferencesStore;
+	}
+
+	@Override
+	protected void createContent() {
+		addDisposeListener(e -> Workbench.deactivate(this));
+		Workbench.activate(this);
 	}
 
 	private OrderedMap<String, ExpandableGroup> getGroups() {
@@ -125,12 +131,6 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 	private boolean getExpansionPreferenceValue(String groupPath, boolean defaultValue) {
 		return getPreferences().getBoolean(groupPath, defaultValue);
-	}
-
-	private String getPreferencesPath() {
-		T bean = context.bean;
-		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid() : bean.getClass().getName();
-		return CustomizableBeanEditor.class.getName() + "." + id;
 	}
 
 	private void persistGroupExpansion(String groupPath, boolean expanded) {
