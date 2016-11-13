@@ -100,7 +100,7 @@ public class ArrayPropertyEditor<P> extends CompositePropertyEditor<P> {
 
 	public String isValid(String newText) {
 		Try<Integer> failable = Try.ofFailable(() -> Integer.valueOf(newText));
-		return failable.filter(i -> i.intValue() > 0).isSuccess() ? null : "invalid length";
+		return failable.filter(i -> i.intValue() >= 0).isSuccess() ? null : "invalid length";
 	}
 
 	private Class<Object> getComponentType() {

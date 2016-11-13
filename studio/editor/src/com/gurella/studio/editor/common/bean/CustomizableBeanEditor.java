@@ -128,20 +128,12 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 	private ExpandableGroup createGroup(ExpandableGroup parent, String groupPath, String name) {
 		ExpandableGroup group = new ExpandableGroup(this, parent, name, false);
-		group.setExpanded(getExpansionPreferenceValue(groupPath, false));
-		group.addExpandListener(b -> persistGroupExpansion(groupPath, b.booleanValue()));
+		group.setExpanded(getPreferences().getBoolean(groupPath, false));
+		group.addExpandListener(b -> getPreferences().putBoolean(groupPath, b.booleanValue()));
 		int h = 15 * group.level;
 		GridDataFactory.swtDefaults().align(FILL, BEGINNING).span(2, 1).grab(true, false).indent(h, 0).applyTo(group);
 		getGroups().put(groupPath, group);
 		return group;
-	}
-
-	private boolean getExpansionPreferenceValue(String groupPath, boolean defaultValue) {
-		return getPreferences().getBoolean(groupPath, defaultValue);
-	}
-
-	private void persistGroupExpansion(String groupPath, boolean expanded) {
-		getPreferences().putBoolean(groupPath, expanded);
 	}
 
 	private ExpandableGroup getFirstGroup() {
@@ -295,11 +287,11 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 		if (PropertyEditorFactory.hasReflectionEditor(propertyContext)) {
 			createCompositeEditors(group, propertyContext);
 		} else {
-			createSimpleEditor(group, propertyContext);
+			createFactoryEditor(group, propertyContext);
 		}
 	}
 
-	protected <V> void createSimpleEditor(ExpandableGroup group, PropertyEditorContext<T, V> propertyContext) {
+	protected <V> void createFactoryEditor(ExpandableGroup group, PropertyEditorContext<T, V> propertyContext) {
 		PropertyEditor<V> editor = createEditor(this, propertyContext);
 		Composite editorBody = editor.getBody();
 		String name = editor.getDescriptiveName() + (isPropertyRequired(propertyContext) ? "*" : "");
@@ -322,7 +314,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 			editorBody.setParent((Composite) section.getClient());
 			GridDataFactory.swtDefaults().align(FILL, FILL).grab(true, true).applyTo(editorBody);
 			String qualifiedName = propertyContext.getQualifiedName();
-			section.setExpanded(getExpansionPreferenceValue(qualifiedName, true));
+			section.setExpanded(getPreferences().getBoolean(qualifiedName, true));
 			section.addExpansionListener(new ExpansionListener(qualifiedName));
 			section.layout(true, true);
 
@@ -348,8 +340,8 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 		Property<V> property = propertyContext.property;
 		String name = PropertyEditorData.getDescriptiveName(context, property);
 		ExpandableGroup group = new ExpandableGroup(this, parentGroup, name + ":", true);
-		group.setExpanded(getExpansionPreferenceValue(group.qualifiedName, false));
-		group.addExpandListener(b -> persistGroupExpansion(group.qualifiedName, b.booleanValue()));
+		group.setExpanded(getPreferences().getBoolean(group.qualifiedName, false));
+		group.addExpandListener(b -> getPreferences().putBoolean(group.qualifiedName, b.booleanValue()));
 		getGroups().put(group.qualifiedName, group);
 		GridDataFactory.fillDefaults().align(BEGINNING, CENTER).indent(0, 0).applyTo(group);
 
@@ -397,7 +389,7 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 		@Override
 		public void expansionStateChanged(ExpansionEvent e) {
-			persistGroupExpansion(qualifiedName, e.getState());
+			getPreferences().putBoolean(qualifiedName, e.getState());
 		}
 	}
 }
