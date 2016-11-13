@@ -30,6 +30,10 @@ public class PreferencesNode {
 		return this;
 	}
 
+	public String get(String key, String def) {
+		return preferences.get(key, def);
+	}
+
 	public PreferencesNode remove(String key) {
 		preferences.remove(key);
 		return this;
@@ -50,6 +54,10 @@ public class PreferencesNode {
 		return this;
 	}
 
+	public int getInt(String key, int def) {
+		return preferences.getInt(key, def);
+	}
+
 	public PreferencesNode putLong(String key, long value) {
 		preferences.putLong(key, value);
 		return this;
@@ -58,6 +66,10 @@ public class PreferencesNode {
 	public PreferencesNode getLong(String key, long def, LongConsumer consumer) {
 		consumer.accept(preferences.getLong(key, def));
 		return this;
+	}
+
+	public long getLong(String key, long def) {
+		return preferences.getLong(key, def);
 	}
 
 	public PreferencesNode putBoolean(String key, boolean value) {
@@ -70,6 +82,10 @@ public class PreferencesNode {
 		return this;
 	}
 
+	public boolean getBoolean(String key, boolean def) {
+		return preferences.getBoolean(key, def);
+	}
+
 	public PreferencesNode putFloat(String key, float value) {
 		preferences.putFloat(key, value);
 		return this;
@@ -78,6 +94,10 @@ public class PreferencesNode {
 	public PreferencesNode getFloat(String key, float def, Consumer<Float> consumer) {
 		consumer.accept(Float.valueOf(preferences.getFloat(key, def)));
 		return this;
+	}
+
+	public float getFloat(String key, float def) {
+		return preferences.getFloat(key, def);
 	}
 
 	public PreferencesNode putDouble(String key, double value) {
@@ -90,6 +110,10 @@ public class PreferencesNode {
 		return this;
 	}
 
+	public double getDouble(String key, double def) {
+		return preferences.getDouble(key, def);
+	}
+
 	public PreferencesNode putByteArray(String key, byte[] value) {
 		preferences.putByteArray(key, value);
 		return this;
@@ -100,12 +124,20 @@ public class PreferencesNode {
 		return this;
 	}
 
+	public byte[] getByteArray(String key, byte[] def) {
+		return preferences.getByteArray(key, def);
+	}
+
 	public Optional<PreferencesNode> parent() {
 		return Optional.ofNullable(preferences.parent()).map(PreferencesNode::new);
 	}
 
 	public PreferencesNode node(String pathName) {
 		return new PreferencesNode(preferences.node(pathName));
+	}
+
+	public PreferencesNode node(Class<?> pathId) {
+		return new PreferencesNode(preferences.node(pathId.getName()));
 	}
 
 	public PreferencesNode node(String pathName, Consumer<PreferencesNode> consumer) {

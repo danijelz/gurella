@@ -15,7 +15,6 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.subscription.ScenePreferencesLoadedListener;
 import com.gurella.studio.editor.utils.Try;

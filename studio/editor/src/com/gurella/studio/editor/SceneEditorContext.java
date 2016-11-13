@@ -28,11 +28,13 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.history.HistoryManager;
+import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.subscription.ScenePreferencesLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneLoadedListener, EditorCloseListener {
+public class SceneEditorContext implements SceneLoadedListener, ScenePreferencesLoadedListener, EditorCloseListener {
 	public final int editorId;
 	private final HistoryManager historyManager;
 
@@ -44,7 +46,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	public final ClassLoader classLoader;
 
 	private Scene scene;
-	private Preferences projectPreferences;
+	private PreferencesNode scenePreferences;
 	private Map<String, Object> editedAssets = new HashMap<>();
 
 	public SceneEditorContext(SceneEditor editor) {
@@ -55,7 +57,6 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		IResource resource = editorInput.getAdapter(IResource.class);
 		workspace = resource.getWorkspace();
 		project = resource.getProject();
-		projectPreferences = new ProjectScope(project).getNode(GurellaStudioPlugin.PLUGIN_ID);
 		javaProject = JavaCore.create(project);
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
 		Reflection.classResolver = classLoader::loadClass;
@@ -67,16 +68,9 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		EventService.unsubscribe(editorId, this);
 		unloadAssets();
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());
-		flushPreferences();
 		String msg = "Error closing java project";
 		Try.successful(Optional.ofNullable(javaProject)).filter(o -> o.isPresent()).map(o -> o.get())
 				.peek(t -> t.close()).onFailure(e -> log(e, msg));
-	}
-
-	private void flushPreferences() {
-		//TODO notify about preferences flushing so others can persit values e.g. camera.position
-		Try.successful(projectPreferences).peek(pp -> pp.flush())
-				.onFailure(e -> log(e, "Error while flushing preferences"));
 	}
 
 	private void unloadAssets() {
@@ -87,7 +81,6 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	}
 
 	void persist(IProgressMonitor monitor) {
-		flushPreferences();
 		for (Entry<String, Object> entry : editedAssets.entrySet()) {
 			String fileName = entry.getKey();
 			Object asset = entry.getValue();
@@ -128,8 +121,17 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 			AssetService.unload(fileName);
 		}
 	}
+	
+	@Override
+	public void scenePreferencesLoaded(PreferencesNode scenePreferences) {
+		this.scenePreferences = scenePreferences;
+	}
+	
+	public PreferencesNode getScenePreferences() {
+		return scenePreferences;
+	}
 
-	public String getProjectStringPreference(String path, String name, String defaultValue) {
+	/*public String getProjectStringPreference(String path, String name, String defaultValue) {
 		return getProjectPreferences(path).get(name, defaultValue);
 	}
 
@@ -205,5 +207,5 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 
 	public void setSceneFloatPreference(String path, String name, float value) {
 		getScenePreferences(path).putFloat(name, value);
-	}
+	}*/
 }

@@ -84,8 +84,7 @@ public class SceneGraphView extends DockableView
 		IPathEditorInput editorInput = context.editorInput;
 		IResource resource = editorInput.getAdapter(IResource.class);
 		IPath path = resource.getProjectRelativePath();
-		return context.getProjectIntPreference(path.toString(), SceneGraphView.class.getName(), SWT.LEFT);
-		
+		return SWT.LEFT;//context.getProjectIntPreference(path.toString(), SceneGraphView.class.getName(), SWT.LEFT);
 	}
 
 	public SceneGraphView(SceneEditor editor, int style) {

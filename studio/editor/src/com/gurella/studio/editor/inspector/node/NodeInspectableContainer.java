@@ -91,6 +91,7 @@ import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
+import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeEnabledChangedListener;
 import com.gurella.studio.editor.subscription.NodeNameChangedListener;
@@ -98,8 +99,7 @@ import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		implements EditorSceneActivityListener, NodeNameChangedListener, NodeEnabledChangedListener {
-	private static final String expansionPreferencePath = NodeInspectableContainer.class.getName()
-			+ "_component_expansion_";
+	private static final String expansionPreferencePath = NodeInspectableContainer.class.getName();
 
 	private Text nameText;
 	private Listener nameChangedlLstener;
@@ -232,11 +232,14 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		signal.addListener(e -> notifySceneChanged());
 
 		section.setClient(editor);
-		section.setExpanded(
-				editorContext.getSceneBooleanPreference(expansionPreferencePath, component.ensureUuid(), true));
+		section.setExpanded(getPreferences().getBoolean(component.ensureUuid(), true));
 		editors.put(component, section);
 
 		return section;
+	}
+
+	private PreferencesNode getPreferences() {
+		return editorContext.getScenePreferences().node(expansionPreferencePath);
 	}
 
 	private void notifySceneChanged() {
@@ -430,7 +433,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 
 		@Override
 		public void expansionStateChanged(ExpansionEvent e) {
-			editorContext.setSceneBooleanPreference(expansionPreferencePath, component.ensureUuid(), e.getState());
+			getPreferences().putBoolean(component.ensureUuid(), e.getState());
 		}
 	}
 }

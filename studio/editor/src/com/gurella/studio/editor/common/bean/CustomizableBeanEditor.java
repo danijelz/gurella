@@ -46,6 +46,7 @@ import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.PropertyEditorData;
 import com.gurella.studio.editor.common.property.PropertyEditorFactory;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
+import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
@@ -107,17 +108,21 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 	}
 
 	private boolean getExpansionPreferenceValue(String groupPath, boolean defaultValue) {
-		return context.sceneContext.getSceneBooleanPreference(getExpansionPreferencePrefix(), groupPath, defaultValue);
+		return getPreferences().getBoolean(groupPath, defaultValue);
 	}
 
-	private String getExpansionPreferencePrefix() {
+	private PreferencesNode getPreferences() {
+		return context.sceneContext.getScenePreferences().node(getPreferencesPath());
+	}
+
+	private String getPreferencesPath() {
 		T bean = context.bean;
 		String id = bean instanceof ManagedObject ? ((ManagedObject) bean).ensureUuid() : bean.getClass().getName();
 		return CustomizableBeanEditor.class.getName() + "." + id;
 	}
 
 	private void persistGroupExpansion(String groupPath, boolean expanded) {
-		context.sceneContext.setSceneBooleanPreference(getExpansionPreferencePrefix(), groupPath, expanded);
+		getPreferences().putBoolean(groupPath, expanded);
 	}
 
 	private ExpandableGroup getFirstGroup() {

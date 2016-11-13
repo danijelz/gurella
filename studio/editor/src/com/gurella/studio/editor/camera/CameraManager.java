@@ -150,6 +150,10 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 		vec.set(orthographicCamera.position);
 		PreferencesNode node2d = rootPreferences.node("camera2d");
+		//		orthographicCamera.position.set(node2d.getFloat("pos.x", vec.x), node2d.getFloat("pos.y", vec.y), vec.z);
+		//		orthographicCamera.direction.set(node2d.getFloat("dir.x", vec.x), node2d.getFloat("dir.y", vec.y),
+		//				node2d.getFloat("dir.z", vec.z));
+
 		node2d.preferences(p -> vec.set(p.getFloat("position.x", vec.x), p.getFloat("position.y", vec.y), vec.z))
 				.preferences(p -> orthographicCamera.zoom = p.getFloat("zoom", orthographicCamera.zoom));
 		orthographicCamera.position.set(vec);
