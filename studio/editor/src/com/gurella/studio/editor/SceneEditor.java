@@ -43,6 +43,8 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.Dock;
 import com.gurella.studio.editor.history.HistoryManager;
+import com.gurella.studio.editor.preferences.PreferencesManager;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
@@ -59,6 +61,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	HistoryManager historyManager;
 	private SceneEditorContext sceneContext;
+	@SuppressWarnings("unused")
+	private PreferencesManager preferencesManager;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
@@ -136,7 +140,9 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		}
 
 		SceneEditorRegistry.put(this, dock, application, sceneContext);
+		
 		viewRegistry = new ViewRegistry(this);
+		preferencesManager = new PreferencesManager(this);
 
 		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
 	}
@@ -173,6 +179,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		super.dispose();
 		EventService.unsubscribe(id, this);
 		EventService.post(id, EditorPreCloseListener.class, l -> l.onEditorPreClose());
+		EventService.post(id, EditorCloseListener.class, l -> l.onEditorClose());
 		// TODO context and applicationListener should be unified
 		applicationListener.debugUpdate();
 		application.exit();

@@ -189,6 +189,10 @@ public abstract class Try<T> {
 	public interface TryMapFunction<T, R> {
 		R apply(T t) throws Throwable;
 	}
+	
+	public static <T> TryMapFunction<T, T> identity() {
+        return t -> t;
+    }
 }
 
 class Success<T> extends Try<T> {

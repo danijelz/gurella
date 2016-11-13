@@ -8,9 +8,9 @@ import static com.gurella.studio.editor.tool.ToolType.translate;
 import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 
-public class ToolMenuContributor implements EditorPreCloseListener, EditorContextMenuContributor {
+public class ToolMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
 	private static final String toolMenuGroupName = "&Tool";
 
 	private final int editorId;
@@ -41,7 +41,7 @@ public class ToolMenuContributor implements EditorPreCloseListener, EditorContex
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 	}
 }

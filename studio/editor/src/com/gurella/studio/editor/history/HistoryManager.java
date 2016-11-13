@@ -18,10 +18,10 @@ import com.gurella.engine.event.EventService;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class HistoryManager extends UndoContext implements EditorPreCloseListener, EditorContextMenuContributor {
+public class HistoryManager extends UndoContext implements EditorCloseListener, EditorContextMenuContributor {
 	private final int editorId;
 
 	private final IOperationHistory operationHistory;
@@ -45,7 +45,7 @@ public class HistoryManager extends UndoContext implements EditorPreCloseListene
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		historyActionGroup.dispose();
 		operationHistory.dispose(this, true, true, true);

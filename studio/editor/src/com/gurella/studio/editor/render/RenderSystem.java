@@ -36,12 +36,12 @@ import com.gurella.engine.subscriptions.scene.update.PreRenderUpdateListener;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorRenderUpdateListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.tool.ToolManager;
 
-public class RenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorPreCloseListener,
+public class RenderSystem implements ComponentActivityListener, SceneLoadedListener, EditorCloseListener,
 		EditorFocusListener, EditorRenderUpdateListener, CameraProviderExtension {
 	private int editorId;
 
@@ -253,7 +253,7 @@ public class RenderSystem implements ComponentActivityListener, SceneLoadedListe
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		Workbench.deactivate(this);
 		EventService.unsubscribe(sceneId, this);
 		EventService.unsubscribe(editorId, this);

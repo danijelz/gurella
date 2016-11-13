@@ -14,9 +14,9 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 
-public class Grid3d implements Grid, CameraProviderExtension, EditorPreCloseListener {
+public class Grid3d implements Grid, CameraProviderExtension, EditorCloseListener {
 	private final int editorId;
 
 	private Model model;
@@ -61,7 +61,7 @@ public class Grid3d implements Grid, CameraProviderExtension, EditorPreCloseList
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		Workbench.deactivate(this);
 		model.dispose();

@@ -15,10 +15,10 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class CameraMenuContributor implements EditorPreCloseListener, EditorContextMenuContributor {
+public class CameraMenuContributor implements EditorCloseListener, EditorContextMenuContributor {
 	private static final String cameraMenuGroupName = "&Camera";
 	private static final String moveToMenuGroupName = "&Navigate";
 
@@ -132,7 +132,7 @@ public class CameraMenuContributor implements EditorPreCloseListener, EditorCont
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 	}
 }

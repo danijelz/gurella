@@ -18,12 +18,12 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 import com.gurella.studio.editor.tool.ToolType;
 
-class InfoRenderer implements EditorPreCloseListener, EditorResizeListener, ToolSelectionListener {
+class InfoRenderer implements EditorCloseListener, EditorResizeListener, ToolSelectionListener {
 	private final int editorId;
 	private final BitmapFont font;
 	private final Matrix4 infoProjection;
@@ -115,7 +115,7 @@ class InfoRenderer implements EditorPreCloseListener, EditorResizeListener, Tool
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		font.dispose();
 	}

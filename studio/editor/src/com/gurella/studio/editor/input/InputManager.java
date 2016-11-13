@@ -11,9 +11,9 @@ import com.gurella.engine.plugin.PluginListener;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.priority.TypedPriorityComparator;
 import com.gurella.studio.editor.subscription.EditorInputUpdateListener;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 
-public class InputManager implements EditorInputUpdateListener, PluginListener, EditorPreCloseListener {
+public class InputManager implements EditorInputUpdateListener, PluginListener, EditorCloseListener {
 	private static final TypedPriorityComparator comparator = new TypedPriorityComparator(InputProcessor.class);
 
 	private final int editorId;
@@ -41,7 +41,7 @@ public class InputManager implements EditorInputUpdateListener, PluginListener, 
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		Workbench.removeListener(this);
 		EventService.unsubscribe(editorId, this);
 		InputService.removeInputProcessor(inputQueue);

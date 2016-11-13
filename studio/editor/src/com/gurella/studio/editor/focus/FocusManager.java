@@ -24,13 +24,13 @@ import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
 import com.gurella.studio.editor.subscription.EditorFocusListener.EditorFocusData;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.GestureDetectorPlugin;
 
-public class FocusManager implements SceneLoadedListener, EditorSelectionListener, EditorPreCloseListener,
+public class FocusManager implements SceneLoadedListener, EditorSelectionListener, EditorCloseListener,
 		EditorPreRenderUpdateListener, CameraProviderExtension {
 	private final int editorId;
 	private final GestureDetectorPlugin gestureDetector = new GestureDetectorPlugin(new FocusTapListener());
@@ -169,7 +169,7 @@ public class FocusManager implements SceneLoadedListener, EditorSelectionListene
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		Optional.ofNullable(scene).ifPresent(s -> EventService.unsubscribe(s.getInstanceId(), this));
 		Workbench.activate(this);

@@ -24,7 +24,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.render.GenericBatch;
 import com.gurella.engine.plugin.Workbench;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 
 /**
@@ -32,7 +32,7 @@ import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
  * 
  * @author Marcus Brummer
  */
-public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateListener, CameraProviderExtension {
+public class Compass implements EditorCloseListener, EditorPreRenderUpdateListener, CameraProviderExtension {
 	private final float ARROW_LENGTH = 0.08f;
 	private final float ARROW_THIKNESS = 0.4f;
 	private final float ARROW_CAP_SIZE = 0.3f;
@@ -108,7 +108,7 @@ public class Compass implements EditorPreCloseListener, EditorPreRenderUpdateLis
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		Workbench.deactivate(this);
 		compassModel.dispose();

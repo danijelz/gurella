@@ -23,12 +23,12 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.engine.utils.priority.Priority;
 import com.gurella.studio.editor.camera.CameraProviderExtension;
 import com.gurella.studio.editor.subscription.EditorFocusListener;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.ToolSelectionListener;
 
 @Priority(Integer.MIN_VALUE)
 public class ToolManager extends InputAdapter
-		implements EditorPreCloseListener, EditorFocusListener, CameraProviderExtension {
+		implements EditorCloseListener, EditorFocusListener, CameraProviderExtension {
 	final int editorId;
 
 	private final TranslateTool translateTool;
@@ -262,7 +262,7 @@ public class ToolManager extends InputAdapter
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		Workbench.deactivate(this);
 		EventService.unsubscribe(editorId, this);
 		scaleTool.dispose();

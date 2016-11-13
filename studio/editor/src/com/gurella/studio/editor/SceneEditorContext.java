@@ -28,11 +28,11 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.history.HistoryManager;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseListener {
+public class SceneEditorContext implements SceneLoadedListener, EditorCloseListener {
 	public final int editorId;
 	private final HistoryManager historyManager;
 
@@ -52,7 +52,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		historyManager = editor.historyManager;
 
 		editorInput = (IPathEditorInput) editor.getEditorInput();
-		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
+		IResource resource = editorInput.getAdapter(IResource.class);
 		workspace = resource.getWorkspace();
 		project = resource.getProject();
 		projectPreferences = new ProjectScope(project).getNode(GurellaStudioPlugin.PLUGIN_ID);
@@ -63,7 +63,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		unloadAssets();
 		Optional.ofNullable(scene).ifPresent(s -> s.stop());

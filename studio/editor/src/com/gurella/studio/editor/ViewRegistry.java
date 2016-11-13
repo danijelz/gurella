@@ -13,11 +13,11 @@ import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
-import com.gurella.studio.editor.subscription.EditorPreCloseListener;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorViewActivityListener;
 import com.gurella.studio.editor.utils.Try;
 
-class ViewRegistry implements EditorViewActivityListener, EditorPreCloseListener, EditorContextMenuContributor {
+class ViewRegistry implements EditorViewActivityListener, EditorCloseListener, EditorContextMenuContributor {
 	private static final String viewMenuGroupName = "&View";
 
 	private final SceneEditor editor;
@@ -78,7 +78,7 @@ class ViewRegistry implements EditorViewActivityListener, EditorPreCloseListener
 	}
 
 	@Override
-	public void onEditorPreClose() {
+	public void onEditorClose() {
 		EventService.unsubscribe(editor.id, this);
 	}
 }

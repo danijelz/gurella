@@ -1,5 +1,8 @@
 package com.gurella.studio.editor.camera;
 
+import static com.gurella.studio.editor.camera.CameraType.camera2d;
+import static com.gurella.studio.editor.camera.CameraType.camera3d;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
@@ -8,18 +11,20 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.plugin.Workbench;
-import com.gurella.engine.scene.Scene;
-import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.SceneEditorRegistry;
+import com.gurella.studio.editor.preferences.PreferencesNode;
+import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.EditorPreRenderUpdateListener;
 import com.gurella.studio.editor.subscription.EditorResizeListener;
-import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.subscription.ScenePreferencesLoadedListener;
 
-public class CameraManager
-		implements EditorPreCloseListener, EditorPreRenderUpdateListener, EditorResizeListener, SceneLoadedListener {
+public class CameraManager implements EditorPreCloseListener, EditorCloseListener, EditorPreRenderUpdateListener,
+		EditorResizeListener, ScenePreferencesLoadedListener {
+	private static final String preferencesPath = CameraManager.class.getName();
+
 	private final int editorId;
 	private final CameraProviderExtensionRegistry extensionRegistry;
+	private PreferencesNode rootPreferences;
 
 	private final PerspectiveCamera perspectiveCamera;
 	private final CameraController perspectiveCameraController;
@@ -91,12 +96,13 @@ public class CameraManager
 		inputController = orthographicCameraController;
 		Workbench.activate(inputController);
 		extensionRegistry.updateCamera(camera);
-		updateCameraPreference(CameraType.camera2d);
+		updateCameraPreference(camera2d);
 	}
 
 	private void updateCameraPreference(CameraType cameraType) {
-		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		context.setSceneIntPreference(CameraManager.class.getName(), "cameraType", cameraType.ordinal());
+		if (rootPreferences != null) {
+			rootPreferences.putInt("cameraType", cameraType.ordinal());
+		}
 	}
 
 	boolean is3d() {
@@ -113,7 +119,7 @@ public class CameraManager
 		inputController = perspectiveCameraController;
 		Workbench.activate(inputController);
 		extensionRegistry.updateCamera(camera);
-		updateCameraPreference(CameraType.camera3d);
+		updateCameraPreference(camera3d);
 	}
 
 	Camera getCamera() {
@@ -137,65 +143,78 @@ public class CameraManager
 	}
 
 	@Override
-	public void sceneLoaded(Scene scene) {
-		//TODO handle cases when scene is not set to context -> ScenePreferencesAvailableListener?
-		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		int defaultCamera = CameraType.camera3d.ordinal();
-		String path = CameraManager.class.getName();
-		int cameraType = context.getSceneIntPreference(path, "cameraType", defaultCamera);
-		CameraType[] values = CameraType.values();
-		CameraType selected = values.length > cameraType ? values[cameraType] : CameraType.camera3d;
-		switchCamera(selected);
+	public void scenePreferencesLoaded(PreferencesNode scenePreferences) {
+		this.rootPreferences = scenePreferences.node(preferencesPath);
+		rootPreferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
+		final Vector3 vec = new Vector3();
 
-		Vector3 vec = orthographicCamera.position;
-		vec.x = context.getSceneFloatPreference(path, "camera2d.x", 0);
-		vec.y = context.getSceneFloatPreference(path, "camera2d.y", 0);
-		orthographicCamera.zoom = context.getSceneFloatPreference(path, "camera2d.zoom", 1);
+		vec.set(orthographicCamera.position);
+		PreferencesNode node2d = rootPreferences.node("camera2d");
+		node2d.preferences(p -> vec.set(p.getFloat("position.x", vec.x), p.getFloat("position.y", vec.y), vec.z))
+				.preferences(p -> orthographicCamera.zoom = p.getFloat("zoom", orthographicCamera.zoom));
+		orthographicCamera.position.set(vec);
+
+		vec.set(orthographicCamera.direction);
+		node2d.preferences(p -> vec.set(p.getFloat("direction.x", vec.x), p.getFloat("direction.y", vec.y),
+				p.getFloat("direction.z", vec.z)));
+		orthographicCamera.direction.set(vec);
+
+		vec.set(orthographicCamera.up);
+		node2d.preferences(
+				p -> vec.set(p.getFloat("up.x", vec.x), p.getFloat("up.y", vec.y), p.getFloat("up.z", vec.z)));
+		orthographicCamera.up.set(vec);
 		orthographicCamera.update();
 
-		vec = perspectiveCamera.position;
-		vec.x = context.getSceneFloatPreference(path, "camera3d.x", 0);
-		vec.y = context.getSceneFloatPreference(path, "camera3d.y", 0);
-		vec.z = context.getSceneFloatPreference(path, "camera3d.z", 3);
+		PreferencesNode node3d = rootPreferences.node("camera3d");
+		vec.set(perspectiveCamera.position);
+		node3d.preferences(p -> vec.set(p.getFloat("position.x", vec.x), p.getFloat("position.y", vec.y),
+				p.getFloat("position.z", vec.z)));
+		perspectiveCamera.position.set(vec);
 
-		vec = perspectiveCamera.direction;
-		vec.x = context.getSceneFloatPreference(path, "camera3d.dx", perspectiveCamera.direction.x);
-		vec.y = context.getSceneFloatPreference(path, "camera3d.dy", perspectiveCamera.direction.y);
-		vec.z = context.getSceneFloatPreference(path, "camera3d.dz", perspectiveCamera.direction.z);
+		vec.set(perspectiveCamera.direction);
+		node3d.preferences(p -> vec.set(p.getFloat("direction.x", vec.x), p.getFloat("direction.y", vec.y),
+				p.getFloat("direction.z", vec.z)));
+		perspectiveCamera.direction.set(vec);
 
-		vec = perspectiveCamera.up;
-		vec.x = context.getSceneFloatPreference(path, "camera3d.ux", perspectiveCamera.up.x);
-		vec.y = context.getSceneFloatPreference(path, "camera3d.uy", perspectiveCamera.up.y);
-		vec.z = context.getSceneFloatPreference(path, "camera3d.uz", perspectiveCamera.up.z);
+		vec.set(perspectiveCamera.up);
+		node3d.preferences(
+				p -> vec.set(p.getFloat("up.x", vec.x), p.getFloat("up.y", vec.y), p.getFloat("up.z", vec.z)));
+		perspectiveCamera.up.set(vec);
 		perspectiveCamera.update();
+	}
+
+	private void initCameraSelection(int cameraOrdinal) {
+		CameraType[] values = CameraType.values();
+		CameraType selected = values.length > cameraOrdinal ? values[cameraOrdinal] : camera3d;
+		switchCamera(selected);
 	}
 
 	@Override
 	public void onEditorPreClose() {
-		persistCameraPreferences();
+		if (rootPreferences == null) {
+			return;
+		}
+
+		Vector3 pos = orthographicCamera.position;
+		Vector3 dir = orthographicCamera.direction;
+		Vector3 up = orthographicCamera.up;
+		rootPreferences.node("camera2d").putFloat("position.x", pos.x).putFloat("position.y", pos.y)
+				.putFloat("zoom", orthographicCamera.zoom).putFloat("direction.x", dir.x).putFloat("direction.y", dir.y)
+				.putFloat("direction.z", dir.z).putFloat("up.x", up.x).putFloat("up.y", up.y).putFloat("up.z", up.z);
+
+		pos = perspectiveCamera.position;
+		dir = perspectiveCamera.direction;
+		up = perspectiveCamera.up;
+		rootPreferences.node("camera3d").putFloat("position.x", pos.x).putFloat("position.y", pos.y)
+				.putFloat("position.z", pos.z).putFloat("direction.x", dir.x).putFloat("direction.y", dir.y)
+				.putFloat("direction.z", dir.z).putFloat("up.x", up.x).putFloat("up.y", up.y).putFloat("up.z", up.z);
+	}
+
+	@Override
+	public void onEditorClose() {
 		Workbench.deactivate(cameraTypeSelector);
 		Workbench.deactivate(inputController);
 		Workbench.removeListener(extensionRegistry);
 		EventService.unsubscribe(editorId, this);
-	}
-
-	private void persistCameraPreferences() {
-		SceneEditorContext context = SceneEditorRegistry.getContext(editorId);
-		String path = CameraManager.class.getName();
-		context.setSceneFloatPreference(path, "camera2d.x", orthographicCamera.position.x);
-		context.setSceneFloatPreference(path, "camera2d.y", orthographicCamera.position.y);
-		context.setSceneFloatPreference(path, "camera2d.zoom", orthographicCamera.zoom);
-
-		context.setSceneFloatPreference(path, "camera3d.x", perspectiveCamera.position.x);
-		context.setSceneFloatPreference(path, "camera3d.y", perspectiveCamera.position.y);
-		context.setSceneFloatPreference(path, "camera3d.z", perspectiveCamera.position.z);
-
-		context.setSceneFloatPreference(path, "camera3d.dx", perspectiveCamera.direction.x);
-		context.setSceneFloatPreference(path, "camera3d.dy", perspectiveCamera.direction.y);
-		context.setSceneFloatPreference(path, "camera3d.dz", perspectiveCamera.direction.z);
-
-		context.setSceneFloatPreference(path, "camera3d.ux", perspectiveCamera.up.x);
-		context.setSceneFloatPreference(path, "camera3d.uy", perspectiveCamera.up.y);
-		context.setSceneFloatPreference(path, "camera3d.uz", perspectiveCamera.up.z);
 	}
 }
