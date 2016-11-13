@@ -2,7 +2,7 @@ package com.gurella.studio.editor.preferences;
 
 import java.util.Optional;
 
-public interface PreferencesProvider {
+public interface PreferencesStore {
 	PreferencesNode projectNode();
 
 	PreferencesNode resourceNode();

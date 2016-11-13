@@ -38,6 +38,7 @@ import com.badlogic.gdx.utils.OrderedMap;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.common.property.CompositePropertyEditor;
@@ -46,16 +47,31 @@ import com.gurella.studio.editor.common.property.PropertyEditorContext;
 import com.gurella.studio.editor.common.property.PropertyEditorData;
 import com.gurella.studio.editor.common.property.PropertyEditorFactory;
 import com.gurella.studio.editor.common.property.SimplePropertyEditor;
+import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
+import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
+public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements PreferencesExtension {
 	private OrderedMap<String, ExpandableGroup> groups;
+
+	private PreferencesStore preferencesStore;
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
+		addDisposeListener(e -> Workbench.deactivate(this));
+		Workbench.activate(this);
+	}
+
+	private PreferencesNode getPreferences() {
+		return preferencesStore.sceneNode().map(n -> n.node(getPreferencesPath())).get();
+	}
+
+	@Override
+	public void setPreferencesStore(PreferencesStore preferencesStore) {
+		this.preferencesStore = preferencesStore;
 	}
 
 	private OrderedMap<String, ExpandableGroup> getGroups() {
@@ -109,10 +125,6 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> {
 
 	private boolean getExpansionPreferenceValue(String groupPath, boolean defaultValue) {
 		return getPreferences().getBoolean(groupPath, defaultValue);
-	}
-
-	private PreferencesNode getPreferences() {
-		return context.sceneContext.getScenePreferences().node(getPreferencesPath());
 	}
 
 	private String getPreferencesPath() {

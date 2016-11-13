@@ -54,6 +54,7 @@ import org.eclipse.ui.forms.widgets.Section;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.event.Signal1;
+import com.gurella.engine.plugin.Workbench;
 import com.gurella.engine.scene.ComponentType;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
@@ -91,16 +92,16 @@ import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
+import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
+import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeEnabledChangedListener;
 import com.gurella.studio.editor.subscription.NodeNameChangedListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
-		implements EditorSceneActivityListener, NodeNameChangedListener, NodeEnabledChangedListener {
-	private static final String expansionPreferencePath = NodeInspectableContainer.class.getName();
-
+public class NodeInspectableContainer extends InspectableContainer<SceneNode2> implements EditorSceneActivityListener,
+		NodeNameChangedListener, NodeEnabledChangedListener, PreferencesExtension {
 	private Text nameText;
 	private Listener nameChangedlLstener;
 
@@ -111,6 +112,8 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 
 	private Composite componentsComposite;
 	private Map<SceneNodeComponent2, Section> editors = new LinkedHashMap<>();
+
+	private PreferencesStore preferencesStore;
 
 	public NodeInspectableContainer(InspectorView parent, SceneNode2 target) {
 		super(parent, target);
@@ -155,6 +158,9 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 		UiUtils.paintBordersFor(body);
 		initComponentContainers();
 		layout(true, true);
+
+		addDisposeListener(e -> Workbench.deactivate(this));
+		Workbench.activate(this);
 	}
 
 	private void nodeNameChanged() {
@@ -239,7 +245,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 	}
 
 	private PreferencesNode getPreferences() {
-		return editorContext.getScenePreferences().node(expansionPreferencePath);
+		return preferencesStore.sceneNode().map(p -> p.node(NodeInspectableContainer.class)).get();
 	}
 
 	private void notifySceneChanged() {
@@ -344,6 +350,11 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2>
 			enabledCheck.setSelection(node.isEnabled());
 			enabledCheck.addListener(SWT.Selection, nodeEnabledListener);
 		}
+	}
+
+	@Override
+	public void setPreferencesStore(PreferencesStore preferencesStore) {
+		this.preferencesStore = preferencesStore;
 	}
 
 	private static class SetNameOperation extends AbstractOperation {

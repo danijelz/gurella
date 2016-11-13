@@ -146,44 +146,35 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	public void scenePreferencesLoaded(PreferencesNode scenePreferences) {
 		this.rootPreferences = scenePreferences.node(preferencesPath);
 		rootPreferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
-		final Vector3 vec = new Vector3();
 
-		vec.set(orthographicCamera.position);
 		PreferencesNode node2d = rootPreferences.node("camera2d");
-		//		orthographicCamera.position.set(node2d.getFloat("pos.x", vec.x), node2d.getFloat("pos.y", vec.y), vec.z);
-		//		orthographicCamera.direction.set(node2d.getFloat("dir.x", vec.x), node2d.getFloat("dir.y", vec.y),
-		//				node2d.getFloat("dir.z", vec.z));
-
-		node2d.preferences(p -> vec.set(p.getFloat("position.x", vec.x), p.getFloat("position.y", vec.y), vec.z))
-				.preferences(p -> orthographicCamera.zoom = p.getFloat("zoom", orthographicCamera.zoom));
-		orthographicCamera.position.set(vec);
-
-		vec.set(orthographicCamera.direction);
-		node2d.preferences(p -> vec.set(p.getFloat("direction.x", vec.x), p.getFloat("direction.y", vec.y),
-				p.getFloat("direction.z", vec.z)));
-		orthographicCamera.direction.set(vec);
-
-		vec.set(orthographicCamera.up);
-		node2d.preferences(
-				p -> vec.set(p.getFloat("up.x", vec.x), p.getFloat("up.y", vec.y), p.getFloat("up.z", vec.z)));
-		orthographicCamera.up.set(vec);
+		Vector3 position = orthographicCamera.position;
+		position.x = node2d.getFloat("position.x", 0);
+		position.y = node2d.getFloat("position.y", 0);
+		orthographicCamera.zoom = node2d.getFloat("zoom", 1);
+		Vector3 direction = orthographicCamera.direction;
+		direction.x = node2d.getFloat("direction.x", 0);
+		direction.y = node2d.getFloat("direction.y", 0);
+		direction.z = node2d.getFloat("direction.z", -1);
+		Vector3 up = orthographicCamera.up;
+		up.x = node2d.getFloat("up.x", 0);
+		up.y = node2d.getFloat("up.y", 1);
+		up.z = node2d.getFloat("up.z", 0);
 		orthographicCamera.update();
-
+		
 		PreferencesNode node3d = rootPreferences.node("camera3d");
-		vec.set(perspectiveCamera.position);
-		node3d.preferences(p -> vec.set(p.getFloat("position.x", vec.x), p.getFloat("position.y", vec.y),
-				p.getFloat("position.z", vec.z)));
-		perspectiveCamera.position.set(vec);
-
-		vec.set(perspectiveCamera.direction);
-		node3d.preferences(p -> vec.set(p.getFloat("direction.x", vec.x), p.getFloat("direction.y", vec.y),
-				p.getFloat("direction.z", vec.z)));
-		perspectiveCamera.direction.set(vec);
-
-		vec.set(perspectiveCamera.up);
-		node3d.preferences(
-				p -> vec.set(p.getFloat("up.x", vec.x), p.getFloat("up.y", vec.y), p.getFloat("up.z", vec.z)));
-		perspectiveCamera.up.set(vec);
+		position = perspectiveCamera.position;
+		position.x = node3d.getFloat("position.x", 0);
+		position.y = node3d.getFloat("position.y", 0);
+		position.z = node3d.getFloat("position.z", 3);
+		direction = perspectiveCamera.direction;
+		direction.x = node3d.getFloat("direction.x", 0);
+		direction.y = node3d.getFloat("direction.y", 0);
+		direction.z = node3d.getFloat("direction.z", -1);
+		up = perspectiveCamera.up;
+		up.x = node3d.getFloat("up.x", 0);
+		up.y = node3d.getFloat("up.y", 1);
+		up.z = node3d.getFloat("up.z", 0);
 		perspectiveCamera.update();
 	}
 

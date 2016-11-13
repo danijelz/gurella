@@ -11,13 +11,10 @@ import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IPathEditorInput;
-import org.osgi.service.prefs.Preferences;
 
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.persister.AssetPersister;
@@ -26,15 +23,12 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
-import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.history.HistoryManager;
-import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
-import com.gurella.studio.editor.subscription.ScenePreferencesLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class SceneEditorContext implements SceneLoadedListener, ScenePreferencesLoadedListener, EditorCloseListener {
+public class SceneEditorContext implements SceneLoadedListener, EditorCloseListener {
 	public final int editorId;
 	private final HistoryManager historyManager;
 
@@ -46,7 +40,6 @@ public class SceneEditorContext implements SceneLoadedListener, ScenePreferences
 	public final ClassLoader classLoader;
 
 	private Scene scene;
-	private PreferencesNode scenePreferences;
 	private Map<String, Object> editedAssets = new HashMap<>();
 
 	public SceneEditorContext(SceneEditor editor) {
@@ -121,91 +114,4 @@ public class SceneEditorContext implements SceneLoadedListener, ScenePreferences
 			AssetService.unload(fileName);
 		}
 	}
-	
-	@Override
-	public void scenePreferencesLoaded(PreferencesNode scenePreferences) {
-		this.scenePreferences = scenePreferences;
-	}
-	
-	public PreferencesNode getScenePreferences() {
-		return scenePreferences;
-	}
-
-	/*public String getProjectStringPreference(String path, String name, String defaultValue) {
-		return getProjectPreferences(path).get(name, defaultValue);
-	}
-
-	private Preferences getProjectPreferences(String path) {
-		return Values.isBlank(path) ? projectPreferences : projectPreferences.node(path);
-	}
-
-	public int getProjectIntPreference(String path, String name, int defaultValue) {
-		return getProjectPreferences(path).getInt(name, defaultValue);
-	}
-
-	public String getResourceStringPreference(String path, String name, String defaultValue) {
-		return getResourcePreferences(path).get(name, defaultValue);
-	}
-
-	private Preferences getResourcePreferences(String path) {
-		IPath resourcePath = editorInput.getAdapter(IResource.class).getProjectRelativePath();
-		Preferences preferences = projectPreferences.node(resourcePath.toString().replace('/', '.'));
-		return Values.isBlank(path) ? preferences : preferences.node(path);
-	}
-
-	public int getResourceIntPreference(String path, String name, int defaultValue) {
-		return getResourcePreferences(path).getInt(name, defaultValue);
-	}
-
-	public boolean getResourceBooleanPreference(String path, String name, boolean defaultValue) {
-		return getResourcePreferences(path).getBoolean(name, defaultValue);
-	}
-
-	public void setResourceIntPreference(String path, String name, int value) {
-		getResourcePreferences(path).putInt(name, value);
-	}
-
-	public void setResourceBooleanPreference(String path, String name, boolean value) {
-		getResourcePreferences(path).putBoolean(name, value);
-	}
-
-	public String getSceneStringPreference(String path, String name, String defaultValue) {
-		return getScenePreferences(path).get(name, defaultValue);
-	}
-
-	public void setSceneStringPreference(String path, String name, String value) {
-		getScenePreferences(path).put(name, value);
-	}
-
-	private Preferences getScenePreferences(String path) {
-		if (scene == null) {
-			throw new IllegalStateException("Scene is not loaded.");
-		}
-		Preferences preferences = projectPreferences.node(scene.ensureUuid());
-		return Values.isBlank(path) ? preferences : preferences.node(path);
-	}
-
-	public int getSceneIntPreference(String path, String name, int defaultValue) {
-		return getScenePreferences(path).getInt(name, defaultValue);
-	}
-
-	public void setSceneIntPreference(String path, String name, int value) {
-		getScenePreferences(path).putInt(name, value);
-	}
-
-	public boolean getSceneBooleanPreference(String path, String name, boolean defaultValue) {
-		return getScenePreferences(path).getBoolean(name, defaultValue);
-	}
-
-	public void setSceneBooleanPreference(String path, String name, boolean value) {
-		getScenePreferences(path).putBoolean(name, value);
-	}
-
-	public float getSceneFloatPreference(String path, String name, float defaultValue) {
-		return getScenePreferences(path).getFloat(name, defaultValue);
-	}
-
-	public void setSceneFloatPreference(String path, String name, float value) {
-		getScenePreferences(path).putFloat(name, value);
-	}*/
 }

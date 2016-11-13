@@ -19,9 +19,9 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.subscription.ScenePreferencesLoadedListener;
 import com.gurella.studio.editor.utils.Try;
 
-public class PreferencesManager implements PreferencesProvider, SceneLoadedListener, EditorCloseListener {
+public class PreferencesManager implements PreferencesStore, SceneLoadedListener, EditorCloseListener {
 	private final int editorId;
-	private PreferencesProviderExtensionRegistry extensionRegistry;
+	private PreferencesExtensionRegistry extensionRegistry;
 
 	private Preferences projectPreferences;
 	private Preferences resourcePreferences;
@@ -29,7 +29,7 @@ public class PreferencesManager implements PreferencesProvider, SceneLoadedListe
 
 	public PreferencesManager(SceneEditor editor) {
 		editorId = editor.id;
-		extensionRegistry = new PreferencesProviderExtensionRegistry(this);
+		extensionRegistry = new PreferencesExtensionRegistry(this);
 		Workbench.addListener(extensionRegistry);
 
 		IResource resource = editor.getEditorInput().getAdapter(IResource.class);
