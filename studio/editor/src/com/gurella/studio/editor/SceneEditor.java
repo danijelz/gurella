@@ -131,9 +131,7 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
 		initGdxApplication();
-		
 		preferencesManager = new PreferencesManager(this);
 		viewRegistry = new ViewRegistry(this);
 
