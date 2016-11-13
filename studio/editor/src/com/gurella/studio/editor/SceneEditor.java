@@ -57,8 +57,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	private Composite content;
 	Dock dock;
-	ViewRegistry viewRegistry;
 
+	ViewRegistry viewRegistry;
 	HistoryManager historyManager;
 	private SceneEditorContext sceneContext;
 	@SuppressWarnings("unused")
@@ -132,6 +132,16 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+		initGdxApplication();
+		
+		preferencesManager = new PreferencesManager(this);
+		viewRegistry = new ViewRegistry(this);
+
+		String path = ((IPathEditorInput) getEditorInput()).getPath().toString();
+		AssetService.loadAsync(path, Scene.class, new LoadSceneCallback(), 0);
+	}
+
+	private void initGdxApplication() {
 		IPathEditorInput pathEditorInput = (IPathEditorInput) getEditorInput();
 		IResource resource = pathEditorInput.getAdapter(IResource.class);
 		String internalPath = resource.getProject().getFile("assets").getLocation().toString();
@@ -140,11 +150,6 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		}
 
 		SceneEditorRegistry.put(this, dock, application, sceneContext);
-		
-		viewRegistry = new ViewRegistry(this);
-		preferencesManager = new PreferencesManager(this);
-
-		AssetService.loadAsync(pathEditorInput.getPath().toString(), Scene.class, new LoadSceneCallback(), 0);
 	}
 
 	@Override

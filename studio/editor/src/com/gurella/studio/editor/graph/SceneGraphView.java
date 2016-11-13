@@ -3,8 +3,6 @@ package com.gurella.studio.editor.graph;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -16,7 +14,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.gurella.engine.base.model.Models;
@@ -55,7 +52,6 @@ import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
-import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.SelectionEvent;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
@@ -71,21 +67,9 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 public class SceneGraphView extends DockableView
 		implements EditorSceneActivityListener, NodeNameChangedListener, SceneLoadedListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
-	
+
 	private Tree graph;
 	private Menu menu;
-	
-	public SceneGraphView(SceneEditor editor) {
-		this(editor, getStyleFromPreferences(editor));
-	}
-	
-	private static int getStyleFromPreferences(SceneEditor editor) {
-		SceneEditorContext context = editor.getSceneContext();
-		IPathEditorInput editorInput = context.editorInput;
-		IResource resource = editorInput.getAdapter(IResource.class);
-		IPath path = resource.getProjectRelativePath();
-		return SWT.LEFT;//TODO context.getProjectIntPreference(path.toString(), SceneGraphView.class.getName(), SWT.LEFT);
-	}
 
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);

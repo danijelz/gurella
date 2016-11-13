@@ -24,7 +24,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	private final int editorId;
 	private final CameraProviderExtensionRegistry extensionRegistry;
-	private PreferencesNode rootPreferences;
+	private PreferencesNode preferences;
 
 	private final PerspectiveCamera perspectiveCamera;
 	private final CameraController perspectiveCameraController;
@@ -101,8 +101,8 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 	}
 
 	private void updateCameraPreference(CameraType cameraType) {
-		if (rootPreferences != null) {
-			rootPreferences.putInt("cameraType", cameraType.ordinal());
+		if (preferences != null) {
+			preferences.putInt("cameraType", cameraType.ordinal());
 		}
 	}
 
@@ -145,11 +145,11 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
-		this.rootPreferences = preferencesStore.sceneNode().node(CameraManager.class);
+		this.preferences = preferencesStore.sceneNode().node(CameraManager.class);
 
-		rootPreferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
+		preferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
 
-		PreferencesNode node2d = rootPreferences.node("camera2d");
+		PreferencesNode node2d = preferences.node("camera2d");
 		Vector3 position = orthographicCamera.position;
 		position.x = node2d.getFloat("position.x", 0);
 		position.y = node2d.getFloat("position.y", 0);
@@ -164,7 +164,7 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 		up.z = node2d.getFloat("up.z", 0);
 		orthographicCamera.update();
 
-		PreferencesNode node3d = rootPreferences.node("camera3d");
+		PreferencesNode node3d = preferences.node("camera3d");
 		position = perspectiveCamera.position;
 		position.x = node3d.getFloat("position.x", 0);
 		position.y = node3d.getFloat("position.y", 0);
@@ -188,21 +188,21 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	@Override
 	public void onEditorPreClose() {
-		if (rootPreferences == null) {
+		if (preferences == null) {
 			return;
 		}
 
 		Vector3 pos = orthographicCamera.position;
 		Vector3 dir = orthographicCamera.direction;
 		Vector3 up = orthographicCamera.up;
-		rootPreferences.node("camera2d").putFloat("position.x", pos.x).putFloat("position.y", pos.y)
+		preferences.node("camera2d").putFloat("position.x", pos.x).putFloat("position.y", pos.y)
 				.putFloat("zoom", orthographicCamera.zoom).putFloat("direction.x", dir.x).putFloat("direction.y", dir.y)
 				.putFloat("direction.z", dir.z).putFloat("up.x", up.x).putFloat("up.y", up.y).putFloat("up.z", up.z);
 
 		pos = perspectiveCamera.position;
 		dir = perspectiveCamera.direction;
 		up = perspectiveCamera.up;
-		rootPreferences.node("camera3d").putFloat("position.x", pos.x).putFloat("position.y", pos.y)
+		preferences.node("camera3d").putFloat("position.x", pos.x).putFloat("position.y", pos.y)
 				.putFloat("position.z", pos.z).putFloat("direction.x", dir.x).putFloat("direction.y", dir.y)
 				.putFloat("direction.z", dir.z).putFloat("up.x", up.x).putFloat("up.y", up.y).putFloat("up.z", up.z);
 	}
