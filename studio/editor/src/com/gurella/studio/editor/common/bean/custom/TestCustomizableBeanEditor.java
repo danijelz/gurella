@@ -13,10 +13,10 @@ import com.gurella.studio.editor.common.bean.CustomizableBeanEditor;
 public class TestCustomizableBeanEditor extends CustomizableBeanEditor<TestEditorComponent> {
 	public TestCustomizableBeanEditor(Composite parent, BeanEditorContext<TestEditorComponent> context) {
 		super(parent, context);
+		createContent();
 	}
 
-	@Override
-	protected void createContent() {
+	private void createContent() {
 		//createPropertyControls("testInt");
 		//createPropertyControls("group", "intGroup");
 		createPropertyControls("testObj");

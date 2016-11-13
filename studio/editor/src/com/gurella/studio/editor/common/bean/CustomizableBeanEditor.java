@@ -60,6 +60,8 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 
 	public CustomizableBeanEditor(Composite parent, BeanEditorContext<T> context) {
 		super(parent, context);
+		addDisposeListener(e -> Workbench.deactivate(this));
+		Workbench.activate(this);
 		GridLayoutFactory.swtDefaults().numColumns(2).margins(1, 1).spacing(5, 2).applyTo(this);
 	}
 
@@ -72,12 +74,6 @@ public abstract class CustomizableBeanEditor<T> extends BeanEditor<T> implements
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
 		this.preferencesStore = preferencesStore;
-	}
-
-	@Override
-	protected void createContent() {
-		addDisposeListener(e -> Workbench.deactivate(this));
-		Workbench.activate(this);
 	}
 
 	private OrderedMap<String, ExpandableGroup> getGroups() {

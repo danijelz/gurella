@@ -31,10 +31,7 @@ public abstract class BeanEditor<T> extends Composite {
 		Display display = getDisplay();
 		display.addFilter(SWT.MouseMove, mouseMovedListener);
 		addListener(SWT.Dispose, (e) -> display.removeFilter(SWT.MouseMove, mouseMovedListener));
-		createContent();
 	}
-
-	protected abstract void createContent();
 
 	private void mouseMoved() {
 		extractHoveredEditors();
