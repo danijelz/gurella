@@ -37,6 +37,7 @@ import com.gurella.engine.base.model.ReflectionProperty;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
+import com.gurella.studio.editor.utils.Try;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collection<T>> {
@@ -91,7 +92,8 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 		Property<Object> property = Values.cast(getProperty());
 		ItemContext<Object, Object> itemContext = new ItemContext<>(context, itemModel, item, property, index);
-		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, itemModel.getType());
+		Class<Object> type = item == null ? itemModel.getType() : Values.cast(item.getClass());
+		PropertyEditor<Object> editor = PropertyEditorFactory.createEditor(content, itemContext, type);
 		GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		editor.getBody().setLayoutData(layoutData);
 
@@ -116,20 +118,21 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 	private Class<Object> getComponentType() {
 		if (componentType == null) {
-			componentType = resolveComponentType();
+			componentType = Try.ofFailable(() -> resolveComponentType()).orElse(Object.class);
 		}
 		return componentType;
 	}
 
-	private Class<Object> resolveComponentType() {
-		try {
-			return resolveComponentTypeSafely();
-		} catch (Exception e) {
-			return Object.class;
+	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
+		ClassLoader classLoader = context.sceneContext.classLoader;
+		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
+		if (genericTypes.size() > 0) {
+			try {
+				return Values.cast(classLoader.loadClass(genericTypes.get(0)));
+			} catch (Exception e) {
+			}
 		}
-	}
-
-	private Class<Object> resolveComponentTypeSafely() throws JavaModelException, ClassNotFoundException {
+		
 		Property<?> property = context.property;
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		String typeName = context.bean.getClass().getName();
@@ -142,7 +145,6 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 			return Object.class;
 		}
 
-		ClassLoader classLoader = context.sceneContext.classLoader;
 		String typeArgument = typeArguments[0];
 
 		switch (Signature.getTypeSignatureKind(typeArgument)) {

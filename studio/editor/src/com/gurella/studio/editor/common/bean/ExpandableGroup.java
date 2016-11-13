@@ -77,14 +77,14 @@ class ExpandableGroup extends Composite {
 
 		Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
 		nameLabel.addListener(SWT.MouseExit, e -> nameLabel.setForeground(black));
-		nameLabel.addListener(SWT.MouseUp, e -> flipExpanded());
+		nameLabel.addListener(SWT.MouseUp, e -> flip());
 
 		Cursor cursor = new Cursor(getDisplay(), SWT.CURSOR_HAND);
 		nameLabel.setCursor(cursor);
 		nameLabel.addDisposeListener(e -> cursor.dispose());
 	}
 
-	private void flipExpanded() {
+	private void flip() {
 		boolean expanded = !isExpanded();
 		expandTwistie.setExpanded(expanded);
 		updateControls(expanded);
@@ -97,7 +97,7 @@ class ExpandableGroup extends Composite {
 
 	public void setExpanded(boolean expanded) {
 		if (expanded != isExpanded()) {
-			flipExpanded();
+			flip();
 		}
 	}
 

@@ -119,10 +119,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	}
 
 	private Class<Object> resolveComponentType() throws JavaModelException, ClassNotFoundException {
-		Property<?> property = context.property;
-		IJavaProject javaProject = context.sceneContext.javaProject;
 		ClassLoader classLoader = context.sceneContext.classLoader;
-
 		List<String> genericTypes = PropertyEditorData.getGenericTypes(context);
 		if (genericTypes.size() > 0) {
 			try {
@@ -131,6 +128,8 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 			}
 		}
 
+		Property<?> property = context.property;
+		IJavaProject javaProject = context.sceneContext.javaProject;
 		String typeName = context.bean.getClass().getName();
 		IType type = javaProject.findType(typeName);
 		final String propertyName = property.getName();
@@ -156,7 +155,6 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 	private void removeItem(int i) {
 		Array<T> oldValue = getValue();
 		Array<T> newValue = new CopyContext().copy(oldValue);
-		newValue.add(null);
 		newValue.removeIndex(i);
 		setValue(newValue);
 		rebuildUi();
