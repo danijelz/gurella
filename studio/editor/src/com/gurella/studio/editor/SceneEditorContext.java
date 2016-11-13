@@ -187,15 +187,23 @@ public class SceneEditorContext implements SceneLoadedListener, EditorPreCloseLi
 		return getScenePreferences(path).getInt(name, defaultValue);
 	}
 
-	public boolean getSceneBooleanPreference(String path, String name, boolean defaultValue) {
-		return getScenePreferences(path).getBoolean(name, defaultValue);
-	}
-
 	public void setSceneIntPreference(String path, String name, int value) {
 		getScenePreferences(path).putInt(name, value);
 	}
 
+	public boolean getSceneBooleanPreference(String path, String name, boolean defaultValue) {
+		return getScenePreferences(path).getBoolean(name, defaultValue);
+	}
+
 	public void setSceneBooleanPreference(String path, String name, boolean value) {
 		getScenePreferences(path).putBoolean(name, value);
+	}
+
+	public float getSceneFloatPreference(String path, String name, float defaultValue) {
+		return getScenePreferences(path).getFloat(name, defaultValue);
+	}
+
+	public void setSceneFloatPreference(String path, String name, float value) {
+		getScenePreferences(path).putFloat(name, value);
 	}
 }
