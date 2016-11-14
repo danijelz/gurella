@@ -87,7 +87,6 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 	public void viewOpened(DockableView view) {
 		registeredViews.add(view);
 		view.layout(true, true);
-		registeredViews.sort((v1, v2) -> Integer.compare(getViewOrder(v1), getViewOrder(v2)));
 	}
 
 	private int getViewOrder(DockableView view) {
@@ -127,6 +126,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 			return;
 		}
 
+		registeredViews.sort((v1, v2) -> Integer.compare(getViewOrder(v1), getViewOrder(v2)));
 		String openViews = registeredViews.stream().sequential().map(v -> v.getClass().getName()).collect(joining(","));
 		preferences.put("openViews", openViews);
 
