@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.control;
 
+import static com.gurella.studio.GurellaStudioPlugin.getImage;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
@@ -11,6 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import com.gurella.engine.event.EventService;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.utils.UiUtils;
@@ -25,8 +28,6 @@ public class Dock extends Composite {
 	Dockable south;
 	Dockable west;
 
-	private Image defaultDockImage;
-
 	Cursor dragEast;
 	Cursor dragSouth;
 	Cursor dragWest;
@@ -34,8 +35,7 @@ public class Dock extends Composite {
 	public Dock(SceneEditor editor, Composite parent, int style) {
 		super(parent, style);
 		this.editor = editor;
-
-		defaultDockImage = GurellaStudioPlugin.createImage("icons/palette_view.gif");
+		EventService.subscribe(editor.id, this);
 
 		dragEast = createCursor("icons/right_source.bmp");
 		dragSouth = createCursor("icons/bottom_source.bmp");
@@ -65,7 +65,6 @@ public class Dock extends Composite {
 	}
 
 	private void onDispose() {
-		defaultDockImage.dispose();
 		dragEast.dispose();
 		dragSouth.dispose();
 		dragWest.dispose();
@@ -81,12 +80,14 @@ public class Dock extends Composite {
 		return center;
 	}
 
-	public void addItem(int position, String title, Image image, Control control) {
-		getDockComponent(position).addItem(title, image == null ? defaultDockImage : image, control);
+	public void addDockItem(int position, String title, Image image, DockableView view) {
+		Image resolved = image == null ? getImage("icons/palette_view.gif") : image;
+		getDockComponent(position).addItem(title, resolved, view);
 	}
 
-	public void addItem(int position, String title, Image image, Control control, int index) {
-		getDockComponent(position).addItem(title, image == null ? defaultDockImage : image, control, index);
+	public void addDockItem(int position, String title, Image image, DockableView view, int index) {
+		Image resolved = image == null ? getImage("icons/palette_view.gif") : image;
+		getDockComponent(position).addItem(title, resolved, view, index);
 	}
 
 	private Dockable getDockComponent(int position) {
@@ -187,9 +188,90 @@ public class Dock extends Composite {
 		}
 	}
 
-	public void setSelection(Control control) {
-		east.setSelection(control);
-		west.setSelection(control);
-		south.setSelection(control);
+	public void setSelection(int orientation, int viewIndex) {
+		switch (orientation) {
+		case SWT.RIGHT:
+			east.setSelection(viewIndex);
+			break;
+		case SWT.BOTTOM:
+			south.setSelection(viewIndex);
+			break;
+		case SWT.LEFT:
+			west.setSelection(viewIndex);
+			break;
+		default:
+			break;
+		}
+	}
+
+	public int getIndex(DockableView view) {
+		int index = east.getIndex(view);
+		if (index > -1) {
+			return index;
+		}
+
+		index = south.getIndex(view);
+		if (index > -1) {
+			return index;
+		}
+
+		index = west.getIndex(view);
+		if (index > -1) {
+			return index;
+		}
+
+		return Integer.MAX_VALUE;
+	}
+
+	public int getOrientation(DockableView view) {
+		if (east.contains(view)) {
+			return SWT.RIGHT;
+		} else if (south.contains(view)) {
+			return SWT.BOTTOM;
+		} else {
+			return SWT.LEFT;
+		}
+	}
+
+	public int getSelectionIndex(int orientation) {
+		switch (orientation) {
+		case SWT.RIGHT:
+			return east.getSelectionIndex();
+		case SWT.BOTTOM:
+			return south.getSelectionIndex();
+		case SWT.LEFT:
+			return west.getSelectionIndex();
+		default:
+			return 0;
+		}
+	}
+
+	public boolean isMinimized(int orientation) {
+		switch (orientation) {
+		case SWT.RIGHT:
+			return east.isMinimized();
+		case SWT.BOTTOM:
+			return south.isMinimized();
+		case SWT.LEFT:
+			return west.isMinimized();
+		default:
+			return false;
+		}
+	}
+
+	public void setMinimized(int orientation, boolean minimized) {
+		switch (orientation) {
+		case SWT.RIGHT:
+			east.setMinimized(minimized);
+			break;
+		case SWT.BOTTOM:
+			south.setMinimized(minimized);
+			break;
+		case SWT.LEFT:
+			west.setMinimized(minimized);
+			break;
+		default:
+			break;
+		}
 	}
 }

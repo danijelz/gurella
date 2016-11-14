@@ -11,6 +11,9 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
+import com.gurella.engine.event.EventService;
+import com.gurella.studio.editor.subscription.DockableItemOrientationListener;
+
 final class DragListener implements Listener {
 	private final Dockable dockable;
 
@@ -124,6 +127,10 @@ final class DragListener implements Listener {
 		dockable.layout(true);
 		itemControl.setVisible(true);
 		this.dockable.layoutParent();
+		int editorId = dockable.getParent().editor.id;
+
+		EventService.post(editorId, DockableItemOrientationListener.class,
+				l -> l.itemPositionChanged(itemControl, dockable.position));
 	}
 
 	private Dockable findDockComponent() {

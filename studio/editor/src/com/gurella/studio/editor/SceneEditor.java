@@ -60,9 +60,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 
 	ViewRegistry viewRegistry;
 	HistoryManager historyManager;
-	private SceneEditorContext sceneContext;
-	@SuppressWarnings("unused")
-	private PreferencesManager preferencesManager;
+	SceneEditorContext sceneContext;
+	PreferencesManager preferencesManager;
 
 	private SwtLwjglApplication application;
 	private SceneEditorApplicationListener applicationListener;
@@ -129,10 +128,10 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 		this.content = parent;
 		parent.setLayout(new GridLayout());
 
+		preferencesManager = new PreferencesManager(this);
 		dock = new Dock(this, parent, SWT.NONE);
 		dock.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		initGdxApplication();
-		preferencesManager = new PreferencesManager(this);
 		viewRegistry = new ViewRegistry(this);
 
 		String path = ((IPathEditorInput) getEditorInput()).getPath().toString();
@@ -180,8 +179,8 @@ public class SceneEditor extends EditorPart implements SceneLoadedListener, Scen
 	@Override
 	public void dispose() {
 		super.dispose();
-		EventService.unsubscribe(id, this);
 		EventService.post(id, EditorPreCloseListener.class, l -> l.onEditorPreClose());
+		EventService.unsubscribe(id, this);
 		EventService.post(id, EditorCloseListener.class, l -> l.onEditorClose());
 		// TODO context and applicationListener should be unified
 		applicationListener.debugUpdate();

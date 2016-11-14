@@ -145,8 +145,12 @@ public class CameraManager implements EditorPreCloseListener, EditorCloseListene
 
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
-		this.preferences = preferencesStore.sceneNode().node(CameraManager.class);
+		if (preferencesStore == null) {
+			preferences = null;
+			return;
+		}
 
+		preferences = preferencesStore.sceneNode().node(CameraManager.class);
 		preferences.getInt("cameraType", camera3d.ordinal(), i -> initCameraSelection(i));
 
 		PreferencesNode node2d = preferences.node("camera2d");

@@ -1,5 +1,9 @@
 package com.gurella.studio.editor.control;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -16,14 +20,13 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.studio.editor.event.SceneEditorViewClosedEvent;
+import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 class Dockable extends Composite {
@@ -347,11 +350,11 @@ class Dockable extends Composite {
 		}
 	}
 
-	public int addItem(String title, Image image, Control control) {
+	public int addItem(String title, Image image, DockableView control) {
 		return addItem(title, image, control, tabFolder.getItemCount());
 	}
 
-	public int addItem(String title, Image image, Control control, int index) {
+	public int addItem(String title, Image image, DockableView control, int index) {
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE, index);
 		tabItem.setText(title);
 		tabItem.setImage(image);
@@ -382,16 +385,28 @@ class Dockable extends Composite {
 		getDisplay().timerExec(500, collapseRunnable);
 	}
 
-	void setSelection(Control control) {
-		for (CTabItem item : tabFolder.getItems()) {
-			if (item.getControl() == control) {
-				tabFolder.setSelection(item);
-			}
+	void setSelection(int viewIndex) {
+		CTabItem[] items = tabFolder.getItems();
+		if (viewIndex < 0 || viewIndex >= items.length) {
+			return;
 		}
+		tabFolder.setSelection(viewIndex);
 	}
 
 	Rectangle computeTabFolderTrim(int part, int state, int x, int y, int width, int height) {
 		return renderer.computeTrim(part, state, x, y, width, height);
+	}
+
+	boolean contains(DockableView view) {
+		return Arrays.stream(tabFolder.getItems()).filter(i -> i.getControl() == view).findAny().isPresent();
+	}
+
+	int getIndex(DockableView view) {
+		return Arrays.stream(tabFolder.getItems()).map(i -> i.getControl()).collect(toList()).indexOf(view);
+	}
+
+	int getSelectionIndex() {
+		return tabFolder.getSelectionIndex();
 	}
 
 	private final class DockableTabFolderListener extends CTabFolder2Adapter {
@@ -420,7 +435,8 @@ class Dockable extends Composite {
 			layoutParent();
 
 			event.doit = false;
-			EventService.post(getParent().editor.id, new SceneEditorViewClosedEvent(view));
+			int editorId = getParent().editor.id;
+			EventService.post(editorId, ViewActivityListener.class, l -> l.viewClosed(view));
 		}
 	}
 }

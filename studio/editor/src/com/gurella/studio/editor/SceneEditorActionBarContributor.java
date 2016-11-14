@@ -12,9 +12,9 @@ import com.gurella.studio.editor.assets.AssetsView;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
-import com.gurella.studio.editor.subscription.EditorViewActivityListener;
+import com.gurella.studio.editor.subscription.ViewActivityListener;
 
-public class SceneEditorActionBarContributor extends EditorActionBarContributor implements EditorViewActivityListener {
+public class SceneEditorActionBarContributor extends EditorActionBarContributor implements ViewActivityListener {
 	private SceneEditor editor;
 	private ViewRegistry views;
 
