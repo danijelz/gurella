@@ -390,6 +390,7 @@ public class SwtLwjglApplication implements Application {
 
 		@Override
 		public void dragEnter(DropTargetEvent event) {
+			//TODO LocalSelectionTransfer 
 			//			IResource[] data = (IResource[]) event.data;
 			//			if (data == null || data.length != 1) {
 			//				event.detail = DND.DROP_NONE;
