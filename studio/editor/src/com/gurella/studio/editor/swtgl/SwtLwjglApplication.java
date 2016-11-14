@@ -398,26 +398,26 @@ public class SwtLwjglApplication implements Application {
 			//			
 			//			item = data[0];
 
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			System.out.println("dragEnter");
 			System.out.println(event.data);
 			System.out.println(event.widget);
 			System.out.println(event.item == null ? null : event.item);
 			System.out.println(event.item == null ? null : event.item.getData());
 
-			//			if (event.detail == DND.DROP_DEFAULT) {
-			//				if ((event.operations & DND.DROP_MOVE) != 0) {
-			//					event.detail = DND.DROP_MOVE;
-			//				} else {
-			//					event.detail = DND.DROP_NONE;
-			//				}
-			//			}
+			if (event.detail == DND.DROP_DEFAULT) {
+				if ((event.operations & DND.DROP_MOVE) != 0) {
+					event.detail = DND.DROP_MOVE;
+				} else {
+					event.detail = DND.DROP_NONE;
+				}
+			}
 		}
 
 		@Override
 		public void dragLeave(DropTargetEvent event) {
 			item = null;
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			System.out.println("dragLeave");
 			System.out.println(event.data);
 			System.out.println(event.widget);
@@ -427,7 +427,7 @@ public class SwtLwjglApplication implements Application {
 
 		@Override
 		public void dragOver(DropTargetEvent event) {
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			System.out.println("dragOver");
 			System.out.println(event.data);
 			System.out.println(event.widget);
@@ -437,13 +437,13 @@ public class SwtLwjglApplication implements Application {
 
 		@Override
 		public void drop(DropTargetEvent event) {
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			System.out.println("drop");
 			System.out.println(event.data);
 			System.out.println(event.widget);
 			System.out.println(event.item == null ? null : event.item);
 			System.out.println(event.item == null ? null : event.item.getData());
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			IResource[] data = (IResource[]) event.data;
 			if (data == null || data.length != 1) {
 				return;
@@ -452,7 +452,7 @@ public class SwtLwjglApplication implements Application {
 
 		@Override
 		public void dragOperationChanged(DropTargetEvent event) {
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			System.out.println("dragOperationChanged");
 			System.out.println(event.data);
 			System.out.println(event.widget);
@@ -462,7 +462,7 @@ public class SwtLwjglApplication implements Application {
 
 		@Override
 		public void dropAccept(DropTargetEvent event) {
-			event.detail = DND.DROP_COPY;
+			event.detail = DND.DROP_MOVE;
 			System.out.println("dropAccept");
 			System.out.println(event.data);
 			System.out.println(event.widget);
