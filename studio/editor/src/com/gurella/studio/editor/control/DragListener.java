@@ -126,6 +126,7 @@ final class DragListener implements Listener {
 		dockable.layout(true);
 		view.setVisible(true);
 		this.dockable.layoutParent();
+		targetTabFolder.layout(true, true);
 
 		int editorId = dockable.getParent().editor.id;
 		int position = dockable.position;
