@@ -11,6 +11,8 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -61,7 +63,7 @@ public class AssetsView extends DockableView {
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
-		
+
 		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -70,8 +72,8 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 		initTree();
 
-		final DragSource source = new DragSource(tree, DND.DROP_MOVE);
-		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
+		final DragSource source = new DragSource(tree, DND.DROP_MOVE | DND.DROP_COPY);
+		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), LocalSelectionTransfer.getTransfer() });
 		source.addDragListener(new AssetsDragSource());
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
@@ -262,6 +264,7 @@ public class AssetsView extends DockableView {
 			if (selection.length == 1 && selection[0].getData() instanceof IFile) {
 				event.doit = true;
 				event.data = selection[0].getData();
+				LocalSelectionTransfer.getTransfer().setSelection(new StructuredSelection(event.data));
 				System.out.println("dragStart");
 				System.out.println(selection[0].getData());
 			} else {
@@ -275,7 +278,7 @@ public class AssetsView extends DockableView {
 			IResource resource = (IResource) selection[0].getData();
 			event.data = new IResource[] { resource };
 		}
-		
+
 		@Override
 		public void dragFinished(DragSourceEvent event) {
 			System.out.println("dragOperationChanged");

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
@@ -405,6 +406,7 @@ public class SwtLwjglApplication implements Application {
 			System.out.println(event.widget);
 			System.out.println(event.item == null ? null : event.item);
 			System.out.println(event.item == null ? null : event.item.getData());
+			System.out.println(LocalSelectionTransfer.getTransfer().getSelection());
 
 			if (event.detail == DND.DROP_DEFAULT) {
 				if ((event.operations & DND.DROP_MOVE) != 0) {
