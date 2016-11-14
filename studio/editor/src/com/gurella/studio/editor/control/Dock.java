@@ -80,14 +80,14 @@ public class Dock extends Composite {
 		return center;
 	}
 
-	public void addDockItem(int position, String title, Image image, DockableView view) {
+	public void addDockItem(DockableView view, String title, Image image, int position) {
 		Image resolved = image == null ? getImage("icons/palette_view.gif") : image;
-		getDockComponent(position).addItem(title, resolved, view);
+		getDockComponent(position).addItem(view, title, resolved);
 	}
 
-	public void addDockItem(int position, String title, Image image, DockableView view, int index) {
+	public void addDockItem(DockableView view, String title, Image image, int position, int index) {
 		Image resolved = image == null ? getImage("icons/palette_view.gif") : image;
-		getDockComponent(position).addItem(title, resolved, view, index);
+		getDockComponent(position).addItem(view, title, resolved, index);
 	}
 
 	private Dockable getDockComponent(int position) {

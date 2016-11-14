@@ -15,7 +15,7 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.event.SceneChangedEvent;
-import com.gurella.studio.editor.subscription.PropertyChangedListener;
+import com.gurella.studio.editor.subscription.PropertyChangeListener;
 
 public class TranslateOperation extends TransformOperation {
 	private Property<?> property;
@@ -47,7 +47,7 @@ public class TranslateOperation extends TransformOperation {
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		transform.setTranslation(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
-		post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(transform, property, action));
+		post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(transform, property, action));
 		return Status.OK_STATUS;
 	}
 
@@ -55,7 +55,7 @@ public class TranslateOperation extends TransformOperation {
 	public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		transform.setTranslation(action);
 		EventService.post(editorId, SceneChangedEvent.instance);
-		post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(transform, property, action));
+		post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(transform, property, action));
 		return Status.OK_STATUS;
 	}
 
@@ -63,7 +63,7 @@ public class TranslateOperation extends TransformOperation {
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		transform.setTranslation(initial);
 		EventService.post(editorId, SceneChangedEvent.instance);
-		post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(transform, property, initial));
+		post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(transform, property, initial));
 		return Status.OK_STATUS;
 	}
 }

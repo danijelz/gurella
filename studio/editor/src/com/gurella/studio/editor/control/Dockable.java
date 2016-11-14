@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -30,14 +31,15 @@ import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 class Dockable extends Composite {
-	CTabFolder tabFolder;
-	private DockableTabFolderRenderer renderer;
-	private Composite sash;
-	SashDragManager sashDragManager;
 	int extent = 300;
 	int extentMinimized = 300;
 	int position;
 	boolean expanded;
+
+	CTabFolder tabFolder;
+	SashDragManager sashDragManager;
+	private Composite sash;
+	private DockableTabFolderRenderer renderer;
 
 	private Composite closedComposite;
 	private ToolBar dockToolBar;
@@ -51,13 +53,8 @@ class Dockable extends Composite {
 	public Dockable(Dock parent, int position) {
 		super(parent, SWT.NONE);
 		this.position = position;
-
-		GridLayout layout = new GridLayout(position == SWT.BOTTOM ? 1 : 2, false);
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		layout.horizontalSpacing = 0;
-		layout.verticalSpacing = 0;
-		setLayout(layout);
+		int cols = position == SWT.BOTTOM ? 1 : 2;
+		GridLayoutFactory.swtDefaults().numColumns(cols).margins(0, 0).spacing(0, 0).applyTo(this);
 
 		createTabFolder();
 		createSash();
@@ -350,15 +347,15 @@ class Dockable extends Composite {
 		}
 	}
 
-	public int addItem(String title, Image image, DockableView control) {
-		return addItem(title, image, control, tabFolder.getItemCount());
+	public int addItem(DockableView view, String title, Image image) {
+		return addItem(view, title, image, tabFolder.getItemCount());
 	}
 
-	public int addItem(String title, Image image, DockableView control, int index) {
+	public int addItem(DockableView view, String title, Image image, int index) {
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE, index);
 		tabItem.setText(title);
 		tabItem.setImage(image);
-		tabItem.setControl(control);
+		tabItem.setControl(view);
 		tabFolder.setSingle(getItemCount() < 2);
 
 		ToolItem toolItem = new ToolItem(itemsToolBar, SWT.PUSH, index);

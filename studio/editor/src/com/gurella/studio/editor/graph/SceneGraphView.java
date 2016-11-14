@@ -61,11 +61,11 @@ import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
-import com.gurella.studio.editor.subscription.NodeNameChangedListener;
+import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneGraphView extends DockableView
-		implements EditorSceneActivityListener, NodeNameChangedListener, SceneLoadedListener {
+		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
 	private Tree graph;

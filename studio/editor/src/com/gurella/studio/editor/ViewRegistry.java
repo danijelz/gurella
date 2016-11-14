@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Control;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
@@ -18,7 +17,7 @@ import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.preferences.PreferencesNode;
-import com.gurella.studio.editor.subscription.DockableItemOrientationListener;
+import com.gurella.studio.editor.subscription.ViewOrientationListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
@@ -26,7 +25,7 @@ import com.gurella.studio.editor.subscription.ViewActivityListener;
 import com.gurella.studio.editor.utils.Try;
 
 class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
-		EditorContextMenuContributor, DockableItemOrientationListener {
+		EditorContextMenuContributor, ViewOrientationListener {
 	private static final String viewMenuGroupName = "&View";
 
 	private final SceneEditor editor;
@@ -53,7 +52,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 			openView(AssetsView.class);
 			openView(InspectorView.class);
 		} else {
-			Arrays.stream(openViews.split(",")).sequential().filter(t -> Values.isNotBlank(t))
+			Arrays.stream(openViews.split(",")).sequential().filter(Values::isNotBlank)
 					.map(t -> Try.ofFailable(() -> Class.forName(t.trim()))).filter(t -> t.isSuccess())
 					.map(t -> Values.<Class<? extends DockableView>> cast(t.getUnchecked())).forEach(this::openView);
 		}
@@ -87,6 +86,7 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 	@Override
 	public void viewOpened(DockableView view) {
 		registeredViews.add(view);
+		view.layout(true, true);
 		registeredViews.sort((v1, v2) -> Integer.compare(getViewOrder(v1), getViewOrder(v2)));
 	}
 
@@ -111,12 +111,8 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 	}
 
 	@Override
-	public void itemPositionChanged(Control control, int newOrientation) {
-		if (!(control instanceof DockableView)) {
-			return;
-		}
-
-		preferences.node(control.getClass()).putInt("orientation", newOrientation);
+	public void orientationChanged(DockableView view, int newOrientation) {
+		preferences.node(view.getClass()).putInt("orientation", newOrientation);
 	}
 
 	@Override

@@ -32,10 +32,10 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
-import com.gurella.studio.editor.subscription.PropertyChangedListener;
+import com.gurella.studio.editor.subscription.PropertyChangeListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
-public abstract class PropertyEditor<P> implements PropertyChangedListener {
+public abstract class PropertyEditor<P> implements PropertyChangeListener {
 	private Composite body;
 	protected Composite content;
 	private Label menuButton;
@@ -203,7 +203,7 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 			int editorId = context.sceneContext.editorId;
 			Object instance = context.bean;
 			Property<?> property = context.property;
-			post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(instance, property, oldValue));
+			post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, oldValue));
 			return Status.OK_STATUS;
 		}
 
@@ -213,7 +213,7 @@ public abstract class PropertyEditor<P> implements PropertyChangedListener {
 			int editorId = context.sceneContext.editorId;
 			Object instance = context.bean;
 			Property<?> property = context.property;
-			post(editorId, PropertyChangedListener.class, l -> l.propertyChanged(instance, property, newValue));
+			post(editorId, PropertyChangeListener.class, l -> l.propertyChanged(instance, property, newValue));
 			return Status.OK_STATUS;
 		}
 	}

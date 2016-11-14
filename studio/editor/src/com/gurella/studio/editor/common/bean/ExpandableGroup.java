@@ -107,7 +107,7 @@ class ExpandableGroup extends Composite {
 	}
 
 	public void add(Control control) {
-		boolean visible = isExpanded() && isVisible();
+		boolean visible = isExpanded() && getVisible();
 		updateControlVisibility(control, visible);
 		positionNewControl(control);
 		controls.add(control);

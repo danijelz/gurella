@@ -86,8 +86,6 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
-import com.gurella.studio.editor.event.NodeEnabledChangedEvent;
-import com.gurella.studio.editor.event.NodeNameChangedEvent;
 import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
@@ -96,12 +94,12 @@ import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
-import com.gurella.studio.editor.subscription.NodeEnabledChangedListener;
-import com.gurella.studio.editor.subscription.NodeNameChangedListener;
+import com.gurella.studio.editor.subscription.NodeEnabledChangeListener;
+import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2> implements EditorSceneActivityListener,
-		NodeNameChangedListener, NodeEnabledChangedListener, PreferencesExtension {
+		NodeNameChangeListener, NodeEnabledChangeListener, PreferencesExtension {
 	private Text nameText;
 	private Listener nameChangedlLstener;
 
@@ -391,7 +389,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		}
 
 		private void notifyNodeNameChanged() {
-			EventService.post(editorId, new NodeNameChangedEvent(node));
+			EventService.post(editorId, NodeNameChangeListener.class, l -> l.nodeNameChanged(node));
 			EventService.post(editorId, SceneChangedEvent.instance);
 		}
 	}
@@ -430,7 +428,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 		}
 
 		private void notifyNodeEnabledChanged() {
-			EventService.post(editorId, new NodeEnabledChangedEvent(node));
+			EventService.post(editorId, NodeEnabledChangeListener.class, l -> l.nodeEnabledChanged(node));
 			EventService.post(editorId, SceneChangedEvent.instance);
 		}
 	}

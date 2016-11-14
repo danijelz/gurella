@@ -5,14 +5,13 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tracker;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.studio.editor.subscription.DockableItemOrientationListener;
+import com.gurella.studio.editor.subscription.ViewOrientationListener;
 
 final class DragListener implements Listener {
 	private final Dockable dockable;
@@ -106,13 +105,13 @@ final class DragListener implements Listener {
 	}
 
 	private void transferItem(Dockable dockable, int dragItemNewIndex) {
-		int itemIndex = dockable.addItem(dragItem.getText(), dragItem.getImage(), null, dragItemNewIndex);
+		int itemIndex = dockable.addItem(null, dragItem.getText(), dragItem.getImage(), dragItemNewIndex);
 		CTabFolder targetTabFolder = dockable.tabFolder;
 		CTabItem newItem = targetTabFolder.getItem(itemIndex);
-		Control itemControl = dragItem.getControl();
-		if (itemControl != null) {
-			itemControl.setParent(targetTabFolder);
-			newItem.setControl(itemControl);
+		DockableView view = (DockableView) dragItem.getControl();
+		if (view != null) {
+			view.setParent(targetTabFolder);
+			newItem.setControl(view);
 			dragItem.setControl(null);
 		}
 
@@ -125,12 +124,12 @@ final class DragListener implements Listener {
 
 		this.dockable.tabFolder.setSingle(this.dockable.tabFolder.getItemCount() < 2);
 		dockable.layout(true);
-		itemControl.setVisible(true);
+		view.setVisible(true);
 		this.dockable.layoutParent();
-		int editorId = dockable.getParent().editor.id;
 
-		EventService.post(editorId, DockableItemOrientationListener.class,
-				l -> l.itemPositionChanged(itemControl, dockable.position));
+		int editorId = dockable.getParent().editor.id;
+		int position = dockable.position;
+		EventService.post(editorId, ViewOrientationListener.class, l -> l.orientationChanged(view, position));
 	}
 
 	private Dockable findDockComponent() {
