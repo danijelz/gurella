@@ -46,7 +46,6 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
-import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -273,6 +272,12 @@ public class AssetsView extends DockableView {
 			TreeItem[] selection = tree.getSelection();
 			IResource resource = (IResource) selection[0].getData();
 			event.data = new IResource[] { resource };
+		}
+		
+		@Override
+		public void dragFinished(DragSourceEvent event) {
+			System.out.println("dragOperationChanged");
+			System.out.println(event.data);
 		}
 	}
 }

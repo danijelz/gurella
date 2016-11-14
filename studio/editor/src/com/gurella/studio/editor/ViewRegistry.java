@@ -17,11 +17,11 @@ import com.gurella.studio.editor.graph.SceneGraphView;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.menu.ContextMenuActions;
 import com.gurella.studio.editor.preferences.PreferencesNode;
-import com.gurella.studio.editor.subscription.ViewOrientationListener;
 import com.gurella.studio.editor.subscription.EditorCloseListener;
 import com.gurella.studio.editor.subscription.EditorContextMenuContributor;
 import com.gurella.studio.editor.subscription.EditorPreCloseListener;
 import com.gurella.studio.editor.subscription.ViewActivityListener;
+import com.gurella.studio.editor.subscription.ViewOrientationListener;
 import com.gurella.studio.editor.utils.Try;
 
 class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, EditorCloseListener,
@@ -42,10 +42,6 @@ class ViewRegistry implements ViewActivityListener, EditorPreCloseListener, Edit
 		dock.addDisposeListener(e -> persistPreferences());
 		preferences = editor.preferencesManager.resourceNode().node(ViewRegistry.class);
 
-		initViews();
-	}
-
-	protected void initViews() {
 		String openViews = preferences.get("openViews", "");
 		if (Values.isBlank(openViews)) {
 			openView(SceneGraphView.class);
