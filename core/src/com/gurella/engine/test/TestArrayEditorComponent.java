@@ -10,11 +10,11 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 
 public class TestArrayEditorComponent extends SceneNodeComponent2 {
 	@PropertyEditorDescriptor(genericTypes = { String.class })
-	public final Array<String> strings = new Array<String>();
+	public Array<String> strings = new Array<String>();
 
 	@PropertyEditorDescriptor(genericTypes = { Vector.class })
-	public final Array<Vector> vectors = new Array<Vector>();
-	
+	public Array<Vector<?>> vectors = new Array<Vector<?>>();
+
 	@PropertyEditorDescriptor(genericTypes = { Vector.class })
-	public final List<Vector> list = new ArrayList<Vector>();
+	public List<Vector<?>> list = new ArrayList<Vector<?>>();
 }

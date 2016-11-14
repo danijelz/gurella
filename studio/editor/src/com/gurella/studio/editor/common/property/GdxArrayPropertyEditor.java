@@ -1,7 +1,7 @@
 package com.gurella.studio.editor.common.property;
 
 import static com.gurella.studio.GurellaStudioPlugin.createFont;
-import static org.eclipse.jdt.ui.IJavaElementSearchConstants.CONSIDER_CLASSES;
+import static com.gurella.studio.GurellaStudioPlugin.showError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +13,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -26,8 +21,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.badlogic.gdx.utils.Array;
@@ -40,6 +33,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.utils.Try;
+import com.gurella.studio.editor.utils.TypeSelectionUtils;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>> {
@@ -56,7 +50,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 		buildUi();
 
-		addMenuItem("Add item", () -> addItem());
+		addMenuItem("Add item", () -> addDefaultItem());
 		addMenuItem("Resize", () -> resize());
 
 		if (!isFinalValue()) {
@@ -170,7 +164,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		}
 	}
 
-	private void addItem() {
+	private void addDefaultItem() {
 		Array<T> oldValue = getValue();
 		Array<T> newValue = Optional.ofNullable(oldValue).map(v -> new CopyContext().copy(v)).orElse(new Array<T>());
 		newValue.add(null);
@@ -220,44 +214,20 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private void selectType() {
 		try {
-			IType selectedType = findType();
-			if (selectedType != null) {
-				createType(selectedType);
-			}
+			selectTypeSafely();
 		} catch (Exception e) {
-			String message = "Error occurred while creating value";
-			GurellaStudioPlugin.showError(e, message);
+			showError(e, "Error occurred while creating value");
 		}
 	}
 
-	private void createType(IType selectedType) throws Exception {
-		ClassLoader classLoader = context.sceneContext.classLoader;
-		Array<T> value = Values.cast(classLoader.loadClass(selectedType.getFullyQualifiedName()).newInstance());
-		setValue(value);
-		rebuildUi();
-	}
-
-	private IType findType() throws JavaModelException {
-		SelectionDialog dialog = createJavaSearchDialog();
-		if (dialog.open() != IDialogConstants.OK_ID) {
-			return null;
+	private void selectTypeSafely() throws InstantiationException, IllegalAccessException {
+		Class<Array<T>> propertyType = context.getPropertyType();
+		Class<? extends Array<T>> selected = TypeSelectionUtils.selectType(context.sceneContext, propertyType);
+		if (selected != null) {
+			Array<T> value = selected.newInstance();
+			setValue(value);
+			rebuildUi();
 		}
-
-		Object[] types = dialog.getResult();
-		return types == null || types.length == 0 ? null : (IType) types[0];
-	}
-
-	private SelectionDialog createJavaSearchDialog() throws JavaModelException {
-		IJavaSearchScope scope = getSearchScope();
-		Shell shell = content.getShell();
-		ProgressMonitorDialog monitor = new ProgressMonitorDialog(shell);
-		return JavaUI.createTypeDialog(shell, monitor, scope, CONSIDER_CLASSES, false);
-	}
-
-	private IJavaSearchScope getSearchScope() throws JavaModelException {
-		IJavaProject javaProject = context.sceneContext.javaProject;
-		Class<Array<T>> type = context.getPropertyType();
-		return SearchEngine.createHierarchyScope(javaProject.findType(type.getName()));
 	}
 
 	@Override
