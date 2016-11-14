@@ -262,6 +262,8 @@ public class AssetsView extends DockableView {
 			if (selection.length == 1 && selection[0].getData() instanceof IFile) {
 				event.doit = true;
 				event.data = selection[0].getData();
+				System.out.println("dragStart");
+				System.out.println(selection[0].getData());
 			} else {
 				event.doit = false;
 			}
