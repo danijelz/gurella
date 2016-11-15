@@ -265,6 +265,7 @@ public class AssetsView extends DockableView {
 			if (selection.length == 1 && selection[0].getData() instanceof IFile) {
 				event.doit = true;
 				event.data = selection[0].getData();
+				event.image = null;
 				localTransfer.setSelection(new AssetSelection((IFile) event.data));
 			} else {
 				event.doit = false;
