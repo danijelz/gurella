@@ -136,11 +136,12 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		if (pickResult.isPositive()) {
 			modelPosition.set(pickResult.location);
 			modelInstance.transform.setTranslation(modelPosition);
-			//System.out.println("pickResult.isPositive()");
 		} else {
 			modelPosition.set(ray.origin).add(temp.set(ray.direction).scl(3f));
 			modelInstance.transform.setTranslation(modelPosition);
 		}
+
+		pickResult.reset();
 	}
 
 	private IFile getTransferingAssetFile() {

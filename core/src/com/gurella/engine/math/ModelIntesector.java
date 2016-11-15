@@ -39,6 +39,7 @@ public class ModelIntesector {
 	private final Vector3 t3 = new Vector3();
 
 	private final Vector3 cameraPosition = new Vector3();
+	private final Vector3 cameraPositionInv = new Vector3();
 	private final Ray ray = new Ray();
 
 	private ModelInstance modelInstance;
@@ -71,7 +72,7 @@ public class ModelIntesector {
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
 			if (getIntersection(node)) {
-				float distance = closestNodeIntersection.dst2(cameraPosition);
+				float distance = closestNodeIntersection.dst2(cameraPositionInv);
 				if (closestDistance > distance) {
 					closestDistance = distance;
 					closestIntersection.set(closestNodeIntersection);
@@ -107,6 +108,7 @@ public class ModelIntesector {
 			if (Matrix4.inv(transform.val)) {
 				invRay.set(ray);
 				invRay.mul(transform);
+				cameraPositionInv.set(cameraPosition).mul(transform);
 			}
 
 			Array<NodePart> parts = node.parts;
@@ -120,7 +122,7 @@ public class ModelIntesector {
 					int count = meshPart.size;
 
 					if (getIntersection(mesh, primitiveType, offset, count)) {
-						float distance = closestPartIntersection.dst2(cameraPosition);
+						float distance = closestPartIntersection.dst2(cameraPositionInv);
 						if (closestNodeDistance > distance) {
 							closestNodeDistance = distance;
 							closestNodeIntersection.set(closestPartIntersection);
@@ -128,11 +130,11 @@ public class ModelIntesector {
 					}
 				}
 			}
-			
+
 			for (int i = 0, n = node.getChildCount(); i < n; i++) {
 				Node child = node.getChild(i);
 				if (getIntersection(child)) {
-					float distance = closestNodeIntersection.dst2(cameraPosition);
+					float distance = closestNodeIntersection.dst2(cameraPositionInv);
 					if (closestDistance > distance) {
 						closestDistance = distance;
 						closestIntersection.set(closestNodeIntersection);
@@ -181,7 +183,7 @@ public class ModelIntesector {
 					t3.set(verts.get(idx), 0, 0);
 
 					if (Intersector.intersectRayTriangle(invRay, t1, t2, t3, intersection)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = intersection.dst2(cameraPositionInv);
 						if (closestPartDistance > distance) {
 							closestPartDistance = distance;
 							closestPartIntersection.set(intersection);
@@ -200,7 +202,7 @@ public class ModelIntesector {
 					t3.set(verts.get(idx), 0, 0);
 
 					if (Intersector.intersectRayTriangle(invRay, t1, t2, t3, intersection)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = intersection.dst2(cameraPositionInv);
 						if (closestPartDistance > distance) {
 							closestPartDistance = distance;
 							closestPartIntersection.set(intersection);
@@ -222,7 +224,7 @@ public class ModelIntesector {
 					t3.set(verts.get(idx), verts.get(idx + 1), 0);
 
 					if (Intersector.intersectRayTriangle(invRay, t1, t2, t3, intersection)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = intersection.dst2(cameraPositionInv);
 						if (closestPartDistance > distance) {
 							closestPartDistance = distance;
 							closestPartIntersection.set(intersection);
@@ -241,7 +243,7 @@ public class ModelIntesector {
 					t3.set(verts.get(idx), verts.get(idx + 1), 0);
 
 					if (Intersector.intersectRayTriangle(invRay, t1, t2, t3, intersection)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = intersection.dst2(cameraPositionInv);
 						if (closestPartDistance > distance) {
 							closestPartDistance = distance;
 							closestPartIntersection.set(intersection);
@@ -263,7 +265,7 @@ public class ModelIntesector {
 					t3.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
 
 					if (Intersector.intersectRayTriangle(invRay, t1, t2, t3, intersection)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = intersection.dst2(cameraPositionInv);
 						if (closestPartDistance > distance) {
 							closestPartDistance = distance;
 							closestPartIntersection.set(intersection);
@@ -282,7 +284,7 @@ public class ModelIntesector {
 					t3.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2));
 
 					if (Intersector.intersectRayTriangle(invRay, t1, t2, t3, intersection)) {
-						float distance = intersection.dst2(cameraPosition);
+						float distance = intersection.dst2(cameraPositionInv);
 						if (closestPartDistance > distance) {
 							closestPartDistance = distance;
 							closestPartIntersection.set(intersection);
