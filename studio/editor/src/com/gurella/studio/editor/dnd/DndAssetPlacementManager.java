@@ -110,7 +110,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			return;
 		}
 
-		if (modelInstance != null) {
+		if (model != null) {
 			updateModelInstance();
 			ModelBatch batch = getBatch();
 			batch.begin(camera);
@@ -178,13 +178,13 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				return;
 			}
 
+			event.feedback = DND.FEEDBACK_NONE;
 			if (event.detail == DND.DROP_DEFAULT) {
 				event.detail = DND.DROP_MOVE;
 			}
 
 			String fileExtension = assetFile.getFileExtension();
 			if (AssetType.isValidExtension(Model.class, fileExtension)) {
-				event.feedback = DND.FEEDBACK_NONE;
 				model = AssetService.load(getAssetPath(), Model.class);
 				modelInstance = new ModelInstance(model);
 				updateModelInstance();
@@ -213,6 +213,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 				transformComponent.setTranslation(modelPosition);
 				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
+				//TODO handle resource deprendencies
 				modelComponent.setModel(AssetService.load(getAssetPath(), Model.class));
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
