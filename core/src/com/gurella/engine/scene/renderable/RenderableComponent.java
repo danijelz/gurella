@@ -27,8 +27,6 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 
 	@PropertyEditorDescriptor(index = 1000, group = "input", descriptiveName = "loose")
 	public boolean looseInput;
-	@PropertyEditorDescriptor(factory = InputSensitivityPropertyEditorFactory.class, index = 1001, group = "input", descriptiveName = "sensitivity")
-	public byte inputSensitivity;
 
 	private transient int sceneId;
 
@@ -157,6 +155,5 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 		boundsDirty = true;
 		visible = false;
 		looseInput = false;
-		inputSensitivity = 0;
 	}
 }

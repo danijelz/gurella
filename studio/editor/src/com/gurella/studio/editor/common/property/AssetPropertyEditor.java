@@ -28,9 +28,10 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		UiUtils.paintBordersFor(content);
 	}
 
+	// TODO handle resource deprendencies and unload old asset
 	private void assetSelectionChanged(T oldAsset, T newAsset) {
 		if (oldAsset != null) {
-			AssetService.unload(oldAsset); // TODO resource deprendencies
+			AssetService.unload(oldAsset);
 		}
 		setValue(newAsset);
 	}

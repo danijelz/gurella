@@ -106,7 +106,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	private void assetSelected(final String path) {
 		IFile file = getEditorFile();
 		IPath assetPath = new Path(path).makeRelativeTo(file.getProject().getLocation().append("assets"));
-		
+
 		T oldAsset = asset;
 		asset = AssetService.load(assetPath.toString(), assetType);
 		text.setText(assetPath.lastSegment());

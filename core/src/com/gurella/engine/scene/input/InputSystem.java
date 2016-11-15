@@ -155,13 +155,9 @@ public class InputSystem extends SceneService2 implements ComponentActivityListe
 
 		if (closestSpatial == null) {
 			return false;
-		} 
-		
-		// TODO renderable.inputSensitivity in processors
-		RenderableComponent renderable = closestSpatial.renderable;
-		if (renderable.inputSensitivity == 0) {
-			return false;
 		}
+
+		RenderableComponent renderable = closestSpatial.renderable;
 		out.renderable = renderable;
 		out.node = renderable.getNode();
 		out.location.set(intersector.getClosestIntersection());
