@@ -78,7 +78,7 @@ public class ModelIntesector {
 					closestIntersection.set(closestNodeIntersection);
 					closestModelInstance = modelInstance;
 				}
-				//TODO else if(closestDistance == distance) {pick the obje with closest center}
+				//TODO else if(closestDistance == distance) {pick the object with closest center}
 			}
 		}
 

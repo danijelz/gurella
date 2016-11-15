@@ -47,6 +47,7 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
+import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
@@ -84,14 +85,10 @@ public class AssetsView extends DockableView {
 	}
 
 	private void initTree() {
-		try {
-			createItems();
-		} catch (Exception e) {
-			presentInitException(e);
-		}
+		Try.successful(this).peek(v -> v.createItems()).onFailure(this::presentInitException);
 	}
 
-	protected void presentInitException(Exception e) {
+	protected void presentInitException(Throwable e) {
 		tree.dispose();
 		String message = "Error creating assets tree";
 		IStatus status = GurellaStudioPlugin.log(e, message);
