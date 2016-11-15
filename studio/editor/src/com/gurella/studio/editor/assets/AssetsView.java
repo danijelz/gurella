@@ -12,12 +12,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -57,6 +56,8 @@ public class AssetsView extends DockableView {
 
 	private Object lastSelection;
 
+	private final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
+
 	public AssetsView(SceneEditor editor, int style) {
 		super(editor, "Assets", getImage("icons/resource_persp.gif"), style);
 
@@ -73,7 +74,7 @@ public class AssetsView extends DockableView {
 		initTree();
 
 		final DragSource source = new DragSource(tree, DND.DROP_MOVE | DND.DROP_COPY);
-		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), LocalSelectionTransfer.getTransfer() });
+		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
 		source.addDragListener(new AssetsDragSource());
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
@@ -257,16 +258,14 @@ public class AssetsView extends DockableView {
 		return PlatformUI.getWorkbench().getSharedImages().getImage(symbolicName);
 	}
 
-	private final class AssetsDragSource extends DragSourceAdapter {
+	private final class AssetsDragSource implements DragSourceListener {
 		@Override
 		public void dragStart(DragSourceEvent event) {
 			TreeItem[] selection = tree.getSelection();
 			if (selection.length == 1 && selection[0].getData() instanceof IFile) {
 				event.doit = true;
 				event.data = selection[0].getData();
-				LocalSelectionTransfer.getTransfer().setSelection(new StructuredSelection(event.data));
-				System.out.println("dragStart");
-				System.out.println(selection[0].getData());
+				localTransfer.setSelection(new AssetSelection((IFile) event.data));
 			} else {
 				event.doit = false;
 			}
@@ -281,8 +280,7 @@ public class AssetsView extends DockableView {
 
 		@Override
 		public void dragFinished(DragSourceEvent event) {
-			System.out.println("dragOperationChanged");
-			System.out.println(event.data);
+			localTransfer.setSelection(null);
 		}
 	}
 }

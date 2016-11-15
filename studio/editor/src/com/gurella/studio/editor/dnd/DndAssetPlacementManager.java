@@ -58,7 +58,6 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 
 	private final Vector3 temp = new Vector3();
 	private final Vector3 temp1 = new Vector3();
-	private final Vector3 modelPosition = new Vector3();
 	private Vector3 lastPosition = new Vector3();
 	private ModelBatch batch;
 
@@ -121,6 +120,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			float dst = camera.position.dst(rayEnd);
 			rayEnd = ray.getEndPoint(rayEnd, dst);
 			temp1.set(rayEnd.x - lastPosition.x, 0, rayEnd.z - lastPosition.z);
+			temp1.add(0, rayEnd.y - lastPosition.y, 0);
 			modelInstance.transform.translate(temp1);
 			lastPosition.set(rayEnd);
 			
@@ -135,15 +135,6 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			batch.render(modelInstance);
 			batch.end();	
 		}
-	}
-
-	protected void updateModelPosition() {
-		camera.update();
-		Point cursorLocation = glCanvas.getDisplay().getCursorLocation();
-		cursorLocation = glCanvas.toControl(cursorLocation);
-		final Ray ray = camera.getPickRay(cursorLocation.x, cursorLocation.y);
-		modelPosition.set(ray.origin);
-		modelPosition.add(temp.set(ray.direction).scl(1.2f));
 	}
 
 	private IFile getTransferingAssetFile() {

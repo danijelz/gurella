@@ -26,7 +26,7 @@ public class TranslateTool extends TransformTool {
 	private final Vector3 temp0 = new Vector3();
 	private final Vector3 temp1 = new Vector3();
 	private boolean initTranslate = true;
-	private Vector3 lastPos = new Vector3();
+	private Vector3 lastPosition = new Vector3();
 
 	public TranslateTool(int editorId) {
 		super(editorId);
@@ -120,28 +120,28 @@ public class TranslateTool extends TransformTool {
 
 		if (initTranslate) {
 			initTranslate = false;
-			lastPos.set(rayEnd);
+			lastPosition.set(rayEnd);
 		}
 
 		switch (activeHandleType) {
 		case xz:
-			temp1.set(rayEnd.x - lastPos.x, 0, rayEnd.z - lastPos.z);
+			temp1.set(rayEnd.x - lastPosition.x, 0, rayEnd.z - lastPosition.z);
 			break;
 		case x:
-			temp1.set(rayEnd.x - lastPos.x, 0, 0);
+			temp1.set(rayEnd.x - lastPosition.x, 0, 0);
 			break;
 		case y:
-			temp1.set(0, rayEnd.y - lastPos.y, 0);
+			temp1.set(0, rayEnd.y - lastPosition.y, 0);
 			break;
 		case z:
-			temp1.set(0, 0, rayEnd.z - lastPos.z);
+			temp1.set(0, 0, rayEnd.z - lastPosition.z);
 			break;
 		default:
 			break;
 		}
 
 		transform.translate(temp1);
-		lastPos.set(rayEnd);
+		lastPosition.set(rayEnd);
 	}
 
 	@Override

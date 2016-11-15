@@ -3,17 +3,9 @@ package com.gurella.studio.editor.swtgl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.ResourceTransfer;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
@@ -33,7 +25,7 @@ import com.badlogic.gdx.utils.Clipboard;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gurella.studio.GurellaStudioPlugin;
 
-//https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
+//Based on https://github.com/NkD/gdx-backend-lwjgl-swt/tree/master/src/com/badlogic/gdx/backends/lwjgl/swt
 public class SwtLwjglApplication implements Application {
 	private final SwtLwjglGraphics graphics;
 	private OpenALAudio audio;
@@ -102,10 +94,6 @@ public class SwtLwjglApplication implements Application {
 
 		final GLCanvas glCanvas = graphics.getGlCanvas();
 		glCanvas.addListener(SWT.Dispose, e -> onGlCanvasDisposed());
-
-		DropTarget target = new DropTarget(glCanvas, DND.DROP_MOVE);
-		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
-		target.addDropListener(new GlCanvasDropTarget());
 	}
 
 	private void setCurrent() {
@@ -383,94 +371,6 @@ public class SwtLwjglApplication implements Application {
 	public void removeLifecycleListener(LifecycleListener lifecycleListener) {
 		synchronized (lifecycleListeners) {
 			lifecycleListeners.remove(lifecycleListener);
-		}
-	}
-
-	private final class GlCanvasDropTarget implements DropTargetListener {
-		private IResource item;
-
-		@Override
-		public void dragEnter(DropTargetEvent event) {
-			//TODO LocalSelectionTransfer 
-			//			IResource[] data = (IResource[]) event.data;
-			//			if (data == null || data.length != 1) {
-			//				event.detail = DND.DROP_NONE;
-			//				return;
-			//			}
-			//			
-			//			item = data[0];
-
-			event.detail = DND.DROP_MOVE;
-			System.out.println("dragEnter");
-			System.out.println(event.data);
-			System.out.println(event.widget);
-			System.out.println(event.item == null ? null : event.item);
-			System.out.println(event.item == null ? null : event.item.getData());
-			System.out.println(LocalSelectionTransfer.getTransfer().getSelection());
-
-			if (event.detail == DND.DROP_DEFAULT) {
-				if ((event.operations & DND.DROP_MOVE) != 0) {
-					event.detail = DND.DROP_MOVE;
-				} else {
-					event.detail = DND.DROP_NONE;
-				}
-			}
-		}
-
-		@Override
-		public void dragLeave(DropTargetEvent event) {
-			item = null;
-			event.detail = DND.DROP_MOVE;
-			System.out.println("dragLeave");
-			System.out.println(event.data);
-			System.out.println(event.widget);
-			System.out.println(event.item == null ? null : event.item);
-			System.out.println(event.item == null ? null : event.item.getData());
-		}
-
-		@Override
-		public void dragOver(DropTargetEvent event) {
-			event.detail = DND.DROP_MOVE;
-			System.out.println("dragOver");
-			System.out.println(event.data);
-			System.out.println(event.widget);
-			System.out.println(event.item == null ? null : event.item);
-			System.out.println(event.item == null ? null : event.item.getData());
-		}
-
-		@Override
-		public void drop(DropTargetEvent event) {
-			event.detail = DND.DROP_MOVE;
-			System.out.println("drop");
-			System.out.println(event.data);
-			System.out.println(event.widget);
-			System.out.println(event.item == null ? null : event.item);
-			System.out.println(event.item == null ? null : event.item.getData());
-			event.detail = DND.DROP_MOVE;
-			IResource[] data = (IResource[]) event.data;
-			if (data == null || data.length != 1) {
-				return;
-			}
-		}
-
-		@Override
-		public void dragOperationChanged(DropTargetEvent event) {
-			event.detail = DND.DROP_MOVE;
-			System.out.println("dragOperationChanged");
-			System.out.println(event.data);
-			System.out.println(event.widget);
-			System.out.println(event.item == null ? null : event.item);
-			System.out.println(event.item == null ? null : event.item.getData());
-		}
-
-		@Override
-		public void dropAccept(DropTargetEvent event) {
-			event.detail = DND.DROP_MOVE;
-			System.out.println("dropAccept");
-			System.out.println(event.data);
-			System.out.println(event.widget);
-			System.out.println(event.item == null ? null : event.item);
-			System.out.println(event.item == null ? null : event.item.getData());
 		}
 	}
 }
