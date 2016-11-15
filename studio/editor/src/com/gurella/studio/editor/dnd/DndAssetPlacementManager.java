@@ -59,6 +59,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 	private final Vector3 temp = new Vector3();
 	private final Vector3 temp1 = new Vector3();
 	private Vector3 lastPosition = new Vector3();
+	private boolean initTranslate = true;
 	private ModelBatch batch;
 
 
@@ -92,8 +93,8 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 
 		assetFile = null;
 		if (loadedModel != null) {
-			 AssetService.unload(loadedModel);
-			 loadedModel = null;
+			AssetService.unload(loadedModel);
+			loadedModel = null;
 		}
 		if (loadedTexture != null) {
 			AssetService.unload(loadedTexture);
@@ -106,12 +107,11 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		if (camera == null || (loadedModel == null && loadedTexture == null)) {
 			return;
 		}
-		
 
 		if (loadedModel != null) {
 			modelInstance.transform.getTranslation(temp);
 			modelInstance.transform.getTranslation(temp1);
-			
+
 			camera.update();
 			Point cursorLocation = glCanvas.getDisplay().getCursorLocation();
 			cursorLocation = glCanvas.toControl(cursorLocation);
@@ -123,17 +123,17 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			temp1.add(0, rayEnd.y - lastPosition.y, 0);
 			modelInstance.transform.translate(temp1);
 			lastPosition.set(rayEnd);
-			
+
 			if (batch == null) {
 				batch = new ModelBatch();
 			}
-			
+
 			// TODO TerrainUtils.getRayIntersectionAndUp(context.currScene.terrains, ray);
-			//updateModelPosition();
-			//modelInstance.transform.setTranslation(modelPosition);
+			// updateModelPosition();
+			// modelInstance.transform.setTranslation(modelPosition);
 			batch.begin(camera);
 			batch.render(modelInstance);
-			batch.end();	
+			batch.end();
 		}
 	}
 
@@ -177,6 +177,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 
 			String fileExtension = assetFile.getFileExtension();
 			if (AssetType.isValidExtension(Model.class, fileExtension)) {
+				event.feedback = DND.FEEDBACK_NONE;
 				loadedModel = AssetService.load(getAssetPath(), Model.class);
 				modelInstance = new ModelInstance(loadedModel);
 
@@ -187,28 +188,31 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				Vector3 rayEnd = temp;
 				float dst = camera.position.dst(rayEnd);
 				rayEnd = ray.getEndPoint(rayEnd, dst);
-				lastPosition.set(rayEnd);
-				modelInstance.transform.setTranslation(lastPosition);
+				lastPosition.set(ray.origin);
+				modelInstance.transform.setTranslation(ray.origin);
 				temp.set(lastPosition);
 				temp1.set(lastPosition);
-				event.feedback = DND.FEEDBACK_NONE;
 			} else {
 				loadedTexture = AssetService.load(getAssetPath(), Texture.class);
 			}
-			
 		}
 
-		protected String getAssetPath() {
+		private String getAssetPath() {
 			String path = assetFile.getLocation().toString();
 			IPath rootAssetsFolder = assetFile.getProject().getLocation().append("assets");
 			IPath assetPath = new Path(path).makeRelativeTo(rootAssetsFolder);
 			return assetPath.toString();
 		}
+		
+		@Override
+		public void dragOver(DropTargetEvent event) {
+			event.feedback = DND.FEEDBACK_NONE;
+		}
 
 		@Override
 		public void drop(DropTargetEvent event) {
 			if (modelInstance != null) {
-				//updateModelPosition();
+				// updateModelPosition();
 				SceneNode2 node = scene.newNode("Model");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
 				transformComponent.setTranslation(lastPosition);
