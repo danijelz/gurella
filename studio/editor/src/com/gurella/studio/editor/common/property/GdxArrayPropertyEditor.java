@@ -138,7 +138,8 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 		switch (Signature.getTypeSignatureKind(typeArgument)) {
 		case Signature.CLASS_TYPE_SIGNATURE:
-			return Values.cast(classLoader.loadClass(Signature.toString(Signature.getTypeErasure(typeArgument))));
+			String componentTypeName = Signature.toString(Signature.getTypeErasure(typeArgument));
+			return Values.cast(classLoader.loadClass(componentTypeName));
 		case Signature.ARRAY_TYPE_SIGNATURE:
 			return Values.cast(classLoader.loadClass(typeArgument));
 		default:

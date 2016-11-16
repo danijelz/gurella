@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.gurella.engine.asset.Assets;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.EventService;
@@ -99,7 +100,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 
 	public void setValue(P value) {
 		P oldValue = getValue();
-		if(Values.isNotEqual(oldValue, value, true)) {
+		if (Values.isNotEqual(oldValue, value, true)) {
 			SetPropertyValueOperation<P> operation = new SetPropertyValueOperation<>(context, oldValue, value);
 			context.sceneContext.executeOperation(operation, "Error updating property.");
 		}
@@ -187,7 +188,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 		public SetPropertyValueOperation(PropertyEditorContext<?, P> context, P oldValue, P newValue) {
 			super("Property");
 			this.context = context;
-			this.oldValue = new CopyContext().copy(oldValue);
+			this.oldValue = Assets.isAsset(oldValue) ? oldValue : new CopyContext().copy(oldValue);
 			this.newValue = newValue;
 		}
 

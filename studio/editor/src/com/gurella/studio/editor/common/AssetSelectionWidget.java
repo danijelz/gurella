@@ -66,7 +66,7 @@ public class AssetSelectionWidget<T> extends Composite {
 				.hint(32, 22).applyTo(selectAssetButton);
 		selectAssetButton.addListener(SWT.Selection, e -> showFileDialg());
 
-		DropTarget target = new DropTarget(text, DND.DROP_MOVE);
+		DropTarget target = new DropTarget(text, DND.DROP_DEFAULT | DND.DROP_COPY);
 		target.setTransfer(new Transfer[] { ResourceTransfer.getInstance() });
 		target.addDropListener(new AssetDropTarget());
 
@@ -145,8 +145,8 @@ public class AssetSelectionWidget<T> extends Composite {
 		@Override
 		public void dragEnter(DropTargetEvent event) {
 			if (event.detail == DND.DROP_DEFAULT) {
-				if ((event.operations & DND.DROP_MOVE) != 0) {
-					event.detail = DND.DROP_MOVE;
+				if ((event.operations & DND.DROP_COPY) != 0) {
+					event.detail = DND.DROP_COPY;
 				} else {
 					event.detail = DND.DROP_NONE;
 				}

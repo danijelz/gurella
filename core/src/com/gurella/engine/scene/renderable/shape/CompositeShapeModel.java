@@ -6,12 +6,14 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 
 public class CompositeShapeModel extends ShapeModel {
 	private final Quaternion rotation = new Quaternion();
 	private final Matrix4 transform = new Matrix4();
 	private final Matrix4 worldTransform = new Matrix4();
 
+	@PropertyEditorDescriptor(genericTypes = { ShapeModelItem.class })
 	Array<ShapeModelItem> items = new Array<ShapeModelItem>();
 
 	public void addShape(ShapeModel shape) {
@@ -55,22 +57,29 @@ public class CompositeShapeModel extends ShapeModel {
 	}
 
 	public static class ShapeModelItem {
+		@PropertyEditorDescriptor(group = "Transform")
 		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 translation = new Vector3();
 
+		@PropertyEditorDescriptor(group = "Transform")
 		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 rotation = new Vector3();
 
+		@PropertyEditorDescriptor(group = "Transform")
 		@PropertyDescriptor(flatSerialization = true)
 		private final Vector3 scale = new Vector3(1, 1, 1);
 
-		public ShapeModel shape;
+		ShapeModel shape;
 
-		public ShapeModelItem() {
+		ShapeModelItem() {
 		}
 
-		public ShapeModelItem(ShapeModel shape) {
+		ShapeModelItem(ShapeModel shape) {
 			this.shape = shape;
+		}
+
+		public ShapeModel getShape() {
+			return shape;
 		}
 	}
 }

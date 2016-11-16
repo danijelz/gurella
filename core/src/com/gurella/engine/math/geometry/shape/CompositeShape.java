@@ -3,8 +3,10 @@ package com.gurella.engine.math.geometry.shape;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
+import com.gurella.engine.editor.property.PropertyEditorDescriptor;
 
 public class CompositeShape extends Shape {
+	@PropertyEditorDescriptor(genericTypes = { Shape.class })
 	private Array<Shape> shapes = new Array<Shape>();
 
 	public void add(Shape shape) {

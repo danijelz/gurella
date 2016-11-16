@@ -74,7 +74,7 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 		initTree();
 
-		final DragSource source = new DragSource(tree, DND.DROP_MOVE | DND.DROP_COPY);
+		final DragSource source = new DragSource(tree, DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
 		source.addDragListener(new AssetsDragSource());
 

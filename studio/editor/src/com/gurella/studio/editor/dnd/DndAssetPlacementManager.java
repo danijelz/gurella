@@ -15,6 +15,8 @@ import org.eclipse.swt.opengl.GLCanvas;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -29,6 +31,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.input.PickResult;
 import com.gurella.engine.scene.renderable.ModelComponent;
+import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.assets.AssetSelection;
@@ -44,28 +47,29 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 	private final int editorId;
 	private final GLCanvas glCanvas;
 
-	private DropTarget dropTarget;
 	private final LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
 
 	private Scene scene;
 	private InputSystem inputSystem;
 	private Camera camera;
-	private ModelBatch batch;
+	private ModelBatch modelBatch;
+	private SpriteBatch spriteBatch;
 
 	private IFile assetFile;
 	private Model model;
 	private ModelInstance modelInstance;
 	private Texture texture;
+	private final Sprite sprite = new Sprite();
 
 	private final PickResult pickResult = new PickResult();
-	private final Vector3 modelPosition = new Vector3();
+	private final Vector3 position = new Vector3();
 	private final Vector3 temp = new Vector3();
 
 	public DndAssetPlacementManager(int editorId, GLCanvas glCanvas) {
 		this.editorId = editorId;
 		this.glCanvas = glCanvas;
 
-		dropTarget = new DropTarget(glCanvas, DND.DROP_MOVE);
+		DropTarget dropTarget = new DropTarget(glCanvas, DND.DROP_DEFAULT | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { transfer });
 		dropTarget.addDropListener(new DropTargetListener());
 
@@ -86,11 +90,13 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 
 	@Override
 	public void onPreRenderUpdate() {
-		if (assetFile == null || getTransferingAssetFile() == assetFile) {
-			return;
-		}
+		unloadTemporaryAssetsIfDragEnded();
+	}
 
-		unloadTemporaryAssets();
+	protected void unloadTemporaryAssetsIfDragEnded() {
+		if (assetFile != null && getTransferingAssetFile() != assetFile) {
+			unloadTemporaryAssets();
+		}
 	}
 
 	private void unloadTemporaryAssets() {
@@ -98,9 +104,11 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		if (model != null) {
 			AssetService.unload(model);
 			model = null;
+			modelInstance = null;
 		} else {
 			AssetService.unload(texture);
 			texture = null;
+			sprite.setTexture(null);
 		}
 	}
 
@@ -112,18 +120,32 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 
 		if (model != null) {
 			updateModelInstance();
-			ModelBatch batch = getBatch();
+			ModelBatch batch = getModelBatch();
 			batch.begin(camera);
 			batch.render(modelInstance);
+			batch.end();
+		} else {
+			updateSprite();
+			SpriteBatch batch = getSpriteBatch();
+			batch.setProjectionMatrix(camera.combined);
+			batch.begin();
+			sprite.draw(batch);
 			batch.end();
 		}
 	}
 
-	private ModelBatch getBatch() {
-		if (batch == null) {
-			batch = new ModelBatch();
+	private ModelBatch getModelBatch() {
+		if (modelBatch == null) {
+			modelBatch = new ModelBatch();
 		}
-		return batch;
+		return modelBatch;
+	}
+
+	private SpriteBatch getSpriteBatch() {
+		if (spriteBatch == null) {
+			spriteBatch = new SpriteBatch();
+		}
+		return spriteBatch;
 	}
 
 	private void updateModelInstance() {
@@ -134,13 +156,29 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		inputSystem.pickNode(pickResult, cursorLocation.x, cursorLocation.y, camera, null);
 
 		if (pickResult.isPositive()) {
-			modelPosition.set(pickResult.location);
-			modelInstance.transform.setTranslation(modelPosition);
+			position.set(pickResult.location);
 		} else {
-			modelPosition.set(ray.origin).add(temp.set(ray.direction).scl(3f));
-			modelInstance.transform.setTranslation(modelPosition);
+			position.set(ray.origin).add(temp.set(ray.direction).scl(3f));
 		}
 
+		modelInstance.transform.setTranslation(position);
+		pickResult.reset();
+	}
+
+	private void updateSprite() {
+		camera.update();
+		Point cursorLocation = glCanvas.getDisplay().getCursorLocation();
+		cursorLocation = glCanvas.toControl(cursorLocation);
+		final Ray ray = camera.getPickRay(cursorLocation.x, cursorLocation.y);
+		inputSystem.pickNode(pickResult, cursorLocation.x, cursorLocation.y, camera, null);
+
+		if (pickResult.isPositive()) {
+			position.set(pickResult.location);
+		} else {
+			position.set(ray.origin).add(temp.set(ray.direction).scl(3f));
+		}
+
+		getSpriteBatch().getTransformMatrix().setToTranslation(position);
 		pickResult.reset();
 	}
 
@@ -161,13 +199,12 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 	public void onEditorClose() {
 		EventService.unsubscribe(editorId, this);
 		Workbench.deactivate(this);
-		dropTarget.dispose();
 	}
 
 	private final class DropTargetListener extends DropTargetAdapter {
 		@Override
 		public void dragEnter(DropTargetEvent event) {
-			if (scene == null || camera == null || (event.operations & DND.DROP_MOVE) == 0) {
+			if (scene == null || camera == null || (event.operations & DND.DROP_COPY) == 0) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
@@ -178,9 +215,8 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				return;
 			}
 
-			event.feedback = DND.FEEDBACK_NONE;
 			if (event.detail == DND.DROP_DEFAULT) {
-				event.detail = DND.DROP_MOVE;
+				event.detail = DND.DROP_COPY;
 			}
 
 			String fileExtension = assetFile.getFileExtension();
@@ -190,6 +226,11 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				updateModelInstance();
 			} else {
 				texture = AssetService.load(getAssetPath(), Texture.class);
+				sprite.setTexture(texture);
+				sprite.setRegion(0, 0, texture.getWidth(), texture.getHeight());
+				sprite.setSize(texture.getWidth(), texture.getHeight());
+				sprite.setOriginCenter();
+				updateSprite();
 			}
 		}
 
@@ -199,22 +240,31 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			IPath assetPath = new Path(path).makeRelativeTo(rootAssetsFolder);
 			return assetPath.toString();
 		}
-
+		
 		@Override
-		public void dragOver(DropTargetEvent event) {
-			event.feedback = DND.FEEDBACK_NONE;
+		public void dragLeave(DropTargetEvent event) {
+			unloadTemporaryAssetsIfDragEnded();
 		}
 
 		@Override
 		public void drop(DropTargetEvent event) {
+			// TODO handle resource deprendencies
 			if (model != null) {
 				updateModelInstance();
 				SceneNode2 node = scene.newNode("Model");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
-				transformComponent.setTranslation(modelPosition);
+				transformComponent.setTranslation(position);
 				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
-				//TODO handle resource deprendencies
 				modelComponent.setModel(AssetService.load(getAssetPath(), Model.class));
+				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
+				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
+			} else {
+				updateSprite();
+				SceneNode2 node = scene.newNode("Sprite");
+				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+				transformComponent.setTranslation(position);
+				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
+				textureComponent.setTexture(AssetService.load(getAssetPath(), Texture.class));
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
 			}

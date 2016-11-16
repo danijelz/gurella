@@ -25,7 +25,6 @@ public abstract class RenderableComponent extends SceneNodeComponent2 implements
 	@PropertyEditorDescriptor(factory = LayerPropertyEditorFactory.class, type = EditorType.simple)
 	Layer layer = Layer.DEFAULT;
 
-	@PropertyEditorDescriptor(index = 1000, group = "input", descriptiveName = "loose")
 	public boolean looseInput;
 
 	private transient int sceneId;
