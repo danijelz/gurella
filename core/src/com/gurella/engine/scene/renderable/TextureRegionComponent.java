@@ -1,14 +1,11 @@
 package com.gurella.engine.scene.renderable;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class TextureRegionComponent extends RenderableComponent2d {
 	private Texture texture;
 	private float u, v;
 	private float u2, v2;
-
-	private final TextureRegion region = new TextureRegion();
 
 	public TextureRegionComponent() {
 	}
@@ -18,10 +15,16 @@ public class TextureRegionComponent extends RenderableComponent2d {
 	}
 
 	public void setTexture(Texture texture) {
-		if (this.texture != texture) {
-			this.texture = texture;
-			region.setTexture(texture);
-			sprite.setRegion(region);
+		if (this.texture == texture) {
+			return;
+		}
+
+		this.texture = texture;
+		sprite.setTexture(texture);
+		if (texture != null) {
+			sprite.setRegion(u, v, u2, v2);
+			sprite.setOriginCenter();
+			setDirty();
 		}
 	}
 
@@ -33,14 +36,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.u != u) {
 			this.u = u;
 			if (texture != null) {
-				region.setU(u);
-				sprite.setRegion(region);
-				if (dimensionsFromTexture) {
-					sprite.setSize(u2 - u, v2 - v);
-					setDirty();
-				} else {
-					sprite.setSize(width, height);
-				}
+				sprite.setSize(u2 - u, v2 - v);
 			}
 		}
 	}
@@ -53,14 +49,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.v != v) {
 			this.v = v;
 			if (texture != null) {
-				region.setV(v);
-				sprite.setRegion(region);
-				if (dimensionsFromTexture) {
-					sprite.setSize(u2 - u, v2 - v);
-					setDirty();
-				} else {
-					sprite.setSize(width, height);
-				}
+				sprite.setSize(u2 - u, v2 - v);
 			}
 		}
 	}
@@ -73,14 +62,7 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.u2 != u2) {
 			this.u2 = u2;
 			if (texture != null) {
-				region.setU2(u2);
-				sprite.setRegion(region);
-				if (dimensionsFromTexture) {
-					sprite.setSize(u2 - u, v2 - v);
-					setDirty();
-				} else {
-					sprite.setSize(width, height);
-				}
+				sprite.setSize(u2 - u, v2 - v);
 			}
 		}
 	}
@@ -93,22 +75,8 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.v2 != v2) {
 			this.v2 = v2;
 			if (texture != null) {
-				region.setV2(v2);
-				sprite.setRegion(region);
-				if (dimensionsFromTexture) {
-					sprite.setSize(u2 - u, v2 - v);
-					setDirty();
-				} else {
-					sprite.setSize(width, height);
-				}
+				sprite.setSize(u2 - u, v2 - v);
 			}
-		}
-	}
-
-	@Override
-	void updateDimensionsFromTexture() {
-		if (texture != null) {
-			sprite.setSize(u2 - u, v2 - v);
 		}
 	}
 
@@ -120,6 +88,5 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		v = 0;
 		u2 = 0;
 		v2 = 0;
-		region.setRegion(null, 0, 0, 0, 0);
 	}
 }

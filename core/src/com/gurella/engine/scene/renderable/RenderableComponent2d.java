@@ -11,13 +11,13 @@ import com.gurella.engine.scene.debug.DebugRenderable;
 public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
 	private static final Color DEBUG_OUTLINE_COLOR = new Color(1f, 0.451f, 0f, 1.0f);
 
+	public static int textureImportPixelsPerUnit = 20;
+
 	public int zOrder;
 	float width;
 	float height;
 	boolean flipX;
 	boolean flipY;
-	boolean dimensionsFromTexture = true; // TODO remove
-	int pixelsPerUnit = -1;
 
 	// TODO origin (center, leftBottom)
 
@@ -34,9 +34,7 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	public void setWidth(float width) {
 		if (this.width != width) {
 			this.width = width;
-			if (!dimensionsFromTexture) {
-				sprite.setSize(width, height);
-			}
+			sprite.setSize(width, height);
 			setDirty();
 		}
 	}
@@ -48,9 +46,16 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	public void setHeight(float height) {
 		if (this.height != height) {
 			this.height = height;
-			if (!dimensionsFromTexture) {
-				sprite.setSize(width, height);
-			}
+			sprite.setSize(width, height);
+			setDirty();
+		}
+	}
+
+	public void setSize(float width, float height) {
+		if (this.width != width || this.height != height) {
+			this.width = width;
+			this.height = height;
+			sprite.setSize(width, height);
 			setDirty();
 		}
 	}
@@ -84,24 +89,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 	public void setTint(float r, float g, float b, float a) {
 		sprite.setColor(r, g, b, a);
 	}
-
-	public boolean isDimensionsFromTexture() {
-		return dimensionsFromTexture;
-	}
-
-	public void setDimensionsFromTexture(boolean dimensionsFromTexture) {
-		if (this.dimensionsFromTexture != dimensionsFromTexture) {
-			this.dimensionsFromTexture = dimensionsFromTexture;
-			if (dimensionsFromTexture) {
-				updateDimensionsFromTexture();
-			} else {
-				sprite.setSize(width, height);
-			}
-			setDirty();
-		}
-	}
-
-	abstract void updateDimensionsFromTexture();
 
 	@Override
 	protected void updateGeometry() {
@@ -159,8 +146,6 @@ public abstract class RenderableComponent2d extends RenderableComponent implemen
 		super.reset();
 		width = 0;
 		height = 0;
-		dimensionsFromTexture = true;
-		pixelsPerUnit = -1;
 		sprite.setColor(1, 1, 1, 1);
 		sprite.setFlip(false, false);
 		sprite.setOriginCenter();

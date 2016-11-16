@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.opengl.GLCanvas;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -31,6 +32,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.input.PickResult;
 import com.gurella.engine.scene.renderable.ModelComponent;
+import com.gurella.engine.scene.renderable.RenderableComponent2d;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
@@ -228,7 +230,9 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				texture = AssetService.load(getAssetPath(), Texture.class);
 				sprite.setTexture(texture);
 				sprite.setRegion(0, 0, texture.getWidth(), texture.getHeight());
-				sprite.setSize(texture.getWidth(), texture.getHeight());
+				int ratio = RenderableComponent2d.textureImportPixelsPerUnit;
+				sprite.setSize(texture.getWidth() / ratio, texture.getHeight() / ratio);
+				sprite.setCenter(0, 0);
 				sprite.setOriginCenter();
 				updateSprite();
 			}
@@ -262,9 +266,12 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				updateSprite();
 				SceneNode2 node = scene.newNode("Sprite");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
+				if(camera instanceof OrthographicCamera) {
+					position.z = 0;
+				}
 				transformComponent.setTranslation(position);
 				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
-				textureComponent.setTexture(AssetService.load(getAssetPath(), Texture.class));
+				textureComponent.updateTexture(AssetService.load(getAssetPath(), Texture.class));
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
 			}

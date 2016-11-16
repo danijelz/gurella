@@ -49,11 +49,6 @@ public class AtlasRegionComponent extends RenderableComponent2d {
 	}
 
 	@Override
-	void updateDimensionsFromTexture() {
-		sprite.setSize(region.getU2() - region.getU(), region.getV2() - region.getV());
-	}
-
-	@Override
 	public void reset() {
 		super.reset();
 		textureAtlas = null;
