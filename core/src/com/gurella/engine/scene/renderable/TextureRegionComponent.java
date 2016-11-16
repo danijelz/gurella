@@ -36,7 +36,9 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.u != u) {
 			this.u = u;
 			if (texture != null) {
-				sprite.setSize(u2 - u, v2 - v);
+				sprite.setRegion(u, v, u2, v2);
+				sprite.setOriginCenter();
+				setDirty();
 			}
 		}
 	}
@@ -49,7 +51,9 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.v != v) {
 			this.v = v;
 			if (texture != null) {
-				sprite.setSize(u2 - u, v2 - v);
+				sprite.setRegion(u, v, u2, v2);
+				sprite.setOriginCenter();
+				setDirty();
 			}
 		}
 	}
@@ -62,7 +66,9 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.u2 != u2) {
 			this.u2 = u2;
 			if (texture != null) {
-				sprite.setSize(u2 - u, v2 - v);
+				sprite.setRegion(u, v, u2, v2);
+				sprite.setOriginCenter();
+				setDirty();
 			}
 		}
 	}
@@ -75,7 +81,9 @@ public class TextureRegionComponent extends RenderableComponent2d {
 		if (this.v2 != v2) {
 			this.v2 = v2;
 			if (texture != null) {
-				sprite.setSize(u2 - u, v2 - v);
+				sprite.setRegion(u, v, u2, v2);
+				sprite.setOriginCenter();
+				setDirty();
 			}
 		}
 	}
