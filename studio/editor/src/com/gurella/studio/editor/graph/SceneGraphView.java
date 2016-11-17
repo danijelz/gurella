@@ -427,9 +427,11 @@ public class SceneGraphView extends DockableView
 		String text = item.getText();
 		Image image = item.getImage();
 		item.dispose();
+		
+		System.out.println("newIndex " + newIndex);
+		System.out.println("parent " + parent.getItemCount());
 
-		TreeItem newItem = parent == null ? new TreeItem(graph, SWT.NONE, newIndex)
-				: new TreeItem(parent, SWT.NONE, newIndex);
+		TreeItem newItem = new TreeItem(parent, SWT.NONE, newIndex);
 		newItem.setImage(image);
 		newItem.setText(text);
 		newItem.setData(component);

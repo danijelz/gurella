@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
 
 public class NodeDropTargetListener extends DropTargetAdapter {
@@ -116,14 +115,5 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 		} else {
 			event.feedback |= DND.FEEDBACK_SELECT;
 		}
-	}
-
-	private void reindexComponent(SceneNodeComponent2 eventComponent, SceneNodeComponent2 component, int adjustment) {
-		SceneNode2 node = component.getNode();
-		int oldIndex = node.getComponentIndex(component);
-		int newIndex = node.getComponentIndex(eventComponent) + adjustment;
-		int editorId = context.editorId;
-		String errorMsg = "Error while repositioning element";
-		context.executeOperation(new ReindexComponentOperation(editorId, component, oldIndex, newIndex), errorMsg);
 	}
 }
