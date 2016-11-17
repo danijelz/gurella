@@ -23,7 +23,7 @@ class SceneGraphDragSourceListener implements DragSourceListener {
 		if (selection.length == 1 && selection[0].getData() instanceof SceneNodeComponent2) {
 			TreeItem item = selection[0];
 			SceneNodeComponent2 component = (SceneNodeComponent2) item.getData();
-			localTransfer.setSelection(new SceneGraphComponentSelection(item, component));
+			localTransfer.setSelection(new SceneGraphComponentSelection(component));
 			event.data = component;
 			event.doit = true;
 		} else {
