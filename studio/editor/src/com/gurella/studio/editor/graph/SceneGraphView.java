@@ -71,8 +71,8 @@ import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.subscription.NodeParentListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
-public class SceneGraphView extends DockableView
-		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener, ComponentIndexListener, NodeParentListener {
+public class SceneGraphView extends DockableView implements EditorSceneActivityListener, NodeNameChangeListener,
+		SceneLoadedListener, ComponentIndexListener, NodeParentListener {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
@@ -436,7 +436,7 @@ public class SceneGraphView extends DockableView
 		newItem.setText(text);
 		newItem.setData(component);
 	}
-	
+
 	@Override
 	public void nodeParentChanged(SceneNode2 node, SceneNode2 newParent) {
 		TreeItem item = findItem(node);
@@ -444,10 +444,11 @@ public class SceneGraphView extends DockableView
 		String text = item.getText();
 		Image image = item.getImage();
 		item.dispose();
-		TreeItem newItem = new TreeItem(parent, SWT.NONE);
+		TreeItem newItem = parent == null ? new TreeItem(graph, SWT.NONE) : new TreeItem(parent, SWT.NONE);
 		newItem.setImage(image);
 		newItem.setText(text);
 		newItem.setData(node);
+		addComponents(newItem, node);
 	}
 
 	@Override
