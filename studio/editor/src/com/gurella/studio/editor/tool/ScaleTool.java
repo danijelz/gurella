@@ -7,6 +7,7 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -60,7 +61,7 @@ public class ScaleTool extends TransformTool {
 	ToolType getType() {
 		return ToolType.scale;
 	}
-	
+
 	@Override
 	ToolHandle[] getHandles() {
 		return handles;
@@ -70,13 +71,15 @@ public class ScaleTool extends TransformTool {
 	void render(GenericBatch batch) {
 		Vector3 translation = getPosition();
 		update(translation);
-		
+
 		Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
-		
+
 		batch.begin(camera);
 		xHandle.render(batch);
 		yHandle.render(batch);
-		zHandle.render(batch);
+		if (camera instanceof PerspectiveCamera) {
+			zHandle.render(batch);
+		}
 		xyzHandle.render(batch);
 		batch.end();
 
@@ -123,12 +126,13 @@ public class ScaleTool extends TransformTool {
 		Material mat = new Material(createDiffuse(color));
 		ModelBuilder builder = new ModelBuilder();
 		builder.begin();
-		MeshPartBuilder meshBuilder = builder.part("line", GL20.GL_LINES, Usage.Position | Usage.ColorUnpacked, mat);
-		meshBuilder.line(0, 0, 0, to.x, to.y, to.z);
+		int attributes = Usage.Position | Usage.ColorUnpacked;
+		MeshPartBuilder partBuilder = builder.part("line", GL20.GL_LINES, attributes, mat);
+		partBuilder.line(0, 0, 0, to.x, to.y, to.z);
 		Node node = builder.node();
 		node.translation.set(to.x, to.y, to.z);
-		meshBuilder = builder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
-		BoxShapeBuilder.build(meshBuilder, 2, 2, 2);
+		partBuilder = builder.part("stub", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, mat);
+		BoxShapeBuilder.build(partBuilder, 2, 2, 2);
 		return builder.end();
 	}
 
@@ -154,7 +158,7 @@ public class ScaleTool extends TransformTool {
 	}
 
 	protected void scaleHandles(Vector3 position) {
-		float scaleFactor = camera.position.dst(position) * 0.01f;
+		float scaleFactor = camera instanceof PerspectiveCamera ? camera.position.dst(position) * 0.01f : 6;
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);

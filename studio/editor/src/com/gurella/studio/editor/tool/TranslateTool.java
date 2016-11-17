@@ -3,6 +3,7 @@ package com.gurella.studio.editor.tool;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -71,7 +72,9 @@ public class TranslateTool extends TransformTool {
 		batch.begin(camera);
 		xHandle.render(batch);
 		yHandle.render(batch);
-		zHandle.render(batch);
+		if (camera instanceof PerspectiveCamera) {
+			zHandle.render(batch);
+		}
 		xzHandle.render(batch);
 		batch.end();
 	}
@@ -89,7 +92,7 @@ public class TranslateTool extends TransformTool {
 	}
 
 	protected void scaleHandles(Vector3 position) {
-		float scaleFactor = camera.position.dst(position) * 0.25f;
+		float scaleFactor = camera instanceof PerspectiveCamera ? camera.position.dst(position) * 0.25f : 150f;
 		xHandle.scale.set(scaleFactor * 0.7f, scaleFactor / 2, scaleFactor / 2);
 		yHandle.scale.set(scaleFactor / 2, scaleFactor * 0.7f, scaleFactor / 2);
 		zHandle.scale.set(scaleFactor / 2, scaleFactor / 2, scaleFactor * 0.7f);

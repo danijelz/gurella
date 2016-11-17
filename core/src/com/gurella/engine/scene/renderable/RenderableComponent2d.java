@@ -11,8 +11,6 @@ import com.gurella.engine.scene.debug.DebugRenderable;
 public abstract class RenderableComponent2d extends RenderableComponent implements DebugRenderable {
 	private static final Color DEBUG_OUTLINE_COLOR = new Color(1f, 0.451f, 0f, 1.0f);
 
-	public static int textureImportPixelsPerUnit = 10;
-
 	public int zOrder;
 	float width;
 	float height;

@@ -14,6 +14,7 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -78,8 +79,10 @@ public class RotateTool extends TransformTool {
 
 		if (activeHandleType == HandleType.none) {
 			batch.begin(camera);
-			xHandle.render(batch);
-			yHandle.render(batch);
+			if (camera instanceof PerspectiveCamera) {
+				xHandle.render(batch);
+				yHandle.render(batch);
+			}
 			zHandle.render(batch);
 			batch.end();
 		} else {
@@ -142,7 +145,7 @@ public class RotateTool extends TransformTool {
 	}
 
 	protected void scaleHandles(Vector3 position) {
-		float scaleFactor = camera.position.dst(position) * 0.005f;
+		float scaleFactor = camera instanceof PerspectiveCamera ? camera.position.dst(position) * 0.005f : 4f;
 		xHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		yHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);
 		zHandle.scale.set(scaleFactor, scaleFactor, scaleFactor);

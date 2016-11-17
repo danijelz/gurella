@@ -15,6 +15,7 @@ import org.eclipse.swt.opengl.GLCanvas;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -32,7 +33,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.input.InputSystem;
 import com.gurella.engine.scene.input.PickResult;
 import com.gurella.engine.scene.renderable.ModelComponent;
-import com.gurella.engine.scene.renderable.RenderableComponent2d;
 import com.gurella.engine.scene.renderable.TextureComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
@@ -155,12 +155,16 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		Point cursorLocation = glCanvas.getDisplay().getCursorLocation();
 		cursorLocation = glCanvas.toControl(cursorLocation);
 		final Ray ray = camera.getPickRay(cursorLocation.x, cursorLocation.y);
-		inputSystem.pickNode(pickResult, cursorLocation.x, cursorLocation.y, camera, null);
 
-		if (pickResult.isPositive()) {
-			position.set(pickResult.location);
+		if (camera instanceof PerspectiveCamera) {
+			inputSystem.pickNode(pickResult, cursorLocation.x, cursorLocation.y, camera, null);
+			if (pickResult.isPositive()) {
+				position.set(pickResult.location);
+			} else {
+				position.set(ray.origin).add(temp.set(ray.direction).scl(3f));
+			}
 		} else {
-			position.set(ray.origin).add(temp.set(ray.direction).scl(3f));
+			position.set(ray.origin);
 		}
 
 		modelInstance.transform.setTranslation(position);
@@ -172,12 +176,16 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		Point cursorLocation = glCanvas.getDisplay().getCursorLocation();
 		cursorLocation = glCanvas.toControl(cursorLocation);
 		final Ray ray = camera.getPickRay(cursorLocation.x, cursorLocation.y);
-		inputSystem.pickNode(pickResult, cursorLocation.x, cursorLocation.y, camera, null);
 
-		if (pickResult.isPositive()) {
-			position.set(pickResult.location);
+		if (camera instanceof PerspectiveCamera) {
+			inputSystem.pickNode(pickResult, cursorLocation.x, cursorLocation.y, camera, null);
+			if (pickResult.isPositive()) {
+				position.set(pickResult.location);
+			} else {
+				position.set(ray.origin).add(temp.set(ray.direction).scl(3f));
+			}
 		} else {
-			position.set(ray.origin).add(temp.set(ray.direction).scl(3f));
+			position.set(ray.origin);
 		}
 
 		getSpriteBatch().getTransformMatrix().setToTranslation(position);
@@ -230,7 +238,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				texture = AssetService.load(getAssetPath(), Texture.class);
 				sprite.setTexture(texture);
 				sprite.setRegion(0, 0, texture.getWidth(), texture.getHeight());
-				int ratio = RenderableComponent2d.textureImportPixelsPerUnit;
+				int ratio = camera instanceof OrthographicCamera ? 1 : 100;
 				sprite.setSize(texture.getWidth() / ratio, texture.getHeight() / ratio);
 				sprite.setCenter(0, 0);
 				sprite.setOriginCenter();
@@ -244,7 +252,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			IPath assetPath = new Path(path).makeRelativeTo(rootAssetsFolder);
 			return assetPath.toString();
 		}
-		
+
 		@Override
 		public void dragLeave(DropTargetEvent event) {
 			unloadTemporaryAssetsIfDragEnded();
@@ -253,6 +261,7 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 		@Override
 		public void drop(DropTargetEvent event) {
 			// TODO handle resource deprendencies
+			event.detail = DND.DROP_NONE;
 			if (model != null) {
 				updateModelInstance();
 				SceneNode2 node = scene.newNode("Model");
@@ -266,12 +275,16 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 				updateSprite();
 				SceneNode2 node = scene.newNode("Sprite");
 				TransformComponent transformComponent = node.newComponent(TransformComponent.class);
-				if(camera instanceof OrthographicCamera) {
-					position.z = 0;
-				}
-				transformComponent.setTranslation(position);
 				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
-				textureComponent.updateTexture(AssetService.load(getAssetPath(), Texture.class));
+				Texture texture = AssetService.load(getAssetPath(), Texture.class);
+				if (camera instanceof OrthographicCamera) {
+					transformComponent.setTranslation(position.x, position.y, 0);
+					textureComponent.setTexture(texture, texture.getWidth(), texture.getHeight());
+				} else {
+					transformComponent.setTranslation(position);
+					textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
+				}
+
 				AddNodeOperation operation = new AddNodeOperation(editorId, scene, null, node);
 				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding node");
 			}
