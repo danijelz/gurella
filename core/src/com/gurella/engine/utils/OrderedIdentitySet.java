@@ -121,8 +121,7 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 	}
 
 	public void setIndex(int newIndex, T value) {
-		items.removeValue(value, true);
-		items.insert(newIndex, value);
+		items.setIndex(newIndex, value);
 	}
 
 	@Override

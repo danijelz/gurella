@@ -61,8 +61,7 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 	}
 
 	public void setIndex(int newIndex, V value) {
-		values.removeValue(value, true);
-		values.insert(newIndex, value);
+		values.setIndex(newIndex, value);
 	}
 
 	@Override

@@ -83,9 +83,6 @@ public class SceneGraphView extends DockableView
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);
 
-		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
-		EventService.subscribe(editor.id, this);
-
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
@@ -112,6 +109,9 @@ public class SceneGraphView extends DockableView
 		if (scene != null) {
 			sceneLoaded(scene);
 		}
+
+		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
+		EventService.subscribe(editor.id, this);
 	}
 
 	private void createMenu() {

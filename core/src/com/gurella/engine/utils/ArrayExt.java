@@ -81,6 +81,23 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 		array.appendAll(this, start, count);
 	}
 
+	public void setIndex(int newIndex, T value) {
+		int oldIndex = indexOf(value, true);
+		if (oldIndex == newIndex) {
+			return;
+		}
+
+		T[] items = this.items;
+
+		if (oldIndex < newIndex) {
+			System.arraycopy(items, oldIndex + 1, items, oldIndex, newIndex - oldIndex);
+		} else {
+			System.arraycopy(items, newIndex, items, newIndex + 1, oldIndex - newIndex);
+		}
+
+		items[newIndex] = value;
+	}
+
 	public ImmutableArray<T> immutable() {
 		if (immutable == null) {
 			immutable = new ImmutableArray<T>(this);
