@@ -101,7 +101,7 @@ public class SceneGraphView extends DockableView
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph));
+		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
 
 		createMenu();
 
@@ -217,7 +217,7 @@ public class SceneGraphView extends DockableView
 		}
 	}
 
-	protected int getEditorId() {
+	private int getEditorId() {
 		return editorContext.editorId;
 	}
 

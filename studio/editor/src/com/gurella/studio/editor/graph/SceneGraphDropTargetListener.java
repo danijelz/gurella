@@ -12,13 +12,16 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.studio.editor.SceneEditorContext;
 
 class SceneGraphDropTargetListener extends DropTargetAdapter {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private final Tree graph;
+	private final SceneEditorContext context;
 
-	SceneGraphDropTargetListener(Tree graph) {
+	SceneGraphDropTargetListener(Tree graph, SceneEditorContext context) {
 		this.graph = graph;
+		this.context = context;
 	}
 
 	@Override
@@ -79,12 +82,12 @@ class SceneGraphDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		Point pt = event.display.map(null, graph, event.x, event.y);
+		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
 
-		if (pt.y < bounds.y + bounds.height / 3) {
+		if (point.y < bounds.y + bounds.height / 2) {
 			event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-		} else if (pt.y > bounds.y + 2 * bounds.height / 3) {
+		} else if (point.y >= bounds.y + bounds.height / 2) {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 		}
 	}
@@ -115,23 +118,19 @@ class SceneGraphDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		Point pt = event.display.map(null, graph, event.x, event.y);
+		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
 
-		if (pt.y < bounds.y + bounds.height / 3) {
+		if (point.y < bounds.y + bounds.height / 2) {
 			int newIndex = component.getIndex();
-			transferComponent.setIndex(newIndex);
-			createComponentItem(item.getParentItem(), newIndex);
-			getTransferItem().dispose();
-			graph.redraw();
-			System.out.println("before");
-		} else if (pt.y > bounds.y + 2 * bounds.height / 3) {
+			SetSceneElementIndexOperation operation = new SetSceneElementIndexOperation(context.editorId,
+					transferComponent, transferComponent.getIndex(), newIndex, getTransferItem());
+			context.executeOperation(operation, "Error while repositioning element");
+		} else if (point.y >= bounds.y + bounds.height / 2) {
 			int newIndex = component.getIndex() + 1;
-			transferComponent.setIndex(newIndex);
-			createComponentItem(item.getParentItem(), newIndex);
-			getTransferItem().dispose();
-			graph.redraw();
-			System.out.println("after");
+			SetSceneElementIndexOperation operation = new SetSceneElementIndexOperation(context.editorId,
+					transferComponent, transferComponent.getIndex(), newIndex, getTransferItem());
+			context.executeOperation(operation, "Error while repositioning element");
 		}
 	}
 
