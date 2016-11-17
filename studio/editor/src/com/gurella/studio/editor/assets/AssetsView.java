@@ -50,14 +50,13 @@ import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
+	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
 	Tree tree;
 	IResource rootResource;
 
 	private Object lastSelection;
-
-	private final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 
 	public AssetsView(SceneEditor editor, int style) {
 		super(editor, "Assets", getImage("icons/resource_persp.gif"), style);
@@ -72,11 +71,12 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.KeyDown, e -> onKeyDown());
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
-		initTree();
 
 		final DragSource source = new DragSource(tree, DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
-		source.addDragListener(new AssetsDragSource());
+		source.addDragListener(new AssetsDragSourceListener());
+
+		initTree();
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
 		IWorkspace workspace = editorContext.workspace;
@@ -255,7 +255,7 @@ public class AssetsView extends DockableView {
 		return PlatformUI.getWorkbench().getSharedImages().getImage(symbolicName);
 	}
 
-	private final class AssetsDragSource implements DragSourceListener {
+	private final class AssetsDragSourceListener implements DragSourceListener {
 		@Override
 		public void dragStart(DragSourceEvent event) {
 			TreeItem[] selection = tree.getSelection();

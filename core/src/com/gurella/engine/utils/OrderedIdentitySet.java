@@ -120,6 +120,13 @@ public class OrderedIdentitySet<T> extends IdentitySet<T> {
 		return value;
 	}
 
+	public void setIndex(int newIndex, T value) {
+		int index = items.indexOf(value, true);
+		int destinationIndex = newIndex < index ? newIndex : newIndex - 1;
+		items.removeIndex(index);
+		items.insert(destinationIndex, value);
+	}
+
 	@Override
 	public OrderedIdentitySetIterator<T> iterator() {
 		if (iterator1 == null) {

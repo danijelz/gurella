@@ -7,6 +7,7 @@ class ObjectOperation implements Poolable {
 	ManagedObject object;
 	OperationType operationType;
 	ManagedObject newParent;
+	int newIndex;
 
 	void execute() {
 		ManagedObjectState state = object.getState();
@@ -32,6 +33,9 @@ class ObjectOperation implements Poolable {
 		case destroy:
 			object.handleDestruction();
 			break;
+		case reposition:
+			object.reindex(newIndex);
+			break;
 		default:
 			throw new IllegalArgumentException();
 		}
@@ -51,6 +55,6 @@ class ObjectOperation implements Poolable {
 	}
 
 	enum OperationType {
-		activate, reparent, deactivate, destroy
+		activate, reparent, deactivate, destroy, reposition
 	}
 }

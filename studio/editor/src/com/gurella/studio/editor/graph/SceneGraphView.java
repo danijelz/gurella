@@ -4,8 +4,13 @@ import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -66,9 +71,12 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneGraphView extends DockableView
 		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener {
+	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
 	private Tree graph;
+	Scene scene;
+
 	private Menu menu;
 
 	public SceneGraphView(SceneEditor editor, int style) {
@@ -80,11 +88,20 @@ public class SceneGraphView extends DockableView
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
+
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
+
+		final DragSource source = new DragSource(graph, DND.DROP_MOVE);
+		source.setTransfer(new Transfer[] { localTransfer });
+		source.addDragListener(new SceneGraphDragSourceListener(graph));
+
+		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE);
+		dropTarget.setTransfer(new Transfer[] { localTransfer });
+		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph));
 
 		createMenu();
 
@@ -224,10 +241,6 @@ public class SceneGraphView extends DockableView
 		}
 	}
 
-	private Scene getScene() {
-		return (Scene) graph.getData();
-	}
-
 	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
 		for (SceneNode2 node : nodeContainer.getNodes()) {
 			addNode(parentItem, node);
@@ -235,7 +248,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	protected TreeItem addNode(TreeItem parentItem, SceneNode2 node) {
-		TreeItem nodeItem = parentItem == null ? new TreeItem(graph, 0) : new TreeItem(parentItem, 0);
+		TreeItem nodeItem = parentItem == null ? new TreeItem(graph, SWT.NONE) : new TreeItem(parentItem, SWT.NONE);
 		nodeItem.setText(node.getName());
 		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
 		nodeItem.setData(node);
@@ -251,7 +264,7 @@ public class SceneGraphView extends DockableView
 	}
 
 	private static void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
-		TreeItem componentItem = new TreeItem(parentItem, 0);
+		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE);
 		if (component instanceof TransformComponent) {
 			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
 		} else {
@@ -296,11 +309,11 @@ public class SceneGraphView extends DockableView
 	}
 
 	private void addShapeNode(String name, ShapeModel shapeModel) {
-		SceneNode2 node = getScene().newNode(name);
+		SceneNode2 node = scene.newNode(name);
 		node.newComponent(TransformComponent.class);
 		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
 		shapeComponent.setShape(shapeModel);
-		AddNodeOperation operation = new AddNodeOperation(getEditorId(), getScene(), null, node);
+		AddNodeOperation operation = new AddNodeOperation(getEditorId(), scene, null, node);
 		editorContext.executeOperation(operation, "Error while adding node");
 	}
 
@@ -313,7 +326,7 @@ public class SceneGraphView extends DockableView
 			if (data instanceof SceneNode2) {
 				SceneNode2 node = (SceneNode2) data;
 				SceneNode2 parentNode = node.getParentNode();
-				RemoveNodeOperation operation = new RemoveNodeOperation(getEditorId(), getScene(), parentNode, node);
+				RemoveNodeOperation operation = new RemoveNodeOperation(getEditorId(), scene, parentNode, node);
 				editorContext.executeOperation(operation, "Error while removing node");
 			} else if (data instanceof SceneNodeComponent2) {
 				SceneNodeComponent2 component = (SceneNodeComponent2) data;
@@ -345,13 +358,13 @@ public class SceneGraphView extends DockableView
 			}
 		}
 
-		AddNodeOperation operation = new AddNodeOperation(getEditorId(), getScene(), parentNode, node);
+		AddNodeOperation operation = new AddNodeOperation(getEditorId(), scene, parentNode, node);
 		editorContext.executeOperation(operation, "Error while adding node");
 	}
 
 	@Override
 	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
-		if (getScene() != scene) {
+		if (this.scene != scene) {
 			return;
 		}
 
@@ -402,7 +415,7 @@ public class SceneGraphView extends DockableView
 
 	@Override
 	public void sceneLoaded(Scene scene) {
-		graph.setData(scene);
+		this.scene = scene;
 		menu.setEnabled(true);
 		int editorId = getEditorId();
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));

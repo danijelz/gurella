@@ -74,11 +74,30 @@ final class ManagedObjects {
 		}
 	}
 
+	static void reindex(ManagedObject object, int newIndex) {
+		if (object.state == ManagedObjectState.idle) {
+			object.reindex(newIndex);
+		} else {
+			reposition(object, newIndex);
+		}
+	}
+
 	private static void operation(ManagedObject object, OperationType operationType, ManagedObject newParent) {
 		ObjectOperation operation = PoolService.obtain(ObjectOperation.class);
 		operation.object = object;
 		operation.operationType = operationType;
 		operation.newParent = newParent;
+
+		synchronized (mutex) {
+			operations.add(operation);
+		}
+	}
+
+	private static void reposition(ManagedObject object, int newIndex) {
+		ObjectOperation operation = PoolService.obtain(ObjectOperation.class);
+		operation.object = object;
+		operation.operationType = OperationType.reposition;
+		operation.newIndex = newIndex;
 
 		synchronized (mutex) {
 			operations.add(operation);

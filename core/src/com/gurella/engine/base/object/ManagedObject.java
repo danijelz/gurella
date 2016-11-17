@@ -308,6 +308,22 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
 	}
 
+	public final int getIndex() {
+		if (parent == null) {
+			return -1;
+		} else {
+			return parent._children.indexOf(this);
+		}
+	}
+
+	public final void setIndex(int newIndex) {
+		ManagedObjects.reindex(this, newIndex);
+	}
+
+	void reindex(int newIndex) {
+		parent._children.setIndex(newIndex, this);
+	}
+
 	//// ATTACHMENTS
 	public void attach(Attachment<?> attachment) {
 		Object value = attachment.value;

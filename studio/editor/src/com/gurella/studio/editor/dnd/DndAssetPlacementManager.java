@@ -200,9 +200,12 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 
 		AssetSelection assetSelection = (AssetSelection) selection;
 		IFile file = assetSelection.getAssetFile();
-		String fileExtension = file.getFileExtension();
+		return isValidExtension(file.getFileExtension()) ? file : null;
+	}
+
+	protected boolean isValidExtension(String fileExtension) {
 		return AssetType.isValidExtension(Model.class, fileExtension)
-				|| AssetType.isValidExtension(Texture.class, fileExtension) ? file : null;
+				|| AssetType.isValidExtension(Texture.class, fileExtension);
 	}
 
 	@Override
