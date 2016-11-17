@@ -7,7 +7,6 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 	private final ArrayExt<V> values;
 
 	public OrderedValuesIntMap() {
-		super();
 		values = new ArrayExt<V>();
 	}
 
@@ -59,6 +58,11 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 
 	public ImmutableArray<V> orderedValues() {
 		return values.immutable();
+	}
+
+	public void setIndex(int newIndex, V value) {
+		values.removeValue(value, true);
+		values.insert(newIndex, value);
 	}
 
 	@Override

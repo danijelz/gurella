@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.base.model.TransientProperty;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.ImmutableArray;
@@ -173,6 +174,15 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		return out;
 	}
 
+	@TransientProperty
+	public int getChildNodeIndex(SceneNode2 child) {
+		return _childNodes.indexOf(child);
+	}
+
+	public void setChildNodeIndex(int newIndex, SceneNode2 child) {
+		_childNodes.setIndex(newIndex, child);
+	}
+
 	public void addComponent(SceneNodeComponent2 component) {
 		component.setParent(this);
 	}
@@ -224,6 +234,15 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
 		return getComponent(type, false);
+	}
+
+	@TransientProperty
+	public int getComponentIndex(SceneNodeComponent2 component) {
+		return _components.orderedValues().indexOf(component, true);
+	}
+
+	public void setComponentIndex(int newIndex, SceneNodeComponent2 component) {
+		_components.setIndex(newIndex, component);
 	}
 
 	public String getDiagnostics() {
