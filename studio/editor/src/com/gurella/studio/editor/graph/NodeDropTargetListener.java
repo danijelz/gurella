@@ -113,7 +113,9 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 		} else {
-			event.feedback |= DND.FEEDBACK_SELECT;
+			int editorId = context.editorId;
+			String errorMsg = "Error while repositioning element";
+			context.executeOperation(new ReparentNodeOperation(editorId, node, eventNode), errorMsg);
 		}
 	}
 }

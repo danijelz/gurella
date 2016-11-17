@@ -68,10 +68,11 @@ import com.gurella.studio.editor.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.ComponentIndexListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
+import com.gurella.studio.editor.subscription.NodeParentListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneGraphView extends DockableView
-		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener, ComponentIndexListener {
+		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener, ComponentIndexListener, NodeParentListener {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
@@ -95,13 +96,13 @@ public class SceneGraphView extends DockableView
 
 		final DragSource source = new DragSource(graph, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { localTransfer });
-		source.addDragListener(new ComponentDragSourceListener(graph));
-		//source.addDragListener(new NodeDragSourceListener(graph));
+		//source.addDragListener(new ComponentDragSourceListener(graph));
+		source.addDragListener(new NodeDragSourceListener(graph));
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new ComponentDropTargetListener(graph, editorContext));
-		//dropTarget.addDropListener(new NodeDropTargetListener(graph, editorContext));
+		//dropTarget.addDropListener(new ComponentDropTargetListener(graph, editorContext));
+		dropTarget.addDropListener(new NodeDropTargetListener(graph, editorContext));
 
 		createMenu();
 
@@ -434,6 +435,19 @@ public class SceneGraphView extends DockableView
 		newItem.setImage(image);
 		newItem.setText(text);
 		newItem.setData(component);
+	}
+	
+	@Override
+	public void nodeParentChanged(SceneNode2 node, SceneNode2 newParent) {
+		TreeItem item = findItem(node);
+		TreeItem parent = findItem(newParent);
+		String text = item.getText();
+		Image image = item.getImage();
+		item.dispose();
+		TreeItem newItem = new TreeItem(parent, SWT.NONE);
+		newItem.setImage(image);
+		newItem.setText(text);
+		newItem.setData(node);
 	}
 
 	@Override
