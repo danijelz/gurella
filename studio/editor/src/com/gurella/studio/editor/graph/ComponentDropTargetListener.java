@@ -128,6 +128,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		SceneNode2 node = component.getNode();
 		int oldIndex = node.getComponentIndex(component);
 		int newIndex = node.getComponentIndex(eventComponent) + adjustment;
+		System.out.println(newIndex);
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning component";
 		context.executeOperation(new ReindexComponentOperation(editorId, component, oldIndex, newIndex), errorMsg);

@@ -117,18 +117,22 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 			if (node.getParent() == eventNode.getParent()) {
 				reindexNode(eventNode, node, 0);
 			} else {
-				//TODO
+				SceneNode2 parent = eventNode.getParentNode();
+				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
+						: parent.getChildNodeIndex(eventNode);
+				reparentNode(node, eventNode, newIndex);
 			}
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			if (node.getParent() == eventNode.getParent()) {
 				reindexNode(eventNode, node, 1);
 			} else {
-				//TODO
+				SceneNode2 parent = eventNode.getParentNode();
+				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
+						: parent.getChildNodeIndex(eventNode);
+				reparentNode(node, eventNode, newIndex + 1);
 			}
 		} else if (eventNode != node.getParentNode()) {
-			int editorId = context.editorId;
-			String errorMsg = "Error while repositioning element";
-			context.executeOperation(new ReparentNodeOperation(editorId, node, eventNode), errorMsg);
+			reparentNode(node, eventNode, eventNode.children.size());
 		}
 	}
 
@@ -149,5 +153,11 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
 		context.executeOperation(new ReindexNodeOperation(editorId, node, oldIndex, newIndex), errorMsg);
+	}
+
+	private void reparentNode(SceneNode2 node, SceneNode2 newParent, int newIndex) {
+		int editorId = context.editorId;
+		String errorMsg = "Error while repositioning element";
+		context.executeOperation(new ReparentNodeOperation(editorId, node, newParent, newIndex), errorMsg);
 	}
 }
