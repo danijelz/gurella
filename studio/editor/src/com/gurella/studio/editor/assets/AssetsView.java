@@ -17,6 +17,7 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -75,6 +76,10 @@ public class AssetsView extends DockableView {
 		final DragSource source = new DragSource(tree, DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
 		source.addDragListener(new AssetsDragSourceListener());
+
+		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
+		dropTarget.setTransfer(new Transfer[] { localTransfer });
+		dropTarget.addDropListener(new AssetsDropTargetListener());
 
 		initTree();
 

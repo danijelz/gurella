@@ -125,7 +125,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
 						: parent.getChildNodeIndex(eventNode);
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
-				reparentNode(node, eventNode, newIndex);
+				reparentNode(node, parent, newIndex);
 			}
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			if (node.getParent() == eventNode.getParent()) {
@@ -139,10 +139,10 @@ class NodeDropTargetListener extends DropTargetAdapter {
 				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
 						: parent.getChildNodeIndex(eventNode);
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
-				reparentNode(node, eventNode, newIndex);
+				reparentNode(node, parent, newIndex);
 			}
 		} else if (eventNode != node.getParentNode()) {
-			reparentNode(node, eventNode, eventNode.children.size());
+			reparentNode(node, eventNode, eventNode.childNodes.size());
 		}
 	}
 

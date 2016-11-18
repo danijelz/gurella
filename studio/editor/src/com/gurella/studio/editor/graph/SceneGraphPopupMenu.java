@@ -50,6 +50,7 @@ import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.utils.UiUtils;
 
+//TODO unused
 class SceneGraphPopupMenu {
 	private final Tree graph;
 	private final SceneEditorContext context;

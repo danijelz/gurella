@@ -77,7 +77,6 @@ import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneGraphView extends DockableView implements EditorSceneActivityListener, NodeNameChangeListener,
 		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
-	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
 	Tree graph;
@@ -98,6 +97,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
 
+		LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 		final DragSource source = new DragSource(graph, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { localTransfer });
 		source.addDragListener(new SceneGraphDragSourceListener(graph));
@@ -270,9 +270,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private static void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
-		int index = (int) Arrays.stream(parentItem.getItems()).filter(i -> i.getData() instanceof SceneNodeComponent2)
-				.count();
-		System.out.println("index " + index);
+		int index = countComponentItems(parentItem);
 		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE, index);
 		if (component instanceof TransformComponent) {
 			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
@@ -281,6 +279,10 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		}
 		componentItem.setText(Models.getModel(component).getName());
 		componentItem.setData(component);
+	}
+
+	private static int countComponentItems(TreeItem item) {
+		return (int) Arrays.stream(item.getItems()).filter(i -> i.getData() instanceof SceneNodeComponent2).count();
 	}
 
 	private TreeItem findItem(SceneElement2 element) {
@@ -345,7 +347,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private void addNode(boolean child) {
-		InputDialog dlg = new InputDialog(getDisplay().getActiveShell(), "Add Node", "Enter node name", "Node",
+		InputDialog dlg = new InputDialog(getShell(), "Add Node", "Enter node name", "Node",
 				newText -> newText.length() < 3 ? "Too short" : null);
 
 		if (dlg.open() != Window.OK) {
@@ -434,12 +436,16 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		}
 
 		SceneNode2 parentNode = node.getParentNode();
-		int index = newIndex + (parentNode == null ? 0 : parentNode.components.size() - 1);
+		TreeItem parent = parentNode == null ? null : findItem(parentNode);
+		int index = newIndex + (parent == null ? 0 : countComponentItems(parent));
+		if(parent != null) {
+			System.out.println("parent " + parent.getText());
+		}
+		System.out.println("index " + index);
 		String text = item.getText();
 		Image image = item.getImage();
-		TreeItem parent = item.getParentItem();
 		item.dispose();
-		TreeItem newItem = parentNode == null ? new TreeItem(graph, SWT.NONE, index)
+		TreeItem newItem = parent == null ? new TreeItem(graph, SWT.NONE, index)
 				: new TreeItem(parent, SWT.NONE, index);
 		newItem.setImage(image);
 		newItem.setText(text);
