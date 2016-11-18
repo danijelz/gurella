@@ -70,12 +70,15 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 		if (point.y < bounds.y + bounds.height / 3) {
 			event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+			event.detail = DND.DROP_MOVE;
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+			event.detail = DND.DROP_MOVE;
 		} else if (eventNode == node.getParentNode()) {
 			event.detail = DND.DROP_NONE;
 		} else {
 			event.feedback |= DND.FEEDBACK_SELECT;
+			event.detail = DND.DROP_MOVE;
 		}
 	}
 

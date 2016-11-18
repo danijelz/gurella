@@ -10,13 +10,15 @@ import org.eclipse.swt.widgets.Tree;
 import com.gurella.studio.editor.SceneEditorContext;
 
 class SceneGraphDropTargetListener implements DropTargetListener {
-	private ComponentDropTargetListener componentDropTargetListener;
-	private NodeDropTargetListener nodeDropTargetListener;
+	private final ComponentDropTargetListener componentDropTargetListener;
+	private final NodeDropTargetListener nodeDropTargetListener;
+	private final AssetDropTargetListener assetDropTargetListener;
 	private DropTargetListener active;
 
 	SceneGraphDropTargetListener(Tree graph, SceneEditorContext context) {
 		componentDropTargetListener = new ComponentDropTargetListener(graph, context);
 		nodeDropTargetListener = new NodeDropTargetListener(graph, context);
+		assetDropTargetListener = new AssetDropTargetListener(context);
 	}
 
 	@Override
@@ -30,6 +32,13 @@ class SceneGraphDropTargetListener implements DropTargetListener {
 		nodeDropTargetListener.dragEnter(event);
 		if (event.detail != DND.DROP_NONE) {
 			active = nodeDropTargetListener;
+			return;
+		}
+
+		assetDropTargetListener.dragEnter(event);
+		if (event.detail != DND.DROP_NONE) {
+			active = assetDropTargetListener;
+			return;
 		}
 	}
 

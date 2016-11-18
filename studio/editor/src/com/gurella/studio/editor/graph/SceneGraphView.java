@@ -102,7 +102,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		source.setTransfer(new Transfer[] { localTransfer });
 		source.addDragListener(new SceneGraphDragSourceListener(graph));
 
-		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_MOVE);
+		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
 
@@ -270,7 +270,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private static void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
-		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE);
+		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE, component.getNode().components.size() - 1);
 		if (component instanceof TransformComponent) {
 			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
 		} else {

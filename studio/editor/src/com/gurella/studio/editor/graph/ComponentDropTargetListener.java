@@ -76,8 +76,10 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		if (point.y < bounds.y + bounds.height / 2) {
 			event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+			event.detail = DND.DROP_MOVE;
 		} else if (point.y >= bounds.y + bounds.height / 2) {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+			event.detail = DND.DROP_MOVE;
 		}
 	}
 
