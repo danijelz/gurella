@@ -8,21 +8,21 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.SceneChangedEvent;
-import com.gurella.studio.editor.subscription.ComponentIndexListener;
+import com.gurella.studio.editor.subscription.NodeIndexListener;
 
-public class ReindexComponentOperation extends AbstractOperation {
+public class ReindexNodeOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNodeComponent2 component;
+	final SceneNode2 node;
 	final int oldIndex;
 	final int newIndex;
 
-	public ReindexComponentOperation(int editorId, SceneNodeComponent2 component, int oldIndex, int newIndex) {
+	public ReindexNodeOperation(int editorId, SceneNode2 node, int oldIndex, int newIndex) {
 		super("Set index");
 		this.editorId = editorId;
-		this.component = component;
+		this.node = node;
 		this.oldIndex = oldIndex;
 		this.newIndex = newIndex;
 	}
@@ -45,9 +45,14 @@ public class ReindexComponentOperation extends AbstractOperation {
 	}
 
 	private void setIndex(int index) {
-		component.getNode().setComponentIndex(index, component);
+		SceneNode2 parentNode = node.getParentNode();
+		if (parentNode == null) {
+			node.getScene().setNodeIndex(index, node);
+		} else {
+			parentNode.setChildNodeIndex(index, node);
+		}
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
-		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));
+		EventService.post(editorId, NodeIndexListener.class, l -> l.nodeIndexChanged(node, index));
 	}
 }

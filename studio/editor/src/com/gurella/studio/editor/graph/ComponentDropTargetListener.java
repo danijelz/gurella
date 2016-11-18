@@ -82,7 +82,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 		}
 	}
-	
+
 	@Override
 	public void dropAccept(DropTargetEvent event) {
 		event.detail = DND.DROP_MOVE;
@@ -129,7 +129,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		int oldIndex = node.getComponentIndex(component);
 		int newIndex = node.getComponentIndex(eventComponent) + adjustment;
 		int editorId = context.editorId;
-		String errorMsg = "Error while repositioning element";
+		String errorMsg = "Error while repositioning component";
 		context.executeOperation(new ReindexComponentOperation(editorId, component, oldIndex, newIndex), errorMsg);
 	}
 }

@@ -3,6 +3,9 @@ package com.gurella.studio.editor.graph;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
@@ -67,12 +70,13 @@ import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.ComponentIndexListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
+import com.gurella.studio.editor.subscription.NodeIndexListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.subscription.NodeParentListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 
 public class SceneGraphView extends DockableView implements EditorSceneActivityListener, NodeNameChangeListener,
-		SceneLoadedListener, ComponentIndexListener, NodeParentListener {
+		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
@@ -96,13 +100,11 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 		final DragSource source = new DragSource(graph, DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { localTransfer });
-		//source.addDragListener(new ComponentDragSourceListener(graph));
-		source.addDragListener(new NodeDragSourceListener(graph));
+		source.addDragListener(new SceneGraphDragSourceListener(graph));
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		//dropTarget.addDropListener(new ComponentDropTargetListener(graph, editorContext));
-		dropTarget.addDropListener(new NodeDropTargetListener(graph, editorContext));
+		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
 
 		createMenu();
 
@@ -307,9 +309,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	public void showMenu() {
 		TreeItem[] selection = graph.getSelection();
 		boolean enabled = selection.length > 0 ? selection[0].getData() instanceof SceneNode2 : true;
-		for (MenuItem item : menu.getItems()) {
-			item.setEnabled(enabled);
-		}
+		Arrays.stream(menu.getItems()).forEach(i -> i.setEnabled(enabled));
 	}
 
 	private void addShapeNode(String name, ShapeModel shapeModel) {
@@ -387,38 +387,26 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 	@Override
 	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
-		TreeItem found = findItem(node);
-		if (found != null) {
-			found.dispose();
-		}
+		Optional.ofNullable(findItem(node)).ifPresent(i -> i.dispose());
 	}
 
 	@Override
 	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
-		TreeItem found = findItem(node);
-		if (found != null) {
-			createComponentItem(found, component);
-		}
+		Optional.ofNullable(findItem(node)).ifPresent(i -> createComponentItem(i, component));
 	}
 
 	@Override
 	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
-		TreeItem found = findItem(component);
-		if (found != null) {
-			found.dispose();
-		}
+		Optional.ofNullable(findItem(component)).ifPresent(i -> i.dispose());
 	}
 
 	@Override
 	public void nodeNameChanged(SceneNode2 node) {
-		TreeItem found = findItem(node);
-		if (found != null) {
-			found.setText(node.getName());
-		}
+		Optional.ofNullable(findItem(node)).ifPresent(i -> i.setText(node.getName()));
 	}
 
 	@Override
-	public void indexChanged(SceneNodeComponent2 component, int newIndex) {
+	public void componentIndexChanged(SceneNodeComponent2 component, int newIndex) {
 		TreeItem item = findItem(component);
 		if (item == null) {
 			return;
@@ -435,6 +423,37 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		newItem.setImage(image);
 		newItem.setText(text);
 		newItem.setData(component);
+	}
+
+	@Override
+	public void nodeIndexChanged(SceneNode2 node, int newIndex) {
+		TreeItem item = findItem(node);
+		if (item == null) {
+			return;
+		}
+
+		SceneNode2 parentNode = node.getParentNode();
+		String text = item.getText();
+		Image image = item.getImage();
+		TreeItem newItem;
+
+		if (parentNode == null) {
+			int oldIndex = graph.indexOf(item);
+			item.dispose();
+			int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+			newItem = new TreeItem(graph, SWT.NONE, index);
+		} else {
+			TreeItem parent = item.getParentItem();
+			int oldIndex = parent.indexOf(item);
+			item.dispose();
+			int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
+			newItem = new TreeItem(parent, SWT.NONE, index);
+		}
+
+		newItem.setImage(image);
+		newItem.setText(text);
+		newItem.setData(node);
+		addComponents(newItem, node);
 	}
 
 	@Override

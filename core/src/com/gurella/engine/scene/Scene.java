@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.base.model.PropertyDescriptor;
+import com.gurella.engine.base.model.TransientProperty;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.audio.AudioSystem;
@@ -204,6 +205,15 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		return system;
 	}
 
+	@TransientProperty
+	public int getSystemIndex(SceneSystem2 system) {
+		return _systems.indexOf(system);
+	}
+
+	public void setNodeSystemIndex(int newIndex, SceneSystem2 system) {
+		_systems.setIndex(newIndex, system);
+	}
+
 	@Override
 	public ImmutableArray<SceneNode2> getNodes() {
 		return nodes;
@@ -244,6 +254,15 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 			}
 		}
 		return out;
+	}
+
+	@TransientProperty
+	public int getNodeIndex(SceneNode2 child) {
+		return _nodes.indexOf(child);
+	}
+
+	public void setNodeIndex(int newIndex, SceneNode2 child) {
+		_nodes.setIndex(newIndex, child);
 	}
 
 	public String getDiagnostics() {

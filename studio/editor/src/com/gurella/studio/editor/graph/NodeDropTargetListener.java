@@ -10,6 +10,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.editor.SceneEditorContext;
 
@@ -75,7 +76,11 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 		} else {
-			event.feedback |= DND.FEEDBACK_SELECT;
+			if (eventNode == node.getParentNode()) {
+				event.detail = DND.DROP_NONE;
+			} else {
+				event.feedback |= DND.FEEDBACK_SELECT;
+			}
 		}
 	}
 
@@ -109,13 +114,40 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 		Rectangle bounds = item.getBounds();
 
 		if (point.y < bounds.y + bounds.height / 3) {
-			event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+			if (node.getParent() == eventNode.getParent()) {
+				reindexNode(eventNode, node, 0);
+			} else {
+				//TODO
+			}
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
-			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
-		} else {
+			if (node.getParent() == eventNode.getParent()) {
+				reindexNode(eventNode, node, 1);
+			} else {
+				//TODO
+			}
+		} else if (eventNode != node.getParentNode()) {
 			int editorId = context.editorId;
 			String errorMsg = "Error while repositioning element";
 			context.executeOperation(new ReparentNodeOperation(editorId, node, eventNode), errorMsg);
 		}
+	}
+
+	private void reindexNode(SceneNode2 eventNode, SceneNode2 node, int adjustment) {
+		SceneNode2 parentNode = node.getParentNode();
+		int oldIndex;
+		int newIndex;
+
+		if (parentNode == null) {
+			Scene scene = context.getScene();
+			oldIndex = scene.getNodeIndex(node);
+			newIndex = scene.getNodeIndex(eventNode) + adjustment;
+		} else {
+			oldIndex = parentNode.getChildNodeIndex(node);
+			newIndex = parentNode.getChildNodeIndex(eventNode) + adjustment;
+		}
+
+		int editorId = context.editorId;
+		String errorMsg = "Error while repositioning node";
+		context.executeOperation(new ReindexNodeOperation(editorId, node, oldIndex, newIndex), errorMsg);
 	}
 }

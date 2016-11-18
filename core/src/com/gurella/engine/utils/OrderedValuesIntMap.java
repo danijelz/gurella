@@ -64,6 +64,30 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 		values.setIndex(newIndex, value);
 	}
 
+	public V first() {
+		return values.first();
+	}
+
+	public V getOrdered(int index) {
+		return values.get(index);
+	}
+
+	public V peek() {
+		return values.peek();
+	}
+
+	public int indexOf(V value) {
+		return values.indexOf(value, true);
+	}
+
+	public void reverse() {
+		values.reverse();
+	}
+
+	public V random() {
+		return values.random();
+	}
+
 	@Override
 	public int hashCode() {
 		return 31 + super.hashCode();
@@ -83,5 +107,4 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 		OrderedValuesIntMap<?> other = (OrderedValuesIntMap<?>) obj;
 		return values.equals(other.values);
 	}
-
 }
