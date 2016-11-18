@@ -15,6 +15,12 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.gurella.studio.editor.utils.Try;
 
 class MoveAssetDropTargetListener extends DropTargetAdapter {
+	private final IResource sceneResource;
+
+	MoveAssetDropTargetListener(IResource sceneResource) {
+		this.sceneResource = sceneResource;
+	}
+
 	@Override
 	public void dragEnter(DropTargetEvent event) {
 		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferingResource() == null) {
@@ -52,7 +58,7 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 		}
 
 		IResource resource = getTransferingResource();
-		if (resource == null || resource == data) {
+		if (resource == null || resource == data || sceneResource.equals(resource)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
@@ -82,11 +88,12 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 
 		IFolder folder = (IFolder) data;
 		IResource resource = getTransferingResource();
-		if (resource == null || resource == folder) {
+		if (resource == null || resource == folder || sceneResource.equals(resource)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
+		//TODO update references in scenes
 		Try.successful(resource).peek(r -> r.move(folder.getFullPath().append(resource.getName()), true, null))
 				.onFailure(e -> log(e, "Error while moving resource."));
 	}

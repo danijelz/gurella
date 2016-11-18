@@ -33,6 +33,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	private final HistoryManager historyManager;
 
 	public final IPathEditorInput editorInput;
+	public final IResource sceneResource;
 	public final IWorkspace workspace;
 	public final IProject project;
 	public final IJavaProject javaProject;
@@ -47,9 +48,9 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		historyManager = editor.historyManager;
 
 		editorInput = (IPathEditorInput) editor.getEditorInput();
-		IResource resource = editorInput.getAdapter(IResource.class);
-		workspace = resource.getWorkspace();
-		project = resource.getProject();
+		sceneResource = editorInput.getAdapter(IResource.class);
+		workspace = sceneResource.getWorkspace();
+		project = sceneResource.getProject();
 		javaProject = JavaCore.create(project);
 		classLoader = DynamicURLClassLoader.newInstance(javaProject);
 		Reflection.classResolver = classLoader::loadClass;

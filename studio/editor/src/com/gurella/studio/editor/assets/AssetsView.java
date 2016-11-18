@@ -17,8 +17,6 @@ import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
@@ -77,11 +75,11 @@ public class AssetsView extends DockableView {
 
 		final DragSource source = new DragSource(tree, DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
-		source.addDragListener(new AssetsDragSourceListener());
+		source.addDragListener(new AssetsDragSourceListener(tree));
 
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new MoveAssetDropTargetListener());
+		dropTarget.addDropListener(new MoveAssetDropTargetListener(editorContext.sceneResource));
 
 		initTree();
 
@@ -258,39 +256,5 @@ public class AssetsView extends DockableView {
 
 	private static Image getPlatformImage(String symbolicName) {
 		return PlatformUI.getWorkbench().getSharedImages().getImage(symbolicName);
-	}
-
-	private final class AssetsDragSourceListener implements DragSourceListener {
-		@Override
-		public void dragStart(DragSourceEvent event) {
-			TreeItem[] selection = tree.getSelection();
-			if (selection.length != 1) {
-				event.doit = false;
-				return;
-			}
-
-			Object data = selection[0].getData();
-			if (!(data instanceof IResource)) {
-				event.doit = false;
-				return;
-			}
-
-			LocalSelectionTransfer.getTransfer().setSelection(new AssetSelection((IResource) data));
-			event.data = data;
-			event.doit = true;
-			event.image = null;
-		}
-
-		@Override
-		public void dragSetData(DragSourceEvent event) {
-			TreeItem[] selection = tree.getSelection();
-			IResource resource = (IResource) selection[0].getData();
-			event.data = new IResource[] { resource };
-		}
-
-		@Override
-		public void dragFinished(DragSourceEvent event) {
-			LocalSelectionTransfer.getTransfer().setSelection(null);
-		}
 	}
 }
