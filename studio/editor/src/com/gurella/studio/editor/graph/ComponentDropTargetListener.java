@@ -31,9 +31,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		if (event.detail == DND.DROP_DEFAULT) {
-			event.detail = DND.DROP_MOVE;
-		}
+		event.detail = DND.DROP_MOVE;
 	}
 
 	private static SceneNodeComponent2 getTransferComponent() {
@@ -116,19 +114,21 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
+		SceneNode2 node = component.getNode();
+		int oldIndex = node.getComponentIndex(component);
 
 		if (point.y < bounds.y + bounds.height / 2) {
-			reindexComponent(eventComponent, component, 0);
+			int newIndex = node.getComponentIndex(eventComponent);
+			newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
+			reindexComponent(component, oldIndex, newIndex);
 		} else if (point.y >= bounds.y + bounds.height / 2) {
-			reindexComponent(eventComponent, component, 1);
+			int newIndex = node.getComponentIndex(eventComponent);
+			newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
+			reindexComponent(component, oldIndex, newIndex);
 		}
 	}
 
-	private void reindexComponent(SceneNodeComponent2 eventComponent, SceneNodeComponent2 component, int adjustment) {
-		SceneNode2 node = component.getNode();
-		int oldIndex = node.getComponentIndex(component);
-		int newIndex = node.getComponentIndex(eventComponent) + adjustment;
-		System.out.println(newIndex);
+	private void reindexComponent(SceneNodeComponent2 component, int oldIndex, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning component";
 		context.executeOperation(new ReindexComponentOperation(editorId, component, oldIndex, newIndex), errorMsg);

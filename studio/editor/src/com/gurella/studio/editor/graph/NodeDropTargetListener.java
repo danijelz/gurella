@@ -10,11 +10,10 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.editor.SceneEditorContext;
 
-public class NodeDropTargetListener extends DropTargetAdapter {
+class NodeDropTargetListener extends DropTargetAdapter {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private final Tree graph;
 	private final SceneEditorContext context;
@@ -31,9 +30,7 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		if (event.detail == DND.DROP_DEFAULT) {
-			event.detail = DND.DROP_MOVE;
-		}
+		event.detail = DND.DROP_MOVE;
 	}
 
 	private static SceneNode2 getTransferNode() {
@@ -75,12 +72,10 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 			event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+		} else if (eventNode == node.getParentNode()) {
+			event.detail = DND.DROP_NONE;
 		} else {
-			if (eventNode == node.getParentNode()) {
-				event.detail = DND.DROP_NONE;
-			} else {
-				event.feedback |= DND.FEEDBACK_SELECT;
-			}
+			event.feedback |= DND.FEEDBACK_SELECT;
 		}
 	}
 
@@ -112,44 +107,43 @@ public class NodeDropTargetListener extends DropTargetAdapter {
 
 		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
+		SceneNode2 parentNode = node.getParentNode();
+		int oldIndex = parentNode == null ? context.getScene().getNodeIndex(node) : parentNode.getChildNodeIndex(node);
 
 		if (point.y < bounds.y + bounds.height / 3) {
 			if (node.getParent() == eventNode.getParent()) {
-				reindexNode(eventNode, node, 0);
+				SceneNode2 parent = eventNode.getParentNode();
+				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
+						: parent.getChildNodeIndex(eventNode);
+				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
+				reindexNode(node, oldIndex, newIndex);
 			} else {
 				SceneNode2 parent = eventNode.getParentNode();
 				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
 						: parent.getChildNodeIndex(eventNode);
+				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
 				reparentNode(node, eventNode, newIndex);
 			}
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			if (node.getParent() == eventNode.getParent()) {
-				reindexNode(eventNode, node, 1);
+				SceneNode2 parent = eventNode.getParentNode();
+				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
+						: parent.getChildNodeIndex(eventNode);
+				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
+				reindexNode(node, oldIndex, newIndex);
 			} else {
 				SceneNode2 parent = eventNode.getParentNode();
 				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
 						: parent.getChildNodeIndex(eventNode);
-				reparentNode(node, eventNode, newIndex + 1);
+				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
+				reparentNode(node, eventNode, newIndex);
 			}
 		} else if (eventNode != node.getParentNode()) {
 			reparentNode(node, eventNode, eventNode.children.size());
 		}
 	}
 
-	private void reindexNode(SceneNode2 eventNode, SceneNode2 node, int adjustment) {
-		SceneNode2 parentNode = node.getParentNode();
-		int oldIndex;
-		int newIndex;
-
-		if (parentNode == null) {
-			Scene scene = context.getScene();
-			oldIndex = scene.getNodeIndex(node);
-			newIndex = scene.getNodeIndex(eventNode) + adjustment;
-		} else {
-			oldIndex = parentNode.getChildNodeIndex(node);
-			newIndex = parentNode.getChildNodeIndex(eventNode) + adjustment;
-		}
-
+	private void reindexNode(SceneNode2 node, int oldIndex, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
 		context.executeOperation(new ReindexNodeOperation(editorId, node, oldIndex, newIndex), errorMsg);

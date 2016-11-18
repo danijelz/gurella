@@ -28,7 +28,7 @@ public class ReparentNodeOperation extends AbstractOperation {
 		this.editorId = editorId;
 		this.node = node;
 		this.oldParent = node.getParentNode();
-		this.oldIndex = oldParent.getChildNodeIndex(node);
+		this.oldIndex = oldParent == null ? node.getScene().getNodeIndex(node) : oldParent.getChildNodeIndex(node);
 		this.newParent = newParent;
 		this.newIndex = newIndex;
 		scene = node.getScene();
@@ -36,7 +36,7 @@ public class ReparentNodeOperation extends AbstractOperation {
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		setParent(newIndex,newParent);
+		setParent(newIndex, newParent);
 		return Status.OK_STATUS;
 	}
 

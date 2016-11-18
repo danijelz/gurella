@@ -82,7 +82,7 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 	}
 
 	public void setIndex(int newIndex, T value) {
-		int oldIndex = indexOf(value, true);
+		int oldIndex = indexOf(value, true);// TODO identity
 		if (oldIndex == newIndex) {
 			return;
 		}
