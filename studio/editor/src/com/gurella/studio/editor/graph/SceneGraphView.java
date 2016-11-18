@@ -1,14 +1,9 @@
 package com.gurella.studio.editor.graph;
 
-import static org.eclipse.swt.SWT.PUSH;
-import static org.eclipse.swt.SWT.SEPARATOR;
-
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -18,8 +13,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -31,41 +24,13 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.engine.scene.audio.AudioListenerComponent;
-import com.gurella.engine.scene.audio.AudioSourceComponent;
-import com.gurella.engine.scene.bullet.rigidbody.BulletRigidBodyComponent;
-import com.gurella.engine.scene.camera.OrtographicCameraComponent;
-import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
-import com.gurella.engine.scene.light.DirectionalLightComponent;
-import com.gurella.engine.scene.light.PointLightComponent;
-import com.gurella.engine.scene.renderable.AtlasRegionComponent;
-import com.gurella.engine.scene.renderable.ModelComponent;
-import com.gurella.engine.scene.renderable.ShapeComponent;
-import com.gurella.engine.scene.renderable.TextureComponent;
-import com.gurella.engine.scene.renderable.TextureRegionComponent;
-import com.gurella.engine.scene.renderable.shape.BoxShapeModel;
-import com.gurella.engine.scene.renderable.shape.CapsuleShapeModel;
-import com.gurella.engine.scene.renderable.shape.CompositeShapeModel;
-import com.gurella.engine.scene.renderable.shape.ConeShapeModel;
-import com.gurella.engine.scene.renderable.shape.CylinderShapeModel;
-import com.gurella.engine.scene.renderable.shape.RectangleShapeModel;
-import com.gurella.engine.scene.renderable.shape.ShapeModel;
-import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
-import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
-import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
-import com.gurella.engine.test.TestEditorComponent;
-import com.gurella.engine.test.TestInputComponent;
-import com.gurella.engine.test.TestPropertyEditorsComponent;
-import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.SelectionEvent;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
-import com.gurella.studio.editor.operation.AddComponentOperation;
-import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.ComponentIndexListener;
@@ -79,10 +44,9 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
+	private final SceneGraphPopupMenu menu;
 	Tree graph;
 	Scene scene;
-
-	private Menu menu;
 
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);
@@ -95,7 +59,10 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, e -> selectionChanged());
-		graph.addListener(SWT.KeyUp, e -> handleKeyUp(e));
+		graph.addListener(SWT.KeyUp, this::handleKeyUp);
+		graph.addListener(SWT.MouseUp, this::showMenu);
+
+		menu = new SceneGraphPopupMenu(this);
 
 		LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 		final DragSource source = new DragSource(graph, DND.DROP_MOVE);
@@ -106,121 +73,13 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
 
-		createMenu();
-
-		Scene scene = editorContext.getScene();
-		if (scene != null) {
-			sceneLoaded(scene);
-		}
-
+		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> sceneLoaded(scene));
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 	}
 
-	private void createMenu() {
-		menu = new Menu(graph);
-		menu.addListener(SWT.Show, e -> showMenu());
-
-		MenuItem item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add Node");
-		item.addListener(SWT.Selection, e -> addNode(true));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add Root Node");
-		item.addListener(SWT.Selection, e -> addNode(false));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Remove Node");
-		item.addListener(SWT.Selection, e -> removeSelectedElement());
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add sphere");
-		item.addListener(SWT.Selection, e -> addShapeNode("Sphere", new SphereShapeModel()));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add box");
-		item.addListener(SWT.Selection, e -> addShapeNode("Box", new BoxShapeModel()));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add cylinder");
-		item.addListener(SWT.Selection, e -> addShapeNode("Cylinder", new CylinderShapeModel()));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add cone");
-		item.addListener(SWT.Selection, e -> addShapeNode("Cone", new ConeShapeModel()));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add capsule");
-		item.addListener(SWT.Selection, e -> addShapeNode("Capsule", new CapsuleShapeModel()));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add rectangle");
-		item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel()));
-
-		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Add composite");
-		CompositeShapeModel shapeModel = new CompositeShapeModel();
-		shapeModel.addShape(new BoxShapeModel());
-		shapeModel.addShape(new CylinderShapeModel(), 0, 1, 0);
-		CompositeShapeModel composite = new CompositeShapeModel();
-		composite.addShape(new CylinderShapeModel(), 0, 1, 0);
-		shapeModel.addShape(composite, 0, 1, 0);
-
-		item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel));
-
-		createComponentsSubMenu();
-		graph.setMenu(menu);
-	}
-
-	@SuppressWarnings("unused")
-	private void createComponentsSubMenu() {
-		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
-		subItem.setText("Add Component");
-		Menu subMenu = new Menu(menu);
-		subItem.setMenu(subMenu);
-		addMenuItem(subMenu, TransformComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, BulletRigidBodyComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, OrtographicCameraComponent.class);
-		addMenuItem(subMenu, PerspectiveCameraComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, PointLightComponent.class);
-		addMenuItem(subMenu, DirectionalLightComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, AudioListenerComponent.class);
-		addMenuItem(subMenu, AudioSourceComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, TagComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, TextureComponent.class);
-		addMenuItem(subMenu, TextureRegionComponent.class);
-		addMenuItem(subMenu, AtlasRegionComponent.class);
-		addMenuItem(subMenu, SkyboxComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, ModelComponent.class);
-		addMenuItem(subMenu, ShapeComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-		addMenuItem(subMenu, TestPropertyEditorsComponent.class);
-		addMenuItem(subMenu, TestEditorComponent.class);
-		addMenuItem(subMenu, TestInputComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
-	}
-
-	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
-		MenuItem item1 = new MenuItem(menu, PUSH);
-		item1.setText(Models.getModel(componentType).getName());
-		item1.addListener(SWT.Selection, (e) -> addComponent(Reflection.newInstance(componentType)));
-	}
-
-	private void addComponent(SceneNodeComponent2 component) {
-		TreeItem[] selection = graph.getSelection();
-		if (selection.length > 0) {
-			TreeItem seectedItem = selection[0];
-			SceneNode2 node = (SceneNode2) seectedItem.getData();
-			AddComponentOperation operation = new AddComponentOperation(getEditorId(), node, component);
-			editorContext.executeOperation(operation, "Error while adding component");
-		}
+	private void showMenu(Event event) {
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
 	}
 
 	private int getEditorId() {
@@ -241,10 +100,8 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		}
 	}
 
-	private void handleKeyUp(Event e) {
-		if (e.keyCode == SWT.DEL) {
-			removeSelectedElement();
-		}
+	private void handleKeyUp(Event event) {
+		Optional.of(event).filter(e -> e.keyCode == SWT.DEL).ifPresent(e -> removeSelectedElement());
 	}
 
 	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
@@ -311,21 +168,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		return null;
 	}
 
-	public void showMenu() {
-		TreeItem[] selection = graph.getSelection();
-		boolean enabled = selection.length > 0 ? selection[0].getData() instanceof SceneNode2 : true;
-		Arrays.stream(menu.getItems()).forEach(i -> i.setEnabled(enabled));
-	}
-
-	private void addShapeNode(String name, ShapeModel shapeModel) {
-		SceneNode2 node = scene.newNode(name);
-		node.newComponent(TransformComponent.class);
-		ShapeComponent shapeComponent = node.newComponent(ShapeComponent.class);
-		shapeComponent.setShape(shapeModel);
-		AddNodeOperation operation = new AddNodeOperation(getEditorId(), scene, null, node);
-		editorContext.executeOperation(operation, "Error while adding node");
-	}
-
 	private void removeSelectedElement() {
 		TreeItem[] selection = graph.getSelection();
 		if (selection.length > 0) {
@@ -344,31 +186,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 				editorContext.executeOperation(operation, "Error while removing component");
 			}
 		}
-	}
-
-	private void addNode(boolean child) {
-		InputDialog dlg = new InputDialog(getShell(), "Add Node", "Enter node name", "Node",
-				newText -> newText.length() < 3 ? "Too short" : null);
-
-		if (dlg.open() != Window.OK) {
-			return;
-		}
-
-		SceneNode2 node = new SceneNode2();
-		node.setName(dlg.getValue());
-		node.newComponent(TransformComponent.class);
-
-		SceneNode2 parentNode = null;
-		if (child) {
-			TreeItem[] selection = graph.getSelection();
-			if (selection.length > 0) {
-				TreeItem seectedItem = selection[0];
-				parentNode = (SceneNode2) seectedItem.getData();
-			}
-		}
-
-		AddNodeOperation operation = new AddNodeOperation(getEditorId(), scene, parentNode, node);
-		editorContext.executeOperation(operation, "Error while adding node");
 	}
 
 	@Override
@@ -438,7 +255,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		SceneNode2 parentNode = node.getParentNode();
 		TreeItem parent = parentNode == null ? null : findItem(parentNode);
 		int index = newIndex + (parent == null ? 0 : countComponentItems(parent));
-		if(parent != null) {
+		if (parent != null) {
 			System.out.println("parent " + parent.getText());
 		}
 		System.out.println("index " + index);
@@ -470,7 +287,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	@Override
 	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
-		menu.setEnabled(true);
+		//TODO menu.setEnabled(true);
 		int editorId = getEditorId();
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);

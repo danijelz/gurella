@@ -15,7 +15,6 @@ import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
 
 class ComponentDropTargetListener extends DropTargetAdapter {
-	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private final Tree graph;
 	private final SceneEditorContext context;
 
@@ -35,7 +34,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 	}
 
 	private static SceneNodeComponent2 getTransferComponent() {
-		ISelection selection = localTransfer.getSelection();
+		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 		if (selection instanceof ComponentSelection) {
 			return ((ComponentSelection) selection).getComponent();
 		} else {

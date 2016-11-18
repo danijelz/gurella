@@ -2,6 +2,8 @@ package com.gurella.studio.editor.assets;
 
 import static com.gurella.studio.GurellaStudioPlugin.getImage;
 
+import java.util.Optional;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -73,13 +75,13 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 
-		final DragSource source = new DragSource(tree, DND.DROP_COPY);
+		final DragSource source = new DragSource(tree, DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
 		source.addDragListener(new AssetsDragSourceListener());
 
-		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
+		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new AssetsDropTargetListener());
+		dropTarget.addDropListener(new MoveAssetDropTargetListener());
 
 		initTree();
 
@@ -118,9 +120,7 @@ public class AssetsView extends DockableView {
 	private void onKeyUp() {
 		TreeItem[] selection = tree.getSelection();
 		Object currentSelection = selection.length < 1 ? null : selection[0].getData();
-		if (currentSelection != null && lastSelection != currentSelection) {
-			presentInspectable();
-		}
+		Optional.ofNullable(currentSelection).filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
 	}
 
 	private void presentInspectable() {
@@ -264,14 +264,21 @@ public class AssetsView extends DockableView {
 		@Override
 		public void dragStart(DragSourceEvent event) {
 			TreeItem[] selection = tree.getSelection();
-			if (selection.length == 1 && selection[0].getData() instanceof IFile) {
-				event.doit = true;
-				event.data = selection[0].getData();
-				event.image = null;
-				localTransfer.setSelection(new AssetSelection((IFile) event.data));
-			} else {
+			if (selection.length != 1) {
 				event.doit = false;
+				return;
 			}
+
+			Object data = selection[0].getData();
+			if (!(data instanceof IResource)) {
+				event.doit = false;
+				return;
+			}
+
+			LocalSelectionTransfer.getTransfer().setSelection(new AssetSelection((IResource) data));
+			event.data = data;
+			event.doit = true;
+			event.image = null;
 		}
 
 		@Override
@@ -283,7 +290,7 @@ public class AssetsView extends DockableView {
 
 		@Override
 		public void dragFinished(DragSourceEvent event) {
-			localTransfer.setSelection(null);
+			LocalSelectionTransfer.getTransfer().setSelection(null);
 		}
 	}
 }

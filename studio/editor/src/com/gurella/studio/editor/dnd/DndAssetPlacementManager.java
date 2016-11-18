@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.dnd;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -198,9 +199,13 @@ public class DndAssetPlacementManager implements SceneLoadedListener, CameraProv
 			return null;
 		}
 
-		AssetSelection assetSelection = (AssetSelection) selection;
-		IFile file = assetSelection.getAssetFile();
-		return isValidAssetExtension(file.getFileExtension()) ? file : null;
+		IResource resource = ((AssetSelection) selection).getAssetResource();
+		if (resource instanceof IFile) {
+			IFile file = (IFile) resource;
+			return isValidAssetExtension(file.getFileExtension()) ? file : null;
+		} else {
+			return null;
+		}
 	}
 
 	protected boolean isValidAssetExtension(String fileExtension) {

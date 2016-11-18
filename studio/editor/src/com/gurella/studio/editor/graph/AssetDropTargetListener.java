@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.graph;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -24,7 +25,6 @@ import com.gurella.studio.editor.assets.AssetSelection;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 
 class AssetDropTargetListener extends DropTargetAdapter {
-	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private final SceneEditorContext context;
 
 	AssetDropTargetListener(SceneEditorContext context) {
@@ -42,13 +42,18 @@ class AssetDropTargetListener extends DropTargetAdapter {
 	}
 
 	private static IFile getTransferingAssetFile() {
-		ISelection selection = localTransfer.getSelection();
+		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 		if (!(selection instanceof AssetSelection)) {
 			return null;
 		}
 
-		IFile file = ((AssetSelection) selection).getAssetFile();
-		return getComponentType(file) == null ? null : file;
+		IResource resource = ((AssetSelection) selection).getAssetResource();
+		if (resource instanceof IFile) {
+			IFile file = (IFile) resource;
+			return getComponentType(file) == null ? null : file;
+		} else {
+			return null;
+		}
 	}
 
 	protected boolean isValidAssetExtension(String fileExtension) {

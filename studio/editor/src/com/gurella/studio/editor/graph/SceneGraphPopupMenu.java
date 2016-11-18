@@ -48,9 +48,7 @@ import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
-import com.gurella.studio.editor.utils.UiUtils;
 
-//TODO unused
 class SceneGraphPopupMenu {
 	private final Tree graph;
 	private final SceneEditorContext context;
@@ -62,15 +60,14 @@ class SceneGraphPopupMenu {
 		editorId = context.editorId;
 	}
 
-	void showMenu() {
+	void show() {
 		Menu menu = createMenu();
-		menu.setLocation(UiUtils.getDisplay().getCursorLocation());
+		menu.setLocation(graph.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
 
 	private Menu createMenu() {
-		Menu menu = new Menu(UiUtils.getActiveShell(), POP_UP);
-		menu.addListener(SWT.Show, e -> showMenu());
+		Menu menu = new Menu(graph.getShell(), POP_UP);
 
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add Node");
@@ -205,7 +202,7 @@ class SceneGraphPopupMenu {
 	}
 
 	private void addNode(boolean child) {
-		InputDialog dlg = new InputDialog(UiUtils.getActiveShell(), "Add Node", "Enter node name", "Node",
+		InputDialog dlg = new InputDialog(graph.getShell(), "Add Node", "Enter node name", "Node",
 				newText -> newText.length() < 3 ? "Too short" : null);
 
 		if (dlg.open() != Window.OK) {

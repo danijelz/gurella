@@ -59,7 +59,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 		content.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		UiUtils.adapt(content);
 
-		menuImage = GurellaStudioPlugin.createImage("icons/menu.png");
+		menuImage = GurellaStudioPlugin.getImage("icons/menu.png");
 
 		int editorId = context.sceneContext.editorId;
 		body.addDisposeListener(e -> EventService.unsubscribe(editorId, this));
@@ -156,7 +156,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 			((GridLayout) body.getLayout()).numColumns = 2;
 			menuButton = getToolkit().createLabel(body, "     ", NONE);
 			menuButton.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
-			menuButton.addListener(SWT.MouseUp, (e) -> showMenu());
+			menuButton.addListener(SWT.MouseUp, e -> showMenu());
 			body.layout(true, true);
 		}
 	}
