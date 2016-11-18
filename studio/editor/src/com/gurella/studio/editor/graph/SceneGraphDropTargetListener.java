@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.graph;
 
+import java.util.Optional;
+
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
@@ -33,37 +35,27 @@ class SceneGraphDropTargetListener implements DropTargetListener {
 
 	@Override
 	public void dragLeave(DropTargetEvent event) {
-		if (active != null) {
-			active.dragLeave(event);
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.dragLeave(event));
 	}
 
 	@Override
 	public void dragOperationChanged(DropTargetEvent event) {
-		if (active != null) {
-			active.dragOperationChanged(event);
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.dragOperationChanged(event));
 	}
 
 	@Override
 	public void dragOver(DropTargetEvent event) {
-		if (active != null) {
-			active.dragOver(event);
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.dragOver(event));
 	}
 
 	@Override
 	public void drop(DropTargetEvent event) {
-		if (active != null) {
-			active.drop(event);
-			active = null;
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.drop(event));
+		active = null;
 	}
 
 	@Override
 	public void dropAccept(DropTargetEvent event) {
-		if (active != null) {
-			active.dropAccept(event);
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.dropAccept(event));
 	}
 }

@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.graph;
 
+import java.util.Optional;
+
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.widgets.Tree;
@@ -30,16 +32,12 @@ class SceneGraphDragSourceListener implements DragSourceListener {
 
 	@Override
 	public void dragSetData(DragSourceEvent event) {
-		if (active != null) {
-			active.dragSetData(event);
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.dragSetData(event));
 	}
 
 	@Override
 	public void dragFinished(DragSourceEvent event) {
-		if (active != null) {
-			active.dragFinished(event);
-			active = null;
-		}
+		Optional.ofNullable(active).ifPresent(l -> l.dragFinished(event));
+		active = null;
 	}
 }

@@ -60,8 +60,8 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 		return values.immutable();
 	}
 
-	public void setIndex(int newIndex, V value) {
-		values.setIndex(newIndex, value);
+	public void setIndex(int newIndex, V value, boolean identity) {
+		values.setIndex(newIndex, value, identity);
 	}
 
 	public V first() {

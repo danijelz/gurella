@@ -151,7 +151,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 	private void reparentNode(SceneNode2 node, SceneNode2 newParent, int newIndex) {
 		int editorId = context.editorId;
-		String errorMsg = "Error while repositioning element";
+		String errorMsg = "Error while repositioning node";
 		context.executeOperation(new ReparentNodeOperation(editorId, node, newParent, newIndex), errorMsg);
 	}
 }

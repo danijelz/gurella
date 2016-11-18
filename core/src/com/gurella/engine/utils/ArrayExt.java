@@ -81,8 +81,8 @@ public class ArrayExt<T> extends Array<T> implements Poolable {
 		array.appendAll(this, start, count);
 	}
 
-	public void setIndex(int newIndex, T value) {
-		int oldIndex = indexOf(value, true);// TODO identity
+	public void setIndex(int newIndex, T value, boolean identity) {
+		int oldIndex = indexOf(value, identity);
 		if (oldIndex == newIndex) {
 			return;
 		}

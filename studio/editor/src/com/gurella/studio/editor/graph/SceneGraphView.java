@@ -431,17 +431,18 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		}
 
 		SceneNode2 parentNode = node.getParentNode();
+		int index = newIndex + node.components.size();
 		String text = item.getText();
 		Image image = item.getImage();
 		TreeItem newItem;
 
 		if (parentNode == null) {
 			item.dispose();
-			newItem = new TreeItem(graph, SWT.NONE, newIndex);
+			newItem = new TreeItem(graph, SWT.NONE, index);
 		} else {
 			TreeItem parent = item.getParentItem();
 			item.dispose();
-			newItem = new TreeItem(parent, SWT.NONE, newIndex);
+			newItem = new TreeItem(parent, SWT.NONE, index);
 		}
 
 		newItem.setImage(image);

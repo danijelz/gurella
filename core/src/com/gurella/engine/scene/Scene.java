@@ -211,7 +211,7 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 	}
 
 	public void setNodeSystemIndex(int newIndex, SceneSystem2 system) {
-		_systems.setIndex(newIndex, system);
+		_systems.setIndex(newIndex, system, true);
 	}
 
 	@Override

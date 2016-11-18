@@ -242,7 +242,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	}
 
 	public void setComponentIndex(int newIndex, SceneNodeComponent2 component) {
-		_components.setIndex(newIndex, component);
+		_components.setIndex(newIndex, component, true);
 		System.out.println("newIndex: " + _components.orderedValues().indexOf(component, true));
 	}
 
