@@ -80,7 +80,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
-	private Tree graph;
+	Tree graph;
 	Scene scene;
 
 	private Menu menu;
@@ -270,7 +270,10 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private static void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
-		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE, component.getNode().components.size() - 1);
+		int index = (int) Arrays.stream(parentItem.getItems()).filter(i -> i.getData() instanceof SceneNodeComponent2)
+				.count();
+		System.out.println("index " + index);
+		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE, index);
 		if (component instanceof TransformComponent) {
 			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
 		} else {
@@ -431,8 +434,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		}
 
 		SceneNode2 parentNode = node.getParentNode();
-		int index = newIndex + (parentNode == null ? 0 : parentNode.components.size());
-		System.out.println("index " + index);
+		int index = newIndex + (parentNode == null ? 0 : parentNode.components.size() - 1);
 		String text = item.getText();
 		Image image = item.getImage();
 		TreeItem parent = item.getParentItem();

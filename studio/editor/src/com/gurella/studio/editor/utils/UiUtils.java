@@ -291,7 +291,7 @@ public class UiUtils {
 				break;
 			}
 		}
-		
+
 		c = composite;
 		while (c != null) {
 			c.layout(true);
@@ -301,7 +301,7 @@ public class UiUtils {
 				break;
 			}
 		}
-		
+
 		c = composite;
 		while (c != null) {
 			c.setRedraw(true);
@@ -311,10 +311,14 @@ public class UiUtils {
 			}
 		}
 	}
-	
+
 	public static Display getDisplay() {
 		Display display = Display.getCurrent();
 		return display == null ? PlatformUI.getWorkbench().getDisplay() : display;
+	}
+
+	public static Shell getActiveShell() {
+		return getDisplay().getActiveShell();
 	}
 
 	private static class DragManager implements Listener {
