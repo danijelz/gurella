@@ -82,7 +82,9 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		initDragManagers();
 		initFocusHandlers();
 
+		//TODO handle with plugin
 		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> sceneLoaded(scene));
+
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 	}

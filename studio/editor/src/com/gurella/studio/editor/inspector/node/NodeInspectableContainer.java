@@ -17,7 +17,7 @@ import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.TWISTIE;
 
 import java.lang.reflect.Constructor;
-import java.util.LinkedHashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionException;
@@ -109,7 +109,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	private Label menuButton;
 
 	private Composite componentsComposite;
-	private Map<SceneNodeComponent2, Section> editors = new LinkedHashMap<>();
+	private Map<SceneNodeComponent2, Section> editors = new IdentityHashMap<>();
 
 	private PreferencesStore preferencesStore;
 
@@ -325,7 +325,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 	@Override
 	public void componentRemoved(SceneNode2 node, SceneNodeComponent2 component) {
-		Section section = editors.get(component);
+		Section section = editors.remove(component);
 		if (section != null) {
 			section.dispose();
 			reflow(true);

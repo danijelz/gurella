@@ -1,5 +1,7 @@
 package com.gurella.studio.editor.graph;
 
+import static com.gurella.engine.utils.Values.cast;
+
 import java.util.Optional;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -71,10 +73,15 @@ class PasteElementHandler extends AbstractHandler {
 			int newIndex = destination.childNodes.size();
 			context.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
 		}
+
 		view.clipboard.clearContents();
 	}
 
 	private void copyElement(SceneElement2 source, SceneNode2 destination) {
+		if (source instanceof SceneNodeComponent2 && destination.getComponent(cast(source.getClass()), true) != null) {
+			return;
+		}
+
 		SceneElement2 copy = new CopyContext().copy(source);
 		int editorId = view.editorId;
 		SceneEditorContext context = view.editorContext;
