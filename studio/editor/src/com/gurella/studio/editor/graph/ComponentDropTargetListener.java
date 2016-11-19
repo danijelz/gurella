@@ -92,8 +92,18 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 				event.detail = DND.DROP_MOVE;
 			}
 		} else {
-			event.feedback |= DND.FEEDBACK_SELECT;
-			event.detail = DND.DROP_MOVE;
+			if (data instanceof SceneNodeComponent2) {
+				if (point.y < bounds.y + bounds.height / 2) {
+					event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+					event.detail = DND.DROP_MOVE;
+				} else if (point.y >= bounds.y + bounds.height / 2) {
+					event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+					event.detail = DND.DROP_MOVE;
+				}
+			} else {
+				event.feedback |= DND.FEEDBACK_SELECT;
+				event.detail = DND.DROP_MOVE;
+			}
 		}
 	}
 
@@ -137,10 +147,10 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		SceneNode2 node = component.getNode();
 		int oldIndex = node.getComponentIndex(component);
+		Point point = event.display.map(null, graph, event.x, event.y);
+		Rectangle bounds = item.getBounds();
 
 		if (component.getNode() == eventNode) {
-			Point point = event.display.map(null, graph, event.x, event.y);
-			Rectangle bounds = item.getBounds();
 			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
 
 			if (point.y < bounds.y + bounds.height / 2) {
@@ -153,8 +163,19 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 				reindexComponent(component, oldIndex, newIndex);
 			}
 		} else {
-			int newIndex = eventNode.components.size();
-			reparentComponent(component, eventNode, newIndex);
+			if (data instanceof SceneNodeComponent2) {
+				SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+				if (point.y < bounds.y + bounds.height / 2) {
+					int newIndex = eventNode.getComponentIndex(eventComponent);
+					reparentComponent(component, eventNode, newIndex);
+				} else if (point.y >= bounds.y + bounds.height / 2) {
+					int newIndex = eventNode.getComponentIndex(eventComponent) + 1;
+					reparentComponent(component, eventNode, newIndex);
+				}
+			} else {
+				int newIndex = eventNode.components.size();
+				reparentComponent(component, eventNode, newIndex);
+			}
 		}
 	}
 
