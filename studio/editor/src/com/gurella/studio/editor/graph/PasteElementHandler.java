@@ -13,6 +13,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.graph.operation.CopyElementOperation;
+import com.gurella.studio.editor.graph.operation.ReparentComponentOperation;
 import com.gurella.studio.editor.graph.operation.ReparentNodeOperation;
 
 class PasteElementHandler extends AbstractHandler {
@@ -48,7 +49,13 @@ class PasteElementHandler extends AbstractHandler {
 		}
 
 		if (source instanceof SceneNodeComponent2) {
-			//TODO
+			SceneNodeComponent2 component = (SceneNodeComponent2) source;
+			int editorId = view.editorId;
+			SceneEditorContext context = view.editorContext;
+			String errorMsg = "Error while repositioning element";
+			int newIndex = destination.components.size();
+			context.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
+					errorMsg);
 		} else {
 			SceneNode2 node = (SceneNode2) source;
 			int editorId = view.editorId;
