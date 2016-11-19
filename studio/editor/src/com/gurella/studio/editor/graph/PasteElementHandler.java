@@ -12,6 +12,7 @@ import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
+import com.gurella.studio.editor.graph.operation.CopyElementOperation;
 import com.gurella.studio.editor.graph.operation.ReparentNodeOperation;
 
 class PasteElementHandler extends AbstractHandler {
@@ -30,10 +31,10 @@ class PasteElementHandler extends AbstractHandler {
 		}
 
 		SceneNode2 destination = selected.get();
-
 		Object contents = view.clipboard.getContents(LocalSelectionTransfer.getTransfer());
 		if (contents instanceof CutElementSelection) {
 			moveElement(((CutElementSelection) contents).getElement(), destination);
+			view.clipboard.clearContents();
 		} else if (contents instanceof CopyElementSelection) {
 			copyElement(((CopyElementSelection) contents).getElement(), destination);
 		}
@@ -58,9 +59,11 @@ class PasteElementHandler extends AbstractHandler {
 		}
 	}
 
-	private void copyElement(SceneElement2 source, SceneElement2 destination) {
+	private void copyElement(SceneElement2 source, SceneNode2 destination) {
 		SceneElement2 copy = new CopyContext().copy(source);
-		// TODO Auto-generated method stub
-
+		int editorId = view.editorId;
+		SceneEditorContext context = view.editorContext;
+		String errorMsg = "Error while copying element";
+		context.executeOperation(new CopyElementOperation(editorId, copy, destination, context.getScene()), errorMsg);
 	}
 }

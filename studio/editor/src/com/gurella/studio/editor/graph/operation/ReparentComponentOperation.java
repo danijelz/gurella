@@ -53,8 +53,8 @@ public class ReparentComponentOperation extends AbstractOperation {
 	private void setIndex(SceneNode2 oldParent, SceneNode2 newParent, int index) {
 		newParent.addComponent(component);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-		EventService.post(EditorSceneActivityListener.class, l -> l.componentRemoved(oldParent, component));
-		EventService.post(EditorSceneActivityListener.class, l -> l.componentAdded(newParent, component));
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(oldParent, component));
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(newParent, component));
 
 		component.getNode().setComponentIndex(index, component);
 		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));

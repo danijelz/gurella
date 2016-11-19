@@ -232,10 +232,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 	@Override
 	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
-		if (this.scene != scene) {
-			return;
-		}
-
 		if (parentNode == null) {
 			TreeItem nodeItem = addNode(null, node);
 			graph.select(nodeItem);

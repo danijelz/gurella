@@ -21,7 +21,7 @@ class CutElementHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Optional<SceneElement2> selected = view.getFirstSelectedElement();
-		if (!selected.isPresent()) {
+		if (selected.isPresent()) {
 			LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
 			SceneElement2 element = selected.get();
 			ISelection selection = new CutElementSelection(element);
