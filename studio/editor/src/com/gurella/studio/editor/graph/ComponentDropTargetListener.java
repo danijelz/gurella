@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.graph.operation.ReindexComponentOperation;
+import com.gurella.studio.editor.operation.ReindexComponentOperation;
 
 class ComponentDropTargetListener extends DropTargetAdapter {
 	private final Tree graph;

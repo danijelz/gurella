@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.graph.operation;
+package com.gurella.studio.editor.operation;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
@@ -8,40 +8,34 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.subscription.ComponentIndexListener;
-import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
-public class ReparentComponentOperation extends AbstractOperation {
+public class ReindexComponentOperation extends AbstractOperation {
 	final int editorId;
 	final SceneNodeComponent2 component;
-	final SceneNode2 oldParent;
 	final int oldIndex;
-	final SceneNode2 newParent;
 	final int newIndex;
 
-	public ReparentComponentOperation(int editorId, SceneNodeComponent2 component, SceneNode2 newParent, int newIndex) {
-		super("Move component");
+	public ReindexComponentOperation(int editorId, SceneNodeComponent2 component, int oldIndex, int newIndex) {
+		super("Set index");
 		this.editorId = editorId;
 		this.component = component;
-		this.oldParent = component.getNode();
-		this.oldIndex = oldParent.getComponentIndex(component);
-		this.newParent = newParent;
+		this.oldIndex = oldIndex;
 		this.newIndex = newIndex;
 	}
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		setIndex(oldParent, newParent, newIndex);
+		setIndex(newIndex);
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		setIndex(newParent, oldParent, oldIndex);
+		setIndex(oldIndex);
 		return Status.OK_STATUS;
 	}
 
@@ -50,14 +44,10 @@ public class ReparentComponentOperation extends AbstractOperation {
 		return execute(monitor, adaptable);
 	}
 
-	private void setIndex(SceneNode2 oldParent, SceneNode2 newParent, int index) {
-		newParent.addComponent(component);
-		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(oldParent, component));
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(newParent, component));
-
+	private void setIndex(int index) {
 		component.getNode().setComponentIndex(index, component);
-		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
+		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));
 	}
 }

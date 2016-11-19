@@ -12,8 +12,8 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.graph.operation.ReindexNodeOperation;
-import com.gurella.studio.editor.graph.operation.ReparentNodeOperation;
+import com.gurella.studio.editor.operation.ReindexNodeOperation;
+import com.gurella.studio.editor.operation.ReparentNodeOperation;
 
 class NodeDropTargetListener extends DropTargetAdapter {
 	private final Tree graph;

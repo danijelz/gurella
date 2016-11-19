@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.graph.operation;
+package com.gurella.studio.editor.operation;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;

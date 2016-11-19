@@ -85,7 +85,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 
 		SceneNode2 node = (SceneNode2) data;
 		Class<? extends SceneNodeComponent2> type = getComponentType(file);
-		if (node.getComponent(type) == null) {
+		if (node.getComponent(type, true) == null) {
 			event.detail = DND.DROP_COPY;
 			event.feedback |= DND.FEEDBACK_SELECT;
 		} else {
@@ -132,7 +132,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 
 		SceneNode2 node = (SceneNode2) data;
 		Class<? extends SceneNodeComponent2> type = getComponentType(file);
-		if (node.getComponent(type) != null) {
+		if (node.getComponent(type, true) != null) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}

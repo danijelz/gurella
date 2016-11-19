@@ -12,9 +12,9 @@ import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.graph.operation.CopyElementOperation;
-import com.gurella.studio.editor.graph.operation.ReparentComponentOperation;
-import com.gurella.studio.editor.graph.operation.ReparentNodeOperation;
+import com.gurella.studio.editor.operation.CopyElementOperation;
+import com.gurella.studio.editor.operation.ReparentComponentOperation;
+import com.gurella.studio.editor.operation.ReparentNodeOperation;
 
 class PasteElementHandler extends AbstractHandler {
 	private final SceneGraphView view;
@@ -35,7 +35,6 @@ class PasteElementHandler extends AbstractHandler {
 		Object contents = view.clipboard.getContents(LocalSelectionTransfer.getTransfer());
 		if (contents instanceof CutElementSelection) {
 			moveElement(((CutElementSelection) contents).getElement(), destination);
-			view.clipboard.clearContents();
 		} else if (contents instanceof CopyElementSelection) {
 			copyElement(((CopyElementSelection) contents).getElement(), destination);
 		}
@@ -50,6 +49,10 @@ class PasteElementHandler extends AbstractHandler {
 
 		if (source instanceof SceneNodeComponent2) {
 			SceneNodeComponent2 component = (SceneNodeComponent2) source;
+			if (destination.getComponent(component.getClass(), true) != null) {
+				return;
+			}
+
 			int editorId = view.editorId;
 			SceneEditorContext context = view.editorContext;
 			String errorMsg = "Error while repositioning element";
@@ -57,6 +60,10 @@ class PasteElementHandler extends AbstractHandler {
 			context.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
 					errorMsg);
 		} else {
+			if (source.getParent() == destination) {
+				return;
+			}
+
 			SceneNode2 node = (SceneNode2) source;
 			int editorId = view.editorId;
 			SceneEditorContext context = view.editorContext;
@@ -64,6 +71,7 @@ class PasteElementHandler extends AbstractHandler {
 			int newIndex = destination.childNodes.size();
 			context.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
 		}
+		view.clipboard.clearContents();
 	}
 
 	private void copyElement(SceneElement2 source, SceneNode2 destination) {
