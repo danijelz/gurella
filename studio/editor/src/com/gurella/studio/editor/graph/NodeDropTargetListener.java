@@ -34,8 +34,8 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 	private static SceneNode2 getTransferNode() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		if (selection instanceof NodeSelection) {
-			return ((NodeSelection) selection).getNode();
+		if (selection instanceof MoveNodeSelection) {
+			return ((MoveNodeSelection) selection).getNode();
 		} else {
 			return null;
 		}

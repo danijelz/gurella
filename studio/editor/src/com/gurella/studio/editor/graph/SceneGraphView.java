@@ -1,21 +1,35 @@
 package com.gurella.studio.editor.graph;
 
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_COPY;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_CUT;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
+
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.handlers.IHandlerActivation;
+import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.event.EventService;
@@ -39,13 +53,16 @@ import com.gurella.studio.editor.subscription.NodeIndexListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.subscription.NodeParentListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
+import com.gurella.studio.editor.utils.ControlExpression;
 
 public class SceneGraphView extends DockableView implements EditorSceneActivityListener, NodeNameChangeListener,
 		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
+	final Tree graph;
+	final Clipboard clipboard;
 	private final SceneGraphPopupMenu menu;
-	Tree graph;
+
 	Scene scene;
 
 	public SceneGraphView(SceneEditor editor, int style) {
@@ -54,6 +71,9 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
+
+		clipboard = new Clipboard(getDisplay());
+		addDisposeListener(e -> clipboard.dispose());
 
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setHeaderVisible(false);
@@ -64,26 +84,49 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 		menu = new SceneGraphPopupMenu(this);
 
-		LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
-		final DragSource source = new DragSource(graph, DND.DROP_MOVE);
-		source.setTransfer(new Transfer[] { localTransfer });
-		source.addDragListener(new SceneGraphDragSourceListener(graph));
-
-		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
-		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
+		initDragManagers();
+		initFocusHandlers();
 
 		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> sceneLoaded(scene));
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 	}
 
-	private void showMenu(Event event) {
-		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
+	private void initDragManagers() {
+		LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
+		final DragSource source = new DragSource(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
+		source.setTransfer(new Transfer[] { localTransfer });
+		source.addDragListener(new SceneGraphDragSourceListener(graph));
+
+		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
+		dropTarget.setTransfer(new Transfer[] { localTransfer });
+		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
 	}
 
-	private int getEditorId() {
-		return editorContext.editorId;
+	private void initFocusHandlers() {
+		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IFocusService focusService = workbench.getService(IFocusService.class);
+		focusService.addFocusTracker(graph, "com.gurella.studio.editor.graph.SceneGraphView.graph");
+		IHandlerService handlerService = workbench.getService(IHandlerService.class);
+		ControlExpression exp = new ControlExpression(graph);
+		IHandlerActivation cut = handlerService.activateHandler(EDIT_CUT, new CutElementHandler(this), exp);
+		IHandlerActivation copy = handlerService.activateHandler(EDIT_COPY, new CopyElementHandler(this), exp);
+		IHandlerActivation paste = handlerService.activateHandler(EDIT_PASTE, new PasteElementHandler(this), exp);
+		graph.addDisposeListener(e -> deactivateFocusHandlers(cut, copy, paste));
+	}
+
+	private void deactivateFocusHandlers(IHandlerActivation cut, IHandlerActivation copy, IHandlerActivation paste) {
+		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IFocusService focusService = workbench.getService(IFocusService.class);
+		IHandlerService handlerService = workbench.getService(IHandlerService.class);
+		handlerService.deactivateHandler(cut);
+		handlerService.deactivateHandler(copy);
+		handlerService.deactivateHandler(paste);
+		focusService.removeFocusTracker(graph);
+	}
+
+	private void showMenu(Event event) {
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
 	}
 
 	private void selectionChanged() {
@@ -92,10 +135,10 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 			Object data = selection[0].getData();
 			if (data instanceof SceneNode2) {
 				SceneNode2 vode = (SceneNode2) data;
-				EventService.post(getEditorId(), new SelectionEvent(new NodeInspectable(vode)));
+				EventService.post(editorId, new SelectionEvent(new NodeInspectable(vode)));
 			} else {
 				SceneNodeComponent2 component = (SceneNodeComponent2) data;
-				EventService.post(getEditorId(), new SelectionEvent(new ComponentInspectable(component)));
+				EventService.post(editorId, new SelectionEvent(new ComponentInspectable(component)));
 			}
 		}
 	}
@@ -169,23 +212,39 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private void removeSelectedElement() {
-		TreeItem[] selection = graph.getSelection();
-		if (selection.length > 0) {
-			TreeItem selectedItem = selection[0];
-			Object data = selectedItem.getData();
-
-			if (data instanceof SceneNode2) {
-				SceneNode2 node = (SceneNode2) data;
-				SceneNode2 parentNode = node.getParentNode();
-				RemoveNodeOperation operation = new RemoveNodeOperation(getEditorId(), scene, parentNode, node);
-				editorContext.executeOperation(operation, "Error while removing node");
-			} else if (data instanceof SceneNodeComponent2) {
-				SceneNodeComponent2 component = (SceneNodeComponent2) data;
-				SceneNode2 node = component.getNode();
-				RemoveComponentOperation operation = new RemoveComponentOperation(getEditorId(), node, component);
-				editorContext.executeOperation(operation, "Error while removing component");
-			}
+		Optional<SceneElement2> selected = getFirstSelectedElement();
+		if (!selected.isPresent()) {
+			return;
 		}
+
+		SceneElement2 element = selected.get();
+		if (element instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) element;
+			SceneNode2 parentNode = node.getParentNode();
+			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, scene, parentNode, node);
+			editorContext.executeOperation(operation, "Error while removing node");
+		} else if (element instanceof SceneNodeComponent2) {
+			SceneNodeComponent2 component = (SceneNodeComponent2) element;
+			SceneNode2 node = component.getNode();
+			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
+			editorContext.executeOperation(operation, "Error while removing component");
+		}
+	}
+
+	Optional<SceneElement2> getFirstSelectedElement() {
+		return Optional.ofNullable(graph.getSelection()).filter(s -> s.length > 0)
+				.map(s -> (SceneElement2) s[0].getData());
+	}
+
+	Optional<SceneNode2> getFirstSelectedNode() {
+		return Optional.ofNullable(graph.getSelection()).filter(s -> s.length > 0)
+				.map(s -> (SceneElement2) s[0].getData()).filter(e -> e instanceof SceneNode2).map(e -> (SceneNode2) e);
+	}
+
+	Optional<SceneNodeComponent2> getFirstSelectedComponent() {
+		return Optional.ofNullable(graph.getSelection()).filter(s -> s.length > 0)
+				.map(s -> (SceneElement2) s[0].getData()).filter(e -> e instanceof SceneNodeComponent2)
+				.map(e -> (SceneNodeComponent2) e);
 	}
 
 	@Override
@@ -197,13 +256,13 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		if (parentNode == null) {
 			TreeItem nodeItem = addNode(null, node);
 			graph.select(nodeItem);
-			EventService.post(getEditorId(), new SelectionEvent(new NodeInspectable(node)));
+			EventService.post(editorId, new SelectionEvent(new NodeInspectable(node)));
 		} else {
 			TreeItem parentItem = findItem(parentNode);
 			TreeItem nodeItem = addNode(parentItem, node);
 			parentItem.setExpanded(true);
 			graph.select(nodeItem);
-			EventService.post(getEditorId(), new SelectionEvent(new NodeInspectable(node)));
+			EventService.post(editorId, new SelectionEvent(new NodeInspectable(node)));
 		}
 	}
 
@@ -287,10 +346,78 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	@Override
 	public void sceneLoaded(Scene scene) {
 		this.scene = scene;
-		//TODO menu.setEnabled(true);
-		int editorId = getEditorId();
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 		addNodes(null, scene);
+	}
+
+	private static class CopyElementHandler extends AbstractHandler {
+		private final SceneGraphView view;
+
+		public CopyElementHandler(SceneGraphView view) {
+			this.view = view;
+		}
+
+		@Override
+		public Object execute(ExecutionEvent event) throws ExecutionException {
+			Optional<SceneElement2> selected = view.getFirstSelectedElement();
+			if (selected.isPresent()) {
+				LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+				SceneElement2 element = selected.get();
+				transfer.setSelection(new CopyElementSelection(element));
+				view.clipboard.setContents(new Object[] { element }, new Transfer[] { transfer });
+			}
+			return null;
+		}
+	}
+
+	private static class CutElementHandler extends AbstractHandler {
+		private final SceneGraphView view;
+
+		public CutElementHandler(SceneGraphView view) {
+			this.view = view;
+		}
+
+		@Override
+		public Object execute(ExecutionEvent event) throws ExecutionException {
+			Optional<SceneElement2> selected = view.getFirstSelectedElement();
+			if (!selected.isPresent()) {
+				LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+				SceneElement2 element = selected.get();
+				ISelection selection = element instanceof SceneNode2 ? new MoveNodeSelection((SceneNode2) element)
+						: new MoveComponentSelection((SceneNodeComponent2) element);
+				transfer.setSelection(selection);
+				view.clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
+			}
+			return null;
+		}
+	}
+
+	private static class PasteElementHandler extends AbstractHandler {
+		private final SceneGraphView view;
+
+		public PasteElementHandler(SceneGraphView view) {
+			this.view = view;
+		}
+
+		@Override
+		public Object execute(ExecutionEvent event) throws ExecutionException {
+			LocalSelectionTransfer local = LocalSelectionTransfer.getTransfer();
+			TransferData[] transfers = view.clipboard.getAvailableTypes();
+			Optional<TransferData> found = Arrays.stream(transfers).filter(t -> local.isSupportedType(t)).findFirst();
+			if (!found.isPresent()) {
+				return null;
+			}
+
+			ISelection selection = local.getSelection();
+			if (selection instanceof CopyElementSelection) {
+				CopyElementSelection selection2 = (CopyElementSelection) selection;
+			} else if (selection instanceof MoveNodeSelection) {
+				MoveNodeSelection selection2 = (MoveNodeSelection) selection;
+			} else if (selection instanceof MoveComponentSelection) {
+				MoveComponentSelection selection2 = (MoveComponentSelection) selection;
+			}
+			return null;
+		}
 	}
 }

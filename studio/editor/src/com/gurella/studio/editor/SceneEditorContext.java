@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPathEditorInput;
 
 import com.gurella.engine.asset.AssetService;
@@ -32,6 +33,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 	public final int editorId;
 	private final HistoryManager historyManager;
 
+	public final IEditorSite editorSite;
 	public final IPathEditorInput editorInput;
 	public final IResource sceneResource;
 	public final IWorkspace workspace;
@@ -47,6 +49,7 @@ public class SceneEditorContext implements SceneLoadedListener, EditorCloseListe
 		editorId = editor.id;
 		historyManager = editor.historyManager;
 
+		editorSite = editor.getEditorSite();
 		editorInput = (IPathEditorInput) editor.getEditorInput();
 		sceneResource = editorInput.getAdapter(IResource.class);
 		workspace = sceneResource.getWorkspace();

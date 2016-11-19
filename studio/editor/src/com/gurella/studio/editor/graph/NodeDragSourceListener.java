@@ -23,7 +23,7 @@ public class NodeDragSourceListener extends DragSourceAdapter {
 		if (selection.length == 1 && selection[0].getData() instanceof SceneNode2) {
 			TreeItem item = selection[0];
 			SceneNode2 component = (SceneNode2) item.getData();
-			localTransfer.setSelection(new NodeSelection(component));
+			localTransfer.setSelection(new MoveNodeSelection(component));
 			event.data = component;
 			event.doit = true;
 		} else {
