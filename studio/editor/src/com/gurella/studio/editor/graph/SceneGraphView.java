@@ -7,18 +7,13 @@ import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.util.LocalSelectionTransfer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -130,16 +125,18 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private void selectionChanged() {
-		TreeItem[] selection = graph.getSelection();
-		if (selection.length > 0) {
-			Object data = selection[0].getData();
-			if (data instanceof SceneNode2) {
-				SceneNode2 vode = (SceneNode2) data;
-				EventService.post(editorId, new SelectionEvent(new NodeInspectable(vode)));
-			} else {
-				SceneNodeComponent2 component = (SceneNodeComponent2) data;
-				EventService.post(editorId, new SelectionEvent(new ComponentInspectable(component)));
-			}
+		Optional<SceneElement2> selected = getFirstSelectedElement();
+		if (!selected.isPresent()) {
+			return;
+		}
+
+		SceneElement2 element = selected.get();
+		if (element instanceof SceneNode2) {
+			SceneNode2 vode = (SceneNode2) element;
+			EventService.post(editorId, new SelectionEvent(new NodeInspectable(vode)));
+		} else {
+			SceneNodeComponent2 component = (SceneNodeComponent2) element;
+			EventService.post(editorId, new SelectionEvent(new ComponentInspectable(component)));
 		}
 	}
 
@@ -186,14 +183,8 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private TreeItem findItem(SceneElement2 element) {
-		for (TreeItem item : graph.getItems()) {
-			TreeItem found = findItem(item, element);
-			if (found != null) {
-				return found;
-			}
-		}
-
-		return null;
+		return Arrays.stream(graph.getItems()).map(i -> findItem(i, element)).filter(i -> i != null).findFirst()
+				.orElse(null);
 	}
 
 	private TreeItem findItem(TreeItem item, SceneElement2 element) {
@@ -201,14 +192,8 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 			return item;
 		}
 
-		for (TreeItem child : item.getItems()) {
-			TreeItem found = findItem(child, element);
-			if (found != null) {
-				return found;
-			}
-		}
-
-		return null;
+		return Arrays.stream(item.getItems()).map(i -> findItem(i, element)).filter(i -> i != null).findFirst()
+				.orElse(null);
 	}
 
 	private void removeSelectedElement() {
@@ -237,13 +222,11 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	Optional<SceneNode2> getFirstSelectedNode() {
-		return Optional.ofNullable(graph.getSelection()).filter(s -> s.length > 0)
-				.map(s -> (SceneElement2) s[0].getData()).filter(e -> e instanceof SceneNode2).map(e -> (SceneNode2) e);
+		return getFirstSelectedElement().filter(e -> e instanceof SceneNode2).map(e -> (SceneNode2) e);
 	}
 
 	Optional<SceneNodeComponent2> getFirstSelectedComponent() {
-		return Optional.ofNullable(graph.getSelection()).filter(s -> s.length > 0)
-				.map(s -> (SceneElement2) s[0].getData()).filter(e -> e instanceof SceneNodeComponent2)
+		return getFirstSelectedElement().filter(e -> e instanceof SceneNodeComponent2)
 				.map(e -> (SceneNodeComponent2) e);
 	}
 
@@ -349,75 +332,5 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 		addNodes(null, scene);
-	}
-
-	private static class CopyElementHandler extends AbstractHandler {
-		private final SceneGraphView view;
-
-		public CopyElementHandler(SceneGraphView view) {
-			this.view = view;
-		}
-
-		@Override
-		public Object execute(ExecutionEvent event) throws ExecutionException {
-			Optional<SceneElement2> selected = view.getFirstSelectedElement();
-			if (selected.isPresent()) {
-				LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
-				SceneElement2 element = selected.get();
-				transfer.setSelection(new CopyElementSelection(element));
-				view.clipboard.setContents(new Object[] { element }, new Transfer[] { transfer });
-			}
-			return null;
-		}
-	}
-
-	private static class CutElementHandler extends AbstractHandler {
-		private final SceneGraphView view;
-
-		public CutElementHandler(SceneGraphView view) {
-			this.view = view;
-		}
-
-		@Override
-		public Object execute(ExecutionEvent event) throws ExecutionException {
-			Optional<SceneElement2> selected = view.getFirstSelectedElement();
-			if (!selected.isPresent()) {
-				LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
-				SceneElement2 element = selected.get();
-				ISelection selection = element instanceof SceneNode2 ? new MoveNodeSelection((SceneNode2) element)
-						: new MoveComponentSelection((SceneNodeComponent2) element);
-				transfer.setSelection(selection);
-				view.clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
-			}
-			return null;
-		}
-	}
-
-	private static class PasteElementHandler extends AbstractHandler {
-		private final SceneGraphView view;
-
-		public PasteElementHandler(SceneGraphView view) {
-			this.view = view;
-		}
-
-		@Override
-		public Object execute(ExecutionEvent event) throws ExecutionException {
-			LocalSelectionTransfer local = LocalSelectionTransfer.getTransfer();
-			TransferData[] transfers = view.clipboard.getAvailableTypes();
-			Optional<TransferData> found = Arrays.stream(transfers).filter(t -> local.isSupportedType(t)).findFirst();
-			if (!found.isPresent()) {
-				return null;
-			}
-
-			ISelection selection = local.getSelection();
-			if (selection instanceof CopyElementSelection) {
-				CopyElementSelection selection2 = (CopyElementSelection) selection;
-			} else if (selection instanceof MoveNodeSelection) {
-				MoveNodeSelection selection2 = (MoveNodeSelection) selection;
-			} else if (selection instanceof MoveComponentSelection) {
-				MoveComponentSelection selection2 = (MoveComponentSelection) selection;
-			}
-			return null;
-		}
 	}
 }
