@@ -10,10 +10,12 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.ReindexComponentOperation;
+import com.gurella.studio.editor.operation.ReparentComponentOperation;
 
 class ComponentDropTargetListener extends DropTargetAdapter {
 	private final Tree graph;
@@ -54,31 +56,43 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		TreeItem item = (TreeItem) event.item;
 		Object data = item.getData();
-		if (!(data instanceof SceneNodeComponent2)) {
+		if (!(data instanceof SceneNodeComponent2) && !(data instanceof SceneNode2)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+		SceneElement2 eventElement = (SceneElement2) data;
 		SceneNodeComponent2 component = getTransferComponent();
-		if (component == eventComponent) {
+		if (component == eventElement) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		if (component.getNodeId() != eventComponent.getNodeId()) {
-			event.detail = DND.DROP_NONE;
-			return;
+		SceneNode2 eventNode;
+		if (eventElement instanceof SceneNode2) {
+			eventNode = (SceneNode2) eventElement;
+			if (component.getNode() == eventNode || eventNode.getComponent(component.getClass(), true) != null) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
+		} else {
+			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+			eventNode = eventComponent.getNode();
 		}
 
 		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
 
-		if (point.y < bounds.y + bounds.height / 2) {
-			event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-			event.detail = DND.DROP_MOVE;
-		} else if (point.y >= bounds.y + bounds.height / 2) {
-			event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+		if (component.getNode() == eventNode) {
+			if (point.y < bounds.y + bounds.height / 2) {
+				event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+				event.detail = DND.DROP_MOVE;
+			} else if (point.y >= bounds.y + bounds.height / 2) {
+				event.feedback |= DND.FEEDBACK_INSERT_AFTER;
+				event.detail = DND.DROP_MOVE;
+			}
+		} else {
+			event.feedback |= DND.FEEDBACK_SELECT;
 			event.detail = DND.DROP_MOVE;
 		}
 	}
@@ -97,36 +111,50 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 		TreeItem item = (TreeItem) event.item;
 		Object data = item.getData();
-		if (!(data instanceof SceneNodeComponent2)) {
+		if (!(data instanceof SceneNodeComponent2) && !(data instanceof SceneNode2)) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+		SceneElement2 eventElement = (SceneElement2) data;
 		SceneNodeComponent2 component = getTransferComponent();
-		if (component == eventComponent) {
+		if (component == eventElement) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		if (component.getNodeId() != eventComponent.getNodeId()) {
-			event.detail = DND.DROP_NONE;
-			return;
+		SceneNode2 eventNode;
+		if (eventElement instanceof SceneNode2) {
+			eventNode = (SceneNode2) eventElement;
+			if (component.getNode() == eventNode || eventNode.getComponent(component.getClass(), true) != null) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
+		} else {
+			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+			eventNode = eventComponent.getNode();
 		}
 
-		Point point = event.display.map(null, graph, event.x, event.y);
-		Rectangle bounds = item.getBounds();
 		SceneNode2 node = component.getNode();
 		int oldIndex = node.getComponentIndex(component);
 
-		if (point.y < bounds.y + bounds.height / 2) {
-			int newIndex = node.getComponentIndex(eventComponent);
-			newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
-			reindexComponent(component, oldIndex, newIndex);
-		} else if (point.y >= bounds.y + bounds.height / 2) {
-			int newIndex = node.getComponentIndex(eventComponent);
-			newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
-			reindexComponent(component, oldIndex, newIndex);
+		if (component.getNode() == eventNode) {
+			Point point = event.display.map(null, graph, event.x, event.y);
+			Rectangle bounds = item.getBounds();
+			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+
+			if (point.y < bounds.y + bounds.height / 2) {
+				int newIndex = node.getComponentIndex(eventComponent);
+				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
+				reindexComponent(component, oldIndex, newIndex);
+			} else if (point.y >= bounds.y + bounds.height / 2) {
+				int newIndex = node.getComponentIndex(eventComponent);
+				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
+				reindexComponent(component, oldIndex, newIndex);
+			}
+		} else {
+			int newIndex = eventNode.components.size();
+			reparentComponent(component, eventNode, newIndex);
 		}
 	}
 
@@ -134,5 +162,11 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning component";
 		context.executeOperation(new ReindexComponentOperation(editorId, component, oldIndex, newIndex), errorMsg);
+	}
+
+	private void reparentComponent(SceneNodeComponent2 component, SceneNode2 newParent, int newIndex) {
+		int editorId = context.editorId;
+		String errorMsg = "Error while repositioning element";
+		context.executeOperation(new ReparentComponentOperation(editorId, component, newParent, newIndex), errorMsg);
 	}
 }
