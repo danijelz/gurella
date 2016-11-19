@@ -71,7 +71,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		SceneNode2 eventNode;
 		if (eventElement instanceof SceneNode2) {
 			eventNode = (SceneNode2) eventElement;
-			if (component.getNode() == eventNode || eventNode.getComponent(component.getClass(), true) != null) {
+			if (component.getNode() == eventNode) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
@@ -92,6 +92,11 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 				event.detail = DND.DROP_MOVE;
 			}
 		} else {
+			if (eventNode.getComponent(component.getClass(), true) != null) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
+
 			if (data instanceof SceneNodeComponent2) {
 				if (point.y < bounds.y + bounds.height / 2) {
 					event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
@@ -136,7 +141,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		SceneNode2 eventNode;
 		if (eventElement instanceof SceneNode2) {
 			eventNode = (SceneNode2) eventElement;
-			if (component.getNode() == eventNode || eventNode.getComponent(component.getClass(), true) != null) {
+			if (component.getNode() == eventNode) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
@@ -163,6 +168,11 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 				reindexComponent(component, oldIndex, newIndex);
 			}
 		} else {
+			if (eventNode.getComponent(component.getClass(), true) != null) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
+
 			if (data instanceof SceneNodeComponent2) {
 				SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
 				if (point.y < bounds.y + bounds.height / 2) {
