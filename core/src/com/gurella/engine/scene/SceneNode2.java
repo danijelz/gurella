@@ -141,6 +141,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		child.setParent(this);
 	}
 
+	//TODO public void removeChild(SceneNode2 child, boolean destroy)
 	public void removeChild(SceneNode2 child) {
 		if (_childNodes.contains(child)) {
 			child.destroy();
@@ -207,6 +208,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		return component;
 	}
 
+	//TODO public void removeComponent(SceneNodeComponent2 component, boolean destroy)
 	public void removeComponent(SceneNodeComponent2 component) {
 		SceneNodeComponent2 value = _components.get(component.baseComponentType);
 		if (value == component) {
@@ -235,7 +237,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 				? Values.<T> cast(value) : null;
 	}
 
-	public <T extends SceneNodeComponent2> boolean hasComponent(int typeId, boolean includeInactive) {
+	public boolean hasComponent(int typeId, boolean includeInactive) {
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
 		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType);
 	}
@@ -257,7 +259,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		return getComponent(typeId, false);
 	}
 
-	public <T extends SceneNodeComponent2> boolean hasComponent(int typeId) {
+	public boolean hasComponent(int typeId) {
 		return hasComponent(typeId, false);
 	}
 

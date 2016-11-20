@@ -122,10 +122,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		focusService.removeFocusTracker(graph);
 	}
 
-	private void showMenu(Event event) {
-		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
-	}
-
 	private void selectionChanged() {
 		Optional<SceneElement2> selected = getFirstSelectedElement();
 		if (!selected.isPresent()) {
@@ -140,6 +136,10 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 			SceneNodeComponent2 component = (SceneNodeComponent2) element;
 			EventService.post(editorId, new SelectionEvent(new ComponentInspectable(component)));
 		}
+	}
+
+	private void showMenu(Event event) {
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
 	}
 
 	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
