@@ -52,10 +52,10 @@ import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.RemoveComponentOperation;
 import com.gurella.studio.editor.operation.RemoveNodeOperation;
 
-class SceneGraphPopupMenu {
+class GraphMenu {
 	private final SceneGraphView view;
 
-	SceneGraphPopupMenu(SceneGraphView view) {
+	GraphMenu(SceneGraphView view) {
 		this.view = view;
 	}
 

@@ -56,9 +56,11 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
+	//	final Text filterText;
+	//	final Label menuLabel;
 	final Tree graph;
 	final Clipboard clipboard;
-	private final SceneGraphPopupMenu menu;
+	private final GraphMenu menu;
 
 	Scene scene;
 
@@ -77,8 +79,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.MouseUp, this::showMenu);
-
-		menu = new SceneGraphPopupMenu(this);
+		menu = new GraphMenu(this);
 
 		initDragManagers();
 		initFocusHandlers();
