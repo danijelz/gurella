@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.graph;
 
+import static com.gurella.engine.event.EventService.post;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_COPY;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_CUT;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_DELETE;
@@ -38,11 +39,12 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.control.DockableView;
-import com.gurella.studio.editor.event.SelectionEvent;
+import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
 import com.gurella.studio.editor.subscription.ComponentIndexListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
+import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.NodeIndexListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.subscription.NodeParentListener;
@@ -123,57 +125,49 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private void selectionChanged() {
-		Optional<SceneElement2> selected = getFirstSelectedElement();
-		if (!selected.isPresent()) {
-			return;
-		}
+		getFirstSelectedElement().map(SceneGraphView::toInspectable)
+				.ifPresent(s -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(s)));
+	}
 
-		SceneElement2 element = selected.get();
-		if (element instanceof SceneNode2) {
-			SceneNode2 vode = (SceneNode2) element;
-			EventService.post(editorId, new SelectionEvent(new NodeInspectable(vode)));
-		} else {
-			SceneNodeComponent2 component = (SceneNodeComponent2) element;
-			EventService.post(editorId, new SelectionEvent(new ComponentInspectable(component)));
-		}
+	private static Inspectable<? extends SceneElement2> toInspectable(SceneElement2 element) {
+		return element instanceof SceneNode2 ? new NodeInspectable((SceneNode2) element)
+				: new ComponentInspectable((SceneNodeComponent2) element);
 	}
 
 	private void showMenu(Event event) {
 		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
 	}
 
-	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
-		for (SceneNode2 node : nodeContainer.getNodes()) {
-			addNode(parentItem, node);
-		}
+	private void addNodes(TreeItem parent, NodeContainer nodeContainer) {
+		Arrays.stream(nodeContainer.getNodes().<SceneNode2> toArray(SceneNode2.class)).forEach(n -> addNode(parent, n));
 	}
 
-	private TreeItem addNode(TreeItem parentItem, SceneNode2 node) {
-		TreeItem nodeItem = parentItem == null ? new TreeItem(graph, SWT.NONE) : new TreeItem(parentItem, SWT.NONE);
+	private TreeItem addNode(TreeItem parent, SceneNode2 node) {
+		TreeItem nodeItem = parent == null ? new TreeItem(graph, SWT.NONE) : new TreeItem(parent, SWT.NONE);
 		nodeItem.setText(node.getName());
-		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
+		nodeItem.setImage(GurellaStudioPlugin.getImage("icons/ice_cube.png"));
 		nodeItem.setData(node);
 		addComponents(nodeItem, node);
 		addNodes(nodeItem, node);
 		return nodeItem;
 	}
 
-	private static void addComponents(TreeItem parentItem, SceneNode2 node) {
-		for (SceneNodeComponent2 component : node.components) {
-			createComponentItem(parentItem, component);
-		}
+	private static void addComponents(TreeItem parent, SceneNode2 node) {
+		Arrays.stream(node.components.<SceneNodeComponent2> toArray(SceneNodeComponent2.class))
+				.forEach(c -> createComponentItem(parent, c));
 	}
 
 	private static void createComponentItem(TreeItem parentItem, SceneNodeComponent2 component) {
 		int index = countComponentItems(parentItem);
 		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE, index);
-		if (component instanceof TransformComponent) {
-			componentItem.setImage(GurellaStudioPlugin.createImage("icons/transform.png"));
-		} else {
-			componentItem.setImage(GurellaStudioPlugin.createImage("icons/16-cube-green_16x16.png"));
-		}
 		componentItem.setText(Models.getModel(component).getName());
 		componentItem.setData(component);
+		//TODO create image to component type registry
+		if (component instanceof TransformComponent) {
+			componentItem.setImage(GurellaStudioPlugin.getImage("icons/transform.png"));
+		} else {
+			componentItem.setImage(GurellaStudioPlugin.getImage("icons/16-cube-green_16x16.png"));
+		}
 	}
 
 	private static int countComponentItems(TreeItem item) {
@@ -210,17 +204,12 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 	@Override
 	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
-		if (parentNode == null) {
-			TreeItem nodeItem = addNode(null, node);
-			graph.select(nodeItem);
-			EventService.post(editorId, new SelectionEvent(new NodeInspectable(node)));
-		} else {
-			TreeItem parentItem = findItem(parentNode);
-			TreeItem nodeItem = addNode(parentItem, node);
-			parentItem.setExpanded(true);
-			graph.select(nodeItem);
-			EventService.post(editorId, new SelectionEvent(new NodeInspectable(node)));
-		}
+		TreeItem parentItem = parentNode == null ? null : findItem(parentNode);
+		TreeItem nodeItem = addNode(parentItem, node);
+		Optional.ofNullable(parentItem).ifPresent(i -> i.setExpanded(true));
+		graph.select(nodeItem);
+		NodeInspectable inspectable = new NodeInspectable(node);
+		EventService.post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(inspectable));
 	}
 
 	@Override

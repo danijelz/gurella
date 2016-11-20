@@ -1,5 +1,6 @@
 package com.gurella.studio.editor.assets;
 
+import static com.gurella.engine.event.EventService.post;
 import static com.gurella.studio.GurellaStudioPlugin.getImage;
 
 import java.util.Optional;
@@ -31,13 +32,11 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
-import com.gurella.engine.event.EventService;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
 import com.gurella.studio.editor.control.DockableView;
-import com.gurella.studio.editor.event.SelectionEvent;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.audio.AudioInspectable;
 import com.gurella.studio.editor.inspector.bitmapfont.BitmapFontInspectable;
@@ -48,6 +47,7 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
+import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
@@ -122,45 +122,32 @@ public class AssetsView extends DockableView {
 	}
 
 	private void presentInspectable() {
-		TreeItem[] selection = tree.getSelection();
-		if (selection.length < 1) {
-			return;
-		}
-
-		Object data = selection[0].getData();
-		if (data instanceof IFile) {
-			EventService.post(editorContext.editorId, new SelectionEvent(getInspectable()));
-		}
+		Optional.ofNullable(tree.getSelection()).filter(s -> s.length > 0).map(s -> s[0].getData())
+				.filter(d -> d instanceof IFile).map(d -> (IFile) d).ifPresent(f -> post(editorContext.editorId,
+						EditorSelectionListener.class, l -> l.selectionChanged(getInspectable(f))));
 	}
 
 	// TODO create plugin extension
-	private Inspectable<?> getInspectable() {
-		TreeItem[] selection = tree.getSelection();
-		if (selection.length > 0) {
-			Object data = selection[0].getData();
-			if (data instanceof IFile) {
-				IFile file = (IFile) data;
-				String extension = file.getFileExtension();
-				if (AssetType.texture.containsExtension(extension)) {
-					return new TextureInspectable(file);
-				} else if (AssetType.pixmap.containsExtension(extension)) {
-					return new PixmapInspectable(file);
-				} else if (AssetType.sound.containsExtension(extension)) {
-					return new AudioInspectable(file);
-				} else if (AssetType.textureAtlas.containsExtension(extension)) {
-					return new TextureAtlasInspectable(file);
-				} else if (AssetType.bitmapFont.containsExtension(extension)) {
-					return new BitmapFontInspectable(file);
-				} else if (AssetType.model.containsExtension(extension)) {
-					return new ModelInspectable(file);
-				} else if (AssetType.polygonRegion.containsExtension(extension)) {
-					return new PolygonRegionInspectable(file);
-				} else if (AssetType.prefab.containsExtension(extension)) {
-					return new PrefabInspectable(file);
-				} else if (AssetType.material.containsExtension(extension)) {
-					return new MaterialInspectable(file);
-				}
-			}
+	private static Inspectable<?> getInspectable(IFile file) {
+		String extension = file.getFileExtension();
+		if (AssetType.texture.containsExtension(extension)) {
+			return new TextureInspectable(file);
+		} else if (AssetType.pixmap.containsExtension(extension)) {
+			return new PixmapInspectable(file);
+		} else if (AssetType.sound.containsExtension(extension)) {
+			return new AudioInspectable(file);
+		} else if (AssetType.textureAtlas.containsExtension(extension)) {
+			return new TextureAtlasInspectable(file);
+		} else if (AssetType.bitmapFont.containsExtension(extension)) {
+			return new BitmapFontInspectable(file);
+		} else if (AssetType.model.containsExtension(extension)) {
+			return new ModelInspectable(file);
+		} else if (AssetType.polygonRegion.containsExtension(extension)) {
+			return new PolygonRegionInspectable(file);
+		} else if (AssetType.prefab.containsExtension(extension)) {
+			return new PrefabInspectable(file);
+		} else if (AssetType.material.containsExtension(extension)) {
+			return new MaterialInspectable(file);
 		}
 		return null;
 	}
