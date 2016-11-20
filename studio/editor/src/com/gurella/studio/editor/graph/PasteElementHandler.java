@@ -2,8 +2,6 @@ package com.gurella.studio.editor.graph;
 
 import static com.gurella.engine.utils.Values.cast;
 
-import java.util.Optional;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -34,21 +32,17 @@ class PasteElementHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Optional<SceneNode2> selected = view.getFirstSelectedElement().filter(e -> e instanceof SceneNode2)
-				.map(e -> (SceneNode2) e);
-		if (!selected.isPresent()) {
-			return null;
-		}
+		view.getFirstSelectedNode().ifPresent(this::paste);
+		return null;
+	}
 
-		SceneNode2 destination = selected.get();
+	private void paste(SceneNode2 destination) {
 		Object contents = clipboard.getContents(LocalSelectionTransfer.getTransfer());
 		if (contents instanceof CutElementSelection) {
 			moveElement(((CutElementSelection) contents).getElement(), destination);
 		} else if (contents instanceof CopyElementSelection) {
 			copyElement(((CopyElementSelection) contents).getElement(), destination);
 		}
-
-		return null;
 	}
 
 	private void moveElement(SceneElement2 source, SceneNode2 destination) {

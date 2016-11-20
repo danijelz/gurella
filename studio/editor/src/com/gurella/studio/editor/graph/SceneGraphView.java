@@ -17,6 +17,7 @@ import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -135,7 +136,12 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	}
 
 	private void showMenu(Event event) {
-		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show());
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getElementAt(event.x, event.y)));
+	}
+
+	private SceneElement2 getElementAt(int x, int y) {
+		return Optional.ofNullable(graph.getItem(new Point(x, y))).map(i -> i.getData())
+				.filter(d -> d instanceof SceneElement2).map(d -> (SceneElement2) d).orElse(null);
 	}
 
 	private void addNodes(TreeItem parent, NodeContainer nodeContainer) {

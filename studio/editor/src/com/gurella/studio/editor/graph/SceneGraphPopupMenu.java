@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.Scene;
+import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.audio.AudioListenerComponent;
@@ -60,13 +61,13 @@ class SceneGraphPopupMenu {
 		editorId = context.editorId;
 	}
 
-	void show() {
-		Menu menu = createMenu();
+	void show(SceneElement2 selection) {
+		Menu menu = createMenu(selection);
 		menu.setLocation(graph.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
 
-	private Menu createMenu() {
+	private Menu createMenu(SceneElement2 selection) {
 		Menu menu = new Menu(graph.getShell(), POP_UP);
 
 		MenuItem item = new MenuItem(menu, SWT.PUSH);
@@ -78,8 +79,8 @@ class SceneGraphPopupMenu {
 		item.addListener(SWT.Selection, e -> addNode(false));
 
 		item = new MenuItem(menu, SWT.PUSH);
-		item.setText("Remove Node");
-		item.addListener(SWT.Selection, e -> removeSelectedElement());
+		item.setText("Delete");
+		item.addListener(SWT.Selection, e -> removeSelectedElement(selection));
 
 		item = new MenuItem(menu, SWT.PUSH);
 		item.setText("Add sphere");
@@ -120,39 +121,42 @@ class SceneGraphPopupMenu {
 		return menu;
 	}
 
-	@SuppressWarnings("unused")
 	private void createComponentsSubMenu(Menu menu) {
 		MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
 		subItem.setText("Add Component");
 		Menu subMenu = new Menu(menu);
 		subItem.setMenu(subMenu);
 		addMenuItem(subMenu, TransformComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, BulletRigidBodyComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, OrtographicCameraComponent.class);
 		addMenuItem(subMenu, PerspectiveCameraComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, PointLightComponent.class);
 		addMenuItem(subMenu, DirectionalLightComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, AudioListenerComponent.class);
 		addMenuItem(subMenu, AudioSourceComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, TagComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, TextureComponent.class);
 		addMenuItem(subMenu, TextureRegionComponent.class);
 		addMenuItem(subMenu, AtlasRegionComponent.class);
 		addMenuItem(subMenu, SkyboxComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, ModelComponent.class);
 		addMenuItem(subMenu, ShapeComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
 		addMenuItem(subMenu, TestPropertyEditorsComponent.class);
 		addMenuItem(subMenu, TestEditorComponent.class);
 		addMenuItem(subMenu, TestInputComponent.class);
-		new MenuItem(subMenu, SEPARATOR);
+		addSeparator(subMenu);
+	}
+
+	private static MenuItem addSeparator(Menu menu) {
+		return new MenuItem(menu, SEPARATOR);
 	}
 
 	private void addMenuItem(Menu menu, final Class<? extends SceneNodeComponent2> componentType) {
@@ -181,23 +185,17 @@ class SceneGraphPopupMenu {
 		}
 	}
 
-	private void removeSelectedElement() {
-		TreeItem[] selection = graph.getSelection();
-		if (selection.length > 0) {
-			TreeItem selectedItem = selection[0];
-			Object data = selectedItem.getData();
-
-			if (data instanceof SceneNode2) {
-				SceneNode2 node = (SceneNode2) data;
-				SceneNode2 parentNode = node.getParentNode();
-				RemoveNodeOperation operation = new RemoveNodeOperation(editorId, context.getScene(), parentNode, node);
-				context.executeOperation(operation, "Error while removing node");
-			} else if (data instanceof SceneNodeComponent2) {
-				SceneNodeComponent2 component = (SceneNodeComponent2) data;
-				SceneNode2 node = component.getNode();
-				RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
-				context.executeOperation(operation, "Error while removing component");
-			}
+	private void removeSelectedElement(SceneElement2 selection) {
+		if (selection instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) selection;
+			SceneNode2 parentNode = node.getParentNode();
+			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, context.getScene(), parentNode, node);
+			context.executeOperation(operation, "Error while removing node");
+		} else if (selection instanceof SceneNodeComponent2) {
+			SceneNodeComponent2 component = (SceneNodeComponent2) selection;
+			SceneNode2 node = component.getNode();
+			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
+			context.executeOperation(operation, "Error while removing component");
 		}
 	}
 
