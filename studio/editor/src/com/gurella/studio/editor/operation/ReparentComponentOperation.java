@@ -28,7 +28,7 @@ public class ReparentComponentOperation extends AbstractOperation {
 		this.editorId = editorId;
 		this.component = component;
 		this.oldParent = component.getNode();
-		this.oldIndex = oldParent.getComponentIndex(component);
+		this.oldIndex = component.getIndex();
 		this.newParent = newParent;
 		this.newIndex = newIndex;
 	}
@@ -56,7 +56,7 @@ public class ReparentComponentOperation extends AbstractOperation {
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentRemoved(oldParent, component));
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(newParent, component));
 
-		component.getNode().setComponentIndex(index, component);
+		component.setIndex(index);
 		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));
 		EventService.post(editorId, SceneChangedEvent.instance);
 	}

@@ -53,7 +53,6 @@ public final class Prefabs {
 			e.printStackTrace();
 		}
 
-		System.out.println("uuid: " + object.getUuid());
 		AssetService.put(object, fileName);
 	}
 }

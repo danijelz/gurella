@@ -249,33 +249,6 @@ public abstract class Action implements Poolable {
 				stack.clear();
 			}
 		}
-
-		private void print() {
-			System.out.println(print(build(), 0));
-		}
-
-		private String print(Action action, int level) {
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < level; i++) {
-				builder.append('\t');
-			}
-			builder.append(action.getClass().getSimpleName());
-			if (action.beginListener != null) {
-				builder.append('*');
-			}
-			if (action instanceof CompositeAction) {
-				CompositeAction compositeAction = (CompositeAction) action;
-				for (int i = 0; i < compositeAction.actions.size; i++) {
-					builder.append('\n');
-					builder.append(print(compositeAction.actions.get(i), level + 1));
-				}
-			} else if (action instanceof RepeatAction) {
-				RepeatAction repeatAction = (RepeatAction) action;
-				builder.append('\n');
-				builder.append(print(repeatAction.delegate, level + 1));
-			}
-			return builder.toString();
-		}
 	}
 
 	public static void main(String[] args) {
@@ -285,10 +258,34 @@ public abstract class Action implements Poolable {
 			}
 		};
 
-		Action.sequence().onBegin(l).delay(1).onBegin(l).coroutine(null).onBegin(l).parallel().onBegin(l).delay(1)
-				.onBegin(l).coroutine(null).onBegin(l).end().delay(1).onBegin(l).repeat(2).onBegin(l).sequence()
-				.onBegin(l).coroutine(null).onBegin(l).delay(0).onBegin(l).repeat(2).onBegin(l).delay(0).onBegin(l)
-				.end().delay(0).onBegin(l).repeat(2).onBegin(l).parallel().onBegin(l).delay(0).onBegin(l).delay(0)
-				.onBegin(l).end().print();
+		Action action = Action.sequence().onBegin(l).delay(1).onBegin(l).coroutine(null).onBegin(l).parallel()
+				.onBegin(l).delay(1).onBegin(l).coroutine(null).onBegin(l).end().delay(1).onBegin(l).repeat(2)
+				.onBegin(l).sequence().onBegin(l).coroutine(null).onBegin(l).delay(0).onBegin(l).repeat(2).onBegin(l)
+				.delay(0).onBegin(l).end().delay(0).onBegin(l).repeat(2).onBegin(l).parallel().onBegin(l).delay(0)
+				.onBegin(l).delay(0).onBegin(l).end().build();
+		System.out.println(getDiagnostics(action, 0));
+	}
+
+	private static String getDiagnostics(Action action, int level) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < level; i++) {
+			builder.append('\t');
+		}
+		builder.append(action.getClass().getSimpleName());
+		if (action.beginListener != null) {
+			builder.append('*');
+		}
+		if (action instanceof CompositeAction) {
+			CompositeAction compositeAction = (CompositeAction) action;
+			for (int i = 0; i < compositeAction.actions.size; i++) {
+				builder.append('\n');
+				builder.append(getDiagnostics(compositeAction.actions.get(i), level + 1));
+			}
+		} else if (action instanceof RepeatAction) {
+			RepeatAction repeatAction = (RepeatAction) action;
+			builder.append('\n');
+			builder.append(getDiagnostics(repeatAction.delegate, level + 1));
+		}
+		return builder.toString();
 	}
 }

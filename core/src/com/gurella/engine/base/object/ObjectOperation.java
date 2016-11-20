@@ -33,9 +33,6 @@ class ObjectOperation implements Poolable {
 		case destroy:
 			object.handleDestruction();
 			break;
-		case reposition:
-			object.reindex(newIndex);
-			break;
 		default:
 			throw new IllegalArgumentException();
 		}
@@ -55,6 +52,6 @@ class ObjectOperation implements Poolable {
 	}
 
 	enum OperationType {
-		activate, reparent, deactivate, destroy, reposition
+		activate, reparent, deactivate, destroy;
 	}
 }

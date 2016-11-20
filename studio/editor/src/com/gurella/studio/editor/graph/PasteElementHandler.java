@@ -8,6 +8,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.swt.dnd.Clipboard;
 
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.scene.SceneElement2;
@@ -20,9 +21,15 @@ import com.gurella.studio.editor.operation.ReparentNodeOperation;
 
 class PasteElementHandler extends AbstractHandler {
 	private final SceneGraphView view;
+	private final int editorId;
+	private final SceneEditorContext context;
+	private final Clipboard clipboard;
 
 	public PasteElementHandler(SceneGraphView view) {
 		this.view = view;
+		this.editorId = view.editorId;
+		this.context = view.editorContext;
+		this.clipboard = view.clipboard;
 	}
 
 	@Override
@@ -34,7 +41,7 @@ class PasteElementHandler extends AbstractHandler {
 		}
 
 		SceneNode2 destination = selected.get();
-		Object contents = view.clipboard.getContents(LocalSelectionTransfer.getTransfer());
+		Object contents = clipboard.getContents(LocalSelectionTransfer.getTransfer());
 		if (contents instanceof CutElementSelection) {
 			moveElement(((CutElementSelection) contents).getElement(), destination);
 		} else if (contents instanceof CopyElementSelection) {
@@ -51,12 +58,10 @@ class PasteElementHandler extends AbstractHandler {
 
 		if (source instanceof SceneNodeComponent2) {
 			SceneNodeComponent2 component = (SceneNodeComponent2) source;
-			if (destination.getComponent(component.getClass(), true) != null) {
+			if (destination.hasComponent(component.getClass(), true)) {
 				return;
 			}
 
-			int editorId = view.editorId;
-			SceneEditorContext context = view.editorContext;
 			String errorMsg = "Error while repositioning element";
 			int newIndex = destination.components.size();
 			context.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
@@ -67,14 +72,12 @@ class PasteElementHandler extends AbstractHandler {
 			}
 
 			SceneNode2 node = (SceneNode2) source;
-			int editorId = view.editorId;
-			SceneEditorContext context = view.editorContext;
 			String errorMsg = "Error while repositioning node";
 			int newIndex = destination.childNodes.size();
 			context.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
 		}
 
-		view.clipboard.clearContents();
+		clipboard.clearContents();
 	}
 
 	private void copyElement(SceneElement2 source, SceneNode2 destination) {
@@ -83,8 +86,6 @@ class PasteElementHandler extends AbstractHandler {
 		}
 
 		SceneElement2 copy = new CopyContext().copy(source);
-		int editorId = view.editorId;
-		SceneEditorContext context = view.editorContext;
 		String errorMsg = "Error while copying element";
 		context.executeOperation(new CopyElementOperation(editorId, copy, destination, context.getScene()), errorMsg);
 	}

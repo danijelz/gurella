@@ -71,10 +71,6 @@ public class SceneManager {
 			throw new IllegalArgumentException("Invalid sceneId: " + sceneId);
 		}
 
-		if (destinationScene == currentScene) {
-			throw new IllegalArgumentException("Scene : " + sceneId + "is already active.");
-		}
-
 		transitionWorker.startTransition(destinationScene, transition);
 	}
 

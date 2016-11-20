@@ -205,15 +205,6 @@ public final class Scene extends ManagedObject implements NodeContainer, Poolabl
 		return system;
 	}
 
-	@TransientProperty
-	public int getSystemIndex(SceneSystem2 system) {
-		return _systems.indexOf(system);
-	}
-
-	public void setNodeSystemIndex(int newIndex, SceneSystem2 system) {
-		_systems.setIndex(newIndex, system, true);
-	}
-
 	@Override
 	public ImmutableArray<SceneNode2> getNodes() {
 		return nodes;

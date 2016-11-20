@@ -30,10 +30,9 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 	public void dragEnter(DropTargetEvent event) {
 		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferComponent() == null) {
 			event.detail = DND.DROP_NONE;
-			return;
+		} else {
+			event.detail = DND.DROP_MOVE;
 		}
-
-		event.detail = DND.DROP_MOVE;
 	}
 
 	private static SceneNodeComponent2 getTransferComponent() {
@@ -91,24 +90,20 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 				event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 				event.detail = DND.DROP_MOVE;
 			}
-		} else {
-			if (eventNode.getComponent(component.getClass(), true) != null) {
-				event.detail = DND.DROP_NONE;
-				return;
-			}
-
-			if (data instanceof SceneNodeComponent2) {
-				if (point.y < bounds.y + bounds.height / 2) {
-					event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
-					event.detail = DND.DROP_MOVE;
-				} else if (point.y >= bounds.y + bounds.height / 2) {
-					event.feedback |= DND.FEEDBACK_INSERT_AFTER;
-					event.detail = DND.DROP_MOVE;
-				}
-			} else {
-				event.feedback |= DND.FEEDBACK_SELECT;
+		} else if (eventNode.hasComponent(component.getClass(), true)) {
+			event.detail = DND.DROP_NONE;
+			return;
+		} else if (data instanceof SceneNodeComponent2) {
+			if (point.y < bounds.y + bounds.height / 2) {
+				event.feedback |= DND.FEEDBACK_INSERT_BEFORE;
+				event.detail = DND.DROP_MOVE;
+			} else if (point.y >= bounds.y + bounds.height / 2) {
+				event.feedback |= DND.FEEDBACK_INSERT_AFTER;
 				event.detail = DND.DROP_MOVE;
 			}
+		} else {
+			event.feedback |= DND.FEEDBACK_SELECT;
+			event.detail = DND.DROP_MOVE;
 		}
 	}
 
@@ -150,8 +145,7 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 			eventNode = eventComponent.getNode();
 		}
 
-		SceneNode2 node = component.getNode();
-		int oldIndex = node.getComponentIndex(component);
+		int oldIndex = component.getIndex();
 		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
 
@@ -159,33 +153,28 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
 
 			if (point.y < bounds.y + bounds.height / 2) {
-				int newIndex = node.getComponentIndex(eventComponent);
+				int newIndex = eventComponent.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
 				reindexComponent(component, oldIndex, newIndex);
 			} else if (point.y >= bounds.y + bounds.height / 2) {
-				int newIndex = node.getComponentIndex(eventComponent);
+				int newIndex = eventComponent.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
 				reindexComponent(component, oldIndex, newIndex);
 			}
-		} else {
-			if (eventNode.getComponent(component.getClass(), true) != null) {
-				event.detail = DND.DROP_NONE;
-				return;
-			}
-
-			if (data instanceof SceneNodeComponent2) {
-				SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
-				if (point.y < bounds.y + bounds.height / 2) {
-					int newIndex = eventNode.getComponentIndex(eventComponent);
-					reparentComponent(component, eventNode, newIndex);
-				} else if (point.y >= bounds.y + bounds.height / 2) {
-					int newIndex = eventNode.getComponentIndex(eventComponent) + 1;
-					reparentComponent(component, eventNode, newIndex);
-				}
-			} else {
-				int newIndex = eventNode.components.size();
+		} else if (eventNode.hasComponent(component.getClass(), true)) {
+			event.detail = DND.DROP_NONE;
+		} else if (data instanceof SceneNodeComponent2) {
+			SceneNodeComponent2 eventComponent = (SceneNodeComponent2) data;
+			if (point.y < bounds.y + bounds.height / 2) {
+				int newIndex = eventComponent.getIndex();
+				reparentComponent(component, eventNode, newIndex);
+			} else if (point.y >= bounds.y + bounds.height / 2) {
+				int newIndex = eventComponent.getIndex() + 1;
 				reparentComponent(component, eventNode, newIndex);
 			}
+		} else {
+			int newIndex = eventNode.components.size();
+			reparentComponent(component, eventNode, newIndex);
 		}
 	}
 

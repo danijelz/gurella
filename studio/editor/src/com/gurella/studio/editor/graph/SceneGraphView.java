@@ -2,6 +2,7 @@ package com.gurella.studio.editor.graph;
 
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_COPY;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_CUT;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_DELETE;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
 
 import java.util.Arrays;
@@ -40,8 +41,6 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.event.SelectionEvent;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
-import com.gurella.studio.editor.operation.RemoveComponentOperation;
-import com.gurella.studio.editor.operation.RemoveNodeOperation;
 import com.gurella.studio.editor.subscription.ComponentIndexListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeIndexListener;
@@ -74,7 +73,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		graph.setHeaderVisible(false);
 		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, e -> selectionChanged());
-		graph.addListener(SWT.KeyUp, this::handleKeyUp);
 		graph.addListener(SWT.MouseUp, this::showMenu);
 
 		menu = new SceneGraphPopupMenu(this);
@@ -84,7 +82,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 		//TODO handle with plugin
 		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> sceneLoaded(scene));
-
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 	}
@@ -109,16 +106,19 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		IHandlerActivation cut = handlerService.activateHandler(EDIT_CUT, new CutElementHandler(this), exp);
 		IHandlerActivation copy = handlerService.activateHandler(EDIT_COPY, new CopyElementHandler(this), exp);
 		IHandlerActivation paste = handlerService.activateHandler(EDIT_PASTE, new PasteElementHandler(this), exp);
-		graph.addDisposeListener(e -> deactivateFocusHandlers(cut, copy, paste));
+		IHandlerActivation delete = handlerService.activateHandler(EDIT_DELETE, new DeleteElementHandler(this), exp);
+		graph.addDisposeListener(e -> deactivateFocusHandlers(cut, copy, paste, delete));
 	}
 
-	private void deactivateFocusHandlers(IHandlerActivation cut, IHandlerActivation copy, IHandlerActivation paste) {
+	private void deactivateFocusHandlers(IHandlerActivation cut, IHandlerActivation copy, IHandlerActivation paste,
+			IHandlerActivation delete) {
 		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
 		IFocusService focusService = workbench.getService(IFocusService.class);
 		IHandlerService handlerService = workbench.getService(IHandlerService.class);
 		handlerService.deactivateHandler(cut);
 		handlerService.deactivateHandler(copy);
 		handlerService.deactivateHandler(paste);
+		handlerService.deactivateHandler(delete);
 		focusService.removeFocusTracker(graph);
 	}
 
@@ -142,17 +142,13 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		}
 	}
 
-	private void handleKeyUp(Event event) {
-		Optional.of(event).filter(e -> e.keyCode == SWT.DEL).ifPresent(e -> removeSelectedElement());
-	}
-
 	private void addNodes(TreeItem parentItem, NodeContainer nodeContainer) {
 		for (SceneNode2 node : nodeContainer.getNodes()) {
 			addNode(parentItem, node);
 		}
 	}
 
-	protected TreeItem addNode(TreeItem parentItem, SceneNode2 node) {
+	private TreeItem addNode(TreeItem parentItem, SceneNode2 node) {
 		TreeItem nodeItem = parentItem == null ? new TreeItem(graph, SWT.NONE) : new TreeItem(parentItem, SWT.NONE);
 		nodeItem.setText(node.getName());
 		nodeItem.setImage(GurellaStudioPlugin.createImage("icons/ice_cube.png"));
@@ -196,26 +192,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 
 		return Arrays.stream(item.getItems()).map(i -> findItem(i, element)).filter(i -> i != null).findFirst()
 				.orElse(null);
-	}
-
-	private void removeSelectedElement() {
-		Optional<SceneElement2> selected = getFirstSelectedElement();
-		if (!selected.isPresent()) {
-			return;
-		}
-
-		SceneElement2 element = selected.get();
-		if (element instanceof SceneNode2) {
-			SceneNode2 node = (SceneNode2) element;
-			SceneNode2 parentNode = node.getParentNode();
-			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, scene, parentNode, node);
-			editorContext.executeOperation(operation, "Error while removing node");
-		} else if (element instanceof SceneNodeComponent2) {
-			SceneNodeComponent2 component = (SceneNodeComponent2) element;
-			SceneNode2 node = component.getNode();
-			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
-			editorContext.executeOperation(operation, "Error while removing component");
-		}
 	}
 
 	Optional<SceneElement2> getFirstSelectedElement() {
@@ -295,10 +271,6 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		SceneNode2 parentNode = node.getParentNode();
 		TreeItem parent = parentNode == null ? null : findItem(parentNode);
 		int index = newIndex + (parent == null ? 0 : countComponentItems(parent));
-		if (parent != null) {
-			System.out.println("parent " + parent.getText());
-		}
-		System.out.println("index " + index);
 		String text = item.getText();
 		Image image = item.getImage();
 		item.dispose();

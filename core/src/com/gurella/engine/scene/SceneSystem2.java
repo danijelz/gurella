@@ -1,6 +1,7 @@
 package com.gurella.engine.scene;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.gurella.engine.base.model.TransientProperty;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.subscriptions.scene.SceneEventSubscription;
@@ -56,5 +57,19 @@ public abstract class SceneSystem2 extends SceneElement2 {
 	}
 
 	protected void systemDeactivated() {
+	}
+
+	@TransientProperty
+	public int getIndex() {
+		Scene scene = getScene();
+		return scene == null ? -1 : scene._systems.indexOf(this, true);
+	}
+
+	public void setIndex(int newIndex) {
+		Scene scene = getScene();
+		if (scene == null) {
+			throw new GdxRuntimeException("System is not attached to graph.");
+		}
+		scene._systems.setIndex(newIndex, this, true);
 	}
 }

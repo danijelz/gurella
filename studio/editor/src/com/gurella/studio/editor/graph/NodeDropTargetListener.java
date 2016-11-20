@@ -111,34 +111,27 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 		Point point = event.display.map(null, graph, event.x, event.y);
 		Rectangle bounds = item.getBounds();
-		SceneNode2 parentNode = node.getParentNode();
-		int oldIndex = parentNode == null ? context.getScene().getNodeIndex(node) : parentNode.getChildNodeIndex(node);
+		int oldIndex = node.getIndex();
 
 		if (point.y < bounds.y + bounds.height / 3) {
 			if (node.getParent() == eventNode.getParent()) {
-				SceneNode2 parent = eventNode.getParentNode();
-				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
-						: parent.getChildNodeIndex(eventNode);
+				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
 				reindexNode(node, oldIndex, newIndex);
 			} else {
 				SceneNode2 parent = eventNode.getParentNode();
-				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
-						: parent.getChildNodeIndex(eventNode);
+				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
 				reparentNode(node, parent, newIndex);
 			}
 		} else if (point.y > bounds.y + 2 * bounds.height / 3) {
 			if (node.getParent() == eventNode.getParent()) {
-				SceneNode2 parent = eventNode.getParentNode();
-				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
-						: parent.getChildNodeIndex(eventNode);
+				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
 				reindexNode(node, oldIndex, newIndex);
 			} else {
 				SceneNode2 parent = eventNode.getParentNode();
-				int newIndex = parent == null ? context.getScene().getNodeIndex(eventNode)
-						: parent.getChildNodeIndex(eventNode);
+				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
 				reparentNode(node, parent, newIndex);
 			}

@@ -3,7 +3,6 @@ package com.gurella.studio.editor.inspector.material;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.NO_TITLE_FOCUS_BOX;
 import static org.eclipse.ui.forms.widgets.ExpandableComposite.SHORT_TITLE_BAR;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
@@ -482,7 +481,7 @@ public class MaterialInspectableContainer extends InspectableContainer<IFile> {
 				}
 			}
 
-			System.out.println(Arrays.toString(vertices));
+			//System.out.println(Arrays.toString(vertices));
 			mesh.setVertices(vertices);
 		}
 	}

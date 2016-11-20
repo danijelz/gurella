@@ -29,10 +29,10 @@ public class ReparentNodeOperation extends AbstractOperation {
 		this.editorId = editorId;
 		this.node = node;
 		this.oldParent = node.getParentNode();
-		this.oldIndex = oldParent == null ? node.getScene().getNodeIndex(node) : oldParent.getChildNodeIndex(node);
+		this.oldIndex = node.getIndex();
 		this.newParent = newParent;
 		this.newIndex = newIndex;
-		scene = node.getScene();
+		this.scene = node.getScene();
 	}
 
 	@Override
@@ -56,13 +56,12 @@ public class ReparentNodeOperation extends AbstractOperation {
 		if (newParent == null) {
 			scene.addNode(node);
 			EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-			scene.setNodeIndex(newIndex, node);
 		} else {
 			newParent.addChild(node);
 			EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-			newParent.setChildNodeIndex(newIndex, node);
 		}
 
+		node.setIndex(newIndex);
 		EventService.post(editorId, SceneChangedEvent.instance);
 		EventService.post(editorId, NodeParentListener.class, l -> l.nodeParentChanged(node, newParent));
 		EventService.post(editorId, NodeIndexListener.class, l -> l.nodeIndexChanged(node, newIndex));

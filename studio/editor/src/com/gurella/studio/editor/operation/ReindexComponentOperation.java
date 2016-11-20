@@ -45,7 +45,7 @@ public class ReindexComponentOperation extends AbstractOperation {
 	}
 
 	private void setIndex(int index) {
-		component.getNode().setComponentIndex(index, component);
+		component.setIndex(index);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
 		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));

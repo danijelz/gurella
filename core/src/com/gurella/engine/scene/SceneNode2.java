@@ -175,12 +175,26 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 	}
 
 	@TransientProperty
-	public int getChildNodeIndex(SceneNode2 child) {
-		return _childNodes.indexOf(child);
+	public int getIndex() {
+		ManagedObject parent = getParent();
+		if (parent instanceof Scene) {
+			return ((Scene) parent)._nodes.indexOf(this);
+		} else if (parent instanceof SceneNode2) {
+			return ((SceneNode2) parent)._childNodes.indexOf(this);
+		} else {
+			return -1;
+		}
 	}
 
-	public void setChildNodeIndex(int newIndex, SceneNode2 child) {
-		_childNodes.setIndex(newIndex, child);
+	public void setIndex(int newIndex) {
+		ManagedObject parent = getParent();
+		if (parent instanceof Scene) {
+			((Scene) parent)._nodes.setIndex(newIndex, this);
+		} else if (parent instanceof SceneNode2) {
+			((SceneNode2) parent)._childNodes.setIndex(newIndex, this);
+		} else {
+			throw new GdxRuntimeException("Node is not attached to graph.");
+		}
 	}
 
 	public void addComponent(SceneNodeComponent2 component) {
@@ -221,6 +235,11 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 				? Values.<T> cast(value) : null;
 	}
 
+	public <T extends SceneNodeComponent2> boolean hasComponent(int typeId, boolean includeInactive) {
+		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType);
+	}
+
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> type, boolean includeInactive) {
 		int typeId = ComponentType.findType(type);
 		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
@@ -228,26 +247,33 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 				? Values.<T> cast(value) : null;
 	}
 
+	public <T extends SceneNodeComponent2> boolean hasComponent(Class<T> type, boolean includeInactive) {
+		int typeId = ComponentType.findType(type);
+		SceneNodeComponent2 value = _components.get(ComponentType.findBaseType(typeId));
+		return value != null && (includeInactive || value.isActive()) && isSubtype(typeId, value.componentType);
+	}
+
 	public <T extends SceneNodeComponent2> T getComponent(int typeId) {
 		return getComponent(typeId, false);
+	}
+
+	public <T extends SceneNodeComponent2> boolean hasComponent(int typeId) {
+		return hasComponent(typeId, false);
 	}
 
 	public <T extends SceneNodeComponent2> T getComponent(Class<T> type) {
 		return getComponent(type, false);
 	}
 
-	@TransientProperty
-	public int getComponentIndex(SceneNodeComponent2 component) {
-		return _components.orderedValues().indexOf(component, true);
-	}
-
-	public void setComponentIndex(int newIndex, SceneNodeComponent2 component) {
-		_components.setIndex(newIndex, component, true);
-		System.out.println("newIndex: " + _components.orderedValues().indexOf(component, true));
+	public <T extends SceneNodeComponent2> boolean hasComponent(Class<T> type) {
+		return hasComponent(type, false);
 	}
 
 	public String getDiagnostics() {
-		StringBuilder builder = new StringBuilder();
+		return appendDiagnostics(new StringBuilder()).toString();
+	}
+
+	public String appendDiagnostics(StringBuilder builder) {
 		builder.append("\t");
 		if (!isActive()) {
 			builder.append("*");
@@ -267,7 +293,7 @@ public final class SceneNode2 extends SceneElement2 implements NodeContainer, Po
 		builder.append("\n\tChildren [");
 		for (SceneNode2 child : _childNodes) {
 			builder.append("\n\t\t");
-			builder.append(child.getDiagnostics());
+			builder.append(child.appendDiagnostics(builder));
 		}
 		builder.append("]");
 

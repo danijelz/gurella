@@ -76,8 +76,8 @@ public class OrderedValuesIntMap<V> extends IntMap<V> {
 		return values.peek();
 	}
 
-	public int indexOf(V value) {
-		return values.indexOf(value, true);
+	public int indexOf(V value, boolean identity) {
+		return values.indexOf(value, identity);
 	}
 
 	public void reverse() {

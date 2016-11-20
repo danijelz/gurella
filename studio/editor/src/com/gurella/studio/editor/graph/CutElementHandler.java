@@ -7,15 +7,18 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.Transfer;
 
 import com.gurella.engine.scene.SceneElement2;
 
 class CutElementHandler extends AbstractHandler {
 	private final SceneGraphView view;
+	private final Clipboard clipboard;
 
 	public CutElementHandler(SceneGraphView view) {
 		this.view = view;
+		this.clipboard = view.clipboard;
 	}
 
 	@Override
@@ -26,7 +29,7 @@ class CutElementHandler extends AbstractHandler {
 			SceneElement2 element = selected.get();
 			ISelection selection = new CutElementSelection(element);
 			transfer.setSelection(selection);
-			view.clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
+			clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
 		}
 		return null;
 	}

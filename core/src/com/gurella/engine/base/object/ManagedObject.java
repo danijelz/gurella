@@ -6,7 +6,6 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.model.PropertyDescriptor;
-import com.gurella.engine.base.model.TransientProperty;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.editor.property.PropertyEditorDescriptor;
@@ -307,23 +306,6 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 
 	@SuppressWarnings("unused")
 	protected void parentChanged(ManagedObject oldParent, ManagedObject newParent) {
-	}
-
-	@TransientProperty
-	public final int getIndex() {
-		if (parent == null) {
-			return -1;
-		} else {
-			return parent._children.indexOf(this);
-		}
-	}
-
-	public final void setIndex(int newIndex) {
-		ManagedObjects.reindex(this, newIndex);
-	}
-
-	void reindex(int newIndex) {
-		parent._children.setIndex(newIndex, this);
 	}
 
 	//// ATTACHMENTS

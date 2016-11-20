@@ -45,12 +45,7 @@ public class ReindexNodeOperation extends AbstractOperation {
 	}
 
 	private void setIndex(int index) {
-		SceneNode2 parentNode = node.getParentNode();
-		if (parentNode == null) {
-			node.getScene().setNodeIndex(index, node);
-		} else {
-			parentNode.setChildNodeIndex(index, node);
-		}
+		node.setIndex(index);
 		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
 		EventService.post(editorId, NodeIndexListener.class, l -> l.nodeIndexChanged(node, index));
