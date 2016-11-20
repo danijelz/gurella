@@ -9,6 +9,7 @@ import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -18,9 +19,10 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbench;
@@ -56,8 +58,8 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
-	//	final Text filterText;
-	//	final Label menuLabel;
+	final Text filterText;
+	final Label menuLabel;
 	final Tree graph;
 	final Clipboard clipboard;
 	private final GraphMenu menu;
@@ -67,19 +69,28 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);
 
-		setLayout(new GridLayout());
+		setLayout(new GridLayout(2, false));
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
 		clipboard = new Clipboard(getDisplay());
 		addDisposeListener(e -> clipboard.dispose());
+		menu = new GraphMenu(this);
+
+		filterText = toolkit.createText(this, "", SWT.BORDER);
+		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).minSize(150, 18).applyTo(filterText);
+		filterText.setMessage("Filter");
+
+		menuLabel = toolkit.createLabel(this, "");
+		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(false, false).applyTo(menuLabel);
+		menuLabel.setImage(GurellaStudioPlugin.getImage("icons/menu.png"));
+		menuLabel.addListener(SWT.MouseUp, e -> menu.show(null));
 
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(graph);
 		graph.setHeaderVisible(false);
-		graph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.MouseUp, this::showMenu);
-		menu = new GraphMenu(this);
 
 		initDragManagers();
 		initFocusHandlers();
