@@ -13,7 +13,8 @@ import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.studio.editor.SceneEditorContext;
-import com.gurella.studio.editor.operation.CopyElementOperation;
+import com.gurella.studio.editor.operation.AddComponentOperation;
+import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.ReparentComponentOperation;
 import com.gurella.studio.editor.operation.ReparentNodeOperation;
 
@@ -80,7 +81,15 @@ class PasteElementHandler extends AbstractHandler {
 		}
 
 		SceneElement2 copy = new CopyContext().copy(source);
-		String errorMsg = "Error while copying element";
-		context.executeOperation(new CopyElementOperation(editorId, destination, context.getScene(), copy), errorMsg);
+		if (copy instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) copy;
+			AddNodeOperation operation = new AddNodeOperation(editorId, context.getScene(), destination, node);
+			context.executeOperation(operation, "Error while adding component");
+		} else {
+			SceneNodeComponent2 component = (SceneNodeComponent2) copy;
+			AddComponentOperation operation = new AddComponentOperation(editorId, destination, component);
+			context.executeOperation(operation, "Error while adding component");
+		}
+
 	}
 }

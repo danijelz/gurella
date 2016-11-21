@@ -317,7 +317,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 	@Override
 	public void componentAdded(SceneNode2 node, SceneNodeComponent2 component) {
-		if (component.getNode() == target) {
+		if (node == target) {
 			createSection(component);
 			reflow(true);
 		}
@@ -330,10 +330,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 			section.dispose();
 			reflow(true);
 		}
-	}
-
-	@Override
-	public void nodeParentChanged(SceneNode2 node, SceneNode2 newParent) {
 	}
 
 	@Override

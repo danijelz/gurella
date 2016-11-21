@@ -11,8 +11,6 @@ import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
-import com.gurella.studio.editor.event.NodeAddedEvent;
-import com.gurella.studio.editor.event.NodeRemovedEvent;
 import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
@@ -40,7 +38,8 @@ public class RemoveNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node);
 		}
 
-		EventService.post(editorId, new NodeRemovedEvent(scene, parentNode, node));
+		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
@@ -52,9 +51,9 @@ public class RemoveNodeOperation extends AbstractOperation {
 		} else {
 			parentNode.addChild(node);
 		}
-
 		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
-		EventService.post(editorId, new NodeAddedEvent(scene, parentNode, node));
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
+
 		node.setIndex(index);
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, index));
 		EventService.post(editorId, SceneChangedEvent.instance);

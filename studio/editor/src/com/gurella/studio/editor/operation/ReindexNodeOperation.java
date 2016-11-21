@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
@@ -46,7 +45,6 @@ public class ReindexNodeOperation extends AbstractOperation {
 
 	private void setIndex(int index) {
 		node.setIndex(index);
-		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, index));
 	}

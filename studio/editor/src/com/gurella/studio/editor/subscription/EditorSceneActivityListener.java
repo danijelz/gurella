@@ -10,8 +10,6 @@ public interface EditorSceneActivityListener extends EventSubscription {
 
 	void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node);
 
-	void nodeParentChanged(SceneNode2 node, SceneNode2 newParent);
-
 	void nodeIndexChanged(SceneNode2 node, int newIndex);
 
 	void componentAdded(SceneNode2 node, SceneNodeComponent2 component);

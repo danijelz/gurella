@@ -10,9 +10,9 @@ import org.eclipse.core.runtime.Status;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.studio.editor.event.NodeAddedEvent;
-import com.gurella.studio.editor.event.NodeRemovedEvent;
+import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.SceneChangedEvent;
+import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
 public class AddNodeOperation extends AbstractOperation {
 	final int editorId;
@@ -36,7 +36,8 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.addChild(node);
 		}
 
-		EventService.post(editorId, new NodeAddedEvent(scene, parentNode, node));
+		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
@@ -49,7 +50,8 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node);
 		}
 
-		EventService.post(editorId, new NodeRemovedEvent(scene, parentNode, node));
+		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

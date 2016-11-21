@@ -6,7 +6,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
-public class GraphViewerComparator extends ViewerComparator {
+class GraphViewerComparator extends ViewerComparator {
 	@Override
 	public int category(Object element) {
 		if (element instanceof SceneNodeComponent2) {
