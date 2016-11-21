@@ -24,6 +24,7 @@ import com.gurella.engine.scene.camera.OrtographicCameraComponent;
 import com.gurella.engine.scene.camera.PerspectiveCameraComponent;
 import com.gurella.engine.scene.light.DirectionalLightComponent;
 import com.gurella.engine.scene.light.PointLightComponent;
+import com.gurella.engine.scene.light.SpotLightComponent;
 import com.gurella.engine.scene.renderable.AtlasRegionComponent;
 import com.gurella.engine.scene.renderable.ModelComponent;
 import com.gurella.engine.scene.renderable.ShapeComponent;
@@ -40,9 +41,11 @@ import com.gurella.engine.scene.renderable.shape.SphereShapeModel;
 import com.gurella.engine.scene.renderable.skybox.SkyboxComponent;
 import com.gurella.engine.scene.tag.TagComponent;
 import com.gurella.engine.scene.transform.TransformComponent;
+import com.gurella.engine.test.TestArrayEditorComponent;
 import com.gurella.engine.test.TestEditorComponent;
 import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponent;
+import com.gurella.engine.test.TestTypeSelectionComponnent;
 import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
@@ -120,10 +123,20 @@ class GraphMenu {
 			item.setEnabled(nodeSelected);
 			addSeparator(menu);
 
+			item = new MenuItem(menu, SWT.PUSH);
+			item.setText("Convert to prefab");
+			item.addListener(SWT.Selection, e -> toPrefab());
+			item.setEnabled(nodeSelected);
+			addSeparator(menu);
+
 			createCompositeNodeSubMenu(menu);
 			addSeparator(menu);
 
 			createComponentsSubMenu(menu);
+		}
+
+		private void toPrefab() {
+			// TODO Auto-generated method stub
 		}
 
 		protected void createCompositeNodeSubMenu(Menu menu) {
@@ -179,8 +192,9 @@ class GraphMenu {
 			addNewComponentMenuItem(subMenu, OrtographicCameraComponent.class);
 			addNewComponentMenuItem(subMenu, PerspectiveCameraComponent.class);
 			addSeparator(subMenu);
-			addNewComponentMenuItem(subMenu, PointLightComponent.class);
 			addNewComponentMenuItem(subMenu, DirectionalLightComponent.class);
+			addNewComponentMenuItem(subMenu, PointLightComponent.class);
+			addNewComponentMenuItem(subMenu, SpotLightComponent.class);
 			addSeparator(subMenu);
 			addNewComponentMenuItem(subMenu, AudioListenerComponent.class);
 			addNewComponentMenuItem(subMenu, AudioSourceComponent.class);
@@ -198,6 +212,8 @@ class GraphMenu {
 			addNewComponentMenuItem(subMenu, TestPropertyEditorsComponent.class);
 			addNewComponentMenuItem(subMenu, TestEditorComponent.class);
 			addNewComponentMenuItem(subMenu, TestInputComponent.class);
+			addNewComponentMenuItem(subMenu, TestTypeSelectionComponnent.class);
+			addNewComponentMenuItem(subMenu, TestArrayEditorComponent.class);
 			addSeparator(subMenu);
 		}
 

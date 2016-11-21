@@ -14,8 +14,8 @@ import com.gurella.engine.base.model.Property;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.editor.SceneEditorRegistry;
-import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.subscription.PropertyChangeListener;
+import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class TranslateOperation extends TransformOperation {
 	private Property<?> property;

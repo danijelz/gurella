@@ -20,12 +20,6 @@ import java.lang.reflect.Constructor;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.AbstractOperation;
-import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -86,16 +80,18 @@ import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
-import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
+import com.gurella.studio.editor.operation.SetNodeEnabledOperation;
+import com.gurella.studio.editor.operation.SetNodeNameOperation;
 import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.NodeEnabledChangeListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
+import com.gurella.studio.editor.utils.SceneChangedEvent;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class NodeInspectableContainer extends InspectableContainer<SceneNode2> implements EditorSceneActivityListener,
@@ -162,50 +158,49 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	private void nodeNameChanged() {
-		SetNameOperation operation = new SetNameOperation(editorContext.editorId, target, target.getName(),
+		SetNodeNameOperation operation = new SetNodeNameOperation(editorContext.editorId, target, target.getName(),
 				nameText.getText());
 		editorContext.executeOperation(operation, "Error while renaming node");
 	}
 
 	private void nodeEnabledChanged() {
-		SetEnabledOperation operation = new SetEnabledOperation(editorContext.editorId, target, target.isEnabled(),
-				enabledCheck.getSelection());
+		SetNodeEnabledOperation operation = new SetNodeEnabledOperation(editorContext.editorId, target,
+				target.isEnabled(), enabledCheck.getSelection());
 		editorContext.executeOperation(operation, "Error while enabling node");
 	}
 
-	@SuppressWarnings("unused")
 	private void showMenu() {
 		Menu menu = new Menu(getShell(), POP_UP);
 		addMenuItem(menu, TransformComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, BulletRigidBodyComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, OrtographicCameraComponent.class);
 		addMenuItem(menu, PerspectiveCameraComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, DirectionalLightComponent.class);
 		addMenuItem(menu, PointLightComponent.class);
 		addMenuItem(menu, SpotLightComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, AudioListenerComponent.class);
 		addMenuItem(menu, AudioSourceComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, TagComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, TextureComponent.class);
 		addMenuItem(menu, TextureRegionComponent.class);
 		addMenuItem(menu, AtlasRegionComponent.class);
 		addMenuItem(menu, SkyboxComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, ModelComponent.class);
 		addMenuItem(menu, ShapeComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addMenuItem(menu, TestPropertyEditorsComponent.class);
 		addMenuItem(menu, TestEditorComponent.class);
 		addMenuItem(menu, TestInputComponent.class);
 		addMenuItem(menu, TestTypeSelectionComponnent.class);
 		addMenuItem(menu, TestArrayEditorComponent.class);
-		new MenuItem(menu, SEPARATOR);
+		addSeparator(menu);
 		addScriptMenuItem(menu);
 
 		Point buttonLocation = menuButton.getLocation();
@@ -214,6 +209,10 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 
 		menu.setLocation(getDisplay().map(menuButton.getParent(), null, menuLocation));
 		menu.setVisible(true);
+	}
+
+	private static MenuItem addSeparator(Menu menu) {
+		return new MenuItem(menu, SEPARATOR);
 	}
 
 	private void initComponentContainers() {
@@ -378,84 +377,6 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	@Override
 	public void setPreferencesStore(PreferencesStore preferencesStore) {
 		this.preferencesStore = preferencesStore;
-	}
-
-	private static class SetNameOperation extends AbstractOperation {
-		final int editorId;
-		final SceneNode2 node;
-		final String oldValue;
-		final String newValue;
-
-		public SetNameOperation(int editorId, SceneNode2 node, String oldValue, String newValue) {
-			super("Name");
-			this.editorId = editorId;
-			this.node = node;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
-
-		@Override
-		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			node.setName(newValue);
-			notifyNodeNameChanged();
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			node.setName(oldValue);
-			notifyNodeNameChanged();
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			return execute(monitor, adaptable);
-		}
-
-		private void notifyNodeNameChanged() {
-			EventService.post(editorId, NodeNameChangeListener.class, l -> l.nodeNameChanged(node));
-			EventService.post(editorId, SceneChangedEvent.instance);
-		}
-	}
-
-	private static class SetEnabledOperation extends AbstractOperation {
-		final int editorId;
-		final SceneNode2 node;
-		final boolean oldValue;
-		final boolean newValue;
-
-		public SetEnabledOperation(int editorId, SceneNode2 node, boolean oldValue, boolean newValue) {
-			super("Enabled");
-			this.editorId = editorId;
-			this.node = node;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
-
-		@Override
-		public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			node.setEnabled(newValue);
-			notifyNodeEnabledChanged();
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			node.setEnabled(oldValue);
-			notifyNodeEnabledChanged();
-			return Status.OK_STATUS;
-		}
-
-		@Override
-		public IStatus redo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-			return execute(monitor, adaptable);
-		}
-
-		private void notifyNodeEnabledChanged() {
-			EventService.post(editorId, NodeEnabledChangeListener.class, l -> l.nodeEnabledChanged(node));
-			EventService.post(editorId, SceneChangedEvent.instance);
-		}
 	}
 
 	private class ExpansionListener extends ExpansionAdapter {

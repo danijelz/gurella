@@ -14,9 +14,9 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.common.bean.BeanEditor;
 import com.gurella.studio.editor.common.bean.BeanEditorFactory;
 import com.gurella.studio.editor.common.bean.BeanEditorContext.PropertyValueChangedEvent;
-import com.gurella.studio.editor.event.SceneChangedEvent;
 import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
+import com.gurella.studio.editor.utils.SceneChangedEvent;
 
 public class ComponentInspectableContainer extends InspectableContainer<SceneNodeComponent2> {
 	private BeanEditor<SceneNodeComponent2> editor;

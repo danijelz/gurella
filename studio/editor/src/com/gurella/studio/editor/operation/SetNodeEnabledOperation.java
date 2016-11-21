@@ -8,33 +8,35 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import com.gurella.engine.event.EventService;
-import com.gurella.engine.scene.SceneNodeComponent2;
-import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
+import com.gurella.engine.scene.SceneNode2;
+import com.gurella.studio.editor.subscription.NodeEnabledChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
-public class ReindexComponentOperation extends AbstractOperation {
+public class SetNodeEnabledOperation extends AbstractOperation {
 	final int editorId;
-	final SceneNodeComponent2 component;
-	final int oldIndex;
-	final int newIndex;
+	final SceneNode2 node;
+	final boolean oldValue;
+	final boolean newValue;
 
-	public ReindexComponentOperation(int editorId, SceneNodeComponent2 component, int newIndex) {
-		super("Set index");
+	public SetNodeEnabledOperation(int editorId, SceneNode2 node, boolean oldValue, boolean newValue) {
+		super("Enabled");
 		this.editorId = editorId;
-		this.component = component;
-		this.oldIndex = component.getIndex();
-		this.newIndex = newIndex;
+		this.node = node;
+		this.oldValue = oldValue;
+		this.newValue = newValue;
 	}
 
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		setIndex(newIndex);
+		node.setEnabled(newValue);
+		notifyNodeEnabledChanged();
 		return Status.OK_STATUS;
 	}
 
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
-		setIndex(oldIndex);
+		node.setEnabled(oldValue);
+		notifyNodeEnabledChanged();
 		return Status.OK_STATUS;
 	}
 
@@ -43,9 +45,8 @@ public class ReindexComponentOperation extends AbstractOperation {
 		return execute(monitor, adaptable);
 	}
 
-	private void setIndex(int index) {
-		component.setIndex(index);
+	private void notifyNodeEnabledChanged() {
+		EventService.post(editorId, NodeEnabledChangeListener.class, l -> l.nodeEnabledChanged(node));
 		EventService.post(editorId, SceneChangedEvent.instance);
-		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentIndexChanged(component, index));
 	}
 }

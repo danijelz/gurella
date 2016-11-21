@@ -48,7 +48,7 @@ class Dockable extends Composite {
 
 	ToolBar itemsToolBar;
 
-	private CollapseRunnable collapseRunnable = new CollapseRunnable(this);
+	private CollapseDockableJob collapseDockableJob = new CollapseDockableJob(this);
 
 	public Dockable(Dock parent, int position) {
 		super(parent, SWT.NONE);
@@ -173,7 +173,7 @@ class Dockable extends Composite {
 			stateChanged();
 			tabFolder.layout(true, true);
 			getDisplay().timerExec(60, () -> tabFolder.redraw());
-			getDisplay().timerExec(500, collapseRunnable);
+			getDisplay().timerExec(500, collapseDockableJob);
 		}
 	}
 
@@ -379,7 +379,7 @@ class Dockable extends Composite {
 		stateChanged();
 		tabFolder.layout(true, true);
 		getDisplay().timerExec(60, () -> tabFolder.redraw());
-		getDisplay().timerExec(500, collapseRunnable);
+		getDisplay().timerExec(500, collapseDockableJob);
 	}
 
 	void setSelection(int viewIndex) {

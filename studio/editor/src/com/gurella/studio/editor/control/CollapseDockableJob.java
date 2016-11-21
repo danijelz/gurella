@@ -4,10 +4,10 @@ import org.eclipse.swt.widgets.Control;
 
 import com.gurella.studio.editor.utils.UiUtils;
 
-class CollapseRunnable implements Runnable {
+class CollapseDockableJob implements Runnable {
 	private final Dockable dockable;
 
-	CollapseRunnable(Dockable dockable) {
+	CollapseDockableJob(Dockable dockable) {
 		this.dockable = dockable;
 	}
 

@@ -1,4 +1,4 @@
-package com.gurella.studio.editor.event;
+package com.gurella.studio.editor.utils;
 
 import com.gurella.engine.event.Event;
 import com.gurella.studio.editor.subscription.SceneDirtyListener;
