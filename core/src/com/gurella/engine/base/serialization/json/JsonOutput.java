@@ -39,7 +39,11 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	public <T> String serialize(FileHandle file, Class<T> expectedType, Object template, T rootObject) {
-		filePath = file.path();
+		return serialize(file.path(), expectedType, template, rootObject);
+	}
+
+	public <T> String serialize(String filePath, Class<T> expectedType, Object template, T rootObject) {
+		this.filePath = filePath;
 
 		StringWriter buffer = new StringWriter();
 		writer = new JsonWriter(buffer);

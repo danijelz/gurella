@@ -6,9 +6,15 @@ import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Optional;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
@@ -18,6 +24,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
@@ -52,6 +59,7 @@ import com.gurella.engine.test.TestInputComponent;
 import com.gurella.engine.test.TestPropertyEditorsComponent;
 import com.gurella.engine.test.TestTypeSelectionComponnent;
 import com.gurella.engine.utils.Reflection;
+import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
@@ -142,17 +150,24 @@ class GraphMenu {
 		}
 
 		private void toPrefab() {
-			String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
-			IPath path = context.project.getLocation().append("assets");
-			String fileName = SaveFileDialog.getPath(path, extensions, ((SceneNode2) selection).getName());
-			if (fileName == null) {
-				return;
+			try {
+				String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
+				IProject project = context.project;
+				IPath path = project.getLocation().append("assets");
+				SceneNode2 node = (SceneNode2) selection;
+				String fileName = SaveFileDialog.getPath(path, extensions, node.getName());
+				if (fileName == null) {
+					return;
+				}
+				JsonOutput output = new JsonOutput();
+				SceneNode2 template = (SceneNode2) Optional.ofNullable(node.getPrefab()).map(p -> p.get()).orElse(null);
+				String source = output.serialize(fileName, SceneNode2.class, template, node);
+				IFile file = project.getFile(fileName);
+				InputStream is = new ByteArrayInputStream(source.getBytes("UTF-8"));
+				file.create(is, true, new NullProgressMonitor());
+			} catch (Exception e) {
+				GurellaStudioPlugin.showError(e, "Error while converting to prefab.");
 			}
-
-			// IFile file = project.getFile(...);
-			// file.create(...);
-
-			// TODO Auto-generated method stub
 		}
 
 		protected void createCompositeNodeSubMenu(Menu menu) {

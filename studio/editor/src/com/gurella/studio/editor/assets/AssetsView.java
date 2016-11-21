@@ -73,6 +73,16 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 
+		initDragManagers();
+		initTree();
+
+		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
+		IWorkspace workspace = editorContext.workspace;
+		workspace.addResourceChangeListener(listener);
+		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
+	}
+
+	private void initDragManagers() {
 		final DragSource source = new DragSource(tree, DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
 		source.addDragListener(new AssetsDragSourceListener(tree));
@@ -80,13 +90,6 @@ public class AssetsView extends DockableView {
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		dropTarget.addDropListener(new MoveAssetDropTargetListener(editorContext.sceneResource));
-
-		initTree();
-
-		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
-		IWorkspace workspace = editorContext.workspace;
-		workspace.addResourceChangeListener(listener);
-		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
 	}
 
 	private void initTree() {

@@ -88,14 +88,10 @@ public class AssetSelectionWidget<T> extends Composite {
 		IFile file = getEditorFile();
 		IPath location = file.getLocation();
 		dialog.setFilterPath(location.removeLastSegments(1).toString());
-
-		final String path = dialog.open();
-		if (path != null) {
-			assetSelected(path);
-		}
+		Optional.ofNullable(dialog.open()).ifPresent(path -> assetSelected(path));
 	}
 
-	//TODO should find assets folder in current project
+	// TODO should find safer way to assets folder
 	private static IFile getEditorFile() {
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
