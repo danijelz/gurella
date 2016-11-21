@@ -140,7 +140,7 @@ class GraphMenu {
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Convert to prefab");
-			item.addListener(SWT.Selection, e -> toPrefab());
+			item.addListener(SWT.Selection, e -> convertToPrefab());
 			item.setEnabled(nodeSelected);
 			addSeparator(menu);
 
@@ -150,7 +150,7 @@ class GraphMenu {
 			createComponentsSubMenu(menu);
 		}
 
-		private void toPrefab() {
+		private void convertToPrefab() {
 			try {
 				String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
 				IProject project = context.project;
