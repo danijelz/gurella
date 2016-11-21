@@ -91,9 +91,9 @@ public class SceneGraphView extends DockableView
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(searchImageLabel);
 
 		filterText = UiUtils.createText(this);
-		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).minSize(200, 18)
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).minSize(180, 18)
 				.applyTo(filterText);
-		filterText.setMessage("Filter");
+		filterText.setMessage("Name");
 		filterText.addModifyListener(e -> filterChanged());
 
 		menuLabel = toolkit.createLabel(this, "");

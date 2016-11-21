@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
@@ -153,16 +154,17 @@ class GraphMenu {
 			try {
 				String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
 				IProject project = context.project;
-				IPath path = project.getLocation().append("assets");
+				IPath assetsRootPath = project.getLocation().append("assets");
 				SceneNode2 node = (SceneNode2) selection;
-				String fileName = SaveFileDialog.getPath(path, extensions, node.getName());
+				String fileName = SaveFileDialog.getPath(assetsRootPath, extensions, node.getName());
 				if (fileName == null) {
 					return;
 				}
 				JsonOutput output = new JsonOutput();
 				SceneNode2 template = (SceneNode2) Optional.ofNullable(node.getPrefab()).map(p -> p.get()).orElse(null);
 				String source = output.serialize(fileName, SceneNode2.class, template, node);
-				IFile file = project.getFile(fileName);
+				IPath assetPath = new Path(fileName).makeRelativeTo( project.getLocation());
+				IFile file = project.getFile(assetPath);
 				InputStream is = new ByteArrayInputStream(source.getBytes("UTF-8"));
 				file.create(is, true, new NullProgressMonitor());
 			} catch (Exception e) {
