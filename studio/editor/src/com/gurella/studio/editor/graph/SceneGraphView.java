@@ -37,6 +37,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.control.DockableView;
@@ -59,6 +60,7 @@ public class SceneGraphView extends DockableView
 	private final Label menuLabel;
 	private final Tree graph;
 	private final TreeViewer viewer;
+	private final GraphViewerFilter filter;
 	private final GraphMenu menu;
 
 	final Clipboard clipboard;
@@ -83,6 +85,7 @@ public class SceneGraphView extends DockableView
 		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).minSize(200, 18)
 				.applyTo(filterText);
 		filterText.setMessage("Filter");
+		filterText.addModifyListener(e -> filterChanged());
 
 		menuLabel = toolkit.createLabel(this, "");
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(false, false).applyTo(menuLabel);
@@ -101,6 +104,7 @@ public class SceneGraphView extends DockableView
 		viewer.setComparator(new GraphViewerComparator());
 		viewer.setComparer(IdentityElementComparer.instance);
 		viewer.setUseHashlookup(true);
+		filter = new GraphViewerFilter();
 
 		initDragManagers();
 		initFocusHandlers();
@@ -110,6 +114,15 @@ public class SceneGraphView extends DockableView
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
 		UiUtils.paintBordersFor(this);
+	}
+
+	private void filterChanged() {
+		viewer.removeFilter(filter);
+		String text = filterText.getText();
+		if (Values.isNotBlank(text)) {
+			filter.filter = text.trim();
+			viewer.addFilter(filter);
+		}
 	}
 
 	private void initDragManagers() {
