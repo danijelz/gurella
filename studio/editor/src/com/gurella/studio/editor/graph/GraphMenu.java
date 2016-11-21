@@ -148,6 +148,10 @@ class GraphMenu {
 			if (fileName == null) {
 				return;
 			}
+
+			// IFile file = project.getFile(...);
+			// file.create(...);
+
 			// TODO Auto-generated method stub
 		}
 
