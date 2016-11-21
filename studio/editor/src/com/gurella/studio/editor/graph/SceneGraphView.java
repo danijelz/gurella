@@ -120,7 +120,7 @@ public class SceneGraphView extends DockableView
 		viewer.removeFilter(filter);
 		String text = filterText.getText();
 		if (Values.isNotBlank(text)) {
-			filter.filter = text.trim();
+			filter.setFilter(text.trim());
 			viewer.addFilter(filter);
 		}
 	}
