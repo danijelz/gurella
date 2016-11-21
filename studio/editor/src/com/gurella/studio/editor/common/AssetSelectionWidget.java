@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.common;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class AssetSelectionWidget<T> extends Composite {
 	private Class<T> assetType;
 	private T asset;
 
-	private BiConsumer<T, T> selectionChangedListener;
+	private BiConsumer<T, T> selectionListener;
 
 	public AssetSelectionWidget(Composite parent, Class<T> assetType) {
 		super(parent, SWT.NONE);
@@ -94,6 +95,7 @@ public class AssetSelectionWidget<T> extends Composite {
 		}
 	}
 
+	//TODO should find assets folder in current project
 	private static IFile getEditorFile() {
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
@@ -111,13 +113,11 @@ public class AssetSelectionWidget<T> extends Composite {
 		asset = AssetService.load(assetPath.toString(), assetType);
 		text.setText(assetPath.lastSegment());
 		text.setMessage("");
-		if (selectionChangedListener != null) {
-			selectionChangedListener.accept(oldAsset, asset);
-		}
+		Optional.ofNullable(selectionListener).ifPresent(l -> l.accept(oldAsset, asset));
 	}
 
-	public void setSelectionChangedListener(BiConsumer<T, T> selectionChangedListener) {
-		this.selectionChangedListener = selectionChangedListener;
+	public void setSelectionListener(BiConsumer<T, T> selectionListener) {
+		this.selectionListener = selectionListener;
 	}
 
 	public T getAsset() {
@@ -144,27 +144,18 @@ public class AssetSelectionWidget<T> extends Composite {
 	private final class AssetDropTarget extends DropTargetAdapter {
 		@Override
 		public void dragEnter(DropTargetEvent event) {
-			if (event.detail == DND.DROP_DEFAULT) {
-				if ((event.operations & DND.DROP_COPY) != 0) {
-					event.detail = DND.DROP_COPY;
-				} else {
-					event.detail = DND.DROP_NONE;
-				}
+			if ((event.operations & DND.DROP_COPY) != 0) {
+				event.detail = DND.DROP_COPY;
+			} else {
+				event.detail = DND.DROP_NONE;
 			}
 		}
 
 		@Override
 		public void drop(DropTargetEvent event) {
 			event.detail = DND.DROP_NONE;
-			IResource[] data = (IResource[]) event.data;
-			if (data == null || data.length != 1) {
-				return;
-			}
-
-			IResource item = data[0];
-			if (isValidResource(item)) {
-				assetSelected(item.getLocation().toString());
-			}
+			Optional.ofNullable((IResource[]) event.data).filter(d -> d != null && d.length == 1).map(d -> d[0])
+					.filter(r -> isValidResource(r)).ifPresent(r -> assetSelected(r.getLocation().toString()));
 		}
 	}
 }

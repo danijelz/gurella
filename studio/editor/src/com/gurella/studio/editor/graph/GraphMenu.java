@@ -1,9 +1,14 @@
 package com.gurella.studio.editor.graph;
 
+import static com.gurella.engine.asset.AssetType.prefab;
+import static java.util.stream.Collectors.joining;
 import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
+import java.util.Arrays;
+
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.window.Window;
@@ -50,6 +55,7 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
+import com.gurella.studio.editor.utils.SaveFileDialog;
 
 class GraphMenu {
 	private final SceneGraphView view;
@@ -136,6 +142,12 @@ class GraphMenu {
 		}
 
 		private void toPrefab() {
+			String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
+			IPath path = context.project.getLocation().append("assets");
+			String fileName = SaveFileDialog.getPath(path, extensions, ((SceneNode2) selection).getName());
+			if (fileName == null) {
+				return;
+			}
 			// TODO Auto-generated method stub
 		}
 

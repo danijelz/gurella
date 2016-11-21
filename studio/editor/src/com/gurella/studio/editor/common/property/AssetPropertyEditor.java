@@ -24,7 +24,7 @@ public class AssetPropertyEditor<T> extends SimplePropertyEditor<T> {
 		assetWidget = new AssetSelectionWidget<>(content, assetType);
 		assetWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		assetWidget.setAsset(getValue());
-		assetWidget.setSelectionChangedListener(this::assetSelectionChanged);
+		assetWidget.setSelectionListener(this::assetSelectionChanged);
 		UiUtils.paintBordersFor(content);
 	}
 
