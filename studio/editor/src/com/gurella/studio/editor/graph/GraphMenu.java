@@ -154,7 +154,8 @@ class GraphMenu {
 			try {
 				String extensions = Arrays.stream(prefab.extensions).map(e -> "*." + e).collect(joining(";"));
 				IProject project = context.project;
-				IPath assetsRootPath = project.getLocation().append("assets");
+				IPath projectPath = project.getLocation();
+				IPath assetsRootPath = projectPath.append("assets");
 				SceneNode2 node = (SceneNode2) selection;
 				String fileName = SaveFileDialog.getPath(assetsRootPath, extensions, node.getName());
 				if (fileName == null) {
@@ -163,7 +164,7 @@ class GraphMenu {
 				JsonOutput output = new JsonOutput();
 				SceneNode2 template = (SceneNode2) Optional.ofNullable(node.getPrefab()).map(p -> p.get()).orElse(null);
 				String source = output.serialize(fileName, SceneNode2.class, template, node);
-				IPath assetPath = new Path(fileName).makeRelativeTo( project.getLocation());
+				IPath assetPath = new Path(fileName).makeRelativeTo(projectPath);
 				IFile file = project.getFile(assetPath);
 				InputStream is = new ByteArrayInputStream(source.getBytes("UTF-8"));
 				file.create(is, true, new NullProgressMonitor());
