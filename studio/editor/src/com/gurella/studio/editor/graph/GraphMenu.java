@@ -47,8 +47,6 @@ import com.gurella.engine.utils.Reflection;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
-import com.gurella.studio.editor.operation.RemoveComponentOperation;
-import com.gurella.studio.editor.operation.RemoveNodeOperation;
 
 class GraphMenu {
 	private final SceneGraphView view;
@@ -58,19 +56,20 @@ class GraphMenu {
 	}
 
 	void show(SceneElement2 selection) {
-		Menu menu = new MenuCreator(view, selection).createMenu();
+		Menu menu = new Menu(view.getShell(), POP_UP);
+		new MenuPopulator(view, selection).populate(menu);
 		menu.setLocation(view.getDisplay().getCursorLocation());
 		menu.setVisible(true);
 	}
 
-	private static class MenuCreator {
+	private static class MenuPopulator {
 		private final SceneGraphView view;
 		private final Clipboard clipboard;
 		private final SceneEditorContext context;
 		private final int editorId;
 		private final SceneElement2 selection;
 
-		MenuCreator(SceneGraphView view, SceneElement2 selection) {
+		MenuPopulator(SceneGraphView view, SceneElement2 selection) {
 			this.view = view;
 			this.clipboard = view.clipboard;
 			this.context = view.editorContext;
@@ -78,70 +77,86 @@ class GraphMenu {
 			this.selection = selection;
 		}
 
-		private Menu createMenu() {
-			Menu menu = new Menu(view.getShell(), POP_UP);
+		private void populate(Menu menu) {
+			boolean selected = selection != null;
+			boolean nodeSelected = selection instanceof SceneNode2;
+			final LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+			boolean elementInClipboard = clipboard.getContents(transfer) instanceof ElementSelection;
+			SceneNode2 node = selection instanceof SceneNode2 ? (SceneNode2) selection : null;
 
 			MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Cut");
-			item.addListener(SWT.Selection, e -> removeSelectedElement());
-			item.setEnabled(selection != null);
+			item.addListener(SWT.Selection, e -> view.cut(selection));
+			item.setEnabled(selected);
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Copy");
-			item.addListener(SWT.Selection, e -> removeSelectedElement());
-			item.setEnabled(selection != null);
+			item.addListener(SWT.Selection, e -> view.copy(selection));
+			item.setEnabled(selected);
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Paste");
-			item.addListener(SWT.Selection, e -> removeSelectedElement());
-			item.setEnabled(clipboard.getContents(LocalSelectionTransfer.getTransfer()) instanceof ElementSelection);
+			item.addListener(SWT.Selection, e -> view.paste(node));
+			item.setEnabled(nodeSelected && elementInClipboard);
 			addSeparator(menu);
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Delete");
-			item.addListener(SWT.Selection, e -> removeSelectedElement());
-			item.setEnabled(selection != null);
+			item.addListener(SWT.Selection, e -> view.delete(selection));
+			item.setEnabled(selected);
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Duplicate");
-			item.addListener(SWT.Selection, e -> removeSelectedElement());
-			item.setEnabled(selection instanceof SceneNode2);
+			item.addListener(SWT.Selection, e -> view.duplicate(node));
+			item.setEnabled(nodeSelected);
 
 			item = new MenuItem(menu, SWT.PUSH);
-			item.setText("Add root node");
+			item.setText("Empty node");
 			item.addListener(SWT.Selection, e -> addNode(null));
 
 			item = new MenuItem(menu, SWT.PUSH);
-			item.setText("Add child node");
-			item.addListener(SWT.Selection, e -> addNode((SceneNode2) selection));
-			item.setEnabled(selection instanceof SceneNode2);
+			item.setText("Empty child node");
+			item.addListener(SWT.Selection, e -> addNode(node));
+			item.setEnabled(nodeSelected);
 			addSeparator(menu);
 
-			item = new MenuItem(menu, SWT.PUSH);
+			createCompositeNodeSubMenu(menu);
+			addSeparator(menu);
+
+			createComponentsSubMenu(menu);
+		}
+
+		protected void createCompositeNodeSubMenu(Menu menu) {
+			MenuItem subItem = new MenuItem(menu, SWT.CASCADE);
+			subItem.setText("Add node");
+			Menu subMenu = new Menu(menu);
+			subItem.setMenu(subMenu);
+
+			MenuItem item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add sphere");
 			item.addListener(SWT.Selection, e -> addShapeNode("Sphere", new SphereShapeModel()));
 
-			item = new MenuItem(menu, SWT.PUSH);
+			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add box");
 			item.addListener(SWT.Selection, e -> addShapeNode("Box", new BoxShapeModel()));
 
-			item = new MenuItem(menu, SWT.PUSH);
+			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add cylinder");
 			item.addListener(SWT.Selection, e -> addShapeNode("Cylinder", new CylinderShapeModel()));
 
-			item = new MenuItem(menu, SWT.PUSH);
+			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add cone");
 			item.addListener(SWT.Selection, e -> addShapeNode("Cone", new ConeShapeModel()));
 
-			item = new MenuItem(menu, SWT.PUSH);
+			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add capsule");
 			item.addListener(SWT.Selection, e -> addShapeNode("Capsule", new CapsuleShapeModel()));
 
-			item = new MenuItem(menu, SWT.PUSH);
+			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add rectangle");
 			item.addListener(SWT.Selection, e -> addShapeNode("Rectangle", new RectangleShapeModel()));
 
-			item = new MenuItem(menu, SWT.PUSH);
+			item = new MenuItem(subMenu, SWT.PUSH);
 			item.setText("Add composite");
 			CompositeShapeModel shapeModel = new CompositeShapeModel();
 			shapeModel.addShape(new BoxShapeModel());
@@ -150,11 +165,6 @@ class GraphMenu {
 			composite.addShape(new CylinderShapeModel(), 0, 1, 0);
 			shapeModel.addShape(composite, 0, 1, 0);
 			item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel));
-			addSeparator(menu);
-
-			createComponentsSubMenu(menu);
-
-			return menu;
 		}
 
 		private void createComponentsSubMenu(Menu menu) {
@@ -216,20 +226,6 @@ class GraphMenu {
 			SceneNode2 node = (SceneNode2) selection;
 			AddComponentOperation operation = new AddComponentOperation(editorId, node, component);
 			context.executeOperation(operation, "Error while adding component");
-		}
-
-		private void removeSelectedElement() {
-			if (selection instanceof SceneNode2) {
-				SceneNode2 node = (SceneNode2) selection;
-				SceneNode2 parentNode = node.getParentNode();
-				RemoveNodeOperation operation = new RemoveNodeOperation(editorId, context.getScene(), parentNode, node);
-				context.executeOperation(operation, "Error while removing node");
-			} else if (selection instanceof SceneNodeComponent2) {
-				SceneNodeComponent2 component = (SceneNodeComponent2) selection;
-				SceneNode2 node = component.getNode();
-				RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
-				context.executeOperation(operation, "Error while removing component");
-			}
 		}
 
 		private void addNode(SceneNode2 parent) {

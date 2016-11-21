@@ -1,6 +1,7 @@
 package com.gurella.studio.editor.graph;
 
 import static com.gurella.engine.event.EventService.post;
+import static com.gurella.engine.utils.Values.cast;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_COPY;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_CUT;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_DELETE;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -32,6 +34,7 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.swt.IFocusService;
 
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
@@ -44,6 +47,12 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
+import com.gurella.studio.editor.operation.AddComponentOperation;
+import com.gurella.studio.editor.operation.AddNodeOperation;
+import com.gurella.studio.editor.operation.RemoveComponentOperation;
+import com.gurella.studio.editor.operation.RemoveNodeOperation;
+import com.gurella.studio.editor.operation.ReparentComponentOperation;
+import com.gurella.studio.editor.operation.ReparentNodeOperation;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
@@ -252,5 +261,107 @@ public class SceneGraphView extends DockableView
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
 		viewer.setInput(scene.nodes.toArray(SceneNode2.class));
+	}
+
+	void cut() {
+		getFirstSelectedElement().ifPresent(e -> cut(e));
+	}
+
+	void cut(SceneElement2 element) {
+		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+		ISelection selection = new CutElementSelection(element);
+		transfer.setSelection(selection);
+		clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
+	}
+
+	void copy() {
+		getFirstSelectedElement().ifPresent(e -> copy(e));
+	}
+
+	void copy(SceneElement2 element) {
+		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+		transfer.setSelection(new CopyElementSelection(element));
+		clipboard.setContents(new Object[] { element }, new Transfer[] { transfer });
+	}
+
+	void paste() {
+		getFirstSelectedNode().ifPresent(e -> paste(e));
+	}
+
+	void paste(SceneNode2 destination) {
+		Object contents = clipboard.getContents(LocalSelectionTransfer.getTransfer());
+		if (contents instanceof CutElementSelection) {
+			move(((CutElementSelection) contents).getElement(), destination);
+		} else if (contents instanceof CopyElementSelection) {
+			duplicate(((CopyElementSelection) contents).getElement(), destination);
+		}
+	}
+
+	private void move(SceneElement2 source, SceneNode2 destination) {
+		if (source == destination) {
+			return;
+		}
+
+		if (source instanceof SceneNodeComponent2) {
+			SceneNodeComponent2 component = (SceneNodeComponent2) source;
+			if (destination.hasComponent(component.getClass(), true)) {
+				return;
+			}
+
+			String errorMsg = "Error while repositioning component";
+			int newIndex = destination.components.size();
+			editorContext.executeOperation(new ReparentComponentOperation(editorId, component, destination, newIndex),
+					errorMsg);
+		} else {
+			if (source.getParent() == destination) {
+				return;
+			}
+
+			SceneNode2 node = (SceneNode2) source;
+			String errorMsg = "Error while repositioning node";
+			int newIndex = destination.childNodes.size();
+			editorContext.executeOperation(new ReparentNodeOperation(editorId, node, destination, newIndex), errorMsg);
+		}
+
+		clipboard.clearContents();
+	}
+
+	private void duplicate(SceneElement2 source, SceneNode2 destination) {
+		if (source instanceof SceneNodeComponent2 && destination.getComponent(cast(source.getClass()), true) != null) {
+			return;
+		}
+
+		SceneElement2 copy = new CopyContext().copy(source);
+		if (copy instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) copy;
+			AddNodeOperation operation = new AddNodeOperation(editorId, scene, destination, node);
+			editorContext.executeOperation(operation, "Error while adding component");
+		} else {
+			SceneNodeComponent2 component = (SceneNodeComponent2) copy;
+			AddComponentOperation operation = new AddComponentOperation(editorId, destination, component);
+			editorContext.executeOperation(operation, "Error while adding component");
+		}
+	}
+
+	void duplicate(SceneNode2 source) {
+		duplicate(source, source.getParentNode());
+	}
+
+	void delete() {
+		getFirstSelectedElement().ifPresent(e -> delete(e));
+	}
+
+	void delete(SceneElement2 element) {
+		if (element instanceof SceneNode2) {
+			SceneNode2 node = (SceneNode2) element;
+			SceneNode2 parentNode = node.getParentNode();
+			RemoveNodeOperation operation = new RemoveNodeOperation(editorId, scene, parentNode, node);
+			editorContext.executeOperation(operation, "Error while removing node");
+		} else if (element instanceof SceneNodeComponent2) {
+			SceneNodeComponent2 component = (SceneNodeComponent2) element;
+			SceneNode2 node = component.getNode();
+			RemoveComponentOperation operation = new RemoveComponentOperation(editorId, node, component);
+			editorContext.executeOperation(operation, "Error while removing component");
+		}
 	}
 }
