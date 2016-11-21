@@ -12,7 +12,6 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.SceneChangedEvent;
-import com.gurella.studio.editor.subscription.ComponentIndexListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
 public class ReparentComponentOperation extends AbstractOperation {
@@ -57,7 +56,7 @@ public class ReparentComponentOperation extends AbstractOperation {
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentAdded(newParent, component));
 
 		component.setIndex(index);
-		EventService.post(editorId, ComponentIndexListener.class, l -> l.componentIndexChanged(component, index));
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentIndexChanged(component, index));
 		EventService.post(editorId, SceneChangedEvent.instance);
 	}
 }

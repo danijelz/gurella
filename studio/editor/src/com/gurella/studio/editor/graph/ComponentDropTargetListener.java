@@ -155,11 +155,11 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 			if (point.y < bounds.y + bounds.height / 2) {
 				int newIndex = eventComponent.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
-				reindexComponent(component, oldIndex, newIndex);
+				reindexComponent(component, newIndex);
 			} else if (point.y >= bounds.y + bounds.height / 2) {
 				int newIndex = eventComponent.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
-				reindexComponent(component, oldIndex, newIndex);
+				reindexComponent(component, newIndex);
 			}
 		} else if (eventNode.hasComponent(component.getClass(), true)) {
 			event.detail = DND.DROP_NONE;
@@ -178,10 +178,10 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 		}
 	}
 
-	private void reindexComponent(SceneNodeComponent2 component, int oldIndex, int newIndex) {
+	private void reindexComponent(SceneNodeComponent2 component, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning component";
-		context.executeOperation(new ReindexComponentOperation(editorId, component, oldIndex, newIndex), errorMsg);
+		context.executeOperation(new ReindexComponentOperation(editorId, component, newIndex), errorMsg);
 	}
 
 	private void reparentComponent(SceneNodeComponent2 component, SceneNode2 newParent, int newIndex) {

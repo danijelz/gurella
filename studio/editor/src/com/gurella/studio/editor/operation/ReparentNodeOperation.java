@@ -12,8 +12,7 @@ import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.SceneChangedEvent;
-import com.gurella.studio.editor.subscription.NodeIndexListener;
-import com.gurella.studio.editor.subscription.NodeParentListener;
+import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
 public class ReparentNodeOperation extends AbstractOperation {
 	final int editorId;
@@ -58,12 +57,12 @@ public class ReparentNodeOperation extends AbstractOperation {
 			EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		} else {
 			newParent.addChild(node);
-			EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		}
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeParentChanged(node, newParent));
 
 		node.setIndex(newIndex);
 		EventService.post(editorId, SceneChangedEvent.instance);
-		EventService.post(editorId, NodeParentListener.class, l -> l.nodeParentChanged(node, newParent));
-		EventService.post(editorId, NodeIndexListener.class, l -> l.nodeIndexChanged(node, newIndex));
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeIndexChanged(node, newIndex));
 	}
 }

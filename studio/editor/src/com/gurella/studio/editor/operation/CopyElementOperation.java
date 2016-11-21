@@ -22,10 +22,10 @@ public class CopyElementOperation extends AbstractOperation {
 	final SceneNode2 parentNode;
 	final Scene scene;
 
-	public CopyElementOperation(int editorId, SceneElement2 element, SceneNode2 parentNode, Scene scene) {
+	public CopyElementOperation(int editorId, SceneNode2 parentNode, Scene scene, SceneElement2 newElement) {
 		super("Copy element");
 		this.editorId = editorId;
-		this.element = element;
+		this.element = newElement;
 		this.parentNode = parentNode;
 		this.scene = scene;
 	}

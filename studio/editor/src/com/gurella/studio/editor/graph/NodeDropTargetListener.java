@@ -117,7 +117,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 			if (node.getParent() == eventNode.getParent()) {
 				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex - 1 : newIndex;
-				reindexNode(node, oldIndex, newIndex);
+				reindexNode(node, newIndex);
 			} else {
 				SceneNode2 parent = eventNode.getParentNode();
 				int newIndex = eventNode.getIndex();
@@ -128,7 +128,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 			if (node.getParent() == eventNode.getParent()) {
 				int newIndex = eventNode.getIndex();
 				newIndex = oldIndex < newIndex ? newIndex : newIndex + 1;
-				reindexNode(node, oldIndex, newIndex);
+				reindexNode(node, newIndex);
 			} else {
 				SceneNode2 parent = eventNode.getParentNode();
 				int newIndex = eventNode.getIndex();
@@ -140,10 +140,10 @@ class NodeDropTargetListener extends DropTargetAdapter {
 		}
 	}
 
-	private void reindexNode(SceneNode2 node, int oldIndex, int newIndex) {
+	private void reindexNode(SceneNode2 node, int newIndex) {
 		int editorId = context.editorId;
 		String errorMsg = "Error while repositioning node";
-		context.executeOperation(new ReindexNodeOperation(editorId, node, oldIndex, newIndex), errorMsg);
+		context.executeOperation(new ReindexNodeOperation(editorId, node, newIndex), errorMsg);
 	}
 
 	private void reparentNode(SceneNode2 node, SceneNode2 newParent, int newIndex) {

@@ -8,7 +8,7 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 //TODO unused
-public class GraphContentProvider implements ITreeContentProvider {
+public class GraphViewerContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof SceneNode2[]) {

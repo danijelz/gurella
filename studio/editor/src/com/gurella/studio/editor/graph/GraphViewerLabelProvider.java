@@ -11,7 +11,7 @@ import com.gurella.engine.scene.transform.TransformComponent;
 import com.gurella.studio.GurellaStudioPlugin;
 
 //TODO unused
-public class GraphLabelProvider extends BaseLabelProvider implements ILabelProvider {
+public class GraphViewerLabelProvider extends BaseLabelProvider implements ILabelProvider {
 	@Override
 	public Image getImage(Object element) {
 		if (element instanceof SceneNode2) {

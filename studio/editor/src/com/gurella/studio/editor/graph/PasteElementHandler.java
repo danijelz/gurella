@@ -81,6 +81,6 @@ class PasteElementHandler extends AbstractHandler {
 
 		SceneElement2 copy = new CopyContext().copy(source);
 		String errorMsg = "Error while copying element";
-		context.executeOperation(new CopyElementOperation(editorId, copy, destination, context.getScene()), errorMsg);
+		context.executeOperation(new CopyElementOperation(editorId, destination, context.getScene(), copy), errorMsg);
 	}
 }

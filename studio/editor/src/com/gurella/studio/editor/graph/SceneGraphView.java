@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
@@ -45,31 +46,31 @@ import com.gurella.studio.editor.control.DockableView;
 import com.gurella.studio.editor.inspector.Inspectable;
 import com.gurella.studio.editor.inspector.component.ComponentInspectable;
 import com.gurella.studio.editor.inspector.node.NodeInspectable;
-import com.gurella.studio.editor.subscription.ComponentIndexListener;
 import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
-import com.gurella.studio.editor.subscription.NodeIndexListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
-import com.gurella.studio.editor.subscription.NodeParentListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.ControlExpression;
+import com.gurella.studio.editor.utils.UiUtils;
 
-public class SceneGraphView extends DockableView implements EditorSceneActivityListener, NodeNameChangeListener,
-		SceneLoadedListener, ComponentIndexListener, NodeIndexListener, NodeParentListener {
+public class SceneGraphView extends DockableView
+		implements EditorSceneActivityListener, NodeNameChangeListener, SceneLoadedListener {
 	private static final Image image = GurellaStudioPlugin.getImage("icons/outline_co.png");
 
-	final Text filterText;
-	final Label menuLabel;
-	final Tree graph;
-	final Clipboard clipboard;
+	private final Label searchImageLabel;
+	private final Text filterText;
+	private final Label menuLabel;
+	private final Tree graph;
+	private final TreeViewer viewer;
 	private final GraphMenu menu;
 
+	final Clipboard clipboard;
 	Scene scene;
 
 	public SceneGraphView(SceneEditor editor, int style) {
 		super(editor, "Scene", image, style);
 
-		setLayout(new GridLayout(2, false));
+		setLayout(new GridLayout(3, false));
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
 
@@ -77,8 +78,12 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		addDisposeListener(e -> clipboard.dispose());
 		menu = new GraphMenu(this);
 
-		filterText = toolkit.createText(this, "", SWT.BORDER);
-		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).minSize(150, 18).applyTo(filterText);
+		searchImageLabel = UiUtils.createLabel(this, "");
+		searchImageLabel.setImage(GurellaStudioPlugin.getImage("icons/search-16.png"));
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(false, false).applyTo(searchImageLabel);
+		
+		filterText = UiUtils.createText(this);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).minSize(200, 18).applyTo(filterText);
 		filterText.setMessage("Filter");
 
 		menuLabel = toolkit.createLabel(this, "");
@@ -87,18 +92,24 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		menuLabel.addListener(SWT.MouseUp, e -> menu.show(null));
 
 		graph = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(graph);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, 1).applyTo(graph);
 		graph.setHeaderVisible(false);
 		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.MouseUp, this::showMenu);
 
+		viewer = new TreeViewer(graph);
+		viewer.setContentProvider(new GraphViewerContentProvider());
+		viewer.setLabelProvider(new GraphViewerLabelProvider());
+		viewer.setComparator(new GraphViewerComparator());
+
 		initDragManagers();
 		initFocusHandlers();
 
-		//TODO handle with plugin
+		// TODO handle with plugin
 		Optional.ofNullable(editorContext.getScene()).ifPresent(s -> sceneLoaded(scene));
 		addDisposeListener(e -> EventService.unsubscribe(editor.id, this));
 		EventService.subscribe(editor.id, this);
+		UiUtils.paintBordersFor(this);
 	}
 
 	private void initDragManagers() {
@@ -180,7 +191,7 @@ public class SceneGraphView extends DockableView implements EditorSceneActivityL
 		TreeItem componentItem = new TreeItem(parentItem, SWT.NONE, index);
 		componentItem.setText(Models.getModel(component).getName());
 		componentItem.setData(component);
-		//TODO create image to component type registry
+		// TODO create image to component type registry
 		if (component instanceof TransformComponent) {
 			componentItem.setImage(GurellaStudioPlugin.getImage("icons/transform.png"));
 		} else {

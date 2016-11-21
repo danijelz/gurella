@@ -11,8 +11,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.scene.Scene;
@@ -66,51 +64,58 @@ class GraphMenu {
 	}
 
 	private static class MenuCreator {
-		private final Tree graph;
+		private final SceneGraphView view;
 		private final Clipboard clipboard;
 		private final SceneEditorContext context;
 		private final int editorId;
 		private final SceneElement2 selection;
 
 		MenuCreator(SceneGraphView view, SceneElement2 selection) {
-			graph = view.graph;
-			clipboard = view.clipboard;
-			context = view.editorContext;
-			editorId = context.editorId;
+			this.view = view;
+			this.clipboard = view.clipboard;
+			this.context = view.editorContext;
+			this.editorId = context.editorId;
 			this.selection = selection;
 		}
 
 		private Menu createMenu() {
-			Menu menu = new Menu(graph.getShell(), POP_UP);
-			
+			Menu menu = new Menu(view.getShell(), POP_UP);
+
 			MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Cut");
 			item.addListener(SWT.Selection, e -> removeSelectedElement());
 			item.setEnabled(selection != null);
-			
+
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Copy");
 			item.addListener(SWT.Selection, e -> removeSelectedElement());
 			item.setEnabled(selection != null);
-			
+
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Paste");
 			item.addListener(SWT.Selection, e -> removeSelectedElement());
 			item.setEnabled(clipboard.getContents(LocalSelectionTransfer.getTransfer()) instanceof ElementSelection);
-			
+			addSeparator(menu);
+
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Delete");
 			item.addListener(SWT.Selection, e -> removeSelectedElement());
 			item.setEnabled(selection != null);
-			
+
+			item = new MenuItem(menu, SWT.PUSH);
+			item.setText("Duplicate");
+			item.addListener(SWT.Selection, e -> removeSelectedElement());
+			item.setEnabled(selection instanceof SceneNode2);
+
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Add root node");
 			item.addListener(SWT.Selection, e -> addNode(null));
-			
+
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Add child node");
 			item.addListener(SWT.Selection, e -> addNode((SceneNode2) selection));
 			item.setEnabled(selection instanceof SceneNode2);
+			addSeparator(menu);
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Add sphere");
@@ -145,6 +150,7 @@ class GraphMenu {
 			composite.addShape(new CylinderShapeModel(), 0, 1, 0);
 			shapeModel.addShape(composite, 0, 1, 0);
 			item.addListener(SWT.Selection, e -> addShapeNode("Composite", shapeModel));
+			addSeparator(menu);
 
 			createComponentsSubMenu(menu);
 
@@ -207,13 +213,9 @@ class GraphMenu {
 		}
 
 		private void addComponent(SceneNodeComponent2 component) {
-			TreeItem[] selection = graph.getSelection();
-			if (selection.length > 0) {
-				TreeItem seectedItem = selection[0];
-				SceneNode2 node = (SceneNode2) seectedItem.getData();
-				AddComponentOperation operation = new AddComponentOperation(editorId, node, component);
-				context.executeOperation(operation, "Error while adding component");
-			}
+			SceneNode2 node = (SceneNode2) selection;
+			AddComponentOperation operation = new AddComponentOperation(editorId, node, component);
+			context.executeOperation(operation, "Error while adding component");
 		}
 
 		private void removeSelectedElement() {
@@ -231,7 +233,7 @@ class GraphMenu {
 		}
 
 		private void addNode(SceneNode2 parent) {
-			InputDialog dlg = new InputDialog(graph.getShell(), "Add Node", "Enter node name", "Node",
+			InputDialog dlg = new InputDialog(view.getShell(), "Add Node", "Enter node name", "Node",
 					this::validateNewName);
 
 			if (dlg.open() != Window.OK) {

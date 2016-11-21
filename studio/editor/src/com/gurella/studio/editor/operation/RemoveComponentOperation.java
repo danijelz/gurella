@@ -10,20 +10,24 @@ import org.eclipse.core.runtime.Status;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
+import com.gurella.engine.subscriptions.application.ApplicationDebugUpdateListener;
 import com.gurella.studio.editor.event.ComponentAddedEvent;
 import com.gurella.studio.editor.event.ComponentRemovedEvent;
 import com.gurella.studio.editor.event.SceneChangedEvent;
+import com.gurella.studio.editor.subscription.EditorSceneActivityListener;
 
 public class RemoveComponentOperation extends AbstractOperation {
 	final int editorId;
 	final SceneNode2 node;
 	final SceneNodeComponent2 component;
+	final int index;
 
-	public RemoveComponentOperation(int editorId, SceneNode2 node, SceneNodeComponent2 newValue) {
+	public RemoveComponentOperation(int editorId, SceneNode2 node, SceneNodeComponent2 component) {
 		super("Remove component");
 		this.editorId = editorId;
 		this.node = node;
-		this.component = newValue;
+		this.component = component;
+		this.index = component.getIndex();
 	}
 
 	@Override
@@ -37,7 +41,10 @@ public class RemoveComponentOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable adaptable) throws ExecutionException {
 		node.addComponent(component);
+		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, new ComponentAddedEvent(node, component));
+		component.setIndex(index);
+		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.componentIndexChanged(component, index));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

@@ -333,6 +333,35 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	@Override
+	public void nodeParentChanged(SceneNode2 node, SceneNode2 newParent) {
+	}
+
+	@Override
+	public void nodeIndexChanged(SceneNode2 node, int newIndex) {
+	}
+
+	@Override
+	public void componentIndexChanged(SceneNodeComponent2 component, int newIndex) {
+		Section section = editors.get(component);
+		if (section == null) {
+			return;
+		}
+		ImmutableArray<SceneNodeComponent2> components = component.getNode().components;
+		int size = components.size();
+		if (size < 2) {
+			return;
+		}
+
+		if (newIndex == 0) {
+			Section nextSection = editors.get(components.get(1));
+			section.moveBelow(nextSection);
+		} else {
+			Section nextSection = editors.get(components.get(newIndex - 1));
+			section.moveAbove(nextSection);
+		}
+	}
+
+	@Override
 	public void nodeNameChanged(SceneNode2 node) {
 		if (target == node && !nameText.isDisposed() && !nameText.getText().equals(node.getName())) {
 			nameText.removeListener(SWT.Modify, nameChangedlLstener);
