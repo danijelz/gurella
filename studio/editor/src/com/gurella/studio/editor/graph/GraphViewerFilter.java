@@ -15,7 +15,7 @@ class GraphViewerFilter extends ViewerFilter {
 	private String filter;
 	private final Map<SceneNode2, Boolean> nodes = new IdentityHashMap<>();
 
-	public void setFilter(String filter) {
+	void setFilter(String filter) {
 		this.filter = filter;
 		nodes.clear();
 	}
