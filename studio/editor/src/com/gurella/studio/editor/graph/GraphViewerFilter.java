@@ -1,8 +1,13 @@
 package com.gurella.studio.editor.graph;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static java.util.regex.Pattern.LITERAL;
+
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -14,10 +19,14 @@ import com.gurella.engine.utils.Values;
 class GraphViewerFilter extends ViewerFilter {
 	private String filter;
 	private final Map<SceneNode2, Boolean> nodes = new IdentityHashMap<>();
+	private final Map<SceneNode2, Boolean> names = new IdentityHashMap<>();
+	private Matcher matcher;
 
 	void setFilter(String filter) {
 		this.filter = filter;
 		nodes.clear();
+		names.clear();
+		matcher = null;
 	}
 
 	@Override
@@ -47,6 +56,16 @@ class GraphViewerFilter extends ViewerFilter {
 
 	private boolean nodeNameMatchesFilter(SceneNode2 node) {
 		String name = node.getName();
-		return Values.isNotBlank(name) && name.contains(filter);
+		return names.computeIfAbsent(node, n -> Boolean.valueOf(Values.isNotBlank(name) && getMatcher(name).find()))
+				.booleanValue();
+	}
+
+	private Matcher getMatcher(String name) {
+		if (matcher == null) {
+			matcher = Pattern.compile(filter, CASE_INSENSITIVE | LITERAL).matcher(name);
+		} else {
+			matcher.reset(name);
+		}
+		return matcher;
 	}
 }
