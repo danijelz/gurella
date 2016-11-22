@@ -24,6 +24,10 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
@@ -64,6 +68,7 @@ import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
+import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
 import com.gurella.studio.editor.utils.SaveFileDialog;
 
 class GraphMenu {
@@ -161,13 +166,21 @@ class GraphMenu {
 				if (fileName == null) {
 					return;
 				}
-				JsonOutput output = new JsonOutput();
-				SceneNode2 template = (SceneNode2) Optional.ofNullable(node.getPrefab()).map(p -> p.get()).orElse(null);
-				String source = output.serialize(fileName, SceneNode2.class, template, node);
+
 				IPath assetPath = new Path(fileName).makeRelativeTo(projectPath);
+				fileName = assetPath.toString();
+				SceneNode2 prefab = new CopyContext().copy(node);
+				JsonOutput output = new JsonOutput();
+				SceneNode2 template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode2) p.get())
+						.orElse(null);
+				String source = output.serialize(fileName, SceneNode2.class, template, node);
+				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
+				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(assetPath);
-				InputStream is = new ByteArrayInputStream(source.getBytes("UTF-8"));
 				file.create(is, true, new NullProgressMonitor());
+				AssetService.put(prefab, fileName);
+				String errMsg = "Error while converting to prefab";
+				context.executeOperation(new ConvertToPrefabOperation(editorId, node, prefab), errMsg);
 			} catch (Exception e) {
 				GurellaStudioPlugin.showError(e, "Error while converting to prefab.");
 			}
