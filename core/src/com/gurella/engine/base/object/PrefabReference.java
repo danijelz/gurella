@@ -61,7 +61,7 @@ public final class PrefabReference implements Reference, Poolable {
 
 	public ManagedObject get() {
 		if (prefab == null) {
-			prefab = AssetService.get(fileName/* TODO, uuid */);
+			prefab = AssetService.get(fileName, uuid);
 		}
 		return prefab;
 	}

@@ -93,6 +93,10 @@ public final class AssetService {
 	public static <T> T get(String fileName) {
 		return assetRegistry.get(fileName);
 	}
+	
+	public static <T> T get(String fileName, String internalId) {
+		return assetRegistry.get(fileName, internalId);
+	}
 
 	//TODO replace with save(T asset, String fileName, AssetPersister persister)
 	public static <T> void put(T asset, String fileName) {

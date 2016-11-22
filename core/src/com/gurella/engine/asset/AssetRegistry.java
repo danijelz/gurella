@@ -151,6 +151,17 @@ public class AssetRegistry extends AssetManager {
 		return Values.cast(get(fileName, Object.class));
 	}
 
+	public <T> T get(String fileName, String internalId) {
+		synchronized (mutex) {
+			AssetReference reference = assetsByFileName.get(fileName);
+			if (reference == null) {
+				throw new GdxRuntimeException("Asset not loaded: " + fileName);
+			}
+
+			return reference.getAssetPart(internalId);
+		}
+	}
+
 	@Override
 	@SuppressWarnings("sync-override")
 	public <T> T get(AssetDescriptor<T> assetDescriptor) {
@@ -714,6 +725,9 @@ public class AssetRegistry extends AssetManager {
 		T asset = reference.getAsset();
 		fileNamesByAsset.put(asset, fileName);
 		assetsByFileName.put(fileName, reference);
+		if (asset instanceof ManagedObject) {
+
+		}
 		DisposablesService.tryAdd(asset);
 		notifyTaskFinished(task, asset);
 		task.reference = null;

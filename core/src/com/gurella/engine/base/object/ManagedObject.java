@@ -2,8 +2,10 @@ package com.gurella.engine.base.object;
 
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IdentityMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
+import com.gurella.engine.asset.Bundle;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.base.model.PropertyDescriptor;
 import com.gurella.engine.base.object.ObjectSubscriptionAttachment.ObjectSubscription;
@@ -18,7 +20,7 @@ import com.gurella.engine.utils.Sequence;
 import com.gurella.engine.utils.Uuid;
 import com.gurella.engine.utils.Values;
 
-public abstract class ManagedObject implements Comparable<ManagedObject> {
+public abstract class ManagedObject implements Bundle, Comparable<ManagedObject> {
 	transient int instanceId;
 	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to byte
 
@@ -439,6 +441,23 @@ public abstract class ManagedObject implements Comparable<ManagedObject> {
 	public <T> void bindAsset(T asset) {
 		ManageAssetAttachment<T> attachment = ManageAssetAttachment.obtain(asset);
 		attach(attachment);
+	}
+
+	@Override
+	public ObjectMap<String, Object> getBundledAssets() {
+		ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
+		appendBundledAssets(bundledAssets);
+		return bundledAssets;
+	}
+
+	private void appendBundledAssets(ObjectMap<String, Object> bundledAssets) {
+		for (int i = 0, n = _children.size; i < n; i++) {
+			ManagedObject child = _children.get(i);
+			if (child.uuid != null) {
+				bundledAssets.put(child.uuid, child);
+			}
+			child.appendBundledAssets(bundledAssets);
+		}
 	}
 
 	@Override

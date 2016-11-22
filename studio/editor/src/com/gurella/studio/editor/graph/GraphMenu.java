@@ -30,6 +30,7 @@ import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.object.ManagedObject;
+import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
@@ -177,12 +178,17 @@ class GraphMenu {
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(projectAssetPath);
+				IPath gdxAssetPath = new Path(fileName).makeRelativeTo(assetsRootPath);
 				if (file.exists()) {
+					PrefabReference oldPrefabReference = prefab.getPrefab();
+					if (oldPrefabReference != null
+							&& oldPrefabReference.getFileName().equals(gdxAssetPath.toString())) {
+						// TODO overriding current prefab
+					}
 					file.setContents(is, true, true, new NullProgressMonitor());
 				} else {
 					file.create(is, true, new NullProgressMonitor());
 				}
-				IPath gdxAssetPath = new Path(fileName).makeRelativeTo(assetsRootPath);
 				AssetService.put(prefab, gdxAssetPath.toString());
 				String errMsg = "Error while converting to prefab";
 				context.executeOperation(new ConvertToPrefabOperation(editorId, node, prefab), errMsg);
