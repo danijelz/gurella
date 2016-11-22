@@ -174,7 +174,7 @@ class GraphMenu {
 				JsonOutput output = new JsonOutput();
 				SceneNode2 template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode2) p.get())
 						.orElse(null);
-				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, node);
+				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, prefab);
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
 				IFile file = project.getFile(projectAssetPath);

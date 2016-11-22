@@ -439,8 +439,7 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	}
 
 	public <T> void bindAsset(T asset) {
-		ManageAssetAttachment<T> attachment = ManageAssetAttachment.obtain(asset);
-		attach(attachment);
+		attach(ManageAssetAttachment.obtain(asset));
 	}
 
 	@Override
