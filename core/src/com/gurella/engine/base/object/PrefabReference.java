@@ -3,11 +3,12 @@ package com.gurella.engine.base.object;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.ModelDescriptor;
+import com.gurella.engine.base.serialization.Reference;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.utils.Uuid;
 
 @ModelDescriptor(model = PrefabReferenceModel.class)
-public final class PrefabReference implements Poolable {
+public final class PrefabReference implements Reference, Poolable {
 	String fileName;
 	String uuid;
 	transient ManagedObject prefab;
@@ -44,8 +45,14 @@ public final class PrefabReference implements Poolable {
 		this.prefab = prefab;
 	}
 
+	@Override
 	public String getFileName() {
 		return fileName;
+	}
+
+	@Override
+	public Class<?> getValueType() {
+		return ManagedObject.class;
 	}
 
 	public String getUuid() {

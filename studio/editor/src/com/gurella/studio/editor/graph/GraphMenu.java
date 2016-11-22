@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.model.Models;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneElement2;
@@ -167,18 +168,22 @@ class GraphMenu {
 					return;
 				}
 
-				IPath assetPath = new Path(fileName).makeRelativeTo(projectPath);
-				fileName = assetPath.toString();
+				IPath projectAssetPath = new Path(fileName).makeRelativeTo(projectPath);
 				SceneNode2 prefab = new CopyContext().copy(node);
 				JsonOutput output = new JsonOutput();
 				SceneNode2 template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode2) p.get())
 						.orElse(null);
-				String source = output.serialize(fileName, SceneNode2.class, template, node);
+				String source = output.serialize(projectAssetPath.toString(), ManagedObject.class, template, node);
 				String pretty = new JsonReader().parse(source).prettyPrint(OutputType.minimal, 120);
 				InputStream is = new ByteArrayInputStream(pretty.getBytes("UTF-8"));
-				IFile file = project.getFile(assetPath);
-				file.create(is, true, new NullProgressMonitor());
-				AssetService.put(prefab, fileName);
+				IFile file = project.getFile(projectAssetPath);
+				if (file.exists()) {
+					file.setContents(is, true, true, new NullProgressMonitor());
+				} else {
+					file.create(is, true, new NullProgressMonitor());
+				}
+				IPath gdxAssetPath = new Path(fileName).makeRelativeTo(assetsRootPath);
+				AssetService.put(prefab, gdxAssetPath.toString());
 				String errMsg = "Error while converting to prefab";
 				context.executeOperation(new ConvertToPrefabOperation(editorId, node, prefab), errMsg);
 			} catch (Exception e) {

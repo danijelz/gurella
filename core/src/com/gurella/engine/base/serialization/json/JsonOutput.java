@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.badlogic.gdx.utils.SerializationException;
 import com.gurella.engine.asset.AssetService;
@@ -23,6 +24,7 @@ import com.gurella.engine.base.model.Model;
 import com.gurella.engine.base.model.Models;
 import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.base.serialization.Output;
+import com.gurella.engine.base.serialization.Reference;
 import com.gurella.engine.utils.IdentityObjectIntMap;
 
 public class JsonOutput implements Output, Poolable {
@@ -32,7 +34,7 @@ public class JsonOutput implements Output, Poolable {
 	private int currentId;
 	private IdentityObjectIntMap<Object> references = new IdentityObjectIntMap<Object>();
 	private Array<ObjectInfo> objectsToSerialize = new Array<ObjectInfo>();
-	private Array<String> externalDependencies = new Array<String>();
+	private ObjectSet<String> externalDependencies = new ObjectSet<String>();
 
 	public <T> String serialize(FileHandle file, Class<T> expectedType, T rootObject) {
 		return serialize(file, expectedType, null, rootObject);
@@ -62,8 +64,7 @@ public class JsonOutput implements Output, Poolable {
 		if (externalDependenciesSize > 0) {
 			name("d");
 			array();
-			for (int i = 0; i < externalDependenciesSize; i++) {
-				String dependency = externalDependencies.get(i);
+			for (String dependency : externalDependencies) {
 				value(dependency);
 			}
 			pop();
@@ -223,6 +224,7 @@ public class JsonOutput implements Output, Poolable {
 			Model<Object> model = (Model<Object>) Models.getModel(expectedType);
 			model.serialize(value, null, this);
 		} else if (isSimpleType(value)) {
+			addReferenceDependency(value);
 			Model<Object> model = Models.getModel(value);
 			Class<?> actualType = value.getClass();
 			if (equalType(expectedType, actualType)) {
@@ -235,10 +237,12 @@ public class JsonOutput implements Output, Poolable {
 				pop();
 			}
 		} else if (flat) {
+			addReferenceDependency(value);
 			serializeObject(expectedType, template, value);
 		} else {
 			String valueLocation = getExternalFileName(value);
 			if (valueLocation == null) {
+				addReferenceDependency(value);
 				writeReference(expectedType, template, value);
 			} else {
 				object();
@@ -247,6 +251,13 @@ public class JsonOutput implements Output, Poolable {
 				pop();
 				externalDependencies.add(value.getClass().getName() + " " + valueLocation);
 			}
+		}
+	}
+
+	private void addReferenceDependency(Object value) {
+		if (value instanceof Reference) {
+			Reference reference = (Reference) value;
+			externalDependencies.add(reference.getValueType().getName() + " " + reference.getFileName());
 		}
 	}
 
@@ -263,7 +274,9 @@ public class JsonOutput implements Output, Poolable {
 	}
 
 	private String getExternalFileName(Object object) {
-		if (object instanceof ManagedObject || Assets.isAsset(object)) {
+		if (object instanceof Reference) {
+			return null;
+		} else if (object instanceof ManagedObject || Assets.isAsset(object)) {
 			String fileName = AssetService.getFileName(object);
 			return fileName == null || fileName.equals(filePath) ? null : fileName;
 		} else {

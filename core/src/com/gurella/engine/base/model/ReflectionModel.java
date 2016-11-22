@@ -213,9 +213,8 @@ public class ReflectionModel<T> implements Model<T> {
 	}
 
 	private Object resolveTemplate(T instance, Object template, Input input) {
-		if (instance instanceof ManagedObject) {
-			// TODO extract template from input if ManagedObject
-			PrefabReference prefab = ((ManagedObject) instance).getPrefab();
+		if (instance instanceof ManagedObject && input.hasProperty("prefab")) {
+			PrefabReference prefab = input.readObjectProperty("prefab", PrefabReference.class, null);
 			return prefab == null ? null : prefab.get();
 		} else if (template != null) {
 			return template;

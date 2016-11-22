@@ -56,6 +56,7 @@ import com.gurella.engine.asset.loader.object.JsonObjectLoader;
 import com.gurella.engine.asset.loader.rendertarget.RenderTargetLoader;
 import com.gurella.engine.async.AsyncCallback;
 import com.gurella.engine.audio.SoundClip;
+import com.gurella.engine.base.object.ManagedObject;
 import com.gurella.engine.disposable.DisposablesService;
 import com.gurella.engine.event.EventService;
 import com.gurella.engine.graphics.material.MaterialDescriptor;
@@ -101,32 +102,35 @@ public class AssetRegistry extends AssetManager {
 
 	public AssetRegistry(FileHandleResolver resolver, boolean defaultLoaders) {
 		super(resolver, false);
-		if (defaultLoaders) {
-			setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
-			setLoader(Music.class, new MusicLoader(resolver));
-			setLoader(Pixmap.class, new PixmapLoader(resolver));
-			setLoader(Sound.class, new SoundLoader(resolver));
-			setLoader(TextureAtlas.class, new TextureAtlasLoader(resolver));
-			setLoader(Texture.class, new TextureLoader(resolver));
-			setLoader(Skin.class, new SkinLoader(resolver));
-			setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
-			setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class,
-					new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
-			setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
-			setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
-			setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
-			setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
-			setLoader(Model.class, "obj", new ObjLoader(resolver));
-			setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
-			setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
-			setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
-			setLoader(MaterialDescriptor.class, "gmat",
-					new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
-			setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
-			setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
-			setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));
-			setLoader(Cubemap.class, "zktx", new CubemapLoader(resolver));
+		if (!defaultLoaders) {
+			return;
 		}
+
+		setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
+		setLoader(Music.class, new MusicLoader(resolver));
+		setLoader(Pixmap.class, new PixmapLoader(resolver));
+		setLoader(Sound.class, new SoundLoader(resolver));
+		setLoader(TextureAtlas.class, new TextureAtlasLoader(resolver));
+		setLoader(Texture.class, new TextureLoader(resolver));
+		setLoader(Skin.class, new SkinLoader(resolver));
+		setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
+		setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class,
+				new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
+		setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
+		setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
+		setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
+		setLoader(Model.class, "g3db", new G3dModelLoader(new UBJsonReader(), resolver));
+		setLoader(Model.class, "obj", new ObjLoader(resolver));
+		setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
+		setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
+		setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
+		setLoader(MaterialDescriptor.class, "gmat",
+				new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+		setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
+		setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
+		setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));
+		setLoader(Cubemap.class, "zktx", new CubemapLoader(resolver));
+		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
 	}
 
 	// TODO make package private and only accessible for prefabs and bundles
@@ -577,7 +581,7 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private void processCurrentTaskException() {
-		if(currentTask != null && currentTask.exception != null) {
+		if (currentTask != null && currentTask.exception != null) {
 			exception(currentTask);
 		}
 	}
@@ -751,9 +755,9 @@ public class AssetRegistry extends AssetManager {
 		Throwable ex = task.exception;
 		boolean propagated = propagateException(task, ex);
 		task.free();
-		
+
 		if (!propagated) {
-			//TODO throw exception on rendering thread
+			// TODO throw exception on rendering thread
 			throw ex instanceof RuntimeException ? (RuntimeException) ex : new GdxRuntimeException(ex);
 		}
 	}

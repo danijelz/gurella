@@ -82,20 +82,21 @@ public class PrefabInspectableContainer extends InspectableContainer<IFile> {
 
 	public PrefabInspectableContainer(InspectorView parent, IFile target) {
 		super(parent, target);
-
-		prefab = AssetService.load(target.getLocation().toString());
+		setText(target.getName());
 
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
-
+		toolkit.decorateFormHeading(getForm());
 		Composite body = getBody();
 		GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(0, 10, 4, 0).applyTo(body);
+
+		prefab = AssetService.load(target.getLocation().toString());
 
 		Label nameLabel = toolkit.createLabel(getBody(), " Name: ");
 		nameLabel.setLayoutData(new GridData(BEGINNING, CENTER, false, false));
 
 		nameText = UiUtils.createText(body);
-		nameText.setText(target.getName());
+		nameText.setText(prefab.getName());
 		nameText.setLayoutData(new GridData(FILL, BEGINNING, true, false));
 		nameText.addListener(SWT.Modify, (e) -> nodeNameChanged());
 
