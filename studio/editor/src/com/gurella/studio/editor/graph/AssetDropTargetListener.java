@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 import com.gurella.engine.scene.renderable.ModelComponent;
@@ -23,6 +24,7 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.SceneEditorRegistry;
 import com.gurella.studio.editor.assets.AssetSelection;
 import com.gurella.studio.editor.operation.AddComponentOperation;
+import com.gurella.studio.editor.operation.AddNodeOperation;
 
 class AssetDropTargetListener extends DropTargetAdapter {
 	private final SceneEditorContext context;
@@ -58,7 +60,8 @@ class AssetDropTargetListener extends DropTargetAdapter {
 
 	protected boolean isValidAssetExtension(String fileExtension) {
 		return AssetType.isValidExtension(Model.class, fileExtension)
-				|| AssetType.isValidExtension(Texture.class, fileExtension);
+				|| AssetType.isValidExtension(Texture.class, fileExtension)
+				|| AssetType.prefab.containsExtension(fileExtension);
 	}
 
 	@Override
@@ -83,13 +86,18 @@ class AssetDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		SceneNode2 node = (SceneNode2) data;
-		Class<? extends SceneNodeComponent2> type = getComponentType(file);
-		if (node.getComponent(type, true) == null) {
+		if (AssetType.prefab.containsExtension(file.getFileExtension())) {
 			event.detail = DND.DROP_COPY;
 			event.feedback |= DND.FEEDBACK_SELECT;
 		} else {
-			event.detail = DND.DROP_NONE;
+			SceneNode2 node = (SceneNode2) data;
+			Class<? extends SceneNodeComponent2> type = getComponentType(file);
+			if (node.getComponent(type, true) == null) {
+				event.detail = DND.DROP_COPY;
+				event.feedback |= DND.FEEDBACK_SELECT;
+			} else {
+				event.detail = DND.DROP_NONE;
+			}
 		}
 	}
 
@@ -131,25 +139,33 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		}
 
 		SceneNode2 node = (SceneNode2) data;
-		Class<? extends SceneNodeComponent2> type = getComponentType(file);
-		if (node.getComponent(type, true) != null) {
-			event.detail = DND.DROP_NONE;
-			return;
-		}
+		if (AssetType.prefab.containsExtension(file.getFileExtension())) {
+			SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
+			SceneNode2 instance = new CopyContext().copy(prefab);
+			int editorId = context.editorId;
+			AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
+			SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while instantiating prefab.");
+		} else {
+			Class<? extends SceneNodeComponent2> type = getComponentType(file);
+			if (node.getComponent(type, true) != null) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
 
-		if (type == ModelComponent.class) {
-			ModelComponent modelComponent = node.newComponent(ModelComponent.class);
-			modelComponent.setModel(AssetService.load(getAssetPath(file), Model.class));
-			int editorId = context.editorId;
-			AddComponentOperation operation = new AddComponentOperation(editorId, node, modelComponent);
-			SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding component");
-		} else if (type == TextureComponent.class) {
-			TextureComponent textureComponent = node.newComponent(TextureComponent.class);
-			Texture texture = AssetService.load(getAssetPath(file), Texture.class);
-			textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
-			int editorId = context.editorId;
-			AddComponentOperation operation = new AddComponentOperation(editorId, node, textureComponent);
-			SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding component");
+			if (type == ModelComponent.class) {
+				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
+				modelComponent.setModel(AssetService.load(getAssetPath(file), Model.class));
+				int editorId = context.editorId;
+				AddComponentOperation operation = new AddComponentOperation(editorId, node, modelComponent);
+				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding component");
+			} else if (type == TextureComponent.class) {
+				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
+				Texture texture = AssetService.load(getAssetPath(file), Texture.class);
+				textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
+				int editorId = context.editorId;
+				AddComponentOperation operation = new AddComponentOperation(editorId, node, textureComponent);
+				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding component");
+			}
 		}
 	}
 
