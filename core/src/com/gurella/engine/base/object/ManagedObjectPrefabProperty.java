@@ -105,16 +105,17 @@ class ManagedObjectPrefabProperty implements Property<PrefabReference> {
 	public void copy(Object original, Object duplicate, CopyContext context) {
 		ManagedObject originalObj = (ManagedObject) original;
 		PrefabReference originalPrefab = originalObj.prefab;
+		ManagedObject duplicateObj = (ManagedObject) duplicate;
 
 		if (originalPrefab == null) {
 			String fileName = AssetService.getFileName(originalObj);
 			if (fileName != null) {
 				PrefabReference prefab = PrefabReference.obtain(fileName, originalObj.ensureUuid());
-				((ManagedObject) duplicate).prefab = prefab;
+				duplicateObj.prefab = prefab;
 			}
 		} else {
 			PrefabReference prefab = PrefabReference.obtain(originalPrefab.fileName, originalPrefab.uuid);
-			((ManagedObject) duplicate).prefab = prefab;
+			duplicateObj.prefab = prefab;
 		}
 	}
 }
