@@ -52,7 +52,11 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		IResource resource = ((AssetSelection) selection).getAssetResource();
 		if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			return getComponentType(file) == null ? null : file;
+			if (AssetType.prefab.containsExtension(file.getFileExtension())) {
+				return file;
+			} else {
+				return getComponentType(file) == null ? null : file;
+			}
 		} else {
 			return null;
 		}
