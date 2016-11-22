@@ -446,6 +446,9 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	@Override
 	public ObjectMap<String, Object> getBundledAssets() {
 		ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
+		if (uuid != null) {
+			bundledAssets.put(uuid, this);
+		}
 		appendBundledAssets(bundledAssets);
 		return bundledAssets;
 	}
