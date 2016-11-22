@@ -38,7 +38,7 @@ public class RemoveNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node);
 		}
 
-		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
@@ -51,7 +51,7 @@ public class RemoveNodeOperation extends AbstractOperation {
 		} else {
 			parentNode.addChild(node);
 		}
-		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
 
 		node.setIndex(index);

@@ -31,7 +31,7 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 	@Override
 	public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		Prefabs.convertToPrefab(element, prefab, fileName);
-		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}
@@ -44,7 +44,7 @@ public class ConvertToPrefabOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		Prefabs.dettachFromPrefab(element);
-		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
 	}

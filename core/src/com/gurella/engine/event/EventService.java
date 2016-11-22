@@ -2,7 +2,6 @@ package com.gurella.engine.event;
 
 import static com.gurella.engine.event.Subscriptions.getSubscriptions;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.gurella.engine.pool.PoolService;
@@ -67,13 +66,6 @@ public class EventService {
 		}
 
 		PoolService.free(listenersByType);
-	}
-
-	public static <L extends EventSubscription> Array<? super L> getSubscribers(Class<L> subscriptionType,
-			Array<? super L> out) {
-		synchronized (global) {
-			return global.getSubscribers(subscriptionType, out);
-		}
 	}
 
 	public static void subscribe(int channel, Object subscriber) {

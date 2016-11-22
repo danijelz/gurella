@@ -66,7 +66,7 @@ import com.gurella.engine.graphics.render.shader.template.ShaderTemplateLoader;
 import com.gurella.engine.pool.PoolService;
 import com.gurella.engine.scene.Scene;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.subscriptions.base.resource.ResourceActivityListener;
+import com.gurella.engine.subscriptions.base.resource.AssetActivityListener;
 import com.gurella.engine.utils.Values;
 
 //TODO exceptions are not handled correctly
@@ -88,9 +88,11 @@ public class AssetRegistry extends AssetManager {
 
 	private final AsyncExecutor executor = DisposablesService.add(new AsyncExecutor(1));
 
-	private final Array<Object> tempListeners = new Array<Object>(64);
-
 	private final Object mutex = new Object();
+
+	private AssetLoadedEvent assetLoadedEvent = new AssetLoadedEvent();
+	private AssetUnloadedEvent assetUnloadedEvent = new AssetUnloadedEvent();
+	private AssetReloadedEvent assetReloadedEvent = new AssetReloadedEvent();
 
 	public AssetRegistry() {
 		this(new InternalFileHandleResolver(), true);
@@ -443,13 +445,11 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private void unloadAsset(String fileName, AssetReference reference) {
-		Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ResourceActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).resourceUnloaded(fileName);
-		}
-
 		Object asset = reference.asset;
+		assetUnloadedEvent.set(fileName, asset);
+		EventService.post(AssetActivityListener.class, assetUnloadedEvent);
+		assetUnloadedEvent.reset();
+
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
 		dereferenceDependencies(fileName, reference);
@@ -519,13 +519,11 @@ public class AssetRegistry extends AssetManager {
 			if (reference == null) {
 				return;
 			} else {
-				Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
-				EventService.getSubscribers(ResourceActivityListener.class, listeners);
-				for (int i = 0; i < listeners.size; i++) {
-					listeners.get(i).resourceReloaded(fileName);
-				}
-
 				Object asset = reference.asset;
+				assetReloadedEvent.set(fileName, asset);
+				EventService.post(AssetActivityListener.class, assetReloadedEvent);
+				assetReloadedEvent.reset();
+
 				fileNamesByAsset.remove(asset);
 				Class<T> type = Values.cast(asset.getClass());
 				DisposablesService.tryDispose(asset);
@@ -540,9 +538,6 @@ public class AssetRegistry extends AssetManager {
 	public void reloadInvalidated() {
 		finishLoading();
 		synchronized (mutex) {
-			Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
-			EventService.getSubscribers(ResourceActivityListener.class, listeners);
-
 			Entries<String, AssetReference> entries = assetsByFileName.entries();
 			while (entries.hasNext()) {
 				Entry<String, AssetReference> entry = entries.next();
@@ -550,9 +545,9 @@ public class AssetRegistry extends AssetManager {
 				Object asset = reference.asset;
 				if (asset instanceof Texture || asset instanceof Cubemap) {
 					String fileName = entry.key;
-					for (int i = 0; i < listeners.size; i++) {
-						listeners.get(i).resourceReloaded(fileName);
-					}
+					assetReloadedEvent.set(fileName, asset);
+					EventService.post(AssetActivityListener.class, assetReloadedEvent);
+					assetReloadedEvent.reset();
 
 					entries.remove();
 					fileNamesByAsset.remove(asset);
@@ -745,11 +740,9 @@ public class AssetRegistry extends AssetManager {
 			notifyLoadFinished(fileName, type, competingTask.params, competingTask.callback, asset);
 		}
 
-		Array<ResourceActivityListener> listeners = Values.cast(tempListeners);
-		EventService.getSubscribers(ResourceActivityListener.class, listeners);
-		for (int i = 0; i < listeners.size; i++) {
-			listeners.get(i).resourceLoaded(fileName, asset);
-		}
+		assetLoadedEvent.set(fileName, asset);
+		EventService.post(AssetActivityListener.class, assetLoadedEvent);
+		assetLoadedEvent.reset();
 	}
 
 	void exception(AssetLoadingTask<?> task) {

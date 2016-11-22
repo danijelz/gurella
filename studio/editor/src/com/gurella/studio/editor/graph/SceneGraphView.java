@@ -206,9 +206,7 @@ public class SceneGraphView extends DockableView
 	@Override
 	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
 		if (parentNode == null) {
-			Object[] expandedElements = viewer.getExpandedElements();
-			viewer.setInput(scene.nodes.toArray(SceneNode2.class));
-			viewer.setExpandedElements(expandedElements);
+			refreshInput();
 		} else {
 			viewer.add(parentNode, node);
 			viewer.setExpandedState(parentNode, true);
@@ -218,9 +216,19 @@ public class SceneGraphView extends DockableView
 		EventService.post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(inspectable));
 	}
 
+	private void refreshInput() {
+		Object[] expandedElements = viewer.getExpandedElements();
+		viewer.setInput(scene.nodes.toArray(SceneNode2.class));
+		viewer.setExpandedElements(expandedElements);
+	}
+
 	@Override
 	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
-		viewer.remove(node);
+		if (parentNode == null) {
+			refreshInput();
+		} else {
+			viewer.remove(node);
+		}
 	}
 
 	@Override

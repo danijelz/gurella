@@ -36,7 +36,7 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.addChild(node);
 		}
 
-		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeAdded(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
@@ -50,7 +50,7 @@ public class AddNodeOperation extends AbstractOperation {
 			parentNode.removeChild(node);
 		}
 
-		EventService.post(editorId, ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
+		EventService.post(ApplicationDebugUpdateListener.class, l -> l.debugUpdate());
 		EventService.post(editorId, EditorSceneActivityListener.class, l -> l.nodeRemoved(scene, parentNode, node));
 		EventService.post(editorId, SceneChangedEvent.instance);
 		return Status.OK_STATUS;
