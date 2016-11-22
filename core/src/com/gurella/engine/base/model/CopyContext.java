@@ -83,7 +83,14 @@ public class CopyContext implements Poolable {
 	public static <T> T copyObject(T original) {
 		CopyContext context = PoolService.obtain(CopyContext.class);
 		T duplicate = context.copy(original);
-		PoolService.free(original);
+		PoolService.free(context);
 		return duplicate;
+	}
+
+	public static <T> T copyObjectProperties(T source, T target) {
+		CopyContext context = PoolService.obtain(CopyContext.class);
+		context.copyProperties(source, target);
+		PoolService.free(context);
+		return target;
 	}
 }

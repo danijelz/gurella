@@ -170,7 +170,7 @@ class GraphMenu {
 				}
 
 				IPath projectAssetPath = new Path(fileName).makeRelativeTo(projectPath);
-				SceneNode2 prefab = new CopyContext().copy(node);
+				SceneNode2 prefab = CopyContext.copyObject(node);
 				JsonOutput output = new JsonOutput();
 				SceneNode2 template = Optional.ofNullable(prefab.getPrefab()).map(p -> (SceneNode2) p.get())
 						.orElse(null);

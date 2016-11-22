@@ -188,7 +188,7 @@ public abstract class PropertyEditor<P> implements PropertyChangeListener {
 		public SetPropertyValueOperation(PropertyEditorContext<?, P> context, P oldValue, P newValue) {
 			super("Property");
 			this.context = context;
-			this.oldValue = Assets.isAsset(oldValue) ? oldValue : new CopyContext().copy(oldValue);
+			this.oldValue = Assets.isAsset(oldValue) ? oldValue : CopyContext.copyObject(oldValue);
 			this.newValue = newValue;
 		}
 

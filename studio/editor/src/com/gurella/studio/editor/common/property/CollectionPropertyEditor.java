@@ -132,7 +132,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 			} catch (Exception e) {
 			}
 		}
-		
+
 		Property<?> property = context.property;
 		IJavaProject javaProject = context.sceneContext.javaProject;
 		String typeName = context.bean.getClass().getName();
@@ -164,7 +164,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 	private void removeItem(int i) {
 		Collection<T> oldValue = getValue();
 		PropertyEditor<?> itemEditor = itemEditors.get(i);
-		Collection<T> newValue = new CopyContext().copy(oldValue);
+		Collection<T> newValue = CopyContext.copyObject(oldValue);
 		newValue.remove(itemEditor.getModelInstance());
 		setValue(newValue);
 		rebuildUi();
@@ -182,7 +182,7 @@ public class CollectionPropertyEditor<T> extends CompositePropertyEditor<Collect
 
 	private void addItem() {
 		Collection<T> oldValue = getValue();
-		Collection<T> newValue = new CopyContext().copy(oldValue);
+		Collection<T> newValue = CopyContext.copyObject(oldValue);
 		newValue.add(null);
 		setValue(newValue);
 		rebuildUi();

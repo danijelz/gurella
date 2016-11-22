@@ -34,10 +34,10 @@ public class SceneSerializationTest {
 		Scene deserialized = input.deserialize(Scene.class, string);
 		System.out.println("deserialized: " + Models.isEqual(scene, deserialized));
 
-		Scene duplicate = new CopyContext().copy(scene);
+		Scene duplicate = CopyContext.copyObject(scene);
 		System.out.println("duplicate: " + Models.isEqual(scene, duplicate));
 
-		Scene copied = new CopyContext().copyProperties(scene, new Scene());
+		Scene copied = CopyContext.copyObjectProperties(scene, new Scene());
 		System.out.println("copied: " + Models.isEqual(scene, copied));
 
 		String string1 = output.serialize(file, Scene.class, scene, duplicate);

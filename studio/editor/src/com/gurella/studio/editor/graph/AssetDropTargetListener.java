@@ -145,7 +145,7 @@ class AssetDropTargetListener extends DropTargetAdapter {
 		SceneNode2 node = (SceneNode2) data;
 		if (AssetType.prefab.containsExtension(file.getFileExtension())) {
 			SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
-			SceneNode2 instance = new CopyContext().copy(prefab);
+			SceneNode2 instance = CopyContext.copyObject(prefab);
 			int editorId = context.editorId;
 			AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
 			SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while instantiating prefab.");

@@ -81,10 +81,10 @@ public class InputOutputTest {
 		Test deserialized = input.deserialize(Test.class, string);
 		System.out.println(Models.isEqual(obj, deserialized));
 
-		Test duplicate = new CopyContext().copy(obj);
+		Test duplicate = CopyContext.copyObject(obj);
 		System.out.println(Models.isEqual(obj, duplicate));
 
-		Object copied = new CopyContext().copyProperties(obj, new Test());
+		Object copied = CopyContext.copyObjectProperties(obj, new Test());
 		System.out.println(Models.isEqual(obj, copied));
 
 		System.out.println("\n\n\n\n");

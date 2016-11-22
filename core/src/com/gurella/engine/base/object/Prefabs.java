@@ -8,7 +8,7 @@ public final class Prefabs {
 	}
 
 	public static <T extends ManagedObject> T convertToPrefab(T object, String fileName) {
-		T prefab = new CopyContext().copy(object);
+		T prefab = CopyContext.copyObject(object);
 		setPrefab(object, prefab, fileName);
 		return prefab;
 	}

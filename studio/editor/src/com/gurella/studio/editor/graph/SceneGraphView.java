@@ -339,7 +339,7 @@ public class SceneGraphView extends DockableView
 			return;
 		}
 
-		SceneElement2 copy = new CopyContext().copy(source);
+		SceneElement2 copy = CopyContext.copyObject(source);
 		if (copy instanceof SceneNode2) {
 			SceneNode2 node = (SceneNode2) copy;
 			AddNodeOperation operation = new AddNodeOperation(editorId, scene, destination, node);

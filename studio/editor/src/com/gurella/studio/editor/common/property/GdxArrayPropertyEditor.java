@@ -149,7 +149,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private void removeItem(int i) {
 		Array<T> oldValue = getValue();
-		Array<T> newValue = new CopyContext().copy(oldValue);
+		Array<T> newValue = CopyContext.copyObject(oldValue);
 		newValue.removeIndex(i);
 		setValue(newValue);
 		rebuildUi();
@@ -167,7 +167,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 
 	private void addDefaultItem() {
 		Array<T> oldValue = getValue();
-		Array<T> newValue = Optional.ofNullable(oldValue).map(v -> new CopyContext().copy(v)).orElse(new Array<T>());
+		Array<T> newValue = Optional.ofNullable(oldValue).map(CopyContext::copyObject).orElse(new Array<T>());
 		newValue.add(null);
 		setValue(newValue);
 		rebuildUi();
@@ -181,8 +181,7 @@ public class GdxArrayPropertyEditor<T> extends CompositePropertyEditor<Array<T>>
 		InputDialog dlg = new InputDialog(content.getShell(), "Resize", message, sizeStr, this::isValid);
 		if (dlg.open() == Window.OK) {
 			int newSize = Integer.parseInt(dlg.getValue());
-			Array<T> newValue = Optional.ofNullable(oldValue).map(v -> new CopyContext().copy(v))
-					.orElse(new Array<T>());
+			Array<T> newValue = Optional.ofNullable(oldValue).map(CopyContext::copyObject).orElse(new Array<T>());
 			newValue.ensureCapacity(newSize - size);
 			newValue.size = newSize;
 			setValue(newValue);
