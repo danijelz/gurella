@@ -72,35 +72,40 @@ class AssetDropTargetListener extends DropTargetAdapter {
 	public void dragOver(DropTargetEvent event) {
 		event.feedback = DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL;
 
-		if (event.item == null) {
-			event.detail = DND.DROP_NONE;
-			return;
-		}
-
-		TreeItem item = (TreeItem) event.item;
-		Object data = item.getData();
-		if (!(data instanceof SceneNode2)) {
-			event.detail = DND.DROP_NONE;
-			return;
-		}
-
 		IFile file = getTransferingAssetFile();
 		if (file == null) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		if (AssetType.prefab.containsExtension(file.getFileExtension())) {
-			event.detail = DND.DROP_COPY;
-			event.feedback |= DND.FEEDBACK_SELECT;
-		} else {
-			SceneNode2 node = (SceneNode2) data;
-			Class<? extends SceneNodeComponent2> type = getComponentType(file);
-			if (node.getComponent(type, true) == null) {
+		TreeItem item = (TreeItem) event.item;
+		boolean isPrefab = AssetType.prefab.containsExtension(file.getFileExtension());
+		if (item == null) {
+			if (isPrefab) {
 				event.detail = DND.DROP_COPY;
 				event.feedback |= DND.FEEDBACK_SELECT;
 			} else {
 				event.detail = DND.DROP_NONE;
+			}
+		} else {
+			Object data = item.getData();
+			if (!(data instanceof SceneNode2)) {
+				event.detail = DND.DROP_NONE;
+				return;
+			}
+
+			if (isPrefab) {
+				event.detail = DND.DROP_COPY;
+				event.feedback |= DND.FEEDBACK_SELECT;
+			} else {
+				SceneNode2 node = (SceneNode2) data;
+				Class<? extends SceneNodeComponent2> type = getComponentType(file);
+				if (node.getComponent(type, true) == null) {
+					event.detail = DND.DROP_COPY;
+					event.feedback |= DND.FEEDBACK_SELECT;
+				} else {
+					event.detail = DND.DROP_NONE;
+				}
 			}
 		}
 	}
@@ -124,51 +129,63 @@ class AssetDropTargetListener extends DropTargetAdapter {
 
 	@Override
 	public void drop(DropTargetEvent event) {
-		if (event.item == null) {
-			event.detail = DND.DROP_NONE;
-			return;
-		}
-
-		TreeItem item = (TreeItem) event.item;
-		Object data = item.getData();
-		if (!(data instanceof SceneNode2)) {
-			event.detail = DND.DROP_NONE;
-			return;
-		}
-
 		IFile file = getTransferingAssetFile();
 		if (file == null) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
 
-		SceneNode2 node = (SceneNode2) data;
-		if (AssetType.prefab.containsExtension(file.getFileExtension())) {
-			SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
-			SceneNode2 instance = CopyContext.copyObject(prefab);
-			int editorId = context.editorId;
-			AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
-			SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while instantiating prefab.");
+		TreeItem item = (TreeItem) event.item;
+		boolean isPrefab = AssetType.prefab.containsExtension(file.getFileExtension());
+		if (item == null) {
+			if (isPrefab) {
+				SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
+				SceneNode2 instance = CopyContext.copyObject(prefab);
+				int editorId = context.editorId;
+				AddNodeOperation operation = new AddNodeOperation(editorId, context.getScene(), null, instance);
+				SceneEditorRegistry.getContext(editorId).executeOperation(operation,
+						"Error while instantiating prefab.");
+			} else {
+				event.detail = DND.DROP_NONE;
+			}
 		} else {
-			Class<? extends SceneNodeComponent2> type = getComponentType(file);
-			if (node.getComponent(type, true) != null) {
+			Object data = item.getData();
+			if (!(data instanceof SceneNode2)) {
 				event.detail = DND.DROP_NONE;
 				return;
 			}
 
-			if (type == ModelComponent.class) {
-				ModelComponent modelComponent = node.newComponent(ModelComponent.class);
-				modelComponent.setModel(AssetService.load(getAssetPath(file), Model.class));
+			SceneNode2 node = (SceneNode2) data;
+			if (isPrefab) {
+				SceneNode2 prefab = AssetService.load(getAssetPath(file), SceneNode2.class);
+				SceneNode2 instance = CopyContext.copyObject(prefab);
 				int editorId = context.editorId;
-				AddComponentOperation operation = new AddComponentOperation(editorId, node, modelComponent);
-				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding component");
-			} else if (type == TextureComponent.class) {
-				TextureComponent textureComponent = node.newComponent(TextureComponent.class);
-				Texture texture = AssetService.load(getAssetPath(file), Texture.class);
-				textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
-				int editorId = context.editorId;
-				AddComponentOperation operation = new AddComponentOperation(editorId, node, textureComponent);
-				SceneEditorRegistry.getContext(editorId).executeOperation(operation, "Error while adding component");
+				AddNodeOperation operation = new AddNodeOperation(editorId, node.getScene(), node, instance);
+				SceneEditorRegistry.getContext(editorId).executeOperation(operation,
+						"Error while instantiating prefab.");
+			} else {
+				Class<? extends SceneNodeComponent2> type = getComponentType(file);
+				if (node.getComponent(type, true) != null) {
+					event.detail = DND.DROP_NONE;
+					return;
+				}
+
+				if (type == ModelComponent.class) {
+					ModelComponent modelComponent = node.newComponent(ModelComponent.class);
+					modelComponent.setModel(AssetService.load(getAssetPath(file), Model.class));
+					int editorId = context.editorId;
+					AddComponentOperation operation = new AddComponentOperation(editorId, node, modelComponent);
+					SceneEditorRegistry.getContext(editorId).executeOperation(operation,
+							"Error while adding component");
+				} else if (type == TextureComponent.class) {
+					TextureComponent textureComponent = node.newComponent(TextureComponent.class);
+					Texture texture = AssetService.load(getAssetPath(file), Texture.class);
+					textureComponent.setTexture(texture, texture.getWidth() / 100, texture.getHeight() / 100);
+					int editorId = context.editorId;
+					AddComponentOperation operation = new AddComponentOperation(editorId, node, textureComponent);
+					SceneEditorRegistry.getContext(editorId).executeOperation(operation,
+							"Error while adding component");
+				}
 			}
 		}
 	}

@@ -198,22 +198,22 @@ public class SceneGraphView extends DockableView
 	}
 
 	private SceneElement2 getElementAt(int x, int y) {
-		return Optional.ofNullable(graph.getItem(new Point(x, y))).map(i -> i.getData())
-				.filter(d -> d instanceof SceneElement2).map(d -> (SceneElement2) d).orElse(null);
+		return Optional.ofNullable(viewer.getCell(new Point(x, y))).map(c -> c.getElement())
+				.filter(SceneNode2.class::isInstance).map(d -> (SceneElement2) d).orElse(null);
 	}
 
 	Optional<SceneElement2> getFirstSelectedElement() {
 		return Optional.ofNullable(((ITreeSelection) viewer.getSelection()).getFirstElement())
-				.map(e -> (SceneElement2) e);
+				.map(SceneElement2.class::cast);
 	}
 
 	Optional<SceneNode2> getFirstSelectedNode() {
-		return getFirstSelectedElement().filter(e -> e instanceof SceneNode2).map(e -> (SceneNode2) e);
+		return getFirstSelectedElement().filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast);
 	}
 
 	Optional<SceneNodeComponent2> getFirstSelectedComponent() {
-		return getFirstSelectedElement().filter(e -> e instanceof SceneNodeComponent2)
-				.map(e -> (SceneNodeComponent2) e);
+		return getFirstSelectedElement().filter(SceneNodeComponent2.class::isInstance)
+				.map(SceneNodeComponent2.class::cast);
 	}
 
 	@Override
