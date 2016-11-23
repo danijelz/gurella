@@ -48,6 +48,7 @@ import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
+import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
@@ -85,11 +86,13 @@ public class AssetsView extends DockableView {
 	private void initDragManagers() {
 		final DragSource source = new DragSource(tree, DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
-		source.addDragListener(new AssetsDragSourceListener(tree));
+		source.addDragListener(new ResourceDragSourceListener(tree));
 
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new MoveAssetDropTargetListener(editorContext.sceneResource));
+		dropTarget.addDropListener(
+				new DelegatingDropTargetListener(new MoveAssetDropTargetListener(editorContext.sceneResource),
+						new ConvertToPrefabDropTargetListener(editorContext)));
 	}
 
 	private void initTree() {

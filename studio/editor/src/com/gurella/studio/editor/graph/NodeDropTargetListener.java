@@ -26,7 +26,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 
 	@Override
 	public void dragEnter(DropTargetEvent event) {
-		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferNode() == null) {
+		if ((event.operations & DND.DROP_MOVE) == 0 || getTransferedNode() == null) {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
@@ -34,10 +34,10 @@ class NodeDropTargetListener extends DropTargetAdapter {
 		event.detail = DND.DROP_MOVE;
 	}
 
-	private static SceneNode2 getTransferNode() {
+	private static SceneNode2 getTransferedNode() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		if (selection instanceof MoveNodeSelection) {
-			return ((MoveNodeSelection) selection).getNode();
+		if (selection instanceof NodeSelection) {
+			return ((NodeSelection) selection).getNode();
 		} else {
 			return null;
 		}
@@ -60,7 +60,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 		}
 
 		SceneNode2 eventNode = (SceneNode2) data;
-		SceneNode2 node = getTransferNode();
+		SceneNode2 node = getTransferedNode();
 		if (node == eventNode) {
 			event.detail = DND.DROP_NONE;
 			return;
@@ -103,7 +103,7 @@ class NodeDropTargetListener extends DropTargetAdapter {
 		}
 
 		SceneNode2 eventNode = (SceneNode2) data;
-		SceneNode2 node = getTransferNode();
+		SceneNode2 node = getTransferedNode();
 		if (node == eventNode) {
 			event.detail = DND.DROP_NONE;
 			return;

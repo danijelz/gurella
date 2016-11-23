@@ -76,7 +76,7 @@ public class AssetRegistry extends AssetManager {
 	private static final String loadedAssetInconsistentMessage = "Asset with name '%s' already loaded, but has different type (expected: %s, found: %s).";
 	private static final String queuedAssetInconsistentMessage = "Asset with name '%s' already in preload queue, but has different type (expected: %s, found: %s)";
 
-	private final ObjectMap<String, AssetReference> assetsByFileName = new ObjectMap<String, AssetReference>();
+	private final ObjectMap<String, AssetInfo> assetsByFileName = new ObjectMap<String, AssetInfo>();
 	private final IdentityMap<Object, String> fileNamesByAsset = new IdentityMap<Object, String>();
 
 	private final ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>> loaders = new ObjectMap<Class<?>, ObjectMap<String, AssetLoader<?, ?>>>();
@@ -108,6 +108,7 @@ public class AssetRegistry extends AssetManager {
 			return;
 		}
 
+		// @formatter:off
 		setLoader(BitmapFont.class, new BitmapFontLoader(resolver));
 		setLoader(Music.class, new MusicLoader(resolver));
 		setLoader(Pixmap.class, new PixmapLoader(resolver));
@@ -116,8 +117,7 @@ public class AssetRegistry extends AssetManager {
 		setLoader(Texture.class, new TextureLoader(resolver));
 		setLoader(Skin.class, new SkinLoader(resolver));
 		setLoader(ParticleEffect.class, new ParticleEffectLoader(resolver));
-		setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class,
-				new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
+		setLoader(com.badlogic.gdx.graphics.g3d.particles.ParticleEffect.class, new com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader(resolver));
 		setLoader(PolygonRegion.class, new PolygonRegionLoader(resolver));
 		setLoader(I18NBundle.class, new I18NBundleLoader(resolver));
 		setLoader(Model.class, "g3dj", new G3dModelLoader(new JsonReader(), resolver));
@@ -126,24 +126,24 @@ public class AssetRegistry extends AssetManager {
 		setLoader(SoundClip.class, "scl", new SoundClipLoader(resolver));
 		setLoader(Scene.class, "gscn", new JsonObjectLoader<Scene>(resolver, Scene.class));
 		setLoader(SceneNode2.class, "pref", new JsonObjectLoader<SceneNode2>(resolver, SceneNode2.class));
-		setLoader(MaterialDescriptor.class, "gmat",
-				new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+		setLoader(MaterialDescriptor.class, "gmat", new JsonObjectLoader<MaterialDescriptor>(resolver, MaterialDescriptor.class));
+		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
 		setLoader(ShaderTemplate.class, "glslt", new ShaderTemplateLoader(resolver));
 		setLoader(RenderTarget.class, "rt", new RenderTargetLoader(resolver));
 		setLoader(Cubemap.class, "ktx", new CubemapLoader(resolver));
 		setLoader(Cubemap.class, "zktx", new CubemapLoader(resolver));
-		setLoader(ManagedObject.class, new JsonObjectLoader<ManagedObject>(resolver, ManagedObject.class));
+		// @formatter:on
 	}
 
 	// TODO make package private and only accessible for prefabs and bundles
 	public <T> void put(T asset, String fileName) {
 		// TODO check if asset in other file -> renamed(oldFileName, newFileName);
-		AssetReference reference = AssetReference.obtain();
-		reference.asset = asset;
+		AssetInfo info = AssetInfo.obtain();
+		info.asset = asset;
 		// TODO initial refCount, dependencies and dependents
-		reference.refCount = 1;
+		info.refCount = 1;
 		fileNamesByAsset.put(asset, fileName);
-		assetsByFileName.put(fileName, reference);
+		assetsByFileName.put(fileName, info);
 		DisposablesService.tryAdd(asset);
 	}
 
@@ -155,12 +155,12 @@ public class AssetRegistry extends AssetManager {
 
 	public <T> T get(String fileName, String internalId) {
 		synchronized (mutex) {
-			AssetReference reference = assetsByFileName.get(fileName);
-			if (reference == null) {
+			AssetInfo info = assetsByFileName.get(fileName);
+			if (info == null) {
 				throw new GdxRuntimeException("Asset not loaded: " + fileName);
 			}
 
-			return reference.getAssetPart(internalId);
+			return info.getAssetPart(internalId);
 		}
 	}
 
@@ -174,12 +174,12 @@ public class AssetRegistry extends AssetManager {
 	@SuppressWarnings("sync-override")
 	public <T> T get(String fileName, Class<T> type) {
 		synchronized (mutex) {
-			AssetReference reference = assetsByFileName.get(fileName);
-			if (reference == null) {
+			AssetInfo info = assetsByFileName.get(fileName);
+			if (info == null) {
 				throw new GdxRuntimeException("Asset not loaded: " + fileName);
 			}
 
-			T asset = reference.getAsset();
+			T asset = info.getAsset();
 			if (asset == null) {
 				throw new GdxRuntimeException("Asset not loaded: " + fileName);
 			}
@@ -324,11 +324,11 @@ public class AssetRegistry extends AssetManager {
 	public <T> void load(String fileName, Class<T> type, AssetLoaderParameters<T> parameters, AsyncCallback<T> callback,
 			int priority, boolean sticky) {
 		synchronized (mutex) {
-			AssetReference reference = assetsByFileName.get(fileName);
-			if (reference == null) {
+			AssetInfo info = assetsByFileName.get(fileName);
+			if (info == null) {
 				addToQueue(fileName, type, parameters, callback, priority, sticky);
 			} else {
-				handleAssetLoaded(fileName, type, parameters, callback, reference);
+				handleAssetLoaded(fileName, type, parameters, callback, info);
 			}
 		}
 	}
@@ -382,8 +382,8 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private <T> void handleAssetLoaded(String fileName, Class<T> type, AssetLoaderParameters<T> parameters,
-			AsyncCallback<T> callback, AssetReference reference) {
-		Object asset = reference.asset;
+			AsyncCallback<T> callback, AssetInfo info) {
+		Object asset = info.asset;
 		Class<?> otherType = asset.getClass();
 
 		if (otherType != type) {
@@ -392,7 +392,7 @@ public class AssetRegistry extends AssetManager {
 			String message = Values.format(loadedAssetInconsistentMessage, fileName, typeName, otherTypeName);
 			notifyLoadException(callback, message);
 		} else {
-			reference.incRefCount();
+			info.incRefCount();
 			notifyLoadFinished(fileName, type, parameters, callback, Values.<T> cast(asset));
 		}
 	}
@@ -433,49 +433,49 @@ public class AssetRegistry extends AssetManager {
 	}
 
 	private void unloadAsset(String fileName) {
-		AssetReference reference = assetsByFileName.get(fileName);
-		if (reference == null) {
+		AssetInfo info = assetsByFileName.get(fileName);
+		if (info == null) {
 			return;
 		}
 
-		reference.decRefCount();
-		if (!reference.isReferenced()) {
-			unloadAsset(fileName, reference);
+		info.decRefCount();
+		if (!info.isReferenced()) {
+			unloadAsset(fileName, info);
 		}
 	}
 
-	private void unloadAsset(String fileName, AssetReference reference) {
-		Object asset = reference.asset;
+	private void unloadAsset(String fileName, AssetInfo info) {
+		Object asset = info.asset;
 		assetUnloadedEvent.set(fileName, asset);
 		EventService.post(AssetActivityListener.class, assetUnloadedEvent);
 		assetUnloadedEvent.reset();
 
 		fileNamesByAsset.remove(asset);
 		assetsByFileName.remove(fileName);
-		dereferenceDependencies(fileName, reference);
+		dereferenceDependencies(fileName, info);
 
 		if (asset instanceof Poolable) {
 			PoolService.free(asset);
 		} else {
 			DisposablesService.tryDispose(asset);
 		}
-		reference.free();
+		info.free();
 	}
 
-	private void dereferenceDependencies(String fileName, AssetReference reference) {
-		for (String dependencyFileName : reference.dependencies) {
-			AssetReference dependencyReference = assetsByFileName.get(dependencyFileName);
-			dependencyReference.removeDependent(fileName);
-			if (!dependencyReference.isReferenced()) {
-				unloadAsset(dependencyFileName, dependencyReference);
+	private void dereferenceDependencies(String fileName, AssetInfo info) {
+		for (String dependencyFileName : info.dependencies) {
+			AssetInfo dependencyInfo = assetsByFileName.get(dependencyFileName);
+			dependencyInfo.removeDependent(fileName);
+			if (!dependencyInfo.isReferenced()) {
+				unloadAsset(dependencyFileName, dependencyInfo);
 			}
 		}
 	}
 
 	private <T> void cancleTask(AssetLoadingTask<T> task) {
-		AssetReference reference = task.reference;
-		reference.decRefCount();
-		if (reference.isReferenced()) {
+		AssetInfo info = task.info;
+		info.decRefCount();
+		if (info.isReferenced()) {
 			return;
 		}
 
@@ -515,11 +515,11 @@ public class AssetRegistry extends AssetManager {
 		}
 
 		synchronized (mutex) {
-			AssetReference reference = assetsByFileName.remove(fileName);
-			if (reference == null) {
+			AssetInfo info = assetsByFileName.remove(fileName);
+			if (info == null) {
 				return;
 			} else {
-				Object asset = reference.asset;
+				Object asset = info.asset;
 				assetReloadedEvent.set(fileName, asset);
 				EventService.post(AssetActivityListener.class, assetReloadedEvent);
 				assetReloadedEvent.reset();
@@ -529,7 +529,7 @@ public class AssetRegistry extends AssetManager {
 				DisposablesService.tryDispose(asset);
 				ConfigurableAssetDescriptor<T> descriptor = AssetService.getAssetDescriptor(fileName);
 				AssetLoaderParameters<T> parameters = descriptor == null ? null : descriptor.getParameters();
-				asyncQueue.add(obtain(this, callback, fileName, type, reference, parameters, priority));
+				asyncQueue.add(obtain(this, callback, fileName, type, info, parameters, priority));
 				asyncQueue.sort();
 			}
 		}
@@ -538,11 +538,11 @@ public class AssetRegistry extends AssetManager {
 	public void reloadInvalidated() {
 		finishLoading();
 		synchronized (mutex) {
-			Entries<String, AssetReference> entries = assetsByFileName.entries();
+			Entries<String, AssetInfo> entries = assetsByFileName.entries();
 			while (entries.hasNext()) {
-				Entry<String, AssetReference> entry = entries.next();
-				AssetReference reference = entry.value;
-				Object asset = reference.asset;
+				Entry<String, AssetInfo> entry = entries.next();
+				AssetInfo info = entry.value;
+				Object asset = info.asset;
 				if (asset instanceof Texture || asset instanceof Cubemap) {
 					String fileName = entry.key;
 					assetReloadedEvent.set(fileName, asset);
@@ -555,7 +555,7 @@ public class AssetRegistry extends AssetManager {
 					DisposablesService.tryDispose(asset);
 					ConfigurableAssetDescriptor<Object> descriptor = AssetService.getAssetDescriptor(fileName);
 					AssetLoaderParameters<Object> params = descriptor == null ? null : descriptor.getParameters();
-					asyncQueue.add(obtain(this, null, fileName, type, reference, params, Integer.MAX_VALUE));
+					asyncQueue.add(obtain(this, null, fileName, type, info, params, Integer.MAX_VALUE));
 				}
 			}
 
@@ -626,11 +626,11 @@ public class AssetRegistry extends AssetManager {
 			Array<AssetLoadingTask<?>> dependencies = task.dependencies;
 			for (int i = 0; i < dependencies.size; i++) {
 				AssetLoadingTask<?> dependency = dependencies.get(i);
-				AssetReference reference = assetsByFileName.get(dependency.fileName);
-				if (reference == null) {
+				AssetInfo info = assetsByFileName.get(dependency.fileName);
+				if (info == null) {
 					addToQueue(dependency);
 				} else {
-					handleAssetLoaded(dependency, reference);
+					handleAssetLoaded(dependency, info);
 				}
 			}
 		}
@@ -653,8 +653,8 @@ public class AssetRegistry extends AssetManager {
 		}
 	}
 
-	private <T> void handleAssetLoaded(AssetLoadingTask<T> dependency, AssetReference reference) {
-		Object asset = reference.asset;
+	private <T> void handleAssetLoaded(AssetLoadingTask<T> dependency, AssetInfo info) {
+		Object asset = info.asset;
 		String fileName = dependency.fileName;
 		Class<T> type = dependency.type;
 		Class<?> otherType = asset.getClass();
@@ -666,7 +666,7 @@ public class AssetRegistry extends AssetManager {
 			dependency.exception = new GdxRuntimeException(message);
 			exception(dependency);
 		} else {
-			reference.addDependent(dependency.parent.fileName);
+			info.addDependent(dependency.parent.fileName);
 			dependency.setLoadingState(AssetLoadingState.finished);
 			dependency.updateProgress();
 			notifyLoadFinished(fileName, type, dependency.params, dependency.callback, Values.<T> cast(asset));
@@ -716,16 +716,16 @@ public class AssetRegistry extends AssetManager {
 		task.setLoadingState(AssetLoadingState.finished);
 		task.updateProgress();
 		String fileName = task.fileName;
-		AssetReference reference = task.reference;
-		T asset = reference.getAsset();
+		AssetInfo info = task.info;
+		T asset = info.getAsset();
 		fileNamesByAsset.put(asset, fileName);
-		assetsByFileName.put(fileName, reference);
+		assetsByFileName.put(fileName, info);
 		if (asset instanceof ManagedObject) {
 
 		}
 		DisposablesService.tryAdd(asset);
 		notifyTaskFinished(task, asset);
-		task.reference = null;
+		task.info = null;
 		task.free();
 	}
 
@@ -886,9 +886,9 @@ public class AssetRegistry extends AssetManager {
 			clearQueue(syncQueue);
 			currentTask = null;
 
-			for (AssetReference reference : assetsByFileName.values()) {
-				DisposablesService.tryDispose(reference.asset);
-				reference.free();
+			for (AssetInfo info : assetsByFileName.values()) {
+				DisposablesService.tryDispose(info.asset);
+				info.free();
 			}
 
 			assetsByFileName.clear();
@@ -953,15 +953,15 @@ public class AssetRegistry extends AssetManager {
 		synchronized (mutex) {
 			StringBuilder builder = new StringBuilder();
 			for (String fileName : assetsByFileName.keys()) {
-				AssetReference reference = assetsByFileName.get(fileName);
+				AssetInfo info = assetsByFileName.get(fileName);
 
 				builder.append(fileName);
 				builder.append(", ");
-				builder.append(reference.asset.getClass().getSimpleName());
+				builder.append(info.asset.getClass().getSimpleName());
 				builder.append(", refCount: ");
-				builder.append(reference.refCount);
+				builder.append(info.refCount);
 
-				ObjectSet<String> dependencies = reference.dependencies;
+				ObjectSet<String> dependencies = info.dependencies;
 				int size = dependencies.size;
 				if (size > 0) {
 					builder.append(", deps: [");
@@ -975,7 +975,7 @@ public class AssetRegistry extends AssetManager {
 					builder.append("]");
 				}
 
-				ObjectSet<String> dependents = reference.dependents;
+				ObjectSet<String> dependents = info.dependents;
 				size = dependents.size;
 				if (size > 0) {
 					builder.append(", rels: [");
@@ -1008,8 +1008,8 @@ public class AssetRegistry extends AssetManager {
 	@SuppressWarnings("sync-override")
 	public Array<String> getDependencies(String fileName) {
 		synchronized (mutex) {
-			AssetReference reference = assetsByFileName.get(fileName);
-			return reference == null ? null : reference.dependencies.iterator().toArray();
+			AssetInfo info = assetsByFileName.get(fileName);
+			return info == null ? null : info.dependencies.iterator().toArray();
 		}
 	}
 

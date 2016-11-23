@@ -304,7 +304,7 @@ class GraphMenu {
 
 		private void addNode(SceneNode2 parent) {
 			InputDialog dlg = new InputDialog(view.getShell(), "Add Node", "Enter node name", "Node",
-					this::validateNewName);
+					i -> i.length() < 3 ? "Too short" : null);
 
 			if (dlg.open() != Window.OK) {
 				return;
@@ -316,10 +316,6 @@ class GraphMenu {
 
 			AddNodeOperation operation = new AddNodeOperation(editorId, context.getScene(), parent, node);
 			context.executeOperation(operation, "Error while adding node");
-		}
-
-		private String validateNewName(String input) {
-			return input.length() < 3 ? "Too short" : null;
 		}
 	}
 }

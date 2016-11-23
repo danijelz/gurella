@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.gurella.engine.pool.PoolService;
 
-class AssetReference implements Poolable {
+class AssetInfo implements Poolable {
 	private static final ObjectMap<String, Object> emptyBundledAssets = new ObjectMap<String, Object>();
 
 	Object asset;
@@ -15,11 +15,11 @@ class AssetReference implements Poolable {
 	final ObjectSet<String> dependents = new ObjectSet<String>(4);
 	private ObjectMap<String, Object> bundledAssets;
 
-	public static AssetReference obtain() {
-		return PoolService.obtain(AssetReference.class);
+	public static AssetInfo obtain() {
+		return PoolService.obtain(AssetInfo.class);
 	}
 
-	private AssetReference() {
+	private AssetInfo() {
 	}
 
 	@SuppressWarnings("unchecked")

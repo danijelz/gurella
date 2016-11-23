@@ -37,8 +37,8 @@ class ComponentDropTargetListener extends DropTargetAdapter {
 
 	private static SceneNodeComponent2 getTransferComponent() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		if (selection instanceof MoveComponentSelection) {
-			return ((MoveComponentSelection) selection).getComponent();
+		if (selection instanceof ComponentSelection) {
+			return ((ComponentSelection) selection).getComponent();
 		} else {
 			return null;
 		}

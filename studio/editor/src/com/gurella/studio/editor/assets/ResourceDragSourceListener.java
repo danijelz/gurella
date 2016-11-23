@@ -7,10 +7,10 @@ import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-class AssetsDragSourceListener implements DragSourceListener {
+class ResourceDragSourceListener implements DragSourceListener {
 	private final Tree tree;
 
-	AssetsDragSourceListener(Tree tree) {
+	ResourceDragSourceListener(Tree tree) {
 		this.tree = tree;
 	}
 

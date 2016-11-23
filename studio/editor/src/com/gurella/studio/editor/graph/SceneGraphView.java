@@ -58,6 +58,8 @@ import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.subscription.SceneLoadedListener;
 import com.gurella.studio.editor.utils.ControlExpression;
+import com.gurella.studio.editor.utils.DelegatingDragSourceListener;
+import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.UiUtils;
 
 public class SceneGraphView extends DockableView
@@ -106,6 +108,7 @@ public class SceneGraphView extends DockableView
 		graph.setHeaderVisible(false);
 		graph.addListener(SWT.Selection, e -> selectionChanged());
 		graph.addListener(SWT.MouseUp, this::showMenu);
+		graph.addListener(SWT.MouseDoubleClick, this::flipExpansion);
 
 		viewer = new TreeViewer(graph);
 		viewer.setContentProvider(new GraphViewerContentProvider());
@@ -136,13 +139,17 @@ public class SceneGraphView extends DockableView
 
 	private void initDragManagers() {
 		LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
+
 		final DragSource source = new DragSource(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { localTransfer });
-		source.addDragListener(new SceneGraphDragSourceListener(graph));
+		source.addDragListener(new DelegatingDragSourceListener(new ComponentDragSourceListener(graph),
+				new NodeDragSourceListener(graph)));
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new SceneGraphDropTargetListener(graph, editorContext));
+		dropTarget
+				.addDropListener(new DelegatingDropTargetListener(new ComponentDropTargetListener(graph, editorContext),
+						new NodeDropTargetListener(graph, editorContext), new AssetDropTargetListener(editorContext)));
 	}
 
 	private void initFocusHandlers() {
@@ -182,6 +189,12 @@ public class SceneGraphView extends DockableView
 
 	private void showMenu(Event event) {
 		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getElementAt(event.x, event.y)));
+	}
+
+	private void flipExpansion(Event event) {
+		Optional.of(event).filter(e -> e.button == 1).map(e -> getElementAt(e.x, e.y))
+				.filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast)
+				.ifPresent(n -> viewer.setExpandedState(n, !viewer.getExpandedState(n)));
 	}
 
 	private SceneElement2 getElementAt(int x, int y) {

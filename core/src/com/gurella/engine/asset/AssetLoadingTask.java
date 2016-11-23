@@ -36,7 +36,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	volatile float progress = 0;
 	AssetLoadingState assetLoadingState = AssetLoadingState.ready;
 
-	AssetReference reference;
+	AssetInfo info;
 	Throwable exception;
 
 	static <T> AssetLoadingTask<T> obtain(AssetRegistry manager, AsyncCallback<T> callback, String fileName,
@@ -51,9 +51,9 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.priority = priority;
 		task.callback = callback;
 		task.loadRequestId = counter++;
-		task.reference = AssetReference.obtain();
-		task.reference.incRefCount();
-		task.reference.sticky = sticky;
+		task.info = AssetInfo.obtain();
+		task.info.incRefCount();
+		task.info.sticky = sticky;
 		return task;
 	}
 
@@ -70,13 +70,13 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.priority = parent.priority;
 		task.parent = parent;
 		task.loadRequestId = parent.loadRequestId;
-		task.reference = AssetReference.obtain();
-		task.reference.addDependent(parent.fileName);
+		task.info = AssetInfo.obtain();
+		task.info.addDependent(parent.fileName);
 		return task;
 	}
 
 	static <T> AssetLoadingTask<T> obtain(AssetRegistry manager, AsyncCallback<T> callback, String fileName,
-			Class<T> type, AssetReference reference, AssetLoaderParameters<T> params, int priority) {
+			Class<T> type, AssetInfo info, AssetLoaderParameters<T> params, int priority) {
 		@SuppressWarnings("unchecked")
 		AssetLoadingTask<T> task = PoolService.obtain(AssetLoadingTask.class);
 		task.manager = manager;
@@ -87,8 +87,8 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		task.priority = priority;
 		task.callback = callback;
 		task.loadRequestId = counter++;
-		task.reference = reference;
-		reference.asset = null;
+		task.info = info;
+		info.asset = null;
 		return task;
 	}
 
@@ -136,7 +136,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 			AssetLoadingTask<?> duplicate = findDuplicate(dependencyFileName);
 			if (duplicate == null) {
-				reference.addDependency(dependencyFileName);
+				info.addDependency(dependencyFileName);
 				dependencies.add(obtain(this, dependencyFileName, descriptor.file, dependencyType, castedParams));
 			} else if (dependencyType != duplicate.type) {
 				throw new GdxRuntimeException("Dependencies conflict.");
@@ -157,7 +157,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	private void loadAsync() {
 		if (loader instanceof SynchronousAssetLoader) {
 			SynchronousAssetLoader<T, AssetLoaderParameters<T>> syncLoader = Values.cast(loader);
-			reference.asset = syncLoader.load(manager, fileName, file, params);
+			info.asset = syncLoader.load(manager, fileName, file, params);
 			manager.finished(this);
 		} else {
 			AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
@@ -168,7 +168,7 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 
 	void loadSync() {
 		AsynchronousAssetLoader<T, AssetLoaderParameters<T>> asyncLoader = Values.cast(loader);
-		reference.asset = asyncLoader.loadSync(manager, fileName, file, params);
+		info.asset = asyncLoader.loadSync(manager, fileName, file, params);
 	}
 
 	void updateProgress() {
@@ -229,12 +229,12 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 	void merge(AssetLoadingTask<T> concurentTask) {
 		concurentTasks.add(concurentTask);
 
-		reference.sticky |= concurentTask.reference.sticky;
+		info.sticky |= concurentTask.info.sticky;
 		AssetLoadingTask<?> concurrentTaskParent = concurentTask.parent;
 		if (concurrentTaskParent == null) {
-			reference.incRefCount();
+			info.incRefCount();
 		} else {
-			reference.addDependent(concurrentTaskParent.fileName);
+			info.addDependent(concurrentTaskParent.fileName);
 		}
 
 		int newPriority = concurentTask.priority;
@@ -290,9 +290,9 @@ class AssetLoadingTask<T> implements AsyncTask<Void>, Comparable<AssetLoadingTas
 		assetLoadingState = AssetLoadingState.ready;
 
 		exception = null;
-		if (reference != null) {
-			reference.free();
-			reference = null;
+		if (info != null) {
+			info.free();
+			info = null;
 		}
 	}
 

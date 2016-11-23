@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.scene.SceneNode2;
 
-public class NodeDragSourceListener extends DragSourceAdapter {
+class NodeDragSourceListener extends DragSourceAdapter {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 
 	private final Tree graph;
@@ -23,7 +23,7 @@ public class NodeDragSourceListener extends DragSourceAdapter {
 		if (selection.length == 1 && selection[0].getData() instanceof SceneNode2) {
 			TreeItem item = selection[0];
 			SceneNode2 component = (SceneNode2) item.getData();
-			localTransfer.setSelection(new MoveNodeSelection(component));
+			localTransfer.setSelection(new NodeSelection(component));
 			event.data = component;
 			event.doit = true;
 		} else {

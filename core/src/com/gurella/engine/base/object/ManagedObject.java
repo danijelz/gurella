@@ -22,7 +22,7 @@ import com.gurella.engine.utils.Values;
 
 public abstract class ManagedObject implements Bundle, Comparable<ManagedObject> {
 	transient int instanceId;
-	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to byte
+	transient ManagedObjectState state = ManagedObjectState.idle;// TODO convert to int
 
 	@PropertyDescriptor(property = ManagedObjectUuidProperty.class)
 	@PropertyEditorDescriptor(editable = false)
@@ -445,20 +445,17 @@ public abstract class ManagedObject implements Bundle, Comparable<ManagedObject>
 	@Override
 	public ObjectMap<String, Object> getBundledAssets() {
 		ObjectMap<String, Object> bundledAssets = new ObjectMap<String, Object>();
-		if (uuid != null) {
-			bundledAssets.put(uuid, this);
-		}
-		appendBundledAssets(bundledAssets);
+		appendBundledAssets(bundledAssets, this);
 		return bundledAssets;
 	}
 
-	private void appendBundledAssets(ObjectMap<String, Object> bundledAssets) {
-		for (int i = 0, n = _children.size; i < n; i++) {
-			ManagedObject child = _children.get(i);
-			if (child.uuid != null) {
-				bundledAssets.put(child.uuid, child);
-			}
-			child.appendBundledAssets(bundledAssets);
+	private static void appendBundledAssets(ObjectMap<String, Object> bundledAssets, ManagedObject object) {
+		if (object.uuid != null) {
+			bundledAssets.put(object.uuid, object);
+		}
+		OrderedIdentitySet<ManagedObject> children = object._children;
+		for (int i = 0, n = children.size; i < n; i++) {
+			appendBundledAssets(bundledAssets, children.get(i));
 		}
 	}
 
