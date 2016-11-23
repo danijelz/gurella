@@ -20,24 +20,29 @@
             id="com.gurella.studio.reftactoring.GurellaAssetsRenameParticipants"
             name="Gurella assets rename participants">
          <enablement>
-            <with
-                  variable="affectedNatures">
-               <iterate
-                     ifEmpty="false"
-                     operator="or">
-                  <equals
-                        value="org.eclipse.jdt.core.javanature">
-                  </equals>
-               </iterate>
-            </with>
-            <with
-                  variable="notJavaFile">
-               <or></or>
-               <test
-                     forcePluginActivation="true"
-                     property="org.eclipse.core.resources.extension">
-               </test>
-            </with>
+            <and>
+               <with
+                     variable="affectedNatures">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <equals
+                           value="org.eclipse.jdt.core.javanature">
+                     </equals>
+                  </iterate>
+               </with>
+               <with
+                     variable="notJavaFile">
+                  <or></or>
+                  <test
+                        forcePluginActivation="true"
+                        property="org.eclipse.core.resources.extension">
+                  </test>
+               </with>
+               <instanceof
+                     value="org.eclipse.core.resources.IFile">
+               </instanceof>
+            </and>
          </enablement>
       </renameParticipant>
    </extension>
