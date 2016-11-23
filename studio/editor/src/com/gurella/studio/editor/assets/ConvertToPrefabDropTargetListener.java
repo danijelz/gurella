@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -28,7 +27,6 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.gurella.engine.asset.AssetService;
 import com.gurella.engine.base.model.CopyContext;
 import com.gurella.engine.base.object.ManagedObject;
-import com.gurella.engine.base.object.PrefabReference;
 import com.gurella.engine.base.serialization.json.JsonOutput;
 import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.utils.Values;
@@ -143,7 +141,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 		IProject project = folder.getProject();
 		IPath projectPath = project.getLocation();
 		IPath assetsRootPath = projectPath.append("assets");
-		IPath projectAssetPath = folder.getFile(prefabName).getFullPath().makeRelativeTo(projectPath);
+		IPath projectAssetPath = folder.getFile(prefabName).getLocation().makeRelativeTo(projectPath);
 
 		SceneNode2 prefab = CopyContext.copyObject(node);
 		JsonOutput output = new JsonOutput();
@@ -158,7 +156,7 @@ class ConvertToPrefabDropTargetListener extends DropTargetAdapter {
 			file.create(is, true, new NullProgressMonitor());
 		}
 
-		IPath gdxAssetPath = new Path(prefabName).makeRelativeTo(assetsRootPath);
+		IPath gdxAssetPath = file.getLocation().makeRelativeTo(assetsRootPath);
 		AssetService.put(prefab, gdxAssetPath.toString());
 		String errMsg = "Error while converting to prefab";
 		context.executeOperation(new ConvertToPrefabOperation(context.editorId, node, prefab), errMsg);
