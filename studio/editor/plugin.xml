@@ -5,13 +5,41 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            name="Gurella Editor"
+            name="Gurella scene editor"
             extensions="gscn"
             icon="icons/sample.gif"
             contributorClass="com.gurella.studio.editor.SceneEditorActionBarContributor"
             class="com.gurella.studio.editor.SceneEditor"
             id="com.gurella.studio.editor.GurellaEditor">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ltk.core.refactoring.renameParticipants">
+      <renameParticipant
+            class="com.gurella.studio.reftactoring.GurellaAssetsRenameParticipants"
+            id="com.gurella.studio.reftactoring.GurellaAssetsRenameParticipants"
+            name="Gurella assets rename participants">
+         <enablement>
+            <with
+                  variable="affectedNatures">
+               <iterate
+                     ifEmpty="false"
+                     operator="or">
+                  <equals
+                        value="org.eclipse.jdt.core.javanature">
+                  </equals>
+               </iterate>
+            </with>
+            <with
+                  variable="notJavaFile">
+               <or></or>
+               <test
+                     forcePluginActivation="true"
+                     property="org.eclipse.core.resources.extension">
+               </test>
+            </with>
+         </enablement>
+      </renameParticipant>
    </extension>
 
 </plugin>
