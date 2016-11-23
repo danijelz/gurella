@@ -5,34 +5,34 @@ import static com.gurella.studio.GurellaStudioPlugin.getImage;
 
 import java.util.Optional;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
+import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
@@ -50,14 +50,13 @@ import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
-import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView {
-	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
-	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
-
 	Tree tree;
 	TreeViewer viewer;
+	private final AssetsViewMenu menu;
+	final Clipboard clipboard;
+
 	IResource rootResource;
 
 	private Object lastSelection;
@@ -68,8 +67,12 @@ public class AssetsView extends DockableView {
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
-		
+
 		rootResource = editorContext.project.getFolder("assets");
+
+		clipboard = new Clipboard(getDisplay());
+		addDisposeListener(e -> clipboard.dispose());
+		menu = new AssetsViewMenu(this);
 
 		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
@@ -77,6 +80,8 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.KeyDown, e -> onKeyDown());
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
+		tree.addListener(SWT.MouseUp, this::showMenu);
+		tree.addListener(SWT.MouseDoubleClick, this::flipExpansion);
 
 		viewer = new TreeViewer(tree);
 		viewer.setContentProvider(new AssetsViewerContentProvider());
@@ -95,6 +100,8 @@ public class AssetsView extends DockableView {
 	}
 
 	private void initDragManagers() {
+		LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
+
 		final DragSource source = new DragSource(tree, DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
 		source.addDragListener(new ResourceDragSourceListener(tree));
@@ -114,21 +121,42 @@ public class AssetsView extends DockableView {
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
+	private IResource getResourceAt(int x, int y) {
+		return Optional.ofNullable(viewer.getCell(new Point(x, y))).map(c -> c.getElement())
+				.filter(IResource.class::isInstance).map(e -> (IResource) e).orElse(null);
+	}
+
+	Optional<IResource> getFirstSelectedElement() {
+		return Optional.ofNullable(((ITreeSelection) viewer.getSelection()).getFirstElement())
+				.map(IResource.class::cast);
+	}
+
+	Optional<IFile> getFirstSelectedFile() {
+		return getFirstSelectedElement().filter(IFile.class::isInstance).map(IFile.class::cast);
+	}
+
 	private void onKeyDown() {
-		TreeItem[] selection = tree.getSelection();
-		lastSelection = selection.length < 1 ? null : selection[0].getData();
+		lastSelection = getFirstSelectedElement().orElse(null);
 	}
 
 	private void onKeyUp() {
-		TreeItem[] selection = tree.getSelection();
-		Object currentSelection = selection.length < 1 ? null : selection[0].getData();
-		Optional.ofNullable(currentSelection).filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
+		getFirstSelectedElement().filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
 	}
 
 	private void presentInspectable() {
-		Optional.ofNullable(tree.getSelection()).filter(s -> s.length > 0).map(s -> s[0].getData())
-				.filter(d -> d instanceof IFile).map(d -> (IFile) d).ifPresent(f -> post(editorContext.editorId,
-						EditorSelectionListener.class, l -> l.selectionChanged(getInspectable(f))));
+		int editorId = editorContext.editorId;
+		getFirstSelectedFile().ifPresent(
+				f -> post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(getInspectable(f))));
+	}
+
+	private void showMenu(Event event) {
+		Optional.of(event).filter(e -> e.button == 3).ifPresent(e -> menu.show(getResourceAt(event.x, event.y)));
+	}
+
+	private void flipExpansion(Event event) {
+		Optional.of(event).filter(e -> e.button == 1).map(e -> getResourceAt(e.x, e.y))
+				.filter(SceneNode2.class::isInstance).map(SceneNode2.class::cast)
+				.ifPresent(n -> viewer.setExpandedState(n, !viewer.getExpandedState(n)));
 	}
 
 	// TODO create plugin extension
@@ -196,5 +224,25 @@ public class AssetsView extends DockableView {
 
 	private static Image getPlatformImage(String symbolicName) {
 		return PlatformUI.getWorkbench().getSharedImages().getImage(symbolicName);
+	}
+
+	public void cut(IResource selection) {
+		// TODO Auto-generated method stub
+	}
+
+	public void copy(IResource selection) {
+		// TODO Auto-generated method stub
+	}
+
+	public void paste(IResource selection) {
+		// TODO Auto-generated method stub
+	}
+
+	public void delete(IResource selection) {
+		// TODO Auto-generated method stub
+	}
+
+	public void rename(IResource selection) {
+		// TODO Auto-generated method stub
 	}
 }

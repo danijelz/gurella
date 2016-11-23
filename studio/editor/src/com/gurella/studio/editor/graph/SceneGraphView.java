@@ -199,7 +199,7 @@ public class SceneGraphView extends DockableView
 
 	private SceneElement2 getElementAt(int x, int y) {
 		return Optional.ofNullable(viewer.getCell(new Point(x, y))).map(c -> c.getElement())
-				.filter(SceneNode2.class::isInstance).map(d -> (SceneElement2) d).orElse(null);
+				.filter(SceneNode2.class::isInstance).map(c -> (SceneElement2) c).orElse(null);
 	}
 
 	Optional<SceneElement2> getFirstSelectedElement() {
