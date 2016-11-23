@@ -71,6 +71,7 @@ import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.AddNodeOperation;
 import com.gurella.studio.editor.operation.ConvertToPrefabOperation;
+import com.gurella.studio.editor.operation.RenameNodeOperation;
 import com.gurella.studio.editor.utils.SaveFileDialog;
 
 class GraphMenu {
@@ -136,6 +137,11 @@ class GraphMenu {
 			item.setEnabled(nodeSelected);
 
 			item = new MenuItem(menu, SWT.PUSH);
+			item.setText("Rename");
+			item.addListener(SWT.Selection, e -> rename());
+			item.setEnabled(nodeSelected);
+
+			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Empty node");
 			item.addListener(SWT.Selection, e -> addNode(null));
 
@@ -155,6 +161,19 @@ class GraphMenu {
 			addSeparator(menu);
 
 			createComponentsSubMenu(menu);
+		}
+
+		private void rename() {
+			SceneNode2 node = (SceneNode2) selection;
+			InputDialog dlg = new InputDialog(view.getShell(), "Add Node", "Enter node name", node.getName(),
+					i -> i.length() < 3 ? "Too short" : null);
+
+			if (dlg.open() != Window.OK) {
+				return;
+			}
+
+			RenameNodeOperation operation = new RenameNodeOperation(editorId, node, dlg.getValue());
+			context.executeOperation(operation, "Error while renaming node");
 		}
 
 		private void convertToPrefab() {

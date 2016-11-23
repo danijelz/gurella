@@ -12,17 +12,17 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.studio.editor.subscription.NodeNameChangeListener;
 import com.gurella.studio.editor.utils.SceneChangedEvent;
 
-public class SetNodeNameOperation extends AbstractOperation {
+public class RenameNodeOperation extends AbstractOperation {
 	final int editorId;
 	final SceneNode2 node;
 	final String oldValue;
 	final String newValue;
 
-	public SetNodeNameOperation(int editorId, SceneNode2 node, String oldValue, String newValue) {
+	public RenameNodeOperation(int editorId, SceneNode2 node, String newValue) {
 		super("Name");
 		this.editorId = editorId;
 		this.node = node;
-		this.oldValue = oldValue;
+		this.oldValue = node.getName();
 		this.newValue = newValue;
 	}
 

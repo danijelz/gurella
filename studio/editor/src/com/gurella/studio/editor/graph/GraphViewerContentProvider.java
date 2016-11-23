@@ -12,8 +12,9 @@ class GraphViewerContentProvider implements ITreeContentProvider {
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof SceneNode2[]) {
 			return (SceneNode2[]) inputElement;
+		} else {
+			return new Object[0];
 		}
-		return new Object[0];
 	}
 
 	@Override
@@ -24,8 +25,9 @@ class GraphViewerContentProvider implements ITreeContentProvider {
 			node.components.appendTo(elements);
 			node.childNodes.appendTo(elements);
 			return elements.toArray(SceneElement2.class);
+		} else {
+			return new Object[0];
 		}
-		return new Object[0];
 	}
 
 	@Override

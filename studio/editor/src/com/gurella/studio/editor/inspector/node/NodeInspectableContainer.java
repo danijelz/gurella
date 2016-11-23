@@ -84,7 +84,7 @@ import com.gurella.studio.editor.inspector.InspectableContainer;
 import com.gurella.studio.editor.inspector.InspectorView;
 import com.gurella.studio.editor.operation.AddComponentOperation;
 import com.gurella.studio.editor.operation.SetNodeEnabledOperation;
-import com.gurella.studio.editor.operation.SetNodeNameOperation;
+import com.gurella.studio.editor.operation.RenameNodeOperation;
 import com.gurella.studio.editor.preferences.PreferencesExtension;
 import com.gurella.studio.editor.preferences.PreferencesNode;
 import com.gurella.studio.editor.preferences.PreferencesStore;
@@ -158,8 +158,7 @@ public class NodeInspectableContainer extends InspectableContainer<SceneNode2> i
 	}
 
 	private void nodeNameChanged() {
-		SetNodeNameOperation operation = new SetNodeNameOperation(editorContext.editorId, target, target.getName(),
-				nameText.getText());
+		RenameNodeOperation operation = new RenameNodeOperation(editorContext.editorId, target, nameText.getText());
 		editorContext.executeOperation(operation, "Error while renaming node");
 	}
 

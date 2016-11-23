@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -56,6 +57,7 @@ public class AssetsView extends DockableView {
 	private static final String GURELLA_PROJECT_FILE_EXTENSION = "gprj";
 
 	Tree tree;
+	TreeViewer viewer;
 	IResource rootResource;
 
 	private Object lastSelection;
@@ -66,6 +68,8 @@ public class AssetsView extends DockableView {
 		setLayout(new GridLayout());
 		FormToolkit toolkit = GurellaStudioPlugin.getToolkit();
 		toolkit.adapt(this);
+		
+		rootResource = editorContext.project.getFolder("assets");
 
 		tree = toolkit.createTree(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tree.setHeaderVisible(false);
@@ -74,13 +78,20 @@ public class AssetsView extends DockableView {
 		tree.addListener(SWT.KeyUp, e -> onKeyUp());
 		tree.addListener(SWT.MouseUp, e -> presentInspectable());
 
+		viewer = new TreeViewer(tree);
+		viewer.setContentProvider(new AssetsViewerContentProvider());
+		viewer.setLabelProvider(new AssetsViewerLabelProvider());
+		viewer.setComparator(new AssetsViewerComparator());
+		viewer.setUseHashlookup(true);
+
 		initDragManagers();
-		initTree();
 
 		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
 		IWorkspace workspace = editorContext.workspace;
 		workspace.addResourceChangeListener(listener);
 		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
+
+		viewer.setInput(rootResource);
 	}
 
 	private void initDragManagers() {
@@ -95,25 +106,12 @@ public class AssetsView extends DockableView {
 						new ConvertToPrefabDropTargetListener(editorContext)));
 	}
 
-	private void initTree() {
-		Try.successful(this).peek(v -> v.createItems()).onFailure(this::presentInitException);
-	}
-
 	protected void presentInitException(Throwable e) {
 		tree.dispose();
 		String message = "Error creating assets tree";
 		IStatus status = GurellaStudioPlugin.log(e, message);
 		ErrorComposite errorComposite = new ErrorComposite(this, status, message);
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-	}
-
-	private void createItems() throws CoreException {
-		IProject project = editorContext.project;
-		IPath rootPath = findAssetsRoot().makeRelativeTo(project.getLocation());
-		rootResource = project.findMember(rootPath);
-		if (rootResource instanceof IContainer) {
-			createItems(null, rootResource);
-		}
 	}
 
 	private void onKeyDown() {
@@ -156,57 +154,6 @@ public class AssetsView extends DockableView {
 			return new MaterialInspectable(file);
 		}
 		return null;
-	}
-
-	private IPath findAssetsRoot() throws CoreException {
-		IProject project = editorContext.project;
-		IPathEditorInput editorInput = editorContext.editorInput;
-
-		IPath projectPath = project.getLocation().makeAbsolute();
-		IPath scenePath = editorInput.getPath().removeLastSegments(1).makeAbsolute();
-		IPath temp = scenePath;
-		while (projectPath.isPrefixOf(temp)) {
-			IResource member = project.findMember(temp);
-			if (member instanceof IContainer && isProjectAssetsFolder((IContainer) member)) {
-				return temp;
-			}
-			temp = temp.removeLastSegments(1);
-		}
-
-		return scenePath;
-	}
-
-	private static boolean isProjectAssetsFolder(IContainer container) throws CoreException {
-		for (IResource member : container.members()) {
-			if (member instanceof IFile && GURELLA_PROJECT_FILE_EXTENSION.equals(((IFile) member).getFileExtension())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void createItems(TreeItem parentItem, IResource resource) throws CoreException {
-		int index = parentItem == null ? tree.getItemCount() : parentItem.getItemCount();
-		TreeItem nodeItem = createItem(parentItem, resource, index);
-		if (parentItem == null) {
-			nodeItem.setExpanded(true);
-		}
-
-		if (resource instanceof IContainer) {
-			IResource[] members = ((IContainer) resource).members();
-
-			for (IResource member : members) {
-				if (member instanceof IContainer) {
-					createItems(nodeItem, member);
-				}
-			}
-
-			for (IResource member : members) {
-				if (!(member instanceof IContainer)) {
-					createItems(nodeItem, member);
-				}
-			}
-		}
 	}
 
 	TreeItem createItem(TreeItem parentItem, IResource resource, int index) {

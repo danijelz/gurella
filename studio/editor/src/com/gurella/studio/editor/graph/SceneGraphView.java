@@ -8,6 +8,7 @@ import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_DELETE;
 import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -131,10 +132,8 @@ public class SceneGraphView extends DockableView
 	private void filterChanged() {
 		viewer.removeFilter(filter);
 		String text = filterText.getText();
-		if (Values.isNotBlank(text)) {
-			filter.setFilter(text.trim());
-			viewer.addFilter(filter);
-		}
+		Optional.ofNullable(text).filter(Values::isNotBlank)
+				.ifPresent(((Consumer<String>) t -> filter.setFilter(t.trim())).andThen(t -> viewer.addFilter(filter)));
 	}
 
 	private void initDragManagers() {
@@ -147,9 +146,10 @@ public class SceneGraphView extends DockableView
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget
-				.addDropListener(new DelegatingDropTargetListener(new ComponentDropTargetListener(graph, editorContext),
-						new NodeDropTargetListener(graph, editorContext), new AssetDropTargetListener(editorContext)));
+		DelegatingDropTargetListener listener = new DelegatingDropTargetListener(
+				new ComponentDropTargetListener(graph, editorContext), new NodeDropTargetListener(graph, editorContext),
+				new AssetDropTargetListener(editorContext));
+		dropTarget.addDropListener(listener);
 	}
 
 	private void initFocusHandlers() {
