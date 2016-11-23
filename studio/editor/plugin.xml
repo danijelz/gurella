@@ -32,9 +32,9 @@
                   </iterate>
                </with>
                <with
-                     variable="notJavaFile">
-                  <or></or>
+                     variable="validFileExtension">
                   <test
+                        args="png,jpg,jpeg,atl"
                         forcePluginActivation="true"
                         property="org.eclipse.core.resources.extension">
                   </test>
