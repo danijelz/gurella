@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.resource.DeleteResourcesDescriptor;
 import org.eclipse.ltk.core.refactoring.resource.MoveResourcesDescriptor;
@@ -56,7 +57,7 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
-import com.gurella.studio.editor.operation.RefractorResourceOperation;
+import com.gurella.studio.editor.operation.RefractoringOperation;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.Try;
@@ -274,16 +275,11 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		descriptor.setResourcesToMove(new IResource[] { resource });
 		descriptor.setDestination(destination);
 		descriptor.setUpdateReferences(true);
-		RefactoringStatus status = new RefactoringStatus();
-		String errMsg = "Error while moving resource.";
-		Try.successful(descriptor).map(d -> d.createRefactoring(status)).map(
-				r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
-				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+		executeRefractoringOperation(descriptor, "Error while moving resource.");
 	}
 
 	private void duplicate(IResource resource, IFolder destinationFolder) {
 		// TODO Auto-generated method stub
-
 	}
 
 	void rename(IResource resource, String newName) {
@@ -291,15 +287,20 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		descriptor.setResourcePath(resource.getLocation());
 		descriptor.setUpdateReferences(true);
 		descriptor.setNewName(newName);
+		executeRefractoringOperation(descriptor, "Error while renaming resource.");
+	}
+
+	private void executeRefractoringOperation(RefactoringDescriptor descriptor, String errMsg) {
 		RefactoringStatus status = new RefactoringStatus();
-		String errMsg = "Error while renaming resource.";
-		Try.successful(descriptor).map(d -> d.createRefactoring(status)).map(
-				r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+		Try.successful(descriptor).map(d -> d.createRefactoring(status))
+				.map(r -> new RefractoringOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
 				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
 	void delete(IResource resource) {
 		DeleteResourcesDescriptor descriptor = new DeleteResourcesDescriptor();
-		// TODO Auto-generated method stub
+		descriptor.setResources(new IResource[] { resource });
+		descriptor.setDeleteContents(true);
+		executeRefractoringOperation(descriptor, "Error while deleting resource.");
 	}
 }

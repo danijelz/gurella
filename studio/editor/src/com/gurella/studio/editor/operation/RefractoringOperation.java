@@ -16,12 +16,12 @@ import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import com.gurella.studio.editor.SceneEditorContext;
 import com.gurella.studio.editor.utils.Try;
 
-public class RefractorResourceOperation extends AbstractOperation {
+public class RefractoringOperation extends AbstractOperation {
 	private final SceneEditorContext context;
 	private final PerformRefactoringOperation operation;
 	private final IUndoManager undoManager;
 
-	public RefractorResourceOperation(SceneEditorContext context, PerformRefactoringOperation operation) {
+	public RefractoringOperation(SceneEditorContext context, PerformRefactoringOperation operation) {
 		super("move resource");
 		this.context = context;
 		this.operation = operation;

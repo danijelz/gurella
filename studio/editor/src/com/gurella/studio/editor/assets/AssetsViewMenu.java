@@ -4,13 +4,13 @@ import static org.eclipse.swt.SWT.POP_UP;
 import static org.eclipse.swt.SWT.SEPARATOR;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-
-import com.gurella.studio.editor.SceneEditorContext;
 
 class AssetsViewMenu {
 	private final AssetsView view;
@@ -29,15 +29,11 @@ class AssetsViewMenu {
 	private static class MenuPopulator {
 		private final AssetsView view;
 		private final Clipboard clipboard;
-		private final SceneEditorContext context;
-		private final int editorId;
 		private final IResource selection;
 
 		public MenuPopulator(AssetsView view, IResource selection) {
 			this.view = view;
 			this.clipboard = view.clipboard;
-			this.context = view.editorContext;
-			this.editorId = context.editorId;
 			this.selection = selection;
 		}
 
@@ -75,13 +71,26 @@ class AssetsViewMenu {
 		}
 
 		private void rename() {
-			// TODO Auto-generated method stub
-			String newName = "";
+			String name = selection.getName();
+			InputDialog dlg = new InputDialog(view.getShell(), "Rename", "Enter new name", name, this::validateRename);
+			if (dlg.open() != Window.OK) {
+				return;
+			}
+
+			String newName = dlg.getValue();
 			view.rename(selection, newName);
 		}
 
 		private static MenuItem addSeparator(Menu menu) {
 			return new MenuItem(menu, SEPARATOR);
+		}
+
+		private String validateRename(String newFileName) {
+			if (selection.getParent().findMember(newFileName).exists()) {
+				return "Resource with that name already exists";
+			} else {
+				return null;
+			}
 		}
 	}
 }
