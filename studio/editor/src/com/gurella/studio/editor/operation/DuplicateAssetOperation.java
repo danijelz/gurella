@@ -7,6 +7,7 @@ import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -44,9 +45,9 @@ public class DuplicateAssetOperation extends AbstractOperation {
 		}
 
 		String errMsg = "Error while duplicating resource.";
-		return Try.successful(resource)
-				.peek(r -> r.copy(destinationFolder.getProjectRelativePath().append(newName), true, monitor))
-				.map(r -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
+		IPath path = destinationFolder.getProjectRelativePath().makeRelativeTo(resource.getProjectRelativePath());
+		return Try.successful(resource).peek(r -> r.copy(path, true, monitor)).map(r -> Status.OK_STATUS)
+				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}
 
 	@Override
