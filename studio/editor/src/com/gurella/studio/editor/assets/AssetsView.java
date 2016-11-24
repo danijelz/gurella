@@ -279,6 +279,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 	}
 
 	private void duplicate(IResource resource, IFolder destinationFolder) {
+		//resource.copy(destinationFolder.getLocation(), true, new NullProgressMonitor());
 		// TODO Auto-generated method stub
 	}
 

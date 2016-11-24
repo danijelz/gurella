@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -43,7 +44,7 @@ public class GurellaAssetsMoveParticipants extends MoveParticipant {
 
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-		final IResource destination = (IResource) getArguments().getDestination();
+		final IContainer destination = (IContainer) getArguments().getDestination();
 		IProject project = file.getProject();
 		IPath assetsFolderPath = project.getProjectRelativePath().append("assets");
 		IResource[] roots = { project };
