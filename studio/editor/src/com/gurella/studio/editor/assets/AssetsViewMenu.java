@@ -12,6 +12,8 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.gurella.engine.utils.Values;
+
 class AssetsViewMenu {
 	private final AssetsView view;
 
@@ -70,6 +72,10 @@ class AssetsViewMenu {
 			addSeparator(menu);
 		}
 
+		private static MenuItem addSeparator(Menu menu) {
+			return new MenuItem(menu, SEPARATOR);
+		}
+
 		private void rename() {
 			String name = selection.getName();
 			InputDialog dlg = new InputDialog(view.getShell(), "Rename", "Enter new name", name, this::validateRename);
@@ -81,12 +87,10 @@ class AssetsViewMenu {
 			view.rename(selection, newName);
 		}
 
-		private static MenuItem addSeparator(Menu menu) {
-			return new MenuItem(menu, SEPARATOR);
-		}
-
 		private String validateRename(String newFileName) {
-			if (selection.getParent().findMember(newFileName).exists()) {
+			if (Values.isBlank(newFileName)) {
+				return "Name must not be empty";
+			} else if (selection.getParent().findMember(newFileName).exists()) {
 				return "Resource with that name already exists";
 			} else {
 				return null;

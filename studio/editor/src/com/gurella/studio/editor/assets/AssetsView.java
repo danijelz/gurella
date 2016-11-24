@@ -4,6 +4,10 @@ import static com.gurella.engine.event.EventService.post;
 import static com.gurella.studio.GurellaStudioPlugin.getImage;
 import static com.gurella.studio.GurellaStudioPlugin.log;
 import static org.eclipse.ltk.core.refactoring.CheckConditionsOperation.ALL_CONDITIONS;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_COPY;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_CUT;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_DELETE;
+import static org.eclipse.ui.IWorkbenchCommandConstants.EDIT_PASTE;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -38,8 +42,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.handlers.IHandlerActivation;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.eclipse.ui.swt.IFocusService;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.scene.SceneNode2;
@@ -59,6 +67,7 @@ import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 import com.gurella.studio.editor.operation.RefractoringOperation;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
+import com.gurella.studio.editor.utils.ControlExpression;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 import com.gurella.studio.editor.utils.Try;
 
@@ -101,6 +110,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		viewer.setUseHashlookup(true);
 
 		initDragManagers();
+		initFocusHandlers();
 
 		IWorkspace workspace = editorContext.workspace;
 		workspace.addResourceChangeListener(this);
@@ -120,6 +130,31 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
 		dropTarget.addDropListener(new DelegatingDropTargetListener(new MoveAssetDropTargetListener(this),
 				new ConvertToPrefabDropTargetListener(editorContext)));
+	}
+
+	private void initFocusHandlers() {
+		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IFocusService focusService = workbench.getService(IFocusService.class);
+		focusService.addFocusTracker(tree, "com.gurella.studio.editor.graph.SceneGraphView.graph");
+		IHandlerService handlerService = workbench.getService(IHandlerService.class);
+		ControlExpression exp = new ControlExpression(tree);
+		IHandlerActivation cut = handlerService.activateHandler(EDIT_CUT, new CutAssetHandler(this), exp);
+		IHandlerActivation copy = handlerService.activateHandler(EDIT_COPY, new CopyAssetHandler(this), exp);
+		IHandlerActivation paste = handlerService.activateHandler(EDIT_PASTE, new PasteAssetHandler(this), exp);
+		IHandlerActivation delete = handlerService.activateHandler(EDIT_DELETE, new DeleteAssetHandler(this), exp);
+		tree.addDisposeListener(e -> deactivateFocusHandlers(cut, copy, paste, delete));
+	}
+
+	private void deactivateFocusHandlers(IHandlerActivation cut, IHandlerActivation copy, IHandlerActivation paste,
+			IHandlerActivation delete) {
+		IWorkbench workbench = editorContext.editorSite.getWorkbenchWindow().getWorkbench();
+		IFocusService focusService = workbench.getService(IFocusService.class);
+		IHandlerService handlerService = workbench.getService(IHandlerService.class);
+		handlerService.deactivateHandler(cut);
+		handlerService.deactivateHandler(copy);
+		handlerService.deactivateHandler(paste);
+		handlerService.deactivateHandler(delete);
+		focusService.removeFocusTracker(tree);
 	}
 
 	protected void presentInitException(Throwable e) {
@@ -296,6 +331,10 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		Try.successful(descriptor).map(d -> d.createRefactoring(status))
 				.map(r -> new RefractoringOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
 				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+	}
+
+	void delete() {
+		getFirstSelectedResource().ifPresent(e -> delete(e));
 	}
 
 	void delete(IResource resource) {
