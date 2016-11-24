@@ -259,6 +259,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		if (!(destination instanceof IFolder)) {
 			return;
 		}
+
 		IFolder destinationFolder = (IFolder) destination;
 		Object contents = clipboard.getContents(LocalSelectionTransfer.getTransfer());
 		if (contents instanceof CutAssetSelection) {
@@ -275,8 +276,8 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		descriptor.setUpdateReferences(true);
 		RefactoringStatus status = new RefactoringStatus();
 		String errMsg = "Error while moving resource.";
-		Try.successful(descriptor).map(d -> d.createRefactoring(status))
-				.map(r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+		Try.successful(descriptor).map(d -> d.createRefactoring(status)).map(
+				r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
 				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
@@ -292,9 +293,9 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		descriptor.setNewName(newName);
 		RefactoringStatus status = new RefactoringStatus();
 		String errMsg = "Error while renaming resource.";
-		Try.successful(descriptor).map(d -> d.createRefactoring(status))
-		.map(r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
-		.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+		Try.successful(descriptor).map(d -> d.createRefactoring(status)).map(
+				r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
 	}
 
 	void delete(IResource resource) {
