@@ -1,48 +1,43 @@
 package com.gurella.studio.editor.assets;
 
+import java.util.Optional;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 
 class ResourceDragSourceListener implements DragSourceListener {
-	private final Tree tree;
+	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 
-	ResourceDragSourceListener(Tree tree) {
-		this.tree = tree;
+	private final AssetsView view;
+
+	ResourceDragSourceListener(AssetsView view) {
+		this.view = view;
 	}
 
 	@Override
 	public void dragStart(DragSourceEvent event) {
-		TreeItem[] selection = tree.getSelection();
-		if (selection.length != 1) {
+		Optional<IResource> selected = view.getFirstSelectedResource();
+		if (!selected.isPresent()) {
 			event.doit = false;
 			return;
 		}
 
-		Object data = selection[0].getData();
-		if (!(data instanceof IResource)) {
-			event.doit = false;
-			return;
-		}
-
-		LocalSelectionTransfer.getTransfer().setSelection(new AssetSelection((IResource) data));
-		event.data = data;
+		IResource resource = selected.get();
+		localTransfer.setSelection(new AssetSelection(resource));
+		event.data = resource;
 		event.doit = true;
 		event.image = null;
 	}
 
 	@Override
 	public void dragSetData(DragSourceEvent event) {
-		TreeItem[] selection = tree.getSelection();
-		IResource resource = (IResource) selection[0].getData();
-		event.data = new IResource[] { resource };
+		event.data = new IResource[] { view.getFirstSelectedResource().get() };
 	}
 
 	@Override
 	public void dragFinished(DragSourceEvent event) {
-		LocalSelectionTransfer.getTransfer().setSelection(null);
+		localTransfer.setSelection(null);
 	}
 }

@@ -141,8 +141,8 @@ public class SceneGraphView extends DockableView
 
 		final DragSource source = new DragSource(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { localTransfer });
-		source.addDragListener(new DelegatingDragSourceListener(new ComponentDragSourceListener(graph),
-				new NodeDragSourceListener(graph)));
+		source.addDragListener(new DelegatingDragSourceListener(new ComponentDragSourceListener(this),
+				new NodeDragSourceListener(this)));
 
 		final DropTarget dropTarget = new DropTarget(graph, DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
@@ -219,7 +219,7 @@ public class SceneGraphView extends DockableView
 	@Override
 	public void nodeAdded(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
 		if (parentNode == null) {
-			refreshInput();
+			viewer.add(scene, node);
 		} else {
 			viewer.add(parentNode, node);
 			viewer.setExpandedState(parentNode, true);
@@ -229,19 +229,9 @@ public class SceneGraphView extends DockableView
 		EventService.post(editorId, EditorSelectionListener.class, l -> l.selectionChanged(inspectable));
 	}
 
-	private void refreshInput() {
-		Object[] expandedElements = viewer.getExpandedElements();
-		viewer.setInput(scene.nodes.toArray(SceneNode2.class));
-		viewer.setExpandedElements(expandedElements);
-	}
-
 	@Override
 	public void nodeRemoved(Scene scene, SceneNode2 parentNode, SceneNode2 node) {
-		if (parentNode == null) {
-			refreshInput();
-		} else {
-			viewer.remove(node);
-		}
+		viewer.remove(node);
 	}
 
 	@Override
@@ -281,7 +271,7 @@ public class SceneGraphView extends DockableView
 		this.scene = scene;
 		addDisposeListener(e -> EventService.unsubscribe(editorId, this));
 		EventService.subscribe(editorId, this);
-		viewer.setInput(scene.nodes.toArray(SceneNode2.class));
+		viewer.setInput(scene);
 	}
 
 	void cut() {

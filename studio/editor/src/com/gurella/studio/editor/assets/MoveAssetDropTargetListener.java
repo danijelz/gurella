@@ -93,7 +93,7 @@ class MoveAssetDropTargetListener extends DropTargetAdapter {
 			return;
 		}
 
-		//TODO update references in scenes
+		//TODO update references in scenes -> refractoring
 		Try.successful(resource).peek(r -> r.move(folder.getFullPath().append(resource.getName()), true, null))
 				.onFailure(e -> log(e, "Error while moving resource."));
 	}

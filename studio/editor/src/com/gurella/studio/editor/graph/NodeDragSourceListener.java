@@ -1,30 +1,29 @@
 package com.gurella.studio.editor.graph;
 
+import java.util.Optional;
+
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 
 import com.gurella.engine.scene.SceneNode2;
 
 class NodeDragSourceListener extends DragSourceAdapter {
 	private static final LocalSelectionTransfer localTransfer = LocalSelectionTransfer.getTransfer();
 
-	private final Tree graph;
+	private final SceneGraphView view;
 
-	NodeDragSourceListener(Tree graph) {
-		this.graph = graph;
+	NodeDragSourceListener(SceneGraphView view) {
+		this.view = view;
 	}
 
 	@Override
 	public void dragStart(DragSourceEvent event) {
-		TreeItem[] selection = graph.getSelection();
-		if (selection.length == 1 && selection[0].getData() instanceof SceneNode2) {
-			TreeItem item = selection[0];
-			SceneNode2 component = (SceneNode2) item.getData();
-			localTransfer.setSelection(new NodeSelection(component));
-			event.data = component;
+		Optional<SceneNode2> selected = view.getFirstSelectedNode();
+		if (selected.isPresent()) {
+			SceneNode2 node = selected.get();
+			localTransfer.setSelection(new NodeSelection(node));
+			event.data = node;
 			event.doit = true;
 		} else {
 			event.doit = false;

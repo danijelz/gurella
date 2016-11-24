@@ -6,8 +6,10 @@ import static com.gurella.studio.GurellaStudioPlugin.getImage;
 import java.util.Optional;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -19,21 +21,16 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ResourceTransfer;
 
 import com.gurella.engine.asset.AssetType;
 import com.gurella.engine.scene.SceneNode2;
-import com.gurella.engine.utils.Values;
 import com.gurella.studio.GurellaStudioPlugin;
 import com.gurella.studio.editor.SceneEditor;
 import com.gurella.studio.editor.common.ErrorComposite;
@@ -51,9 +48,9 @@ import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
 
-public class AssetsView extends DockableView {
-	Tree tree;
-	TreeViewer viewer;
+public class AssetsView extends DockableView implements IResourceChangeListener {
+	private final Tree tree;
+	private final TreeViewer viewer;
 	private final AssetsViewMenu menu;
 	final Clipboard clipboard;
 
@@ -91,10 +88,9 @@ public class AssetsView extends DockableView {
 
 		initDragManagers();
 
-		AssetsTreeChangedListener listener = new AssetsTreeChangedListener(this);
 		IWorkspace workspace = editorContext.workspace;
-		workspace.addResourceChangeListener(listener);
-		addDisposeListener(e -> workspace.removeResourceChangeListener(listener));
+		workspace.addResourceChangeListener(this);
+		addDisposeListener(e -> workspace.removeResourceChangeListener(this));
 
 		viewer.setInput(rootResource);
 	}
@@ -104,7 +100,7 @@ public class AssetsView extends DockableView {
 
 		final DragSource source = new DragSource(tree, DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_MOVE);
 		source.setTransfer(new Transfer[] { ResourceTransfer.getInstance(), localTransfer });
-		source.addDragListener(new ResourceDragSourceListener(tree));
+		source.addDragListener(new ResourceDragSourceListener(this));
 
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
@@ -121,26 +117,62 @@ public class AssetsView extends DockableView {
 		errorComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	}
 
+	@Override
+	public void resourceChanged(IResourceChangeEvent event) {
+		IResourceDelta mainDelta = event.getDelta();
+		if (mainDelta == null) {
+			return;
+		}
+
+		IResourceDelta assetsDelta = mainDelta.findMember(rootResource.getFullPath());
+		if (assetsDelta == null) {
+			return;
+		}
+
+		getDisplay().asyncExec(() -> resourceChanged(assetsDelta));
+	}
+
+	private void resourceChanged(IResourceDelta delta) {
+		IResource resource = delta.getResource();
+		for (IResourceDelta childDelta : delta.getAffectedChildren()) {
+			switch (childDelta.getKind()) {
+			case IResourceDelta.ADDED:
+				viewer.add(resource, childDelta.getResource());
+				break;
+			case IResourceDelta.REMOVED:
+				viewer.remove(childDelta.getResource());
+				break;
+			case IResourceDelta.CHANGED:
+				viewer.update(childDelta.getResource(), null);
+				break;
+			default:
+				break;
+			}
+
+			resourceChanged(childDelta);
+		}
+	}
+
 	private IResource getResourceAt(int x, int y) {
 		return Optional.ofNullable(viewer.getCell(new Point(x, y))).map(c -> c.getElement())
 				.filter(IResource.class::isInstance).map(e -> (IResource) e).orElse(null);
 	}
 
-	Optional<IResource> getFirstSelectedElement() {
+	Optional<IResource> getFirstSelectedResource() {
 		return Optional.ofNullable(((ITreeSelection) viewer.getSelection()).getFirstElement())
 				.map(IResource.class::cast);
 	}
 
 	Optional<IFile> getFirstSelectedFile() {
-		return getFirstSelectedElement().filter(IFile.class::isInstance).map(IFile.class::cast);
+		return getFirstSelectedResource().filter(IFile.class::isInstance).map(IFile.class::cast);
 	}
 
 	private void onKeyDown() {
-		lastSelection = getFirstSelectedElement().orElse(null);
+		lastSelection = getFirstSelectedResource().orElse(null);
 	}
 
 	private void onKeyUp() {
-		getFirstSelectedElement().filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
+		getFirstSelectedResource().filter(s -> s != lastSelection).ifPresent(s -> presentInspectable());
 	}
 
 	private void presentInspectable() {
@@ -182,48 +214,6 @@ public class AssetsView extends DockableView {
 			return new MaterialInspectable(file);
 		}
 		return null;
-	}
-
-	TreeItem createItem(TreeItem parentItem, IResource resource, int index) {
-		TreeItem nodeItem = parentItem == null ? new TreeItem(tree, SWT.NONE, index)
-				: new TreeItem(parentItem, SWT.NONE, index);
-		nodeItem.setText(resource.getName());
-		nodeItem.setData(resource);
-
-		if (resource instanceof IFolder) {
-			nodeItem.setImage(getPlatformImage(ISharedImages.IMG_OBJ_FOLDER));
-		} else if (resource instanceof IFile) {
-			IFile file = (IFile) resource;
-			String extension = file.getFileExtension();
-			if (Values.isBlank(extension)) {
-				nodeItem.setImage(getPlatformImage(ISharedImages.IMG_OBJ_FILE));
-			} else if (AssetType.texture.containsExtension(extension)
-					|| AssetType.pixmap.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/picture.png"));
-			} else if (AssetType.sound.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/music.png"));
-			} else if (AssetType.textureAtlas.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/textureAtlas.gif"));
-			} else if (AssetType.polygonRegion.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/textureAtlas.gif"));
-			} else if (AssetType.bitmapFont.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/font.png"));
-			} else if (AssetType.model.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/16-cube-green_16x16.png"));
-			} else if (AssetType.prefab.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/ice_cube.png"));
-			} else if (AssetType.material.containsExtension(extension)) {
-				nodeItem.setImage(getImage("icons/material.png"));
-			} else {
-				nodeItem.setImage(getPlatformImage(ISharedImages.IMG_OBJ_FILE));
-			}
-		}
-
-		return nodeItem;
-	}
-
-	private static Image getPlatformImage(String symbolicName) {
-		return PlatformUI.getWorkbench().getSharedImages().getImage(symbolicName);
 	}
 
 	public void cut(IResource selection) {
