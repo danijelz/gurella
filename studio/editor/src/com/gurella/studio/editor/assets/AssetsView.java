@@ -3,7 +3,9 @@ package com.gurella.studio.editor.assets;
 import static com.gurella.engine.event.EventService.post;
 import static com.gurella.studio.GurellaStudioPlugin.getImage;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -104,9 +106,8 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(
-				new DelegatingDropTargetListener(new MoveAssetDropTargetListener(editorContext.sceneResource),
-						new ConvertToPrefabDropTargetListener(editorContext)));
+		dropTarget.addDropListener(new DelegatingDropTargetListener(new MoveAssetDropTargetListener(editorContext),
+				new ConvertToPrefabDropTargetListener(editorContext)));
 	}
 
 	protected void presentInitException(Throwable e) {
@@ -134,22 +135,23 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 
 	private void resourceChanged(IResourceDelta delta) {
 		IResource resource = delta.getResource();
-		for (IResourceDelta childDelta : delta.getAffectedChildren()) {
-			switch (childDelta.getKind()) {
-			case IResourceDelta.ADDED:
-				viewer.add(resource, childDelta.getResource());
-				break;
-			case IResourceDelta.REMOVED:
-				viewer.remove(childDelta.getResource());
-				break;
-			case IResourceDelta.CHANGED:
-				viewer.update(childDelta.getResource(), null);
-				break;
-			default:
-				break;
-			}
+		Arrays.stream(delta.getAffectedChildren()).sequential()
+				.forEach(((Consumer<IResourceDelta>) d -> updateResource(resource, d)).andThen(this::resourceChanged));
+	}
 
-			resourceChanged(childDelta);
+	private void updateResource(IResource parent, IResourceDelta childDelta) {
+		switch (childDelta.getKind()) {
+		case IResourceDelta.ADDED:
+			viewer.add(parent, childDelta.getResource());
+			break;
+		case IResourceDelta.REMOVED:
+			viewer.remove(childDelta.getResource());
+			break;
+		case IResourceDelta.CHANGED:
+			viewer.update(childDelta.getResource(), null);
+			break;
+		default:
+			break;
 		}
 	}
 

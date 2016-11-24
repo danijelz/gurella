@@ -9,6 +9,8 @@ import com.gurella.engine.scene.SceneNode2;
 import com.gurella.engine.scene.SceneNodeComponent2;
 
 class GraphViewerContentProvider implements ITreeContentProvider {
+	private static final Object[] emptyElements = new Object[0];
+
 	@Override
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof Scene) {
@@ -17,7 +19,7 @@ class GraphViewerContentProvider implements ITreeContentProvider {
 			scene.nodes.appendTo(elements);
 			return elements.toArray(SceneNode2.class);
 		} else {
-			return new Object[0];
+			return emptyElements;
 		}
 	}
 
@@ -30,7 +32,7 @@ class GraphViewerContentProvider implements ITreeContentProvider {
 			node.childNodes.appendTo(elements);
 			return elements.toArray(SceneElement2.class);
 		} else {
-			return new Object[0];
+			return emptyElements;
 		}
 	}
 
