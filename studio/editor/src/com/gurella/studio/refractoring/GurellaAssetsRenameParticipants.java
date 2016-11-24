@@ -14,17 +14,12 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
 import org.eclipse.search.core.text.TextSearchEngine;
-import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
 import org.eclipse.search.ui.text.FileTextSearchScope;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.ReplaceEdit;
-import org.eclipse.text.edits.TextEditGroup;
 
 public class GurellaAssetsRenameParticipants extends RenameParticipant {
 	private IFile file;
@@ -57,9 +52,9 @@ public class GurellaAssetsRenameParticipants extends RenameParticipant {
 
 		FileTextSearchScope scope = FileTextSearchScope.newSearchScope(roots, fileNamePatterns, false);
 		final Map<IFile, TextFileChange> changes = new HashMap<>();
-		TextSearchRequestor collector = new TextSearchRequestorExtension(changes, newResourcePath.toString());
+		TextSearchRequestor requestor = new TextSearchRequestorExtension(this, changes, newResourcePath.toString());
 		Pattern pattern = Pattern.compile(oldResourcePath.toString());
-		TextSearchEngine.create().search(scope, collector, pattern, monitor);
+		TextSearchEngine.create().search(scope, requestor, pattern, monitor);
 
 		if (changes.isEmpty()) {
 			return null;
@@ -69,34 +64,4 @@ public class GurellaAssetsRenameParticipants extends RenameParticipant {
 			return result;
 		}
 	}
-
-	private final class TextSearchRequestorExtension extends TextSearchRequestor {
-		private final Map<IFile, TextFileChange> changes;
-		private final String newFileName;
-
-		private TextSearchRequestorExtension(Map<IFile, TextFileChange> changes, String newFileName) {
-			this.changes = changes;
-			this.newFileName = newFileName;
-		}
-
-		@Override
-		public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
-			IFile file = matchAccess.getFile();
-			TextFileChange change = changes.get(file);
-			if (change == null) {
-				TextChange textChange = getTextChange(file);
-				if (textChange != null) {
-					return false;
-				}
-				change = new TextFileChange(file.getName(), file);
-				change.setEdit(new MultiTextEdit());
-				changes.put(file, change);
-			}
-			ReplaceEdit edit = new ReplaceEdit(matchAccess.getMatchOffset(), matchAccess.getMatchLength(), newFileName);
-			change.addEdit(edit);
-			change.addTextEditGroup(new TextEditGroup("Update asset reference", edit));
-			return true;
-		}
-	}
-
 }
