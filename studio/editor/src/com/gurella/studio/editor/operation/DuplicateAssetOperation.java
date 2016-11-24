@@ -56,7 +56,7 @@ public class DuplicateAssetOperation extends AbstractOperation {
 	@Override
 	public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
 		String errMsg = "Error while deleting resource.";
-		IResource member = destinationFolder.findMember(resource.getName());
+		IResource member = destinationFolder.findMember(newName);
 		return Try.successful(member).peek(m -> m.delete(true, monitor)).map(m -> Status.OK_STATUS)
 				.onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}
@@ -64,7 +64,10 @@ public class DuplicateAssetOperation extends AbstractOperation {
 	private String validateRename(String newFileName) {
 		if (Values.isBlank(newFileName)) {
 			return "Name must not be empty";
-		} else if (destinationFolder.getParent().findMember(newName).exists()) {
+		}
+
+		IResource member = destinationFolder.getParent().findMember(newFileName);
+		if (member != null && member.exists()) {
 			return "Resource with that name already exists";
 		} else {
 			return null;
