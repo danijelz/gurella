@@ -2,12 +2,15 @@ package com.gurella.studio.editor.assets;
 
 import static com.gurella.engine.event.EventService.post;
 import static com.gurella.studio.GurellaStudioPlugin.getImage;
+import static com.gurella.studio.GurellaStudioPlugin.log;
+import static org.eclipse.ltk.core.refactoring.CheckConditionsOperation.ALL_CONDITIONS;
 
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -15,8 +18,14 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.resource.DeleteResourcesDescriptor;
+import org.eclipse.ltk.core.refactoring.resource.MoveResourcesDescriptor;
+import org.eclipse.ltk.core.refactoring.resource.RenameResourceDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
@@ -47,8 +56,10 @@ import com.gurella.studio.editor.inspector.polygonregion.PolygonRegionInspectabl
 import com.gurella.studio.editor.inspector.prefab.PrefabInspectable;
 import com.gurella.studio.editor.inspector.texture.TextureInspectable;
 import com.gurella.studio.editor.inspector.textureatlas.TextureAtlasInspectable;
+import com.gurella.studio.editor.operation.RefractorResourceOperation;
 import com.gurella.studio.editor.subscription.EditorSelectionListener;
 import com.gurella.studio.editor.utils.DelegatingDropTargetListener;
+import com.gurella.studio.editor.utils.Try;
 
 public class AssetsView extends DockableView implements IResourceChangeListener {
 	private final Tree tree;
@@ -106,7 +117,7 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 
 		final DropTarget dropTarget = new DropTarget(tree, DND.DROP_DEFAULT | DND.DROP_MOVE);
 		dropTarget.setTransfer(new Transfer[] { localTransfer });
-		dropTarget.addDropListener(new DelegatingDropTargetListener(new MoveAssetDropTargetListener(editorContext),
+		dropTarget.addDropListener(new DelegatingDropTargetListener(new MoveAssetDropTargetListener(this),
 				new ConvertToPrefabDropTargetListener(editorContext)));
 	}
 
@@ -218,23 +229,76 @@ public class AssetsView extends DockableView implements IResourceChangeListener 
 		return null;
 	}
 
-	public void cut(IResource selection) {
-		// TODO Auto-generated method stub
+	void cut() {
+		getFirstSelectedResource().ifPresent(r -> cut(r));
 	}
 
-	public void copy(IResource selection) {
-		// TODO Auto-generated method stub
+	void cut(IResource resource) {
+		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+		ISelection selection = new CutAssetSelection(resource);
+		transfer.setSelection(selection);
+		clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
 	}
 
-	public void paste(IResource selection) {
-		// TODO Auto-generated method stub
+	void copy() {
+		getFirstSelectedResource().ifPresent(r -> copy(r));
 	}
 
-	public void delete(IResource selection) {
-		// TODO Auto-generated method stub
+	void copy(IResource resource) {
+		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
+		CopyAssetSelection selection = new CopyAssetSelection(resource);
+		transfer.setSelection(selection);
+		clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
 	}
 
-	public void rename(IResource selection) {
+	void paste() {
+		getFirstSelectedResource().ifPresent(r -> paste(r));
+	}
+
+	void paste(IResource destination) {
+		if (!(destination instanceof IFolder)) {
+			return;
+		}
+		IFolder destinationFolder = (IFolder) destination;
+		Object contents = clipboard.getContents(LocalSelectionTransfer.getTransfer());
+		if (contents instanceof CutAssetSelection) {
+			move(((CutAssetSelection) contents).getAssetResource(), destinationFolder);
+		} else if (contents instanceof CopyAssetSelection) {
+			duplicate(((CopyAssetSelection) contents).getAssetResource(), destinationFolder);
+		}
+	}
+
+	void move(IResource resource, IFolder destination) {
+		MoveResourcesDescriptor descriptor = new MoveResourcesDescriptor();
+		descriptor.setResourcesToMove(new IResource[] { resource });
+		descriptor.setDestination(destination);
+		descriptor.setUpdateReferences(true);
+		RefactoringStatus status = new RefactoringStatus();
+		String errMsg = "Error while moving resource.";
+		Try.successful(descriptor).map(d -> d.createRefactoring(status))
+				.map(r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+				.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+	}
+
+	private void duplicate(IResource resource, IFolder destinationFolder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	void rename(IResource resource, String newName) {
+		RenameResourceDescriptor descriptor = new RenameResourceDescriptor();
+		descriptor.setResourcePath(resource.getLocation());
+		descriptor.setUpdateReferences(true);
+		descriptor.setNewName(newName);
+		RefactoringStatus status = new RefactoringStatus();
+		String errMsg = "Error while renaming resource.";
+		Try.successful(descriptor).map(d -> d.createRefactoring(status))
+		.map(r -> new RefractorResourceOperation(editorContext, new PerformRefactoringOperation(r, ALL_CONDITIONS)))
+		.onSuccess(o -> editorContext.executeOperation(o, errMsg)).onFailure(e -> log(e, errMsg));
+	}
+
+	void delete(IResource resource) {
+		DeleteResourcesDescriptor descriptor = new DeleteResourcesDescriptor();
 		// TODO Auto-generated method stub
 	}
 }

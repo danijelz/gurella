@@ -69,9 +69,15 @@ class AssetsViewMenu {
 
 			item = new MenuItem(menu, SWT.PUSH);
 			item.setText("Rename");
-			item.addListener(SWT.Selection, e -> view.rename(selection));
+			item.addListener(SWT.Selection, e -> rename());
 			item.setEnabled(selected);
 			addSeparator(menu);
+		}
+
+		private void rename() {
+			// TODO Auto-generated method stub
+			String newName = "";
+			view.rename(selection, newName);
 		}
 
 		private static MenuItem addSeparator(Menu menu) {

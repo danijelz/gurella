@@ -291,8 +291,9 @@ public class SceneGraphView extends DockableView
 
 	void copy(SceneElement2 element) {
 		LocalSelectionTransfer transfer = LocalSelectionTransfer.getTransfer();
-		transfer.setSelection(new CopyElementSelection(element));
-		clipboard.setContents(new Object[] { element }, new Transfer[] { transfer });
+		CopyElementSelection selection = new CopyElementSelection(element);
+		transfer.setSelection(selection);
+		clipboard.setContents(new Object[] { selection }, new Transfer[] { transfer });
 	}
 
 	void paste() {
