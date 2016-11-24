@@ -45,8 +45,7 @@ public class DuplicateAssetOperation extends AbstractOperation {
 
 		String errMsg = "Error while duplicating resource.";
 		return Try.successful(resource)
-				.peek(r -> r.copy(destinationFolder.getProjectRelativePath().append(newName), true,
-						monitor))
+				.peek(r -> r.copy(destinationFolder.getProjectRelativePath().append(newName), true, monitor))
 				.map(r -> Status.OK_STATUS).onFailure(e -> log(e, errMsg)).orElse(Status.CANCEL_STATUS);
 	}
 
